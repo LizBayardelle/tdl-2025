@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TagFormModal from './TagFormModal';
 
 export default function TagsIndex() {
   const [tags, setTags] = useState([]);
@@ -84,15 +85,14 @@ export default function TagsIndex() {
           </button>
         </div>
 
-        {creatingTag && (
-          <TagForm
-            onSuccess={(newTag) => {
-              setTags([newTag, ...tags]);
-              setCreatingTag(false);
-            }}
-            onCancel={() => setCreatingTag(false)}
-          />
-        )}
+        <TagFormModal
+          isOpen={creatingTag}
+          onClose={() => setCreatingTag(false)}
+          onSuccess={(newTag) => {
+            setTags([newTag, ...tags]);
+            setCreatingTag(false);
+          }}
+        />
       </div>
 
       {loading ? (
@@ -173,20 +173,17 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     Note: 'Notes'
   };
 
-  if (editing) {
-    return (
-      <TagForm
-        tag={tag}
+  return (
+    <>
+      <TagFormModal
+        isOpen={editing}
+        onClose={() => setEditing(false)}
+        item={tag}
         onSuccess={(updatedTag) => {
           onUpdate(updatedTag);
           setEditing(false);
         }}
-        onCancel={() => setEditing(false)}
       />
-    );
-  }
-
-  return (
     <div className="bg-white border border-gray-300 rounded-lg p-8">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
@@ -212,7 +209,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           </button>
           <button
             onClick={onDelete}
-            className="px-4 py-2 text-sm text-accent-dark hover:text-primary"
+            className="px-4 py-2 text-sm text-white bg-accent hover:bg-accent-dark rounded transition-colors"
           >
             Delete
           </button>
@@ -315,97 +312,6 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         </div>
       )}
     </div>
-  );
-}
-
-function TagForm({ tag, onSuccess, onCancel }) {
-  const [formData, setFormData] = useState({
-    name: tag?.name || '',
-    description: tag?.description || '',
-    color: tag?.color || '#414431'
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const url = tag ? `/tags/${tag.id}` : '/tags';
-      const method = tag ? 'PATCH' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ tag: formData }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        onSuccess(data);
-      } else {
-        const data = await response.json();
-        alert('Error: ' + data.errors.join(', '));
-      }
-    } catch (error) {
-      console.error('Error saving tag:', error);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-300 rounded-lg p-6">
-      <h3 className="text-xl mb-4">{tag ? 'Edit Tag' : 'New Tag'}</h3>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Name *</label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="What does this tag represent?"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Color</label>
-          <input
-            type="color"
-            value={formData.color}
-            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-            className="w-full h-12 border border-gray-300 rounded bg-white"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-3 mt-6">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          {tag ? 'Save Changes' : 'Create Tag'}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+    </>
   );
 }

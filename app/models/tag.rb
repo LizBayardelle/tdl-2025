@@ -3,10 +3,10 @@ class Tag < ApplicationRecord
   has_many :taggings, dependent: :destroy
 
   # Polymorphic associations through taggings
-  has_many :nodes, through: :taggings, source: :taggable, source_type: 'Node'
+  has_many :concepts, through: :taggings, source: :taggable, source_type: 'Concept'
   has_many :sources, through: :taggings, source: :taggable, source_type: 'Source'
   has_many :people, through: :taggings, source: :taggable, source_type: 'Person'
-  has_many :edges, through: :taggings, source: :taggable, source_type: 'Edge'
+  has_many :connections, through: :taggings, source: :taggable, source_type: 'Connection'
   has_many :notes, through: :taggings, source: :taggable, source_type: 'Note'
 
   # Validations

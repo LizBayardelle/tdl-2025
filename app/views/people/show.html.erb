@@ -1,2 +1,205 @@
-<h1>People#show</h1>
-<p>Find me in app/views/people/show.html.erb</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-controller="person-show">
+  <div class="mb-6">
+    <%= link_to "← Back to People", people_path, class: "text-primary hover:text-accent-dark" %>
+  </div>
+
+  <div class="bg-white border border-gray-300 rounded-lg p-8 mb-6">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h1 class="text-4xl mb-2"><%= @person.full_name %></h1>
+        <% if @person.role.present? %>
+          <span class="text-sm uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
+            <%= @person.role %>
+          </span>
+        <% end %>
+      </div>
+      <div class="flex gap-2">
+        <button data-action="click->person-show#openEditModal" class="px-4 py-2 border border-gray-300 rounded hover:bg-sand">
+          Edit
+        </button>
+        <%= button_to "Delete", person_path(@person), method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "px-4 py-2 text-white bg-accent hover:bg-accent-dark rounded" %>
+      </div>
+    </div>
+
+    <% if @person.aka.present? && @person.aka.any? %>
+      <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Also Known As</h3>
+        <div class="flex flex-wrap gap-2">
+          <% @person.aka.each do |name| %>
+            <span class="text-sm bg-sand px-3 py-1 rounded"><%= name %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @person.summary.present? %>
+      <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-600 mb-2">Summary</h3>
+        <p class="text-base leading-relaxed"><%= @person.summary %></p>
+      </div>
+    <% end %>
+
+    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
+      <div>
+        <span class="font-medium">Created:</span>
+        <%= @person.created_at.strftime("%B %d, %Y") %>
+      </div>
+      <div>
+        <span class="font-medium">Last Updated:</span>
+        <%= @person.updated_at.strftime("%B %d, %Y") %>
+      </div>
+    </div>
+  </div>
+
+  <% if @person.concepts.any? %>
+    <div class="bg-white border border-gray-300 rounded-lg p-6 mb-6">
+      <h2 class="text-2xl mb-4">Related Constructs (<%= @person.concepts.count %>)</h2>
+      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <% @person.concepts.each do |concept| %>
+          <div class="border border-gray-200 rounded p-3 hover:bg-sand">
+            <%= link_to concept_path(concept), class: "block" do %>
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-medium"><%= concept.label %></span>
+                <span class="text-xs text-gray-500"><%= concept.node_type %></span>
+              </div>
+              <% if concept.summary_top.present? %>
+                <p class="text-sm text-gray-600 line-clamp-2"><%= concept.summary_top %></p>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @person.sources.any? %>
+    <div class="bg-white border border-gray-300 rounded-lg p-6 mb-6">
+      <h2 class="text-2xl mb-4">Related Sources (<%= @person.sources.count %>)</h2>
+      <div class="space-y-3">
+        <% @person.sources.each do |source| %>
+          <div class="border border-gray-200 rounded p-4 hover:bg-sand">
+            <%= link_to source_path(source), class: "block" do %>
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-medium"><%= source.title %></span>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <% if source.kind.present? %>
+                    <span class="uppercase"><%= source.kind.gsub('_', ' ') %></span>
+                  <% end %>
+                  <% if source.year.present? %>
+                    <span><%= source.year %></span>
+                  <% end %>
+                </div>
+              </div>
+              <% if source.authors.present? %>
+                <p class="text-sm text-gray-600"><%= source.authors %></p>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% connections = @person.related_connections %>
+  <% if connections.any? %>
+    <div class="bg-white border border-gray-300 rounded-lg p-6 mb-6">
+      <h2 class="text-2xl mb-4">Related Connections (<%= connections.count %>)</h2>
+      <div class="space-y-3">
+        <% connections.each do |connection| %>
+          <div class="border border-gray-200 rounded p-4 hover:bg-sand">
+            <%= link_to connection_path(connection), class: "block" do %>
+              <div class="flex items-center gap-3 mb-2">
+                <span class="font-medium text-primary"><%= connection.src_concept.label %></span>
+                <span class="text-xs uppercase tracking-wider bg-sand px-2 py-1 rounded">
+                  <%= connection.rel_type.gsub('_', ' ') %>
+                </span>
+                <span class="font-medium text-accent-dark"><%= connection.dst_concept.label %></span>
+              </div>
+              <% if connection.description.present? %>
+                <p class="text-sm text-gray-600"><%= connection.description %></p>
+              <% end %>
+              <% if connection.strength.present? %>
+                <div class="flex items-center gap-1 mt-2">
+                  <span class="text-xs text-gray-500">Strength:</span>
+                  <% connection.strength.times do %>
+                    <span class="text-primary">●</span>
+                  <% end %>
+                  <% (5 - connection.strength).times do %>
+                    <span class="text-gray-300">●</span>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @person.notes.any? %>
+    <div class="bg-white border border-gray-300 rounded-lg p-6">
+      <h2 class="text-2xl mb-4">Related Notes (<%= @person.notes.count %>)</h2>
+      <div class="space-y-3">
+        <% @person.notes.each do |note| %>
+          <div class="border border-gray-200 rounded p-4">
+            <div class="flex items-start justify-between mb-2">
+              <span class="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+                <%= note.note_type %>
+              </span>
+              <span class="text-xs text-gray-500">
+                <%= note.created_at.strftime("%b %d, %Y") %>
+              </span>
+            </div>
+            <p class="text-sm"><%= note.body %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div id="edit-person-modal"></div>
+</div>
+
+<script type="module">
+  import PersonFormModal from 'PersonFormModal';
+  import { createRoot } from 'react-dom/client';
+  import React from 'react';
+
+  const personData = <%= raw @person.to_json(include: { concepts: {}, sources: {} }) %>;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('edit-person-modal');
+    const root = createRoot(container);
+
+    window.openPersonEditModal = () => {
+      root.render(
+        React.createElement(PersonFormModal, {
+          isOpen: true,
+          onClose: () => {
+            root.render(React.createElement(React.Fragment));
+          },
+          onSuccess: () => {
+            window.location.reload();
+          },
+          item: {
+            id: personData.id,
+            full_name: personData.full_name,
+            role: personData.role,
+            summary: personData.summary,
+            aka: personData.aka || [],
+            concept_ids: personData.concepts ? personData.concepts.map(c => c.id) : [],
+            source_ids: personData.sources ? personData.sources.map(s => s.id) : []
+          }
+        })
+      );
+    };
+  });
+
+  // Use Stimulus controller
+  const application = window.Stimulus;
+  application.register('person-show', class extends window.Stimulus.Controller {
+    openEditModal() {
+      window.openPersonEditModal();
+    }
+  });
+</script>

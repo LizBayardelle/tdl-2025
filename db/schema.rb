@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_13_023147) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,17 +64,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_023147) do
     t.bigint "src_concept_id", null: false
     t.bigint "dst_concept_id", null: false
     t.string "rel_type", null: false
-    t.integer "strength"
     t.text "description"
     t.text "tags", default: [], array: true
     t.date "last_reviewed_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "relationship_label"
     t.index ["dst_concept_id"], name: "index_connections_on_dst_concept_id"
     t.index ["rel_type"], name: "index_connections_on_rel_type"
     t.index ["src_concept_id", "dst_concept_id"], name: "index_connections_on_src_concept_id_and_dst_concept_id", unique: true
     t.index ["src_concept_id"], name: "index_connections_on_src_concept_id"
-    t.index ["strength"], name: "index_connections_on_strength"
     t.index ["user_id"], name: "index_connections_on_user_id"
   end
 

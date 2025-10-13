@@ -14,7 +14,14 @@ class ConceptsController < ApplicationController
   def show
     respond_to do |format|
       format.html
-      format.json { render json: @concept }
+      format.json {
+        render json: @concept.as_json(
+          include: {
+            people: { only: [:id, :full_name, :role, :summary] },
+            sources: { only: [:id, :title, :authors, :year, :kind] }
+          }
+        )
+      }
     end
   end
 

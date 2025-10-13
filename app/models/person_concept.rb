@@ -1,4 +1,6 @@
 class PersonConcept < ApplicationRecord
+  self.table_name = 'people_concepts'
+
   belongs_to :person
   belongs_to :concept
 

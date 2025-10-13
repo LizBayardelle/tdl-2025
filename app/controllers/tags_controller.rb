@@ -31,20 +31,20 @@ class TagsController < ApplicationController
   def show
     # Get all tagged items for this tag
     taggables = {
-      nodes: @tag.nodes,
+      concepts: @tag.concepts,
       sources: @tag.sources,
       people: @tag.people,
-      edges: @tag.edges.includes(:src, :dst),
-      notes: @tag.notes.includes(:node)
+      connections: @tag.connections.includes(:src, :dst),
+      notes: @tag.notes.includes(:concept)
     }
 
     render json: @tag.as_json.merge(
       taggings_count: @tag.taggings_count,
       taggings_by_type: @tag.taggings_by_type,
-      nodes: taggables[:nodes].as_json(only: [:id, :label, :node_type, :summary_top]),
+      concepts: taggables[:concepts].as_json(only: [:id, :label, :node_type, :summary_top]),
       sources: taggables[:sources].as_json(only: [:id, :title, :kind, :authors]),
       people: taggables[:people].as_json(only: [:id, :full_name, :role]),
-      edges: taggables[:edges].as_json(
+      connections: taggables[:connections].as_json(
         only: [:id, :rel_type, :description],
         include: {
           src: { only: [:id, :label, :node_type] },
@@ -53,7 +53,7 @@ class TagsController < ApplicationController
       ),
       notes: taggables[:notes].as_json(
         only: [:id, :body, :note_type, :created_at],
-        include: { node: { only: [:id, :label] } }
+        include: { concept: { only: [:id, :label] } }
       )
     )
   end

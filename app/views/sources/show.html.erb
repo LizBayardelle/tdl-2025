@@ -1,1 +1,14 @@
 <div id="source-show-root" data-source-id="<%= @source.id %>"></div>
+
+<script type="module">
+  import SourceShow from 'SourceShow';
+  import { createRoot } from 'react-dom/client';
+  import React from 'react';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('source-show-root');
+    const sourceId = container.dataset.sourceId;
+    const root = createRoot(container);
+    root.render(React.createElement(SourceShow, { sourceId }));
+  });
+</script>

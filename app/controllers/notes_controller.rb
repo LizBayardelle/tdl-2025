@@ -5,13 +5,13 @@ class NotesController < ApplicationController
   # GET /notes
   # GET /notes.json
   def index
-    @notes = current_user.notes.includes(:node)
+    @notes = current_user.notes.includes(:concept)
 
     # Filter by note type
     @notes = @notes.by_type(params[:note_type]) if params[:note_type].present?
 
-    # Filter by node
-    @notes = @notes.for_node(params[:node_id]) if params[:node_id].present?
+    # Filter by concept
+    @notes = @notes.for_concept(params[:concept_id]) if params[:concept_id].present?
 
     # Filter by pinned
     @notes = @notes.pinned if params[:pinned] == 'true'
@@ -25,7 +25,7 @@ class NotesController < ApplicationController
       format.html
       format.json {
         render json: @notes.as_json(include: {
-          node: { only: [:id, :label, :node_type] }
+          concept: { only: [:id, :label, :node_type] }
         })
       }
     end
@@ -34,7 +34,7 @@ class NotesController < ApplicationController
   # GET /notes/:id
   def show
     render json: @note.as_json(include: {
-      node: { only: [:id, :label, :node_type, :summary_top] }
+      concept: { only: [:id, :label, :node_type, :summary_top] }
     })
   end
 
@@ -44,7 +44,7 @@ class NotesController < ApplicationController
 
     if @note.save
       render json: @note.as_json(include: {
-        node: { only: [:id, :label, :node_type] }
+        concept: { only: [:id, :label, :node_type] }
       }), status: :created
     else
       render json: { errors: @note.errors.full_messages }, status: :unprocessable_entity
@@ -55,7 +55,7 @@ class NotesController < ApplicationController
   def update
     if @note.update(note_params)
       render json: @note.as_json(include: {
-        node: { only: [:id, :label, :node_type] }
+        concept: { only: [:id, :label, :node_type] }
       })
     else
       render json: { errors: @note.errors.full_messages }, status: :unprocessable_entity
@@ -81,7 +81,7 @@ class NotesController < ApplicationController
       :context,
       :pinned,
       :noted_on,
-      :node_id,
+      :concept_id,
       tags: []
     )
   end

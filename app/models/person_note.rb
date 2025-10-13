@@ -1,4 +1,6 @@
 class PersonNote < ApplicationRecord
+  self.table_name = 'people_notes'
+
   belongs_to :person
   belongs_to :note
 

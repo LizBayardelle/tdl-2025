@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ConceptRelationshipMap from './ConceptRelationshipMap';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -90,6 +91,33 @@ export default function Dashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-4xl mb-8">Dashboard</h1>
 
+      {/* Quick Actions */}
+      <div className="bg-white border border-gray-300 rounded-lg p-6 mb-8">
+        <h2 className="text-2xl mb-4">Quick Actions</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <ActionCard
+            title="Add Concept"
+            description="Create a new knowledge concept"
+            link="/concepts"
+          />
+          <ActionCard
+            title="Add Note"
+            description="Capture a new insight or reflection"
+            link="/notes"
+          />
+          <ActionCard
+            title="Add Source"
+            description="Add a new reference or resource"
+            link="/sources"
+          />
+          <ActionCard
+            title="View Graph"
+            description="Explore your knowledge network"
+            link="/connections"
+          />
+        </div>
+      </div>
+
       {/* Overview Stats */}
       <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <StatCard label="Concepts" value={stats.totalConcepts} link="/concepts" />
@@ -157,50 +185,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white border border-gray-300 rounded-lg p-6 mb-8">
-        <h2 className="text-2xl mb-4">Recent Activity</h2>
-        {recentActivity.length === 0 ? (
-          <p className="text-gray-600">No recent activity</p>
-        ) : (
-          <div className="space-y-3">
-            {recentActivity.map((activity, idx) => (
-              <ActivityItem key={idx} activity={activity} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white border border-gray-300 rounded-lg p-6">
-        <h2 className="text-2xl mb-4">Quick Actions</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <ActionCard
-            title="Add Concept"
-            description="Create a new knowledge concept"
-            link="/concepts"
-            icon="📚"
-          />
-          <ActionCard
-            title="Add Note"
-            description="Capture a new insight or reflection"
-            link="/notes"
-            icon="✍️"
-          />
-          <ActionCard
-            title="Add Source"
-            description="Add a new reference or resource"
-            link="/sources"
-            icon="📖"
-          />
-          <ActionCard
-            title="View Graph"
-            description="Explore your knowledge network"
-            link="/connections"
-            icon="🕸️"
-          />
-        </div>
-      </div>
+      {/* Concept Relationship Map */}
+      <ConceptRelationshipMap />
     </div>
   );
 }
@@ -298,13 +284,12 @@ function ActivityItem({ activity }) {
   return null;
 }
 
-function ActionCard({ title, description, link, icon }) {
+function ActionCard({ title, description, link }) {
   return (
     <a
       href={link}
       className="border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
     >
-      <div className="text-3xl mb-2">{icon}</div>
       <h3 className="font-medium mb-1">{title}</h3>
       <p className="text-sm text-gray-600">{description}</p>
     </a>

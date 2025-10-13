@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { NoteForm } from './NotesIndex';
+import ConceptFormModal from './ConceptFormModal';
+import ConnectionFormModal from './ConnectionFormModal';
+import NoteFormModal from './NoteFormModal';
 
 export default function ConceptShow({ conceptId }) {
   const [concept, setConcept] = useState(null);
@@ -47,21 +49,30 @@ export default function ConceptShow({ conceptId }) {
         </a>
       </div>
 
-      {editing ? (
-        <ConceptEditForm
-          concept={concept}
-          onSuccess={(updatedConcept) => {
-            setConcept(updatedConcept);
-            setEditing(false);
-          }}
-          onCancel={() => setEditing(false)}
-        />
-      ) : (
+      <ConceptFormModal
+        isOpen={editing}
+        onClose={() => setEditing(false)}
+        item={concept}
+        onSuccess={(updatedConcept) => {
+          setConcept(updatedConcept);
+          setEditing(false);
+        }}
+      />
+
+      {!editing && (
         <>
           <ConceptDisplay concept={concept} onEdit={() => setEditing(true)} />
 
           <div className="mt-8">
             <ConnectionManager conceptId={conceptId} />
+          </div>
+
+          <div className="mt-8">
+            <ConceptPeople conceptId={conceptId} />
+          </div>
+
+          <div className="mt-8">
+            <ConceptSources conceptId={conceptId} />
           </div>
 
           <div className="mt-8">
@@ -183,169 +194,10 @@ function ArraySection({ title, items }) {
   );
 }
 
-function ConceptEditForm({ concept, onSuccess, onCancel }) {
-  const [formData, setFormData] = useState({
-    label: concept.label || '',
-    node_type: concept.node_type || 'model',
-    level_status: concept.level_status || 'mapped',
-    summary_top: concept.summary_top || '',
-    summary_mid: concept.summary_mid || '',
-    summary_deep: concept.summary_deep || '',
-    evidence_brief: concept.evidence_brief || '',
-    confidence_note: concept.confidence_note || ''
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(`/concepts/${concept.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ concept: formData }),
-      });
-
-      if (response.ok) {
-        const updatedConcept = await response.json();
-        onSuccess(updatedConcept);
-      } else {
-        const data = await response.json();
-        alert('Error: ' + data.errors.join(', '));
-      }
-    } catch (error) {
-      console.error('Error updating concept:', error);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 className="text-2xl mb-6">Edit Construct</h2>
-
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium mb-1">Label *</label>
-          <input
-            type="text"
-            value={formData.label}
-            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Type *</label>
-            <select
-              value={formData.node_type}
-              onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="model">Model</option>
-              <option value="technique">Technique</option>
-              <option value="mechanism">Mechanism</option>
-              <option value="construct">Construct</option>
-              <option value="measure">Measure</option>
-              <option value="population">Population</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              value={formData.level_status}
-              onChange={(e) => setFormData({ ...formData, level_status: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="mapped">Mapped</option>
-              <option value="basic">Basic</option>
-              <option value="deep">Deep</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Top (2-3 sentences)
-          </label>
-          <textarea
-            value={formData.summary_top}
-            onChange={(e) => setFormData({ ...formData, summary_top: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Mid (~200 words)
-          </label>
-          <textarea
-            value={formData.summary_mid}
-            onChange={(e) => setFormData({ ...formData, summary_mid: e.target.value })}
-            rows="6"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Deep (~600 words)
-          </label>
-          <textarea
-            value={formData.summary_deep}
-            onChange={(e) => setFormData({ ...formData, summary_deep: e.target.value })}
-            rows="12"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Evidence Brief</label>
-          <textarea
-            value={formData.evidence_brief}
-            onChange={(e) => setFormData({ ...formData, evidence_brief: e.target.value })}
-            rows="4"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Confidence Note</label>
-          <textarea
-            value={formData.confidence_note}
-            onChange={(e) => setFormData({ ...formData, confidence_note: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-3 mt-8">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          Save Changes
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
-  );
-}
-
 function ConnectionManager({ conceptId }) {
   const [connections, setConnections] = useState([]);
   const [concepts, setConcepts] = useState([]);
+  const [allConcepts, setAllConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingConnection, setCreatingConnection] = useState(false);
 
@@ -370,7 +222,8 @@ function ConnectionManager({ conceptId }) {
     try {
       const response = await fetch('/concepts.json');
       const data = await response.json();
-      setConcepts(data.filter(n => n.id !== parseInt(conceptId)));
+      setAllConcepts(data); // Store all concepts for lookup
+      setConcepts(data.filter(n => n.id !== parseInt(conceptId))); // Filter for dropdown
     } catch (error) {
       console.error('Error fetching concepts:', error);
     }
@@ -396,17 +249,26 @@ function ConnectionManager({ conceptId }) {
   };
 
   const relTypeLabels = {
-    authored: 'Authored',
-    influenced: 'Influenced',
+    // Hierarchical
+    parent_of: 'Parent of',
+    child_of: 'Child of',
+    // Sequential
+    prerequisite_for: 'Prerequisite for',
+    builds_on: 'Builds on',
+    derived_from: 'Derived from',
+    // Semantic
+    related_to: 'Related to',
     contrasts_with: 'Contrasts with',
     integrates_with: 'Integrates with',
-    derived_from: 'Derived from',
-    applies_to: 'Applies to',
-    treats: 'Treats',
     associated_with: 'Associated with',
-    critiques: 'Critiques',
+    // Influence
+    influenced: 'Influenced',
     supports: 'Supports',
-    related_to: 'Related to'
+    critiques: 'Critiques',
+    // Other
+    authored: 'Authored',
+    applies_to: 'Applies to',
+    treats: 'Treats'
   };
 
   return (
@@ -421,17 +283,17 @@ function ConnectionManager({ conceptId }) {
         </button>
       </div>
 
-      {creatingConnection && (
-        <ConnectionForm
-          conceptId={conceptId}
-          concepts={concepts}
-          onSuccess={(newConnection) => {
-            setConnections([newConnection, ...connections]);
-            setCreatingConnection(false);
-          }}
-          onCancel={() => setCreatingConnection(false)}
-        />
-      )}
+      <ConnectionFormModal
+        isOpen={creatingConnection}
+        onClose={() => setCreatingConnection(false)}
+        conceptId={conceptId}
+        concepts={concepts}
+        allConcepts={allConcepts}
+        onSuccess={(newConnection) => {
+          setConnections([newConnection, ...connections]);
+          setCreatingConnection(false);
+        }}
+      />
 
       {loading ? (
         <p className="text-sm">Loading relationships...</p>
@@ -445,33 +307,26 @@ function ConnectionManager({ conceptId }) {
             const direction = isSource ? '→' : '←';
 
             return (
-              <div key={connection.id} className="flex items-start justify-between border-b border-gray-200 pb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-                      {relTypeLabels[connection.rel_type]}
-                    </span>
-                    {connection.strength && (
-                      <span className="text-xs text-gray-600">
-                        Strength: {connection.strength}/5
-                      </span>
-                    )}
-                    <span className="text-gray-400">{direction}</span>
-                  </div>
+              <div key={connection.id} className="flex items-center justify-between border-b border-gray-200 pb-4">
+                <div className="flex items-center gap-3 flex-1 flex-wrap">
+                  <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap">
+                    {connection.relationship_label || relTypeLabels[connection.rel_type]}
+                  </span>
+                  <span className="text-gray-400">{direction}</span>
                   <a
                     href={`/concepts/${otherConcept.id}`}
-                    className="text-lg hover:text-primary"
+                    className="text-lg hover:text-primary font-medium"
                   >
                     {otherConcept.label}
                   </a>
-                  <p className="text-xs text-gray-500 mt-1">{otherConcept.node_type}</p>
+                  <span className="text-xs text-gray-500">({otherConcept.node_type})</span>
                   {connection.description && (
-                    <p className="text-sm mt-2">{connection.description}</p>
+                    <p className="text-sm text-gray-600 w-full mt-2">{connection.description}</p>
                   )}
                 </div>
                 <button
                   onClick={() => handleDeleteConnection(connection.id)}
-                  className="text-sm text-accent-dark hover:text-primary ml-4"
+                  className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50 ml-4 whitespace-nowrap"
                 >
                   Delete
                 </button>
@@ -484,139 +339,106 @@ function ConnectionManager({ conceptId }) {
   );
 }
 
-function ConnectionForm({ conceptId, concepts, onSuccess, onCancel }) {
-  const [formData, setFormData] = useState({
-    src_concept_id: conceptId,
-    dst_concept_id: '',
-    rel_type: 'authored',
-    strength: 3,
-    description: '',
-    tags: ''
-  });
+function ConceptPeople({ conceptId }) {
+  const [people, setPeople] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchPeople();
+  }, []);
 
-    const payload = {
-      ...formData,
-      tags: formData.tags.split('\n').filter(t => t.trim())
-    };
-
+  const fetchPeople = async () => {
     try {
-      const response = await fetch('/connections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ connection: payload }),
-      });
-
-      if (response.ok) {
-        const newConnection = await response.json();
-        onSuccess(newConnection);
-      } else {
-        const data = await response.json();
-        alert('Error: ' + data.errors.join(', '));
-      }
+      const response = await fetch(`/concepts/${conceptId}.json`);
+      const data = await response.json();
+      setPeople(data.people || []);
+      setLoading(false);
     } catch (error) {
-      console.error('Error creating connection:', error);
+      console.error('Error fetching people:', error);
+      setLoading(false);
     }
   };
 
+  if (loading) return null;
+  if (people.length === 0) return null;
+
   return (
-    <form onSubmit={handleSubmit} className="bg-sand rounded-lg p-6 mb-6">
-      <h3 className="text-lg mb-4">New Relationship</h3>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">To Construct *</label>
-          <select
-            value={formData.dst_concept_id}
-            onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
+    <div className="bg-white border border-gray-300 rounded-lg p-8">
+      <h2 className="text-2xl mb-6">Related People</h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {people.map(person => (
+          <a
+            key={person.id}
+            href={`/people/${person.id}`}
+            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
           >
-            <option value="">Select a construct...</option>
-            {concepts.map(concept => (
-              <option key={concept.id} value={concept.id}>
-                {concept.label} ({concept.node_type})
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium">{person.full_name}</span>
+              {person.role && (
+                <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+                  {person.role}
+                </span>
+              )}
+            </div>
+            {person.summary && (
+              <p className="text-sm text-gray-600 line-clamp-2">{person.summary}</p>
+            )}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Relationship Type *</label>
-          <select
-            value={formData.rel_type}
-            onChange={(e) => setFormData({ ...formData, rel_type: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+function ConceptSources({ conceptId }) {
+  const [sources, setSources] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSources();
+  }, []);
+
+  const fetchSources = async () => {
+    try {
+      const response = await fetch(`/concepts/${conceptId}.json`);
+      const data = await response.json();
+      setSources(data.sources || []);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching sources:', error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) return null;
+  if (sources.length === 0) return null;
+
+  return (
+    <div className="bg-white border border-gray-300 rounded-lg p-8">
+      <h2 className="text-2xl mb-6">Related Sources</h2>
+      <div className="space-y-3">
+        {sources.map(source => (
+          <a
+            key={source.id}
+            href={`/sources/${source.id}`}
+            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
           >
-            <option value="authored">Authored</option>
-            <option value="influenced">Influenced</option>
-            <option value="contrasts_with">Contrasts with</option>
-            <option value="integrates_with">Integrates with</option>
-            <option value="derived_from">Derived from</option>
-            <option value="applies_to">Applies to</option>
-            <option value="treats">Treats</option>
-            <option value="associated_with">Associated with</option>
-            <option value="critiques">Critiques</option>
-            <option value="supports">Supports</option>
-            <option value="related_to">Related to</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Strength (1-5)</label>
-          <input
-            type="number"
-            min="1"
-            max="5"
-            value={formData.strength}
-            onChange={(e) => setFormData({ ...formData, strength: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="Why are these constructs related?"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Tags (one per line)</label>
-          <textarea
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            rows="2"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-medium">{source.title}</span>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                {source.kind && (
+                  <span className="uppercase">{source.kind.replace('_', ' ')}</span>
+                )}
+                {source.year && <span>{source.year}</span>}
+              </div>
+            </div>
+            {source.authors && (
+              <p className="text-sm text-gray-600">{source.authors}</p>
+            )}
+          </a>
+        ))}
       </div>
-
-      <div className="flex gap-3 mt-6">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          Create Relationship
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+    </div>
   );
 }
 
@@ -690,16 +512,15 @@ function ConceptNotes({ conceptId }) {
         </button>
       </div>
 
-      {creatingNote && (
-        <NoteForm
-          conceptId={conceptId}
-          onSuccess={(newNote) => {
-            setNotes([newNote, ...notes]);
-            setCreatingNote(false);
-          }}
-          onCancel={() => setCreatingNote(false)}
-        />
-      )}
+      <NoteFormModal
+        isOpen={creatingNote}
+        onClose={() => setCreatingNote(false)}
+        conceptId={conceptId}
+        onSuccess={(newNote) => {
+          setNotes([newNote, ...notes]);
+          setCreatingNote(false);
+        }}
+      />
 
       {loading ? (
         <p className="text-sm">Loading notes...</p>

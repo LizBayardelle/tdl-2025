@@ -5,19 +5,39 @@ class Connection < ApplicationRecord
   belongs_to :src_concept, class_name: "Concept", foreign_key: "src_concept_id"
   belongs_to :dst_concept, class_name: "Concept", foreign_key: "dst_concept_id"
 
-  # Enums
+  # Enums for relationship types
+  # Core relationship types for visualization
+  HIERARCHICAL_TYPES = ['parent_of', 'child_of'].freeze
+  SEMANTIC_TYPES = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'].freeze
+  SEQUENTIAL_TYPES = ['prerequisite_for', 'builds_on', 'derived_from'].freeze
+  INFLUENCE_TYPES = ['influenced', 'supports', 'critiques'].freeze
+  OTHER_TYPES = ['authored', 'applies_to', 'treats'].freeze
+
   enum :rel_type, {
-    authored: "authored",
-    influenced: "influenced",
+    # Hierarchical (parent-child)
+    parent_of: "parent_of",
+    child_of: "child_of",
+
+    # Sequential (learning path)
+    prerequisite_for: "prerequisite_for",
+    builds_on: "builds_on",
+    derived_from: "derived_from",
+
+    # Semantic (bidirectional relations)
+    related_to: "related_to",
     contrasts_with: "contrasts_with",
     integrates_with: "integrates_with",
-    derived_from: "derived_from",
-    applies_to: "applies_to",
-    treats: "treats",
     associated_with: "associated_with",
-    critiques: "critiques",
+
+    # Influence (directional)
+    influenced: "influenced",
     supports: "supports",
-    related_to: "related_to"
+    critiques: "critiques",
+
+    # Other domain-specific
+    authored: "authored",
+    applies_to: "applies_to",
+    treats: "treats"
   }, prefix: true
 
   # Validations
@@ -26,16 +46,31 @@ class Connection < ApplicationRecord
   validates :rel_type, presence: true
   validates :user_id, presence: true
   validates :src_concept_id, uniqueness: { scope: :dst_concept_id }
-  validates :strength, inclusion: { in: 1..5 }, allow_nil: true
   validate :cannot_link_to_self
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
   scope :by_type, ->(type) { where(rel_type: type) }
-  scope :by_strength, ->(strength) { where(strength: strength) }
   scope :from_concept, ->(concept_id) { where(src_concept_id: concept_id) }
   scope :to_concept, ->(concept_id) { where(dst_concept_id: concept_id) }
   scope :for_concept, ->(concept_id) { where("src_concept_id = ? OR dst_concept_id = ?", concept_id, concept_id) }
+  scope :hierarchical, -> { where(rel_type: HIERARCHICAL_TYPES) }
+  scope :semantic, -> { where(rel_type: SEMANTIC_TYPES) }
+  scope :sequential, -> { where(rel_type: SEQUENTIAL_TYPES) }
+  scope :influence, -> { where(rel_type: INFLUENCE_TYPES) }
+
+  # Helper methods
+  def relationship_category
+    return :hierarchical if HIERARCHICAL_TYPES.include?(rel_type)
+    return :semantic if SEMANTIC_TYPES.include?(rel_type)
+    return :sequential if SEQUENTIAL_TYPES.include?(rel_type)
+    return :influence if INFLUENCE_TYPES.include?(rel_type)
+    :other
+  end
+
+  def display_label
+    relationship_label.presence || rel_type.humanize
+  end
 
   private
 

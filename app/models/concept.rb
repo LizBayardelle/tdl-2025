@@ -4,7 +4,7 @@ class Concept < ApplicationRecord
   belongs_to :user
   has_many :concept_sources, dependent: :destroy
   has_many :sources, through: :concept_sources
-  has_many :people_concepts, dependent: :destroy
+  has_many :people_concepts, class_name: 'PersonConcept', dependent: :destroy
   has_many :people, through: :people_concepts
   has_many :notes, dependent: :destroy
 

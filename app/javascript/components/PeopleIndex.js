@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PersonFormModal from './PersonFormModal';
 
 export default function PeopleIndex() {
   const [people, setPeople] = useState([]);
@@ -48,17 +49,14 @@ export default function PeopleIndex() {
         </button>
       </div>
 
-      {showForm && (
-        <div className="mb-8 p-6 bg-white border border-gray-300 rounded">
-          <PersonForm
-            onSuccess={() => {
-              fetchPeople();
-              setShowForm(false);
-            }}
-            onCancel={() => setShowForm(false)}
-          />
-        </div>
-      )}
+      <PersonFormModal
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSuccess={() => {
+          fetchPeople();
+          setShowForm(false);
+        }}
+      />
 
       <div className="mb-6 flex gap-2 flex-wrap">
         <button
@@ -136,7 +134,7 @@ function PersonCard({ person, onUpdate }) {
         )}
         <button
           onClick={handleDelete}
-          className="text-xs text-accent hover:text-accent-dark"
+          className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
         >
           Delete
         </button>
@@ -164,155 +162,5 @@ function PersonCard({ person, onUpdate }) {
         </span>
       </div>
     </div>
-  );
-}
-
-function PersonForm({ onSuccess, onCancel }) {
-  const [concepts, setConcepts] = useState([]);
-  const [formData, setFormData] = useState({
-    full_name: '',
-    role: 'theorist',
-    summary: '',
-    aka: [],
-    concept_ids: []
-  });
-
-  useEffect(() => {
-    fetchConcepts();
-  }, []);
-
-  const fetchConcepts = async () => {
-    try {
-      const response = await fetch('/concepts.json');
-      const data = await response.json();
-      setConcepts(data);
-    } catch (error) {
-      console.error('Error fetching concepts:', error);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch('/people', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ person: formData }),
-      });
-
-      if (response.ok) {
-        onSuccess();
-      } else {
-        const data = await response.json();
-        alert('Error: ' + data.errors.join(', '));
-      }
-    } catch (error) {
-      console.error('Error creating person:', error);
-    }
-  };
-
-  const handleArrayInput = (value) => {
-    const items = value.split('\n').filter(item => item.trim());
-    setFormData({ ...formData, aka: items });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">Full Name *</label>
-        <input
-          type="text"
-          value={formData.full_name}
-          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Role</label>
-        <select
-          value={formData.role}
-          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-        >
-          <option value="theorist">Theorist</option>
-          <option value="clinician">Clinician</option>
-          <option value="researcher">Researcher</option>
-          <option value="peer">Peer</option>
-          <option value="client">Client</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Also Known As (one per line)
-        </label>
-        <textarea
-          value={formData.aka.join('\n')}
-          onChange={(e) => handleArrayInput(e.target.value)}
-          rows="3"
-          className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          placeholder="Aaron T. Beck&#10;A.T. Beck"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Summary
-        </label>
-        <textarea
-          value={formData.summary}
-          onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-          rows="4"
-          className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Link Constructs (hold Cmd/Ctrl to select multiple)
-        </label>
-        <select
-          multiple
-          value={formData.concept_ids}
-          onChange={(e) => {
-            const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-            setFormData({ ...formData, concept_ids: selected });
-          }}
-          className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          size="5"
-        >
-          {concepts.map(concept => (
-            <option key={concept.id} value={concept.id}>
-              {concept.label} ({concept.node_type})
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-gray-600 mt-1">
-          Selected: {formData.concept_ids.length} {formData.concept_ids.length === 1 ? 'construct' : 'constructs'}
-        </p>
-      </div>
-
-      <div className="flex gap-3 pt-4 border-t border-gray-200">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          Create Person
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
   );
 }

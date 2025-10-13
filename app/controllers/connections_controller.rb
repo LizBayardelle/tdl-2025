@@ -10,8 +10,19 @@ class ConnectionsController < ApplicationController
     # Filter by relationship type
     @connections = @connections.by_type(params[:rel_type]) if params[:rel_type].present?
 
-    # Filter by strength
-    @connections = @connections.by_strength(params[:strength]) if params[:strength].present?
+    # Filter by relationship category
+    if params[:category].present?
+      case params[:category]
+      when 'hierarchical'
+        @connections = @connections.hierarchical
+      when 'semantic'
+        @connections = @connections.semantic
+      when 'sequential'
+        @connections = @connections.sequential
+      when 'influence'
+        @connections = @connections.influence
+      end
+    end
 
     # Filter by concept (either source or destination)
     @connections = @connections.for_concept(params[:concept_id]) if params[:concept_id].present?
@@ -80,7 +91,7 @@ class ConnectionsController < ApplicationController
       :src_concept_id,
       :dst_concept_id,
       :rel_type,
-      :strength,
+      :relationship_label,
       :description,
       :last_reviewed_on,
       tags: []

@@ -1,4 +1,6 @@
 class PersonSource < ApplicationRecord
+  self.table_name = 'people_sources'
+
   belongs_to :person
   belongs_to :source
 

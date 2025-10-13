@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.14",
+    "force-graph": "^1.51.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-force-graph-2d": "^1.29.0",
     "tailwindcss": "^4.1.14"
   }
 }
