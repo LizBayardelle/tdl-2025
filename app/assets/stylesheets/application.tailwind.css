@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap');
+
+@theme {
+  --color-olive: #414431;
+  --color-khaki: #cab7a2;
+  --color-sand: #F6F0E9;
+  --color-plum: #51344d;
+  --color-eggplant: #6f5060;
+  --color-dusty: #bf979b;
+
+  /* Primary colors */
+  --color-primary: var(--color-olive);
+  --color-primary-light: var(--color-khaki);
+
+  /* Accent colors */
+  --color-accent-dark: var(--color-plum);
+  --color-accent: var(--color-eggplant);
+  --color-accent-light: var(--color-dusty);
+
+  /* Font families */
+  --font-family-display: 'Cormorant Garamond', Georgia, serif;
+  --font-family-body: 'Spectral', Georgia, serif;
+}
+
+/* Base font styles */
+body {
+  font-family: var(--font-family-body);
+  font-weight: 300;
+  color: #2a2a2a;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display);
+  font-weight: 400;
+  color: #1a1a1a;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+label {
+  font-family: var(--font-family-body);
+  font-weight: 300;
+  color: #2a2a2a;
+}
+
+input, textarea, select {
+  font-family: var(--font-family-body);
+  font-weight: 300;
+  color: #2a2a2a;
+  background-color: #ffffff;
+}
+
+button, .btn, input[type="submit"] {
+  font-family: var(--font-family-body);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  background-color: var(--color-primary);
+  color: var(--color-sand);
+}

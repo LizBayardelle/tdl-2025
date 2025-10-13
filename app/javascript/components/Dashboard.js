@@ -1,0 +1,312 @@
+import React, { useState, useEffect } from 'react';
+
+export default function Dashboard() {
+  const [stats, setStats] = useState(null);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [nodesRes, sourcesRes, peopleRes, edgesRes, notesRes, tagsRes] = await Promise.all([
+        fetch('/nodes.json'),
+        fetch('/sources.json'),
+        fetch('/people.json'),
+        fetch('/edges.json'),
+        fetch('/notes.json'),
+        fetch('/tags.json')
+      ]);
+
+      const [nodes, sources, people, edges, notes, tags] = await Promise.all([
+        nodesRes.json(),
+        sourcesRes.json(),
+        peopleRes.json(),
+        edgesRes.json(),
+        notesRes.json(),
+        tagsRes.json()
+      ]);
+
+      // Calculate stats
+      const nodesByType = nodes.reduce((acc, node) => {
+        acc[node.node_type] = (acc[node.node_type] || 0) + 1;
+        return acc;
+      }, {});
+
+      const nodesByStatus = nodes.reduce((acc, node) => {
+        const status = node.level_status || 'mapped';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+
+      const needsReview = nodes.filter(n => {
+        if (!n.last_reviewed_on) return true;
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        return new Date(n.last_reviewed_on) < thirtyDaysAgo;
+      }).length;
+
+      setStats({
+        totalNodes: nodes.length,
+        totalSources: sources.length,
+        totalPeople: people.length,
+        totalEdges: edges.length,
+        totalNotes: notes.length,
+        totalTags: tags.length,
+        nodesByType,
+        nodesByStatus,
+        needsReview,
+        pinnedNotes: notes.filter(n => n.pinned).length
+      });
+
+      // Combine recent activity
+      const activity = [
+        ...nodes.slice(0, 5).map(n => ({ type: 'node', item: n, date: n.updated_at })),
+        ...notes.slice(0, 5).map(n => ({ type: 'note', item: n, date: n.created_at })),
+        ...edges.slice(0, 5).map(e => ({ type: 'edge', item: e, date: e.created_at }))
+      ]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 10);
+
+      setRecentActivity(activity);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-4xl mb-8">Dashboard</h1>
+
+      {/* Overview Stats */}
+      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <StatCard label="Constructs" value={stats.totalNodes} link="/nodes" />
+        <StatCard label="Sources" value={stats.totalSources} link="/sources" />
+        <StatCard label="People" value={stats.totalPeople} link="/people" />
+        <StatCard label="Relationships" value={stats.totalEdges} link="/edges" />
+        <StatCard label="Notes" value={stats.totalNotes} link="/notes" />
+        <StatCard label="Tags" value={stats.totalTags} link="/tags" />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-8 mb-8">
+        {/* Constructs by Type */}
+        <div className="bg-white border border-gray-300 rounded-lg p-6">
+          <h2 className="text-2xl mb-4">Constructs by Type</h2>
+          <div className="space-y-3">
+            {Object.entries(stats.nodesByType).map(([type, count]) => (
+              <div key={type} className="flex items-center justify-between">
+                <span className="capitalize">{type.replace('_', ' ')}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-32 bg-sand rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full"
+                      style={{ width: `${(count / stats.totalNodes) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium w-8 text-right">{count}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Learning Progress */}
+        <div className="bg-white border border-gray-300 rounded-lg p-6">
+          <h2 className="text-2xl mb-4">Mastery Progress</h2>
+          <div className="space-y-3">
+            {Object.entries(stats.nodesByStatus).map(([status, count]) => (
+              <div key={status} className="flex items-center justify-between">
+                <span className="capitalize">{status}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-32 bg-sand rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${
+                        status === 'deep' ? 'bg-green-600' :
+                        status === 'basic' ? 'bg-yellow-600' :
+                        'bg-gray-400'
+                      }`}
+                      style={{ width: `${(count / stats.totalNodes) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium w-8 text-right">{count}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {stats.needsReview > 0 && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-sm">
+                <span className="font-medium">{stats.needsReview}</span> construct
+                {stats.needsReview === 1 ? '' : 's'} need review (not reviewed in 30+ days)
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-white border border-gray-300 rounded-lg p-6 mb-8">
+        <h2 className="text-2xl mb-4">Recent Activity</h2>
+        {recentActivity.length === 0 ? (
+          <p className="text-gray-600">No recent activity</p>
+        ) : (
+          <div className="space-y-3">
+            {recentActivity.map((activity, idx) => (
+              <ActivityItem key={idx} activity={activity} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white border border-gray-300 rounded-lg p-6">
+        <h2 className="text-2xl mb-4">Quick Actions</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <ActionCard
+            title="Add Construct"
+            description="Create a new knowledge construct"
+            link="/nodes"
+            icon="📚"
+          />
+          <ActionCard
+            title="Add Note"
+            description="Capture a new insight or reflection"
+            link="/notes"
+            icon="✍️"
+          />
+          <ActionCard
+            title="Add Source"
+            description="Add a new reference or resource"
+            link="/sources"
+            icon="📖"
+          />
+          <ActionCard
+            title="View Graph"
+            description="Explore your knowledge network"
+            link="/edges"
+            icon="🕸️"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, link }) {
+  return (
+    <a
+      href={link}
+      className="bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
+    >
+      <div className="text-3xl font-light mb-1">{value}</div>
+      <div className="text-sm text-gray-600">{label}</div>
+    </a>
+  );
+}
+
+function ActivityItem({ activity }) {
+  const { type, item, date } = activity;
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  if (type === 'node') {
+    return (
+      <a href={`/nodes/${item.id}`} className="flex items-start justify-between p-3 rounded hover:bg-sand">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+              {item.node_type}
+            </span>
+            <span className="font-medium">{item.label}</span>
+          </div>
+          {item.summary_top && (
+            <p className="text-sm text-gray-600 mt-1 line-clamp-1">{item.summary_top}</p>
+          )}
+        </div>
+        <span className="text-xs text-gray-500 ml-4">{formatDate(date)}</span>
+      </a>
+    );
+  }
+
+  if (type === 'note') {
+    return (
+      <div className="flex items-start justify-between p-3 rounded hover:bg-sand">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+              {item.note_type}
+            </span>
+            {item.node && (
+              <a href={`/nodes/${item.node.id}`} className="text-sm text-gray-600 hover:underline">
+                → {item.node.label}
+              </a>
+            )}
+          </div>
+          <p className="text-sm mt-1 line-clamp-2">{item.body}</p>
+        </div>
+        <span className="text-xs text-gray-500 ml-4">{formatDate(date)}</span>
+      </div>
+    );
+  }
+
+  if (type === 'edge') {
+    return (
+      <div className="flex items-start justify-between p-3 rounded hover:bg-sand">
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+              {item.rel_type?.replace('_', ' ')}
+            </span>
+            <span className="text-sm">
+              <a href={`/nodes/${item.src?.id}`} className="hover:underline">{item.src?.label}</a>
+              {' → '}
+              <a href={`/nodes/${item.dst?.id}`} className="hover:underline">{item.dst?.label}</a>
+            </span>
+          </div>
+        </div>
+        <span className="text-xs text-gray-500 ml-4">{formatDate(date)}</span>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function ActionCard({ title, description, link, icon }) {
+  return (
+    <a
+      href={link}
+      className="border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
+    >
+      <div className="text-3xl mb-2">{icon}</div>
+      <h3 className="font-medium mb-1">{title}</h3>
+      <p className="text-sm text-gray-600">{description}</p>
+    </a>
+  );
+}
