@@ -7,14 +7,14 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.json { render json: @sources.includes(:nodes) }
+      format.json { render json: @sources.includes(:concepts) }
     end
   end
 
   def show
     respond_to do |format|
       format.html
-      format.json { render json: @source.as_json(include: { nodes: { only: [:id, :label, :node_type] } }) }
+      format.json { render json: @source.as_json(include: { concepts: { only: [:id, :label, :node_type] } }) }
     end
   end
 

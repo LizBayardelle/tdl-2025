@@ -166,10 +166,10 @@ function TagDetail({ tag, onDelete, onUpdate }) {
   const [editing, setEditing] = useState(false);
 
   const typeLabels = {
-    Node: 'Constructs',
+    Concept: 'Constructs',
     Source: 'Sources',
     Person: 'People',
-    Edge: 'Relationships',
+    Connection: 'Relationships',
     Note: 'Notes'
   };
 
@@ -231,22 +231,22 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         </div>
       </div>
 
-      {tag.nodes && tag.nodes.length > 0 && (
+      {tag.concepts && tag.concepts.length > 0 && (
         <div className="mb-6">
           <h3 className="text-lg mb-3">Constructs</h3>
           <div className="space-y-2">
-            {tag.nodes.map(node => (
+            {tag.concepts.map(concept => (
               <a
-                key={node.id}
-                href={`/nodes/${node.id}`}
+                key={concept.id}
+                href={`/concepts/${concept.id}`}
                 className="block p-3 border border-gray-200 rounded hover:bg-sand"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{node.label}</span>
-                  <span className="text-xs text-gray-500">{node.node_type}</span>
+                  <span className="font-medium">{concept.label}</span>
+                  <span className="text-xs text-gray-500">{concept.node_type}</span>
                 </div>
-                {node.summary_top && (
-                  <p className="text-sm text-gray-600 mt-1">{node.summary_top}</p>
+                {concept.summary_top && (
+                  <p className="text-sm text-gray-600 mt-1">{concept.summary_top}</p>
                 )}
               </a>
             ))}
@@ -304,9 +304,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   </span>
                 </div>
                 <p className="text-sm">{note.body}</p>
-                {note.node && (
-                  <a href={`/nodes/${note.node.id}`} className="text-xs text-primary hover:underline mt-1 block">
-                    → {note.node.label}
+                {note.concept && (
+                  <a href={`/concepts/${note.concept.id}`} className="text-xs text-primary hover:underline mt-1 block">
+                    → {note.concept.label}
                   </a>
                 )}
               </div>

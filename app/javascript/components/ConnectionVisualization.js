@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-export default function EdgeVisualization() {
-  const [nodes, setNodes] = useState([]);
-  const [edges, setEdges] = useState([]);
+export default function ConnectionVisualization() {
+  const [concepts, setConcepts] = useState([]);
+  const [connections, setConnections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedRelType, setSelectedRelType] = useState('all');
@@ -13,14 +13,14 @@ export default function EdgeVisualization() {
 
   const fetchData = async () => {
     try {
-      const [nodesRes, edgesRes] = await Promise.all([
-        fetch('/nodes.json'),
-        fetch('/edges.json')
+      const [conceptsRes, connectionsRes] = await Promise.all([
+        fetch('/concepts.json'),
+        fetch('/connections.json')
       ]);
-      const nodesData = await nodesRes.json();
-      const edgesData = await edgesRes.json();
-      setNodes(nodesData);
-      setEdges(edgesData);
+      const conceptsData = await conceptsRes.json();
+      const connectionsData = await connectionsRes.json();
+      setConcepts(conceptsData);
+      setConnections(connectionsData);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -28,37 +28,49 @@ export default function EdgeVisualization() {
     }
   };
 
-  const filteredNodes = selectedType === 'all'
-    ? nodes
-    : nodes.filter(n => n.node_type === selectedType);
+  const filteredConcepts = selectedType === 'all'
+    ? concepts
+    : concepts.filter(n => n.node_type === selectedType);
 
-  const filteredEdges = edges.filter(edge => {
-    const hasNode = filteredNodes.some(n => n.id === edge.src.id || n.id === edge.dst.id);
-    const matchesRelType = selectedRelType === 'all' || edge.rel_type === selectedRelType;
-    return hasNode && matchesRelType;
+  const filteredConnections = connections.filter(connection => {
+    const hasConcept = filteredConcepts.some(n => n.id === connection.src_concept.id || n.id === connection.dst_concept.id);
+    const matchesRelType = selectedRelType === 'all' || connection.rel_type === selectedRelType;
+    return hasConcept && matchesRelType;
   });
 
-  // Group nodes by type
-  const nodesByType = filteredNodes.reduce((acc, node) => {
-    if (!acc[node.node_type]) acc[node.node_type] = [];
-    acc[node.node_type].push(node);
+  // Group concepts by type
+  const conceptsByType = filteredConcepts.reduce((acc, concept) => {
+    if (!acc[concept.node_type]) acc[concept.node_type] = [];
+    acc[concept.node_type].push(concept);
     return acc;
   }, {});
 
   const relTypeLabels = {
-    adjacent: 'Adjacent',
+    authored: 'Authored',
+    influenced: 'Influenced',
     contrasts_with: 'Contrasts',
     integrates_with: 'Integrates',
-    builds_on: 'Builds on',
-    subsumes: 'Subsumes'
+    derived_from: 'Derived from',
+    applies_to: 'Applies to',
+    treats: 'Treats',
+    associated_with: 'Associated with',
+    critiques: 'Critiques',
+    supports: 'Supports',
+    related_to: 'Related to'
   };
 
   const relTypeColors = {
-    adjacent: 'bg-blue-100 border-blue-300',
+    authored: 'bg-purple-100 border-purple-300',
+    influenced: 'bg-blue-100 border-blue-300',
     contrasts_with: 'bg-red-100 border-red-300',
     integrates_with: 'bg-green-100 border-green-300',
-    builds_on: 'bg-purple-100 border-purple-300',
-    subsumes: 'bg-yellow-100 border-yellow-300'
+    derived_from: 'bg-indigo-100 border-indigo-300',
+    applies_to: 'bg-cyan-100 border-cyan-300',
+    treats: 'bg-pink-100 border-pink-300',
+    associated_with: 'bg-gray-100 border-gray-300',
+    critiques: 'bg-orange-100 border-orange-300',
+    supports: 'bg-emerald-100 border-emerald-300',
+    related_to: 'bg-slate-100 border-slate-300'
   };
 
   if (loading) {
@@ -126,63 +138,63 @@ export default function EdgeVisualization() {
       </div>
 
       <div className="space-y-8">
-        {Object.entries(nodesByType).map(([type, typeNodes]) => (
+        {Object.entries(conceptsByType).map(([type, typeConcepts]) => (
           <div key={type} className="bg-white border border-gray-300 rounded-lg p-6">
             <h2 className="text-xl mb-4 capitalize">
-              {type.replace('_', ' ')}s ({typeNodes.length})
+              {type.replace('_', ' ')}s ({typeConcepts.length})
             </h2>
             <div className="space-y-4">
-              {typeNodes.map(node => {
-                const nodeEdges = filteredEdges.filter(
-                  e => e.src.id === node.id || e.dst.id === node.id
+              {typeConcepts.map(concept => {
+                const conceptConnections = filteredConnections.filter(
+                  e => e.src_concept.id === concept.id || e.dst_concept.id === concept.id
                 );
 
                 return (
-                  <div key={node.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={concept.id} className="border border-gray-200 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <a
-                          href={`/nodes/${node.id}`}
+                          href={`/concepts/${concept.id}`}
                           className="text-lg font-medium hover:text-primary"
                         >
-                          {node.label}
+                          {concept.label}
                         </a>
-                        {node.summary_top && (
-                          <p className="text-sm text-gray-600 mt-1">{node.summary_top}</p>
+                        {concept.summary_top && (
+                          <p className="text-sm text-gray-600 mt-1">{concept.summary_top}</p>
                         )}
                       </div>
                       <span className="text-xs text-gray-500 ml-4">
-                        {nodeEdges.length} {nodeEdges.length === 1 ? 'connection' : 'connections'}
+                        {conceptConnections.length} {conceptConnections.length === 1 ? 'connection' : 'connections'}
                       </span>
                     </div>
 
-                    {nodeEdges.length > 0 && (
+                    {conceptConnections.length > 0 && (
                       <div className="grid md:grid-cols-2 gap-2 mt-3">
-                        {nodeEdges.map(edge => {
-                          const isSource = edge.src.id === node.id;
-                          const otherNode = isSource ? edge.dst : edge.src;
+                        {conceptConnections.map(connection => {
+                          const isSource = connection.src_concept.id === concept.id;
+                          const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
                           const direction = isSource ? '→' : '←';
 
                           return (
                             <div
-                              key={edge.id}
-                              className={`${relTypeColors[edge.rel_type]} border rounded px-3 py-2`}
+                              key={connection.id}
+                              className={`${relTypeColors[connection.rel_type]} border rounded px-3 py-2`}
                             >
                               <div className="flex items-center gap-2 text-xs">
                                 <span className="font-medium">
-                                  {relTypeLabels[edge.rel_type]}
+                                  {relTypeLabels[connection.rel_type]}
                                 </span>
                                 <span className="text-gray-600">{direction}</span>
                                 <a
-                                  href={`/nodes/${otherNode.id}`}
+                                  href={`/concepts/${otherConcept.id}`}
                                   className="hover:underline flex-1 truncate"
                                 >
-                                  {otherNode.label}
+                                  {otherConcept.label}
                                 </a>
                               </div>
-                              {edge.strength && (
+                              {connection.strength && (
                                 <div className="text-xs text-gray-600 mt-1">
-                                  Strength: {edge.strength}/5
+                                  Strength: {connection.strength}/5
                                 </div>
                               )}
                             </div>
@@ -198,7 +210,7 @@ export default function EdgeVisualization() {
         ))}
       </div>
 
-      {filteredNodes.length === 0 && (
+      {filteredConcepts.length === 0 && (
         <div className="text-center py-12 bg-white border border-gray-300 rounded-lg">
           <p className="text-lg text-gray-600">No constructs match your filters</p>
         </div>

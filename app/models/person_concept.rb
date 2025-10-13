@@ -1,6 +1,6 @@
-class PersonNode < ApplicationRecord
+class PersonConcept < ApplicationRecord
   belongs_to :person
-  belongs_to :node
+  belongs_to :concept
 
   # Enums
   enum :rel_type, {
@@ -14,8 +14,8 @@ class PersonNode < ApplicationRecord
 
   # Validations
   validates :person_id, presence: true
-  validates :node_id, presence: true
-  validates :person_id, uniqueness: { scope: :node_id }
+  validates :concept_id, presence: true
+  validates :person_id, uniqueness: { scope: :concept_id }
   validates :strength, inclusion: { in: 1..5 }, allow_nil: true
   validates :confidence, inclusion: { in: 0.0..1.0 }, allow_nil: true
 end

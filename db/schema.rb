@@ -10,43 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_13_010811) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_13_023147) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "edges", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "src_id", null: false
-    t.bigint "dst_id", null: false
-    t.string "rel_type", null: false
-    t.integer "strength"
-    t.text "description"
-    t.text "tags", default: [], array: true
-    t.date "last_reviewed_on"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["dst_id"], name: "index_edges_on_dst_id"
-    t.index ["rel_type"], name: "index_edges_on_rel_type"
-    t.index ["src_id", "dst_id"], name: "index_edges_on_src_id_and_dst_id", unique: true
-    t.index ["src_id"], name: "index_edges_on_src_id"
-    t.index ["strength"], name: "index_edges_on_strength"
-    t.index ["user_id"], name: "index_edges_on_user_id"
-  end
-
-  create_table "node_sources", force: :cascade do |t|
-    t.bigint "node_id", null: false
+  create_table "concept_sources", force: :cascade do |t|
+    t.bigint "concept_id", null: false
     t.bigint "source_id", null: false
     t.string "role"
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["node_id", "source_id"], name: "index_node_sources_on_node_id_and_source_id", unique: true
-    t.index ["node_id"], name: "index_node_sources_on_node_id"
-    t.index ["role"], name: "index_node_sources_on_role"
-    t.index ["source_id"], name: "index_node_sources_on_source_id"
+    t.index ["concept_id", "source_id"], name: "index_concept_sources_on_concept_id_and_source_id", unique: true
+    t.index ["concept_id"], name: "index_concept_sources_on_concept_id"
+    t.index ["role"], name: "index_concept_sources_on_role"
+    t.index ["source_id"], name: "index_concept_sources_on_source_id"
   end
 
-  create_table "nodes", force: :cascade do |t|
+  create_table "concepts", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "node_type", null: false
     t.string "label", null: false
@@ -72,15 +53,50 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_010811) do
     t.date "last_reviewed_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["level_status"], name: "index_nodes_on_level_status"
-    t.index ["node_type"], name: "index_nodes_on_node_type"
-    t.index ["slug"], name: "index_nodes_on_slug", unique: true
-    t.index ["user_id"], name: "index_nodes_on_user_id"
+    t.index ["level_status"], name: "index_concepts_on_level_status"
+    t.index ["node_type"], name: "index_concepts_on_node_type"
+    t.index ["slug"], name: "index_concepts_on_slug", unique: true
+    t.index ["user_id"], name: "index_concepts_on_user_id"
+  end
+
+  create_table "connections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "src_concept_id", null: false
+    t.bigint "dst_concept_id", null: false
+    t.string "rel_type", null: false
+    t.integer "strength"
+    t.text "description"
+    t.text "tags", default: [], array: true
+    t.date "last_reviewed_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dst_concept_id"], name: "index_connections_on_dst_concept_id"
+    t.index ["rel_type"], name: "index_connections_on_rel_type"
+    t.index ["src_concept_id", "dst_concept_id"], name: "index_connections_on_src_concept_id_and_dst_concept_id", unique: true
+    t.index ["src_concept_id"], name: "index_connections_on_src_concept_id"
+    t.index ["strength"], name: "index_connections_on_strength"
+    t.index ["user_id"], name: "index_connections_on_user_id"
+  end
+
+  create_table "note_links", force: :cascade do |t|
+    t.bigint "note_id", null: false
+    t.string "linked_type", null: false
+    t.bigint "linked_id", null: false
+    t.string "link_type"
+    t.text "context"
+    t.integer "relevance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["link_type"], name: "index_note_links_on_link_type"
+    t.index ["linked_type", "linked_id"], name: "index_note_links_on_linked"
+    t.index ["linked_type", "linked_id"], name: "index_note_links_on_linked_type_and_linked_id"
+    t.index ["note_id", "linked_type", "linked_id"], name: "index_note_links_on_note_id_and_linked_type_and_linked_id"
+    t.index ["note_id"], name: "index_note_links_on_note_id"
   end
 
   create_table "notes", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "node_id"
+    t.bigint "concept_id"
     t.text "body", null: false
     t.string "note_type"
     t.text "context"
@@ -89,23 +105,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_010811) do
     t.date "noted_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["node_id"], name: "index_notes_on_node_id"
+    t.index ["concept_id"], name: "index_notes_on_concept_id"
     t.index ["note_type"], name: "index_notes_on_note_type"
     t.index ["noted_on"], name: "index_notes_on_noted_on"
     t.index ["pinned"], name: "index_notes_on_pinned"
     t.index ["user_id"], name: "index_notes_on_user_id"
-  end
-
-  create_table "pathways", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "name", null: false
-    t.text "description"
-    t.text "goal"
-    t.jsonb "node_sequence", default: []
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_pathways_on_name"
-    t.index ["user_id"], name: "index_pathways_on_user_id"
   end
 
   create_table "people", force: :cascade do |t|
@@ -122,19 +126,33 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_010811) do
     t.index ["user_id"], name: "index_people_on_user_id"
   end
 
-  create_table "people_nodes", force: :cascade do |t|
+  create_table "people_concepts", force: :cascade do |t|
     t.bigint "person_id", null: false
-    t.bigint "node_id", null: false
+    t.bigint "concept_id", null: false
     t.string "rel_type"
     t.text "notes"
     t.integer "strength"
     t.decimal "confidence"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["node_id"], name: "index_people_nodes_on_node_id"
-    t.index ["person_id", "node_id"], name: "index_people_nodes_on_person_id_and_node_id", unique: true
-    t.index ["person_id"], name: "index_people_nodes_on_person_id"
-    t.index ["rel_type"], name: "index_people_nodes_on_rel_type"
+    t.index ["concept_id"], name: "index_people_concepts_on_concept_id"
+    t.index ["person_id", "concept_id"], name: "index_people_concepts_on_person_id_and_concept_id", unique: true
+    t.index ["person_id"], name: "index_people_concepts_on_person_id"
+    t.index ["rel_type"], name: "index_people_concepts_on_rel_type"
+  end
+
+  create_table "people_notes", force: :cascade do |t|
+    t.bigint "person_id", null: false
+    t.bigint "note_id", null: false
+    t.string "rel_type"
+    t.text "context"
+    t.integer "prominence"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["note_id"], name: "index_people_notes_on_note_id"
+    t.index ["person_id", "note_id"], name: "index_people_notes_on_person_id_and_note_id"
+    t.index ["person_id"], name: "index_people_notes_on_person_id"
+    t.index ["rel_type"], name: "index_people_notes_on_rel_type"
   end
 
   create_table "people_sources", force: :cascade do |t|
@@ -208,18 +226,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_010811) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "edges", "nodes", column: "dst_id"
-  add_foreign_key "edges", "nodes", column: "src_id"
-  add_foreign_key "edges", "users"
-  add_foreign_key "node_sources", "nodes"
-  add_foreign_key "node_sources", "sources"
-  add_foreign_key "nodes", "users"
-  add_foreign_key "notes", "nodes"
+  add_foreign_key "concept_sources", "concepts"
+  add_foreign_key "concept_sources", "sources"
+  add_foreign_key "concepts", "users"
+  add_foreign_key "connections", "concepts", column: "dst_concept_id"
+  add_foreign_key "connections", "concepts", column: "src_concept_id"
+  add_foreign_key "connections", "users"
+  add_foreign_key "note_links", "notes"
+  add_foreign_key "notes", "concepts"
   add_foreign_key "notes", "users"
-  add_foreign_key "pathways", "users"
   add_foreign_key "people", "users"
-  add_foreign_key "people_nodes", "nodes"
-  add_foreign_key "people_nodes", "people"
+  add_foreign_key "people_concepts", "concepts"
+  add_foreign_key "people_concepts", "people"
+  add_foreign_key "people_notes", "notes"
+  add_foreign_key "people_notes", "people"
   add_foreign_key "people_sources", "people"
   add_foreign_key "people_sources", "sources"
   add_foreign_key "sources", "users"

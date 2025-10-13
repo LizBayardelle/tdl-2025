@@ -1,11 +1,11 @@
-class Node < ApplicationRecord
+class Concept < ApplicationRecord
   include Taggable
 
   belongs_to :user
-  has_many :node_sources, dependent: :destroy
-  has_many :sources, through: :node_sources
-  has_many :person_nodes, dependent: :destroy
-  has_many :people, through: :person_nodes
+  has_many :concept_sources, dependent: :destroy
+  has_many :sources, through: :concept_sources
+  has_many :people_concepts, dependent: :destroy
+  has_many :people, through: :people_concepts
   has_many :notes, dependent: :destroy
 
   # Enums

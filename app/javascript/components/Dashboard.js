@@ -11,61 +11,61 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [nodesRes, sourcesRes, peopleRes, edgesRes, notesRes, tagsRes] = await Promise.all([
-        fetch('/nodes.json'),
+      const [conceptsRes, sourcesRes, peopleRes, connectionsRes, notesRes, tagsRes] = await Promise.all([
+        fetch('/concepts.json'),
         fetch('/sources.json'),
         fetch('/people.json'),
-        fetch('/edges.json'),
+        fetch('/connections.json'),
         fetch('/notes.json'),
         fetch('/tags.json')
       ]);
 
-      const [nodes, sources, people, edges, notes, tags] = await Promise.all([
-        nodesRes.json(),
+      const [concepts, sources, people, connections, notes, tags] = await Promise.all([
+        conceptsRes.json(),
         sourcesRes.json(),
         peopleRes.json(),
-        edgesRes.json(),
+        connectionsRes.json(),
         notesRes.json(),
         tagsRes.json()
       ]);
 
       // Calculate stats
-      const nodesByType = nodes.reduce((acc, node) => {
-        acc[node.node_type] = (acc[node.node_type] || 0) + 1;
+      const conceptsByType = concepts.reduce((acc, concept) => {
+        acc[concept.node_type] = (acc[concept.node_type] || 0) + 1;
         return acc;
       }, {});
 
-      const nodesByStatus = nodes.reduce((acc, node) => {
-        const status = node.level_status || 'mapped';
+      const conceptsByStatus = concepts.reduce((acc, concept) => {
+        const status = concept.level_status || 'mapped';
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
 
-      const needsReview = nodes.filter(n => {
-        if (!n.last_reviewed_on) return true;
+      const needsReview = concepts.filter(c => {
+        if (!c.last_reviewed_on) return true;
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return new Date(n.last_reviewed_on) < thirtyDaysAgo;
+        return new Date(c.last_reviewed_on) < thirtyDaysAgo;
       }).length;
 
       setStats({
-        totalNodes: nodes.length,
+        totalConcepts: concepts.length,
         totalSources: sources.length,
         totalPeople: people.length,
-        totalEdges: edges.length,
+        totalConnections: connections.length,
         totalNotes: notes.length,
         totalTags: tags.length,
-        nodesByType,
-        nodesByStatus,
+        conceptsByType,
+        conceptsByStatus,
         needsReview,
         pinnedNotes: notes.filter(n => n.pinned).length
       });
 
       // Combine recent activity
       const activity = [
-        ...nodes.slice(0, 5).map(n => ({ type: 'node', item: n, date: n.updated_at })),
+        ...concepts.slice(0, 5).map(c => ({ type: 'concept', item: c, date: c.updated_at })),
         ...notes.slice(0, 5).map(n => ({ type: 'note', item: n, date: n.created_at })),
-        ...edges.slice(0, 5).map(e => ({ type: 'edge', item: e, date: e.created_at }))
+        ...connections.slice(0, 5).map(c => ({ type: 'connection', item: c, date: c.created_at }))
       ]
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 10);
@@ -92,27 +92,27 @@ export default function Dashboard() {
 
       {/* Overview Stats */}
       <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-        <StatCard label="Constructs" value={stats.totalNodes} link="/nodes" />
+        <StatCard label="Concepts" value={stats.totalConcepts} link="/concepts" />
         <StatCard label="Sources" value={stats.totalSources} link="/sources" />
         <StatCard label="People" value={stats.totalPeople} link="/people" />
-        <StatCard label="Relationships" value={stats.totalEdges} link="/edges" />
+        <StatCard label="Connections" value={stats.totalConnections} link="/connections" />
         <StatCard label="Notes" value={stats.totalNotes} link="/notes" />
         <StatCard label="Tags" value={stats.totalTags} link="/tags" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8 mb-8">
-        {/* Constructs by Type */}
+        {/* Concepts by Type */}
         <div className="bg-white border border-gray-300 rounded-lg p-6">
-          <h2 className="text-2xl mb-4">Constructs by Type</h2>
+          <h2 className="text-2xl mb-4">Concepts by Type</h2>
           <div className="space-y-3">
-            {Object.entries(stats.nodesByType).map(([type, count]) => (
+            {Object.entries(stats.conceptsByType).map(([type, count]) => (
               <div key={type} className="flex items-center justify-between">
                 <span className="capitalize">{type.replace('_', ' ')}</span>
                 <div className="flex items-center gap-3">
                   <div className="w-32 bg-sand rounded-full h-2">
                     <div
                       className="bg-primary h-2 rounded-full"
-                      style={{ width: `${(count / stats.totalNodes) * 100}%` }}
+                      style={{ width: `${(count / stats.totalConcepts) * 100}%` }}
                     />
                   </div>
                   <span className="text-sm font-medium w-8 text-right">{count}</span>
@@ -126,7 +126,7 @@ export default function Dashboard() {
         <div className="bg-white border border-gray-300 rounded-lg p-6">
           <h2 className="text-2xl mb-4">Mastery Progress</h2>
           <div className="space-y-3">
-            {Object.entries(stats.nodesByStatus).map(([status, count]) => (
+            {Object.entries(stats.conceptsByStatus).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between">
                 <span className="capitalize">{status}</span>
                 <div className="flex items-center gap-3">
@@ -137,7 +137,7 @@ export default function Dashboard() {
                         status === 'basic' ? 'bg-yellow-600' :
                         'bg-gray-400'
                       }`}
-                      style={{ width: `${(count / stats.totalNodes) * 100}%` }}
+                      style={{ width: `${(count / stats.totalConcepts) * 100}%` }}
                     />
                   </div>
                   <span className="text-sm font-medium w-8 text-right">{count}</span>
@@ -149,7 +149,7 @@ export default function Dashboard() {
           {stats.needsReview > 0 && (
             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
               <p className="text-sm">
-                <span className="font-medium">{stats.needsReview}</span> construct
+                <span className="font-medium">{stats.needsReview}</span> concept
                 {stats.needsReview === 1 ? '' : 's'} need review (not reviewed in 30+ days)
               </p>
             </div>
@@ -176,9 +176,9 @@ export default function Dashboard() {
         <h2 className="text-2xl mb-4">Quick Actions</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ActionCard
-            title="Add Construct"
-            description="Create a new knowledge construct"
-            link="/nodes"
+            title="Add Concept"
+            description="Create a new knowledge concept"
+            link="/concepts"
             icon="📚"
           />
           <ActionCard
@@ -196,7 +196,7 @@ export default function Dashboard() {
           <ActionCard
             title="View Graph"
             description="Explore your knowledge network"
-            link="/edges"
+            link="/connections"
             icon="🕸️"
           />
         </div>
@@ -235,9 +235,9 @@ function ActivityItem({ activity }) {
     return date.toLocaleDateString();
   };
 
-  if (type === 'node') {
+  if (type === 'concept') {
     return (
-      <a href={`/nodes/${item.id}`} className="flex items-start justify-between p-3 rounded hover:bg-sand">
+      <a href={`/concepts/${item.id}`} className="flex items-start justify-between p-3 rounded hover:bg-sand">
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
@@ -262,9 +262,9 @@ function ActivityItem({ activity }) {
             <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
               {item.note_type}
             </span>
-            {item.node && (
-              <a href={`/nodes/${item.node.id}`} className="text-sm text-gray-600 hover:underline">
-                → {item.node.label}
+            {item.concept && (
+              <a href={`/concepts/${item.concept.id}`} className="text-sm text-gray-600 hover:underline">
+                → {item.concept.label}
               </a>
             )}
           </div>
@@ -275,7 +275,7 @@ function ActivityItem({ activity }) {
     );
   }
 
-  if (type === 'edge') {
+  if (type === 'connection') {
     return (
       <div className="flex items-start justify-between p-3 rounded hover:bg-sand">
         <div className="flex-1">
@@ -284,9 +284,9 @@ function ActivityItem({ activity }) {
               {item.rel_type?.replace('_', ' ')}
             </span>
             <span className="text-sm">
-              <a href={`/nodes/${item.src?.id}`} className="hover:underline">{item.src?.label}</a>
+              <a href={`/concepts/${item.src_concept?.id}`} className="hover:underline">{item.src_concept?.label}</a>
               {' → '}
-              <a href={`/nodes/${item.dst?.id}`} className="hover:underline">{item.dst?.label}</a>
+              <a href={`/concepts/${item.dst_concept?.id}`} className="hover:underline">{item.dst_concept?.label}</a>
             </span>
           </div>
         </div>

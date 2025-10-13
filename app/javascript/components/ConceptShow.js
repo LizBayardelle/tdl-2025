@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { NoteForm } from './NotesIndex';
 
-export default function NodeShow({ nodeId }) {
-  const [node, setNode] = useState(null);
+export default function ConceptShow({ conceptId }) {
+  const [concept, setConcept] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [showEdges, setShowEdges] = useState(true);
+  const [showConnections, setShowConnections] = useState(true);
 
   useEffect(() => {
-    fetchNode();
+    fetchConcept();
   }, []);
 
-  const fetchNode = async () => {
+  const fetchConcept = async () => {
     try {
-      const response = await fetch(`/nodes/${nodeId}.json`);
+      const response = await fetch(`/concepts/${conceptId}.json`);
       const data = await response.json();
-      setNode(data);
+      setConcept(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching node:', error);
+      console.error('Error fetching concept:', error);
       setLoading(false);
     }
   };
@@ -31,10 +31,10 @@ export default function NodeShow({ nodeId }) {
     );
   }
 
-  if (!node) {
+  if (!concept) {
     return (
       <div className="text-center py-12">
-        <p className="text-lg">Node not found</p>
+        <p className="text-lg">Concept not found</p>
       </div>
     );
   }
@@ -42,30 +42,30 @@ export default function NodeShow({ nodeId }) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <a href="/nodes" className="text-sm text-primary hover:text-accent-dark">
+        <a href="/concepts" className="text-sm text-primary hover:text-accent-dark">
           ← Back to Constructs
         </a>
       </div>
 
       {editing ? (
-        <NodeEditForm
-          node={node}
-          onSuccess={(updatedNode) => {
-            setNode(updatedNode);
+        <ConceptEditForm
+          concept={concept}
+          onSuccess={(updatedConcept) => {
+            setConcept(updatedConcept);
             setEditing(false);
           }}
           onCancel={() => setEditing(false)}
         />
       ) : (
         <>
-          <NodeDisplay node={node} onEdit={() => setEditing(true)} />
+          <ConceptDisplay concept={concept} onEdit={() => setEditing(true)} />
 
           <div className="mt-8">
-            <EdgeManager nodeId={nodeId} />
+            <ConnectionManager conceptId={conceptId} />
           </div>
 
           <div className="mt-8">
-            <NodeNotes nodeId={nodeId} />
+            <ConceptNotes conceptId={conceptId} />
           </div>
         </>
       )}
@@ -73,27 +73,27 @@ export default function NodeShow({ nodeId }) {
   );
 }
 
-function NodeDisplay({ node, onEdit }) {
+function ConceptDisplay({ concept, onEdit }) {
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-8">
       <div className="flex justify-between items-start mb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-              {node.node_type}
+              {concept.node_type}
             </span>
-            {node.level_status && (
+            {concept.level_status && (
               <span className="text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded">
-                {node.level_status}
+                {concept.level_status}
               </span>
             )}
           </div>
-          <h1 className="text-4xl mb-2">{node.label}</h1>
+          <h1 className="text-4xl mb-2">{concept.label}</h1>
           <p className="text-sm text-gray-600">
-            Last updated: {new Date(node.updated_at).toLocaleDateString()}
-            {node.last_reviewed_on && (
+            Last updated: {new Date(concept.updated_at).toLocaleDateString()}
+            {concept.last_reviewed_on && (
               <span className="ml-4">
-                Last reviewed: {new Date(node.last_reviewed_on).toLocaleDateString()}
+                Last reviewed: {new Date(concept.last_reviewed_on).toLocaleDateString()}
               </span>
             )}
           </p>
@@ -108,46 +108,46 @@ function NodeDisplay({ node, onEdit }) {
 
       {/* Three-level mastery summaries */}
       <div className="space-y-6 mb-8">
-        {node.summary_top && (
-          <Section title="Summary (Top-level)" content={node.summary_top} />
+        {concept.summary_top && (
+          <Section title="Summary (Top-level)" content={concept.summary_top} />
         )}
-        {node.summary_mid && (
-          <Section title="Summary (Mid-level)" content={node.summary_mid} />
+        {concept.summary_mid && (
+          <Section title="Summary (Mid-level)" content={concept.summary_mid} />
         )}
-        {node.summary_deep && (
-          <Section title="Summary (Deep)" content={node.summary_deep} />
+        {concept.summary_deep && (
+          <Section title="Summary (Deep)" content={concept.summary_deep} />
         )}
       </div>
 
       {/* Array fields */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <ArraySection title="Mechanisms" items={node.mechanisms} />
-        <ArraySection title="Signature Techniques" items={node.signature_techniques} />
-        <ArraySection title="Strengths" items={node.strengths} />
-        <ArraySection title="Weaknesses" items={node.weaknesses} />
-        <ArraySection title="Adjacent Models" items={node.adjacent_models} />
-        <ArraySection title="Contrasts With" items={node.contrasts_with} />
-        <ArraySection title="Integrates With" items={node.integrates_with} />
-        <ArraySection title="Intake Questions" items={node.intake_questions} />
-        <ArraySection title="Micro Skills" items={node.micro_skills} />
-        <ArraySection title="Practice Prompts" items={node.practice_prompts} />
-        <ArraySection title="Assessment Links" items={node.assessment_links} />
+        <ArraySection title="Mechanisms" items={concept.mechanisms} />
+        <ArraySection title="Signature Techniques" items={concept.signature_techniques} />
+        <ArraySection title="Strengths" items={concept.strengths} />
+        <ArraySection title="Weaknesses" items={concept.weaknesses} />
+        <ArraySection title="Adjacent Models" items={concept.adjacent_models} />
+        <ArraySection title="Contrasts With" items={concept.contrasts_with} />
+        <ArraySection title="Integrates With" items={concept.integrates_with} />
+        <ArraySection title="Intake Questions" items={concept.intake_questions} />
+        <ArraySection title="Micro Skills" items={concept.micro_skills} />
+        <ArraySection title="Practice Prompts" items={concept.practice_prompts} />
+        <ArraySection title="Assessment Links" items={concept.assessment_links} />
       </div>
 
       {/* Evidence and reflection */}
-      {node.evidence_brief && (
-        <Section title="Evidence Brief" content={node.evidence_brief} className="mb-6" />
+      {concept.evidence_brief && (
+        <Section title="Evidence Brief" content={concept.evidence_brief} className="mb-6" />
       )}
-      {node.confidence_note && (
-        <Section title="Confidence Note" content={node.confidence_note} className="mb-6" />
+      {concept.confidence_note && (
+        <Section title="Confidence Note" content={concept.confidence_note} className="mb-6" />
       )}
 
       {/* Tags */}
-      {node.tags && node.tags.length > 0 && (
+      {concept.tags && concept.tags.length > 0 && (
         <div className="pt-6 border-t border-gray-200">
           <h3 className="text-lg mb-2">Tags</h3>
           <div className="flex flex-wrap gap-2">
-            {node.tags.map((tag, idx) => (
+            {concept.tags.map((tag, idx) => (
               <span key={idx} className="text-xs bg-sand px-3 py-1 rounded">
                 {tag}
               </span>
@@ -183,40 +183,40 @@ function ArraySection({ title, items }) {
   );
 }
 
-function NodeEditForm({ node, onSuccess, onCancel }) {
+function ConceptEditForm({ concept, onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
-    label: node.label || '',
-    node_type: node.node_type || 'model',
-    level_status: node.level_status || 'mapped',
-    summary_top: node.summary_top || '',
-    summary_mid: node.summary_mid || '',
-    summary_deep: node.summary_deep || '',
-    evidence_brief: node.evidence_brief || '',
-    confidence_note: node.confidence_note || ''
+    label: concept.label || '',
+    node_type: concept.node_type || 'model',
+    level_status: concept.level_status || 'mapped',
+    summary_top: concept.summary_top || '',
+    summary_mid: concept.summary_mid || '',
+    summary_deep: concept.summary_deep || '',
+    evidence_brief: concept.evidence_brief || '',
+    confidence_note: concept.confidence_note || ''
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`/nodes/${node.id}`, {
+      const response = await fetch(`/concepts/${concept.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ node: formData }),
+        body: JSON.stringify({ concept: formData }),
       });
 
       if (response.ok) {
-        const updatedNode = await response.json();
-        onSuccess(updatedNode);
+        const updatedConcept = await response.json();
+        onSuccess(updatedConcept);
       } else {
         const data = await response.json();
         alert('Error: ' + data.errors.join(', '));
       }
     } catch (error) {
-      console.error('Error updating node:', error);
+      console.error('Error updating concept:', error);
     }
   };
 
@@ -343,44 +343,44 @@ function NodeEditForm({ node, onSuccess, onCancel }) {
   );
 }
 
-function EdgeManager({ nodeId }) {
-  const [edges, setEdges] = useState([]);
-  const [nodes, setNodes] = useState([]);
+function ConnectionManager({ conceptId }) {
+  const [connections, setConnections] = useState([]);
+  const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [creatingEdge, setCreatingEdge] = useState(false);
+  const [creatingConnection, setCreatingConnection] = useState(false);
 
   useEffect(() => {
-    fetchEdges();
-    fetchNodes();
+    fetchConnections();
+    fetchConcepts();
   }, []);
 
-  const fetchEdges = async () => {
+  const fetchConnections = async () => {
     try {
-      const response = await fetch(`/edges.json?node_id=${nodeId}`);
+      const response = await fetch(`/connections.json?concept_id=${conceptId}`);
       const data = await response.json();
-      setEdges(data);
+      setConnections(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching edges:', error);
+      console.error('Error fetching connections:', error);
       setLoading(false);
     }
   };
 
-  const fetchNodes = async () => {
+  const fetchConcepts = async () => {
     try {
-      const response = await fetch('/nodes.json');
+      const response = await fetch('/concepts.json');
       const data = await response.json();
-      setNodes(data.filter(n => n.id !== parseInt(nodeId)));
+      setConcepts(data.filter(n => n.id !== parseInt(conceptId)));
     } catch (error) {
-      console.error('Error fetching nodes:', error);
+      console.error('Error fetching concepts:', error);
     }
   };
 
-  const handleDeleteEdge = async (edgeId) => {
+  const handleDeleteConnection = async (connectionId) => {
     if (!confirm('Delete this relationship?')) return;
 
     try {
-      const response = await fetch(`/edges/${edgeId}`, {
+      const response = await fetch(`/connections/${connectionId}`, {
         method: 'DELETE',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -388,19 +388,25 @@ function EdgeManager({ nodeId }) {
       });
 
       if (response.ok) {
-        setEdges(edges.filter(e => e.id !== edgeId));
+        setConnections(connections.filter(e => e.id !== connectionId));
       }
     } catch (error) {
-      console.error('Error deleting edge:', error);
+      console.error('Error deleting connection:', error);
     }
   };
 
   const relTypeLabels = {
-    adjacent: 'Adjacent to',
+    authored: 'Authored',
+    influenced: 'Influenced',
     contrasts_with: 'Contrasts with',
     integrates_with: 'Integrates with',
-    builds_on: 'Builds on',
-    subsumes: 'Subsumes'
+    derived_from: 'Derived from',
+    applies_to: 'Applies to',
+    treats: 'Treats',
+    associated_with: 'Associated with',
+    critiques: 'Critiques',
+    supports: 'Supports',
+    related_to: 'Related to'
   };
 
   return (
@@ -408,63 +414,63 @@ function EdgeManager({ nodeId }) {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl">Relationships</h2>
         <button
-          onClick={() => setCreatingEdge(!creatingEdge)}
+          onClick={() => setCreatingConnection(!creatingConnection)}
           className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
         >
-          {creatingEdge ? 'Cancel' : '+ Add Relationship'}
+          {creatingConnection ? 'Cancel' : '+ Add Relationship'}
         </button>
       </div>
 
-      {creatingEdge && (
-        <EdgeForm
-          nodeId={nodeId}
-          nodes={nodes}
-          onSuccess={(newEdge) => {
-            setEdges([newEdge, ...edges]);
-            setCreatingEdge(false);
+      {creatingConnection && (
+        <ConnectionForm
+          conceptId={conceptId}
+          concepts={concepts}
+          onSuccess={(newConnection) => {
+            setConnections([newConnection, ...connections]);
+            setCreatingConnection(false);
           }}
-          onCancel={() => setCreatingEdge(false)}
+          onCancel={() => setCreatingConnection(false)}
         />
       )}
 
       {loading ? (
         <p className="text-sm">Loading relationships...</p>
-      ) : edges.length === 0 ? (
+      ) : connections.length === 0 ? (
         <p className="text-sm text-gray-600">No relationships yet</p>
       ) : (
         <div className="space-y-4">
-          {edges.map(edge => {
-            const isSource = edge.src.id === parseInt(nodeId);
-            const otherNode = isSource ? edge.dst : edge.src;
+          {connections.map(connection => {
+            const isSource = connection.src_concept.id === parseInt(conceptId);
+            const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
             const direction = isSource ? '→' : '←';
 
             return (
-              <div key={edge.id} className="flex items-start justify-between border-b border-gray-200 pb-4">
+              <div key={connection.id} className="flex items-start justify-between border-b border-gray-200 pb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-                      {relTypeLabels[edge.rel_type]}
+                      {relTypeLabels[connection.rel_type]}
                     </span>
-                    {edge.strength && (
+                    {connection.strength && (
                       <span className="text-xs text-gray-600">
-                        Strength: {edge.strength}/5
+                        Strength: {connection.strength}/5
                       </span>
                     )}
                     <span className="text-gray-400">{direction}</span>
                   </div>
                   <a
-                    href={`/nodes/${otherNode.id}`}
+                    href={`/concepts/${otherConcept.id}`}
                     className="text-lg hover:text-primary"
                   >
-                    {otherNode.label}
+                    {otherConcept.label}
                   </a>
-                  <p className="text-xs text-gray-500 mt-1">{otherNode.node_type}</p>
-                  {edge.description && (
-                    <p className="text-sm mt-2">{edge.description}</p>
+                  <p className="text-xs text-gray-500 mt-1">{otherConcept.node_type}</p>
+                  {connection.description && (
+                    <p className="text-sm mt-2">{connection.description}</p>
                   )}
                 </div>
                 <button
-                  onClick={() => handleDeleteEdge(edge.id)}
+                  onClick={() => handleDeleteConnection(connection.id)}
                   className="text-sm text-accent-dark hover:text-primary ml-4"
                 >
                   Delete
@@ -478,11 +484,11 @@ function EdgeManager({ nodeId }) {
   );
 }
 
-function EdgeForm({ nodeId, nodes, onSuccess, onCancel }) {
+function ConnectionForm({ conceptId, concepts, onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
-    src_id: nodeId,
-    dst_id: '',
-    rel_type: 'adjacent',
+    src_concept_id: conceptId,
+    dst_concept_id: '',
+    rel_type: 'authored',
     strength: 3,
     description: '',
     tags: ''
@@ -497,24 +503,24 @@ function EdgeForm({ nodeId, nodes, onSuccess, onCancel }) {
     };
 
     try {
-      const response = await fetch('/edges', {
+      const response = await fetch('/connections', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ edge: payload }),
+        body: JSON.stringify({ connection: payload }),
       });
 
       if (response.ok) {
-        const newEdge = await response.json();
-        onSuccess(newEdge);
+        const newConnection = await response.json();
+        onSuccess(newConnection);
       } else {
         const data = await response.json();
         alert('Error: ' + data.errors.join(', '));
       }
     } catch (error) {
-      console.error('Error creating edge:', error);
+      console.error('Error creating connection:', error);
     }
   };
 
@@ -526,15 +532,15 @@ function EdgeForm({ nodeId, nodes, onSuccess, onCancel }) {
         <div>
           <label className="block text-sm font-medium mb-1">To Construct *</label>
           <select
-            value={formData.dst_id}
-            onChange={(e) => setFormData({ ...formData, dst_id: e.target.value })}
+            value={formData.dst_concept_id}
+            onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
             required
           >
             <option value="">Select a construct...</option>
-            {nodes.map(node => (
-              <option key={node.id} value={node.id}>
-                {node.label} ({node.node_type})
+            {concepts.map(concept => (
+              <option key={concept.id} value={concept.id}>
+                {concept.label} ({concept.node_type})
               </option>
             ))}
           </select>
@@ -547,11 +553,17 @@ function EdgeForm({ nodeId, nodes, onSuccess, onCancel }) {
             onChange={(e) => setFormData({ ...formData, rel_type: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
           >
-            <option value="adjacent">Adjacent</option>
+            <option value="authored">Authored</option>
+            <option value="influenced">Influenced</option>
             <option value="contrasts_with">Contrasts with</option>
             <option value="integrates_with">Integrates with</option>
-            <option value="builds_on">Builds on</option>
-            <option value="subsumes">Subsumes</option>
+            <option value="derived_from">Derived from</option>
+            <option value="applies_to">Applies to</option>
+            <option value="treats">Treats</option>
+            <option value="associated_with">Associated with</option>
+            <option value="critiques">Critiques</option>
+            <option value="supports">Supports</option>
+            <option value="related_to">Related to</option>
           </select>
         </div>
 
@@ -608,7 +620,7 @@ function EdgeForm({ nodeId, nodes, onSuccess, onCancel }) {
   );
 }
 
-function NodeNotes({ nodeId }) {
+function ConceptNotes({ conceptId }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingNote, setCreatingNote] = useState(false);
@@ -619,7 +631,7 @@ function NodeNotes({ nodeId }) {
 
   const fetchNotes = async () => {
     try {
-      const response = await fetch(`/notes.json?node_id=${nodeId}`);
+      const response = await fetch(`/notes.json?concept_id=${conceptId}`);
       const data = await response.json();
       setNotes(data);
       setLoading(false);
@@ -680,7 +692,7 @@ function NodeNotes({ nodeId }) {
 
       {creatingNote && (
         <NoteForm
-          nodeId={nodeId}
+          conceptId={conceptId}
           onSuccess={(newNote) => {
             setNotes([newNote, ...notes]);
             setCreatingNote(false);

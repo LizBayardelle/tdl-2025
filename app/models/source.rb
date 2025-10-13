@@ -2,8 +2,8 @@ class Source < ApplicationRecord
   include Taggable
 
   belongs_to :user
-  has_many :node_sources, dependent: :destroy
-  has_many :nodes, through: :node_sources
+  has_many :concept_sources, dependent: :destroy
+  has_many :concepts, through: :concept_sources
   has_many :person_sources, dependent: :destroy
   has_many :people, through: :person_sources
 

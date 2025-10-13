@@ -163,12 +163,12 @@ export default function NotesIndex() {
                   <span className={`text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || 'bg-gray-100'}`}>
                     {noteTypeLabels[note.note_type] || note.note_type}
                   </span>
-                  {note.node && (
+                  {note.concept && (
                     <a
-                      href={`/nodes/${note.node.id}`}
+                      href={`/concepts/${note.concept.id}`}
                       className="text-xs text-primary hover:underline"
                     >
-                      → {note.node.label}
+                      → {note.concept.label}
                     </a>
                   )}
                 </div>
@@ -222,31 +222,31 @@ export default function NotesIndex() {
   );
 }
 
-function NoteForm({ onSuccess, onCancel, nodeId = null }) {
-  const [nodes, setNodes] = useState([]);
+function NoteForm({ onSuccess, onCancel, conceptId = null }) {
+  const [concepts, setConcepts] = useState([]);
   const [formData, setFormData] = useState({
     body: '',
     note_type: 'reflection',
     context: '',
     pinned: false,
     noted_on: new Date().toISOString().split('T')[0],
-    node_id: nodeId || '',
+    concept_id: conceptId || '',
     tags: ''
   });
 
   useEffect(() => {
-    if (!nodeId) {
-      fetchNodes();
+    if (!conceptId) {
+      fetchConcepts();
     }
   }, []);
 
-  const fetchNodes = async () => {
+  const fetchConcepts = async () => {
     try {
-      const response = await fetch('/nodes.json');
+      const response = await fetch('/concepts.json');
       const data = await response.json();
-      setNodes(data);
+      setConcepts(data);
     } catch (error) {
-      console.error('Error fetching nodes:', error);
+      console.error('Error fetching concepts:', error);
     }
   };
 
@@ -255,7 +255,7 @@ function NoteForm({ onSuccess, onCancel, nodeId = null }) {
 
     const payload = {
       ...formData,
-      node_id: formData.node_id || null,
+      concept_id: formData.concept_id || null,
       tags: formData.tags.split('\n').filter(t => t.trim())
     };
 
@@ -325,18 +325,18 @@ function NoteForm({ onSuccess, onCancel, nodeId = null }) {
           />
         </div>
 
-        {!nodeId && (
+        {!conceptId && (
           <div>
             <label className="block text-sm font-medium mb-1">Link to Construct</label>
             <select
-              value={formData.node_id}
-              onChange={(e) => setFormData({ ...formData, node_id: e.target.value })}
+              value={formData.concept_id}
+              onChange={(e) => setFormData({ ...formData, concept_id: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
             >
               <option value="">None (general note)</option>
-              {nodes.map(node => (
-                <option key={node.id} value={node.id}>
-                  {node.label} ({node.node_type})
+              {concepts.map(concept => (
+                <option key={concept.id} value={concept.id}>
+                  {concept.label} ({concept.node_type})
                 </option>
               ))}
             </select>

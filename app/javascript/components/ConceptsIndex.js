@@ -1,32 +1,32 @@
 import React, { useState, useEffect } from 'react';
 
-export default function NodesIndex() {
-  const [nodes, setNodes] = useState([]);
+export default function ConceptsIndex() {
+  const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filterType, setFilterType] = useState('all');
 
   useEffect(() => {
-    fetchNodes();
+    fetchConcepts();
   }, []);
 
-  const fetchNodes = async () => {
+  const fetchConcepts = async () => {
     try {
-      const response = await fetch('/nodes.json');
+      const response = await fetch('/concepts.json');
       const data = await response.json();
-      setNodes(data);
+      setConcepts(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching nodes:', error);
+      console.error('Error fetching concepts:', error);
       setLoading(false);
     }
   };
 
-  const filteredNodes = filterType === 'all'
-    ? nodes
-    : nodes.filter(node => node.node_type === filterType);
+  const filteredConcepts = filterType === 'all'
+    ? concepts
+    : concepts.filter(concept => concept.node_type === filterType);
 
-  const nodeTypes = ['model', 'technique', 'mechanism', 'construct', 'measure', 'population'];
+  const conceptTypes = ['model', 'technique', 'mechanism', 'construct', 'measure', 'population'];
 
   if (loading) {
     return (
@@ -50,9 +50,9 @@ export default function NodesIndex() {
 
       {showForm && (
         <div className="mb-8 p-6 bg-white border border-gray-300 rounded">
-          <NodeForm
+          <ConceptForm
             onSuccess={() => {
-              fetchNodes();
+              fetchConcepts();
               setShowForm(false);
             }}
             onCancel={() => setShowForm(false)}
@@ -69,10 +69,10 @@ export default function NodesIndex() {
               : 'bg-white border border-gray-300 hover:bg-sand'
           }`}
         >
-          All ({nodes.length})
+          All ({concepts.length})
         </button>
-        {nodeTypes.map(type => {
-          const count = nodes.filter(n => n.node_type === type).length;
+        {conceptTypes.map(type => {
+          const count = concepts.filter(n => n.node_type === type).length;
           return (
             <button
               key={type}
@@ -89,15 +89,15 @@ export default function NodesIndex() {
         })}
       </div>
 
-      {filteredNodes.length === 0 ? (
+      {filteredConcepts.length === 0 ? (
         <div className="text-center py-12 bg-white border border-gray-300 rounded">
           <p className="text-lg mb-4">No constructs yet.</p>
           <p className="text-sm">Create your first knowledge construct to begin building your framework.</p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredNodes.map(node => (
-            <NodeCard key={node.id} node={node} onUpdate={fetchNodes} />
+          {filteredConcepts.map(concept => (
+            <ConceptCard key={concept.id} concept={concept} onUpdate={fetchConcepts} />
           ))}
         </div>
       )}
@@ -105,12 +105,12 @@ export default function NodesIndex() {
   );
 }
 
-function NodeCard({ node, onUpdate }) {
+function ConceptCard({ concept, onUpdate }) {
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this node?')) return;
+    if (!confirm('Are you sure you want to delete this concept?')) return;
 
     try {
-      const response = await fetch(`/nodes/${node.id}`, {
+      const response = await fetch(`/concepts/${concept.id}`, {
         method: 'DELETE',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -121,7 +121,7 @@ function NodeCard({ node, onUpdate }) {
         onUpdate();
       }
     } catch (error) {
-      console.error('Error deleting node:', error);
+      console.error('Error deleting concept:', error);
     }
   };
 
@@ -129,28 +129,28 @@ function NodeCard({ node, onUpdate }) {
     <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-2">
         <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-          {node.node_type}
+          {concept.node_type}
         </span>
-        {node.level_status && (
+        {concept.level_status && (
           <span className="text-xs uppercase tracking-wider text-accent-dark">
-            {node.level_status}
+            {concept.level_status}
           </span>
         )}
       </div>
 
       <h3 className="text-xl mb-2">
-        <a href={`/nodes/${node.id}`} className="hover:text-primary">
-          {node.label}
+        <a href={`/concepts/${concept.id}`} className="hover:text-primary">
+          {concept.label}
         </a>
       </h3>
 
-      {node.summary_top && (
-        <p className="text-sm mb-3 line-clamp-3">{node.summary_top}</p>
+      {concept.summary_top && (
+        <p className="text-sm mb-3 line-clamp-3">{concept.summary_top}</p>
       )}
 
       <div className="flex justify-between items-center pt-3 border-t border-gray-200">
         <span className="text-xs text-gray-500">
-          Updated {new Date(node.updated_at).toLocaleDateString()}
+          Updated {new Date(concept.updated_at).toLocaleDateString()}
         </span>
         <button
           onClick={handleDelete}
@@ -163,7 +163,7 @@ function NodeCard({ node, onUpdate }) {
   );
 }
 
-function NodeForm({ onSuccess, onCancel }) {
+function ConceptForm({ onSuccess, onCancel }) {
   const [people, setPeople] = useState([]);
   const [formData, setFormData] = useState({
     label: '',
@@ -212,13 +212,13 @@ function NodeForm({ onSuccess, onCancel }) {
     e.preventDefault();
 
     try {
-      const response = await fetch('/nodes', {
+      const response = await fetch('/concepts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ node: formData }),
+        body: JSON.stringify({ concept: formData }),
       });
 
       if (response.ok) {
@@ -228,7 +228,7 @@ function NodeForm({ onSuccess, onCancel }) {
         alert('Error: ' + data.errors.join(', '));
       }
     } catch (error) {
-      console.error('Error creating node:', error);
+      console.error('Error creating concept:', error);
     }
   };
 

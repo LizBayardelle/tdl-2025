@@ -56,7 +56,7 @@ export default function GlobalSearch() {
   };
 
   const totalResults = results
-    ? results.nodes.length + results.sources.length + results.people.length + results.notes.length + results.tags.length
+    ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length
     : 0;
 
   return (
@@ -88,8 +88,8 @@ export default function GlobalSearch() {
             </p>
           </div>
 
-          {results.nodes.length > 0 && (
-            <SearchSection title="Constructs" items={results.nodes} type="node" />
+          {results.concepts.length > 0 && (
+            <SearchSection title="Constructs" items={results.concepts} type="concept" />
           )}
 
           {results.sources.length > 0 && (
@@ -136,7 +136,7 @@ function SearchSection({ title, items, type }) {
 
 function SearchResultItem({ item, type }) {
   const getLink = () => {
-    if (type === 'node') return `/nodes/${item.id}`;
+    if (type === 'concept') return `/concepts/${item.id}`;
     if (type === 'source') return `/sources`;
     if (type === 'person') return `/people`;
     if (type === 'note') return `/notes`;
@@ -145,7 +145,7 @@ function SearchResultItem({ item, type }) {
   };
 
   const getTitle = () => {
-    if (type === 'node') return item.label;
+    if (type === 'concept') return item.label;
     if (type === 'source') return item.title;
     if (type === 'person') return item.full_name;
     if (type === 'note') return item.body?.substring(0, 100) + (item.body?.length > 100 ? '...' : '');
@@ -154,16 +154,16 @@ function SearchResultItem({ item, type }) {
   };
 
   const getSubtitle = () => {
-    if (type === 'node') return item.summary_top;
+    if (type === 'concept') return item.summary_top;
     if (type === 'source') return item.authors;
     if (type === 'person') return item.role;
-    if (type === 'note' && item.node) return `→ ${item.node.label}`;
+    if (type === 'note' && item.concept) return `→ ${item.concept.label}`;
     if (type === 'tag') return `${item.taggings_count} items`;
     return '';
   };
 
   const getBadge = () => {
-    if (type === 'node') return item.node_type;
+    if (type === 'concept') return item.node_type;
     if (type === 'source') return item.kind;
     if (type === 'person') return item.role;
     if (type === 'note') return item.note_type;

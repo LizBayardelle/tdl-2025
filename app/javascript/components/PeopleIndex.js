@@ -168,26 +168,26 @@ function PersonCard({ person, onUpdate }) {
 }
 
 function PersonForm({ onSuccess, onCancel }) {
-  const [nodes, setNodes] = useState([]);
+  const [concepts, setConcepts] = useState([]);
   const [formData, setFormData] = useState({
     full_name: '',
     role: 'theorist',
     summary: '',
     aka: [],
-    node_ids: []
+    concept_ids: []
   });
 
   useEffect(() => {
-    fetchNodes();
+    fetchConcepts();
   }, []);
 
-  const fetchNodes = async () => {
+  const fetchConcepts = async () => {
     try {
-      const response = await fetch('/nodes.json');
+      const response = await fetch('/concepts.json');
       const data = await response.json();
-      setNodes(data);
+      setConcepts(data);
     } catch (error) {
-      console.error('Error fetching nodes:', error);
+      console.error('Error fetching concepts:', error);
     }
   };
 
@@ -279,22 +279,22 @@ function PersonForm({ onSuccess, onCancel }) {
         </label>
         <select
           multiple
-          value={formData.node_ids}
+          value={formData.concept_ids}
           onChange={(e) => {
             const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-            setFormData({ ...formData, node_ids: selected });
+            setFormData({ ...formData, concept_ids: selected });
           }}
           className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
           size="5"
         >
-          {nodes.map(node => (
-            <option key={node.id} value={node.id}>
-              {node.label} ({node.node_type})
+          {concepts.map(concept => (
+            <option key={concept.id} value={concept.id}>
+              {concept.label} ({concept.node_type})
             </option>
           ))}
         </select>
         <p className="text-xs text-gray-600 mt-1">
-          Selected: {formData.node_ids.length} {formData.node_ids.length === 1 ? 'construct' : 'constructs'}
+          Selected: {formData.concept_ids.length} {formData.concept_ids.length === 1 ? 'construct' : 'constructs'}
         </p>
       </div>
 

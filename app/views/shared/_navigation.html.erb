@@ -9,9 +9,10 @@
         <% if user_signed_in? %>
           <div class="flex space-x-6">
             <%= link_to "Dashboard", dashboard_path, class: "text-sm hover:text-primary transition-colors #{current_page?(dashboard_path) ? 'text-primary font-medium' : ''}" %>
-            <%= link_to "Constructs", nodes_path, class: "text-sm hover:text-primary transition-colors #{current_page?(nodes_path) ? 'text-primary font-medium' : ''}" %>
-            <%= link_to "Pathways", pathways_path, class: "text-sm hover:text-primary transition-colors #{current_page?(pathways_path) ? 'text-primary font-medium' : ''}" %>
-            <%= link_to "Graph", edges_path, class: "text-sm hover:text-primary transition-colors #{current_page?(edges_path) ? 'text-primary font-medium' : ''}" %>
+            <%= link_to "Concepts", concepts_path, class: "text-sm hover:text-primary transition-colors #{current_page?(concepts_path) ? 'text-primary font-medium' : ''}" %>
+            <%= link_to "Connections", connections_path, class: "text-sm hover:text-primary transition-colors #{current_page?(connections_path) ? 'text-primary font-medium' : ''}" %>
+            <%= link_to "Sources", sources_path, class: "text-sm hover:text-primary transition-colors #{current_page?(sources_path) ? 'text-primary font-medium' : ''}" %>
+            <%= link_to "People", people_path, class: "text-sm hover:text-primary transition-colors #{current_page?(people_path) ? 'text-primary font-medium' : ''}" %>
             <%= link_to "Notes", notes_path, class: "text-sm hover:text-primary transition-colors #{current_page?(notes_path) ? 'text-primary font-medium' : ''}" %>
             <%= link_to "Tags", tags_path, class: "text-sm hover:text-primary transition-colors #{current_page?(tags_path) ? 'text-primary font-medium' : ''}" %>
           </div>

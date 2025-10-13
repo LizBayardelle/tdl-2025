@@ -1,5 +1,5 @@
-class NodeSource < ApplicationRecord
-  belongs_to :node
+class ConceptSource < ApplicationRecord
+  belongs_to :concept
   belongs_to :source
 
   # Enums
@@ -12,7 +12,7 @@ class NodeSource < ApplicationRecord
   }, prefix: true
 
   # Validations
-  validates :node_id, presence: true
+  validates :concept_id, presence: true
   validates :source_id, presence: true
-  validates :node_id, uniqueness: { scope: :source_id }
+  validates :concept_id, uniqueness: { scope: :source_id }
 end

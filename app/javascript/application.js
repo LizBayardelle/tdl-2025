@@ -3,29 +3,28 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 // Import components
-import NodesIndex from './components/NodesIndex';
-import NodeShow from './components/NodeShow';
+import ConceptsIndex from './components/ConceptsIndex';
+import ConceptShow from './components/ConceptShow';
 import SourcesIndex from './components/SourcesIndex';
 import PeopleIndex from './components/PeopleIndex';
-import EdgeVisualization from './components/EdgeVisualization';
+import ConnectionVisualization from './components/ConnectionVisualization';
 import NotesIndex from './components/NotesIndex';
 import TagsIndex from './components/TagsIndex';
 import Dashboard from './components/Dashboard';
 import GlobalSearch from './components/GlobalSearch';
-import PathwaysIndex from './components/PathwaysIndex';
 import UserDropdown from './components/UserDropdown';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  const nodesIndexRoot = document.getElementById('nodes-index-root');
-  if (nodesIndexRoot) {
-    createRoot(nodesIndexRoot).render(<NodesIndex />);
+  const conceptsIndexRoot = document.getElementById('concepts-index-root');
+  if (conceptsIndexRoot) {
+    createRoot(conceptsIndexRoot).render(<ConceptsIndex />);
   }
 
-  const nodeShowRoot = document.getElementById('node-show-root');
-  if (nodeShowRoot) {
-    const nodeId = nodeShowRoot.dataset.nodeId;
-    createRoot(nodeShowRoot).render(<NodeShow nodeId={nodeId} />);
+  const conceptShowRoot = document.getElementById('concept-show-root');
+  if (conceptShowRoot) {
+    const conceptId = conceptShowRoot.dataset.conceptId;
+    createRoot(conceptShowRoot).render(<ConceptShow conceptId={conceptId} />);
   }
 
   const sourcesIndexRoot = document.getElementById('sources-index-root');
@@ -38,9 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(peopleIndexRoot).render(<PeopleIndex />);
   }
 
-  const edgeVisualizationRoot = document.getElementById('edge-visualization-root');
-  if (edgeVisualizationRoot) {
-    createRoot(edgeVisualizationRoot).render(<EdgeVisualization />);
+  const connectionVisualizationRoot = document.getElementById('connection-visualization-root');
+  if (connectionVisualizationRoot) {
+    createRoot(connectionVisualizationRoot).render(<ConnectionVisualization />);
   }
 
   const notesIndexRoot = document.getElementById('notes-index-root');
@@ -61,11 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const globalSearchRoot = document.getElementById('global-search-root');
   if (globalSearchRoot) {
     createRoot(globalSearchRoot).render(<GlobalSearch />);
-  }
-
-  const pathwaysIndexRoot = document.getElementById('pathways-index-root');
-  if (pathwaysIndexRoot) {
-    createRoot(pathwaysIndexRoot).render(<PathwaysIndex />);
   }
 
   const userDropdownRoot = document.getElementById('user-dropdown-root');
