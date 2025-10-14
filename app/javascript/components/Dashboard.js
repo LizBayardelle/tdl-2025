@@ -92,7 +92,7 @@ export default function Dashboard() {
       <h1 className="text-4xl mb-8">Dashboard</h1>
 
       {/* Quick Actions */}
-      <div className="bg-white border border-gray-300 rounded-lg p-6 mb-8">
+      <div className="mb-8">
         <h2 className="text-2xl mb-4">Quick Actions</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <ActionCard
@@ -173,15 +173,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-
-          {stats.needsReview > 0 && (
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-              <p className="text-sm">
-                <span className="font-medium">{stats.needsReview}</span> concept
-                {stats.needsReview === 1 ? '' : 's'} need review (not reviewed in 30+ days)
-              </p>
-            </div>
-          )}
         </div>
       </div>
 
@@ -288,7 +279,7 @@ function ActionCard({ title, description, link }) {
   return (
     <a
       href={link}
-      className="border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
+      className="bg-white border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
     >
       <h3 className="font-medium mb-1">{title}</h3>
       <p className="text-sm text-gray-600">{description}</p>
