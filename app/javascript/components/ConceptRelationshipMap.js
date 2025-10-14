@@ -286,11 +286,11 @@ export default function ConceptRelationshipMap() {
   const filteredData = getFilteredData();
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl">Concept Relationship Map</h2>
+    <div className="bg-white border border-gray-300 rounded-lg p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <h2 className="text-xl sm:text-2xl">Concept Relationship Map</h2>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilterType('all')}
             className={`px-3 py-1 rounded text-sm ${
@@ -345,7 +345,7 @@ export default function ConceptRelationshipMap() {
       </div>
 
       {/* Legend */}
-      <div className="mb-4 flex gap-6 text-sm">
+      <div className="mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full bg-accent-dark" />
           <span>Hierarchical</span>
@@ -364,7 +364,7 @@ export default function ConceptRelationshipMap() {
         </div>
       </div>
 
-      <div className="border border-gray-200 rounded overflow-hidden" style={{ height: '600px' }}>
+      <div className="border border-gray-200 rounded overflow-hidden" style={{ height: '400px', minHeight: '300px' }}>
         <ForceGraph2D
           ref={fgRef}
           graphData={filteredData}
@@ -381,7 +381,7 @@ export default function ConceptRelationshipMap() {
           enableZoomInteraction={true}
           enablePanInteraction={true}
           width={undefined}
-          height={600}
+          height={400}
         />
       </div>
 

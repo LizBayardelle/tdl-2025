@@ -88,13 +88,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-4xl mb-8">Dashboard</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <h1 className="text-3xl sm:text-4xl mb-6 sm:mb-8">Dashboard</h1>
 
       {/* Quick Actions */}
-      <div className="mb-8">
-        <h2 className="text-2xl mb-4">Quick Actions</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl mb-3 sm:mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <ActionCard
             title="Add Concept"
             description="Create a new knowledge concept"
@@ -119,7 +119,7 @@ export default function Dashboard() {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Concepts" value={stats.totalConcepts} link="/concepts" />
         <StatCard label="Sources" value={stats.totalSources} link="/sources" />
         <StatCard label="People" value={stats.totalPeople} link="/people" />
