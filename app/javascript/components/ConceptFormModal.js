@@ -3,6 +3,7 @@ import Modal from './Modal';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
+  const [activeTab, setActiveTab] = useState('basics');
   const [formData, setFormData] = useState({
     label: '',
     node_type: 'model',
@@ -30,6 +31,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab('basics');
       fetchPeople();
       if (item) {
         setFormData({
@@ -137,287 +139,340 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       title={item ? 'Edit Construct' : 'New Construct'}
       size="large"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex flex-col h-full">
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
+          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Label *</label>
-          <input
-            type="text"
-            value={formData.label}
-            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Type *</label>
-            <select
-              value={formData.node_type}
-              onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="model">Model</option>
-              <option value="technique">Technique</option>
-              <option value="mechanism">Mechanism</option>
-              <option value="construct">Construct</option>
-              <option value="measure">Measure</option>
-              <option value="population">Population</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              value={formData.level_status}
-              onChange={(e) => setFormData({ ...formData, level_status: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="mapped">Mapped</option>
-              <option value="basic">Basic</option>
-              <option value="deep">Deep</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Top (2-3 sentences)
-          </label>
-          <textarea
-            value={formData.summary_top}
-            onChange={(e) => setFormData({ ...formData, summary_top: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Mid (~200 words)
-          </label>
-          <textarea
-            value={formData.summary_mid}
-            onChange={(e) => setFormData({ ...formData, summary_mid: e.target.value })}
-            rows="5"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary Deep (~600 words)
-          </label>
-          <textarea
-            value={formData.summary_deep}
-            onChange={(e) => setFormData({ ...formData, summary_deep: e.target.value })}
-            rows="8"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Mechanisms (one per line)
-            </label>
-            <textarea
-              value={formData.mechanisms.join('\n')}
-              onChange={(e) => handleArrayInput('mechanisms', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Signature Techniques (one per line)
-            </label>
-            <textarea
-              value={formData.signature_techniques.join('\n')}
-              onChange={(e) => handleArrayInput('signature_techniques', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Strengths (one per line)
-            </label>
-            <textarea
-              value={formData.strengths.join('\n')}
-              onChange={(e) => handleArrayInput('strengths', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Weaknesses (one per line)
-            </label>
-            <textarea
-              value={formData.weaknesses.join('\n')}
-              onChange={(e) => handleArrayInput('weaknesses', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Adjacent Models (one per line)
-            </label>
-            <textarea
-              value={formData.adjacent_models.join('\n')}
-              onChange={(e) => handleArrayInput('adjacent_models', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Contrasts With (one per line)
-            </label>
-            <textarea
-              value={formData.contrasts_with.join('\n')}
-              onChange={(e) => handleArrayInput('contrasts_with', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Integrates With (one per line)
-            </label>
-            <textarea
-              value={formData.integrates_with.join('\n')}
-              onChange={(e) => handleArrayInput('integrates_with', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Intake Questions (one per line)
-            </label>
-            <textarea
-              value={formData.intake_questions.join('\n')}
-              onChange={(e) => handleArrayInput('intake_questions', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Micro Skills (one per line)
-            </label>
-            <textarea
-              value={formData.micro_skills.join('\n')}
-              onChange={(e) => handleArrayInput('micro_skills', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Practice Prompts (one per line)
-            </label>
-            <textarea
-              value={formData.practice_prompts.join('\n')}
-              onChange={(e) => handleArrayInput('practice_prompts', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Assessment Links (one per line)
-            </label>
-            <textarea
-              value={formData.assessment_links.join('\n')}
-              onChange={(e) => handleArrayInput('assessment_links', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Tags (one per line)
-            </label>
-            <textarea
-              value={formData.tags.join('\n')}
-              onChange={(e) => handleArrayInput('tags', e.target.value)}
-              rows="3"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Link People (hold Cmd/Ctrl to select multiple)
-          </label>
-          <select
-            multiple
-            value={formData.people_ids}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-              setFormData({ ...formData, people_ids: selected });
-            }}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            size="5"
+        {/* Tabs */}
+        <div className="flex gap-1 mb-0">
+          <button
+            type="button"
+            onClick={() => setActiveTab('basics')}
+            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'basics' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
           >
-            {people.map(person => (
-              <option key={person.id} value={person.id}>
-                {person.full_name} ({person.role})
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-gray-600 mt-1">
-            Selected: {formData.people_ids.length} {formData.people_ids.length === 1 ? 'person' : 'people'}
-          </p>
+            Basics
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('summaries')}
+            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'summaries' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
+          >
+            Summaries
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('details')}
+            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'details' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
+          >
+            Details
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('relationships')}
+            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'relationships' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
+          >
+            Relationships
+          </button>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Evidence Brief
-          </label>
-          <textarea
-            value={formData.evidence_brief}
-            onChange={(e) => setFormData({ ...formData, evidence_brief: e.target.value })}
-            rows="4"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
+        {/* Tab Content */}
+        <div className="flex-1 overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg" style={{ minHeight: '400px' }}>
+          {activeTab === 'basics' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Label *</label>
+                <input
+                  type="text"
+                  value={formData.label}
+                  onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Type *</label>
+                  <select
+                    value={formData.node_type}
+                    onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  >
+                    <option value="model">Model</option>
+                    <option value="technique">Technique</option>
+                    <option value="construct">Construct</option>
+                    <option value="measure">Measure</option>
+                    <option value="population">Population</option>
+                    <option value="category">Category</option>
+                    <option value="discipline">Discipline</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Status</label>
+                  <select
+                    value={formData.level_status}
+                    onChange={(e) => setFormData({ ...formData, level_status: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  >
+                    <option value="mapped">Mapped</option>
+                    <option value="basic">Basic</option>
+                    <option value="deep">Deep</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Summary Top (2-3 sentences)
+                </label>
+                <textarea
+                  value={formData.summary_top}
+                  onChange={(e) => setFormData({ ...formData, summary_top: e.target.value })}
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'summaries' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Summary Mid (~200 words)
+                </label>
+                <textarea
+                  value={formData.summary_mid}
+                  onChange={(e) => setFormData({ ...formData, summary_mid: e.target.value })}
+                  rows="8"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Summary Deep (~600 words)
+                </label>
+                <textarea
+                  value={formData.summary_deep}
+                  onChange={(e) => setFormData({ ...formData, summary_deep: e.target.value })}
+                  rows="12"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'details' && (
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Mechanisms (one per line)
+                  </label>
+                  <textarea
+                    value={formData.mechanisms.join('\n')}
+                    onChange={(e) => handleArrayInput('mechanisms', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Signature Techniques (one per line)
+                  </label>
+                  <textarea
+                    value={formData.signature_techniques.join('\n')}
+                    onChange={(e) => handleArrayInput('signature_techniques', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Strengths (one per line)
+                  </label>
+                  <textarea
+                    value={formData.strengths.join('\n')}
+                    onChange={(e) => handleArrayInput('strengths', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Weaknesses (one per line)
+                  </label>
+                  <textarea
+                    value={formData.weaknesses.join('\n')}
+                    onChange={(e) => handleArrayInput('weaknesses', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Intake Questions (one per line)
+                  </label>
+                  <textarea
+                    value={formData.intake_questions.join('\n')}
+                    onChange={(e) => handleArrayInput('intake_questions', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Micro Skills (one per line)
+                  </label>
+                  <textarea
+                    value={formData.micro_skills.join('\n')}
+                    onChange={(e) => handleArrayInput('micro_skills', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Practice Prompts (one per line)
+                  </label>
+                  <textarea
+                    value={formData.practice_prompts.join('\n')}
+                    onChange={(e) => handleArrayInput('practice_prompts', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Assessment Links (one per line)
+                  </label>
+                  <textarea
+                    value={formData.assessment_links.join('\n')}
+                    onChange={(e) => handleArrayInput('assessment_links', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Tags (one per line)
+                  </label>
+                  <textarea
+                    value={formData.tags.join('\n')}
+                    onChange={(e) => handleArrayInput('tags', e.target.value)}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Link People (hold Cmd/Ctrl to select multiple)
+                </label>
+                <select
+                  multiple
+                  value={formData.people_ids}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
+                    setFormData({ ...formData, people_ids: selected });
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  size="5"
+                >
+                  {people.map(person => (
+                    <option key={person.id} value={person.id}>
+                      {person.full_name} ({person.role})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-600 mt-1">
+                  Selected: {formData.people_ids.length} {formData.people_ids.length === 1 ? 'person' : 'people'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Evidence Brief
+                </label>
+                <textarea
+                  value={formData.evidence_brief}
+                  onChange={(e) => setFormData({ ...formData, evidence_brief: e.target.value })}
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Confidence Note
+                </label>
+                <textarea
+                  value={formData.confidence_note}
+                  onChange={(e) => setFormData({ ...formData, confidence_note: e.target.value })}
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'relationships' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Adjacent Models (one per line)
+                </label>
+                <textarea
+                  value={formData.adjacent_models.join('\n')}
+                  onChange={(e) => handleArrayInput('adjacent_models', e.target.value)}
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Contrasts With (one per line)
+                </label>
+                <textarea
+                  value={formData.contrasts_with.join('\n')}
+                  onChange={(e) => handleArrayInput('contrasts_with', e.target.value)}
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Integrates With (one per line)
+                </label>
+                <textarea
+                  value={formData.integrates_with.join('\n')}
+                  onChange={(e) => handleArrayInput('integrates_with', e.target.value)}
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Confidence Note
-          </label>
-          <textarea
-            value={formData.confidence_note}
-            onChange={(e) => setFormData({ ...formData, confidence_note: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div className="flex gap-3 pt-4 border-t border-gray-200">
+        {/* Form Actions */}
+        <div className="flex gap-3 pt-6 mt-0">
           <button
             type="submit"
             className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"

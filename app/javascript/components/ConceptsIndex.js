@@ -5,6 +5,7 @@ export default function ConceptsIndex() {
   const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingConcept, setEditingConcept] = useState(null);
   const [filterType, setFilterType] = useState('all');
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function ConceptsIndex() {
     ? concepts
     : concepts.filter(concept => concept.node_type === filterType);
 
-  const conceptTypes = ['model', 'technique', 'mechanism', 'construct', 'measure', 'population'];
+  const conceptTypes = ['model', 'technique', 'construct', 'measure', 'population', 'category', 'discipline'];
 
   if (loading) {
     return (
@@ -51,11 +52,16 @@ export default function ConceptsIndex() {
 
       <ConceptFormModal
         isOpen={showForm}
-        onClose={() => setShowForm(false)}
+        onClose={() => {
+          setShowForm(false);
+          setEditingConcept(null);
+        }}
         onSuccess={() => {
           fetchConcepts();
           setShowForm(false);
+          setEditingConcept(null);
         }}
+        item={editingConcept}
       />
 
       <div className="mb-6 flex gap-2 flex-wrap">
@@ -95,7 +101,15 @@ export default function ConceptsIndex() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredConcepts.map(concept => (
-            <ConceptCard key={concept.id} concept={concept} onUpdate={fetchConcepts} />
+            <ConceptCard
+              key={concept.id}
+              concept={concept}
+              onUpdate={fetchConcepts}
+              onEdit={(concept) => {
+                setEditingConcept(concept);
+                setShowForm(true);
+              }}
+            />
           ))}
         </div>
       )}
@@ -103,7 +117,7 @@ export default function ConceptsIndex() {
   );
 }
 
-function ConceptCard({ concept, onUpdate }) {
+function ConceptCard({ concept, onUpdate, onEdit }) {
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this concept?')) return;
 
@@ -126,14 +140,25 @@ function ConceptCard({ concept, onUpdate }) {
   return (
     <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-2">
-        <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-          {concept.node_type}
-        </span>
-        {concept.level_status && (
-          <span className="text-xs uppercase tracking-wider text-accent-dark">
-            {concept.level_status}
+        <div className="flex gap-2 items-center">
+          <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+            {concept.node_type}
           </span>
-        )}
+          {concept.level_status && (
+            <span className="text-xs uppercase tracking-wider text-accent-dark">
+              {concept.level_status}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => onEdit(concept)}
+          className="!bg-transparent !text-primary hover:!text-accent-dark transition-colors !p-0"
+          title="Edit"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          </svg>
+        </button>
       </div>
 
       <h3 className="text-xl mb-2">

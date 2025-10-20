@@ -22273,6 +22273,7 @@ function Modal({ isOpen, onClose, title, children: children2, size = "medium" })
 // app/javascript/components/ConceptFormModal.js
 function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = (0, import_react2.useState)([]);
+  const [activeTab, setActiveTab] = (0, import_react2.useState)("basics");
   const [formData, setFormData] = (0, import_react2.useState)({
     label: "",
     node_type: "model",
@@ -22299,6 +22300,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [error, setError] = (0, import_react2.useState)("");
   (0, import_react2.useEffect)(() => {
     if (isOpen) {
+      setActiveTab("basics");
       fetchPeople();
       if (item) {
         setFormData({
@@ -22400,7 +22402,39 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Construct" : "New Construct",
       size: "large"
     },
-    /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Label *"), /* @__PURE__ */ import_react2.default.createElement(
+    /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col h-full" }, error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex gap-1 mb-0" }, /* @__PURE__ */ import_react2.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setActiveTab("basics"),
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "basics" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
+      },
+      "Basics"
+    ), /* @__PURE__ */ import_react2.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setActiveTab("summaries"),
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "summaries" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
+      },
+      "Summaries"
+    ), /* @__PURE__ */ import_react2.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setActiveTab("details"),
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "details" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
+      },
+      "Details"
+    ), /* @__PURE__ */ import_react2.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setActiveTab("relationships"),
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "relationships" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
+      },
+      "Relationships"
+    )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex-1 overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg", style: { minHeight: "400px" } }, activeTab === "basics" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Label *"), /* @__PURE__ */ import_react2.default.createElement(
       "input",
       {
         type: "text",
@@ -22418,10 +22452,11 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       },
       /* @__PURE__ */ import_react2.default.createElement("option", { value: "model" }, "Model"),
       /* @__PURE__ */ import_react2.default.createElement("option", { value: "technique" }, "Technique"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "mechanism" }, "Mechanism"),
       /* @__PURE__ */ import_react2.default.createElement("option", { value: "construct" }, "Construct"),
       /* @__PURE__ */ import_react2.default.createElement("option", { value: "measure" }, "Measure"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "population" }, "Population")
+      /* @__PURE__ */ import_react2.default.createElement("option", { value: "population" }, "Population"),
+      /* @__PURE__ */ import_react2.default.createElement("option", { value: "category" }, "Category"),
+      /* @__PURE__ */ import_react2.default.createElement("option", { value: "discipline" }, "Discipline")
     )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Status"), /* @__PURE__ */ import_react2.default.createElement(
       "select",
       {
@@ -22440,12 +22475,12 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Mid (~200 words)"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "summaries" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Mid (~200 words)"), /* @__PURE__ */ import_react2.default.createElement(
       "textarea",
       {
         value: formData.summary_mid,
         onChange: (e2) => setFormData({ ...formData, summary_mid: e2.target.value }),
-        rows: "5",
+        rows: "8",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
     )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Deep (~600 words)"), /* @__PURE__ */ import_react2.default.createElement(
@@ -22453,10 +22488,10 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       {
         value: formData.summary_deep,
         onChange: (e2) => setFormData({ ...formData, summary_deep: e2.target.value }),
-        rows: "8",
+        rows: "12",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid md:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Mechanisms (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "details" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid md:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Mechanisms (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
       "textarea",
       {
         value: formData.mechanisms.join("\n"),
@@ -22485,30 +22520,6 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       {
         value: formData.weaknesses.join("\n"),
         onChange: (e2) => handleArrayInput("weaknesses", e2.target.value),
-        rows: "3",
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
-      }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Adjacent Models (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
-      "textarea",
-      {
-        value: formData.adjacent_models.join("\n"),
-        onChange: (e2) => handleArrayInput("adjacent_models", e2.target.value),
-        rows: "3",
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
-      }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Contrasts With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
-      "textarea",
-      {
-        value: formData.contrasts_with.join("\n"),
-        onChange: (e2) => handleArrayInput("contrasts_with", e2.target.value),
-        rows: "3",
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
-      }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Integrates With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
-      "textarea",
-      {
-        value: formData.integrates_with.join("\n"),
-        onChange: (e2) => handleArrayInput("integrates_with", e2.target.value),
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
@@ -22581,7 +22592,31 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "relationships" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Adjacent Models (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+      "textarea",
+      {
+        value: formData.adjacent_models.join("\n"),
+        onChange: (e2) => handleArrayInput("adjacent_models", e2.target.value),
+        rows: "4",
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
+      }
+    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Contrasts With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+      "textarea",
+      {
+        value: formData.contrasts_with.join("\n"),
+        onChange: (e2) => handleArrayInput("contrasts_with", e2.target.value),
+        rows: "4",
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
+      }
+    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Integrates With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+      "textarea",
+      {
+        value: formData.integrates_with.join("\n"),
+        onChange: (e2) => handleArrayInput("integrates_with", e2.target.value),
+        rows: "4",
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
+      }
+    )))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react2.default.createElement(
       "button",
       {
         type: "submit",
@@ -22605,6 +22640,7 @@ function ConceptsIndex() {
   const [concepts, setConcepts] = (0, import_react3.useState)([]);
   const [loading, setLoading] = (0, import_react3.useState)(true);
   const [showForm, setShowForm] = (0, import_react3.useState)(false);
+  const [editingConcept, setEditingConcept] = (0, import_react3.useState)(null);
   const [filterType, setFilterType] = (0, import_react3.useState)("all");
   (0, import_react3.useEffect)(() => {
     fetchConcepts();
@@ -22621,7 +22657,7 @@ function ConceptsIndex() {
     }
   };
   const filteredConcepts = filterType === "all" ? concepts : concepts.filter((concept) => concept.node_type === filterType);
-  const conceptTypes = ["model", "technique", "mechanism", "construct", "measure", "population"];
+  const conceptTypes = ["model", "technique", "construct", "measure", "population", "category", "discipline"];
   if (loading) {
     return /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-lg" }, "Loading constructs..."));
   }
@@ -22636,11 +22672,16 @@ function ConceptsIndex() {
     ConceptFormModal,
     {
       isOpen: showForm,
-      onClose: () => setShowForm(false),
+      onClose: () => {
+        setShowForm(false);
+        setEditingConcept(null);
+      },
       onSuccess: () => {
         fetchConcepts();
         setShowForm(false);
-      }
+        setEditingConcept(null);
+      },
+      item: editingConcept
     }
   ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react3.default.createElement(
     "button",
@@ -22665,9 +22706,20 @@ function ConceptsIndex() {
       count,
       ")"
     );
-  })), filteredConcepts.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-lg mb-4" }, "No constructs yet."), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm" }, "Create your first knowledge construct to begin building your framework.")) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react3.default.createElement(ConceptCard, { key: concept.id, concept, onUpdate: fetchConcepts }))));
+  })), filteredConcepts.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-lg mb-4" }, "No constructs yet."), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm" }, "Create your first knowledge construct to begin building your framework.")) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react3.default.createElement(
+    ConceptCard,
+    {
+      key: concept.id,
+      concept,
+      onUpdate: fetchConcepts,
+      onEdit: (concept2) => {
+        setEditingConcept(concept2);
+        setShowForm(true);
+      }
+    }
+  ))));
 }
-function ConceptCard({ concept, onUpdate }) {
+function ConceptCard({ concept, onUpdate, onEdit }) {
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this concept?")) return;
     try {
@@ -22684,7 +22736,15 @@ function ConceptCard({ concept, onUpdate }) {
       console.error("Error deleting concept:", error);
     }
   };
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-start mb-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark" }, concept.level_status)), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react3.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react3.default.createElement(
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-start mb-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex gap-2 items-center" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark" }, concept.level_status)), /* @__PURE__ */ import_react3.default.createElement(
+    "button",
+    {
+      onClick: () => onEdit(concept),
+      className: "!bg-transparent !text-primary hover:!text-accent-dark transition-colors !p-0",
+      title: "Edit"
+    },
+    /* @__PURE__ */ import_react3.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5" }, /* @__PURE__ */ import_react3.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" }))
+  )), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react3.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       onClick: handleDelete,

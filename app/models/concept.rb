@@ -12,10 +12,11 @@ class Concept < ApplicationRecord
   enum :node_type, {
     model: "model",
     technique: "technique",
-    mechanism: "mechanism",
     construct: "construct",
     measure: "measure",
-    population: "population"
+    population: "population",
+    category: "category",
+    discipline: "discipline"
   }, prefix: true
 
   enum :level_status, {
