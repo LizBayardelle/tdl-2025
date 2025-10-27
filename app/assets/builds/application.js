@@ -23277,9 +23277,48 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
     };
     return textMap[relType] || relType;
   };
+  const getInverseRelType = (relType) => {
+    const inverses = {
+      parent_of: "child_of",
+      child_of: "parent_of",
+      prerequisite_for: "builds_on",
+      builds_on: "prerequisite_for",
+      derived_from: "influenced",
+      // derived_from X means X influenced this
+      influenced: "derived_from"
+    };
+    return inverses[relType] || relType;
+  };
   const outgoingConnections = concept.outgoing_connections || [];
   const incomingConnections = concept.incoming_connections || [];
-  const totalConnections = outgoingConnections.length + incomingConnections.length;
+  const normalizedIncoming = incomingConnections.map((conn) => {
+    const inverseType = getInverseRelType(conn.rel_type);
+    return {
+      id: conn.id,
+      rel_type: inverseType,
+      relationship_label: conn.relationship_label,
+      target: conn.src_concept,
+      // The source becomes our target
+      isConverted: inverseType !== conn.rel_type
+    };
+  });
+  const normalizedOutgoing = outgoingConnections.map((conn) => ({
+    id: conn.id,
+    rel_type: conn.rel_type,
+    relationship_label: conn.relationship_label,
+    target: conn.dst_concept,
+    isConverted: false
+  }));
+  const allRelationships = [...normalizedOutgoing, ...normalizedIncoming];
+  const uniqueRelationships = allRelationships.filter((rel, index7, self2) => {
+    const firstIndex = self2.findIndex(
+      (r2) => r2.target.id === rel.target.id && (r2.rel_type === rel.rel_type || r2.rel_type === getInverseRelType(rel.rel_type))
+    );
+    if (firstIndex === index7) return true;
+    if (firstIndex !== index7 && !rel.isConverted) return true;
+    return false;
+  });
+  const totalConnections = uniqueRelationships.length;
   return /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-start mb-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex gap-2 items-center" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark" }, concept.level_status)), /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
@@ -23288,7 +23327,7 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
       title: "Edit"
     },
     /* @__PURE__ */ import_react3.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5" }, /* @__PURE__ */ import_react3.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" }))
-  )), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react3.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), totalConnections > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "mb-3 pb-3 border-b border-gray-200" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Relationships (", totalConnections, ")"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-1" }, outgoingConnections.slice(0, 2).map((conn) => /* @__PURE__ */ import_react3.default.createElement("div", { key: conn.id, className: "text-xs text-gray-600" }, "\u2192 ", getRelationshipText(conn.rel_type), " ", /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-medium" }, conn.dst_concept.label))), incomingConnections.slice(0, 2).map((conn) => /* @__PURE__ */ import_react3.default.createElement("div", { key: conn.id, className: "text-xs text-gray-600" }, "\u2190 ", /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-medium" }, conn.src_concept.label), " ", getRelationshipText(conn.rel_type), " this")), totalConnections > 4 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs text-gray-500 italic" }, "+", totalConnections - 4, " more..."))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200 mt-auto" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react3.default.createElement(
+  )), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react3.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), totalConnections > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "mb-3 pb-3 border-b border-gray-200" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Relationships (", totalConnections, ")"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-1" }, uniqueRelationships.slice(0, 4).map((rel) => /* @__PURE__ */ import_react3.default.createElement("div", { key: rel.id, className: "text-xs text-gray-600" }, getRelationshipText(rel.rel_type), " ", /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-medium" }, rel.target.label))), totalConnections > 4 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs text-gray-500 italic" }, "+", totalConnections - 4, " more..."))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200 mt-auto" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react3.default.createElement(
     "button",
     {
       onClick: handleDelete2,

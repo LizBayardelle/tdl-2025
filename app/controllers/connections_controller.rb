@@ -50,7 +50,17 @@ class ConnectionsController < ApplicationController
 
   # POST /connections
   def create
-    @connection = current_user.connections.build(connection_params)
+    # Normalize the relationship to canonical form
+    normalized = Connection.normalize_relationship_params(
+      connection_params[:src_concept_id],
+      connection_params[:dst_concept_id],
+      connection_params[:rel_type]
+    )
+
+    # Build connection with normalized params
+    @connection = current_user.connections.build(
+      connection_params.except(:src_concept_id, :dst_concept_id, :rel_type).merge(normalized)
+    )
 
     if @connection.save
       render json: @connection.as_json(include: {
@@ -64,7 +74,14 @@ class ConnectionsController < ApplicationController
 
   # PATCH/PUT /connections/:id
   def update
-    if @connection.update(connection_params)
+    # Normalize the relationship to canonical form
+    normalized = Connection.normalize_relationship_params(
+      connection_params[:src_concept_id] || @connection.src_concept_id,
+      connection_params[:dst_concept_id] || @connection.dst_concept_id,
+      connection_params[:rel_type] || @connection.rel_type
+    )
+
+    if @connection.update(connection_params.except(:src_concept_id, :dst_concept_id, :rel_type).merge(normalized))
       render json: @connection.as_json(include: {
         src_concept: { only: [:id, :label, :node_type] },
         dst_concept: { only: [:id, :label, :node_type] }

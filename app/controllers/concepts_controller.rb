@@ -134,11 +134,14 @@ class ConceptsController < ApplicationController
     dst_concept = current_user.concepts.find_by(id: dst_concept_id)
     return unless dst_concept
 
-    # Create the connection
-    current_user.connections.create(
-      src_concept_id: concept.id,
-      dst_concept_id: dst_concept_id,
-      rel_type: rel_type || 'related_to'
+    # Normalize the relationship to canonical form
+    normalized = Connection.normalize_relationship_params(
+      concept.id,
+      dst_concept_id,
+      rel_type || 'related_to'
     )
+
+    # Create the connection with normalized params
+    current_user.connections.create(normalized)
   end
 end

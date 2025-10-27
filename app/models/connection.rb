@@ -13,6 +13,19 @@ class Connection < ApplicationRecord
   INFLUENCE_TYPES = ['influenced', 'supports', 'critiques'].freeze
   OTHER_TYPES = ['authored', 'applies_to', 'treats'].freeze
 
+  # Define inverse relationship pairs and their canonical direction
+  # The canonical direction is the one we always store in the database
+  INVERSE_PAIRS = {
+    'parent_of' => 'child_of',      # Canonical: parent_of
+    'child_of' => 'parent_of',      # Will be converted to parent_of
+    'prerequisite_for' => 'builds_on',  # Canonical: prerequisite_for
+    'builds_on' => 'prerequisite_for',  # Will be converted to prerequisite_for
+    'influenced' => 'derived_from',     # Canonical: influenced
+    'derived_from' => 'influenced'      # Will be converted to influenced
+  }.freeze
+
+  CANONICAL_RELATIONSHIPS = ['parent_of', 'prerequisite_for', 'influenced'].freeze
+
   enum :rel_type, {
     # Hierarchical (parent-child)
     parent_of: "parent_of",
@@ -58,6 +71,27 @@ class Connection < ApplicationRecord
   scope :semantic, -> { where(rel_type: SEMANTIC_TYPES) }
   scope :sequential, -> { where(rel_type: SEQUENTIAL_TYPES) }
   scope :influence, -> { where(rel_type: INFLUENCE_TYPES) }
+
+  # Class methods
+  def self.normalize_relationship_params(src_concept_id, dst_concept_id, rel_type)
+    # Check if this relationship type needs to be inverted to canonical form
+    if INVERSE_PAIRS.key?(rel_type) && !CANONICAL_RELATIONSHIPS.include?(rel_type)
+      # This is a non-canonical relationship, swap the direction
+      canonical_type = INVERSE_PAIRS[rel_type]
+      {
+        src_concept_id: dst_concept_id,
+        dst_concept_id: src_concept_id,
+        rel_type: canonical_type
+      }
+    else
+      # Already canonical or not an inverse pair
+      {
+        src_concept_id: src_concept_id,
+        dst_concept_id: dst_concept_id,
+        rel_type: rel_type
+      }
+    end
+  end
 
   # Helper methods
   def relationship_category

@@ -158,9 +158,60 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
     return textMap[relType] || relType;
   };
 
+  const getInverseRelType = (relType) => {
+    const inverses = {
+      parent_of: 'child_of',
+      child_of: 'parent_of',
+      prerequisite_for: 'builds_on',
+      builds_on: 'prerequisite_for',
+      derived_from: 'influenced', // derived_from X means X influenced this
+      influenced: 'derived_from'
+    };
+    return inverses[relType] || relType;
+  };
+
+  // Convert incoming connections to their outgoing equivalent for consistent display
   const outgoingConnections = concept.outgoing_connections || [];
   const incomingConnections = concept.incoming_connections || [];
-  const totalConnections = outgoingConnections.length + incomingConnections.length;
+
+  // Convert incoming inverse relationships to outgoing perspective
+  const normalizedIncoming = incomingConnections.map(conn => {
+    const inverseType = getInverseRelType(conn.rel_type);
+    return {
+      id: conn.id,
+      rel_type: inverseType,
+      relationship_label: conn.relationship_label,
+      target: conn.src_concept, // The source becomes our target
+      isConverted: inverseType !== conn.rel_type
+    };
+  });
+
+  // Convert outgoing to consistent format
+  const normalizedOutgoing = outgoingConnections.map(conn => ({
+    id: conn.id,
+    rel_type: conn.rel_type,
+    relationship_label: conn.relationship_label,
+    target: conn.dst_concept,
+    isConverted: false
+  }));
+
+  // Combine and deduplicate
+  const allRelationships = [...normalizedOutgoing, ...normalizedIncoming];
+
+  // Remove duplicates by checking if the same relationship exists in both directions
+  const uniqueRelationships = allRelationships.filter((rel, index, self) => {
+    // Keep if it's the first occurrence, or if there's no matching inverse
+    const firstIndex = self.findIndex(r =>
+      r.target.id === rel.target.id &&
+      (r.rel_type === rel.rel_type || r.rel_type === getInverseRelType(rel.rel_type))
+    );
+    // Prefer outgoing (not converted) over incoming (converted)
+    if (firstIndex === index) return true;
+    if (firstIndex !== index && !rel.isConverted) return true;
+    return false;
+  });
+
+  const totalConnections = uniqueRelationships.length;
 
   return (
     <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col">
@@ -203,14 +254,9 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
             Relationships ({totalConnections})
           </div>
           <div className="space-y-1">
-            {outgoingConnections.slice(0, 2).map(conn => (
-              <div key={conn.id} className="text-xs text-gray-600">
-                → {getRelationshipText(conn.rel_type)} <span className="font-medium">{conn.dst_concept.label}</span>
-              </div>
-            ))}
-            {incomingConnections.slice(0, 2).map(conn => (
-              <div key={conn.id} className="text-xs text-gray-600">
-                ← <span className="font-medium">{conn.src_concept.label}</span> {getRelationshipText(conn.rel_type)} this
+            {uniqueRelationships.slice(0, 4).map(rel => (
+              <div key={rel.id} className="text-xs text-gray-600">
+                {getRelationshipText(rel.rel_type)} <span className="font-medium">{rel.target.label}</span>
               </div>
             ))}
             {totalConnections > 4 && (
