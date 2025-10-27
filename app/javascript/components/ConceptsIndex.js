@@ -137,8 +137,33 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
     }
   };
 
+  const getRelationshipText = (relType) => {
+    const textMap = {
+      parent_of: 'parent of',
+      child_of: 'child of',
+      prerequisite_for: 'prerequisite for',
+      builds_on: 'builds on',
+      derived_from: 'derived from',
+      related_to: 'related to',
+      contrasts_with: 'contrasts with',
+      integrates_with: 'integrates with',
+      associated_with: 'associated with',
+      influenced: 'influenced',
+      supports: 'supports',
+      critiques: 'critiques',
+      authored: 'authored',
+      applies_to: 'applies to',
+      treats: 'treats'
+    };
+    return textMap[relType] || relType;
+  };
+
+  const outgoingConnections = concept.outgoing_connections || [];
+  const incomingConnections = concept.incoming_connections || [];
+  const totalConnections = outgoingConnections.length + incomingConnections.length;
+
   return (
-    <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
+    <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col">
       <div className="flex justify-between items-start mb-2">
         <div className="flex gap-2 items-center">
           <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
@@ -171,7 +196,33 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
         <p className="text-sm mb-3 line-clamp-3">{concept.summary_top}</p>
       )}
 
-      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+      {/* Relationships Section */}
+      {totalConnections > 0 && (
+        <div className="mb-3 pb-3 border-b border-gray-200">
+          <div className="text-xs font-medium text-gray-700 mb-2">
+            Relationships ({totalConnections})
+          </div>
+          <div className="space-y-1">
+            {outgoingConnections.slice(0, 2).map(conn => (
+              <div key={conn.id} className="text-xs text-gray-600">
+                → {getRelationshipText(conn.rel_type)} <span className="font-medium">{conn.dst_concept.label}</span>
+              </div>
+            ))}
+            {incomingConnections.slice(0, 2).map(conn => (
+              <div key={conn.id} className="text-xs text-gray-600">
+                ← <span className="font-medium">{conn.src_concept.label}</span> {getRelationshipText(conn.rel_type)} this
+              </div>
+            ))}
+            {totalConnections > 4 && (
+              <div className="text-xs text-gray-500 italic">
+                +{totalConnections - 4} more...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center pt-3 border-t border-gray-200 mt-auto">
         <span className="text-xs text-gray-500">
           Updated {new Date(concept.updated_at).toLocaleDateString()}
         </span>

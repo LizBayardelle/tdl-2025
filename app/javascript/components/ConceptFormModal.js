@@ -3,6 +3,7 @@ import Modal from './Modal';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
+  const [concepts, setConcepts] = useState([]);
   const [activeTab, setActiveTab] = useState('basics');
   const [formData, setFormData] = useState({
     label: '',
@@ -25,7 +26,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     evidence_brief: '',
     confidence_note: '',
     tags: [],
-    people_ids: []
+    people_ids: [],
+    new_relationship_dst_concept_id: '',
+    new_relationship_rel_type: 'related_to'
   });
   const [error, setError] = useState('');
 
@@ -33,6 +36,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     if (isOpen) {
       setActiveTab('basics');
       fetchPeople();
+      fetchConcepts();
       if (item) {
         setFormData({
           label: item.label || '',
@@ -55,7 +59,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           evidence_brief: item.evidence_brief || '',
           confidence_note: item.confidence_note || '',
           tags: item.tags || [],
-          people_ids: item.people_ids || []
+          people_ids: item.people_ids || [],
+          new_relationship_dst_concept_id: '',
+          new_relationship_rel_type: 'related_to'
         });
       } else {
         setFormData({
@@ -79,7 +85,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           evidence_brief: '',
           confidence_note: '',
           tags: [],
-          people_ids: []
+          people_ids: [],
+          new_relationship_dst_concept_id: '',
+          new_relationship_rel_type: 'related_to'
         });
       }
       setError('');
@@ -93,6 +101,16 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setPeople(data);
     } catch (error) {
       console.error('Error fetching people:', error);
+    }
+  };
+
+  const fetchConcepts = async () => {
+    try {
+      const response = await fetch('/concepts.json');
+      const data = await response.json();
+      setConcepts(data);
+    } catch (error) {
+      console.error('Error fetching concepts:', error);
     }
   };
 
@@ -432,6 +450,62 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {activeTab === 'relationships' && (
             <div className="space-y-4">
+              {/* Quick Add Relationship */}
+              <div className="bg-white border-2 border-primary rounded-lg p-4">
+                <label className="block text-sm font-medium mb-3 text-primary">Quick Add Relationship</label>
+                <div className="flex flex-wrap items-center gap-2 text-lg">
+                  <span className="font-medium text-primary">
+                    {formData.label || '[This Construct]'}
+                  </span>
+                  <select
+                    value={formData.new_relationship_rel_type}
+                    onChange={(e) => setFormData({ ...formData, new_relationship_rel_type: e.target.value })}
+                    className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base"
+                  >
+                    <optgroup label="Hierarchical">
+                      <option value="parent_of">is a parent of</option>
+                      <option value="child_of">is a child of</option>
+                    </optgroup>
+                    <optgroup label="Sequential">
+                      <option value="prerequisite_for">is a prerequisite for</option>
+                      <option value="builds_on">builds on</option>
+                      <option value="derived_from">is derived from</option>
+                    </optgroup>
+                    <optgroup label="Semantic">
+                      <option value="related_to">is related to</option>
+                      <option value="contrasts_with">contrasts with</option>
+                      <option value="integrates_with">integrates with</option>
+                      <option value="associated_with">is associated with</option>
+                    </optgroup>
+                    <optgroup label="Influence">
+                      <option value="influenced">influenced</option>
+                      <option value="supports">supports</option>
+                      <option value="critiques">critiques</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="authored">authored</option>
+                      <option value="applies_to">applies to</option>
+                      <option value="treats">treats</option>
+                    </optgroup>
+                  </select>
+                  <select
+                    value={formData.new_relationship_dst_concept_id}
+                    onChange={(e) => setFormData({ ...formData, new_relationship_dst_concept_id: e.target.value })}
+                    className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]"
+                  >
+                    <option value="">select a construct...</option>
+                    {concepts.filter(c => !item || c.id !== item.id).map(concept => (
+                      <option key={concept.id} value={concept.id}>
+                        {concept.label} ({concept.node_type})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  This relationship will be created when you save the construct.
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Adjacent Models (one per line)

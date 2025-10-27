@@ -3,11 +3,28 @@ class ConceptsController < ApplicationController
   before_action :set_concept, only: [:show, :update, :destroy]
 
   def index
-    @concepts = current_user.concepts.recent
+    @concepts = current_user.concepts.includes(:outgoing_connections, :incoming_connections).recent
 
     respond_to do |format|
       format.html
-      format.json { render json: @concepts }
+      format.json {
+        render json: @concepts.as_json(
+          include: {
+            outgoing_connections: {
+              only: [:id, :rel_type, :relationship_label],
+              include: {
+                dst_concept: { only: [:id, :label, :node_type] }
+              }
+            },
+            incoming_connections: {
+              only: [:id, :rel_type, :relationship_label],
+              include: {
+                src_concept: { only: [:id, :label, :node_type] }
+              }
+            }
+          }
+        )
+      }
     end
   end
 
@@ -26,11 +43,14 @@ class ConceptsController < ApplicationController
   end
 
   def create
-    @concept = current_user.concepts.build(concept_params.except(:people_ids))
+    @concept = current_user.concepts.build(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type))
 
     if @concept.save
       # Create associations
       update_people_associations(@concept, params[:concept][:people_ids]) if params[:concept][:people_ids]
+
+      # Create relationship if specified
+      create_relationship(@concept, params[:concept][:new_relationship_dst_concept_id], params[:concept][:new_relationship_rel_type]) if params[:concept][:new_relationship_dst_concept_id].present?
 
       render json: @concept, status: :created
     else
@@ -39,9 +59,12 @@ class ConceptsController < ApplicationController
   end
 
   def update
-    if @concept.update(concept_params.except(:people_ids))
+    if @concept.update(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type))
       # Update associations
       update_people_associations(@concept, params[:concept][:people_ids]) if params[:concept][:people_ids]
+
+      # Create relationship if specified
+      create_relationship(@concept, params[:concept][:new_relationship_dst_concept_id], params[:concept][:new_relationship_rel_type]) if params[:concept][:new_relationship_dst_concept_id].present?
 
       render json: @concept
     else
@@ -72,6 +95,8 @@ class ConceptsController < ApplicationController
       :confidence_note,
       :level_status,
       :last_reviewed_on,
+      :new_relationship_dst_concept_id,
+      :new_relationship_rel_type,
       mechanisms: [],
       signature_techniques: [],
       strengths: [],
@@ -100,5 +125,20 @@ class ConceptsController < ApplicationController
       person = current_user.people.find_by(id: person_id)
       concept.people_concepts.create(person: person) if person
     end
+  end
+
+  def create_relationship(concept, dst_concept_id, rel_type)
+    return if dst_concept_id.blank?
+
+    # Find the destination concept
+    dst_concept = current_user.concepts.find_by(id: dst_concept_id)
+    return unless dst_concept
+
+    # Create the connection
+    current_user.connections.create(
+      src_concept_id: concept.id,
+      dst_concept_id: dst_concept_id,
+      rel_type: rel_type || 'related_to'
+    )
   end
 end

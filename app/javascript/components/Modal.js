@@ -31,7 +31,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'medium
               <h3 className="text-xl font-medium">{title}</h3>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="!text-olive text-2xl leading-none !bg-transparent hover:opacity-80"
                 type="button"
               >
                 ×
