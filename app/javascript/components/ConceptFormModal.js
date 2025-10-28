@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
+import HierarchicalConceptSelect from './HierarchicalConceptSelect';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
@@ -488,18 +489,13 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                       <option value="treats">treats</option>
                     </optgroup>
                   </select>
-                  <select
+                  <HierarchicalConceptSelect
+                    concepts={concepts}
                     value={formData.new_relationship_dst_concept_id}
                     onChange={(e) => setFormData({ ...formData, new_relationship_dst_concept_id: e.target.value })}
-                    className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]"
-                  >
-                    <option value="">select a construct...</option>
-                    {concepts.filter(c => !item || c.id !== item.id).map(concept => (
-                      <option key={concept.id} value={concept.id}>
-                        {concept.label} ({concept.node_type})
-                      </option>
-                    ))}
-                  </select>
+                    excludeId={item?.id}
+                    placeholder="select a construct..."
+                  />
                 </div>
                 <p className="text-xs text-gray-600 mt-2">
                   This relationship will be created when you save the construct.

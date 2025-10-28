@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
+import HierarchicalConceptSelect from './HierarchicalConceptSelect';
 
 export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, concepts, allConcepts }) {
   const [formData, setFormData] = useState({
@@ -156,19 +157,14 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
                 <option value="treats">treats</option>
               </optgroup>
             </select>
-            <select
+            <HierarchicalConceptSelect
+              concepts={allConcepts || concepts}
               value={formData.dst_concept_id}
               onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
-              className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]"
+              excludeId={formData.src_concept_id ? parseInt(formData.src_concept_id) : null}
+              placeholder="select a construct..."
               required
-            >
-              <option value="">select a construct...</option>
-              {concepts && concepts.map(concept => (
-                <option key={concept.id} value={concept.id}>
-                  {concept.label} ({concept.node_type})
-                </option>
-              ))}
-            </select>
+            />
           </div>
         </div>
 

@@ -1328,7 +1328,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React22 = require_react(), Internals = {
+      var React23 = require_react(), Internals = {
         d: {
           f: noop3,
           r: function() {
@@ -1346,7 +1346,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React22.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React23.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -2881,7 +2881,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React22.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React23.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -18513,14 +18513,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React22 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React23 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React22.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React23.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -21308,7 +21308,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React22.version;
+        var isomorphicReactPackageVersion = React23.version;
         if ("19.2.0" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.0\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21457,7 +21457,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x3 === y3 && (0 !== x3 || 1 / x3 === 1 / y3) || x3 !== x3 && y3 !== y3;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React22.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React23.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21505,8 +21505,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React22 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState20 = React22.useState, useEffect20 = React22.useEffect, useLayoutEffect3 = React22.useLayoutEffect, useDebugValue3 = React22.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React22.useSyncExternalStore ? React22.useSyncExternalStore : shim;
+      var React23 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState20 = React23.useState, useEffect20 = React23.useEffect, useLayoutEffect3 = React23.useLayoutEffect, useDebugValue3 = React23.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React23.useSyncExternalStore ? React23.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21738,18 +21738,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React22 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React22.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty2 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React23 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React23.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty2 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React22 = {
+      React23 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React22.react_stack_bottom_frame.bind(
-        React22,
+      var unknownOwnerDebugStack = React23.react_stack_bottom_frame.bind(
+        React23,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21861,14 +21861,14 @@ var require_with_selector_development = __commonJS({
         return x3 === y3 && (0 !== x3 || 1 / x3 === 1 / y3) || x3 !== x3 && y3 !== y3;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React22 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef6 = React22.useRef, useEffect20 = React22.useEffect, useMemo3 = React22.useMemo, useDebugValue3 = React22.useDebugValue;
+      var React23 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef6 = React23.useRef, useEffect20 = React23.useEffect, useMemo4 = React23.useMemo, useDebugValue3 = React23.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef6(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
         } else inst = instRef.current;
-        instRef = useMemo3(
+        instRef = useMemo4(
           function() {
             function memoizedSelector(nextSnapshot) {
               if (!hasMemo) {
@@ -22709,14 +22709,14 @@ var require_prop_types = __commonJS({
 });
 
 // app/javascript/application.js
-var import_react31 = __toESM(require_react());
+var import_react32 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
-var import_react3 = __toESM(require_react());
+var import_react4 = __toESM(require_react());
 
 // app/javascript/components/ConceptFormModal.js
-var import_react2 = __toESM(require_react());
+var import_react3 = __toESM(require_react());
 
 // app/javascript/components/Modal.js
 var import_react = __toESM(require_react());
@@ -22753,12 +22753,97 @@ function Modal({ isOpen, onClose, title, children: children2, size = "medium" })
   )));
 }
 
+// app/javascript/components/HierarchicalConceptSelect.js
+var import_react2 = __toESM(require_react());
+
+// app/javascript/utils/conceptHierarchy.js
+function buildConceptHierarchy(concepts) {
+  if (!concepts || concepts.length === 0) return [];
+  const conceptMap = new Map(concepts.map((c3) => [c3.id, { ...c3, children: [] }]));
+  const roots = [];
+  concepts.forEach((concept) => {
+    let isChild = false;
+    if (concept.incoming_connections) {
+      const parentConnections = concept.incoming_connections.filter(
+        (conn) => conn.rel_type === "parent_of"
+      );
+      parentConnections.forEach((conn) => {
+        const parentId = conn.src_concept.id;
+        const parent = conceptMap.get(parentId);
+        if (parent && parent.id !== concept.id) {
+          const childConcept = conceptMap.get(concept.id);
+          if (childConcept && !parent.children.find((c3) => c3.id === childConcept.id)) {
+            parent.children.push(childConcept);
+            isChild = true;
+          }
+        }
+      });
+    }
+    if (!isChild) {
+      roots.push(conceptMap.get(concept.id));
+    }
+  });
+  roots.sort((a3, b) => a3.label.localeCompare(b.label));
+  roots.forEach((root3) => {
+    sortChildrenRecursively(root3);
+  });
+  return roots;
+}
+function sortChildrenRecursively(node) {
+  if (node.children && node.children.length > 0) {
+    node.children.sort((a3, b) => a3.label.localeCompare(b.label));
+    node.children.forEach((child) => sortChildrenRecursively(child));
+  }
+}
+function flattenHierarchy(hierarchyNodes, depth = 0) {
+  const result = [];
+  hierarchyNodes.forEach((node) => {
+    result.push({ concept: node, depth });
+    if (node.children && node.children.length > 0) {
+      result.push(...flattenHierarchy(node.children, depth + 1));
+    }
+  });
+  return result;
+}
+function getIndentPrefix(depth) {
+  return "\xA0\xA0".repeat(depth * 2);
+}
+
+// app/javascript/components/HierarchicalConceptSelect.js
+function HierarchicalConceptSelect({
+  concepts,
+  value,
+  onChange: onChange15,
+  excludeId = null,
+  placeholder = "select a construct...",
+  className = "px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]",
+  required = false
+}) {
+  const flatConcepts = (0, import_react2.useMemo)(() => {
+    if (!concepts) return [];
+    const filteredConcepts = excludeId ? concepts.filter((c3) => c3.id !== excludeId) : concepts;
+    const hierarchy = buildConceptHierarchy(filteredConcepts);
+    return flattenHierarchy(hierarchy);
+  }, [concepts, excludeId]);
+  return /* @__PURE__ */ import_react2.default.createElement(
+    "select",
+    {
+      value,
+      onChange: onChange15,
+      className,
+      required
+    },
+    /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, placeholder),
+    flatConcepts.map(({ concept, depth }) => /* @__PURE__ */ import_react2.default.createElement("option", { key: concept.id, value: concept.id }, getIndentPrefix(depth), concept.label, " (", concept.node_type, ")"))
+  );
+}
+
 // app/javascript/components/ConceptFormModal.js
 function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [people, setPeople] = (0, import_react2.useState)([]);
-  const [concepts, setConcepts] = (0, import_react2.useState)([]);
-  const [activeTab, setActiveTab] = (0, import_react2.useState)("basics");
-  const [formData, setFormData] = (0, import_react2.useState)({
+  const [people, setPeople] = (0, import_react3.useState)([]);
+  const [concepts, setConcepts] = (0, import_react3.useState)([]);
+  const [activeTab, setActiveTab] = (0, import_react3.useState)("basics");
+  const [formData, setFormData] = (0, import_react3.useState)({
     label: "",
     node_type: "model",
     level_status: "mapped",
@@ -22783,8 +22868,8 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     new_relationship_dst_concept_id: "",
     new_relationship_rel_type: "related_to"
   });
-  const [error, setError] = (0, import_react2.useState)("");
-  (0, import_react2.useEffect)(() => {
+  const [error, setError] = (0, import_react3.useState)("");
+  (0, import_react3.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basics");
       fetchPeople();
@@ -22894,7 +22979,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setError("An error occurred while saving the concept");
     }
   };
-  return /* @__PURE__ */ import_react2.default.createElement(
+  return /* @__PURE__ */ import_react3.default.createElement(
     Modal,
     {
       isOpen,
@@ -22902,7 +22987,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Construct" : "New Construct",
       size: "large"
     },
-    /* @__PURE__ */ import_react2.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col h-full" }, error && /* @__PURE__ */ import_react2.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex gap-1 mb-0" }, /* @__PURE__ */ import_react2.default.createElement(
+    /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col h-full" }, error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex gap-1 mb-0" }, /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "button",
@@ -22910,7 +22995,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "basics" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       "Basics"
-    ), /* @__PURE__ */ import_react2.default.createElement(
+    ), /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "button",
@@ -22918,7 +23003,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "summaries" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       "Summaries"
-    ), /* @__PURE__ */ import_react2.default.createElement(
+    ), /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "button",
@@ -22926,7 +23011,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "details" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       "Details"
-    ), /* @__PURE__ */ import_react2.default.createElement(
+    ), /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "button",
@@ -22934,7 +23019,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === "relationships" ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       "Relationships"
-    )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex-1 overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg", style: { minHeight: "400px" } }, activeTab === "basics" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Label *"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg", style: { minHeight: "400px" } }, activeTab === "basics" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Label *"), /* @__PURE__ */ import_react3.default.createElement(
       "input",
       {
         type: "text",
@@ -22943,31 +23028,31 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
       {
         value: formData.node_type,
         onChange: (e2) => setFormData({ ...formData, node_type: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "model" }, "Model"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "technique" }, "Technique"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "construct" }, "Construct"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "measure" }, "Measure"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "population" }, "Population"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "category" }, "Category"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "discipline" }, "Discipline")
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Status"), /* @__PURE__ */ import_react2.default.createElement(
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "model" }, "Model"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "technique" }, "Technique"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "construct" }, "Construct"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "measure" }, "Measure"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "population" }, "Population"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "category" }, "Category"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "discipline" }, "Discipline")
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Status"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
       {
         value: formData.level_status,
         onChange: (e2) => setFormData({ ...formData, level_status: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "mapped" }, "Mapped"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "basic" }, "Basic"),
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "deep" }, "Deep")
-    ))), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Top (2-3 sentences)"), /* @__PURE__ */ import_react2.default.createElement(
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "mapped" }, "Mapped"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "basic" }, "Basic"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "deep" }, "Deep")
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Top (2-3 sentences)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.summary_top,
@@ -22975,7 +23060,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), activeTab === "summaries" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Mid (~200 words)"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "summaries" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Mid (~200 words)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.summary_mid,
@@ -22983,7 +23068,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "8",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Deep (~600 words)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary Deep (~600 words)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.summary_deep,
@@ -22991,7 +23076,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "12",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), activeTab === "details" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "grid md:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Mechanisms (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "details" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid md:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Mechanisms (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.mechanisms.join("\n"),
@@ -22999,7 +23084,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Signature Techniques (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Signature Techniques (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.signature_techniques.join("\n"),
@@ -23007,7 +23092,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Strengths (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Strengths (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.strengths.join("\n"),
@@ -23015,7 +23100,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Weaknesses (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Weaknesses (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.weaknesses.join("\n"),
@@ -23023,7 +23108,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Intake Questions (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Intake Questions (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.intake_questions.join("\n"),
@@ -23031,7 +23116,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Micro Skills (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Micro Skills (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.micro_skills.join("\n"),
@@ -23039,7 +23124,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Practice Prompts (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Practice Prompts (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.practice_prompts.join("\n"),
@@ -23047,7 +23132,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Assessment Links (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Assessment Links (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.assessment_links.join("\n"),
@@ -23055,7 +23140,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.tags.join("\n"),
@@ -23063,7 +23148,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
       {
         multiple: true,
@@ -23075,8 +23160,8 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         size: "5"
       },
-      people.map((person) => /* @__PURE__ */ import_react2.default.createElement("option", { key: person.id, value: person.id }, person.full_name, " (", person.role, ")"))
-    ), /* @__PURE__ */ import_react2.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.people_ids.length, " ", formData.people_ids.length === 1 ? "person" : "people")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Evidence Brief"), /* @__PURE__ */ import_react2.default.createElement(
+      people.map((person) => /* @__PURE__ */ import_react3.default.createElement("option", { key: person.id, value: person.id }, person.full_name, " (", person.role, ")"))
+    ), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.people_ids.length, " ", formData.people_ids.length === 1 ? "person" : "people")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Evidence Brief"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.evidence_brief,
@@ -23084,7 +23169,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Confidence Note"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Confidence Note"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.confidence_note,
@@ -23092,28 +23177,28 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), activeTab === "relationships" && /* @__PURE__ */ import_react2.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "bg-white border-2 border-primary rounded-lg p-4" }, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-3 text-primary" }, "Quick Add Relationship"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex flex-wrap items-center gap-2 text-lg" }, /* @__PURE__ */ import_react2.default.createElement("span", { className: "font-medium text-primary" }, formData.label || "[This Construct]"), /* @__PURE__ */ import_react2.default.createElement(
+    ))), activeTab === "relationships" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-white border-2 border-primary rounded-lg p-4" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-3 text-primary" }, "Quick Add Relationship"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex flex-wrap items-center gap-2 text-lg" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-medium text-primary" }, formData.label || "[This Construct]"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
       {
         value: formData.new_relationship_rel_type,
         onChange: (e2) => setFormData({ ...formData, new_relationship_rel_type: e2.target.value }),
         className: "px-3 py-1.5 border border-gray-300 rounded bg-white text-base"
       },
-      /* @__PURE__ */ import_react2.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "child_of" }, "is a child of")),
-      /* @__PURE__ */ import_react2.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "derived_from" }, "is derived from")),
-      /* @__PURE__ */ import_react2.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "associated_with" }, "is associated with")),
-      /* @__PURE__ */ import_react2.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "critiques" }, "critiques")),
-      /* @__PURE__ */ import_react2.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react2.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react2.default.createElement("option", { value: "treats" }, "treats"))
-    ), /* @__PURE__ */ import_react2.default.createElement(
-      "select",
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "child_of" }, "is a child of")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "derived_from" }, "is derived from")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "associated_with" }, "is associated with")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "critiques" }, "critiques")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "treats" }, "treats"))
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      HierarchicalConceptSelect,
       {
+        concepts,
         value: formData.new_relationship_dst_concept_id,
         onChange: (e2) => setFormData({ ...formData, new_relationship_dst_concept_id: e2.target.value }),
-        className: "px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]"
-      },
-      /* @__PURE__ */ import_react2.default.createElement("option", { value: "" }, "select a construct..."),
-      concepts.filter((c3) => !item || c3.id !== item.id).map((concept) => /* @__PURE__ */ import_react2.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    )), /* @__PURE__ */ import_react2.default.createElement("p", { className: "text-xs text-gray-600 mt-2" }, "This relationship will be created when you save the construct.")), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Adjacent Models (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+        excludeId: item?.id,
+        placeholder: "select a construct..."
+      }
+    )), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-gray-600 mt-2" }, "This relationship will be created when you save the construct.")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Adjacent Models (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.adjacent_models.join("\n"),
@@ -23121,7 +23206,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Contrasts With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Contrasts With (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.contrasts_with.join("\n"),
@@ -23129,7 +23214,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react2.default.createElement("div", null, /* @__PURE__ */ import_react2.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Integrates With (one per line)"), /* @__PURE__ */ import_react2.default.createElement(
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Integrates With (one per line)"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.integrates_with.join("\n"),
@@ -23137,14 +23222,14 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )))), /* @__PURE__ */ import_react2.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react2.default.createElement(
+    )))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Construct"
-    ), /* @__PURE__ */ import_react2.default.createElement(
+    ), /* @__PURE__ */ import_react3.default.createElement(
       "button",
       {
         type: "button",
@@ -23158,12 +23243,12 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/ConceptsIndex.js
 function ConceptsIndex() {
-  const [concepts, setConcepts] = (0, import_react3.useState)([]);
-  const [loading, setLoading] = (0, import_react3.useState)(true);
-  const [showForm, setShowForm] = (0, import_react3.useState)(false);
-  const [editingConcept, setEditingConcept] = (0, import_react3.useState)(null);
-  const [filterType, setFilterType] = (0, import_react3.useState)("all");
-  (0, import_react3.useEffect)(() => {
+  const [concepts, setConcepts] = (0, import_react4.useState)([]);
+  const [loading, setLoading] = (0, import_react4.useState)(true);
+  const [showForm, setShowForm] = (0, import_react4.useState)(false);
+  const [editingConcept, setEditingConcept] = (0, import_react4.useState)(null);
+  const [filterType, setFilterType] = (0, import_react4.useState)("all");
+  (0, import_react4.useEffect)(() => {
     fetchConcepts();
   }, []);
   const fetchConcepts = async () => {
@@ -23180,16 +23265,16 @@ function ConceptsIndex() {
   const filteredConcepts = filterType === "all" ? concepts : concepts.filter((concept) => concept.node_type === filterType);
   const conceptTypes = ["model", "technique", "construct", "measure", "population", "category", "discipline"];
   if (loading) {
-    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-lg" }, "Loading constructs..."));
+    return /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-lg" }, "Loading constructs..."));
   }
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react3.default.createElement("h1", { className: "text-4xl" }, "Knowledge Constructs"), /* @__PURE__ */ import_react3.default.createElement(
+  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react4.default.createElement("h1", { className: "text-4xl" }, "Knowledge Constructs"), /* @__PURE__ */ import_react4.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Construct"
-  )), /* @__PURE__ */ import_react3.default.createElement(
+  )), /* @__PURE__ */ import_react4.default.createElement(
     ConceptFormModal,
     {
       isOpen: showForm,
@@ -23204,7 +23289,7 @@ function ConceptsIndex() {
       },
       item: editingConcept
     }
-  ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react3.default.createElement(
+  ), /* @__PURE__ */ import_react4.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react4.default.createElement(
     "button",
     {
       onClick: () => setFilterType("all"),
@@ -23215,7 +23300,7 @@ function ConceptsIndex() {
     ")"
   ), conceptTypes.map((type) => {
     const count = concepts.filter((n2) => n2.node_type === type).length;
-    return /* @__PURE__ */ import_react3.default.createElement(
+    return /* @__PURE__ */ import_react4.default.createElement(
       "button",
       {
         key: type,
@@ -23227,7 +23312,7 @@ function ConceptsIndex() {
       count,
       ")"
     );
-  })), filteredConcepts.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-lg mb-4" }, "No constructs yet."), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm" }, "Create your first knowledge construct to begin building your framework.")) : /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react3.default.createElement(
+  })), filteredConcepts.length === 0 ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-lg mb-4" }, "No constructs yet."), /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-sm" }, "Create your first knowledge construct to begin building your framework.")) : /* @__PURE__ */ import_react4.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react4.default.createElement(
     ConceptCard,
     {
       key: concept.id,
@@ -23319,15 +23404,15 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
     return false;
   });
   const totalConnections = uniqueRelationships.length;
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-start mb-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex gap-2 items-center" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark" }, concept.level_status)), /* @__PURE__ */ import_react3.default.createElement(
+  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col" }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex justify-between items-start mb-2" }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex gap-2 items-center" }, /* @__PURE__ */ import_react4.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react4.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark" }, concept.level_status)), /* @__PURE__ */ import_react4.default.createElement(
     "button",
     {
       onClick: () => onEdit(concept),
       className: "!bg-transparent !text-primary hover:!text-accent-dark transition-colors !p-0",
       title: "Edit"
     },
-    /* @__PURE__ */ import_react3.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5" }, /* @__PURE__ */ import_react3.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" }))
-  )), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react3.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), totalConnections > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "mb-3 pb-3 border-b border-gray-200" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Relationships (", totalConnections, ")"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-1" }, uniqueRelationships.slice(0, 4).map((rel) => /* @__PURE__ */ import_react3.default.createElement("div", { key: rel.id, className: "text-xs text-gray-600" }, getRelationshipText(rel.rel_type), " ", /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-medium" }, rel.target.label))), totalConnections > 4 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "text-xs text-gray-500 italic" }, "+", totalConnections - 4, " more..."))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200 mt-auto" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react3.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: 1.5, stroke: "currentColor", className: "w-5 h-5" }, /* @__PURE__ */ import_react4.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" }))
+  )), /* @__PURE__ */ import_react4.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react4.default.createElement("a", { href: `/concepts/${concept.id}`, className: "hover:text-primary" }, concept.label)), concept.summary_top && /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, concept.summary_top), totalConnections > 0 && /* @__PURE__ */ import_react4.default.createElement("div", { className: "mb-3 pb-3 border-b border-gray-200" }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Relationships (", totalConnections, ")"), /* @__PURE__ */ import_react4.default.createElement("div", { className: "space-y-1" }, uniqueRelationships.slice(0, 4).map((rel) => /* @__PURE__ */ import_react4.default.createElement("div", { key: rel.id, className: "text-xs text-gray-600" }, getRelationshipText(rel.rel_type), " ", /* @__PURE__ */ import_react4.default.createElement("span", { className: "font-medium" }, rel.target.label))), totalConnections > 4 && /* @__PURE__ */ import_react4.default.createElement("div", { className: "text-xs text-gray-500 italic" }, "+", totalConnections - 4, " more..."))), /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200 mt-auto" }, /* @__PURE__ */ import_react4.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(concept.updated_at).toLocaleDateString()), /* @__PURE__ */ import_react4.default.createElement(
     "button",
     {
       onClick: handleDelete2,
@@ -23338,12 +23423,12 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
 }
 
 // app/javascript/components/ConceptShow.js
-var import_react17 = __toESM(require_react());
+var import_react18 = __toESM(require_react());
 
 // app/javascript/components/ConnectionFormModal.js
-var import_react4 = __toESM(require_react());
+var import_react5 = __toESM(require_react());
 function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, concepts, allConcepts }) {
-  const [formData, setFormData] = (0, import_react4.useState)({
+  const [formData, setFormData] = (0, import_react5.useState)({
     src_concept_id: "",
     dst_concept_id: "",
     rel_type: "related_to",
@@ -23351,7 +23436,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
     description: "",
     tags: ""
   });
-  const [error, setError] = (0, import_react4.useState)("");
+  const [error, setError] = (0, import_react5.useState)("");
   const getSourceConceptName = () => {
     if (!formData.src_concept_id) return "";
     const conceptList = allConcepts || concepts || [];
@@ -23378,7 +23463,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
     };
     return textMap[relType] || relType;
   };
-  (0, import_react4.useEffect)(() => {
+  (0, import_react5.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -23433,7 +23518,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
       setError("An error occurred while saving the relationship");
     }
   };
-  return /* @__PURE__ */ import_react4.default.createElement(
+  return /* @__PURE__ */ import_react5.default.createElement(
     Modal,
     {
       isOpen,
@@ -23441,29 +23526,29 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
       title: item ? "Edit Relationship" : "New Relationship",
       size: "medium"
     },
-    /* @__PURE__ */ import_react4.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react4.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react4.default.createElement("div", { className: "bg-sand border border-gray-300 rounded-lg p-4" }, /* @__PURE__ */ import_react4.default.createElement("label", { className: "block text-sm font-medium mb-3" }, "Define Relationship"), /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex flex-wrap items-center gap-2 text-lg" }, /* @__PURE__ */ import_react4.default.createElement("span", { className: "font-medium text-primary" }, getSourceConceptName() || "[Source Concept]"), /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react5.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react5.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react5.default.createElement("div", { className: "bg-sand border border-gray-300 rounded-lg p-4" }, /* @__PURE__ */ import_react5.default.createElement("label", { className: "block text-sm font-medium mb-3" }, "Define Relationship"), /* @__PURE__ */ import_react5.default.createElement("div", { className: "flex flex-wrap items-center gap-2 text-lg" }, /* @__PURE__ */ import_react5.default.createElement("span", { className: "font-medium text-primary" }, getSourceConceptName() || "[Source Concept]"), /* @__PURE__ */ import_react5.default.createElement(
       "select",
       {
         value: formData.rel_type,
         onChange: (e2) => setFormData({ ...formData, rel_type: e2.target.value }),
         className: "px-3 py-1.5 border border-gray-300 rounded bg-white text-base"
       },
-      /* @__PURE__ */ import_react4.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react4.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "child_of" }, "is a child of")),
-      /* @__PURE__ */ import_react4.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react4.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "derived_from" }, "is derived from")),
-      /* @__PURE__ */ import_react4.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react4.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "associated_with" }, "is associated with")),
-      /* @__PURE__ */ import_react4.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react4.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "critiques" }, "critiques")),
-      /* @__PURE__ */ import_react4.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react4.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react4.default.createElement("option", { value: "treats" }, "treats"))
-    ), /* @__PURE__ */ import_react4.default.createElement(
-      "select",
+      /* @__PURE__ */ import_react5.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react5.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "child_of" }, "is a child of")),
+      /* @__PURE__ */ import_react5.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react5.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "derived_from" }, "is derived from")),
+      /* @__PURE__ */ import_react5.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react5.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "associated_with" }, "is associated with")),
+      /* @__PURE__ */ import_react5.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react5.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "critiques" }, "critiques")),
+      /* @__PURE__ */ import_react5.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react5.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react5.default.createElement("option", { value: "treats" }, "treats"))
+    ), /* @__PURE__ */ import_react5.default.createElement(
+      HierarchicalConceptSelect,
       {
+        concepts: allConcepts || concepts,
         value: formData.dst_concept_id,
         onChange: (e2) => setFormData({ ...formData, dst_concept_id: e2.target.value }),
-        className: "px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]",
+        excludeId: formData.src_concept_id ? parseInt(formData.src_concept_id) : null,
+        placeholder: "select a construct...",
         required: true
-      },
-      /* @__PURE__ */ import_react4.default.createElement("option", { value: "" }, "select a construct..."),
-      concepts && concepts.map((concept) => /* @__PURE__ */ import_react4.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    ))), /* @__PURE__ */ import_react4.default.createElement("div", null, /* @__PURE__ */ import_react4.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Custom Relationship Label", /* @__PURE__ */ import_react4.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, "(optional)")), /* @__PURE__ */ import_react4.default.createElement(
+      }
+    ))), /* @__PURE__ */ import_react5.default.createElement("div", null, /* @__PURE__ */ import_react5.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Custom Relationship Label", /* @__PURE__ */ import_react5.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, "(optional)")), /* @__PURE__ */ import_react5.default.createElement(
       "input",
       {
         type: "text",
@@ -23472,7 +23557,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "e.g., 'is a specialized form of', 'requires understanding of'"
       }
-    ), /* @__PURE__ */ import_react4.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, 'Override the default label for this relationship (e.g., "is a type of" instead of "Parent of")')), /* @__PURE__ */ import_react4.default.createElement("div", null, /* @__PURE__ */ import_react4.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react4.default.createElement(
+    ), /* @__PURE__ */ import_react5.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, 'Override the default label for this relationship (e.g., "is a type of" instead of "Parent of")')), /* @__PURE__ */ import_react5.default.createElement("div", null, /* @__PURE__ */ import_react5.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react5.default.createElement(
       "textarea",
       {
         value: formData.description,
@@ -23481,7 +23566,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Why are these constructs related?"
       }
-    )), /* @__PURE__ */ import_react4.default.createElement("div", null, /* @__PURE__ */ import_react4.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react4.default.createElement(
+    )), /* @__PURE__ */ import_react5.default.createElement("div", null, /* @__PURE__ */ import_react5.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react5.default.createElement(
       "textarea",
       {
         value: formData.tags,
@@ -23489,14 +23574,14 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
         rows: "2",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react4.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react4.default.createElement(
+    )), /* @__PURE__ */ import_react5.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react5.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Relationship"
-    ), /* @__PURE__ */ import_react4.default.createElement(
+    ), /* @__PURE__ */ import_react5.default.createElement(
       "button",
       {
         type: "button",
@@ -23509,11 +23594,11 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
 }
 
 // app/javascript/components/NoteFormModal.js
-var import_react15 = __toESM(require_react());
+var import_react16 = __toESM(require_react());
 
 // node_modules/@tiptap/react/dist/index.js
-var import_react5 = __toESM(require_react(), 1);
 var import_react6 = __toESM(require_react(), 1);
+var import_react7 = __toESM(require_react(), 1);
 var import_react_dom = __toESM(require_react_dom(), 1);
 var import_shim = __toESM(require_shim(), 1);
 var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
@@ -40555,22 +40640,22 @@ function markPasteRule(config) {
 }
 
 // node_modules/@tiptap/react/dist/index.js
-var import_react7 = __toESM(require_react(), 1);
+var import_react8 = __toESM(require_react(), 1);
 var import_shim2 = __toESM(require_shim(), 1);
-var import_react8 = __toESM(require_react2(), 1);
-var import_react9 = __toESM(require_react(), 1);
+var import_react9 = __toESM(require_react2(), 1);
+var import_react10 = __toESM(require_react(), 1);
 var import_with_selector = __toESM(require_with_selector(), 1);
 var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
-var import_react10 = __toESM(require_react(), 1);
-var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
 var import_react11 = __toESM(require_react(), 1);
-var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
 var import_react12 = __toESM(require_react(), 1);
+var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
 var import_react13 = __toESM(require_react(), 1);
+var import_react14 = __toESM(require_react(), 1);
 var import_react_dom2 = __toESM(require_react_dom(), 1);
 var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
 var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
-var import_react14 = __toESM(require_react(), 1);
+var import_react15 = __toESM(require_react(), 1);
 var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
 var mergeRefs = (...refs) => {
   return (node) => {
@@ -40632,11 +40717,11 @@ function getInstance() {
     }
   };
 }
-var PureEditorContent = class extends import_react6.default.Component {
+var PureEditorContent = class extends import_react7.default.Component {
   constructor(props) {
     var _a;
     super(props);
-    this.editorContentRef = import_react6.default.createRef();
+    this.editorContentRef = import_react7.default.createRef();
     this.initialized = false;
     this.state = {
       hasContentComponentInitialized: Boolean((_a = props.editor) == null ? void 0 : _a.contentComponent)
@@ -40715,20 +40800,20 @@ var PureEditorContent = class extends import_react6.default.Component {
     ] });
   }
 };
-var EditorContentWithKey = (0, import_react6.forwardRef)(
+var EditorContentWithKey = (0, import_react7.forwardRef)(
   (props, ref) => {
-    const key = import_react6.default.useMemo(() => {
+    const key = import_react7.default.useMemo(() => {
       return Math.floor(Math.random() * 4294967295).toString();
     }, [props.editor]);
-    return import_react6.default.createElement(PureEditorContent, {
+    return import_react7.default.createElement(PureEditorContent, {
       key,
       innerRef: ref,
       ...props
     });
   }
 );
-var EditorContent = import_react6.default.memo(EditorContentWithKey);
-var useIsomorphicLayoutEffect = typeof window !== "undefined" ? import_react9.useLayoutEffect : import_react9.useEffect;
+var EditorContent = import_react7.default.memo(EditorContentWithKey);
+var useIsomorphicLayoutEffect = typeof window !== "undefined" ? import_react10.useLayoutEffect : import_react10.useEffect;
 var EditorStateManager = class {
   constructor(initialEditor) {
     this.transactionNumber = 0;
@@ -40788,18 +40873,18 @@ var EditorStateManager = class {
 };
 function useEditorState(options) {
   var _a;
-  const [editorStateManager] = (0, import_react9.useState)(() => new EditorStateManager(options.editor));
+  const [editorStateManager] = (0, import_react10.useState)(() => new EditorStateManager(options.editor));
   const selectedState = (0, import_with_selector.useSyncExternalStoreWithSelector)(
     editorStateManager.subscribe,
     editorStateManager.getSnapshot,
     editorStateManager.getServerSnapshot,
     options.selector,
-    (_a = options.equalityFn) != null ? _a : import_react8.default
+    (_a = options.equalityFn) != null ? _a : import_react9.default
   );
   useIsomorphicLayoutEffect(() => {
     return editorStateManager.watch(options.editor);
   }, [options.editor, editorStateManager]);
-  (0, import_react9.useDebugValue)(selectedState);
+  (0, import_react10.useDebugValue)(selectedState);
   return selectedState;
 }
 var isDev = true;
@@ -41036,16 +41121,16 @@ var EditorInstanceManager = class _EditorInstanceManager {
   }
 };
 function useEditor(options = {}, deps = []) {
-  const mostRecentOptions = (0, import_react7.useRef)(options);
+  const mostRecentOptions = (0, import_react8.useRef)(options);
   mostRecentOptions.current = options;
-  const [instanceManager] = (0, import_react7.useState)(() => new EditorInstanceManager(mostRecentOptions));
+  const [instanceManager] = (0, import_react8.useState)(() => new EditorInstanceManager(mostRecentOptions));
   const editor = (0, import_shim2.useSyncExternalStore)(
     instanceManager.subscribe,
     instanceManager.getEditor,
     instanceManager.getServerSnapshot
   );
-  (0, import_react7.useDebugValue)(editor);
-  (0, import_react7.useEffect)(instanceManager.onRender(deps));
+  (0, import_react8.useDebugValue)(editor);
+  (0, import_react8.useEffect)(instanceManager.onRender(deps));
   useEditorState({
     editor,
     selector: ({ transactionNumber }) => {
@@ -41060,19 +41145,19 @@ function useEditor(options = {}, deps = []) {
   });
   return editor;
 }
-var EditorContext = (0, import_react5.createContext)({
+var EditorContext = (0, import_react6.createContext)({
   editor: null
 });
 var EditorConsumer = EditorContext.Consumer;
-var ReactNodeViewContext = (0, import_react10.createContext)({
+var ReactNodeViewContext = (0, import_react11.createContext)({
   onDragStart: () => {
   },
   nodeViewContentChildren: void 0,
   nodeViewContentRef: () => {
   }
 });
-var useReactNodeView = () => (0, import_react10.useContext)(ReactNodeViewContext);
-var NodeViewWrapper = import_react11.default.forwardRef((props, ref) => {
+var useReactNodeView = () => (0, import_react11.useContext)(ReactNodeViewContext);
+var NodeViewWrapper = import_react12.default.forwardRef((props, ref) => {
   const { onDragStart } = useReactNodeView();
   const Tag = props.as || "div";
   return (
@@ -41092,7 +41177,7 @@ var NodeViewWrapper = import_react11.default.forwardRef((props, ref) => {
     )
   );
 });
-var ReactMarkViewContext = import_react12.default.createContext({
+var ReactMarkViewContext = import_react13.default.createContext({
   markViewContentRef: () => {
   }
 });
@@ -49266,8 +49351,8 @@ var TextStyleKit = Extension.create({
 
 // app/javascript/components/NoteFormModal.js
 function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
-  const [concepts, setConcepts] = (0, import_react15.useState)([]);
-  const [formData, setFormData] = (0, import_react15.useState)({
+  const [concepts, setConcepts] = (0, import_react16.useState)([]);
+  const [formData, setFormData] = (0, import_react16.useState)({
     body: "",
     note_type: "reflection",
     context: "",
@@ -49276,7 +49361,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
     concept_id: "",
     tags: ""
   });
-  const [error, setError] = (0, import_react15.useState)("");
+  const [error, setError] = (0, import_react16.useState)("");
   const editor = useEditor({
     extensions: [
       index_default3,
@@ -49310,12 +49395,12 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
       setFormData({ ...formData, body: editor2.getHTML() });
     }
   });
-  (0, import_react15.useEffect)(() => {
+  (0, import_react16.useEffect)(() => {
     if (editor && isOpen) {
       editor.commands.setContent(formData.body || "");
     }
   }, [isOpen, editor]);
-  (0, import_react15.useEffect)(() => {
+  (0, import_react16.useEffect)(() => {
     if (isOpen) {
       if (!conceptId && !item) {
         fetchConcepts();
@@ -49385,7 +49470,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
       setError("An error occurred while saving the note");
     }
   };
-  return /* @__PURE__ */ import_react15.default.createElement(
+  return /* @__PURE__ */ import_react16.default.createElement(
     Modal,
     {
       isOpen,
@@ -49393,21 +49478,21 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
       title: item ? "Edit Note" : "New Note",
       size: "medium"
     },
-    /* @__PURE__ */ import_react15.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react15.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react15.default.createElement(
+    /* @__PURE__ */ import_react16.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react16.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react16.default.createElement(
       "select",
       {
         value: formData.note_type,
         onChange: (e2) => setFormData({ ...formData, note_type: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "reflection" }, "Reflection"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "question" }, "Question"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "insight" }, "Insight"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "critique" }, "Critique"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "application" }, "Application"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "source_notes" }, "Source Notes")
-    )), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Body *"), /* @__PURE__ */ import_react15.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react15.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-1 flex-wrap bg-sand" }, /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "reflection" }, "Reflection"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "question" }, "Question"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "insight" }, "Insight"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "critique" }, "Critique"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "application" }, "Application"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "source_notes" }, "Source Notes")
+    )), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Body *"), /* @__PURE__ */ import_react16.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react16.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-1 flex-wrap bg-sand" }, /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49415,8 +49500,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("bold") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Bold"
       },
-      /* @__PURE__ */ import_react15.default.createElement("strong", null, "B")
-    ), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("strong", null, "B")
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49424,8 +49509,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("italic") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Italic"
       },
-      /* @__PURE__ */ import_react15.default.createElement("em", null, "I")
-    ), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("em", null, "I")
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49433,8 +49518,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("underline") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Underline"
       },
-      /* @__PURE__ */ import_react15.default.createElement("u", null, "U")
-    ), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("u", null, "U")
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49442,8 +49527,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("strike") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Strikethrough"
       },
-      /* @__PURE__ */ import_react15.default.createElement("s", null, "S")
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("s", null, "S")
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "select",
       {
         onChange: (e2) => {
@@ -49457,14 +49542,14 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: "px-2 py-1 rounded text-sm text-olive border border-olive/20 bg-sand hover:bg-olive/10",
         value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : editor.isActive("heading", { level: 5 }) ? "5" : editor.isActive("heading", { level: 6 }) ? "6" : ""
       },
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "Paragraph"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "1" }, "Heading 1"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "2" }, "Heading 2"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "3" }, "Heading 3"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "4" }, "Heading 4"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "5" }, "Heading 5"),
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "6" }, "Heading 6")
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "Paragraph"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "1" }, "Heading 1"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "2" }, "Heading 2"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "3" }, "Heading 3"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "4" }, "Heading 4"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "5" }, "Heading 5"),
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "6" }, "Heading 6")
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "input",
       {
         type: "color",
@@ -49473,7 +49558,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: "w-8 h-6 rounded cursor-pointer border border-olive/20",
         title: "Text Color"
       }
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "input",
       {
         type: "color",
@@ -49481,7 +49566,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: "w-8 h-6 rounded cursor-pointer border border-olive/20",
         title: "Highlight Color"
       }
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49490,7 +49575,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Align Left"
       },
       "\u2B05"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49499,7 +49584,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Align Center"
       },
       "\u2194"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49508,7 +49593,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Align Right"
       },
       "\u27A1"
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49517,7 +49602,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Bullet List"
       },
       "\u2022 List"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49526,7 +49611,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Numbered List"
       },
       "1. List"
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49540,7 +49625,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Add Link"
       },
       "\u{1F517}"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49549,7 +49634,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Blockquote"
       },
       "\u201C\u201D"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49558,7 +49643,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Horizontal Rule"
       },
       "\u2015"
-    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49567,7 +49652,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Insert Table"
       },
       "\u25A6"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49581,13 +49666,13 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         title: "Insert Image"
       },
       "\u{1F5BC}"
-    )), /* @__PURE__ */ import_react15.default.createElement(
+    )), /* @__PURE__ */ import_react16.default.createElement(
       EditorContent,
       {
         editor,
         className: "px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
       }
-    ))), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react15.default.createElement(
+    ))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react16.default.createElement(
       "textarea",
       {
         value: formData.context,
@@ -49596,16 +49681,16 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What prompted this note?"
       }
-    )), !conceptId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react15.default.createElement(
+    )), !conceptId && /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react16.default.createElement(
       "select",
       {
         value: formData.concept_id,
         onChange: (e2) => setFormData({ ...formData, concept_id: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "None (general note)"),
-      concepts.map((concept) => /* @__PURE__ */ import_react15.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    )), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react15.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "None (general note)"),
+      concepts.map((concept) => /* @__PURE__ */ import_react16.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
+    )), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react16.default.createElement(
       "textarea",
       {
         value: formData.tags,
@@ -49613,7 +49698,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         rows: "2",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react15.default.createElement(
+    )), /* @__PURE__ */ import_react16.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react16.default.createElement(
       "input",
       {
         type: "date",
@@ -49621,7 +49706,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         onChange: (e2) => setFormData({ ...formData, noted_on: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react15.default.createElement(
+    )), /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react16.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -49630,14 +49715,14 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
         onChange: (e2) => setFormData({ ...formData, pinned: e2.target.checked }),
         className: "rounded"
       }
-    ), /* @__PURE__ */ import_react15.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Note"
-    ), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -49651,11 +49736,11 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
 
 // app/javascript/components/ConceptShow.js
 function ConceptShow({ conceptId }) {
-  const [concept, setConcept] = (0, import_react17.useState)(null);
-  const [loading, setLoading] = (0, import_react17.useState)(true);
-  const [editing, setEditing] = (0, import_react17.useState)(false);
-  const [showConnections, setShowConnections] = (0, import_react17.useState)(true);
-  (0, import_react17.useEffect)(() => {
+  const [concept, setConcept] = (0, import_react18.useState)(null);
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  const [editing, setEditing] = (0, import_react18.useState)(false);
+  const [showConnections, setShowConnections] = (0, import_react18.useState)(true);
+  (0, import_react18.useEffect)(() => {
     fetchConcept();
   }, []);
   const fetchConcept = async () => {
@@ -49670,12 +49755,12 @@ function ConceptShow({ conceptId }) {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-lg" }, "Loading..."));
+    return /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-lg" }, "Loading..."));
   }
   if (!concept) {
-    return /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-center py-12" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-lg" }, "Concept not found"));
+    return /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-center py-12" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-lg" }, "Concept not found"));
   }
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react17.default.createElement("a", { href: "/concepts", className: "text-sm text-primary hover:text-accent-dark" }, "\u2190 Back to Constructs")), /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react18.default.createElement("a", { href: "/concepts", className: "text-sm text-primary hover:text-accent-dark" }, "\u2190 Back to Constructs")), /* @__PURE__ */ import_react18.default.createElement(
     ConceptFormModal,
     {
       isOpen: editing,
@@ -49686,32 +49771,32 @@ function ConceptShow({ conceptId }) {
         setEditing(false);
       }
     }
-  ), !editing && /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(ConceptDisplay, { concept, onEdit: () => setEditing(true) }), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConnectionManager, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptPeople, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptSources, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptNotes, { conceptId }))));
+  ), !editing && /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(ConceptDisplay, { concept, onEdit: () => setEditing(true) }), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConnectionManager, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptPeople, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptSources, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptNotes, { conceptId }))));
 }
 function ConceptDisplay({ concept, onEdit }) {
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react17.default.createElement("div", null, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded" }, concept.level_status)), /* @__PURE__ */ import_react17.default.createElement("h1", { className: "text-4xl mb-2" }, concept.label), /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "Last updated: ", new Date(concept.updated_at).toLocaleDateString(), concept.last_reviewed_on && /* @__PURE__ */ import_react17.default.createElement("span", { className: "ml-4" }, "Last reviewed: ", new Date(concept.last_reviewed_on).toLocaleDateString()))), /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded" }, concept.level_status)), /* @__PURE__ */ import_react18.default.createElement("h1", { className: "text-4xl mb-2" }, concept.label), /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "Last updated: ", new Date(concept.updated_at).toLocaleDateString(), concept.last_reviewed_on && /* @__PURE__ */ import_react18.default.createElement("span", { className: "ml-4" }, "Last reviewed: ", new Date(concept.last_reviewed_on).toLocaleDateString()))), /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       onClick: onEdit,
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     "Edit"
-  )), /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-6 mb-8" }, concept.summary_top && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Top-level)", content: concept.summary_top }), concept.summary_mid && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Mid-level)", content: concept.summary_mid }), concept.summary_deep && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Deep)", content: concept.summary_deep })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "grid md:grid-cols-2 gap-6 mb-8" }, /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Mechanisms", items: concept.mechanisms }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Signature Techniques", items: concept.signature_techniques }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Strengths", items: concept.strengths }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Weaknesses", items: concept.weaknesses }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Adjacent Models", items: concept.adjacent_models }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Contrasts With", items: concept.contrasts_with }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Integrates With", items: concept.integrates_with }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Intake Questions", items: concept.intake_questions }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Micro Skills", items: concept.micro_skills }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Practice Prompts", items: concept.practice_prompts }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Assessment Links", items: concept.assessment_links })), concept.evidence_brief && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Evidence Brief", content: concept.evidence_brief, className: "mb-6" }), concept.confidence_note && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Confidence Note", content: concept.confidence_note, className: "mb-6" }), concept.tags && concept.tags.length > 0 && /* @__PURE__ */ import_react17.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex flex-wrap gap-2" }, concept.tags.map((tag, idx) => /* @__PURE__ */ import_react17.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
+  )), /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-6 mb-8" }, concept.summary_top && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Top-level)", content: concept.summary_top }), concept.summary_mid && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Mid-level)", content: concept.summary_mid }), concept.summary_deep && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Deep)", content: concept.summary_deep })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid md:grid-cols-2 gap-6 mb-8" }, /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Mechanisms", items: concept.mechanisms }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Signature Techniques", items: concept.signature_techniques }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Strengths", items: concept.strengths }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Weaknesses", items: concept.weaknesses }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Adjacent Models", items: concept.adjacent_models }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Contrasts With", items: concept.contrasts_with }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Integrates With", items: concept.integrates_with }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Intake Questions", items: concept.intake_questions }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Micro Skills", items: concept.micro_skills }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Practice Prompts", items: concept.practice_prompts }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Assessment Links", items: concept.assessment_links })), concept.evidence_brief && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Evidence Brief", content: concept.evidence_brief, className: "mb-6" }), concept.confidence_note && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Confidence Note", content: concept.confidence_note, className: "mb-6" }), concept.tags && concept.tags.length > 0 && /* @__PURE__ */ import_react18.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex flex-wrap gap-2" }, concept.tags.map((tag, idx) => /* @__PURE__ */ import_react18.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
 }
 function Section({ title, content, className = "" }) {
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className }, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react17.default.createElement("p", { className: "leading-relaxed whitespace-pre-wrap" }, content));
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className }, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react18.default.createElement("p", { className: "leading-relaxed whitespace-pre-wrap" }, content));
 }
 function ArraySection({ title, items }) {
   if (!items || items.length === 0) return null;
-  return /* @__PURE__ */ import_react17.default.createElement("div", null, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react17.default.createElement("ul", { className: "list-disc list-inside space-y-1" }, items.map((item, idx) => /* @__PURE__ */ import_react17.default.createElement("li", { key: idx, className: "text-sm" }, item))));
+  return /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react18.default.createElement("ul", { className: "list-disc list-inside space-y-1" }, items.map((item, idx) => /* @__PURE__ */ import_react18.default.createElement("li", { key: idx, className: "text-sm" }, item))));
 }
 function ConnectionManager({ conceptId }) {
-  const [connections, setConnections] = (0, import_react17.useState)([]);
-  const [concepts, setConcepts] = (0, import_react17.useState)([]);
-  const [allConcepts, setAllConcepts] = (0, import_react17.useState)([]);
-  const [loading, setLoading] = (0, import_react17.useState)(true);
-  const [creatingConnection, setCreatingConnection] = (0, import_react17.useState)(false);
-  (0, import_react17.useEffect)(() => {
+  const [connections, setConnections] = (0, import_react18.useState)([]);
+  const [concepts, setConcepts] = (0, import_react18.useState)([]);
+  const [allConcepts, setAllConcepts] = (0, import_react18.useState)([]);
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  const [creatingConnection, setCreatingConnection] = (0, import_react18.useState)(false);
+  (0, import_react18.useEffect)(() => {
     fetchConnections();
     fetchConcepts();
   }, []);
@@ -49774,14 +49859,14 @@ function ConnectionManager({ conceptId }) {
     applies_to: "Applies to",
     treats: "Treats"
   };
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl" }, "Relationships"), /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl" }, "Relationships"), /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       onClick: () => setCreatingConnection(!creatingConnection),
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingConnection ? "Cancel" : "+ Add Relationship"
-  )), /* @__PURE__ */ import_react17.default.createElement(
+  )), /* @__PURE__ */ import_react18.default.createElement(
     ConnectionFormModal,
     {
       isOpen: creatingConnection,
@@ -49794,18 +49879,18 @@ function ConnectionManager({ conceptId }) {
         setCreatingConnection(false);
       }
     }
-  ), loading ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm" }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "No relationships yet") : /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-4" }, connections.map((connection) => {
+  ), loading ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm" }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "No relationships yet") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-4" }, connections.map((connection) => {
     const isSource = connection.src_concept.id === parseInt(conceptId);
     const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
     const direction = isSource ? "\u2192" : "\u2190";
-    return /* @__PURE__ */ import_react17.default.createElement("div", { key: connection.id, className: "flex items-center justify-between border-b border-gray-200 pb-4" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-3 flex-1 flex-wrap" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap" }, connection.relationship_label || relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-gray-400" }, direction), /* @__PURE__ */ import_react17.default.createElement(
+    return /* @__PURE__ */ import_react18.default.createElement("div", { key: connection.id, className: "flex items-center justify-between border-b border-gray-200 pb-4" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-3 flex-1 flex-wrap" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap" }, connection.relationship_label || relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-gray-400" }, direction), /* @__PURE__ */ import_react18.default.createElement(
       "a",
       {
         href: `/concepts/${otherConcept.id}`,
         className: "text-lg hover:text-primary font-medium"
       },
       otherConcept.label
-    ), /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs text-gray-500" }, "(", otherConcept.node_type, ")"), connection.description && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600 w-full mt-2" }, connection.description)), /* @__PURE__ */ import_react17.default.createElement(
+    ), /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs text-gray-500" }, "(", otherConcept.node_type, ")"), connection.description && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600 w-full mt-2" }, connection.description)), /* @__PURE__ */ import_react18.default.createElement(
       "button",
       {
         onClick: () => handleDeleteConnection(connection.id),
@@ -49816,9 +49901,9 @@ function ConnectionManager({ conceptId }) {
   })));
 }
 function ConceptPeople({ conceptId }) {
-  const [people, setPeople] = (0, import_react17.useState)([]);
-  const [loading, setLoading] = (0, import_react17.useState)(true);
-  (0, import_react17.useEffect)(() => {
+  const [people, setPeople] = (0, import_react18.useState)([]);
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  (0, import_react18.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -49834,21 +49919,21 @@ function ConceptPeople({ conceptId }) {
   };
   if (loading) return null;
   if (people.length === 0) return null;
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl mb-6" }, "Related People"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-4" }, people.map((person) => /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl mb-6" }, "Related People"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-4" }, people.map((person) => /* @__PURE__ */ import_react18.default.createElement(
     "a",
     {
       key: person.id,
       href: `/people/${person.id}`,
       className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
     },
-    /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, person.full_name), person.role && /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, person.role)),
-    person.summary && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, person.summary)
+    /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, person.full_name), person.role && /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, person.role)),
+    person.summary && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, person.summary)
   ))));
 }
 function ConceptSources({ conceptId }) {
-  const [sources, setSources] = (0, import_react17.useState)([]);
-  const [loading, setLoading] = (0, import_react17.useState)(true);
-  (0, import_react17.useEffect)(() => {
+  const [sources, setSources] = (0, import_react18.useState)([]);
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  (0, import_react18.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -49864,22 +49949,22 @@ function ConceptSources({ conceptId }) {
   };
   if (loading) return null;
   if (sources.length === 0) return null;
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Sources"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-3" }, sources.map((source) => /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Sources"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-3" }, sources.map((source) => /* @__PURE__ */ import_react18.default.createElement(
     "a",
     {
       key: source.id,
       href: `/sources/${source.id}`,
       className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
     },
-    /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center justify-between mb-1" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-2 text-xs text-gray-500" }, source.kind && /* @__PURE__ */ import_react17.default.createElement("span", { className: "uppercase" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react17.default.createElement("span", null, source.year))),
-    source.authors && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, source.authors)
+    /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center justify-between mb-1" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-2 text-xs text-gray-500" }, source.kind && /* @__PURE__ */ import_react18.default.createElement("span", { className: "uppercase" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react18.default.createElement("span", null, source.year))),
+    source.authors && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, source.authors)
   ))));
 }
 function ConceptNotes({ conceptId }) {
-  const [notes, setNotes] = (0, import_react17.useState)([]);
-  const [loading, setLoading] = (0, import_react17.useState)(true);
-  const [creatingNote, setCreatingNote] = (0, import_react17.useState)(false);
-  (0, import_react17.useEffect)(() => {
+  const [notes, setNotes] = (0, import_react18.useState)([]);
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  const [creatingNote, setCreatingNote] = (0, import_react18.useState)(false);
+  (0, import_react18.useEffect)(() => {
     fetchNotes();
   }, []);
   const fetchNotes = async () => {
@@ -49925,14 +50010,14 @@ function ConceptNotes({ conceptId }) {
     application: "bg-green-100 text-green-800",
     synthesis: "bg-indigo-100 text-indigo-800"
   };
-  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl" }, "Notes"), /* @__PURE__ */ import_react17.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl" }, "Notes"), /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       onClick: () => setCreatingNote(!creatingNote),
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingNote ? "Cancel" : "+ Add Note"
-  )), /* @__PURE__ */ import_react17.default.createElement(
+  )), /* @__PURE__ */ import_react18.default.createElement(
     NoteFormModal,
     {
       isOpen: creatingNote,
@@ -49943,23 +50028,23 @@ function ConceptNotes({ conceptId }) {
         setCreatingNote(false);
       }
     }
-  ), loading ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet") : /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react17.default.createElement("div", { key: note.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), /* @__PURE__ */ import_react17.default.createElement(
+  ), loading ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react18.default.createElement("div", { key: note.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       onClick: () => handleDeleteNote(note.id),
       className: "text-sm text-accent-dark hover:text-primary"
     },
     "Delete"
-  )), /* @__PURE__ */ import_react17.default.createElement("p", { className: "mb-3 whitespace-pre-wrap" }, note.body), note.context && /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)), note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react17.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))), /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())))));
+  )), /* @__PURE__ */ import_react18.default.createElement("p", { className: "mb-3 whitespace-pre-wrap" }, note.body), note.context && /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)), note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react18.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))), /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())))));
 }
 
 // app/javascript/components/SourcesIndex.js
-var import_react19 = __toESM(require_react());
+var import_react20 = __toESM(require_react());
 
 // app/javascript/components/SourceFormModal.js
-var import_react18 = __toESM(require_react());
+var import_react19 = __toESM(require_react());
 function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = (0, import_react18.useState)({
+  const [formData, setFormData] = (0, import_react19.useState)({
     title: "",
     authors: "",
     year: "",
@@ -49970,8 +50055,8 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     summary: "",
     tags: []
   });
-  const [error, setError] = (0, import_react18.useState)("");
-  (0, import_react18.useEffect)(() => {
+  const [error, setError] = (0, import_react19.useState)("");
+  (0, import_react19.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -50032,7 +50117,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     const items = value.split("\n").filter((item2) => item2.trim());
     setFormData({ ...formData, tags: items });
   };
-  return /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react19.default.createElement(
     Modal,
     {
       isOpen,
@@ -50040,7 +50125,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Source" : "New Source",
       size: "medium"
     },
-    /* @__PURE__ */ import_react18.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react18.default.createElement(
+    /* @__PURE__ */ import_react19.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react19.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "text",
@@ -50049,7 +50134,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "text",
@@ -50058,7 +50143,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Last, F., Last, F."
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Year"), /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Year"), /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "number",
@@ -50067,22 +50152,22 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "2024"
       }
-    ))), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Kind"), /* @__PURE__ */ import_react18.default.createElement(
+    ))), /* @__PURE__ */ import_react19.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Kind"), /* @__PURE__ */ import_react19.default.createElement(
       "select",
       {
         value: formData.kind,
         onChange: (e2) => setFormData({ ...formData, kind: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "article" }, "Article"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "textbook" }, "Textbook"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "chapter" }, "Chapter"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "manual" }, "Manual"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "rct" }, "RCT"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "meta_analysis" }, "Meta-Analysis"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "guideline" }, "Guideline"),
-      /* @__PURE__ */ import_react18.default.createElement("option", { value: "video_demo" }, "Video Demo")
-    )), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher/Venue"), /* @__PURE__ */ import_react18.default.createElement(
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "article" }, "Article"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "textbook" }, "Textbook"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "chapter" }, "Chapter"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "manual" }, "Manual"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "rct" }, "RCT"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "meta_analysis" }, "Meta-Analysis"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "guideline" }, "Guideline"),
+      /* @__PURE__ */ import_react19.default.createElement("option", { value: "video_demo" }, "Video Demo")
+    )), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher/Venue"), /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "text",
@@ -50090,7 +50175,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e2) => setFormData({ ...formData, publisher_or_venue: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI or URL"), /* @__PURE__ */ import_react18.default.createElement(
+    ))), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI or URL"), /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "text",
@@ -50098,7 +50183,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e2) => setFormData({ ...formData, doi_or_url: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Citation"), /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Citation"), /* @__PURE__ */ import_react19.default.createElement(
       "textarea",
       {
         value: formData.citation,
@@ -50106,7 +50191,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary (3-5 lines of key findings)"), /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary (3-5 lines of key findings)"), /* @__PURE__ */ import_react19.default.createElement(
       "textarea",
       {
         value: formData.summary,
@@ -50114,7 +50199,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", null, /* @__PURE__ */ import_react19.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react19.default.createElement(
       "textarea",
       {
         value: formData.tags.join("\n"),
@@ -50122,14 +50207,14 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "3",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement(
+    )), /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react19.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Source"
-    ), /* @__PURE__ */ import_react18.default.createElement(
+    ), /* @__PURE__ */ import_react19.default.createElement(
       "button",
       {
         type: "button",
@@ -50143,11 +50228,11 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/SourcesIndex.js
 function SourcesIndex() {
-  const [sources, setSources] = (0, import_react19.useState)([]);
-  const [loading, setLoading] = (0, import_react19.useState)(true);
-  const [showForm, setShowForm] = (0, import_react19.useState)(false);
-  const [filterKind, setFilterKind] = (0, import_react19.useState)("all");
-  (0, import_react19.useEffect)(() => {
+  const [sources, setSources] = (0, import_react20.useState)([]);
+  const [loading, setLoading] = (0, import_react20.useState)(true);
+  const [showForm, setShowForm] = (0, import_react20.useState)(false);
+  const [filterKind, setFilterKind] = (0, import_react20.useState)("all");
+  (0, import_react20.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -50164,16 +50249,16 @@ function SourcesIndex() {
   const filteredSources = filterKind === "all" ? sources : sources.filter((source) => source.kind === filterKind);
   const kinds = ["manual", "textbook", "rct", "meta_analysis", "guideline", "video_demo", "article", "chapter"];
   if (loading) {
-    return /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react19.default.createElement("p", { className: "text-lg" }, "Loading sources..."));
+    return /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-lg" }, "Loading sources..."));
   }
-  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react19.default.createElement("h1", { className: "text-4xl" }, "Evidence Sources"), /* @__PURE__ */ import_react19.default.createElement(
+  return /* @__PURE__ */ import_react20.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react20.default.createElement("h1", { className: "text-4xl" }, "Evidence Sources"), /* @__PURE__ */ import_react20.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Source"
-  )), /* @__PURE__ */ import_react19.default.createElement(
+  )), /* @__PURE__ */ import_react20.default.createElement(
     SourceFormModal,
     {
       isOpen: showForm,
@@ -50183,7 +50268,7 @@ function SourcesIndex() {
         setShowForm(false);
       }
     }
-  ), /* @__PURE__ */ import_react19.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react19.default.createElement(
+  ), /* @__PURE__ */ import_react20.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react20.default.createElement(
     "button",
     {
       onClick: () => setFilterKind("all"),
@@ -50195,7 +50280,7 @@ function SourcesIndex() {
   ), kinds.map((kind) => {
     const count = sources.filter((s2) => s2.kind === kind).length;
     if (count === 0) return null;
-    return /* @__PURE__ */ import_react19.default.createElement(
+    return /* @__PURE__ */ import_react20.default.createElement(
       "button",
       {
         key: kind,
@@ -50207,7 +50292,7 @@ function SourcesIndex() {
       count,
       ")"
     );
-  })), filteredSources.length === 0 ? /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react19.default.createElement("p", { className: "text-lg mb-4" }, "No sources yet."), /* @__PURE__ */ import_react19.default.createElement("p", { className: "text-sm" }, "Add your first source to build your evidence base.")) : /* @__PURE__ */ import_react19.default.createElement("div", { className: "space-y-4" }, filteredSources.map((source) => /* @__PURE__ */ import_react19.default.createElement(SourceCard, { key: source.id, source, onUpdate: fetchSources }))));
+  })), filteredSources.length === 0 ? /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-lg mb-4" }, "No sources yet."), /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-sm" }, "Add your first source to build your evidence base.")) : /* @__PURE__ */ import_react20.default.createElement("div", { className: "space-y-4" }, filteredSources.map((source) => /* @__PURE__ */ import_react20.default.createElement(SourceCard, { key: source.id, source, onUpdate: fetchSources }))));
 }
 function SourceCard({ source, onUpdate }) {
   const handleDelete2 = async () => {
@@ -50226,14 +50311,14 @@ function SourceCard({ source, onUpdate }) {
       console.error("Error deleting source:", error);
     }
   };
-  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex justify-between items-start mb-3" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, source.kind && /* @__PURE__ */ import_react19.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react19.default.createElement("span", { className: "text-xs text-gray-600" }, source.year)), /* @__PURE__ */ import_react19.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react19.default.createElement("a", { href: `/sources/${source.id}`, className: "hover:text-primary" }, source.title)), source.authors && /* @__PURE__ */ import_react19.default.createElement("p", { className: "text-sm text-gray-600 mb-2" }, source.authors)), /* @__PURE__ */ import_react19.default.createElement(
+  return /* @__PURE__ */ import_react20.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex justify-between items-start mb-3" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, source.kind && /* @__PURE__ */ import_react20.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react20.default.createElement("span", { className: "text-xs text-gray-600" }, source.year)), /* @__PURE__ */ import_react20.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react20.default.createElement("a", { href: `/sources/${source.id}`, className: "hover:text-primary" }, source.title)), source.authors && /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-sm text-gray-600 mb-2" }, source.authors)), /* @__PURE__ */ import_react20.default.createElement(
     "button",
     {
       onClick: handleDelete2,
       className: "px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors ml-4"
     },
     "Delete"
-  )), source.summary && /* @__PURE__ */ import_react19.default.createElement("p", { className: "text-sm mb-3" }, source.summary), source.doi_or_url && /* @__PURE__ */ import_react19.default.createElement(
+  )), source.summary && /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-sm mb-3" }, source.summary), source.doi_or_url && /* @__PURE__ */ import_react20.default.createElement(
     "a",
     {
       href: source.doi_or_url,
@@ -50246,14 +50331,14 @@ function SourceCard({ source, onUpdate }) {
 }
 
 // app/javascript/components/PeopleIndex.js
-var import_react21 = __toESM(require_react());
+var import_react22 = __toESM(require_react());
 
 // app/javascript/components/PersonFormModal.js
-var import_react20 = __toESM(require_react());
+var import_react21 = __toESM(require_react());
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [concepts, setConcepts] = (0, import_react20.useState)([]);
-  const [sources, setSources] = (0, import_react20.useState)([]);
-  const [formData, setFormData] = (0, import_react20.useState)({
+  const [concepts, setConcepts] = (0, import_react21.useState)([]);
+  const [sources, setSources] = (0, import_react21.useState)([]);
+  const [formData, setFormData] = (0, import_react21.useState)({
     full_name: "",
     role: "theorist",
     summary: "",
@@ -50261,8 +50346,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     concept_ids: [],
     source_ids: []
   });
-  const [error, setError] = (0, import_react20.useState)("");
-  (0, import_react20.useEffect)(() => {
+  const [error, setError] = (0, import_react21.useState)("");
+  (0, import_react21.useEffect)(() => {
     if (isOpen) {
       fetchConcepts();
       fetchSources();
@@ -50337,7 +50422,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     const items = value.split("\n").filter((item2) => item2.trim());
     setFormData({ ...formData, aka: items });
   };
-  return /* @__PURE__ */ import_react20.default.createElement(
+  return /* @__PURE__ */ import_react21.default.createElement(
     Modal,
     {
       isOpen,
@@ -50345,7 +50430,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Person" : "New Person",
       size: "medium"
     },
-    /* @__PURE__ */ import_react20.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react20.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react20.default.createElement(
+    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -50354,19 +50439,19 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react20.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         value: formData.role,
         onChange: (e2) => setFormData({ ...formData, role: e2.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react20.default.createElement("option", { value: "theorist" }, "Theorist"),
-      /* @__PURE__ */ import_react20.default.createElement("option", { value: "clinician" }, "Clinician"),
-      /* @__PURE__ */ import_react20.default.createElement("option", { value: "researcher" }, "Researcher"),
-      /* @__PURE__ */ import_react20.default.createElement("option", { value: "peer" }, "Peer"),
-      /* @__PURE__ */ import_react20.default.createElement("option", { value: "client" }, "Client")
-    )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react20.default.createElement(
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "theorist" }, "Theorist"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "clinician" }, "Clinician"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "researcher" }, "Researcher"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "peer" }, "Peer"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "client" }, "Client")
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.aka.join("\n"),
@@ -50375,7 +50460,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Aaron T. Beck\nA.T. Beck"
       }
-    )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react20.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.summary,
@@ -50383,7 +50468,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Constructs (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react20.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Constructs (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         multiple: true,
@@ -50395,8 +50480,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         size: "5"
       },
-      concepts.map((concept) => /* @__PURE__ */ import_react20.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    ), /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.concept_ids.length, " ", formData.concept_ids.length === 1 ? "construct" : "constructs")), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Sources (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react20.default.createElement(
+      concepts.map((concept) => /* @__PURE__ */ import_react21.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
+    ), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.concept_ids.length, " ", formData.concept_ids.length === 1 ? "construct" : "constructs")), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Sources (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         multiple: true,
@@ -50408,15 +50493,15 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         size: "5"
       },
-      sources.map((source) => /* @__PURE__ */ import_react20.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
-    ), /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources")), /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react20.default.createElement(
+      sources.map((source) => /* @__PURE__ */ import_react21.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
+    ), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources")), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Person"
-    ), /* @__PURE__ */ import_react20.default.createElement(
+    ), /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "button",
@@ -50430,11 +50515,11 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/PeopleIndex.js
 function PeopleIndex() {
-  const [people, setPeople] = (0, import_react21.useState)([]);
-  const [loading, setLoading] = (0, import_react21.useState)(true);
-  const [showForm, setShowForm] = (0, import_react21.useState)(false);
-  const [filterRole, setFilterRole] = (0, import_react21.useState)("all");
-  (0, import_react21.useEffect)(() => {
+  const [people, setPeople] = (0, import_react22.useState)([]);
+  const [loading, setLoading] = (0, import_react22.useState)(true);
+  const [showForm, setShowForm] = (0, import_react22.useState)(false);
+  const [filterRole, setFilterRole] = (0, import_react22.useState)("all");
+  (0, import_react22.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -50451,16 +50536,16 @@ function PeopleIndex() {
   const filteredPeople = filterRole === "all" ? people : people.filter((person) => person.role === filterRole);
   const roles = ["theorist", "clinician", "researcher", "peer", "client"];
   if (loading) {
-    return /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-lg" }, "Loading people..."));
+    return /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-lg" }, "Loading people..."));
   }
-  return /* @__PURE__ */ import_react21.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react21.default.createElement("h1", { className: "text-4xl" }, "People & Lineage"), /* @__PURE__ */ import_react21.default.createElement(
+  return /* @__PURE__ */ import_react22.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react22.default.createElement("h1", { className: "text-4xl" }, "People & Lineage"), /* @__PURE__ */ import_react22.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Person"
-  )), /* @__PURE__ */ import_react21.default.createElement(
+  )), /* @__PURE__ */ import_react22.default.createElement(
     PersonFormModal,
     {
       isOpen: showForm,
@@ -50470,7 +50555,7 @@ function PeopleIndex() {
         setShowForm(false);
       }
     }
-  ), /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react21.default.createElement(
+  ), /* @__PURE__ */ import_react22.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react22.default.createElement(
     "button",
     {
       onClick: () => setFilterRole("all"),
@@ -50482,7 +50567,7 @@ function PeopleIndex() {
   ), roles.map((role) => {
     const count = people.filter((p2) => p2.role === role).length;
     if (count === 0) return null;
-    return /* @__PURE__ */ import_react21.default.createElement(
+    return /* @__PURE__ */ import_react22.default.createElement(
       "button",
       {
         key: role,
@@ -50494,7 +50579,7 @@ function PeopleIndex() {
       count,
       ")"
     );
-  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react21.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
+  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react22.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
 }
 function PersonCard({ person, onUpdate }) {
   const handleDelete2 = async () => {
@@ -50513,25 +50598,25 @@ function PersonCard({ person, onUpdate }) {
       console.error("Error deleting person:", error);
     }
   };
-  return /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react21.default.createElement(
+  return /* @__PURE__ */ import_react22.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react22.default.createElement(
     "button",
     {
       onClick: handleDelete2,
       className: "px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  )), /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react21.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString())));
+  )), /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react22.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString())));
 }
 
 // app/javascript/components/ConnectionVisualization.js
-var import_react22 = __toESM(require_react());
+var import_react23 = __toESM(require_react());
 function ConnectionVisualization() {
-  const [concepts, setConcepts] = (0, import_react22.useState)([]);
-  const [connections, setConnections] = (0, import_react22.useState)([]);
-  const [loading, setLoading] = (0, import_react22.useState)(true);
-  const [selectedType, setSelectedType] = (0, import_react22.useState)("all");
-  const [selectedRelType, setSelectedRelType] = (0, import_react22.useState)("all");
-  (0, import_react22.useEffect)(() => {
+  const [concepts, setConcepts] = (0, import_react23.useState)([]);
+  const [connections, setConnections] = (0, import_react23.useState)([]);
+  const [loading, setLoading] = (0, import_react23.useState)(true);
+  const [selectedType, setSelectedType] = (0, import_react23.useState)("all");
+  const [selectedRelType, setSelectedRelType] = (0, import_react23.useState)("all");
+  (0, import_react23.useEffect)(() => {
     fetchData();
   }, []);
   const fetchData = async () => {
@@ -50588,57 +50673,57 @@ function ConnectionVisualization() {
     related_to: "bg-slate-100 border-slate-300"
   };
   if (loading) {
-    return /* @__PURE__ */ import_react22.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react22.default.createElement("p", null, "Loading visualization..."));
+    return /* @__PURE__ */ import_react23.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react23.default.createElement("p", null, "Loading visualization..."));
   }
-  return /* @__PURE__ */ import_react22.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react22.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react22.default.createElement(
+  return /* @__PURE__ */ import_react23.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react23.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react23.default.createElement(
     "select",
     {
       value: selectedType,
       onChange: (e2) => setSelectedType(e2.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "model" }, "Model"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "technique" }, "Technique"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "mechanism" }, "Mechanism"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "construct" }, "Construct"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "measure" }, "Measure"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "population" }, "Population")
-  )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react22.default.createElement(
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "model" }, "Model"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "technique" }, "Technique"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "mechanism" }, "Mechanism"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "construct" }, "Construct"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "measure" }, "Measure"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "population" }, "Population")
+  )), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react23.default.createElement(
     "select",
     {
       value: selectedRelType,
       onChange: (e2) => setSelectedRelType(e2.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "all" }, "All Relationships"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "adjacent" }, "Adjacent"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "builds_on" }, "Builds On"),
-    /* @__PURE__ */ import_react22.default.createElement("option", { value: "subsumes" }, "Subsumes")
-  ))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react22.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react22.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react22.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "all" }, "All Relationships"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "adjacent" }, "Adjacent"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "builds_on" }, "Builds On"),
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "subsumes" }, "Subsumes")
+  ))), /* @__PURE__ */ import_react23.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react23.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react23.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react23.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
     const conceptConnections = filteredConnections.filter(
       (e2) => e2.src_concept.id === concept.id || e2.dst_concept.id === concept.id
     );
-    return /* @__PURE__ */ import_react22.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react22.default.createElement(
+    return /* @__PURE__ */ import_react23.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react23.default.createElement(
       "a",
       {
         href: `/concepts/${concept.id}`,
         className: "text-lg font-medium hover:text-primary"
       },
       concept.label
-    ), concept.summary_top && /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
+    ), concept.summary_top && /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
       const isSource = connection.src_concept.id === concept.id;
       const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
       const direction = isSource ? "\u2192" : "\u2190";
-      return /* @__PURE__ */ import_react22.default.createElement(
+      return /* @__PURE__ */ import_react23.default.createElement(
         "div",
         {
           key: connection.id,
           className: `${relTypeColors[connection.rel_type]} border rounded px-3 py-2`
         },
-        /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react22.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react22.default.createElement(
+        /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react23.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react23.default.createElement(
           "a",
           {
             href: `/concepts/${otherConcept.id}`,
@@ -50646,21 +50731,21 @@ function ConnectionVisualization() {
           },
           otherConcept.label
         )),
-        connection.strength && /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
+        connection.strength && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
       );
     })));
-  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react22.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
+  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
 }
 
 // app/javascript/components/NotesIndex.js
-var import_react23 = __toESM(require_react());
+var import_react24 = __toESM(require_react());
 function NotesIndex() {
-  const [notes, setNotes] = (0, import_react23.useState)([]);
-  const [loading, setLoading] = (0, import_react23.useState)(true);
-  const [filterType, setFilterType] = (0, import_react23.useState)("all");
-  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react23.useState)(false);
-  const [creatingNote, setCreatingNote] = (0, import_react23.useState)(false);
-  (0, import_react23.useEffect)(() => {
+  const [notes, setNotes] = (0, import_react24.useState)([]);
+  const [loading, setLoading] = (0, import_react24.useState)(true);
+  const [filterType, setFilterType] = (0, import_react24.useState)("all");
+  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react24.useState)(false);
+  const [creatingNote, setCreatingNote] = (0, import_react24.useState)(false);
+  (0, import_react24.useEffect)(() => {
     fetchNotes();
   }, [filterType, showPinnedOnly]);
   const fetchNotes = async () => {
@@ -50727,21 +50812,21 @@ function NotesIndex() {
     application: "bg-green-100 text-green-800",
     synthesis: "bg-indigo-100 text-indigo-800"
   };
-  return /* @__PURE__ */ import_react23.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react23.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes & Reflections"), /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg mb-6" }, "Capture insights, questions, and reflections as you learn"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react23.default.createElement(
+  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react24.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes & Reflections"), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg mb-6" }, "Capture insights, questions, and reflections as you learn"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react24.default.createElement(
     "select",
     {
       value: filterType,
       onChange: (e2) => setFilterType(e2.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "reflection" }, "Reflection"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "insight" }, "Insight"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "critique" }, "Critique"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "application" }, "Application"),
-    /* @__PURE__ */ import_react23.default.createElement("option", { value: "synthesis" }, "Synthesis")
-  )), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react23.default.createElement(
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "reflection" }, "Reflection"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "insight" }, "Insight"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "critique" }, "Critique"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "application" }, "Application"),
+    /* @__PURE__ */ import_react24.default.createElement("option", { value: "synthesis" }, "Synthesis")
+  )), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react24.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -50750,14 +50835,14 @@ function NotesIndex() {
       onChange: (e2) => setShowPinnedOnly(e2.target.checked),
       className: "rounded"
     }
-  ), /* @__PURE__ */ import_react23.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react23.default.createElement(
+  ), /* @__PURE__ */ import_react24.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react24.default.createElement(
     "button",
     {
       onClick: () => setCreatingNote(!creatingNote),
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingNote ? "Cancel" : "+ New Note"
-  )), /* @__PURE__ */ import_react23.default.createElement(
+  )), /* @__PURE__ */ import_react24.default.createElement(
     NoteFormModal,
     {
       isOpen: creatingNote,
@@ -50767,13 +50852,13 @@ function NotesIndex() {
         setCreatingNote(false);
       }
     }
-  )), loading ? /* @__PURE__ */ import_react23.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react23.default.createElement(
+  )), loading ? /* @__PURE__ */ import_react24.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react24.default.createElement(
     "div",
     {
       key: note.id,
       className: "bg-white border border-gray-300 rounded-lg p-6 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, note.pinned && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-primary text-lg", title: "Pinned" }, "\u{1F4CC}"), /* @__PURE__ */ import_react23.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react23.default.createElement(
+    /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, note.pinned && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-primary text-lg", title: "Pinned" }, "\u{1F4CC}"), /* @__PURE__ */ import_react24.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react24.default.createElement(
       "a",
       {
         href: `/concepts/${note.concept.id}`,
@@ -50781,14 +50866,14 @@ function NotesIndex() {
       },
       "\u2192 ",
       note.concept.label
-    )), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react23.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         onClick: () => handleTogglePin(note),
         className: "px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
       },
       note.pinned ? "Unpin" : "Pin"
-    ), /* @__PURE__ */ import_react23.default.createElement(
+    ), /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         onClick: () => handleDeleteNote(note.id),
@@ -50796,26 +50881,26 @@ function NotesIndex() {
       },
       "Delete"
     ))),
-    /* @__PURE__ */ import_react23.default.createElement("p", { className: "mb-3 whitespace-pre-wrap leading-relaxed" }, note.body),
-    note.context && /* @__PURE__ */ import_react23.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react23.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
-    note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react23.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))),
-    /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react23.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
+    /* @__PURE__ */ import_react24.default.createElement("p", { className: "mb-3 whitespace-pre-wrap leading-relaxed" }, note.body),
+    note.context && /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
+    note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react24.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))),
+    /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react24.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
   ))));
 }
 
 // app/javascript/components/TagsIndex.js
-var import_react25 = __toESM(require_react());
+var import_react26 = __toESM(require_react());
 
 // app/javascript/components/TagFormModal.js
-var import_react24 = __toESM(require_react());
+var import_react25 = __toESM(require_react());
 function TagFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = (0, import_react24.useState)({
+  const [formData, setFormData] = (0, import_react25.useState)({
     name: "",
     description: "",
     color: "#414431"
   });
-  const [error, setError] = (0, import_react24.useState)("");
-  (0, import_react24.useEffect)(() => {
+  const [error, setError] = (0, import_react25.useState)("");
+  (0, import_react25.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -50860,7 +50945,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       setError("An error occurred while saving the tag");
     }
   };
-  return /* @__PURE__ */ import_react24.default.createElement(
+  return /* @__PURE__ */ import_react25.default.createElement(
     Modal,
     {
       isOpen,
@@ -50868,7 +50953,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Tag" : "New Tag",
       size: "medium"
     },
-    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react24.default.createElement(
+    /* @__PURE__ */ import_react25.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react25.default.createElement(
       "input",
       {
         type: "text",
@@ -50877,7 +50962,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react24.default.createElement(
+    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react25.default.createElement(
       "textarea",
       {
         value: formData.description,
@@ -50886,7 +50971,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What does this tag represent?"
       }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react24.default.createElement(
+    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react25.default.createElement(
       "input",
       {
         type: "color",
@@ -50894,14 +50979,14 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e2) => setFormData({ ...formData, color: e2.target.value }),
         className: "w-full h-12 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement(
+    )), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react25.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Tag"
-    ), /* @__PURE__ */ import_react24.default.createElement(
+    ), /* @__PURE__ */ import_react25.default.createElement(
       "button",
       {
         type: "button",
@@ -50915,12 +51000,12 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/TagsIndex.js
 function TagsIndex() {
-  const [tags, setTags] = (0, import_react25.useState)([]);
-  const [selectedTag, setSelectedTag] = (0, import_react25.useState)(null);
-  const [loading, setLoading] = (0, import_react25.useState)(true);
-  const [sortBy, setSortBy] = (0, import_react25.useState)("popularity");
-  const [creatingTag, setCreatingTag] = (0, import_react25.useState)(false);
-  (0, import_react25.useEffect)(() => {
+  const [tags, setTags] = (0, import_react26.useState)([]);
+  const [selectedTag, setSelectedTag] = (0, import_react26.useState)(null);
+  const [loading, setLoading] = (0, import_react26.useState)(true);
+  const [sortBy, setSortBy] = (0, import_react26.useState)("popularity");
+  const [creatingTag, setCreatingTag] = (0, import_react26.useState)(false);
+  (0, import_react26.useEffect)(() => {
     fetchTags();
   }, [sortBy]);
   const fetchTags = async () => {
@@ -50962,23 +51047,23 @@ function TagsIndex() {
       console.error("Error deleting tag:", error);
     }
   };
-  return /* @__PURE__ */ import_react25.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react25.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react25.default.createElement(
+  return /* @__PURE__ */ import_react26.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react26.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react26.default.createElement(
     "select",
     {
       value: sortBy,
       onChange: (e2) => setSortBy(e2.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react25.default.createElement("option", { value: "popularity" }, "Popularity"),
-    /* @__PURE__ */ import_react25.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
-  )), /* @__PURE__ */ import_react25.default.createElement(
+    /* @__PURE__ */ import_react26.default.createElement("option", { value: "popularity" }, "Popularity"),
+    /* @__PURE__ */ import_react26.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
+  )), /* @__PURE__ */ import_react26.default.createElement(
     "button",
     {
       onClick: () => setCreatingTag(!creatingTag),
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingTag ? "Cancel" : "+ New Tag"
-  )), /* @__PURE__ */ import_react25.default.createElement(
+  )), /* @__PURE__ */ import_react26.default.createElement(
     TagFormModal,
     {
       isOpen: creatingTag,
@@ -50988,22 +51073,22 @@ function TagsIndex() {
         setCreatingTag(false);
       }
     }
-  )), loading ? /* @__PURE__ */ import_react25.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react25.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react25.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react25.default.createElement(
+  )), loading ? /* @__PURE__ */ import_react26.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react26.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react26.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react26.default.createElement(
     "div",
     {
       key: tag.id,
       className: `flex items-center justify-between p-3 rounded cursor-pointer hover:bg-sand transition-colors ${selectedTag?.id === tag.id ? "bg-sand" : ""}`,
       onClick: () => handleTagClick(tag)
     },
-    /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react25.default.createElement(
+    /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react26.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: tag.color }
       }
-    ), /* @__PURE__ */ import_react25.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
-    /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
-  ))))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react25.default.createElement(
+    ), /* @__PURE__ */ import_react26.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
+    /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
+  ))))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react26.default.createElement(
     TagDetail,
     {
       tag: selectedTag,
@@ -51013,10 +51098,10 @@ function TagsIndex() {
         setTags(tags.map((t3) => t3.id === updatedTag.id ? updatedTag : t3));
       }
     }
-  ) : /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
+  ) : /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
 }
 function TagDetail({ tag, onDelete, onUpdate }) {
-  const [editing, setEditing] = (0, import_react25.useState)(false);
+  const [editing, setEditing] = (0, import_react26.useState)(false);
   const typeLabels = {
     Concept: "Constructs",
     Source: "Sources",
@@ -51024,7 +51109,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     Connection: "Relationships",
     Note: "Notes"
   };
-  return /* @__PURE__ */ import_react25.default.createElement(import_react25.default.Fragment, null, /* @__PURE__ */ import_react25.default.createElement(
+  return /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, /* @__PURE__ */ import_react26.default.createElement(
     TagFormModal,
     {
       isOpen: editing,
@@ -51035,46 +51120,46 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         setEditing(false);
       }
     }
-  ), /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react25.default.createElement(
+  ), /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react26.default.createElement(
     "div",
     {
       className: "w-6 h-6 rounded-full",
       style: { backgroundColor: tag.color }
     }
-  ), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react25.default.createElement(
+  ), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react26.default.createElement(
     "button",
     {
       onClick: () => setEditing(true),
       className: "px-4 py-2 text-sm border border-gray-300 rounded hover:bg-sand"
     },
     "Edit"
-  ), /* @__PURE__ */ import_react25.default.createElement(
+  ), /* @__PURE__ */ import_react26.default.createElement(
     "button",
     {
       onClick: onDelete,
       className: "px-4 py-2 text-sm text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  ))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react25.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react25.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react25.default.createElement(
+  ))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react26.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react26.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react26.default.createElement(
     "a",
     {
       key: concept.id,
       href: `/concepts/${concept.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react25.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
-    concept.summary_top && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
-  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react25.default.createElement("div", { key: source.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react25.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)), source.authors && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors))))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react25.default.createElement("div", { key: person.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react25.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500" }, person.role)))))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react25.default.createElement("div", { key: note.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, note.note_type), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm" }, note.body), note.concept && /* @__PURE__ */ import_react25.default.createElement("a", { href: `/concepts/${note.concept.id}`, className: "text-xs text-primary hover:underline mt-1 block" }, "\u2192 ", note.concept.label)))))));
+    /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react26.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
+    concept.summary_top && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
+  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react26.default.createElement("div", { key: source.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react26.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)), source.authors && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors))))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react26.default.createElement("div", { key: person.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react26.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, person.role)))))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react26.default.createElement("div", { key: note.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, note.note_type), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm" }, note.body), note.concept && /* @__PURE__ */ import_react26.default.createElement("a", { href: `/concepts/${note.concept.id}`, className: "text-xs text-primary hover:underline mt-1 block" }, "\u2192 ", note.concept.label)))))));
 }
 
 // app/javascript/components/Dashboard.js
-var import_react28 = __toESM(require_react());
+var import_react29 = __toESM(require_react());
 
 // app/javascript/components/ConceptRelationshipMap.js
-var import_react27 = __toESM(require_react());
+var import_react28 = __toESM(require_react());
 
 // node_modules/react-kapsule/dist/react-kapsule.mjs
-var import_react26 = __toESM(require_react(), 1);
+var import_react27 = __toESM(require_react(), 1);
 
 // node_modules/jerrypick/dist/jerrypick.mjs
 function _iterableToArrayLimit(arr, i2) {
@@ -51228,9 +51313,9 @@ function index(kapsuleComponent) {
   var _ref = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ref$wrapperElementTy = _ref.wrapperElementType, wrapperElementType = _ref$wrapperElementTy === void 0 ? "div" : _ref$wrapperElementTy, _ref$nodeMapper = _ref.nodeMapper, nodeMapper = _ref$nodeMapper === void 0 ? function(node) {
     return node;
   } : _ref$nodeMapper, _ref$methodNames = _ref.methodNames, methodNames = _ref$methodNames === void 0 ? [] : _ref$methodNames, _ref$initPropNames = _ref.initPropNames, initPropNames = _ref$initPropNames === void 0 ? [] : _ref$initPropNames;
-  return /* @__PURE__ */ (0, import_react26.forwardRef)(function(props, ref) {
-    var domEl = (0, import_react26.useRef)();
-    var comp = (0, import_react26.useMemo)(function() {
+  return /* @__PURE__ */ (0, import_react27.forwardRef)(function(props, ref) {
+    var domEl = (0, import_react27.useRef)();
+    var comp = (0, import_react27.useMemo)(function() {
       var configOptions = Object.fromEntries(initPropNames.filter(function(p2) {
         return props.hasOwnProperty(p2);
       }).map(function(prop) {
@@ -51240,11 +51325,11 @@ function index(kapsuleComponent) {
     }, []);
     useEffectOnce(function() {
       comp(nodeMapper(domEl.current));
-    }, import_react26.useLayoutEffect);
+    }, import_react27.useLayoutEffect);
     useEffectOnce(function() {
       return comp._destructor instanceof Function ? comp._destructor : void 0;
     });
-    var _call = (0, import_react26.useCallback)(
+    var _call = (0, import_react27.useCallback)(
       function(method) {
         for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
@@ -51253,14 +51338,14 @@ function index(kapsuleComponent) {
       },
       [comp]
     );
-    var prevPropsRef = (0, import_react26.useRef)({});
+    var prevPropsRef = (0, import_react27.useRef)({});
     Object.keys(omit(props, [].concat(_toConsumableArray2(methodNames), _toConsumableArray2(initPropNames)))).filter(function(p2) {
       return prevPropsRef.current[p2] !== props[p2];
     }).forEach(function(p2) {
       return _call(p2, props[p2]);
     });
     prevPropsRef.current = props;
-    (0, import_react26.useImperativeHandle)(ref, function() {
+    (0, import_react27.useImperativeHandle)(ref, function() {
       return Object.fromEntries(methodNames.map(function(method) {
         return [method, function() {
           for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -51270,17 +51355,17 @@ function index(kapsuleComponent) {
         }];
       }));
     }, [_call]);
-    return /* @__PURE__ */ import_react26.default.createElement(wrapperElementType, {
+    return /* @__PURE__ */ import_react27.default.createElement(wrapperElementType, {
       ref: domEl
     });
   });
 }
 function useEffectOnce(effect) {
-  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react26.useEffect;
-  var destroyFunc = (0, import_react26.useRef)();
-  var effectCalled = (0, import_react26.useRef)(false);
-  var renderAfterCalled = (0, import_react26.useRef)(false);
-  var _useState = (0, import_react26.useState)(0), _useState2 = _slicedToArray2(_useState, 2);
+  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react27.useEffect;
+  var destroyFunc = (0, import_react27.useRef)();
+  var effectCalled = (0, import_react27.useRef)(false);
+  var renderAfterCalled = (0, import_react27.useRef)(false);
+  var _useState = (0, import_react27.useState)(0), _useState2 = _slicedToArray2(_useState, 2);
   _useState2[0];
   var setVal = _useState2[1];
   if (effectCalled.current) {
@@ -61712,17 +61797,20 @@ ForceGraph2D.propTypes = ForceGraph2DPropTypes;
 
 // app/javascript/components/ConceptRelationshipMap.js
 function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = (0, import_react27.useState)({ nodes: [], links: [] });
-  const [loading, setLoading] = (0, import_react27.useState)(true);
-  const [filterType, setFilterType] = (0, import_react27.useState)("all");
-  const [highlightNodes, setHighlightNodes] = (0, import_react27.useState)(/* @__PURE__ */ new Set());
-  const [highlightLinks, setHighlightLinks] = (0, import_react27.useState)(/* @__PURE__ */ new Set());
-  const [hoverNode, setHoverNode] = (0, import_react27.useState)(null);
-  const fgRef = (0, import_react27.useRef)();
-  (0, import_react27.useEffect)(() => {
+  const [graphData, setGraphData] = (0, import_react28.useState)({ nodes: [], links: [] });
+  const [loading, setLoading] = (0, import_react28.useState)(true);
+  const [filterType, setFilterType] = (0, import_react28.useState)("all");
+  const [highlightNodes, setHighlightNodes] = (0, import_react28.useState)(/* @__PURE__ */ new Set());
+  const [highlightLinks, setHighlightLinks] = (0, import_react28.useState)(/* @__PURE__ */ new Set());
+  const [hoverNode, setHoverNode] = (0, import_react28.useState)(null);
+  const fgRef = (0, import_react28.useRef)();
+  const labelBounds = (0, import_react28.useRef)(/* @__PURE__ */ new Map());
+  const currentFrame = (0, import_react28.useRef)(0);
+  const nodesPainted = (0, import_react28.useRef)(0);
+  (0, import_react28.useEffect)(() => {
     fetchGraphData();
   }, []);
-  (0, import_react27.useEffect)(() => {
+  (0, import_react28.useEffect)(() => {
     if (fgRef.current && graphData.nodes.length > 0) {
       setTimeout(() => {
         fgRef.current.zoomToFit(400, 50);
@@ -61811,7 +61899,36 @@ function ConceptRelationshipMap() {
   const handleNodeClick = (node) => {
     window.location.href = `/concepts/${node.slug}`;
   };
+  const boxesOverlap = (box1, box2) => {
+    return !(box1.right < box2.left || box1.left > box2.right || box1.bottom < box2.top || box1.top > box2.bottom);
+  };
+  const checkLabelOverlap = (nodeId, bounds) => {
+    for (const [existingId, existingBounds] of labelBounds.current.entries()) {
+      if (existingId !== nodeId && boxesOverlap(bounds, existingBounds)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const truncateText = (ctx, text, maxWidth) => {
+    if (ctx.measureText(text).width <= maxWidth) {
+      return text;
+    }
+    let truncated = text;
+    while (truncated.length > 0 && ctx.measureText(truncated + "...").width > maxWidth) {
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated + "...";
+  };
   const paintNode = (node, ctx, globalScale) => {
+    if (nodesPainted.current === 0) {
+      labelBounds.current.clear();
+      currentFrame.current++;
+    }
+    nodesPainted.current++;
+    if (nodesPainted.current >= graphData.nodes.length) {
+      nodesPainted.current = 0;
+    }
     const label = node.label;
     const fontSize = 12 / globalScale;
     const nodeSize2 = 3 + (node.connectionCount || 0) * 0.5;
@@ -61867,7 +61984,61 @@ function ConceptRelationshipMap() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? "#9ca3af" : "#1a1a1a";
-    ctx.fillText(label, node.x, node.y + nodeSize2 + fontSize);
+    const textMetrics = ctx.measureText(label);
+    const textWidth = textMetrics.width;
+    const textHeight = fontSize * 1.2;
+    const padding = 2 / globalScale;
+    const positions = [
+      { x: node.x, y: node.y + nodeSize2 + fontSize, name: "below" },
+      { x: node.x, y: node.y - nodeSize2 - fontSize * 0.5, name: "above" },
+      { x: node.x + nodeSize2 + textWidth / 2 + padding * 2, y: node.y, name: "right" },
+      { x: node.x - nodeSize2 - textWidth / 2 - padding * 2, y: node.y, name: "left" }
+    ];
+    let bestPosition = positions[0];
+    let hasOverlap = false;
+    let displayLabel = label;
+    for (const pos of positions) {
+      const bounds = {
+        left: pos.x - textWidth / 2 - padding,
+        right: pos.x + textWidth / 2 + padding,
+        top: pos.y - textHeight / 2 - padding,
+        bottom: pos.y + textHeight / 2 + padding
+      };
+      if (!checkLabelOverlap(node.id, bounds)) {
+        bestPosition = pos;
+        hasOverlap = false;
+        labelBounds.current.set(node.id, bounds);
+        break;
+      }
+      hasOverlap = true;
+    }
+    if (hasOverlap) {
+      const maxWidth = 80 / globalScale;
+      displayLabel = truncateText(ctx, label, maxWidth);
+      const truncatedMetrics = ctx.measureText(displayLabel);
+      const truncatedWidth = truncatedMetrics.width;
+      const bounds = {
+        left: bestPosition.x - truncatedWidth / 2 - padding,
+        right: bestPosition.x + truncatedWidth / 2 + padding,
+        top: bestPosition.y - textHeight / 2 - padding,
+        bottom: bestPosition.y + textHeight / 2 + padding
+      };
+      labelBounds.current.set(node.id, bounds);
+    }
+    if (hoverNode && node.id === hoverNode.id) {
+      displayLabel = label;
+      const hoverMetrics = ctx.measureText(displayLabel);
+      const hoverWidth = hoverMetrics.width;
+      ctx.fillStyle = "rgba(246, 240, 233, 0.9)";
+      ctx.fillRect(
+        bestPosition.x - hoverWidth / 2 - padding * 2,
+        bestPosition.y - textHeight / 2 - padding,
+        hoverWidth + padding * 4,
+        textHeight + padding * 2
+      );
+      ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? "#9ca3af" : "#1a1a1a";
+    }
+    ctx.fillText(displayLabel, bestPosition.x, bestPosition.y);
   };
   const paintLink = (link, ctx, globalScale) => {
     const sourceId = link.source.id || link.source;
@@ -61947,45 +62118,45 @@ function ConceptRelationshipMap() {
     ctx.setLineDash([]);
   };
   if (loading) {
-    return /* @__PURE__ */ import_react27.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react27.default.createElement("p", null, "Loading relationship map..."));
+    return /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react28.default.createElement("p", null, "Loading relationship map..."));
   }
   const filteredData = getFilteredData();
-  return /* @__PURE__ */ import_react27.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react27.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react27.default.createElement(
+  return /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react28.default.createElement(
     "button",
     {
       onClick: () => setFilterType("all"),
       className: `px-3 py-1 rounded text-sm ${filterType === "all" ? "bg-primary text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "All"
-  ), /* @__PURE__ */ import_react27.default.createElement(
+  ), /* @__PURE__ */ import_react28.default.createElement(
     "button",
     {
       onClick: () => setFilterType("hierarchical"),
       className: `px-3 py-1 rounded text-sm ${filterType === "hierarchical" ? "bg-accent-dark text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Hierarchical"
-  ), /* @__PURE__ */ import_react27.default.createElement(
+  ), /* @__PURE__ */ import_react28.default.createElement(
     "button",
     {
       onClick: () => setFilterType("semantic"),
       className: `px-3 py-1 rounded text-sm ${filterType === "semantic" ? "bg-primary text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Semantic"
-  ), /* @__PURE__ */ import_react27.default.createElement(
+  ), /* @__PURE__ */ import_react28.default.createElement(
     "button",
     {
       onClick: () => setFilterType("sequential"),
       className: `px-3 py-1 rounded text-sm ${filterType === "sequential" ? "bg-accent text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Sequential"
-  ), /* @__PURE__ */ import_react27.default.createElement(
+  ), /* @__PURE__ */ import_react28.default.createElement(
     "button",
     {
       onClick: () => setFilterType("influence"),
       className: `px-3 py-1 rounded text-sm ${filterType === "influence" ? "bg-accent-light text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Influence"
-  ))), /* @__PURE__ */ import_react27.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react27.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react27.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react27.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react27.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react27.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react27.default.createElement(
+  ))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react28.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react28.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react28.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react28.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react28.default.createElement(
     ForceGraph2D,
     {
       ref: fgRef,
@@ -62005,15 +62176,15 @@ function ConceptRelationshipMap() {
       width: void 0,
       height: 400
     }
-  )), hoverNode && /* @__PURE__ */ import_react27.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react27.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react27.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react27.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
+  )), hoverNode && /* @__PURE__ */ import_react28.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react28.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
 }
 
 // app/javascript/components/Dashboard.js
 function Dashboard() {
-  const [stats, setStats] = (0, import_react28.useState)(null);
-  const [recentActivity, setRecentActivity] = (0, import_react28.useState)([]);
-  const [loading, setLoading] = (0, import_react28.useState)(true);
-  (0, import_react28.useEffect)(() => {
+  const [stats, setStats] = (0, import_react29.useState)(null);
+  const [recentActivity, setRecentActivity] = (0, import_react29.useState)([]);
+  const [loading, setLoading] = (0, import_react29.useState)(true);
+  (0, import_react29.useEffect)(() => {
     fetchDashboardData();
   }, []);
   const fetchDashboardData = async () => {
@@ -62074,83 +62245,83 @@ function Dashboard() {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("p", null, "Loading dashboard..."));
+    return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react29.default.createElement("p", null, "Loading dashboard..."));
   }
-  return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react28.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react28.default.createElement(
+  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react29.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react29.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react29.default.createElement(
     ActionCard,
     {
       title: "Add Concept",
       description: "Create a new knowledge concept",
       link: "/concepts"
     }
-  ), /* @__PURE__ */ import_react28.default.createElement(
+  ), /* @__PURE__ */ import_react29.default.createElement(
     ActionCard,
     {
       title: "Add Note",
       description: "Capture a new insight or reflection",
       link: "/notes"
     }
-  ), /* @__PURE__ */ import_react28.default.createElement(
+  ), /* @__PURE__ */ import_react29.default.createElement(
     ActionCard,
     {
       title: "Add Source",
       description: "Add a new reference or resource",
       link: "/sources"
     }
-  ), /* @__PURE__ */ import_react28.default.createElement(
+  ), /* @__PURE__ */ import_react29.default.createElement(
     ActionCard,
     {
       title: "View Graph",
       description: "Explore your knowledge network",
       link: "/connections"
     }
-  ))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react28.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react28.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react28.default.createElement(
+  ))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react29.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react29.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react29.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react29.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react29.default.createElement(
     "div",
     {
       className: "bg-primary h-2 rounded-full",
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react28.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react28.default.createElement(
+  )), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react29.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react29.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react29.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react29.default.createElement(
     "div",
     {
       className: `h-2 rounded-full ${status === "deep" ? "bg-green-600" : status === "basic" ? "bg-yellow-600" : "bg-gray-400"}`,
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react28.default.createElement(ConceptRelationshipMap, null));
+  )), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react29.default.createElement(ConceptRelationshipMap, null));
 }
 function StatCard({ label, value, link }) {
-  return /* @__PURE__ */ import_react28.default.createElement(
+  return /* @__PURE__ */ import_react29.default.createElement(
     "a",
     {
       href: link,
       className: "bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
-    /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-sm text-gray-600" }, label)
+    /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
+    /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-sm text-gray-600" }, label)
   );
 }
 function ActionCard({ title, description, link }) {
-  return /* @__PURE__ */ import_react28.default.createElement(
+  return /* @__PURE__ */ import_react29.default.createElement(
     "a",
     {
       href: link,
       className: "bg-white border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
     },
-    /* @__PURE__ */ import_react28.default.createElement("h3", { className: "font-medium mb-1" }, title),
-    /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-gray-600" }, description)
+    /* @__PURE__ */ import_react29.default.createElement("h3", { className: "font-medium mb-1" }, title),
+    /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-600" }, description)
   );
 }
 
 // app/javascript/components/GlobalSearch.js
-var import_react29 = __toESM(require_react());
+var import_react30 = __toESM(require_react());
 function GlobalSearch() {
-  const [query, setQuery] = (0, import_react29.useState)("");
-  const [results, setResults] = (0, import_react29.useState)(null);
-  const [loading, setLoading] = (0, import_react29.useState)(false);
-  const [showResults, setShowResults] = (0, import_react29.useState)(false);
-  const searchRef = (0, import_react29.useRef)(null);
-  const timeoutRef = (0, import_react29.useRef)(null);
-  (0, import_react29.useEffect)(() => {
+  const [query, setQuery] = (0, import_react30.useState)("");
+  const [results, setResults] = (0, import_react30.useState)(null);
+  const [loading, setLoading] = (0, import_react30.useState)(false);
+  const [showResults, setShowResults] = (0, import_react30.useState)(false);
+  const searchRef = (0, import_react30.useRef)(null);
+  const timeoutRef = (0, import_react30.useRef)(null);
+  (0, import_react30.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
@@ -62159,7 +62330,7 @@ function GlobalSearch() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  (0, import_react29.useEffect)(() => {
+  (0, import_react30.useEffect)(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -62191,7 +62362,7 @@ function GlobalSearch() {
     }
   };
   const totalResults = results ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length : 0;
-  return /* @__PURE__ */ import_react29.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react29.default.createElement(
+  return /* @__PURE__ */ import_react30.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react30.default.createElement(
     "input",
     {
       type: "text",
@@ -62201,10 +62372,10 @@ function GlobalSearch() {
       placeholder: "Search across everything...",
       className: "w-full px-4 py-2 pl-10 border border-gray-300 rounded bg-white"
     }
-  ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react29.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react29.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react29.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react29.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react29.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
+  ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react30.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react30.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react30.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react30.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react30.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
 }
 function SearchSection({ title, items, type }) {
-  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react29.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react29.default.createElement(SearchResultItem, { key: item.id, item, type }))));
+  return /* @__PURE__ */ import_react30.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react30.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react30.default.createElement(SearchResultItem, { key: item.id, item, type }))));
 }
 function SearchResultItem({ item, type }) {
   const getLink = () => {
@@ -62238,29 +62409,29 @@ function SearchResultItem({ item, type }) {
     if (type === "note") return item.note_type;
     return null;
   };
-  return /* @__PURE__ */ import_react29.default.createElement(
+  return /* @__PURE__ */ import_react30.default.createElement(
     "a",
     {
       href: getLink(),
       className: "block px-4 py-3 hover:bg-sand transition-colors",
       onClick: () => window.location.href = getLink()
     },
-    /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react30.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: item.color }
       }
-    )), /* @__PURE__ */ import_react29.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
+    )), /* @__PURE__ */ import_react30.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
   );
 }
 
 // app/javascript/components/UserDropdown.js
-var import_react30 = __toESM(require_react());
+var import_react31 = __toESM(require_react());
 function UserDropdown({ userEmail }) {
-  const [isOpen, setIsOpen] = (0, import_react30.useState)(false);
-  const dropdownRef = (0, import_react30.useRef)(null);
-  (0, import_react30.useEffect)(() => {
+  const [isOpen, setIsOpen] = (0, import_react31.useState)(false);
+  const dropdownRef = (0, import_react31.useRef)(null);
+  (0, import_react31.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -62287,21 +62458,21 @@ function UserDropdown({ userEmail }) {
     document.body.appendChild(form);
     form.submit();
   };
-  return /* @__PURE__ */ import_react30.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react30.default.createElement(
+  return /* @__PURE__ */ import_react31.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       onClick: () => setIsOpen(!isOpen),
       className: "flex items-center gap-2 px-3 py-2 rounded hover:bg-sand hover:text-primary transition-colors"
     },
-    /* @__PURE__ */ import_react30.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react30.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
-  ), isOpen && /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react30.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react30.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react31.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
+  ), isOpen && /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react31.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react31.default.createElement(
     "a",
     {
       href: "/users/edit",
       className: "block px-4 py-2 text-sm hover:bg-sand transition-colors"
     },
     "Edit My Information"
-  )), /* @__PURE__ */ import_react30.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react30.default.createElement(
+  )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       onClick: handleSignOut,
@@ -62315,45 +62486,45 @@ function UserDropdown({ userEmail }) {
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react31.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react32.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react31.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react32.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react31.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react32.default.createElement(SourcesIndex, null));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react31.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react32.default.createElement(PeopleIndex, null));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react31.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react32.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react31.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react32.default.createElement(NotesIndex, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react31.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react32.default.createElement(TagsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react31.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react32.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react31.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react32.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react31.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react32.default.createElement(UserDropdown, { userEmail }));
   }
 });
 /*! Bundled license information:

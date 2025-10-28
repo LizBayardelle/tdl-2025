@@ -9,6 +9,9 @@ export default function ConceptRelationshipMap() {
   const [highlightLinks, setHighlightLinks] = useState(new Set());
   const [hoverNode, setHoverNode] = useState(null);
   const fgRef = useRef();
+  const labelBounds = useRef(new Map()); // Store label bounding boxes for collision detection
+  const currentFrame = useRef(0); // Track render frames
+  const nodesPainted = useRef(0); // Track how many nodes painted in current frame
 
   useEffect(() => {
     fetchGraphData();
@@ -123,7 +126,53 @@ export default function ConceptRelationshipMap() {
     window.location.href = `/concepts/${node.slug}`;
   };
 
+  // Check if two bounding boxes overlap
+  const boxesOverlap = (box1, box2) => {
+    return !(
+      box1.right < box2.left ||
+      box1.left > box2.right ||
+      box1.bottom < box2.top ||
+      box1.top > box2.bottom
+    );
+  };
+
+  // Check if a label position would overlap with existing labels
+  const checkLabelOverlap = (nodeId, bounds) => {
+    for (const [existingId, existingBounds] of labelBounds.current.entries()) {
+      if (existingId !== nodeId && boxesOverlap(bounds, existingBounds)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // Truncate text with ellipsis to fit within maxWidth
+  const truncateText = (ctx, text, maxWidth) => {
+    if (ctx.measureText(text).width <= maxWidth) {
+      return text;
+    }
+
+    let truncated = text;
+    while (truncated.length > 0 && ctx.measureText(truncated + '...').width > maxWidth) {
+      truncated = truncated.slice(0, -1);
+    }
+    return truncated + '...';
+  };
+
   const paintNode = (node, ctx, globalScale) => {
+    // Clear label bounds at the start of each render frame
+    // We detect a new frame by checking if this is the first node
+    if (nodesPainted.current === 0) {
+      labelBounds.current.clear();
+      currentFrame.current++;
+    }
+    nodesPainted.current++;
+
+    // Reset counter after all nodes are painted (will be reset by next frame)
+    if (nodesPainted.current >= graphData.nodes.length) {
+      nodesPainted.current = 0;
+    }
+
     const label = node.label;
     const fontSize = 12 / globalScale;
     const nodeSize = 3 + (node.connectionCount || 0) * 0.5;
@@ -169,12 +218,83 @@ export default function ConceptRelationshipMap() {
       ctx.stroke();
     }
 
-    // Draw label
+    // Draw label with collision detection
     ctx.font = `${fontSize}px Sans-Serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : '#1a1a1a';
-    ctx.fillText(label, node.x, node.y + nodeSize + fontSize);
+
+    // Measure text dimensions
+    const textMetrics = ctx.measureText(label);
+    const textWidth = textMetrics.width;
+    const textHeight = fontSize * 1.2; // Approximate height with padding
+    const padding = 2 / globalScale;
+
+    // Try different positions for the label
+    const positions = [
+      { x: node.x, y: node.y + nodeSize + fontSize, name: 'below' },
+      { x: node.x, y: node.y - nodeSize - fontSize * 0.5, name: 'above' },
+      { x: node.x + nodeSize + textWidth / 2 + padding * 2, y: node.y, name: 'right' },
+      { x: node.x - nodeSize - textWidth / 2 - padding * 2, y: node.y, name: 'left' }
+    ];
+
+    let bestPosition = positions[0];
+    let hasOverlap = false;
+    let displayLabel = label;
+
+    // Find the first position without overlap
+    for (const pos of positions) {
+      const bounds = {
+        left: pos.x - textWidth / 2 - padding,
+        right: pos.x + textWidth / 2 + padding,
+        top: pos.y - textHeight / 2 - padding,
+        bottom: pos.y + textHeight / 2 + padding
+      };
+
+      if (!checkLabelOverlap(node.id, bounds)) {
+        bestPosition = pos;
+        hasOverlap = false;
+        labelBounds.current.set(node.id, bounds);
+        break;
+      }
+      hasOverlap = true;
+    }
+
+    // If all positions overlap, truncate the label at the default position
+    if (hasOverlap) {
+      const maxWidth = 80 / globalScale; // Max width before truncation
+      displayLabel = truncateText(ctx, label, maxWidth);
+
+      const truncatedMetrics = ctx.measureText(displayLabel);
+      const truncatedWidth = truncatedMetrics.width;
+
+      const bounds = {
+        left: bestPosition.x - truncatedWidth / 2 - padding,
+        right: bestPosition.x + truncatedWidth / 2 + padding,
+        top: bestPosition.y - textHeight / 2 - padding,
+        bottom: bestPosition.y + textHeight / 2 + padding
+      };
+
+      labelBounds.current.set(node.id, bounds);
+    }
+
+    // Always show full label on hover
+    if (hoverNode && node.id === hoverNode.id) {
+      displayLabel = label;
+      // Draw background for hover label
+      const hoverMetrics = ctx.measureText(displayLabel);
+      const hoverWidth = hoverMetrics.width;
+      ctx.fillStyle = 'rgba(246, 240, 233, 0.9)'; // sand with transparency
+      ctx.fillRect(
+        bestPosition.x - hoverWidth / 2 - padding * 2,
+        bestPosition.y - textHeight / 2 - padding,
+        hoverWidth + padding * 4,
+        textHeight + padding * 2
+      );
+      ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : '#1a1a1a';
+    }
+
+    ctx.fillText(displayLabel, bestPosition.x, bestPosition.y);
   };
 
   const paintLink = (link, ctx, globalScale) => {
