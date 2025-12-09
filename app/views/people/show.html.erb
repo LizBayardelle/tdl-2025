@@ -7,11 +7,19 @@
     <div class="flex justify-between items-start mb-6">
       <div>
         <h1 class="text-4xl mb-2"><%= @person.full_name %></h1>
-        <% if @person.role.present? %>
-          <span class="text-sm uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-            <%= @person.role %>
-          </span>
-        <% end %>
+        <div class="flex flex-wrap gap-2 items-center">
+          <% if @person.role.present? %>
+            <span class="text-sm uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
+              <%= @person.role %>
+            </span>
+          <% end %>
+          <% @person.concepts.each do |concept| %>
+            <%= link_to concept.label, concept_path(concept), class: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors" %>
+          <% end %>
+          <% @person.tags.each do |tag| %>
+            <%= link_to tag.name, tag_path(tag.name), class: "text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors" %>
+          <% end %>
+        </div>
       </div>
       <div class="flex gap-2">
         <button data-action="click->person-show#openEditModal" class="px-4 py-2 border border-gray-300 rounded hover:bg-sand">
@@ -160,46 +168,4 @@
   <div id="edit-person-modal"></div>
 </div>
 
-<script type="module">
-  import PersonFormModal from 'PersonFormModal';
-  import { createRoot } from 'react-dom/client';
-  import React from 'react';
-
-  const personData = <%= raw @person.to_json(include: { concepts: {}, sources: {} }) %>;
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('edit-person-modal');
-    const root = createRoot(container);
-
-    window.openPersonEditModal = () => {
-      root.render(
-        React.createElement(PersonFormModal, {
-          isOpen: true,
-          onClose: () => {
-            root.render(React.createElement(React.Fragment));
-          },
-          onSuccess: () => {
-            window.location.reload();
-          },
-          item: {
-            id: personData.id,
-            full_name: personData.full_name,
-            role: personData.role,
-            summary: personData.summary,
-            aka: personData.aka || [],
-            concept_ids: personData.concepts ? personData.concepts.map(c => c.id) : [],
-            source_ids: personData.sources ? personData.sources.map(s => s.id) : []
-          }
-        })
-      );
-    };
-  });
-
-  // Use Stimulus controller
-  const application = window.Stimulus;
-  application.register('person-show', class extends window.Stimulus.Controller {
-    openEditModal() {
-      window.openPersonEditModal();
-    }
-  });
-</script>
+<div id="person-show-root" data-person='<%= raw @person.to_json(include: { concepts: {}, sources: {} }) %>'></div>

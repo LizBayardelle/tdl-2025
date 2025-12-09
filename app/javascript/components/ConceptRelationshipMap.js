@@ -17,12 +17,31 @@ export default function ConceptRelationshipMap() {
     fetchGraphData();
   }, []);
 
-  // Zoom to fit all nodes after graph data loads
+  // Configure forces and zoom to fit all nodes after graph data loads
   useEffect(() => {
     if (fgRef.current && graphData.nodes.length > 0) {
+      // Configure stronger repulsion forces to spread nodes apart
+      const fg = fgRef.current;
+
+      // Access d3-force from the library (it's bundled with react-force-graph)
+      import('d3-force').then((d3) => {
+        // Set charge force (repulsion between nodes) - stronger repulsion
+        fg.d3Force('charge', d3.forceManyBody().strength(-400).distanceMax(500));
+
+        // Set link distance - longer links for more space
+        fg.d3Force('link').distance(100);
+
+        // Add collision force to prevent node overlap
+        fg.d3Force('collision', d3.forceCollide().radius(60).strength(1));
+
+        // Reheat simulation to apply new forces
+        fg.d3ReheatSimulation();
+      });
+
+      // Zoom to fit after forces are configured
       setTimeout(() => {
-        fgRef.current.zoomToFit(400, 50); // 400ms transition, 50px padding
-      }, 500); // Wait for initial layout
+        fg.zoomToFit(400, 50); // 400ms transition, 50px padding
+      }, 1000); // Wait for layout with new forces
     }
   }, [graphData]);
 
@@ -496,7 +515,8 @@ export default function ConceptRelationshipMap() {
           linkDirectionalParticles={2}
           linkDirectionalParticleWidth={link => highlightLinks.has(link) ? 2 : 0}
           d3VelocityDecay={0.3}
-          cooldownTime={3000}
+          d3AlphaDecay={0.01}
+          cooldownTime={5000}
           enableNodeDrag={true}
           enableZoomInteraction={true}
           enablePanInteraction={true}

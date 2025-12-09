@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SourceFormModal from './SourceFormModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 export default function SourcesIndex() {
   const [sources, setSources] = useState([]);
@@ -40,7 +42,7 @@ export default function SourcesIndex() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl">Evidence Sources</h1>
+        <h1 className="text-4xl">Sources</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
@@ -105,6 +107,9 @@ export default function SourcesIndex() {
 }
 
 function SourceCard({ source, onUpdate }) {
+  const [showEdit, setShowEdit] = useState(false);
+  const [showFullAbstract, setShowFullAbstract] = useState(false);
+
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this source?')) return;
 
@@ -124,51 +129,194 @@ function SourceCard({ source, onUpdate }) {
     }
   };
 
+  // Build citation info based on source type
+  const getCitationInfo = () => {
+    const parts = [];
+
+    if (source.kind === 'article' || source.kind === 'rct' || source.kind === 'meta_analysis') {
+      if (source.journal_name) parts.push(source.journal_name);
+      const volIssue = [source.volume, source.issue && `(${source.issue})`].filter(Boolean).join('');
+      if (volIssue) parts.push(volIssue);
+      if (source.pages) parts.push(`pp. ${source.pages}`);
+    } else if (source.kind === 'textbook' || source.kind === 'manual') {
+      if (source.publisher_or_venue) parts.push(source.publisher_or_venue);
+      if (source.edition) parts.push(source.edition);
+    } else if (source.kind === 'chapter') {
+      if (source.book_title) parts.push(`In: ${source.book_title}`);
+      if (source.pages) parts.push(`pp. ${source.pages}`);
+    } else if (source.kind === 'video_demo') {
+      if (source.website_name) parts.push(source.website_name);
+    }
+
+    return parts.length > 0 ? parts.join(', ') : null;
+  };
+
+  const citationInfo = getCitationInfo();
+
   return (
-    <div className="bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-3">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            {source.kind && (
-              <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-                {source.kind.replace('_', ' ')}
-              </span>
+    <>
+      <div className="bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              {source.kind && (
+                <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
+                  {source.kind.replace('_', ' ')}
+                </span>
+              )}
+              {source.year && (
+                <span className="text-xs text-gray-600">{source.year}</span>
+              )}
+              {source.doi && (
+                <a
+                  href={`https://doi.org/${source.doi}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:text-accent-dark font-mono underline"
+                  title="View on DOI.org"
+                >
+                  DOI: {source.doi}
+                </a>
+              )}
+            </div>
+            <h3 className="text-xl mb-2">
+              <a href={`/sources/${source.id}`} className="hover:text-primary">
+                {source.title}
+              </a>
+            </h3>
+            {source.authors && (
+              <p className="text-sm text-gray-600 mb-2">{source.authors}</p>
             )}
-            {source.year && (
-              <span className="text-xs text-gray-600">{source.year}</span>
+            {citationInfo && (
+              <p className="text-sm text-gray-500 mb-2 italic">{citationInfo}</p>
             )}
           </div>
-          <h3 className="text-xl mb-2">
-            <a href={`/sources/${source.id}`} className="hover:text-primary">
-              {source.title}
-            </a>
-          </h3>
-          {source.authors && (
-            <p className="text-sm text-gray-600 mb-2">{source.authors}</p>
-          )}
+          <div className="flex gap-2 ml-4">
+            {source.url && (
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
+                title="View Source"
+              >
+                <FontAwesomeIcon icon={faExternalLinkAlt} />
+              </a>
+            )}
+            <button
+              onClick={() => setShowEdit(true)}
+              className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleDelete}
-          className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors ml-4"
-        >
-          Delete
-        </button>
+
+        {source.abstract && (
+          <div className="mb-3">
+            <p className={`text-sm text-gray-700 ${showFullAbstract ? '' : 'line-clamp-3'}`}>
+              {source.abstract}
+            </p>
+            {source.abstract.length > 200 && (
+              <button
+                onClick={() => setShowFullAbstract(!showFullAbstract)}
+                className="text-xs hover:text-accent-dark mt-1"
+                style={{ background: 'none', padding: 0, color: '#414431' }}
+              >
+                {showFullAbstract ? 'Show Less' : 'Show More'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {source.summary && !source.abstract && (
+          <p className="text-sm mb-3">{source.summary}</p>
+        )}
+
+        {(source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0) && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {source.concepts?.map((concept) => (
+              <a
+                key={concept.id}
+                href={`/concepts/${concept.id}`}
+                className="text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+              >
+                {concept.label}
+              </a>
+            ))}
+            {source.tags?.map((tag, idx) => (
+              <a
+                key={idx}
+                href={`/tags/${tag}`}
+                className="text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+              >
+                {tag}
+              </a>
+            ))}
+            {source.people?.map((person) => (
+              <a
+                key={person.id}
+                href={`/people/${person.id}`}
+                className="text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
+              >
+                {person.full_name}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {source.keywords && source.keywords.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1">
+            {source.keywords.slice(0, 5).map((keyword, idx) => (
+              <span key={idx} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                {keyword}
+              </span>
+            ))}
+            {source.keywords.length > 5 && (
+              <span className="text-xs text-gray-500 px-2 py-1">
+                +{source.keywords.length - 5} more
+              </span>
+            )}
+          </div>
+        )}
+
+        {source.pdf_url && (
+          <div className="text-xs mb-3">
+            <a
+              href={source.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:text-accent-dark underline font-medium"
+            >
+              📄 View PDF
+            </a>
+          </div>
+        )}
+
+        <div className="pt-3 border-t border-gray-200 text-xs text-gray-500 flex items-center gap-2">
+          <span>{source.notes_count || 0} note{source.notes_count !== 1 ? 's' : ''}</span>
+          <span>•</span>
+          <a href={`/notes/new?source_id=${source.id}`} className="text-primary hover:text-accent-dark">
+            + New Note
+          </a>
+        </div>
       </div>
 
-      {source.summary && (
-        <p className="text-sm mb-3">{source.summary}</p>
-      )}
-
-      {source.doi_or_url && (
-        <a
-          href={source.doi_or_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-primary hover:text-accent-dark underline"
-        >
-          {source.doi_or_url}
-        </a>
-      )}
-    </div>
+      <SourceFormModal
+        isOpen={showEdit}
+        onClose={() => setShowEdit(false)}
+        onSuccess={() => {
+          onUpdate();
+          setShowEdit(false);
+        }}
+        item={source}
+      />
+    </>
   );
 }

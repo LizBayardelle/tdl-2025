@@ -7,8 +7,10 @@ import ConceptsIndex from './components/ConceptsIndex';
 import ConceptShow from './components/ConceptShow';
 import SourcesIndex from './components/SourcesIndex';
 import PeopleIndex from './components/PeopleIndex';
+import PersonShow from './components/PersonShow';
 import ConnectionVisualization from './components/ConnectionVisualization';
 import NotesIndex from './components/NotesIndex';
+import NotesForm from './components/NotesForm';
 import TagsIndex from './components/TagsIndex';
 import Dashboard from './components/Dashboard';
 import GlobalSearch from './components/GlobalSearch';
@@ -37,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(peopleIndexRoot).render(<PeopleIndex />);
   }
 
+  const personShowRoot = document.getElementById('person-show-root');
+  if (personShowRoot) {
+    createRoot(personShowRoot).render(<PersonShow />);
+  }
+
   const connectionVisualizationRoot = document.getElementById('connection-visualization-root');
   if (connectionVisualizationRoot) {
     createRoot(connectionVisualizationRoot).render(<ConnectionVisualization />);
@@ -45,6 +52,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const notesIndexRoot = document.getElementById('notes-index-root');
   if (notesIndexRoot) {
     createRoot(notesIndexRoot).render(<NotesIndex />);
+  }
+
+  const noteFormRoot = document.getElementById('note-form-root');
+  if (noteFormRoot) {
+    createRoot(noteFormRoot).render(<NotesForm />);
   }
 
   const tagsIndexRoot = document.getElementById('tags-index-root');

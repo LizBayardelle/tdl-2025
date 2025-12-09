@@ -10,9 +10,98 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_08_035914) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "article_authors", force: :cascade do |t|
+    t.bigint "article_id", null: false
+    t.bigint "author_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["article_id", "author_id"], name: "index_article_authors_on_article_id_and_author_id", unique: true
+    t.index ["article_id", "position"], name: "index_article_authors_on_article_id_and_position"
+    t.index ["article_id"], name: "index_article_authors_on_article_id"
+    t.index ["author_id"], name: "index_article_authors_on_author_id"
+  end
+
+  create_table "article_concepts", force: :cascade do |t|
+    t.bigint "article_id", null: false
+    t.bigint "concept_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["article_id", "concept_id"], name: "index_article_concepts_on_article_id_and_concept_id", unique: true
+    t.index ["article_id"], name: "index_article_concepts_on_article_id"
+    t.index ["concept_id"], name: "index_article_concepts_on_concept_id"
+  end
+
+  create_table "articles", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "abstract"
+    t.string "url"
+    t.string "doi"
+    t.string "journal_name"
+    t.string "publisher"
+    t.date "publication_date"
+    t.integer "publication_year"
+    t.string "volume"
+    t.string "issue"
+    t.string "pages"
+    t.string "article_type"
+    t.json "keywords", default: []
+    t.json "raw_metadata"
+    t.text "formatted_citation"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["doi"], name: "index_articles_on_doi", unique: true, where: "(doi IS NOT NULL)"
+    t.index ["publication_year"], name: "index_articles_on_publication_year"
+    t.index ["title"], name: "index_articles_on_title"
+    t.index ["user_id"], name: "index_articles_on_user_id"
+  end
+
+  create_table "authors", force: :cascade do |t|
+    t.string "last_name"
+    t.string "first_name"
+    t.string "middle_initial"
+    t.string "full_name"
+    t.string "orcid"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["full_name"], name: "index_authors_on_full_name"
+    t.index ["orcid"], name: "index_authors_on_orcid", unique: true, where: "(orcid IS NOT NULL)"
+    t.index ["user_id"], name: "index_authors_on_user_id"
+  end
 
   create_table "concept_sources", force: :cascade do |t|
     t.bigint "concept_id", null: false
@@ -104,10 +193,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
     t.date "noted_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
+    t.bigint "article_id"
+    t.bigint "source_id"
+    t.index ["article_id"], name: "index_notes_on_article_id"
     t.index ["concept_id"], name: "index_notes_on_concept_id"
     t.index ["note_type"], name: "index_notes_on_note_type"
     t.index ["noted_on"], name: "index_notes_on_noted_on"
     t.index ["pinned"], name: "index_notes_on_pinned"
+    t.index ["source_id"], name: "index_notes_on_source_id"
     t.index ["user_id"], name: "index_notes_on_user_id"
   end
 
@@ -170,6 +264,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
     t.index ["source_id"], name: "index_people_sources_on_source_id"
   end
 
+  create_table "source_authors", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "author_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_source_authors_on_author_id"
+    t.index ["source_id", "author_id"], name: "index_source_authors_on_source_id_and_author_id", unique: true
+    t.index ["source_id", "position"], name: "index_source_authors_on_source_id_and_position"
+    t.index ["source_id"], name: "index_source_authors_on_source_id"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title", null: false
@@ -177,12 +283,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
     t.integer "year"
     t.string "kind"
     t.string "publisher_or_venue"
-    t.string "doi_or_url"
+    t.string "doi"
     t.text "citation"
     t.text "summary"
     t.text "tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "url"
+    t.string "journal_name"
+    t.string "volume"
+    t.string "issue"
+    t.string "pages"
+    t.date "publication_date"
+    t.text "abstract"
+    t.string "book_title"
+    t.string "edition"
+    t.string "isbn"
+    t.integer "chapter_number"
+    t.string "website_name"
+    t.date "access_date"
+    t.json "keywords", default: []
+    t.json "raw_metadata"
+    t.text "formatted_citation"
+    t.index ["doi"], name: "index_sources_on_doi", unique: true, where: "(doi IS NOT NULL)"
     t.index ["kind"], name: "index_sources_on_kind"
     t.index ["user_id"], name: "index_sources_on_user_id"
     t.index ["year"], name: "index_sources_on_year"
@@ -225,6 +348,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "article_authors", "articles"
+  add_foreign_key "article_authors", "authors"
+  add_foreign_key "article_concepts", "articles"
+  add_foreign_key "article_concepts", "concepts"
+  add_foreign_key "articles", "users"
+  add_foreign_key "authors", "users"
   add_foreign_key "concept_sources", "concepts"
   add_foreign_key "concept_sources", "sources"
   add_foreign_key "concepts", "users"
@@ -232,7 +363,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
   add_foreign_key "connections", "concepts", column: "src_concept_id"
   add_foreign_key "connections", "users"
   add_foreign_key "note_links", "notes"
+  add_foreign_key "notes", "articles"
   add_foreign_key "notes", "concepts"
+  add_foreign_key "notes", "sources"
   add_foreign_key "notes", "users"
   add_foreign_key "people", "users"
   add_foreign_key "people_concepts", "concepts"
@@ -241,6 +374,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_13_202314) do
   add_foreign_key "people_notes", "people"
   add_foreign_key "people_sources", "people"
   add_foreign_key "people_sources", "sources"
+  add_foreign_key "source_authors", "authors"
+  add_foreign_key "source_authors", "sources"
   add_foreign_key "sources", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "users"

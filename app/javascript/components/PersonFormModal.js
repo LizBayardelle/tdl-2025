@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
+import ConceptSelector from './ConceptSelector';
+import TagSelector from './TagSelector';
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [concepts, setConcepts] = useState([]);
   const [sources, setSources] = useState([]);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -10,13 +11,13 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     summary: '',
     aka: [],
     concept_ids: [],
-    source_ids: []
+    source_ids: [],
+    tags: []
   });
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      fetchConcepts();
       fetchSources();
       if (item) {
         setFormData({
@@ -25,7 +26,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           summary: item.summary || '',
           aka: item.aka || [],
           concept_ids: item.concept_ids || [],
-          source_ids: item.source_ids || []
+          source_ids: item.source_ids || [],
+          tags: item.tags || []
         });
       } else {
         setFormData({
@@ -34,22 +36,13 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           summary: '',
           aka: [],
           concept_ids: [],
-          source_ids: []
+          source_ids: [],
+          tags: []
         });
       }
       setError('');
     }
   }, [isOpen, item]);
-
-  const fetchConcepts = async () => {
-    try {
-      const response = await fetch('/concepts.json');
-      const data = await response.json();
-      setConcepts(data);
-    } catch (error) {
-      console.error('Error fetching concepts:', error);
-    }
-  };
 
   const fetchSources = async () => {
     try {
@@ -164,27 +157,22 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Link Constructs (hold Cmd/Ctrl to select multiple)
+            Concepts
           </label>
-          <select
-            multiple
-            value={formData.concept_ids}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-              setFormData({ ...formData, concept_ids: selected });
-            }}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            size="5"
-          >
-            {concepts.map(concept => (
-              <option key={concept.id} value={concept.id}>
-                {concept.label} ({concept.node_type})
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-gray-600 mt-1">
-            Selected: {formData.concept_ids.length} {formData.concept_ids.length === 1 ? 'construct' : 'constructs'}
-          </p>
+          <ConceptSelector
+            selectedConceptIds={formData.concept_ids}
+            onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Tags
+          </label>
+          <TagSelector
+            selectedTags={formData.tags}
+            onChange={(tags) => setFormData({ ...formData, tags })}
+          />
         </div>
 
         <div>

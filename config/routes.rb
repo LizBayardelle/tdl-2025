@@ -7,9 +7,17 @@ Rails.application.routes.draw do
 
   resources :concepts, only: [:index, :show, :create, :update, :destroy]
   resources :connections, only: [:index, :show, :create, :update, :destroy]
-  resources :sources, only: [:index, :show, :create, :update, :destroy]
-  resources :people, only: [:index, :show, :create, :update, :destroy]
-  resources :notes, only: [:index, :show, :create, :update, :destroy]
+  resources :sources, only: [:index, :show, :create, :update, :destroy] do
+    collection do
+      post :extract_metadata
+    end
+  end
+  resources :people, only: [:index, :show, :create, :update, :destroy] do
+    collection do
+      get :search
+    end
+  end
+  resources :notes
   resources :tags, only: [:index, :show, :create, :update, :destroy]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import NoteFormModal from './NoteFormModal';
 
 export default function NotesIndex() {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
-  const [creatingNote, setCreatingNote] = useState(false);
 
   useEffect(() => {
     fetchNotes();
@@ -68,29 +66,27 @@ export default function NotesIndex() {
   };
 
   const noteTypeLabels = {
-    reflection: 'Reflection',
+    note: 'Note',
     question: 'Question',
-    insight: 'Insight',
-    critique: 'Critique',
-    application: 'Application',
-    synthesis: 'Synthesis'
+    synthesis: 'Synthesis',
+    connection: 'Connection',
+    todo: 'To Do Item'
   };
 
   const noteTypeColors = {
-    reflection: 'bg-blue-100 text-blue-800',
+    note: 'bg-blue-100 text-blue-800',
     question: 'bg-purple-100 text-purple-800',
-    insight: 'bg-yellow-100 text-yellow-800',
-    critique: 'bg-red-100 text-red-800',
-    application: 'bg-green-100 text-green-800',
-    synthesis: 'bg-indigo-100 text-indigo-800'
+    synthesis: 'bg-indigo-100 text-indigo-800',
+    connection: 'bg-green-100 text-green-800',
+    todo: 'bg-yellow-100 text-yellow-800'
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-4xl mb-4">Notes & Reflections</h1>
+        <h1 className="text-4xl mb-4">Notes</h1>
         <p className="text-lg mb-6">
-          Capture insights, questions, and reflections as you learn
+          Capture notes, questions, connections, and to-do items as you learn
         </p>
 
         <div className="flex items-center gap-4 mb-6">
@@ -102,12 +98,11 @@ export default function NotesIndex() {
               className="px-4 py-2 border border-gray-300 rounded bg-white"
             >
               <option value="all">All Types</option>
-              <option value="reflection">Reflection</option>
+              <option value="note">Note</option>
               <option value="question">Question</option>
-              <option value="insight">Insight</option>
-              <option value="critique">Critique</option>
-              <option value="application">Application</option>
               <option value="synthesis">Synthesis</option>
+              <option value="connection">Connection</option>
+              <option value="todo">To Do Item</option>
             </select>
           </div>
 
@@ -124,22 +119,13 @@ export default function NotesIndex() {
             </label>
           </div>
 
-          <button
-            onClick={() => setCreatingNote(!creatingNote)}
-            className="ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+          <a
+            href="/notes/new"
+            className="ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark inline-block"
           >
-            {creatingNote ? 'Cancel' : '+ New Note'}
-          </button>
+            + New Note
+          </a>
         </div>
-
-        <NoteFormModal
-          isOpen={creatingNote}
-          onClose={() => setCreatingNote(false)}
-          onSuccess={(newNote) => {
-            setNotes([newNote, ...notes]);
-            setCreatingNote(false);
-          }}
-        />
       </div>
 
       {loading ? (
@@ -149,7 +135,7 @@ export default function NotesIndex() {
           <p className="text-lg text-gray-600">No notes yet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {notes.map(note => (
             <div
               key={note.id}
@@ -188,7 +174,7 @@ export default function NotesIndex() {
                 </div>
               </div>
 
-              <p className="mb-3 whitespace-pre-wrap leading-relaxed">{note.body}</p>
+              <div className="mb-3 leading-relaxed prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100" dangerouslySetInnerHTML={{ __html: note.body }} />
 
               {note.context && (
                 <div className="bg-sand rounded p-3 mb-3">
@@ -198,12 +184,33 @@ export default function NotesIndex() {
                 </div>
               )}
 
-              {note.tags && note.tags.length > 0 && (
+              {(note.source || note.people?.length > 0 || note.tags?.length > 0) && (
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {note.tags.map((tag, idx) => (
-                    <span key={idx} className="text-xs bg-sand px-2 py-1 rounded">
-                      {tag}
-                    </span>
+                  {note.source && (
+                    <a
+                      href={`/sources/${note.source.id}`}
+                      className="text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+                    >
+                      {note.source.title}
+                    </a>
+                  )}
+                  {note.people?.map((person) => (
+                    <a
+                      key={person.id}
+                      href={`/people/${person.id}`}
+                      className="text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
+                    >
+                      {person.full_name}
+                    </a>
+                  ))}
+                  {note.tags?.map((tag, idx) => (
+                    <a
+                      key={idx}
+                      href={`/tags/${tag.name}`}
+                      className="text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+                    >
+                      {typeof tag === 'string' ? tag : tag.name}
+                    </a>
                   ))}
                 </div>
               )}

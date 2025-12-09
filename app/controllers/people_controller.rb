@@ -7,7 +7,26 @@ class PeopleController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.json { render json: @people.includes(:concepts, :sources) }
+      format.json {
+        render json: @people.includes(:concepts, :sources, :notes, :tags).map { |person|
+          person.as_json.merge(
+            sources_count: person.sources.count,
+            notes_count: person.notes.count,
+            concepts: person.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
+            tags: person.tags.pluck(:name)
+          )
+        }
+      }
+    end
+  end
+
+  def search
+    query = params[:q]
+    if query.present?
+      @people = current_user.people.where("full_name ILIKE ?", "%#{query}%").limit(10)
+      render json: @people.as_json(only: [:id, :full_name, :role])
+    else
+      render json: []
     end
   end
 
@@ -20,40 +39,62 @@ class PeopleController < ApplicationController
             concepts: { only: [:id, :label, :node_type] },
             sources: { only: [:id, :title, :authors, :year] }
           }
+        ).merge(
+          tags: @person.tags.pluck(:name)
         )
       }
     end
   end
 
   def create
-    @person = current_user.people.build(person_params.except(:concept_ids, :source_ids))
+    tags_array = params[:person][:tags]
+    @person = current_user.people.build(person_params.except(:concept_ids, :source_ids, :tags))
 
     if @person.save
       # Create associations
       update_concept_associations(@person, params[:person][:concept_ids]) if params[:person][:concept_ids]
       update_source_associations(@person, params[:person][:source_ids]) if params[:person][:source_ids]
 
-      render json: @person, status: :created
+      # Use Taggable concern for tags
+      @person.tag_list = tags_array if tags_array.present?
+
+      render json: @person.as_json.merge(tags: @person.tags.pluck(:name)), status: :created
     else
       render json: { errors: @person.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def update
-    if @person.update(person_params.except(:concept_ids, :source_ids))
+    tags_array = params[:person][:tags]
+    if @person.update(person_params.except(:concept_ids, :source_ids, :tags))
       # Update associations
       update_concept_associations(@person, params[:person][:concept_ids]) if params[:person][:concept_ids]
       update_source_associations(@person, params[:person][:source_ids]) if params[:person][:source_ids]
 
-      render json: @person
+      # Use Taggable concern for tags
+      @person.tag_list = tags_array if tags_array.present?
+
+      render json: @person.as_json.merge(tags: @person.tags.pluck(:name))
     else
       render json: { errors: @person.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @person.destroy
-    head :no_content
+    if @person.destroy
+      head :no_content
+    else
+      # Person has linked sources or notes - can't delete
+      error_message = if @person.sources.any?
+        "Cannot delete #{@person.full_name} because they are linked to #{@person.sources.count} source(s). Remove them from sources first."
+      elsif @person.notes.any?
+        "Cannot delete #{@person.full_name} because they are linked to #{@person.notes.count} note(s). Remove them from notes first."
+      else
+        @person.errors.full_messages.join(', ')
+      end
+
+      render json: { error: error_message }, status: :unprocessable_entity
+    end
   end
 
   private
@@ -70,7 +111,8 @@ class PeopleController < ApplicationController
       :attrs,
       aka: [],
       concept_ids: [],
-      source_ids: []
+      source_ids: [],
+      tags: []
     )
   end
 

@@ -14,15 +14,17 @@ import Image from '@tiptap/extension-image';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 
-export default function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId }) {
+export default function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
   const [concepts, setConcepts] = useState([]);
+  const [sources, setSources] = useState([]);
   const [formData, setFormData] = useState({
     body: '',
-    note_type: 'reflection',
+    note_type: 'note',
     context: '',
     pinned: false,
     noted_on: new Date().toISOString().split('T')[0],
     concept_id: '',
+    source_id: '',
     tags: ''
   });
   const [error, setError] = useState('');
@@ -69,33 +71,36 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
 
   useEffect(() => {
     if (isOpen) {
-      if (!conceptId && !item) {
+      if (!conceptId && !sourceId && !item) {
         fetchConcepts();
+        fetchSources();
       }
       if (item) {
         setFormData({
           body: item.body || '',
-          note_type: item.note_type || 'reflection',
+          note_type: item.note_type || 'note',
           context: item.context || '',
           pinned: item.pinned || false,
           noted_on: item.noted_on || new Date().toISOString().split('T')[0],
           concept_id: item.concept_id || conceptId || '',
+          source_id: item.source_id || sourceId || '',
           tags: (item.tags || []).join('\n')
         });
       } else {
         setFormData({
           body: '',
-          note_type: 'reflection',
+          note_type: 'note',
           context: '',
           pinned: false,
           noted_on: new Date().toISOString().split('T')[0],
           concept_id: conceptId || '',
+          source_id: sourceId || '',
           tags: ''
         });
       }
       setError('');
     }
-  }, [isOpen, item, conceptId]);
+  }, [isOpen, item, conceptId, sourceId]);
 
   const fetchConcepts = async () => {
     try {
@@ -107,6 +112,16 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
     }
   };
 
+  const fetchSources = async () => {
+    try {
+      const response = await fetch('/sources.json');
+      const data = await response.json();
+      setSources(data);
+    } catch (error) {
+      console.error('Error fetching sources:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -114,6 +129,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
     const payload = {
       ...formData,
       concept_id: formData.concept_id || null,
+      source_id: formData.source_id || null,
       tags: formData.tags.split('\n').filter(t => t.trim())
     };
 
@@ -165,13 +181,11 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
             onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
           >
-            <option value="reflection">Reflection</option>
+            <option value="note">Note</option>
             <option value="question">Question</option>
-            <option value="insight">Insight</option>
-            <option value="critique">Critique</option>
-            <option value="application">Application</option>
             <option value="synthesis">Synthesis</option>
-            <option value="source_notes">Source Notes</option>
+            <option value="connection">Connection</option>
+            <option value="todo">To Do Item</option>
           </select>
         </div>
 
@@ -407,6 +421,24 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
               {concepts.map(concept => (
                 <option key={concept.id} value={concept.id}>
                   {concept.label} ({concept.node_type})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {!sourceId && (
+          <div>
+            <label className="block text-sm font-medium mb-1">Link to Source</label>
+            <select
+              value={formData.source_id}
+              onChange={(e) => setFormData({ ...formData, source_id: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+            >
+              <option value="">None</option>
+              {sources.map(source => (
+                <option key={source.id} value={source.id}>
+                  {source.title} {source.year ? `(${source.year})` : ''}
                 </option>
               ))}
             </select>

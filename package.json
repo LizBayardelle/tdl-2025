@@ -9,6 +9,9 @@
     "build:css": "TAILWIND_DISABLE_TOUCH=true npx @tailwindcss/cli -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify --no-autoprefixer"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@tailwindcss/cli": "^4.1.14",
     "@tiptap/extension-color": "^3.8.0",
     "@tiptap/extension-highlight": "^3.8.0",
@@ -24,6 +27,7 @@
     "@tiptap/pm": "^3.8.0",
     "@tiptap/react": "^3.8.0",
     "@tiptap/starter-kit": "^3.8.0",
+    "d3-force": "^3.0.0",
     "force-graph": "^1.51.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

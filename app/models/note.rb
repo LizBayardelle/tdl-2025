@@ -3,18 +3,18 @@ class Note < ApplicationRecord
 
   belongs_to :user
   belongs_to :concept, optional: true
+  belongs_to :source, optional: true
   has_many :note_links, dependent: :destroy
   has_many :person_notes, dependent: :destroy
   has_many :people, through: :person_notes
 
   # Enums
   enum :note_type, {
-    reflection: "reflection",
+    note: "note",
     question: "question",
-    insight: "insight",
-    critique: "critique",
-    application: "application",
-    synthesis: "synthesis"
+    synthesis: "synthesis",
+    connection: "connection",
+    todo: "todo"
   }, prefix: true
 
   # Validations

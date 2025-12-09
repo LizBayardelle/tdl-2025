@@ -118,9 +118,14 @@ function PersonCard({ person, onUpdate }) {
 
       if (response.ok) {
         onUpdate();
+      } else {
+        // Show error message from backend
+        const data = await response.json();
+        alert(data.error || 'Failed to delete person');
       }
     } catch (error) {
       console.error('Error deleting person:', error);
+      alert('An error occurred while deleting the person');
     }
   };
 
@@ -156,7 +161,34 @@ function PersonCard({ person, onUpdate }) {
         <p className="text-sm mb-3 line-clamp-3">{person.summary}</p>
       )}
 
+      {(person.concepts?.length > 0 || person.tags?.length > 0) && (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {person.concepts?.map((concept) => (
+            <a
+              key={concept.id}
+              href={`/concepts/${concept.id}`}
+              className="text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+            >
+              {concept.label}
+            </a>
+          ))}
+          {person.tags?.map((tag, idx) => (
+            <a
+              key={idx}
+              href={`/tags/${tag}`}
+              className="text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )}
+
       <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+        <div className="flex gap-3 text-xs text-gray-500">
+          <span>{person.sources_count || 0} source{person.sources_count !== 1 ? 's' : ''}</span>
+          <span>{person.notes_count || 0} note{person.notes_count !== 1 ? 's' : ''}</span>
+        </div>
         <span className="text-xs text-gray-500">
           Updated {new Date(person.updated_at).toLocaleDateString()}
         </span>

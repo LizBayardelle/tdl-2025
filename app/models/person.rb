@@ -4,9 +4,9 @@ class Person < ApplicationRecord
   belongs_to :user
   has_many :people_concepts, class_name: 'PersonConcept', dependent: :destroy
   has_many :concepts, through: :people_concepts
-  has_many :people_sources, class_name: 'PersonSource', dependent: :destroy
+  has_many :people_sources, class_name: 'PersonSource', dependent: :restrict_with_error
   has_many :sources, through: :people_sources
-  has_many :people_notes, class_name: 'PersonNote', dependent: :destroy
+  has_many :people_notes, class_name: 'PersonNote', dependent: :restrict_with_error
   has_many :notes, through: :people_notes
 
   # Enums

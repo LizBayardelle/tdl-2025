@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ConceptFormModal from './ConceptFormModal';
+import { buildConceptHierarchy, flattenHierarchy } from '../utils/conceptHierarchy';
 
 export default function ConceptsIndex() {
   const [concepts, setConcepts] = useState([]);
@@ -27,6 +28,10 @@ export default function ConceptsIndex() {
   const filteredConcepts = filterType === 'all'
     ? concepts
     : concepts.filter(concept => concept.node_type === filterType);
+
+  // Build hierarchy and flatten for display
+  const hierarchy = buildConceptHierarchy(filteredConcepts);
+  const flatConcepts = flattenHierarchy(hierarchy);
 
   const conceptTypes = ['model', 'technique', 'construct', 'measure', 'population', 'category', 'discipline'];
 
@@ -99,25 +104,39 @@ export default function ConceptsIndex() {
           <p className="text-sm">Create your first knowledge construct to begin building your framework.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredConcepts.map(concept => (
-            <ConceptCard
-              key={concept.id}
-              concept={concept}
-              onUpdate={fetchConcepts}
-              onEdit={(concept) => {
-                setEditingConcept(concept);
-                setShowForm(true);
-              }}
-            />
-          ))}
+        <div className="bg-white border border-gray-300 rounded overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-sand border-b border-gray-300">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium text-sm">Concept</th>
+                <th className="text-left px-4 py-3 font-medium text-sm">Type</th>
+                <th className="text-left px-4 py-3 font-medium text-sm">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-sm">Relationships</th>
+                <th className="text-right px-4 py-3 font-medium text-sm">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {flatConcepts.map(({ concept, depth }) => (
+                <ConceptRow
+                  key={concept.id}
+                  concept={concept}
+                  depth={depth}
+                  onUpdate={fetchConcepts}
+                  onEdit={(concept) => {
+                    setEditingConcept(concept);
+                    setShowForm(true);
+                  }}
+                />
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   );
 }
 
-function ConceptCard({ concept, onUpdate, onEdit }) {
+function ConceptRow({ concept, depth, onUpdate, onEdit }) {
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this concept?')) return;
 
@@ -137,34 +156,13 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
     }
   };
 
-  const getRelationshipText = (relType) => {
-    const textMap = {
-      parent_of: 'parent of',
-      child_of: 'child of',
-      prerequisite_for: 'prerequisite for',
-      builds_on: 'builds on',
-      derived_from: 'derived from',
-      related_to: 'related to',
-      contrasts_with: 'contrasts with',
-      integrates_with: 'integrates with',
-      associated_with: 'associated with',
-      influenced: 'influenced',
-      supports: 'supports',
-      critiques: 'critiques',
-      authored: 'authored',
-      applies_to: 'applies to',
-      treats: 'treats'
-    };
-    return textMap[relType] || relType;
-  };
-
   const getInverseRelType = (relType) => {
     const inverses = {
       parent_of: 'child_of',
       child_of: 'parent_of',
       prerequisite_for: 'builds_on',
       builds_on: 'prerequisite_for',
-      derived_from: 'influenced', // derived_from X means X influenced this
+      derived_from: 'influenced',
       influenced: 'derived_from'
     };
     return inverses[relType] || relType;
@@ -181,7 +179,7 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
       id: conn.id,
       rel_type: inverseType,
       relationship_label: conn.relationship_label,
-      target: conn.src_concept, // The source becomes our target
+      target: conn.src_concept,
       isConverted: inverseType !== conn.rel_type
     };
   });
@@ -200,12 +198,10 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
 
   // Remove duplicates by checking if the same relationship exists in both directions
   const uniqueRelationships = allRelationships.filter((rel, index, self) => {
-    // Keep if it's the first occurrence, or if there's no matching inverse
     const firstIndex = self.findIndex(r =>
       r.target.id === rel.target.id &&
       (r.rel_type === rel.rel_type || r.rel_type === getInverseRelType(rel.rel_type))
     );
-    // Prefer outgoing (not converted) over incoming (converted)
     if (firstIndex === index) return true;
     if (firstIndex !== index && !rel.isConverted) return true;
     return false;
@@ -213,72 +209,58 @@ function ConceptCard({ concept, onUpdate, onEdit }) {
 
   const totalConnections = uniqueRelationships.length;
 
+  // Calculate indentation based on depth
+  const indentPx = depth * 24; // 24px per level
+
   return (
-    <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow flex flex-col">
-      <div className="flex justify-between items-start mb-2">
-        <div className="flex gap-2 items-center">
-          <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-            {concept.node_type}
-          </span>
-          {concept.level_status && (
-            <span className="text-xs uppercase tracking-wider text-accent-dark">
-              {concept.level_status}
-            </span>
-          )}
+    <tr className="border-b border-gray-200 hover:bg-sand/30 transition-colors">
+      <td className="px-4 py-3">
+        <div style={{ paddingLeft: `${indentPx}px` }}>
+          <a
+            href={`/concepts/${concept.id}`}
+            className="text-primary hover:text-accent-dark font-medium"
+          >
+            {concept.label}
+          </a>
         </div>
-        <button
-          onClick={() => onEdit(concept)}
-          className="!bg-transparent !text-primary hover:!text-accent-dark transition-colors !p-0"
-          title="Edit"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-          </svg>
-        </button>
-      </div>
-
-      <h3 className="text-xl mb-2">
-        <a href={`/concepts/${concept.id}`} className="hover:text-primary">
-          {concept.label}
-        </a>
-      </h3>
-
-      {concept.summary_top && (
-        <p className="text-sm mb-3 line-clamp-3">{concept.summary_top}</p>
-      )}
-
-      {/* Relationships Section */}
-      {totalConnections > 0 && (
-        <div className="mb-3 pb-3 border-b border-gray-200">
-          <div className="text-xs font-medium text-gray-700 mb-2">
-            Relationships ({totalConnections})
-          </div>
-          <div className="space-y-1">
-            {uniqueRelationships.slice(0, 4).map(rel => (
-              <div key={rel.id} className="text-xs text-gray-600">
-                {getRelationshipText(rel.rel_type)} <span className="font-medium">{rel.target.label}</span>
-              </div>
-            ))}
-            {totalConnections > 4 && (
-              <div className="text-xs text-gray-500 italic">
-                +{totalConnections - 4} more...
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="flex justify-between items-center pt-3 border-t border-gray-200 mt-auto">
-        <span className="text-xs text-gray-500">
-          Updated {new Date(concept.updated_at).toLocaleDateString()}
+      </td>
+      <td className="px-4 py-3">
+        <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+          {concept.node_type}
         </span>
-        <button
-          onClick={handleDelete}
-          className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
+      </td>
+      <td className="px-4 py-3">
+        {concept.level_status && (
+          <span className="text-xs uppercase tracking-wider text-gray-600">
+            {concept.level_status}
+          </span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {totalConnections > 0 ? totalConnections : '—'}
+      </td>
+      <td className="px-4 py-3 text-right">
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={() => onEdit(concept)}
+            className="text-primary hover:text-accent-dark transition-colors"
+            title="Edit"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            </svg>
+          </button>
+          <button
+            onClick={handleDelete}
+            className="text-accent hover:text-accent-dark transition-colors"
+            title="Delete"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+          </button>
+        </div>
+      </td>
+    </tr>
   );
 }
