@@ -165,7 +165,7 @@ var require_react_development = __commonJS({
         return Error("react-stack-top-frame");
       }
       function hasValidKey(config2) {
-        if (hasOwnProperty2.call(config2, "key")) {
+        if (hasOwnProperty3.call(config2, "key")) {
           var getter = Object.getOwnPropertyDescriptor(config2, "key").get;
           if (getter && getter.isReactWarning) return false;
         }
@@ -513,7 +513,7 @@ var require_react_development = __commonJS({
         enqueueSetState: function(publicInstance) {
           warnNoop(publicInstance, "setState");
         }
-      }, assign = Object.assign, emptyObject = {};
+      }, assign2 = Object.assign, emptyObject = {};
       Object.freeze(emptyObject);
       Component.prototype.isReactComponent = {};
       Component.prototype.setState = function(partialState, callback) {
@@ -541,7 +541,7 @@ var require_react_development = __commonJS({
       ComponentDummy.prototype = Component.prototype;
       deprecatedAPIs = PureComponent.prototype = new ComponentDummy();
       deprecatedAPIs.constructor = PureComponent;
-      assign(deprecatedAPIs, Component.prototype);
+      assign2(deprecatedAPIs, Component.prototype);
       deprecatedAPIs.isPureReactComponent = true;
       var isArrayImpl = Array.isArray, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = {
         H: null,
@@ -556,7 +556,7 @@ var require_react_development = __commonJS({
         thrownErrors: [],
         getCurrentStack: null,
         recentlyCreatedOwnerStacks: 0
-      }, hasOwnProperty2 = Object.prototype.hasOwnProperty, createTask = console.createTask ? console.createTask : function() {
+      }, hasOwnProperty3 = Object.prototype.hasOwnProperty, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
       deprecatedAPIs = {
@@ -731,11 +731,11 @@ var require_react_development = __commonJS({
           throw Error(
             "The argument must be a React element, but you passed " + element + "."
           );
-        var props = assign({}, element.props), key = element.key, owner = element._owner;
+        var props = assign2({}, element.props), key = element.key, owner = element._owner;
         if (null != config2) {
           var JSCompiler_inline_result;
           a: {
-            if (hasOwnProperty2.call(config2, "ref") && (JSCompiler_inline_result = Object.getOwnPropertyDescriptor(
+            if (hasOwnProperty3.call(config2, "ref") && (JSCompiler_inline_result = Object.getOwnPropertyDescriptor(
               config2,
               "ref"
             ).get) && JSCompiler_inline_result.isReactWarning) {
@@ -747,7 +747,7 @@ var require_react_development = __commonJS({
           JSCompiler_inline_result && (owner = getOwner());
           hasValidKey(config2) && (checkKeyStringCoercion(config2.key), key = "" + config2.key);
           for (propName in config2)
-            !hasOwnProperty2.call(config2, propName) || "key" === propName || "__self" === propName || "__source" === propName || "ref" === propName && void 0 === config2.ref || (props[propName] = config2[propName]);
+            !hasOwnProperty3.call(config2, propName) || "key" === propName || "__self" === propName || "__source" === propName || "ref" === propName && void 0 === config2.ref || (props[propName] = config2[propName]);
         }
         var propName = arguments.length - 2;
         if (1 === propName) props.children = children2;
@@ -796,7 +796,7 @@ var require_react_development = __commonJS({
           for (propName in didWarnAboutOldJSXRuntime || !("__self" in config2) || "key" in config2 || (didWarnAboutOldJSXRuntime = true, console.warn(
             "Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform"
           )), hasValidKey(config2) && (checkKeyStringCoercion(config2.key), key = "" + config2.key), config2)
-            hasOwnProperty2.call(config2, propName) && "key" !== propName && "__self" !== propName && "__source" !== propName && (i3[propName] = config2[propName]);
+            hasOwnProperty3.call(config2, propName) && "key" !== propName && "__self" !== propName && "__source" !== propName && (i3[propName] = config2[propName]);
         var childrenLength = arguments.length - 2;
         if (1 === childrenLength) i3.children = children2;
         else if (1 < childrenLength) {
@@ -997,7 +997,7 @@ var require_react_development = __commonJS({
       exports.useTransition = function() {
         return resolveDispatcher().useTransition();
       };
-      exports.version = "19.2.0";
+      exports.version = "19.2.1";
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -1524,7 +1524,7 @@ var require_react_dom_development = __commonJS({
       exports.useFormStatus = function() {
         return resolveDispatcher().useHostTransitionStatus();
       };
-      exports.version = "19.2.0";
+      exports.version = "19.2.1";
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -1555,7 +1555,7 @@ var require_react_dom_client_development = __commonJS({
       }
       function copyWithSetImpl(obj, path, index8, value) {
         if (index8 >= path.length) return value;
-        var key = path[index8], updated = isArrayImpl(obj) ? obj.slice() : assign({}, obj);
+        var key = path[index8], updated = isArrayImpl(obj) ? obj.slice() : assign2({}, obj);
         updated[key] = copyWithSetImpl(obj[key], path, index8 + 1, value);
         return updated;
       }
@@ -1574,7 +1574,7 @@ var require_react_dom_client_development = __commonJS({
         }
       }
       function copyWithRenameImpl(obj, oldPath, newPath, index8) {
-        var oldKey = oldPath[index8], updated = isArrayImpl(obj) ? obj.slice() : assign({}, obj);
+        var oldKey = oldPath[index8], updated = isArrayImpl(obj) ? obj.slice() : assign2({}, obj);
         index8 + 1 === oldPath.length ? (updated[newPath[index8]] = updated[oldKey], isArrayImpl(updated) ? updated.splice(oldKey, 1) : delete updated[oldKey]) : updated[oldKey] = copyWithRenameImpl(
           obj[oldKey],
           oldPath,
@@ -1584,7 +1584,7 @@ var require_react_dom_client_development = __commonJS({
         return updated;
       }
       function copyWithDeleteImpl(obj, path, index8) {
-        var key = path[index8], updated = isArrayImpl(obj) ? obj.slice() : assign({}, obj);
+        var key = path[index8], updated = isArrayImpl(obj) ? obj.slice() : assign2({}, obj);
         if (index8 + 1 === path.length)
           return isArrayImpl(updated) ? updated.splice(key, 1) : delete updated[key], updated;
         updated[key] = copyWithDeleteImpl(obj[key], path, index8 + 1);
@@ -1987,13 +1987,13 @@ var require_react_dom_client_development = __commonJS({
         if (0 === disabledDepth) {
           var props = { configurable: true, enumerable: true, writable: true };
           Object.defineProperties(console, {
-            log: assign({}, props, { value: prevLog }),
-            info: assign({}, props, { value: prevInfo }),
-            warn: assign({}, props, { value: prevWarn }),
-            error: assign({}, props, { value: prevError }),
-            group: assign({}, props, { value: prevGroup }),
-            groupCollapsed: assign({}, props, { value: prevGroupCollapsed }),
-            groupEnd: assign({}, props, { value: prevGroupEnd })
+            log: assign2({}, props, { value: prevLog }),
+            info: assign2({}, props, { value: prevInfo }),
+            warn: assign2({}, props, { value: prevWarn }),
+            error: assign2({}, props, { value: prevError }),
+            group: assign2({}, props, { value: prevGroup }),
+            groupCollapsed: assign2({}, props, { value: prevGroupCollapsed }),
+            groupEnd: assign2({}, props, { value: prevGroupEnd })
           });
         }
         0 > disabledDepth && console.error(
@@ -2665,9 +2665,9 @@ var require_react_dom_client_development = __commonJS({
         );
       }
       function isAttributeNameSafe(attributeName) {
-        if (hasOwnProperty2.call(validatedAttributeNameCache, attributeName))
+        if (hasOwnProperty3.call(validatedAttributeNameCache, attributeName))
           return true;
-        if (hasOwnProperty2.call(illegalAttributeNameCache, attributeName))
+        if (hasOwnProperty3.call(illegalAttributeNameCache, attributeName))
           return false;
         if (VALID_ATTRIBUTE_NAME_REGEX.test(attributeName))
           return validatedAttributeNameCache[attributeName] = true;
@@ -3095,7 +3095,7 @@ var require_react_dom_client_development = __commonJS({
         return 0 === properties.length ? rowPrefix + "<" + type + ">\n" : 0 < remainingRowLength ? rowPrefix + "<" + type + " " + properties.join(" ") + ">\n" : rowPrefix + "<" + type + "\n" + rowPrefix + "  " + properties.join("\n" + rowPrefix + "  ") + "\n" + rowPrefix + ">\n";
       }
       function describePropertiesDiff(clientObject, serverObject, indent) {
-        var properties = "", remainingServerProperties = assign({}, serverObject), propName;
+        var properties = "", remainingServerProperties = assign2({}, serverObject), propName;
         for (propName in clientObject)
           if (clientObject.hasOwnProperty(propName)) {
             delete remainingServerProperties[propName];
@@ -3253,7 +3253,7 @@ var require_react_dom_client_development = __commonJS({
         return null !== node ? describeDiff(node).replaceAll(/^[+-]/gm, ">") : "";
       }
       function updatedAncestorInfoDev(oldInfo, tag) {
-        var ancestorInfo = assign({}, oldInfo || emptyAncestorInfoDev), info = { tag };
+        var ancestorInfo = assign2({}, oldInfo || emptyAncestorInfoDev), info = { tag };
         -1 !== inScopeTags.indexOf(tag) && (ancestorInfo.aTagInScope = null, ancestorInfo.buttonTagInScope = null, ancestorInfo.nobrTagInScope = null);
         -1 !== buttonScopeTags.indexOf(tag) && (ancestorInfo.pTagInButtonScope = null);
         -1 !== specialTags.indexOf(tag) && "address" !== tag && "div" !== tag && "p" !== tag && (ancestorInfo.listItemTagAutoclosing = null, ancestorInfo.dlItemTagAutoclosing = null);
@@ -3560,7 +3560,7 @@ var require_react_dom_client_development = __commonJS({
         return aliases.get(name) || name;
       }
       function validateProperty$1(tagName, name) {
-        if (hasOwnProperty2.call(warnedProperties$1, name) && warnedProperties$1[name])
+        if (hasOwnProperty3.call(warnedProperties$1, name) && warnedProperties$1[name])
           return true;
         if (rARIACamel$1.test(name)) {
           tagName = "aria-" + name.slice(4).toLowerCase();
@@ -3607,7 +3607,7 @@ var require_react_dom_client_development = __commonJS({
         );
       }
       function validateProperty(tagName, name, value, eventRegistry) {
-        if (hasOwnProperty2.call(warnedProperties, name) && warnedProperties[name])
+        if (hasOwnProperty3.call(warnedProperties, name) && warnedProperties[name])
           return true;
         var lowerCasedName = name.toLowerCase();
         if ("onfocusin" === lowerCasedName || "onfocusout" === lowerCasedName)
@@ -3961,7 +3961,7 @@ var require_react_dom_client_development = __commonJS({
           this.isPropagationStopped = functionThatReturnsFalse;
           return this;
         }
-        assign(SyntheticBaseEvent.prototype, {
+        assign2(SyntheticBaseEvent.prototype, {
           preventDefault: function() {
             this.defaultPrevented = true;
             var event = this.nativeEvent;
@@ -4100,7 +4100,7 @@ var require_react_dom_client_development = __commonJS({
       function is(x6, y6) {
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
-      function shallowEqual(objA, objB) {
+      function shallowEqual2(objA, objB) {
         if (objectIs(objA, objB)) return true;
         if ("object" !== typeof objA || null === objA || "object" !== typeof objB || null === objB)
           return false;
@@ -4108,7 +4108,7 @@ var require_react_dom_client_development = __commonJS({
         if (keysA.length !== keysB.length) return false;
         for (keysB = 0; keysB < keysA.length; keysB++) {
           var currentKey = keysA[keysB];
-          if (!hasOwnProperty2.call(objB, currentKey) || !objectIs(objA[currentKey], objB[currentKey]))
+          if (!hasOwnProperty3.call(objB, currentKey) || !objectIs(objA[currentKey], objB[currentKey]))
             return false;
         }
         return true;
@@ -4168,7 +4168,7 @@ var require_react_dom_client_development = __commonJS({
           anchorOffset: doc3.anchorOffset,
           focusNode: doc3.focusNode,
           focusOffset: doc3.focusOffset
-        }), lastSelection && shallowEqual(lastSelection, doc3) || (lastSelection = doc3, doc3 = accumulateTwoPhaseListeners(activeElementInst, "onSelect"), 0 < doc3.length && (nativeEvent = new SyntheticEvent(
+        }), lastSelection && shallowEqual2(lastSelection, doc3) || (lastSelection = doc3, doc3 = accumulateTwoPhaseListeners(activeElementInst, "onSelect"), 0 < doc3.length && (nativeEvent = new SyntheticEvent(
           "onSelect",
           "select",
           null,
@@ -4215,7 +4215,7 @@ var require_react_dom_client_development = __commonJS({
       }
       function addObjectToProperties(object, properties, indent, prefix2) {
         for (var key in object)
-          hasOwnProperty2.call(object, key) && "_" !== key[0] && addValueToProperties(key, object[key], properties, indent, prefix2);
+          hasOwnProperty3.call(object, key) && "_" !== key[0] && addValueToProperties(key, object[key], properties, indent, prefix2);
       }
       function addValueToProperties(propertyName, value, properties, indent, prefix2) {
         switch (typeof value) {
@@ -4249,7 +4249,7 @@ var require_react_dom_client_development = __commonJS({
                 );
                 propertyName = false;
                 for (var propKey in value)
-                  "children" === propKey ? null != value.children && (!isArrayImpl(value.children) || 0 < value.children.length) && (propertyName = true) : hasOwnProperty2.call(value, propKey) && "_" !== propKey[0] && addValueToProperties(
+                  "children" === propKey ? null != value.children && (!isArrayImpl(value.children) || 0 < value.children.length) && (propertyName = true) : hasOwnProperty3.call(value, propKey) && "_" !== propKey[0] && addValueToProperties(
                     propKey,
                     value[propKey],
                     properties,
@@ -5825,8 +5825,8 @@ var require_react_dom_client_development = __commonJS({
         return null;
       }
       function validateFragmentProps(element, fiber, returnFiber) {
-        for (var keys2 = Object.keys(element.props), i3 = 0; i3 < keys2.length; i3++) {
-          var key = keys2[i3];
+        for (var keys3 = Object.keys(element.props), i3 = 0; i3 < keys3.length; i3++) {
+          var key = keys3[i3];
           if ("children" !== key && "key" !== key) {
             null === fiber && (fiber = createFiberFromElement(element, returnFiber.mode, 0), fiber._debugInfo = currentDebugInfo, fiber.return = returnFiber);
             runWithFiberInDEV(
@@ -6713,7 +6713,7 @@ var require_react_dom_client_development = __commonJS({
                       isDisallowedContextReadInDEV = false;
                     } else partialState = nextState;
                     if (null === partialState || void 0 === partialState) break a;
-                    newState = assign({}, newState, partialState);
+                    newState = assign2({}, newState, partialState);
                     break a;
                   case ForceUpdate:
                     hasForceUpdate = true;
@@ -8166,7 +8166,7 @@ var require_react_dom_client_development = __commonJS({
           "%s.getDerivedStateFromProps(): A valid state object (or null) must be returned. You have returned undefined.",
           ctor
         )));
-        prevState = null === partialState || void 0 === partialState ? prevState : assign({}, prevState, partialState);
+        prevState = null === partialState || void 0 === partialState ? prevState : assign2({}, prevState, partialState);
         workInProgress2.memoizedState = prevState;
         0 === workInProgress2.lanes && (workInProgress2.updateQueue.baseState = prevState);
       }
@@ -8196,7 +8196,7 @@ var require_react_dom_client_development = __commonJS({
           );
           return oldProps;
         }
-        return ctor.prototype && ctor.prototype.isPureReactComponent ? !shallowEqual(oldProps, newProps) || !shallowEqual(oldState, newState) : true;
+        return ctor.prototype && ctor.prototype.isPureReactComponent ? !shallowEqual2(oldProps, newProps) || !shallowEqual2(oldState, newState) : true;
       }
       function callComponentWillReceiveProps(workInProgress2, instance, newProps, nextContext) {
         var oldState = instance.state;
@@ -8219,7 +8219,7 @@ var require_react_dom_client_development = __commonJS({
             "ref" !== propName && (newProps[propName] = baseProps[propName]);
         }
         if (Component = Component.defaultProps) {
-          newProps === baseProps && (newProps = assign({}, newProps));
+          newProps === baseProps && (newProps = assign2({}, newProps));
           for (var _propName in Component)
             void 0 === newProps[_propName] && (newProps[_propName] = Component[_propName]);
         }
@@ -8502,7 +8502,7 @@ var require_react_dom_client_development = __commonJS({
         if (!checkScheduledUpdateOrContext(current2, renderLanes2)) {
           var prevProps = type.memoizedProps;
           Component = Component.compare;
-          Component = null !== Component ? Component : shallowEqual;
+          Component = null !== Component ? Component : shallowEqual2;
           if (Component(prevProps, nextProps) && current2.ref === workInProgress2.ref)
             return bailoutOnAlreadyFinishedWork(
               current2,
@@ -8519,7 +8519,7 @@ var require_react_dom_client_development = __commonJS({
       function updateSimpleMemoComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
         if (null !== current2) {
           var prevProps = current2.memoizedProps;
-          if (shallowEqual(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type)
+          if (shallowEqual2(prevProps, nextProps) && current2.ref === workInProgress2.ref && workInProgress2.type === current2.type)
             if (didReceiveUpdate = false, workInProgress2.pendingProps = nextProps = prevProps, checkScheduledUpdateOrContext(current2, renderLanes2))
               0 !== (current2.flags & 131072) && (didReceiveUpdate = true);
             else
@@ -10312,7 +10312,7 @@ var require_react_dom_client_development = __commonJS({
                         }) : nextResource.createElement(type), -1 === type.indexOf("-") && (type !== type.toLowerCase() && console.error(
                           "<%s /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.",
                           type
-                        ), "[object HTMLUnknownElement]" !== Object.prototype.toString.call(nextResource) || hasOwnProperty2.call(warnedUnknownTags, type) || (warnedUnknownTags[type] = true, console.error(
+                        ), "[object HTMLUnknownElement]" !== Object.prototype.toString.call(nextResource) || hasOwnProperty3.call(warnedUnknownTags, type) || (warnedUnknownTags[type] = true, console.error(
                           "The tag <%s> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.",
                           type
                         )));
@@ -17570,9 +17570,9 @@ var require_react_dom_client_development = __commonJS({
       }
       function describeLinkForResourceErrorDEV(props) {
         var describedProps = 0, description = "<link";
-        "string" === typeof props.rel ? (describedProps++, description += ' rel="' + props.rel + '"') : hasOwnProperty2.call(props, "rel") && (describedProps++, description += ' rel="' + (null === props.rel ? "null" : "invalid type " + typeof props.rel) + '"');
-        "string" === typeof props.href ? (describedProps++, description += ' href="' + props.href + '"') : hasOwnProperty2.call(props, "href") && (describedProps++, description += ' href="' + (null === props.href ? "null" : "invalid type " + typeof props.href) + '"');
-        "string" === typeof props.precedence ? (describedProps++, description += ' precedence="' + props.precedence + '"') : hasOwnProperty2.call(props, "precedence") && (describedProps++, description += " precedence={" + (null === props.precedence ? "null" : "invalid type " + typeof props.precedence) + "}");
+        "string" === typeof props.rel ? (describedProps++, description += ' rel="' + props.rel + '"') : hasOwnProperty3.call(props, "rel") && (describedProps++, description += ' rel="' + (null === props.rel ? "null" : "invalid type " + typeof props.rel) + '"');
+        "string" === typeof props.href ? (describedProps++, description += ' href="' + props.href + '"') : hasOwnProperty3.call(props, "href") && (describedProps++, description += ' href="' + (null === props.href ? "null" : "invalid type " + typeof props.href) + '"');
+        "string" === typeof props.precedence ? (describedProps++, description += ' precedence="' + props.precedence + '"') : hasOwnProperty3.call(props, "precedence") && (describedProps++, description += " precedence={" + (null === props.precedence ? "null" : "invalid type " + typeof props.precedence) + "}");
         Object.getOwnPropertyNames(props).length > describedProps && (description += " ...");
         return description + " />";
       }
@@ -17583,7 +17583,7 @@ var require_react_dom_client_development = __commonJS({
         return 'link[rel="stylesheet"][' + key + "]";
       }
       function stylesheetPropsFromRawProps(rawProps) {
-        return assign({}, rawProps, {
+        return assign2({}, rawProps, {
           "data-precedence": rawProps.precedence,
           precedence: null
         });
@@ -17613,7 +17613,7 @@ var require_react_dom_client_development = __commonJS({
               );
               if (instance)
                 return resource.instance = instance, markNodeAsHoistable(instance), instance;
-              var styleProps = assign({}, props, {
+              var styleProps = assign2({}, props, {
                 "data-href": props.href,
                 "data-precedence": props.precedence,
                 href: null,
@@ -17652,7 +17652,7 @@ var require_react_dom_client_development = __commonJS({
                 return resource.instance = styleProps, markNodeAsHoistable(styleProps), styleProps;
               instance = props;
               if (styleProps = preloadPropsMap.get(_instance))
-                instance = assign({}, props), adoptPreloadPropsForScript(instance, styleProps);
+                instance = assign2({}, props), adoptPreloadPropsForScript(instance, styleProps);
               hoistableRoot = hoistableRoot.ownerDocument || hoistableRoot;
               styleProps = hoistableRoot.createElement("script");
               markNodeAsHoistable(styleProps);
@@ -18520,7 +18520,7 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React31 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React31 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
@@ -18538,7 +18538,7 @@ var require_react_dom_client_development = __commonJS({
       disabledLog.__reactDisabledLog = true;
       var prefix, suffix, reentry = false;
       var componentFrameCache = new ("function" === typeof WeakMap ? WeakMap : Map)();
-      var current = null, isRendering = false, hasOwnProperty2 = Object.prototype.hasOwnProperty, scheduleCallback$3 = Scheduler.unstable_scheduleCallback, cancelCallback$1 = Scheduler.unstable_cancelCallback, shouldYield = Scheduler.unstable_shouldYield, requestPaint = Scheduler.unstable_requestPaint, now$1 = Scheduler.unstable_now, getCurrentPriorityLevel = Scheduler.unstable_getCurrentPriorityLevel, ImmediatePriority = Scheduler.unstable_ImmediatePriority, UserBlockingPriority = Scheduler.unstable_UserBlockingPriority, NormalPriority$1 = Scheduler.unstable_NormalPriority, LowPriority = Scheduler.unstable_LowPriority, IdlePriority = Scheduler.unstable_IdlePriority, log$1 = Scheduler.log, unstable_setDisableYieldValue = Scheduler.unstable_setDisableYieldValue, rendererID = null, injectedHook = null, hasLoggedError = false, isDevToolsPresent = "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__, clz32 = Math.clz32 ? Math.clz32 : clz32Fallback, log = Math.log, LN2 = Math.LN2, nextTransitionUpdateLane = 256, nextTransitionDeferredLane = 262144, nextRetryLane = 4194304, DiscreteEventPriority = 2, ContinuousEventPriority = 8, DefaultEventPriority = 32, IdleEventPriority = 268435456, randomKey = Math.random().toString(36).slice(2), internalInstanceKey = "__reactFiber$" + randomKey, internalPropsKey = "__reactProps$" + randomKey, internalContainerInstanceKey = "__reactContainer$" + randomKey, internalEventHandlersKey = "__reactEvents$" + randomKey, internalEventHandlerListenersKey = "__reactListeners$" + randomKey, internalEventHandlesSetKey = "__reactHandles$" + randomKey, internalRootNodeResourcesKey = "__reactResources$" + randomKey, internalHoistableMarker = "__reactMarker$" + randomKey, allNativeEvents = /* @__PURE__ */ new Set(), registrationNameDependencies = {}, possibleRegistrationNames = {}, hasReadOnlyValue = {
+      var current = null, isRendering = false, hasOwnProperty3 = Object.prototype.hasOwnProperty, scheduleCallback$3 = Scheduler.unstable_scheduleCallback, cancelCallback$1 = Scheduler.unstable_cancelCallback, shouldYield = Scheduler.unstable_shouldYield, requestPaint = Scheduler.unstable_requestPaint, now$1 = Scheduler.unstable_now, getCurrentPriorityLevel = Scheduler.unstable_getCurrentPriorityLevel, ImmediatePriority = Scheduler.unstable_ImmediatePriority, UserBlockingPriority = Scheduler.unstable_UserBlockingPriority, NormalPriority$1 = Scheduler.unstable_NormalPriority, LowPriority = Scheduler.unstable_LowPriority, IdlePriority = Scheduler.unstable_IdlePriority, log$1 = Scheduler.log, unstable_setDisableYieldValue = Scheduler.unstable_setDisableYieldValue, rendererID = null, injectedHook = null, hasLoggedError = false, isDevToolsPresent = "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__, clz32 = Math.clz32 ? Math.clz32 : clz32Fallback, log = Math.log, LN2 = Math.LN2, nextTransitionUpdateLane = 256, nextTransitionDeferredLane = 262144, nextRetryLane = 4194304, DiscreteEventPriority = 2, ContinuousEventPriority = 8, DefaultEventPriority = 32, IdleEventPriority = 268435456, randomKey = Math.random().toString(36).slice(2), internalInstanceKey = "__reactFiber$" + randomKey, internalPropsKey = "__reactProps$" + randomKey, internalContainerInstanceKey = "__reactContainer$" + randomKey, internalEventHandlersKey = "__reactEvents$" + randomKey, internalEventHandlerListenersKey = "__reactListeners$" + randomKey, internalEventHandlesSetKey = "__reactHandles$" + randomKey, internalRootNodeResourcesKey = "__reactResources$" + randomKey, internalHoistableMarker = "__reactMarker$" + randomKey, allNativeEvents = /* @__PURE__ */ new Set(), registrationNameDependencies = {}, possibleRegistrationNames = {}, hasReadOnlyValue = {
         button: true,
         checkbox: true,
         image: true,
@@ -19356,7 +19356,7 @@ var require_react_dom_client_development = __commonJS({
         },
         defaultPrevented: 0,
         isTrusted: 0
-      }, SyntheticEvent = createSyntheticEvent(EventInterface), UIEventInterface = assign({}, EventInterface, { view: 0, detail: 0 }), SyntheticUIEvent = createSyntheticEvent(UIEventInterface), lastMovementX, lastMovementY, lastMouseEvent, MouseEventInterface = assign({}, UIEventInterface, {
+      }, SyntheticEvent = createSyntheticEvent(EventInterface), UIEventInterface = assign2({}, EventInterface, { view: 0, detail: 0 }), SyntheticUIEvent = createSyntheticEvent(UIEventInterface), lastMovementX, lastMovementY, lastMouseEvent, MouseEventInterface = assign2({}, UIEventInterface, {
         screenX: 0,
         screenY: 0,
         clientX: 0,
@@ -19381,15 +19381,15 @@ var require_react_dom_client_development = __commonJS({
         movementY: function(event) {
           return "movementY" in event ? event.movementY : lastMovementY;
         }
-      }), SyntheticMouseEvent = createSyntheticEvent(MouseEventInterface), DragEventInterface = assign({}, MouseEventInterface, { dataTransfer: 0 }), SyntheticDragEvent = createSyntheticEvent(DragEventInterface), FocusEventInterface = assign({}, UIEventInterface, { relatedTarget: 0 }), SyntheticFocusEvent = createSyntheticEvent(FocusEventInterface), AnimationEventInterface = assign({}, EventInterface, {
+      }), SyntheticMouseEvent = createSyntheticEvent(MouseEventInterface), DragEventInterface = assign2({}, MouseEventInterface, { dataTransfer: 0 }), SyntheticDragEvent = createSyntheticEvent(DragEventInterface), FocusEventInterface = assign2({}, UIEventInterface, { relatedTarget: 0 }), SyntheticFocusEvent = createSyntheticEvent(FocusEventInterface), AnimationEventInterface = assign2({}, EventInterface, {
         animationName: 0,
         elapsedTime: 0,
         pseudoElement: 0
-      }), SyntheticAnimationEvent = createSyntheticEvent(AnimationEventInterface), ClipboardEventInterface = assign({}, EventInterface, {
+      }), SyntheticAnimationEvent = createSyntheticEvent(AnimationEventInterface), ClipboardEventInterface = assign2({}, EventInterface, {
         clipboardData: function(event) {
           return "clipboardData" in event ? event.clipboardData : window.clipboardData;
         }
-      }), SyntheticClipboardEvent = createSyntheticEvent(ClipboardEventInterface), CompositionEventInterface = assign({}, EventInterface, { data: 0 }), SyntheticCompositionEvent = createSyntheticEvent(
+      }), SyntheticClipboardEvent = createSyntheticEvent(ClipboardEventInterface), CompositionEventInterface = assign2({}, EventInterface, { data: 0 }), SyntheticCompositionEvent = createSyntheticEvent(
         CompositionEventInterface
       ), SyntheticInputEvent = SyntheticCompositionEvent, normalizeKey = {
         Esc: "Escape",
@@ -19446,7 +19446,7 @@ var require_react_dom_client_development = __commonJS({
         Control: "ctrlKey",
         Meta: "metaKey",
         Shift: "shiftKey"
-      }, KeyboardEventInterface = assign({}, UIEventInterface, {
+      }, KeyboardEventInterface = assign2({}, UIEventInterface, {
         key: function(nativeEvent) {
           if (nativeEvent.key) {
             var key = normalizeKey[nativeEvent.key] || nativeEvent.key;
@@ -19472,7 +19472,7 @@ var require_react_dom_client_development = __commonJS({
         which: function(event) {
           return "keypress" === event.type ? getEventCharCode(event) : "keydown" === event.type || "keyup" === event.type ? event.keyCode : 0;
         }
-      }), SyntheticKeyboardEvent = createSyntheticEvent(KeyboardEventInterface), PointerEventInterface = assign({}, MouseEventInterface, {
+      }), SyntheticKeyboardEvent = createSyntheticEvent(KeyboardEventInterface), PointerEventInterface = assign2({}, MouseEventInterface, {
         pointerId: 0,
         width: 0,
         height: 0,
@@ -19483,7 +19483,7 @@ var require_react_dom_client_development = __commonJS({
         twist: 0,
         pointerType: 0,
         isPrimary: 0
-      }), SyntheticPointerEvent = createSyntheticEvent(PointerEventInterface), TouchEventInterface = assign({}, UIEventInterface, {
+      }), SyntheticPointerEvent = createSyntheticEvent(PointerEventInterface), TouchEventInterface = assign2({}, UIEventInterface, {
         touches: 0,
         targetTouches: 0,
         changedTouches: 0,
@@ -19492,11 +19492,11 @@ var require_react_dom_client_development = __commonJS({
         ctrlKey: 0,
         shiftKey: 0,
         getModifierState: getEventModifierState
-      }), SyntheticTouchEvent = createSyntheticEvent(TouchEventInterface), TransitionEventInterface = assign({}, EventInterface, {
+      }), SyntheticTouchEvent = createSyntheticEvent(TouchEventInterface), TransitionEventInterface = assign2({}, EventInterface, {
         propertyName: 0,
         elapsedTime: 0,
         pseudoElement: 0
-      }), SyntheticTransitionEvent = createSyntheticEvent(TransitionEventInterface), WheelEventInterface = assign({}, MouseEventInterface, {
+      }), SyntheticTransitionEvent = createSyntheticEvent(TransitionEventInterface), WheelEventInterface = assign2({}, MouseEventInterface, {
         deltaX: function(event) {
           return "deltaX" in event ? event.deltaX : "wheelDeltaX" in event ? -event.wheelDeltaX : 0;
         },
@@ -19505,7 +19505,7 @@ var require_react_dom_client_development = __commonJS({
         },
         deltaZ: 0,
         deltaMode: 0
-      }), SyntheticWheelEvent = createSyntheticEvent(WheelEventInterface), ToggleEventInterface = assign({}, EventInterface, {
+      }), SyntheticWheelEvent = createSyntheticEvent(WheelEventInterface), ToggleEventInterface = assign2({}, EventInterface, {
         newState: 0,
         oldState: 0
       }), SyntheticToggleEvent = createSyntheticEvent(ToggleEventInterface), END_KEYCODES = [9, 13, 27, 32], START_KEYCODE = 229, canUseCompositionEvent = canUseDOM && "CompositionEvent" in window, documentMode = null;
@@ -21088,7 +21088,7 @@ var require_react_dom_client_development = __commonJS({
               case "script":
                 key = getScriptKey(href);
             }
-            preloadPropsMap.has(key) || (href = assign(
+            preloadPropsMap.has(key) || (href = assign2(
               {
                 rel: "preload",
                 href: "image" === as && options && options.imageSrcSet ? void 0 : href,
@@ -21114,7 +21114,7 @@ var require_react_dom_client_development = __commonJS({
               case "script":
                 key = getScriptKey(href);
             }
-            if (!preloadPropsMap.has(key) && (href = assign({ rel: "modulepreload", href }, options), preloadPropsMap.set(key, href), null === ownerDocument.querySelector(preloadSelector))) {
+            if (!preloadPropsMap.has(key) && (href = assign2({ rel: "modulepreload", href }, options), preloadPropsMap.set(key, href), null === ownerDocument.querySelector(preloadSelector))) {
               switch (as) {
                 case "audioworklet":
                 case "paintworklet":
@@ -21139,7 +21139,7 @@ var require_react_dom_client_development = __commonJS({
             var scripts = getResourcesFromRoot(ownerDocument).hoistableScripts, key = getScriptKey(src), resource = scripts.get(key);
             resource || (resource = ownerDocument.querySelector(
               getScriptSelectorFromKey(key)
-            ), resource || (src = assign({ src, async: true }, options), (options = preloadPropsMap.get(key)) && adoptPreloadPropsForScript(src, options), resource = ownerDocument.createElement("script"), markNodeAsHoistable(resource), setInitialProperties(resource, "link", src), ownerDocument.head.appendChild(resource)), resource = {
+            ), resource || (src = assign2({ src, async: true }, options), (options = preloadPropsMap.get(key)) && adoptPreloadPropsForScript(src, options), resource = ownerDocument.createElement("script"), markNodeAsHoistable(resource), setInitialProperties(resource, "link", src), ownerDocument.head.appendChild(resource)), resource = {
               type: "script",
               instance: resource,
               count: 1,
@@ -21161,7 +21161,7 @@ var require_react_dom_client_development = __commonJS({
               ))
                 state.loading = Loaded | Inserted;
               else {
-                href = assign(
+                href = assign2(
                   {
                     rel: "stylesheet",
                     href,
@@ -21203,7 +21203,7 @@ var require_react_dom_client_development = __commonJS({
             var scripts = getResourcesFromRoot(ownerDocument).hoistableScripts, key = getScriptKey(src), resource = scripts.get(key);
             resource || (resource = ownerDocument.querySelector(
               getScriptSelectorFromKey(key)
-            ), resource || (src = assign({ src, async: true, type: "module" }, options), (options = preloadPropsMap.get(key)) && adoptPreloadPropsForScript(src, options), resource = ownerDocument.createElement("script"), markNodeAsHoistable(resource), setInitialProperties(resource, "link", src), ownerDocument.head.appendChild(resource)), resource = {
+            ), resource || (src = assign2({ src, async: true, type: "module" }, options), (options = preloadPropsMap.get(key)) && adoptPreloadPropsForScript(src, options), resource = ownerDocument.createElement("script"), markNodeAsHoistable(resource), setInitialProperties(resource, "link", src), ownerDocument.head.appendChild(resource)), resource = {
               type: "script",
               instance: resource,
               count: 1,
@@ -21224,15 +21224,15 @@ var require_react_dom_client_development = __commonJS({
       var overrideHookState = null, overrideHookStateDeletePath = null, overrideHookStateRenamePath = null, overrideProps = null, overridePropsDeletePath = null, overridePropsRenamePath = null, scheduleUpdate = null, scheduleRetry = null, setErrorHandler = null, setSuspenseHandler = null;
       overrideHookState = function(fiber, id2, path, value) {
         id2 = findHook(fiber, id2);
-        null !== id2 && (path = copyWithSetImpl(id2.memoizedState, path, 0, value), id2.memoizedState = path, id2.baseState = path, fiber.memoizedProps = assign({}, fiber.memoizedProps), path = enqueueConcurrentRenderForLane(fiber, 2), null !== path && scheduleUpdateOnFiber(path, fiber, 2));
+        null !== id2 && (path = copyWithSetImpl(id2.memoizedState, path, 0, value), id2.memoizedState = path, id2.baseState = path, fiber.memoizedProps = assign2({}, fiber.memoizedProps), path = enqueueConcurrentRenderForLane(fiber, 2), null !== path && scheduleUpdateOnFiber(path, fiber, 2));
       };
       overrideHookStateDeletePath = function(fiber, id2, path) {
         id2 = findHook(fiber, id2);
-        null !== id2 && (path = copyWithDeleteImpl(id2.memoizedState, path, 0), id2.memoizedState = path, id2.baseState = path, fiber.memoizedProps = assign({}, fiber.memoizedProps), path = enqueueConcurrentRenderForLane(fiber, 2), null !== path && scheduleUpdateOnFiber(path, fiber, 2));
+        null !== id2 && (path = copyWithDeleteImpl(id2.memoizedState, path, 0), id2.memoizedState = path, id2.baseState = path, fiber.memoizedProps = assign2({}, fiber.memoizedProps), path = enqueueConcurrentRenderForLane(fiber, 2), null !== path && scheduleUpdateOnFiber(path, fiber, 2));
       };
       overrideHookStateRenamePath = function(fiber, id2, oldPath, newPath) {
         id2 = findHook(fiber, id2);
-        null !== id2 && (oldPath = copyWithRename(id2.memoizedState, oldPath, newPath), id2.memoizedState = oldPath, id2.baseState = oldPath, fiber.memoizedProps = assign({}, fiber.memoizedProps), oldPath = enqueueConcurrentRenderForLane(fiber, 2), null !== oldPath && scheduleUpdateOnFiber(oldPath, fiber, 2));
+        null !== id2 && (oldPath = copyWithRename(id2.memoizedState, oldPath, newPath), id2.memoizedState = oldPath, id2.baseState = oldPath, fiber.memoizedProps = assign2({}, fiber.memoizedProps), oldPath = enqueueConcurrentRenderForLane(fiber, 2), null !== oldPath && scheduleUpdateOnFiber(oldPath, fiber, 2));
       };
       overrideProps = function(fiber, path, value) {
         fiber.pendingProps = copyWithSetImpl(fiber.memoizedProps, path, 0, value);
@@ -21316,9 +21316,9 @@ var require_react_dom_client_development = __commonJS({
       };
       (function() {
         var isomorphicReactPackageVersion = React31.version;
-        if ("19.2.0" !== isomorphicReactPackageVersion)
+        if ("19.2.1" !== isomorphicReactPackageVersion)
           throw Error(
-            'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.0\nLearn more: https://react.dev/warnings/version-mismatch")
+            'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.1\nLearn more: https://react.dev/warnings/version-mismatch")
           );
       })();
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
@@ -21342,10 +21342,10 @@ var require_react_dom_client_development = __commonJS({
       if (!(function() {
         var internals = {
           bundleType: 1,
-          version: "19.2.0",
+          version: "19.2.1",
           rendererPackageName: "react-dom",
           currentDispatcherRef: ReactSharedInternals,
-          reconcilerVersion: "19.2.0"
+          reconcilerVersion: "19.2.1"
         };
         internals.overrideHookState = overrideHookState;
         internals.overrideHookStateDeletePath = overrideHookStateDeletePath;
@@ -21436,7 +21436,7 @@ var require_react_dom_client_development = __commonJS({
         listenToAllSupportedEvents(container);
         return new ReactDOMHydrationRoot(initialChildren);
       };
-      exports.version = "19.2.0";
+      exports.version = "19.2.1";
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21623,7 +21623,7 @@ var require_react_jsx_runtime_development = __commonJS({
         return Error("react-stack-top-frame");
       }
       function hasValidKey(config2) {
-        if (hasOwnProperty2.call(config2, "key")) {
+        if (hasOwnProperty3.call(config2, "key")) {
           var getter = Object.getOwnPropertyDescriptor(config2, "key").get;
           if (getter && getter.isReactWarning) return false;
         }
@@ -21704,17 +21704,17 @@ var require_react_jsx_runtime_development = __commonJS({
                 "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
               );
           else validateChildKeys(children2);
-        if (hasOwnProperty2.call(config2, "key")) {
+        if (hasOwnProperty3.call(config2, "key")) {
           children2 = getComponentNameFromType(type);
-          var keys2 = Object.keys(config2).filter(function(k3) {
+          var keys3 = Object.keys(config2).filter(function(k3) {
             return "key" !== k3;
           });
-          isStaticChildren = 0 < keys2.length ? "{key: someKey, " + keys2.join(": ..., ") + ": ...}" : "{key: someKey}";
-          didWarnAboutKeySpread[children2 + isStaticChildren] || (keys2 = 0 < keys2.length ? "{" + keys2.join(": ..., ") + ": ...}" : "{}", console.error(
+          isStaticChildren = 0 < keys3.length ? "{key: someKey, " + keys3.join(": ..., ") + ": ...}" : "{key: someKey}";
+          didWarnAboutKeySpread[children2 + isStaticChildren] || (keys3 = 0 < keys3.length ? "{" + keys3.join(": ..., ") + ": ...}" : "{}", console.error(
             'A props object containing a "key" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />',
             isStaticChildren,
             children2,
-            keys2,
+            keys3,
             children2
           ), didWarnAboutKeySpread[children2 + isStaticChildren] = true);
         }
@@ -21745,7 +21745,7 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React31 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React31.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty2 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React31 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React31.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
       React31 = {
@@ -21797,65 +21797,6 @@ var require_jsx_runtime = __commonJS({
     } else {
       module.exports = require_react_jsx_runtime_development();
     }
-  }
-});
-
-// node_modules/fast-deep-equal/es6/react.js
-var require_react2 = __commonJS({
-  "node_modules/fast-deep-equal/es6/react.js"(exports, module) {
-    "use strict";
-    module.exports = function equal(a5, b2) {
-      if (a5 === b2) return true;
-      if (a5 && b2 && typeof a5 == "object" && typeof b2 == "object") {
-        if (a5.constructor !== b2.constructor) return false;
-        var length, i3, keys2;
-        if (Array.isArray(a5)) {
-          length = a5.length;
-          if (length != b2.length) return false;
-          for (i3 = length; i3-- !== 0; )
-            if (!equal(a5[i3], b2[i3])) return false;
-          return true;
-        }
-        if (a5 instanceof Map && b2 instanceof Map) {
-          if (a5.size !== b2.size) return false;
-          for (i3 of a5.entries())
-            if (!b2.has(i3[0])) return false;
-          for (i3 of a5.entries())
-            if (!equal(i3[1], b2.get(i3[0]))) return false;
-          return true;
-        }
-        if (a5 instanceof Set && b2 instanceof Set) {
-          if (a5.size !== b2.size) return false;
-          for (i3 of a5.entries())
-            if (!b2.has(i3[0])) return false;
-          return true;
-        }
-        if (ArrayBuffer.isView(a5) && ArrayBuffer.isView(b2)) {
-          length = a5.length;
-          if (length != b2.length) return false;
-          for (i3 = length; i3-- !== 0; )
-            if (a5[i3] !== b2[i3]) return false;
-          return true;
-        }
-        if (a5.constructor === RegExp) return a5.source === b2.source && a5.flags === b2.flags;
-        if (a5.valueOf !== Object.prototype.valueOf) return a5.valueOf() === b2.valueOf();
-        if (a5.toString !== Object.prototype.toString) return a5.toString() === b2.toString();
-        keys2 = Object.keys(a5);
-        length = keys2.length;
-        if (length !== Object.keys(b2).length) return false;
-        for (i3 = length; i3-- !== 0; )
-          if (!Object.prototype.hasOwnProperty.call(b2, keys2[i3])) return false;
-        for (i3 = length; i3-- !== 0; ) {
-          var key = keys2[i3];
-          if (key === "_owner" && a5.$$typeof) {
-            continue;
-          }
-          if (!equal(a5[key], b2[key])) return false;
-        }
-        return true;
-      }
-      return a5 !== a5 && b2 !== b2;
-    };
   }
 });
 
@@ -22694,8 +22635,8 @@ var require_react_is = __commonJS({
 var require_object_assign = __commonJS({
   "node_modules/object-assign/index.js"(exports, module) {
     "use strict";
-    var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-    var hasOwnProperty2 = Object.prototype.hasOwnProperty;
+    var getOwnPropertySymbols2 = Object.getOwnPropertySymbols;
+    var hasOwnProperty3 = Object.prototype.hasOwnProperty;
     var propIsEnumerable = Object.prototype.propertyIsEnumerable;
     function toObject(val) {
       if (val === null || val === void 0) {
@@ -22742,12 +22683,12 @@ var require_object_assign = __commonJS({
       for (var s3 = 1; s3 < arguments.length; s3++) {
         from2 = Object(arguments[s3]);
         for (var key in from2) {
-          if (hasOwnProperty2.call(from2, key)) {
+          if (hasOwnProperty3.call(from2, key)) {
             to2[key] = from2[key];
           }
         }
-        if (getOwnPropertySymbols) {
-          symbols = getOwnPropertySymbols(from2);
+        if (getOwnPropertySymbols2) {
+          symbols = getOwnPropertySymbols2(from2);
           for (var i3 = 0; i3 < symbols.length; i3++) {
             if (propIsEnumerable.call(from2, symbols[i3])) {
               to2[symbols[i3]] = from2[symbols[i3]];
@@ -22847,7 +22788,7 @@ var require_factoryWithTypeCheckers = __commonJS({
   "node_modules/prop-types/factoryWithTypeCheckers.js"(exports, module) {
     "use strict";
     var ReactIs = require_react_is();
-    var assign = require_object_assign();
+    var assign2 = require_object_assign();
     var ReactPropTypesSecret = require_ReactPropTypesSecret();
     var has = require_has();
     var checkPropTypes = require_checkPropTypes();
@@ -23152,7 +23093,7 @@ var require_factoryWithTypeCheckers = __commonJS({
           if (propType !== "object") {
             return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type `" + propType + "` " + ("supplied to `" + componentName + "`, expected `object`."));
           }
-          var allKeys = assign({}, props[propName], shapeTypes);
+          var allKeys = assign2({}, props[propName], shapeTypes);
           for (var key in allKeys) {
             var checker = shapeTypes[key];
             if (has(shapeTypes, key) && typeof checker !== "function") {
@@ -23883,7 +23824,7 @@ var init_src4 = __esm({
 });
 
 // app/javascript/application.js
-var import_react41 = __toESM(require_react());
+var import_react40 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -24587,7 +24528,7 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
 }
 
 // app/javascript/components/ConceptShow.js
-var import_react18 = __toESM(require_react());
+var import_react17 = __toESM(require_react());
 
 // app/javascript/components/ConnectionFormModal.js
 var import_react5 = __toESM(require_react());
@@ -24758,7 +24699,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
 }
 
 // app/javascript/components/NoteFormModal.js
-var import_react16 = __toESM(require_react());
+var import_react15 = __toESM(require_react());
 
 // node_modules/@tiptap/react/dist/index.js
 var import_react6 = __toESM(require_react(), 1);
@@ -28903,13 +28844,17 @@ function canCut(node, start2, end3) {
 function liftTarget(range) {
   let parent = range.parent;
   let content = parent.content.cutByIndex(range.startIndex, range.endIndex);
-  for (let depth = range.depth; ; --depth) {
+  for (let depth = range.depth, contentBefore = 0, contentAfter = 0; ; --depth) {
     let node = range.$from.node(depth);
-    let index8 = range.$from.index(depth), endIndex = range.$to.indexAfter(depth);
+    let index8 = range.$from.index(depth) + contentBefore, endIndex = range.$to.indexAfter(depth) - contentAfter;
     if (depth < range.depth && node.canReplace(index8, endIndex, content))
       return depth;
     if (depth == 0 || node.type.spec.isolating || !canCut(node, index8, endIndex))
       break;
+    if (index8)
+      contentBefore = 1;
+    if (endIndex < node.childCount)
+      contentAfter = 1;
   }
   return null;
 }
@@ -29452,7 +29397,7 @@ function replaceRange(tr2, from2, to2, slice2) {
   let $from = tr2.doc.resolve(from2), $to = tr2.doc.resolve(to2);
   if (fitsTrivially($from, $to, slice2))
     return tr2.step(new ReplaceStep(from2, to2, slice2));
-  let targetDepths = coveredDepths($from, tr2.doc.resolve(to2));
+  let targetDepths = coveredDepths($from, $to);
   if (targetDepths[targetDepths.length - 1] == 0)
     targetDepths.pop();
   let preferredTarget = -($from.depth + 1);
@@ -31811,17 +31756,20 @@ function findOffsetInNode(node, coords) {
 }
 function findOffsetInText(node, coords) {
   let len = node.nodeValue.length;
-  let range = document.createRange();
+  let range = document.createRange(), result;
   for (let i3 = 0; i3 < len; i3++) {
     range.setEnd(node, i3 + 1);
     range.setStart(node, i3);
     let rect = singleRect(range, 1);
     if (rect.top == rect.bottom)
       continue;
-    if (inRect(coords, rect))
-      return { node, offset: i3 + (coords.left >= (rect.left + rect.right) / 2 ? 1 : 0) };
+    if (inRect(coords, rect)) {
+      result = { node, offset: i3 + (coords.left >= (rect.left + rect.right) / 2 ? 1 : 0) };
+      break;
+    }
   }
-  return { node, offset: 0 };
+  range.detach();
+  return result || { node, offset: 0 };
 }
 function inRect(coords, rect) {
   return coords.left >= rect.left - 1 && coords.left <= rect.right + 1 && coords.top >= rect.top - 1 && coords.top <= rect.bottom + 1;
@@ -34572,7 +34520,7 @@ editHandlers.compositionstart = editHandlers.compositionupdate = (view) => {
   if (!view.composing) {
     view.domObserver.flush();
     let { state } = view, $pos = state.selection.$to;
-    if (state.selection instanceof TextSelection && (state.storedMarks || !$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some((m5) => m5.type.spec.inclusive === false))) {
+    if (state.selection instanceof TextSelection && (state.storedMarks || !$pos.textOffset && $pos.parentOffset && $pos.nodeBefore.marks.some((m5) => m5.type.spec.inclusive === false) || chrome && windows && selectionBeforeUneditable(view))) {
       view.markCursor = view.state.storedMarks || $pos.marks();
       endComposition(view, true);
       view.markCursor = null;
@@ -34600,6 +34548,13 @@ editHandlers.compositionstart = editHandlers.compositionupdate = (view) => {
   }
   scheduleComposeEnd(view, timeoutComposition);
 };
+function selectionBeforeUneditable(view) {
+  let { focusNode, focusOffset } = view.domSelectionRange();
+  if (!focusNode || focusNode.nodeType != 1 || focusOffset >= focusNode.childNodes.length)
+    return false;
+  let next = focusNode.childNodes[focusOffset];
+  return next.nodeType == 1 && next.contentEditable == "false";
+}
 editHandlers.compositionend = (view, event) => {
   if (view.composing) {
     view.input.composing = false;
@@ -34803,10 +34758,14 @@ handlers.dragend = (view) => {
   }, 50);
 };
 editHandlers.dragover = editHandlers.dragenter = (_3, e3) => e3.preventDefault();
-editHandlers.drop = (view, _event) => {
-  let event = _event;
-  let dragging = view.dragging;
-  view.dragging = null;
+editHandlers.drop = (view, event) => {
+  try {
+    handleDrop(view, event, view.dragging);
+  } finally {
+    view.dragging = null;
+  }
+};
+function handleDrop(view, event, dragging) {
   if (!event.dataTransfer)
     return;
   let eventPos = view.posAtCoords(eventCoords(event));
@@ -34859,7 +34818,7 @@ editHandlers.drop = (view, _event) => {
   }
   view.focus();
   view.dispatch(tr2.setMeta("uiEvent", "drop"));
-};
+}
 handlers.focus = (view) => {
   view.input.lastFocus = Date.now();
   if (!view.focused) {
@@ -35710,6 +35669,13 @@ var DOMObserver = class {
             br.remove();
         }
       }
+    } else if ((chrome || safari) && added.some((n3) => n3.nodeName == "BR") && (view.input.lastKeyCode == 8 || view.input.lastKeyCode == 46)) {
+      for (let node of added)
+        if (node.nodeName == "BR" && node.parentNode) {
+          let after = node.nextSibling;
+          if (after && after.nodeType == 1 && after.contentEditable == "false")
+            node.parentNode.removeChild(node);
+        }
     }
     let readSel = null;
     if (from2 < 0 && newSel && view.input.lastFocus > Date.now() - 200 && Math.max(view.input.lastTouch, view.input.lastClick.time) < Date.now() - 300 && selectionCollapsed(sel) && (readSel = selectionFromDOM(view)) && readSel.eq(Selection.near(view.state.doc.resolve(0), 1))) {
@@ -37008,6 +36974,7 @@ __export2(commands_exports, {
   setMeta: () => setMeta,
   setNode: () => setNode,
   setNodeSelection: () => setNodeSelection,
+  setTextDirection: () => setTextDirection,
   setTextSelection: () => setTextSelection,
   sinkListItem: () => sinkListItem2,
   splitBlock: () => splitBlock2,
@@ -37019,6 +36986,7 @@ __export2(commands_exports, {
   undoInputRule: () => undoInputRule,
   unsetAllMarks: () => unsetAllMarks,
   unsetMark: () => unsetMark,
+  unsetTextDirection: () => unsetTextDirection,
   updateAttributes: () => updateAttributes,
   wrapIn: () => wrapIn2,
   wrapInList: () => wrapInList2
@@ -37147,11 +37115,11 @@ function isRegExp(value) {
   return Object.prototype.toString.call(value) === "[object RegExp]";
 }
 function objectIncludes(object1, object2, options = { strict: true }) {
-  const keys2 = Object.keys(object2);
-  if (!keys2.length) {
+  const keys3 = Object.keys(object2);
+  if (!keys3.length) {
     return true;
   }
-  return keys2.every((key) => {
+  return keys3.every((key) => {
     if (options.strict) {
       return object2[key] === object1[key];
     }
@@ -37632,14 +37600,14 @@ function normalizeKeyName2(name) {
   return result;
 }
 var keyboardShortcut = (name) => ({ editor, view, tr: tr2, dispatch: dispatch2 }) => {
-  const keys2 = normalizeKeyName2(name).split(/-(?!$)/);
-  const key = keys2.find((item) => !["Alt", "Ctrl", "Meta", "Shift"].includes(item));
+  const keys3 = normalizeKeyName2(name).split(/-(?!$)/);
+  const key = keys3.find((item) => !["Alt", "Ctrl", "Meta", "Shift"].includes(item));
   const event = new KeyboardEvent("keydown", {
     key: key === "Space" ? " " : key,
-    altKey: keys2.includes("Alt"),
-    ctrlKey: keys2.includes("Ctrl"),
-    metaKey: keys2.includes("Meta"),
-    shiftKey: keys2.includes("Shift"),
+    altKey: keys3.includes("Alt"),
+    ctrlKey: keys3.includes("Ctrl"),
+    metaKey: keys3.includes("Meta"),
+    shiftKey: keys3.includes("Shift"),
     bubbles: true,
     cancelable: true
   });
@@ -37735,23 +37703,28 @@ var resetAttributes = (typeOrName, attributes) => ({ tr: tr2, state, dispatch: d
   if (schemaType === "mark") {
     markType = getMarkType(typeOrName, state.schema);
   }
-  if (dispatch2) {
-    tr2.selection.ranges.forEach((range) => {
-      state.doc.nodesBetween(range.$from.pos, range.$to.pos, (node, pos) => {
-        if (nodeType && nodeType === node.type) {
+  let canReset = false;
+  tr2.selection.ranges.forEach((range) => {
+    state.doc.nodesBetween(range.$from.pos, range.$to.pos, (node, pos) => {
+      if (nodeType && nodeType === node.type) {
+        canReset = true;
+        if (dispatch2) {
           tr2.setNodeMarkup(pos, void 0, deleteProps(node.attrs, attributes));
         }
-        if (markType && node.marks.length) {
-          node.marks.forEach((mark) => {
-            if (markType === mark.type) {
+      }
+      if (markType && node.marks.length) {
+        node.marks.forEach((mark) => {
+          if (markType === mark.type) {
+            canReset = true;
+            if (dispatch2) {
               tr2.addMark(pos, pos + node.nodeSize, markType.create(deleteProps(mark.attrs, attributes)));
             }
-          });
-        }
-      });
+          }
+        });
+      }
     });
-  }
-  return true;
+  });
+  return canReset;
 };
 var scrollIntoView = () => ({ tr: tr2, dispatch: dispatch2 }) => {
   if (dispatch2) {
@@ -38106,6 +38079,17 @@ function cleanUpSchemaItem(data) {
     })
   );
 }
+function buildAttributeSpec(extensionAttribute) {
+  var _a, _b;
+  const spec = {};
+  if (!((_a = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _a.isRequired) && "default" in ((extensionAttribute == null ? void 0 : extensionAttribute.attribute) || {})) {
+    spec.default = extensionAttribute.attribute.default;
+  }
+  if (((_b = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _b.validate) !== void 0) {
+    spec.validate = extensionAttribute.attribute.validate;
+  }
+  return [extensionAttribute.name, spec];
+}
 function getSchemaByResolvedExtensions(extensions, editor) {
   var _a;
   const allAttributes = getAttributesFromExtensions(extensions);
@@ -38143,15 +38127,7 @@ function getSchemaByResolvedExtensions(extensions, editor) {
         ),
         defining: callOrReturn(getExtensionField(extension, "defining", context)),
         isolating: callOrReturn(getExtensionField(extension, "isolating", context)),
-        attrs: Object.fromEntries(
-          extensionAttributes.map((extensionAttribute) => {
-            var _a2, _b;
-            return [
-              extensionAttribute.name,
-              { default: (_a2 = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _a2.default, validate: (_b = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _b.validate }
-            ];
-          })
-        )
+        attrs: Object.fromEntries(extensionAttributes.map(buildAttributeSpec))
       });
       const parseHTML = callOrReturn(getExtensionField(extension, "parseHTML", context));
       if (parseHTML) {
@@ -38196,15 +38172,7 @@ function getSchemaByResolvedExtensions(extensions, editor) {
         group: callOrReturn(getExtensionField(extension, "group", context)),
         spanning: callOrReturn(getExtensionField(extension, "spanning", context)),
         code: callOrReturn(getExtensionField(extension, "code", context)),
-        attrs: Object.fromEntries(
-          extensionAttributes.map((extensionAttribute) => {
-            var _a2, _b;
-            return [
-              extensionAttribute.name,
-              { default: (_a2 = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _a2.default, validate: (_b = extensionAttribute == null ? void 0 : extensionAttribute.attribute) == null ? void 0 : _b.validate }
-            ];
-          })
-        )
+        attrs: Object.fromEntries(extensionAttributes.map(buildAttributeSpec))
       });
       const parseHTML = callOrReturn(getExtensionField(extension, "parseHTML", context));
       if (parseHTML) {
@@ -38602,6 +38570,35 @@ function isNodeEmpty(node, {
 function isNodeSelection(value) {
   return value instanceof NodeSelection;
 }
+var MappablePosition = class _MappablePosition {
+  constructor(position) {
+    this.position = position;
+  }
+  /**
+   * Creates a MappablePosition from a JSON object.
+   */
+  static fromJSON(json) {
+    return new _MappablePosition(json.position);
+  }
+  /**
+   * Converts the MappablePosition to a JSON object.
+   */
+  toJSON() {
+    return {
+      position: this.position
+    };
+  }
+};
+function getUpdatedPosition(position, transaction) {
+  const mapResult = transaction.mapping.mapResult(position.position);
+  return {
+    position: new MappablePosition(mapResult.pos),
+    mapResult
+  };
+}
+function createMappablePosition(position) {
+  return new MappablePosition(position);
+}
 function canSetMark(state, tr2, newMarkType) {
   var _a;
   const { selection: selection2 } = tr2;
@@ -38704,6 +38701,33 @@ var setNodeSelection = (position) => ({ tr: tr2, dispatch: dispatch2 }) => {
     const from2 = minMax(position, 0, doc3.content.size);
     const selection2 = NodeSelection.create(doc3, from2);
     tr2.setSelection(selection2);
+  }
+  return true;
+};
+var setTextDirection = (direction, position) => ({ tr: tr2, state, dispatch: dispatch2 }) => {
+  const { selection: selection2 } = state;
+  let from2;
+  let to2;
+  if (typeof position === "number") {
+    from2 = position;
+    to2 = position;
+  } else if (position && "from" in position && "to" in position) {
+    from2 = position.from;
+    to2 = position.to;
+  } else {
+    from2 = selection2.from;
+    to2 = selection2.to;
+  }
+  if (dispatch2) {
+    tr2.doc.nodesBetween(from2, to2, (node, pos) => {
+      if (node.isText) {
+        return;
+      }
+      tr2.setNodeMarkup(pos, void 0, {
+        ...node.attrs,
+        dir: direction
+      });
+    });
   }
   return true;
 };
@@ -39040,6 +39064,32 @@ var unsetMark = (typeOrName, options = {}) => ({ tr: tr2, state, dispatch: dispa
   tr2.removeStoredMark(type);
   return true;
 };
+var unsetTextDirection = (position) => ({ tr: tr2, state, dispatch: dispatch2 }) => {
+  const { selection: selection2 } = state;
+  let from2;
+  let to2;
+  if (typeof position === "number") {
+    from2 = position;
+    to2 = position;
+  } else if (position && "from" in position && "to" in position) {
+    from2 = position.from;
+    to2 = position.to;
+  } else {
+    from2 = selection2.from;
+    to2 = selection2.to;
+  }
+  if (dispatch2) {
+    tr2.doc.nodesBetween(from2, to2, (node, pos) => {
+      if (node.isText) {
+        return;
+      }
+      const newAttrs = { ...node.attrs };
+      delete newAttrs.dir;
+      tr2.setNodeMarkup(pos, void 0, newAttrs);
+    });
+  }
+  return true;
+};
 var updateAttributes = (typeOrName, attributes = {}) => ({ tr: tr2, state, dispatch: dispatch2 }) => {
   let nodeType = null;
   let markType = null;
@@ -39056,41 +39106,48 @@ var updateAttributes = (typeOrName, attributes = {}) => ({ tr: tr2, state, dispa
   if (schemaType === "mark") {
     markType = getMarkType(typeOrName, state.schema);
   }
-  if (dispatch2) {
-    tr2.selection.ranges.forEach((range) => {
-      const from2 = range.$from.pos;
-      const to2 = range.$to.pos;
-      let lastPos;
-      let lastNode;
-      let trimmedFrom;
-      let trimmedTo;
-      if (tr2.selection.empty) {
-        state.doc.nodesBetween(from2, to2, (node, pos) => {
+  let canUpdate = false;
+  tr2.selection.ranges.forEach((range) => {
+    const from2 = range.$from.pos;
+    const to2 = range.$to.pos;
+    let lastPos;
+    let lastNode;
+    let trimmedFrom;
+    let trimmedTo;
+    if (tr2.selection.empty) {
+      state.doc.nodesBetween(from2, to2, (node, pos) => {
+        if (nodeType && nodeType === node.type) {
+          canUpdate = true;
+          trimmedFrom = Math.max(pos, from2);
+          trimmedTo = Math.min(pos + node.nodeSize, to2);
+          lastPos = pos;
+          lastNode = node;
+        }
+      });
+    } else {
+      state.doc.nodesBetween(from2, to2, (node, pos) => {
+        if (pos < from2 && nodeType && nodeType === node.type) {
+          canUpdate = true;
+          trimmedFrom = Math.max(pos, from2);
+          trimmedTo = Math.min(pos + node.nodeSize, to2);
+          lastPos = pos;
+          lastNode = node;
+        }
+        if (pos >= from2 && pos <= to2) {
           if (nodeType && nodeType === node.type) {
-            trimmedFrom = Math.max(pos, from2);
-            trimmedTo = Math.min(pos + node.nodeSize, to2);
-            lastPos = pos;
-            lastNode = node;
-          }
-        });
-      } else {
-        state.doc.nodesBetween(from2, to2, (node, pos) => {
-          if (pos < from2 && nodeType && nodeType === node.type) {
-            trimmedFrom = Math.max(pos, from2);
-            trimmedTo = Math.min(pos + node.nodeSize, to2);
-            lastPos = pos;
-            lastNode = node;
-          }
-          if (pos >= from2 && pos <= to2) {
-            if (nodeType && nodeType === node.type) {
+            canUpdate = true;
+            if (dispatch2) {
               tr2.setNodeMarkup(pos, void 0, {
                 ...node.attrs,
                 ...attributes
               });
             }
-            if (markType && node.marks.length) {
-              node.marks.forEach((mark) => {
-                if (markType === mark.type) {
+          }
+          if (markType && node.marks.length) {
+            node.marks.forEach((mark) => {
+              if (markType === mark.type) {
+                canUpdate = true;
+                if (dispatch2) {
                   const trimmedFrom2 = Math.max(pos, from2);
                   const trimmedTo2 = Math.min(pos + node.nodeSize, to2);
                   tr2.addMark(
@@ -39102,36 +39159,36 @@ var updateAttributes = (typeOrName, attributes = {}) => ({ tr: tr2, state, dispa
                     })
                   );
                 }
-              });
-            }
+              }
+            });
+          }
+        }
+      });
+    }
+    if (lastNode) {
+      if (lastPos !== void 0 && dispatch2) {
+        tr2.setNodeMarkup(lastPos, void 0, {
+          ...lastNode.attrs,
+          ...attributes
+        });
+      }
+      if (markType && lastNode.marks.length) {
+        lastNode.marks.forEach((mark) => {
+          if (markType === mark.type && dispatch2) {
+            tr2.addMark(
+              trimmedFrom,
+              trimmedTo,
+              markType.create({
+                ...mark.attrs,
+                ...attributes
+              })
+            );
           }
         });
       }
-      if (lastNode) {
-        if (lastPos !== void 0) {
-          tr2.setNodeMarkup(lastPos, void 0, {
-            ...lastNode.attrs,
-            ...attributes
-          });
-        }
-        if (markType && lastNode.marks.length) {
-          lastNode.marks.forEach((mark) => {
-            if (markType === mark.type) {
-              tr2.addMark(
-                trimmedFrom,
-                trimmedTo,
-                markType.create({
-                  ...mark.attrs,
-                  ...attributes
-                })
-              );
-            }
-          });
-        }
-      }
-    });
-  }
-  return true;
+    }
+  });
+  return canUpdate;
 };
 var wrapIn2 = (typeOrName, attributes = {}) => ({ state, dispatch: dispatch2 }) => {
   const type = getNodeType(typeOrName, state.schema);
@@ -39832,9 +39889,13 @@ var ExtensionManager = class {
         if (!addNodeView) {
           return [];
         }
+        const nodeViewResult = addNodeView();
+        if (!nodeViewResult) {
+          return [];
+        }
         const nodeview = (node, view, getPos, decorations, innerDecorations) => {
           const HTMLAttributes = getRenderedAttributes(node, extensionAttributes);
-          return addNodeView()({
+          return nodeViewResult({
             // pass-through
             node,
             view,
@@ -39965,6 +40026,7 @@ __export2(extensions_exports, {
   Keymap: () => Keymap,
   Paste: () => Paste,
   Tabindex: () => Tabindex,
+  TextDirection: () => TextDirection,
   focusEventsPluginKey: () => focusEventsPluginKey
 });
 var Extension = class _Extension extends Extendable {
@@ -40303,6 +40365,63 @@ var Tabindex = Extension.create({
     ];
   }
 });
+var TextDirection = Extension.create({
+  name: "textDirection",
+  addOptions() {
+    return {
+      direction: void 0
+    };
+  },
+  addGlobalAttributes() {
+    if (!this.options.direction) {
+      return [];
+    }
+    const { nodeExtensions } = splitExtensions(this.extensions);
+    return [
+      {
+        types: nodeExtensions.filter((extension) => extension.name !== "text").map((extension) => extension.name),
+        attributes: {
+          dir: {
+            default: this.options.direction,
+            parseHTML: (element) => {
+              const dir = element.getAttribute("dir");
+              if (dir && (dir === "ltr" || dir === "rtl" || dir === "auto")) {
+                return dir;
+              }
+              return this.options.direction;
+            },
+            renderHTML: (attributes) => {
+              if (!attributes.dir) {
+                return {};
+              }
+              return {
+                dir: attributes.dir
+              };
+            }
+          }
+        }
+      }
+    ];
+  },
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey("textDirection"),
+        props: {
+          attributes: () => {
+            const direction = this.options.direction;
+            if (!direction) {
+              return {};
+            }
+            return {
+              dir: direction
+            };
+          }
+        }
+      })
+    ];
+  }
+});
 var NodePos = class _NodePos {
   constructor(pos, editor, isBlock = false, node = null) {
     this.currentNode = null;
@@ -40567,6 +40686,7 @@ var Editor = class extends EventEmitter {
   constructor(options = {}) {
     super();
     this.css = null;
+    this.className = "tiptap";
     this.editorView = null;
     this.isFocused = false;
     this.isInitialized = false;
@@ -40580,6 +40700,7 @@ var Editor = class extends EventEmitter {
       extensions: [],
       autofocus: false,
       editable: true,
+      textDirection: void 0,
       editorProps: {},
       parseOptions: {},
       coreExtensionOptions: {},
@@ -40607,6 +40728,10 @@ var Editor = class extends EventEmitter {
     };
     this.isCapturingTransaction = false;
     this.capturedTransaction = null;
+    this.utils = {
+      getUpdatedPosition,
+      createMappablePosition
+    };
     this.setOptions(options);
     this.createExtensionManager();
     this.createCommandManager();
@@ -40655,7 +40780,9 @@ var Editor = class extends EventEmitter {
       if (this.isDestroyed) {
         return;
       }
-      this.commands.focus(this.options.autofocus);
+      if (this.options.autofocus !== false && this.options.autofocus !== null) {
+        this.commands.focus(this.options.autofocus);
+      }
       this.emit("create", { editor: this });
       this.isInitialized = true;
     }, 0);
@@ -40673,7 +40800,7 @@ var Editor = class extends EventEmitter {
     }
     this.editorView = null;
     this.isInitialized = false;
-    if (this.css) {
+    if (this.css && !document.querySelectorAll(`.${this.className}`).length) {
       try {
         if (typeof this.css.remove === "function") {
           this.css.remove();
@@ -40855,7 +40982,10 @@ var Editor = class extends EventEmitter {
       Tabindex,
       Drop,
       Paste,
-      Delete
+      Delete,
+      TextDirection.configure({
+        direction: this.options.textDirection
+      })
     ].filter((ext) => {
       if (typeof this.options.enableCoreExtensions === "object") {
         return this.options.enableCoreExtensions[ext.name] !== false;
@@ -40954,7 +41084,7 @@ var Editor = class extends EventEmitter {
    * Prepend class name to element.
    */
   prependClass() {
-    this.view.dom.className = `tiptap ${this.view.dom.className}`;
+    this.view.dom.className = `${this.className} ${this.view.dom.className}`;
   }
   captureTransaction(fn) {
     this.isCapturingTransaction = true;
@@ -41222,6 +41352,536 @@ function wrappingInputRule(config2) {
     undoable: config2.undoable
   });
 }
+var isTouchEvent = (e3) => {
+  return "touches" in e3;
+};
+var ResizableNodeView = class {
+  /**
+   * Creates a new ResizableNodeView instance.
+   *
+   * The constructor sets up the resize handles, applies initial sizing from
+   * node attributes, and configures all resize behavior options.
+   *
+   * @param options - Configuration options for the resizable node view
+   */
+  constructor(options) {
+    this.directions = ["bottom-left", "bottom-right", "top-left", "top-right"];
+    this.minSize = {
+      height: 8,
+      width: 8
+    };
+    this.preserveAspectRatio = false;
+    this.classNames = {
+      container: "",
+      wrapper: "",
+      handle: "",
+      resizing: ""
+    };
+    this.initialWidth = 0;
+    this.initialHeight = 0;
+    this.aspectRatio = 1;
+    this.isResizing = false;
+    this.activeHandle = null;
+    this.startX = 0;
+    this.startY = 0;
+    this.startWidth = 0;
+    this.startHeight = 0;
+    this.isShiftKeyPressed = false;
+    this.lastEditableState = void 0;
+    this.handleMap = /* @__PURE__ */ new Map();
+    this.handleMouseMove = (event) => {
+      if (!this.isResizing || !this.activeHandle) {
+        return;
+      }
+      const deltaX = event.clientX - this.startX;
+      const deltaY = event.clientY - this.startY;
+      this.handleResize(deltaX, deltaY);
+    };
+    this.handleTouchMove = (event) => {
+      if (!this.isResizing || !this.activeHandle) {
+        return;
+      }
+      const touch = event.touches[0];
+      if (!touch) {
+        return;
+      }
+      const deltaX = touch.clientX - this.startX;
+      const deltaY = touch.clientY - this.startY;
+      this.handleResize(deltaX, deltaY);
+    };
+    this.handleMouseUp = () => {
+      if (!this.isResizing) {
+        return;
+      }
+      const finalWidth = this.element.offsetWidth;
+      const finalHeight = this.element.offsetHeight;
+      this.onCommit(finalWidth, finalHeight);
+      this.isResizing = false;
+      this.activeHandle = null;
+      this.container.dataset.resizeState = "false";
+      if (this.classNames.resizing) {
+        this.container.classList.remove(this.classNames.resizing);
+      }
+      document.removeEventListener("mousemove", this.handleMouseMove);
+      document.removeEventListener("mouseup", this.handleMouseUp);
+      document.removeEventListener("keydown", this.handleKeyDown);
+      document.removeEventListener("keyup", this.handleKeyUp);
+    };
+    this.handleKeyDown = (event) => {
+      if (event.key === "Shift") {
+        this.isShiftKeyPressed = true;
+      }
+    };
+    this.handleKeyUp = (event) => {
+      if (event.key === "Shift") {
+        this.isShiftKeyPressed = false;
+      }
+    };
+    var _a, _b, _c, _d, _e, _f;
+    this.node = options.node;
+    this.editor = options.editor;
+    this.element = options.element;
+    this.contentElement = options.contentElement;
+    this.getPos = options.getPos;
+    this.onResize = options.onResize;
+    this.onCommit = options.onCommit;
+    this.onUpdate = options.onUpdate;
+    if ((_a = options.options) == null ? void 0 : _a.min) {
+      this.minSize = {
+        ...this.minSize,
+        ...options.options.min
+      };
+    }
+    if ((_b = options.options) == null ? void 0 : _b.max) {
+      this.maxSize = options.options.max;
+    }
+    if ((_c = options == null ? void 0 : options.options) == null ? void 0 : _c.directions) {
+      this.directions = options.options.directions;
+    }
+    if ((_d = options.options) == null ? void 0 : _d.preserveAspectRatio) {
+      this.preserveAspectRatio = options.options.preserveAspectRatio;
+    }
+    if ((_e = options.options) == null ? void 0 : _e.className) {
+      this.classNames = {
+        container: options.options.className.container || "",
+        wrapper: options.options.className.wrapper || "",
+        handle: options.options.className.handle || "",
+        resizing: options.options.className.resizing || ""
+      };
+    }
+    if ((_f = options.options) == null ? void 0 : _f.createCustomHandle) {
+      this.createCustomHandle = options.options.createCustomHandle;
+    }
+    this.wrapper = this.createWrapper();
+    this.container = this.createContainer();
+    this.applyInitialSize();
+    this.attachHandles();
+    this.editor.on("update", this.handleEditorUpdate.bind(this));
+  }
+  /**
+   * Returns the top-level DOM node that should be placed in the editor.
+   *
+   * This is required by the ProseMirror NodeView interface. The container
+   * includes the wrapper, handles, and the actual content element.
+   *
+   * @returns The container element to be inserted into the editor
+   */
+  get dom() {
+    return this.container;
+  }
+  get contentDOM() {
+    return this.contentElement;
+  }
+  handleEditorUpdate() {
+    const isEditable = this.editor.isEditable;
+    if (isEditable === this.lastEditableState) {
+      return;
+    }
+    this.lastEditableState = isEditable;
+    if (!isEditable) {
+      this.removeHandles();
+    } else if (isEditable && this.handleMap.size === 0) {
+      this.attachHandles();
+    }
+  }
+  /**
+   * Called when the node's content or attributes change.
+   *
+   * Updates the internal node reference. If a custom `onUpdate` callback
+   * was provided, it will be called to handle additional update logic.
+   *
+   * @param node - The new/updated node
+   * @param decorations - Node decorations
+   * @param innerDecorations - Inner decorations
+   * @returns `false` if the node type has changed (requires full rebuild), otherwise the result of `onUpdate` or `true`
+   */
+  update(node, decorations, innerDecorations) {
+    if (node.type !== this.node.type) {
+      return false;
+    }
+    this.node = node;
+    if (this.onUpdate) {
+      return this.onUpdate(node, decorations, innerDecorations);
+    }
+    return true;
+  }
+  /**
+   * Cleanup method called when the node view is being removed.
+   *
+   * Removes all event listeners to prevent memory leaks. This is required
+   * by the ProseMirror NodeView interface. If a resize is active when
+   * destroy is called, it will be properly cancelled.
+   */
+  destroy() {
+    if (this.isResizing) {
+      this.container.dataset.resizeState = "false";
+      if (this.classNames.resizing) {
+        this.container.classList.remove(this.classNames.resizing);
+      }
+      document.removeEventListener("mousemove", this.handleMouseMove);
+      document.removeEventListener("mouseup", this.handleMouseUp);
+      document.removeEventListener("keydown", this.handleKeyDown);
+      document.removeEventListener("keyup", this.handleKeyUp);
+      this.isResizing = false;
+      this.activeHandle = null;
+    }
+    this.editor.off("update", this.handleEditorUpdate.bind(this));
+    this.container.remove();
+  }
+  /**
+   * Creates the outer container element.
+   *
+   * The container is the top-level element returned by the NodeView and
+   * wraps the entire resizable node. It's set up with flexbox to handle
+   * alignment and includes data attributes for styling and identification.
+   *
+   * @returns The container element
+   */
+  createContainer() {
+    const element = document.createElement("div");
+    element.dataset.resizeContainer = "";
+    element.dataset.node = this.node.type.name;
+    element.style.display = "flex";
+    if (this.classNames.container) {
+      element.className = this.classNames.container;
+    }
+    element.appendChild(this.wrapper);
+    return element;
+  }
+  /**
+   * Creates the wrapper element that contains the content and handles.
+   *
+   * The wrapper uses relative positioning so that resize handles can be
+   * positioned absolutely within it. This is the direct parent of the
+   * content element being made resizable.
+   *
+   * @returns The wrapper element
+   */
+  createWrapper() {
+    const element = document.createElement("div");
+    element.style.position = "relative";
+    element.style.display = "block";
+    element.dataset.resizeWrapper = "";
+    if (this.classNames.wrapper) {
+      element.className = this.classNames.wrapper;
+    }
+    element.appendChild(this.element);
+    return element;
+  }
+  /**
+   * Creates a resize handle element for a specific direction.
+   *
+   * Each handle is absolutely positioned and includes a data attribute
+   * identifying its direction for styling purposes.
+   *
+   * @param direction - The resize direction for this handle
+   * @returns The handle element
+   */
+  createHandle(direction) {
+    const handle = document.createElement("div");
+    handle.dataset.resizeHandle = direction;
+    handle.style.position = "absolute";
+    if (this.classNames.handle) {
+      handle.className = this.classNames.handle;
+    }
+    return handle;
+  }
+  /**
+   * Positions a handle element according to its direction.
+   *
+   * Corner handles (e.g., 'top-left') are positioned at the intersection
+   * of two edges. Edge handles (e.g., 'top') span the full width or height.
+   *
+   * @param handle - The handle element to position
+   * @param direction - The direction determining the position
+   */
+  positionHandle(handle, direction) {
+    const isTop = direction.includes("top");
+    const isBottom = direction.includes("bottom");
+    const isLeft = direction.includes("left");
+    const isRight = direction.includes("right");
+    if (isTop) {
+      handle.style.top = "0";
+    }
+    if (isBottom) {
+      handle.style.bottom = "0";
+    }
+    if (isLeft) {
+      handle.style.left = "0";
+    }
+    if (isRight) {
+      handle.style.right = "0";
+    }
+    if (direction === "top" || direction === "bottom") {
+      handle.style.left = "0";
+      handle.style.right = "0";
+    }
+    if (direction === "left" || direction === "right") {
+      handle.style.top = "0";
+      handle.style.bottom = "0";
+    }
+  }
+  /**
+   * Creates and attaches all resize handles to the wrapper.
+   *
+   * Iterates through the configured directions, creates a handle for each,
+   * positions it, attaches the mousedown listener, and appends it to the DOM.
+   */
+  attachHandles() {
+    this.directions.forEach((direction) => {
+      let handle;
+      if (this.createCustomHandle) {
+        handle = this.createCustomHandle(direction);
+      } else {
+        handle = this.createHandle(direction);
+      }
+      if (!(handle instanceof HTMLElement)) {
+        console.warn(
+          `[ResizableNodeView] createCustomHandle("${direction}") did not return an HTMLElement. Falling back to default handle.`
+        );
+        handle = this.createHandle(direction);
+      }
+      if (!this.createCustomHandle) {
+        this.positionHandle(handle, direction);
+      }
+      handle.addEventListener("mousedown", (event) => this.handleResizeStart(event, direction));
+      handle.addEventListener("touchstart", (event) => this.handleResizeStart(event, direction));
+      this.handleMap.set(direction, handle);
+      this.wrapper.appendChild(handle);
+    });
+  }
+  /**
+   * Removes all resize handles from the wrapper.
+   *
+   * Cleans up the handle map and removes each handle element from the DOM.
+   */
+  removeHandles() {
+    this.handleMap.forEach((el) => el.remove());
+    this.handleMap.clear();
+  }
+  /**
+   * Applies initial sizing from node attributes to the element.
+   *
+   * If width/height attributes exist on the node, they're applied to the element.
+   * Otherwise, the element's natural/current dimensions are measured. The aspect
+   * ratio is calculated for later use in aspect-ratio-preserving resizes.
+   */
+  applyInitialSize() {
+    const width = this.node.attrs.width;
+    const height = this.node.attrs.height;
+    if (width) {
+      this.element.style.width = `${width}px`;
+      this.initialWidth = width;
+    } else {
+      this.initialWidth = this.element.offsetWidth;
+    }
+    if (height) {
+      this.element.style.height = `${height}px`;
+      this.initialHeight = height;
+    } else {
+      this.initialHeight = this.element.offsetHeight;
+    }
+    if (this.initialWidth > 0 && this.initialHeight > 0) {
+      this.aspectRatio = this.initialWidth / this.initialHeight;
+    }
+  }
+  /**
+   * Initiates a resize operation when a handle is clicked.
+   *
+   * Captures the starting mouse position and element dimensions, sets up
+   * the resize state, adds the resizing class and state attribute, and
+   * attaches document-level listeners for mouse movement and keyboard input.
+   *
+   * @param event - The mouse down event
+   * @param direction - The direction of the handle being dragged
+   */
+  handleResizeStart(event, direction) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    this.activeHandle = direction;
+    if (isTouchEvent(event)) {
+      this.startX = event.touches[0].clientX;
+      this.startY = event.touches[0].clientY;
+    } else {
+      this.startX = event.clientX;
+      this.startY = event.clientY;
+    }
+    this.startWidth = this.element.offsetWidth;
+    this.startHeight = this.element.offsetHeight;
+    if (this.startWidth > 0 && this.startHeight > 0) {
+      this.aspectRatio = this.startWidth / this.startHeight;
+    }
+    const pos = this.getPos();
+    if (pos !== void 0) {
+    }
+    this.container.dataset.resizeState = "true";
+    if (this.classNames.resizing) {
+      this.container.classList.add(this.classNames.resizing);
+    }
+    document.addEventListener("mousemove", this.handleMouseMove);
+    document.addEventListener("touchmove", this.handleTouchMove);
+    document.addEventListener("mouseup", this.handleMouseUp);
+    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keyup", this.handleKeyUp);
+  }
+  handleResize(deltaX, deltaY) {
+    if (!this.activeHandle) {
+      return;
+    }
+    const shouldPreserveAspectRatio = this.preserveAspectRatio || this.isShiftKeyPressed;
+    const { width, height } = this.calculateNewDimensions(this.activeHandle, deltaX, deltaY);
+    const constrained = this.applyConstraints(width, height, shouldPreserveAspectRatio);
+    this.element.style.width = `${constrained.width}px`;
+    this.element.style.height = `${constrained.height}px`;
+    if (this.onResize) {
+      this.onResize(constrained.width, constrained.height);
+    }
+  }
+  /**
+   * Calculates new dimensions based on mouse delta and resize direction.
+   *
+   * Takes the starting dimensions and applies the mouse movement delta
+   * according to the handle direction. For corner handles, both dimensions
+   * are affected. For edge handles, only one dimension changes. If aspect
+   * ratio should be preserved, delegates to applyAspectRatio.
+   *
+   * @param direction - The active resize handle direction
+   * @param deltaX - Horizontal mouse movement since resize start
+   * @param deltaY - Vertical mouse movement since resize start
+   * @returns The calculated width and height
+   */
+  calculateNewDimensions(direction, deltaX, deltaY) {
+    let newWidth = this.startWidth;
+    let newHeight = this.startHeight;
+    const isRight = direction.includes("right");
+    const isLeft = direction.includes("left");
+    const isBottom = direction.includes("bottom");
+    const isTop = direction.includes("top");
+    if (isRight) {
+      newWidth = this.startWidth + deltaX;
+    } else if (isLeft) {
+      newWidth = this.startWidth - deltaX;
+    }
+    if (isBottom) {
+      newHeight = this.startHeight + deltaY;
+    } else if (isTop) {
+      newHeight = this.startHeight - deltaY;
+    }
+    if (direction === "right" || direction === "left") {
+      newWidth = this.startWidth + (isRight ? deltaX : -deltaX);
+    }
+    if (direction === "top" || direction === "bottom") {
+      newHeight = this.startHeight + (isBottom ? deltaY : -deltaY);
+    }
+    const shouldPreserveAspectRatio = this.preserveAspectRatio || this.isShiftKeyPressed;
+    if (shouldPreserveAspectRatio) {
+      return this.applyAspectRatio(newWidth, newHeight, direction);
+    }
+    return { width: newWidth, height: newHeight };
+  }
+  /**
+   * Applies min/max constraints to dimensions.
+   *
+   * When aspect ratio is NOT preserved, constraints are applied independently
+   * to width and height. When aspect ratio IS preserved, constraints are
+   * applied while maintaining the aspect ratio—if one dimension hits a limit,
+   * the other is recalculated proportionally.
+   *
+   * This ensures that aspect ratio is never broken when constrained.
+   *
+   * @param width - The unconstrained width
+   * @param height - The unconstrained height
+   * @param preserveAspectRatio - Whether to maintain aspect ratio while constraining
+   * @returns The constrained dimensions
+   */
+  applyConstraints(width, height, preserveAspectRatio) {
+    var _a, _b, _c, _d;
+    if (!preserveAspectRatio) {
+      let constrainedWidth2 = Math.max(this.minSize.width, width);
+      let constrainedHeight2 = Math.max(this.minSize.height, height);
+      if ((_a = this.maxSize) == null ? void 0 : _a.width) {
+        constrainedWidth2 = Math.min(this.maxSize.width, constrainedWidth2);
+      }
+      if ((_b = this.maxSize) == null ? void 0 : _b.height) {
+        constrainedHeight2 = Math.min(this.maxSize.height, constrainedHeight2);
+      }
+      return { width: constrainedWidth2, height: constrainedHeight2 };
+    }
+    let constrainedWidth = width;
+    let constrainedHeight = height;
+    if (constrainedWidth < this.minSize.width) {
+      constrainedWidth = this.minSize.width;
+      constrainedHeight = constrainedWidth / this.aspectRatio;
+    }
+    if (constrainedHeight < this.minSize.height) {
+      constrainedHeight = this.minSize.height;
+      constrainedWidth = constrainedHeight * this.aspectRatio;
+    }
+    if (((_c = this.maxSize) == null ? void 0 : _c.width) && constrainedWidth > this.maxSize.width) {
+      constrainedWidth = this.maxSize.width;
+      constrainedHeight = constrainedWidth / this.aspectRatio;
+    }
+    if (((_d = this.maxSize) == null ? void 0 : _d.height) && constrainedHeight > this.maxSize.height) {
+      constrainedHeight = this.maxSize.height;
+      constrainedWidth = constrainedHeight * this.aspectRatio;
+    }
+    return { width: constrainedWidth, height: constrainedHeight };
+  }
+  /**
+   * Adjusts dimensions to maintain the original aspect ratio.
+   *
+   * For horizontal handles (left/right), uses width as the primary dimension
+   * and calculates height from it. For vertical handles (top/bottom), uses
+   * height as primary and calculates width. For corner handles, uses width
+   * as the primary dimension.
+   *
+   * @param width - The new width
+   * @param height - The new height
+   * @param direction - The active resize direction
+   * @returns Dimensions adjusted to preserve aspect ratio
+   */
+  applyAspectRatio(width, height, direction) {
+    const isHorizontal = direction === "left" || direction === "right";
+    const isVertical = direction === "top" || direction === "bottom";
+    if (isHorizontal) {
+      return {
+        width,
+        height: width / this.aspectRatio
+      };
+    }
+    if (isVertical) {
+      return {
+        width: height * this.aspectRatio,
+        height
+      };
+    }
+    return {
+      width,
+      height: width / this.aspectRatio
+    };
+  }
+};
 function canInsertNode(state, nodeType) {
   const { selection: selection2 } = state;
   const { $from } = selection2;
@@ -41541,9 +42201,15 @@ function createInlineMarkdownSpec(options) {
       return attrs;
     }
     const filtered = {};
-    allowedAttributes.forEach((key) => {
-      if (key in attrs) {
-        filtered[key] = attrs[key];
+    allowedAttributes.forEach((attr) => {
+      const attrName = typeof attr === "string" ? attr : attr.name;
+      const skipIfDefault = typeof attr === "string" ? void 0 : attr.skipIfDefault;
+      if (attrName in attrs) {
+        const value = attrs[attrName];
+        if (skipIfDefault !== void 0 && value === skipIfDefault) {
+          return;
+        }
+        filtered[attrName] = value;
       }
     });
     return filtered;
@@ -41627,6 +42293,8 @@ function parseIndentedBlocks(src, config2, lexer) {
         break;
       } else if (currentLine.trim() === "") {
         i3 += 1;
+        totalRaw = `${totalRaw}${currentLine}
+`;
         continue;
       } else {
         return void 0;
@@ -41687,7 +42355,7 @@ function parseIndentedBlocks(src, config2, lexer) {
   }
   return {
     items,
-    raw: totalRaw.trim()
+    raw: totalRaw
   };
 }
 function renderNestedMarkdownContent(node, h22, prefixOrGenerator, ctx) {
@@ -41806,20 +42474,450 @@ function markPasteRule(config2) {
 // node_modules/@tiptap/react/dist/index.js
 var import_react8 = __toESM(require_react(), 1);
 var import_shim2 = __toESM(require_shim(), 1);
-var import_react9 = __toESM(require_react2(), 1);
-var import_react10 = __toESM(require_react(), 1);
+
+// node_modules/fast-equals/dist/esm/index.mjs
+var getOwnPropertyNames = Object.getOwnPropertyNames;
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+function combineComparators(comparatorA, comparatorB) {
+  return function isEqual(a5, b2, state) {
+    return comparatorA(a5, b2, state) && comparatorB(a5, b2, state);
+  };
+}
+function createIsCircular(areItemsEqual) {
+  return function isCircular(a5, b2, state) {
+    if (!a5 || !b2 || typeof a5 !== "object" || typeof b2 !== "object") {
+      return areItemsEqual(a5, b2, state);
+    }
+    var cache = state.cache;
+    var cachedA = cache.get(a5);
+    var cachedB = cache.get(b2);
+    if (cachedA && cachedB) {
+      return cachedA === b2 && cachedB === a5;
+    }
+    cache.set(a5, b2);
+    cache.set(b2, a5);
+    var result = areItemsEqual(a5, b2, state);
+    cache.delete(a5);
+    cache.delete(b2);
+    return result;
+  };
+}
+function getShortTag(value) {
+  return value != null ? value[Symbol.toStringTag] : void 0;
+}
+function getStrictProperties(object) {
+  return getOwnPropertyNames(object).concat(getOwnPropertySymbols(object));
+}
+var hasOwn = (
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  Object.hasOwn || (function(object, property) {
+    return hasOwnProperty.call(object, property);
+  })
+);
+function sameValueZeroEqual(a5, b2) {
+  return a5 === b2 || !a5 && !b2 && a5 !== a5 && b2 !== b2;
+}
+var PREACT_VNODE = "__v";
+var PREACT_OWNER = "__o";
+var REACT_OWNER = "_owner";
+var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+var keys2 = Object.keys;
+function areArraysEqual(a5, b2, state) {
+  var index8 = a5.length;
+  if (b2.length !== index8) {
+    return false;
+  }
+  while (index8-- > 0) {
+    if (!state.equals(a5[index8], b2[index8], index8, index8, a5, b2, state)) {
+      return false;
+    }
+  }
+  return true;
+}
+function areDatesEqual(a5, b2) {
+  return sameValueZeroEqual(a5.getTime(), b2.getTime());
+}
+function areErrorsEqual(a5, b2) {
+  return a5.name === b2.name && a5.message === b2.message && a5.cause === b2.cause && a5.stack === b2.stack;
+}
+function areFunctionsEqual(a5, b2) {
+  return a5 === b2;
+}
+function areMapsEqual(a5, b2, state) {
+  var size = a5.size;
+  if (size !== b2.size) {
+    return false;
+  }
+  if (!size) {
+    return true;
+  }
+  var matchedIndices = new Array(size);
+  var aIterable = a5.entries();
+  var aResult;
+  var bResult;
+  var index8 = 0;
+  while (aResult = aIterable.next()) {
+    if (aResult.done) {
+      break;
+    }
+    var bIterable = b2.entries();
+    var hasMatch = false;
+    var matchIndex = 0;
+    while (bResult = bIterable.next()) {
+      if (bResult.done) {
+        break;
+      }
+      if (matchedIndices[matchIndex]) {
+        matchIndex++;
+        continue;
+      }
+      var aEntry = aResult.value;
+      var bEntry = bResult.value;
+      if (state.equals(aEntry[0], bEntry[0], index8, matchIndex, a5, b2, state) && state.equals(aEntry[1], bEntry[1], aEntry[0], bEntry[0], a5, b2, state)) {
+        hasMatch = matchedIndices[matchIndex] = true;
+        break;
+      }
+      matchIndex++;
+    }
+    if (!hasMatch) {
+      return false;
+    }
+    index8++;
+  }
+  return true;
+}
+var areNumbersEqual = sameValueZeroEqual;
+function areObjectsEqual(a5, b2, state) {
+  var properties = keys2(a5);
+  var index8 = properties.length;
+  if (keys2(b2).length !== index8) {
+    return false;
+  }
+  while (index8-- > 0) {
+    if (!isPropertyEqual(a5, b2, state, properties[index8])) {
+      return false;
+    }
+  }
+  return true;
+}
+function areObjectsEqualStrict(a5, b2, state) {
+  var properties = getStrictProperties(a5);
+  var index8 = properties.length;
+  if (getStrictProperties(b2).length !== index8) {
+    return false;
+  }
+  var property;
+  var descriptorA;
+  var descriptorB;
+  while (index8-- > 0) {
+    property = properties[index8];
+    if (!isPropertyEqual(a5, b2, state, property)) {
+      return false;
+    }
+    descriptorA = getOwnPropertyDescriptor(a5, property);
+    descriptorB = getOwnPropertyDescriptor(b2, property);
+    if ((descriptorA || descriptorB) && (!descriptorA || !descriptorB || descriptorA.configurable !== descriptorB.configurable || descriptorA.enumerable !== descriptorB.enumerable || descriptorA.writable !== descriptorB.writable)) {
+      return false;
+    }
+  }
+  return true;
+}
+function arePrimitiveWrappersEqual(a5, b2) {
+  return sameValueZeroEqual(a5.valueOf(), b2.valueOf());
+}
+function areRegExpsEqual(a5, b2) {
+  return a5.source === b2.source && a5.flags === b2.flags;
+}
+function areSetsEqual(a5, b2, state) {
+  var size = a5.size;
+  if (size !== b2.size) {
+    return false;
+  }
+  if (!size) {
+    return true;
+  }
+  var matchedIndices = new Array(size);
+  var aIterable = a5.values();
+  var aResult;
+  var bResult;
+  while (aResult = aIterable.next()) {
+    if (aResult.done) {
+      break;
+    }
+    var bIterable = b2.values();
+    var hasMatch = false;
+    var matchIndex = 0;
+    while (bResult = bIterable.next()) {
+      if (bResult.done) {
+        break;
+      }
+      if (!matchedIndices[matchIndex] && state.equals(aResult.value, bResult.value, aResult.value, bResult.value, a5, b2, state)) {
+        hasMatch = matchedIndices[matchIndex] = true;
+        break;
+      }
+      matchIndex++;
+    }
+    if (!hasMatch) {
+      return false;
+    }
+  }
+  return true;
+}
+function areTypedArraysEqual(a5, b2) {
+  var index8 = a5.length;
+  if (b2.length !== index8) {
+    return false;
+  }
+  while (index8-- > 0) {
+    if (a5[index8] !== b2[index8]) {
+      return false;
+    }
+  }
+  return true;
+}
+function areUrlsEqual(a5, b2) {
+  return a5.hostname === b2.hostname && a5.pathname === b2.pathname && a5.protocol === b2.protocol && a5.port === b2.port && a5.hash === b2.hash && a5.username === b2.username && a5.password === b2.password;
+}
+function isPropertyEqual(a5, b2, state, property) {
+  if ((property === REACT_OWNER || property === PREACT_OWNER || property === PREACT_VNODE) && (a5.$$typeof || b2.$$typeof)) {
+    return true;
+  }
+  return hasOwn(b2, property) && state.equals(a5[property], b2[property], property, property, a5, b2, state);
+}
+var ARGUMENTS_TAG = "[object Arguments]";
+var BOOLEAN_TAG = "[object Boolean]";
+var DATE_TAG = "[object Date]";
+var ERROR_TAG = "[object Error]";
+var MAP_TAG = "[object Map]";
+var NUMBER_TAG = "[object Number]";
+var OBJECT_TAG = "[object Object]";
+var REG_EXP_TAG = "[object RegExp]";
+var SET_TAG = "[object Set]";
+var STRING_TAG = "[object String]";
+var URL_TAG = "[object URL]";
+var isArray = Array.isArray;
+var isTypedArray = typeof ArrayBuffer !== "undefined" && typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView : null;
+var assign = Object.assign;
+var getTag = Object.prototype.toString.call.bind(Object.prototype.toString);
+function createEqualityComparator(_a) {
+  var areArraysEqual2 = _a.areArraysEqual, areDatesEqual2 = _a.areDatesEqual, areErrorsEqual2 = _a.areErrorsEqual, areFunctionsEqual2 = _a.areFunctionsEqual, areMapsEqual2 = _a.areMapsEqual, areNumbersEqual2 = _a.areNumbersEqual, areObjectsEqual2 = _a.areObjectsEqual, arePrimitiveWrappersEqual2 = _a.arePrimitiveWrappersEqual, areRegExpsEqual2 = _a.areRegExpsEqual, areSetsEqual2 = _a.areSetsEqual, areTypedArraysEqual2 = _a.areTypedArraysEqual, areUrlsEqual2 = _a.areUrlsEqual, unknownTagComparators = _a.unknownTagComparators;
+  return function comparator(a5, b2, state) {
+    if (a5 === b2) {
+      return true;
+    }
+    if (a5 == null || b2 == null) {
+      return false;
+    }
+    var type = typeof a5;
+    if (type !== typeof b2) {
+      return false;
+    }
+    if (type !== "object") {
+      if (type === "number") {
+        return areNumbersEqual2(a5, b2, state);
+      }
+      if (type === "function") {
+        return areFunctionsEqual2(a5, b2, state);
+      }
+      return false;
+    }
+    var constructor = a5.constructor;
+    if (constructor !== b2.constructor) {
+      return false;
+    }
+    if (constructor === Object) {
+      return areObjectsEqual2(a5, b2, state);
+    }
+    if (isArray(a5)) {
+      return areArraysEqual2(a5, b2, state);
+    }
+    if (isTypedArray != null && isTypedArray(a5)) {
+      return areTypedArraysEqual2(a5, b2, state);
+    }
+    if (constructor === Date) {
+      return areDatesEqual2(a5, b2, state);
+    }
+    if (constructor === RegExp) {
+      return areRegExpsEqual2(a5, b2, state);
+    }
+    if (constructor === Map) {
+      return areMapsEqual2(a5, b2, state);
+    }
+    if (constructor === Set) {
+      return areSetsEqual2(a5, b2, state);
+    }
+    var tag = getTag(a5);
+    if (tag === DATE_TAG) {
+      return areDatesEqual2(a5, b2, state);
+    }
+    if (tag === REG_EXP_TAG) {
+      return areRegExpsEqual2(a5, b2, state);
+    }
+    if (tag === MAP_TAG) {
+      return areMapsEqual2(a5, b2, state);
+    }
+    if (tag === SET_TAG) {
+      return areSetsEqual2(a5, b2, state);
+    }
+    if (tag === OBJECT_TAG) {
+      return typeof a5.then !== "function" && typeof b2.then !== "function" && areObjectsEqual2(a5, b2, state);
+    }
+    if (tag === URL_TAG) {
+      return areUrlsEqual2(a5, b2, state);
+    }
+    if (tag === ERROR_TAG) {
+      return areErrorsEqual2(a5, b2, state);
+    }
+    if (tag === ARGUMENTS_TAG) {
+      return areObjectsEqual2(a5, b2, state);
+    }
+    if (tag === BOOLEAN_TAG || tag === NUMBER_TAG || tag === STRING_TAG) {
+      return arePrimitiveWrappersEqual2(a5, b2, state);
+    }
+    if (unknownTagComparators) {
+      var unknownTagComparator = unknownTagComparators[tag];
+      if (!unknownTagComparator) {
+        var shortTag = getShortTag(a5);
+        if (shortTag) {
+          unknownTagComparator = unknownTagComparators[shortTag];
+        }
+      }
+      if (unknownTagComparator) {
+        return unknownTagComparator(a5, b2, state);
+      }
+    }
+    return false;
+  };
+}
+function createEqualityComparatorConfig(_a) {
+  var circular = _a.circular, createCustomConfig = _a.createCustomConfig, strict = _a.strict;
+  var config2 = {
+    areArraysEqual: strict ? areObjectsEqualStrict : areArraysEqual,
+    areDatesEqual,
+    areErrorsEqual,
+    areFunctionsEqual,
+    areMapsEqual: strict ? combineComparators(areMapsEqual, areObjectsEqualStrict) : areMapsEqual,
+    areNumbersEqual,
+    areObjectsEqual: strict ? areObjectsEqualStrict : areObjectsEqual,
+    arePrimitiveWrappersEqual,
+    areRegExpsEqual,
+    areSetsEqual: strict ? combineComparators(areSetsEqual, areObjectsEqualStrict) : areSetsEqual,
+    areTypedArraysEqual: strict ? areObjectsEqualStrict : areTypedArraysEqual,
+    areUrlsEqual,
+    unknownTagComparators: void 0
+  };
+  if (createCustomConfig) {
+    config2 = assign({}, config2, createCustomConfig(config2));
+  }
+  if (circular) {
+    var areArraysEqual$1 = createIsCircular(config2.areArraysEqual);
+    var areMapsEqual$1 = createIsCircular(config2.areMapsEqual);
+    var areObjectsEqual$1 = createIsCircular(config2.areObjectsEqual);
+    var areSetsEqual$1 = createIsCircular(config2.areSetsEqual);
+    config2 = assign({}, config2, {
+      areArraysEqual: areArraysEqual$1,
+      areMapsEqual: areMapsEqual$1,
+      areObjectsEqual: areObjectsEqual$1,
+      areSetsEqual: areSetsEqual$1
+    });
+  }
+  return config2;
+}
+function createInternalEqualityComparator(compare) {
+  return function(a5, b2, _indexOrKeyA, _indexOrKeyB, _parentA, _parentB, state) {
+    return compare(a5, b2, state);
+  };
+}
+function createIsEqual(_a) {
+  var circular = _a.circular, comparator = _a.comparator, createState = _a.createState, equals = _a.equals, strict = _a.strict;
+  if (createState) {
+    return function isEqual(a5, b2) {
+      var _a2 = createState(), _b = _a2.cache, cache = _b === void 0 ? circular ? /* @__PURE__ */ new WeakMap() : void 0 : _b, meta = _a2.meta;
+      return comparator(a5, b2, {
+        cache,
+        equals,
+        meta,
+        strict
+      });
+    };
+  }
+  if (circular) {
+    return function isEqual(a5, b2) {
+      return comparator(a5, b2, {
+        cache: /* @__PURE__ */ new WeakMap(),
+        equals,
+        meta: void 0,
+        strict
+      });
+    };
+  }
+  var state = {
+    cache: void 0,
+    equals,
+    meta: void 0,
+    strict
+  };
+  return function isEqual(a5, b2) {
+    return comparator(a5, b2, state);
+  };
+}
+var deepEqual = createCustomEqual();
+var strictDeepEqual = createCustomEqual({ strict: true });
+var circularDeepEqual = createCustomEqual({ circular: true });
+var strictCircularDeepEqual = createCustomEqual({
+  circular: true,
+  strict: true
+});
+var shallowEqual = createCustomEqual({
+  createInternalComparator: function() {
+    return sameValueZeroEqual;
+  }
+});
+var strictShallowEqual = createCustomEqual({
+  strict: true,
+  createInternalComparator: function() {
+    return sameValueZeroEqual;
+  }
+});
+var circularShallowEqual = createCustomEqual({
+  circular: true,
+  createInternalComparator: function() {
+    return sameValueZeroEqual;
+  }
+});
+var strictCircularShallowEqual = createCustomEqual({
+  circular: true,
+  createInternalComparator: function() {
+    return sameValueZeroEqual;
+  },
+  strict: true
+});
+function createCustomEqual(options) {
+  if (options === void 0) {
+    options = {};
+  }
+  var _a = options.circular, circular = _a === void 0 ? false : _a, createCustomInternalComparator = options.createInternalComparator, createState = options.createState, _b = options.strict, strict = _b === void 0 ? false : _b;
+  var config2 = createEqualityComparatorConfig(options);
+  var comparator = createEqualityComparator(config2);
+  var equals = createCustomInternalComparator ? createCustomInternalComparator(comparator) : createInternalEqualityComparator(comparator);
+  return createIsEqual({ circular, comparator, createState, equals, strict });
+}
+
+// node_modules/@tiptap/react/dist/index.js
+var import_react9 = __toESM(require_react(), 1);
 var import_with_selector = __toESM(require_with_selector(), 1);
 var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
-var import_react11 = __toESM(require_react(), 1);
+var import_react10 = __toESM(require_react(), 1);
 var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
-var import_react12 = __toESM(require_react(), 1);
+var import_react11 = __toESM(require_react(), 1);
 var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+var import_react12 = __toESM(require_react(), 1);
 var import_react13 = __toESM(require_react(), 1);
-var import_react14 = __toESM(require_react(), 1);
 var import_react_dom2 = __toESM(require_react_dom(), 1);
 var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
 var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
-var import_react15 = __toESM(require_react(), 1);
+var import_react14 = __toESM(require_react(), 1);
 var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
 var mergeRefs = (...refs) => {
   return (node) => {
@@ -41977,7 +43075,7 @@ var EditorContentWithKey = (0, import_react7.forwardRef)(
   }
 );
 var EditorContent = import_react7.default.memo(EditorContentWithKey);
-var useIsomorphicLayoutEffect = typeof window !== "undefined" ? import_react10.useLayoutEffect : import_react10.useEffect;
+var useIsomorphicLayoutEffect = typeof window !== "undefined" ? import_react9.useLayoutEffect : import_react9.useEffect;
 var EditorStateManager = class {
   constructor(initialEditor) {
     this.transactionNumber = 0;
@@ -42037,18 +43135,18 @@ var EditorStateManager = class {
 };
 function useEditorState(options) {
   var _a;
-  const [editorStateManager] = (0, import_react10.useState)(() => new EditorStateManager(options.editor));
+  const [editorStateManager] = (0, import_react9.useState)(() => new EditorStateManager(options.editor));
   const selectedState = (0, import_with_selector.useSyncExternalStoreWithSelector)(
     editorStateManager.subscribe,
     editorStateManager.getSnapshot,
     editorStateManager.getServerSnapshot,
     options.selector,
-    (_a = options.equalityFn) != null ? _a : import_react9.default
+    (_a = options.equalityFn) != null ? _a : deepEqual
   );
   useIsomorphicLayoutEffect(() => {
     return editorStateManager.watch(options.editor);
   }, [options.editor, editorStateManager]);
-  (0, import_react10.useDebugValue)(selectedState);
+  (0, import_react9.useDebugValue)(selectedState);
   return selectedState;
 }
 var isDev = true;
@@ -42313,15 +43411,15 @@ var EditorContext = (0, import_react6.createContext)({
   editor: null
 });
 var EditorConsumer = EditorContext.Consumer;
-var ReactNodeViewContext = (0, import_react11.createContext)({
+var ReactNodeViewContext = (0, import_react10.createContext)({
   onDragStart: () => {
   },
   nodeViewContentChildren: void 0,
   nodeViewContentRef: () => {
   }
 });
-var useReactNodeView = () => (0, import_react11.useContext)(ReactNodeViewContext);
-var NodeViewWrapper = import_react12.default.forwardRef((props, ref) => {
+var useReactNodeView = () => (0, import_react10.useContext)(ReactNodeViewContext);
+var NodeViewWrapper = import_react11.default.forwardRef((props, ref) => {
   const { onDragStart } = useReactNodeView();
   const Tag = props.as || "div";
   return (
@@ -42341,7 +43439,7 @@ var NodeViewWrapper = import_react12.default.forwardRef((props, ref) => {
     )
   );
 });
-var ReactMarkViewContext = import_react13.default.createContext({
+var ReactMarkViewContext = import_react12.default.createContext({
   markViewContentRef: () => {
   }
 });
@@ -42386,14 +43484,22 @@ var Blockquote = Node3.create({
     if (!node.content) {
       return "";
     }
-    const lines = [];
+    const prefix = ">";
+    const result = [];
     node.content.forEach((child) => {
-      const lineContent = h4.renderChildren(child);
-      const withPrefix2 = lineContent.split("\n").map((line) => `> ${line}`).join("\n");
-      lines.push(withPrefix2);
+      const childContent = h4.renderChildren([child]);
+      const lines = childContent.split("\n");
+      const linesWithPrefix = lines.map((line) => {
+        if (line.trim() === "") {
+          return prefix;
+        }
+        return `${prefix} ${line}`;
+      });
+      result.push(linesWithPrefix.join("\n"));
     });
-    const linesWithSeparators = lines.flatMap((line) => [line, "> "]);
-    return linesWithSeparators.slice(0, -1).join("\n");
+    return result.join(`
+${prefix}
+`);
   },
   addCommands() {
     return {
@@ -42901,6 +44007,7 @@ var Document = Node3.create({
 // node_modules/@tiptap/extension-hard-break/dist/index.js
 var HardBreak = Node3.create({
   name: "hardBreak",
+  markdownTokenName: "br",
   addOptions() {
     return {
       keepMarks: true,
@@ -42920,8 +44027,13 @@ var HardBreak = Node3.create({
   renderText() {
     return "\n";
   },
-  renderMarkdown: (_node, h4) => h4.indent(`
-`),
+  renderMarkdown: () => `  
+`,
+  parseMarkdown: () => {
+    return {
+      type: "hardBreak"
+    };
+  },
   addCommands() {
     return {
       setHardBreak: () => ({ commands, chain, state, editor }) => {
@@ -44450,32 +45562,36 @@ function clickHandler(options) {
         if (!view.editable) {
           return false;
         }
-        let link = null;
-        if (event.target instanceof HTMLAnchorElement) {
-          link = event.target;
-        } else {
-          let a5 = event.target;
-          const els = [];
-          while (a5.nodeName !== "DIV") {
-            els.push(a5);
-            a5 = a5.parentNode;
-          }
-          link = els.find((value) => value.nodeName === "A");
-        }
-        if (!link) {
-          return false;
-        }
-        const attrs = getAttributes(view.state, options.type.name);
-        const href = (_a = link == null ? void 0 : link.href) != null ? _a : attrs.href;
-        const target = (_b = link == null ? void 0 : link.target) != null ? _b : attrs.target;
+        let handled = false;
         if (options.enableClickSelection) {
-          options.editor.commands.extendMarkRange(options.type.name);
+          const commandResult = options.editor.commands.extendMarkRange(options.type.name);
+          handled = commandResult;
         }
-        if (link && href) {
-          window.open(href, target);
-          return true;
+        if (options.openOnClick) {
+          let link = null;
+          if (event.target instanceof HTMLAnchorElement) {
+            link = event.target;
+          } else {
+            let a5 = event.target;
+            const els = [];
+            while (a5.nodeName !== "DIV") {
+              els.push(a5);
+              a5 = a5.parentNode;
+            }
+            link = els.find((value) => value.nodeName === "A");
+          }
+          if (!link) {
+            return handled;
+          }
+          const attrs = getAttributes(view.state, options.type.name);
+          const href = (_a = link == null ? void 0 : link.href) != null ? _a : attrs.href;
+          const target = (_b = link == null ? void 0 : link.target) != null ? _b : attrs.target;
+          if (link && href) {
+            window.open(href, target);
+            handled = true;
+          }
         }
-        return false;
+        return handled;
       }
     }
   });
@@ -44716,15 +45832,14 @@ var Link = Mark2.create({
         })
       );
     }
-    if (this.options.openOnClick === true) {
-      plugins2.push(
-        clickHandler({
-          type: this.type,
-          editor: this.editor,
-          enableClickSelection: this.options.enableClickSelection
-        })
-      );
-    }
+    plugins2.push(
+      clickHandler({
+        type: this.type,
+        editor: this.editor,
+        openOnClick: this.options.openOnClick === "whenNotEditable" ? true : this.options.openOnClick,
+        enableClickSelection: this.options.enableClickSelection
+      })
+    );
     if (this.options.linkOnPaste) {
       plugins2.push(
         pasteHandler({
@@ -46801,7 +47916,7 @@ function history(config2 = {}) {
         beforeinput(view, e3) {
           let inputType = e3.inputType;
           let command2 = inputType == "historyUndo" ? undo : inputType == "historyRedo" ? redo : null;
-          if (!command2)
+          if (!command2 || !view.editable)
             return false;
           e3.preventDefault();
           return command2(view.state, view.dispatch);
@@ -47109,7 +48224,7 @@ var TrailingNode = Extension.create({
   addProseMirrorPlugins() {
     var _a;
     const plugin = new PluginKey(this.name);
-    const defaultNode = ((_a = this.editor.schema.topNodeType.contentMatch.defaultType) == null ? void 0 : _a.name) || this.options.node || "paragraph";
+    const defaultNode = this.options.node || ((_a = this.editor.schema.topNodeType.contentMatch.defaultType) == null ? void 0 : _a.name) || "paragraph";
     const disabledNodes = Object.entries(this.editor.schema.nodes).map(([, value]) => value).filter((node) => (this.options.notAfter || []).concat(defaultNode).includes(node.name));
     return [
       new Plugin({
@@ -47131,6 +48246,9 @@ var TrailingNode = Extension.create({
           },
           apply: (tr2, value) => {
             if (!tr2.docChanged) {
+              return value;
+            }
+            if (tr2.getMeta("__uniqueIDTransaction")) {
               return value;
             }
             const lastNode = tr2.doc.lastChild;
@@ -47289,10 +48407,10 @@ var TextAlign = Extension.create({
         if (!this.options.alignments.includes(alignment)) {
           return false;
         }
-        return this.options.types.map((type) => commands.updateAttributes(type, { textAlign: alignment })).every((response) => response);
+        return this.options.types.map((type) => commands.updateAttributes(type, { textAlign: alignment })).some((response) => response);
       },
       unsetTextAlign: () => ({ commands }) => {
-        return this.options.types.map((type) => commands.resetAttributes(type, "textAlign")).every((response) => response);
+        return this.options.types.map((type) => commands.resetAttributes(type, "textAlign")).some((response) => response);
       },
       toggleTextAlign: (alignment) => ({ editor, commands }) => {
         if (!this.options.alignments.includes(alignment)) {
@@ -47434,8 +48552,7 @@ if (typeof WeakMap != "undefined") {
   const cacheSize = 10;
   let cachePos = 0;
   readFromCache = (key) => {
-    for (let i3 = 0; i3 < cache.length; i3 += 2)
-      if (cache[i3] == key) return cache[i3 + 1];
+    for (let i3 = 0; i3 < cache.length; i3 += 2) if (cache[i3] == key) return cache[i3 + 1];
   };
   addToCache = (key, value) => {
     if (cachePos == cacheSize) cachePos = 0;
@@ -47450,7 +48567,6 @@ var TableMap = class {
     this.map = map2;
     this.problems = problems;
   }
-  // Find the dimensions of the cell at the given position.
   findCell(pos) {
     for (let i3 = 0; i3 < this.map.length; i3++) {
       const curPos = this.map[i3];
@@ -47459,27 +48575,21 @@ var TableMap = class {
       const top = i3 / this.width | 0;
       let right = left + 1;
       let bottom = top + 1;
-      for (let j3 = 1; right < this.width && this.map[i3 + j3] == curPos; j3++) {
-        right++;
-      }
-      for (let j3 = 1; bottom < this.height && this.map[i3 + this.width * j3] == curPos; j3++) {
-        bottom++;
-      }
-      return { left, top, right, bottom };
+      for (let j3 = 1; right < this.width && this.map[i3 + j3] == curPos; j3++) right++;
+      for (let j3 = 1; bottom < this.height && this.map[i3 + this.width * j3] == curPos; j3++) bottom++;
+      return {
+        left,
+        top,
+        right,
+        bottom
+      };
     }
     throw new RangeError(`No cell with offset ${pos} found`);
   }
-  // Find the left side of the cell at the given position.
   colCount(pos) {
-    for (let i3 = 0; i3 < this.map.length; i3++) {
-      if (this.map[i3] == pos) {
-        return i3 % this.width;
-      }
-    }
+    for (let i3 = 0; i3 < this.map.length; i3++) if (this.map[i3] == pos) return i3 % this.width;
     throw new RangeError(`No cell with offset ${pos} found`);
   }
-  // Find the next cell in the given direction, starting from the cell
-  // at `pos`, if any.
   nextCell(pos, axis, dir) {
     const { left, right, top, bottom } = this.findCell(pos);
     if (axis == "horiz") {
@@ -47490,20 +48600,9 @@ var TableMap = class {
       return this.map[left + this.width * (dir < 0 ? top - 1 : bottom)];
     }
   }
-  // Get the rectangle spanning the two given cells.
   rectBetween(a5, b2) {
-    const {
-      left: leftA,
-      right: rightA,
-      top: topA,
-      bottom: bottomA
-    } = this.findCell(a5);
-    const {
-      left: leftB,
-      right: rightB,
-      top: topB,
-      bottom: bottomB
-    } = this.findCell(b2);
+    const { left: leftA, right: rightA, top: topA, bottom: bottomA } = this.findCell(a5);
+    const { left: leftB, right: rightB, top: topB, bottom: bottomB } = this.findCell(b2);
     return {
       left: Math.min(leftA, leftB),
       top: Math.min(topA, topB),
@@ -47511,27 +48610,19 @@ var TableMap = class {
       bottom: Math.max(bottomA, bottomB)
     };
   }
-  // Return the position of all cells that have the top left corner in
-  // the given rectangle.
   cellsInRect(rect) {
     const result = [];
     const seen = {};
-    for (let row = rect.top; row < rect.bottom; row++) {
-      for (let col = rect.left; col < rect.right; col++) {
-        const index8 = row * this.width + col;
-        const pos = this.map[index8];
-        if (seen[pos]) continue;
-        seen[pos] = true;
-        if (col == rect.left && col && this.map[index8 - 1] == pos || row == rect.top && row && this.map[index8 - this.width] == pos) {
-          continue;
-        }
-        result.push(pos);
-      }
+    for (let row = rect.top; row < rect.bottom; row++) for (let col = rect.left; col < rect.right; col++) {
+      const index8 = row * this.width + col;
+      const pos = this.map[index8];
+      if (seen[pos]) continue;
+      seen[pos] = true;
+      if (col == rect.left && col && this.map[index8 - 1] == pos || row == rect.top && row && this.map[index8 - this.width] == pos) continue;
+      result.push(pos);
     }
     return result;
   }
-  // Return the position at which the cell at the given row and column
-  // starts, or would start, if a cell started there.
   positionAt(row, col, table) {
     for (let i3 = 0, rowStart = 0; ; i3++) {
       const rowEnd = rowStart + table.child(i3).nodeSize;
@@ -47544,14 +48635,12 @@ var TableMap = class {
       rowStart = rowEnd;
     }
   }
-  // Find the table map for the given table node.
   static get(table) {
     return readFromCache(table) || addToCache(table, computeMap(table));
   }
 };
 function computeMap(table) {
-  if (table.type.spec.tableRole != "table")
-    throw new RangeError("Not a table node: " + table.type.name);
+  if (table.type.spec.tableRole != "table") throw new RangeError("Not a table node: " + table.type.name);
   const width = findWidth(table), height = table.childCount;
   const map2 = [];
   let mapPos = 0;
@@ -47578,22 +48667,19 @@ function computeMap(table) {
         const start2 = mapPos + h4 * width;
         for (let w3 = 0; w3 < colspan; w3++) {
           if (map2[start2 + w3] == 0) map2[start2 + w3] = pos;
-          else
-            (problems || (problems = [])).push({
-              type: "collision",
-              row,
-              pos,
-              n: colspan - w3
-            });
+          else (problems || (problems = [])).push({
+            type: "collision",
+            row,
+            pos,
+            n: colspan - w3
+          });
           const colW = colwidth && colwidth[w3];
           if (colW) {
             const widthIndex = (start2 + w3) % width * 2, prev = colWidths[widthIndex];
             if (prev == null || prev != colW && colWidths[widthIndex + 1] == 1) {
               colWidths[widthIndex] = colW;
               colWidths[widthIndex + 1] = 1;
-            } else if (prev == colW) {
-              colWidths[widthIndex + 1]++;
-            }
+            } else if (prev == colW) colWidths[widthIndex + 1]++;
           }
         }
       }
@@ -47603,16 +48689,17 @@ function computeMap(table) {
     const expectedPos = (row + 1) * width;
     let missing = 0;
     while (mapPos < expectedPos) if (map2[mapPos++] == 0) missing++;
-    if (missing)
-      (problems || (problems = [])).push({ type: "missing", row, n: missing });
+    if (missing) (problems || (problems = [])).push({
+      type: "missing",
+      row,
+      n: missing
+    });
     pos++;
   }
-  if (width === 0 || height === 0)
-    (problems || (problems = [])).push({ type: "zero_sized" });
+  if (width === 0 || height === 0) (problems || (problems = [])).push({ type: "zero_sized" });
   const tableMap = new TableMap(width, height, map2, problems);
   let badWidths = false;
-  for (let i3 = 0; !badWidths && i3 < colWidths.length; i3 += 2)
-    if (colWidths[i3] != null && colWidths[i3 + 1] < height) badWidths = true;
+  for (let i3 = 0; !badWidths && i3 < colWidths.length; i3 += 2) if (colWidths[i3] != null && colWidths[i3 + 1] < height) badWidths = true;
   if (badWidths) findBadColWidths(tableMap, colWidths, table);
   return tableMap;
 }
@@ -47622,14 +48709,13 @@ function findWidth(table) {
   for (let row = 0; row < table.childCount; row++) {
     const rowNode = table.child(row);
     let rowWidth = 0;
-    if (hasRowSpan)
-      for (let j3 = 0; j3 < row; j3++) {
-        const prevRow = table.child(j3);
-        for (let i3 = 0; i3 < prevRow.childCount; i3++) {
-          const cell = prevRow.child(i3);
-          if (j3 + cell.attrs.rowspan > row) rowWidth += cell.attrs.colspan;
-        }
+    if (hasRowSpan) for (let j3 = 0; j3 < row; j3++) {
+      const prevRow = table.child(j3);
+      for (let i3 = 0; i3 < prevRow.childCount; i3++) {
+        const cell = prevRow.child(i3);
+        if (j3 + cell.attrs.rowspan > row) rowWidth += cell.attrs.colspan;
       }
+    }
     for (let i3 = 0; i3 < rowNode.childCount; i3++) {
       const cell = rowNode.child(i3);
       rowWidth += cell.attrs.colspan;
@@ -47648,23 +48734,18 @@ function findBadColWidths(map2, colWidths, table) {
     if (seen[pos]) continue;
     seen[pos] = true;
     const node = table.nodeAt(pos);
-    if (!node) {
-      throw new RangeError(`No cell with offset ${pos} found`);
-    }
+    if (!node) throw new RangeError(`No cell with offset ${pos} found`);
     let updated = null;
     const attrs = node.attrs;
     for (let j3 = 0; j3 < attrs.colspan; j3++) {
-      const col = (i3 + j3) % map2.width;
-      const colWidth = colWidths[col * 2];
-      if (colWidth != null && (!attrs.colwidth || attrs.colwidth[j3] != colWidth))
-        (updated || (updated = freshColWidth(attrs)))[j3] = colWidth;
+      const colWidth = colWidths[(i3 + j3) % map2.width * 2];
+      if (colWidth != null && (!attrs.colwidth || attrs.colwidth[j3] != colWidth)) (updated || (updated = freshColWidth(attrs)))[j3] = colWidth;
     }
-    if (updated)
-      map2.problems.unshift({
-        type: "colwidth mismatch",
-        pos,
-        colwidth: updated
-      });
+    if (updated) map2.problems.unshift({
+      type: "colwidth mismatch",
+      pos,
+      colwidth: updated
+    });
   }
 }
 function freshColWidth(attrs) {
@@ -47686,9 +48767,7 @@ function tableNodeTypes(schema) {
 }
 var tableEditingKey = new PluginKey("selectingCells");
 function cellAround($pos) {
-  for (let d3 = $pos.depth - 1; d3 > 0; d3--)
-    if ($pos.node(d3).type.spec.tableRole == "row")
-      return $pos.node(0).resolve($pos.before(d3 + 1));
+  for (let d3 = $pos.depth - 1; d3 > 0; d3--) if ($pos.node(d3).type.spec.tableRole == "row") return $pos.node(0).resolve($pos.before(d3 + 1));
   return null;
 }
 function cellWrapping($pos) {
@@ -47700,21 +48779,15 @@ function cellWrapping($pos) {
 }
 function isInTable(state) {
   const $head = state.selection.$head;
-  for (let d3 = $head.depth; d3 > 0; d3--)
-    if ($head.node(d3).type.spec.tableRole == "row") return true;
+  for (let d3 = $head.depth; d3 > 0; d3--) if ($head.node(d3).type.spec.tableRole == "row") return true;
   return false;
 }
 function selectionCell(state) {
   const sel = state.selection;
-  if ("$anchorCell" in sel && sel.$anchorCell) {
-    return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
-  } else if ("node" in sel && sel.node && sel.node.type.spec.tableRole == "cell") {
-    return sel.$anchor;
-  }
+  if ("$anchorCell" in sel && sel.$anchorCell) return sel.$anchorCell.pos > sel.$headCell.pos ? sel.$anchorCell : sel.$headCell;
+  else if ("node" in sel && sel.node && sel.node.type.spec.tableRole == "cell") return sel.$anchor;
   const $cell = cellAround(sel.$head) || cellNear(sel.$head);
-  if ($cell) {
-    return $cell;
-  }
+  if ($cell) return $cell;
   throw new RangeError(`No cell found around position ${sel.head}`);
 }
 function cellNear($pos) {
@@ -47724,8 +48797,7 @@ function cellNear($pos) {
   }
   for (let before = $pos.nodeBefore, pos = $pos.pos; before; before = before.lastChild, pos--) {
     const role = before.type.spec.tableRole;
-    if (role == "cell" || role == "header_cell")
-      return $pos.doc.resolve(pos - before.nodeSize);
+    if (role == "cell" || role == "header_cell") return $pos.doc.resolve(pos - before.nodeSize);
   }
 }
 function pointsAtCell($pos) {
@@ -47745,7 +48817,10 @@ function nextCell($pos, axis, dir) {
   return moved == null ? null : $pos.node(0).resolve(tableStart + moved);
 }
 function removeColSpan(attrs, pos, n3 = 1) {
-  const result = { ...attrs, colspan: attrs.colspan - n3 };
+  const result = {
+    ...attrs,
+    colspan: attrs.colspan - n3
+  };
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     result.colwidth.splice(pos, n3);
@@ -47754,7 +48829,10 @@ function removeColSpan(attrs, pos, n3 = 1) {
   return result;
 }
 function addColSpan(attrs, pos, n3 = 1) {
-  const result = { ...attrs, colspan: attrs.colspan + n3 };
+  const result = {
+    ...attrs,
+    colspan: attrs.colspan + n3
+  };
   if (result.colwidth) {
     result.colwidth = result.colwidth.slice();
     for (let i3 = 0; i3 < n3; i3++) result.colwidth.splice(pos, 0, 0);
@@ -47763,37 +48841,23 @@ function addColSpan(attrs, pos, n3 = 1) {
 }
 function columnIsHeader(map2, table, col) {
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
-  for (let row = 0; row < map2.height; row++)
-    if (table.nodeAt(map2.map[col + row * map2.width]).type != headerCell)
-      return false;
+  for (let row = 0; row < map2.height; row++) if (table.nodeAt(map2.map[col + row * map2.width]).type != headerCell) return false;
   return true;
 }
-var CellSelection = class _CellSelection extends Selection {
-  // A table selection is identified by its anchor and head cells. The
-  // positions given to this constructor should point _before_ two
-  // cells in the same table. They may be the same, to select a single
-  // cell.
+var CellSelection = class CellSelection2 extends Selection {
   constructor($anchorCell, $headCell = $anchorCell) {
     const table = $anchorCell.node(-1);
     const map2 = TableMap.get(table);
     const tableStart = $anchorCell.start(-1);
-    const rect = map2.rectBetween(
-      $anchorCell.pos - tableStart,
-      $headCell.pos - tableStart
-    );
+    const rect = map2.rectBetween($anchorCell.pos - tableStart, $headCell.pos - tableStart);
     const doc3 = $anchorCell.node(0);
     const cells = map2.cellsInRect(rect).filter((p3) => p3 != $headCell.pos - tableStart);
     cells.unshift($headCell.pos - tableStart);
     const ranges = cells.map((pos) => {
       const cell = table.nodeAt(pos);
-      if (!cell) {
-        throw RangeError(`No cell with offset ${pos} found`);
-      }
+      if (!cell) throw new RangeError(`No cell with offset ${pos} found`);
       const from2 = tableStart + pos + 1;
-      return new SelectionRange(
-        doc3.resolve(from2),
-        doc3.resolve(from2 + cell.content.size)
-      );
+      return new SelectionRange(doc3.resolve(from2), doc3.resolve(from2 + cell.content.size));
     });
     super(ranges[0].$from, ranges[0].$to, ranges);
     this.$anchorCell = $anchorCell;
@@ -47804,24 +48868,17 @@ var CellSelection = class _CellSelection extends Selection {
     const $headCell = doc3.resolve(mapping.map(this.$headCell.pos));
     if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell)) {
       const tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1);
-      if (tableChanged && this.isRowSelection())
-        return _CellSelection.rowSelection($anchorCell, $headCell);
-      else if (tableChanged && this.isColSelection())
-        return _CellSelection.colSelection($anchorCell, $headCell);
-      else return new _CellSelection($anchorCell, $headCell);
+      if (tableChanged && this.isRowSelection()) return CellSelection2.rowSelection($anchorCell, $headCell);
+      else if (tableChanged && this.isColSelection()) return CellSelection2.colSelection($anchorCell, $headCell);
+      else return new CellSelection2($anchorCell, $headCell);
     }
     return TextSelection.between($anchorCell, $headCell);
   }
-  // Returns a rectangular slice of table rows containing the selected
-  // cells.
   content() {
     const table = this.$anchorCell.node(-1);
     const map2 = TableMap.get(table);
     const tableStart = this.$anchorCell.start(-1);
-    const rect = map2.rectBetween(
-      this.$anchorCell.pos - tableStart,
-      this.$headCell.pos - tableStart
-    );
+    const rect = map2.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart);
     const seen = {};
     const rows = [];
     for (let row = rect.top; row < rect.bottom; row++) {
@@ -47832,44 +48889,25 @@ var CellSelection = class _CellSelection extends Selection {
         seen[pos] = true;
         const cellRect = map2.findCell(pos);
         let cell = table.nodeAt(pos);
-        if (!cell) {
-          throw RangeError(`No cell with offset ${pos} found`);
-        }
+        if (!cell) throw new RangeError(`No cell with offset ${pos} found`);
         const extraLeft = rect.left - cellRect.left;
         const extraRight = cellRect.right - rect.right;
         if (extraLeft > 0 || extraRight > 0) {
           let attrs = cell.attrs;
-          if (extraLeft > 0) {
-            attrs = removeColSpan(attrs, 0, extraLeft);
-          }
-          if (extraRight > 0) {
-            attrs = removeColSpan(
-              attrs,
-              attrs.colspan - extraRight,
-              extraRight
-            );
-          }
+          if (extraLeft > 0) attrs = removeColSpan(attrs, 0, extraLeft);
+          if (extraRight > 0) attrs = removeColSpan(attrs, attrs.colspan - extraRight, extraRight);
           if (cellRect.left < rect.left) {
             cell = cell.type.createAndFill(attrs);
-            if (!cell) {
-              throw RangeError(
-                `Could not create cell with attrs ${JSON.stringify(attrs)}`
-              );
-            }
-          } else {
-            cell = cell.type.create(attrs, cell.content);
-          }
+            if (!cell) throw new RangeError(`Could not create cell with attrs ${JSON.stringify(attrs)}`);
+          } else cell = cell.type.create(attrs, cell.content);
         }
         if (cellRect.top < rect.top || cellRect.bottom > rect.bottom) {
           const attrs = {
             ...cell.attrs,
             rowspan: Math.min(cellRect.bottom, rect.bottom) - Math.max(cellRect.top, rect.top)
           };
-          if (cellRect.top < rect.top) {
-            cell = cell.type.createAndFill(attrs);
-          } else {
-            cell = cell.type.create(attrs, cell.content);
-          }
+          if (cellRect.top < rect.top) cell = cell.type.createAndFill(attrs);
+          else cell = cell.type.create(attrs, cell.content);
         }
         rowContent.push(cell);
       }
@@ -47882,16 +48920,9 @@ var CellSelection = class _CellSelection extends Selection {
     const mapFrom = tr2.steps.length, ranges = this.ranges;
     for (let i3 = 0; i3 < ranges.length; i3++) {
       const { $from, $to } = ranges[i3], mapping = tr2.mapping.slice(mapFrom);
-      tr2.replace(
-        mapping.map($from.pos),
-        mapping.map($to.pos),
-        i3 ? Slice.empty : content
-      );
+      tr2.replace(mapping.map($from.pos), mapping.map($to.pos), i3 ? Slice.empty : content);
     }
-    const sel = Selection.findFrom(
-      tr2.doc.resolve(tr2.mapping.slice(mapFrom).map(this.to)),
-      -1
-    );
+    const sel = Selection.findFrom(tr2.doc.resolve(tr2.mapping.slice(mapFrom).map(this.to)), -1);
     if (sel) tr2.setSelection(sel);
   }
   replaceWith(tr2, node) {
@@ -47901,18 +48932,9 @@ var CellSelection = class _CellSelection extends Selection {
     const table = this.$anchorCell.node(-1);
     const map2 = TableMap.get(table);
     const tableStart = this.$anchorCell.start(-1);
-    const cells = map2.cellsInRect(
-      map2.rectBetween(
-        this.$anchorCell.pos - tableStart,
-        this.$headCell.pos - tableStart
-      )
-    );
-    for (let i3 = 0; i3 < cells.length; i3++) {
-      f3(table.nodeAt(cells[i3]), tableStart + cells[i3]);
-    }
+    const cells = map2.cellsInRect(map2.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart));
+    for (let i3 = 0; i3 < cells.length; i3++) f3(table.nodeAt(cells[i3]), tableStart + cells[i3]);
   }
-  // True if this selection goes all the way from the top to the
-  // bottom of the table.
   isColSelection() {
     const anchorTop = this.$anchorCell.index(-1);
     const headTop = this.$headCell.index(-1);
@@ -47921,8 +48943,6 @@ var CellSelection = class _CellSelection extends Selection {
     const headBottom = headTop + this.$headCell.nodeAfter.attrs.rowspan;
     return Math.max(anchorBottom, headBottom) == this.$headCell.node(-1).childCount;
   }
-  // Returns the smallest column selection that covers the given anchor
-  // and head cell.
   static colSelection($anchorCell, $headCell = $anchorCell) {
     const table = $anchorCell.node(-1);
     const map2 = TableMap.get(table);
@@ -47931,24 +48951,14 @@ var CellSelection = class _CellSelection extends Selection {
     const headRect = map2.findCell($headCell.pos - tableStart);
     const doc3 = $anchorCell.node(0);
     if (anchorRect.top <= headRect.top) {
-      if (anchorRect.top > 0)
-        $anchorCell = doc3.resolve(tableStart + map2.map[anchorRect.left]);
-      if (headRect.bottom < map2.height)
-        $headCell = doc3.resolve(
-          tableStart + map2.map[map2.width * (map2.height - 1) + headRect.right - 1]
-        );
+      if (anchorRect.top > 0) $anchorCell = doc3.resolve(tableStart + map2.map[anchorRect.left]);
+      if (headRect.bottom < map2.height) $headCell = doc3.resolve(tableStart + map2.map[map2.width * (map2.height - 1) + headRect.right - 1]);
     } else {
-      if (headRect.top > 0)
-        $headCell = doc3.resolve(tableStart + map2.map[headRect.left]);
-      if (anchorRect.bottom < map2.height)
-        $anchorCell = doc3.resolve(
-          tableStart + map2.map[map2.width * (map2.height - 1) + anchorRect.right - 1]
-        );
+      if (headRect.top > 0) $headCell = doc3.resolve(tableStart + map2.map[headRect.left]);
+      if (anchorRect.bottom < map2.height) $anchorCell = doc3.resolve(tableStart + map2.map[map2.width * (map2.height - 1) + anchorRect.right - 1]);
     }
-    return new _CellSelection($anchorCell, $headCell);
+    return new CellSelection2($anchorCell, $headCell);
   }
-  // True if this selection goes all the way from the left to the
-  // right of the table.
   isRowSelection() {
     const table = this.$anchorCell.node(-1);
     const map2 = TableMap.get(table);
@@ -47961,10 +48971,8 @@ var CellSelection = class _CellSelection extends Selection {
     return Math.max(anchorRight, headRight) == map2.width;
   }
   eq(other) {
-    return other instanceof _CellSelection && other.$anchorCell.pos == this.$anchorCell.pos && other.$headCell.pos == this.$headCell.pos;
+    return other instanceof CellSelection2 && other.$anchorCell.pos == this.$anchorCell.pos && other.$headCell.pos == this.$headCell.pos;
   }
-  // Returns the smallest row selection that covers the given anchor
-  // and head cell.
   static rowSelection($anchorCell, $headCell = $anchorCell) {
     const table = $anchorCell.node(-1);
     const map2 = TableMap.get(table);
@@ -47973,23 +48981,13 @@ var CellSelection = class _CellSelection extends Selection {
     const headRect = map2.findCell($headCell.pos - tableStart);
     const doc3 = $anchorCell.node(0);
     if (anchorRect.left <= headRect.left) {
-      if (anchorRect.left > 0)
-        $anchorCell = doc3.resolve(
-          tableStart + map2.map[anchorRect.top * map2.width]
-        );
-      if (headRect.right < map2.width)
-        $headCell = doc3.resolve(
-          tableStart + map2.map[map2.width * (headRect.top + 1) - 1]
-        );
+      if (anchorRect.left > 0) $anchorCell = doc3.resolve(tableStart + map2.map[anchorRect.top * map2.width]);
+      if (headRect.right < map2.width) $headCell = doc3.resolve(tableStart + map2.map[map2.width * (headRect.top + 1) - 1]);
     } else {
-      if (headRect.left > 0)
-        $headCell = doc3.resolve(tableStart + map2.map[headRect.top * map2.width]);
-      if (anchorRect.right < map2.width)
-        $anchorCell = doc3.resolve(
-          tableStart + map2.map[map2.width * (anchorRect.top + 1) - 1]
-        );
+      if (headRect.left > 0) $headCell = doc3.resolve(tableStart + map2.map[headRect.top * map2.width]);
+      if (anchorRect.right < map2.width) $anchorCell = doc3.resolve(tableStart + map2.map[map2.width * (anchorRect.top + 1) - 1]);
     }
-    return new _CellSelection($anchorCell, $headCell);
+    return new CellSelection2($anchorCell, $headCell);
   }
   toJSON() {
     return {
@@ -47999,10 +48997,10 @@ var CellSelection = class _CellSelection extends Selection {
     };
   }
   static fromJSON(doc3, json) {
-    return new _CellSelection(doc3.resolve(json.anchor), doc3.resolve(json.head));
+    return new CellSelection2(doc3.resolve(json.anchor), doc3.resolve(json.head));
   }
   static create(doc3, anchorCell, headCell = anchorCell) {
-    return new _CellSelection(doc3.resolve(anchorCell), doc3.resolve(headCell));
+    return new CellSelection2(doc3.resolve(anchorCell), doc3.resolve(headCell));
   }
   getBookmark() {
     return new CellBookmark(this.$anchorCell.pos, this.$headCell.pos);
@@ -48010,18 +49008,17 @@ var CellSelection = class _CellSelection extends Selection {
 };
 CellSelection.prototype.visible = false;
 Selection.jsonID("cell", CellSelection);
-var CellBookmark = class _CellBookmark {
+var CellBookmark = class CellBookmark2 {
   constructor(anchor, head) {
     this.anchor = anchor;
     this.head = head;
   }
   map(mapping) {
-    return new _CellBookmark(mapping.map(this.anchor), mapping.map(this.head));
+    return new CellBookmark2(mapping.map(this.anchor), mapping.map(this.head));
   }
   resolve(doc3) {
     const $anchorCell = doc3.resolve(this.anchor), $headCell = doc3.resolve(this.head);
-    if ($anchorCell.parent.type.spec.tableRole == "row" && $headCell.parent.type.spec.tableRole == "row" && $anchorCell.index() < $anchorCell.parent.childCount && $headCell.index() < $headCell.parent.childCount && inSameTable($anchorCell, $headCell))
-      return new CellSelection($anchorCell, $headCell);
+    if ($anchorCell.parent.type.spec.tableRole == "row" && $headCell.parent.type.spec.tableRole == "row" && $anchorCell.index() < $anchorCell.parent.childCount && $headCell.index() < $headCell.parent.childCount && inSameTable($anchorCell, $headCell)) return new CellSelection($anchorCell, $headCell);
     else return Selection.near($headCell, 1);
   }
 };
@@ -48029,9 +49026,7 @@ function drawCellSelection(state) {
   if (!(state.selection instanceof CellSelection)) return null;
   const cells = [];
   state.selection.forEachCell((node, pos) => {
-    cells.push(
-      Decoration.node(pos, pos + node.nodeSize, { class: "selectedCell" })
-    );
+    cells.push(Decoration.node(pos, pos + node.nodeSize, { class: "selectedCell" }));
   });
   return DecorationSet.create(state.doc, cells);
 }
@@ -48040,10 +49035,8 @@ function isCellBoundarySelection({ $from, $to }) {
   let afterFrom = $from.pos;
   let beforeTo = $to.pos;
   let depth = $from.depth;
-  for (; depth >= 0; depth--, afterFrom++)
-    if ($from.after(depth + 1) < $from.end(depth)) break;
-  for (let d3 = $to.depth; d3 >= 0; d3--, beforeTo--)
-    if ($to.before(d3 + 1) > $to.start(d3)) break;
+  for (; depth >= 0; depth--, afterFrom++) if ($from.after(depth + 1) < $from.end(depth)) break;
+  for (let d3 = $to.depth; d3 >= 0; d3--, beforeTo--) if ($to.before(d3 + 1) > $to.start(d3)) break;
   return afterFrom == beforeTo && /row|table/.test($from.node(depth).type.spec.tableRole);
 }
 function isTextSelectionAcrossCells({ $from, $to }) {
@@ -48071,9 +49064,8 @@ function normalizeSelection(state, tr2, allowTableNodeSelection) {
   let normalize2;
   let role;
   if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
-    if (role == "cell" || role == "header_cell") {
-      normalize2 = CellSelection.create(doc3, sel.from);
-    } else if (role == "row") {
+    if (role == "cell" || role == "header_cell") normalize2 = CellSelection.create(doc3, sel.from);
+    else if (role == "row") {
       const $cell = doc3.resolve(sel.from + 1);
       normalize2 = CellSelection.rowSelection($cell, $cell);
     } else if (!allowTableNodeSelection) {
@@ -48082,11 +49074,8 @@ function normalizeSelection(state, tr2, allowTableNodeSelection) {
       const lastCell = start2 + map2.map[map2.width * map2.height - 1];
       normalize2 = CellSelection.create(doc3, start2 + 1, lastCell);
     }
-  } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) {
-    normalize2 = TextSelection.create(doc3, sel.from);
-  } else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) {
-    normalize2 = TextSelection.create(doc3, sel.$from.start(), sel.$from.end());
-  }
+  } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) normalize2 = TextSelection.create(doc3, sel.from);
+  else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) normalize2 = TextSelection.create(doc3, sel.$from.start(), sel.$from.end());
   if (normalize2) (tr2 || (tr2 = state.tr)).setSelection(normalize2);
   return tr2;
 }
@@ -48095,16 +49084,13 @@ function changedDescendants(old, cur, offset, f3) {
   const oldSize = old.childCount, curSize = cur.childCount;
   outer: for (let i3 = 0, j3 = 0; i3 < curSize; i3++) {
     const child = cur.child(i3);
-    for (let scan = j3, e3 = Math.min(oldSize, i3 + 3); scan < e3; scan++) {
-      if (old.child(scan) == child) {
-        j3 = scan + 1;
-        offset += child.nodeSize;
-        continue outer;
-      }
+    for (let scan = j3, e3 = Math.min(oldSize, i3 + 3); scan < e3; scan++) if (old.child(scan) == child) {
+      j3 = scan + 1;
+      offset += child.nodeSize;
+      continue outer;
     }
     f3(child, offset);
-    if (j3 < oldSize && old.child(j3).sameMarkup(child))
-      changedDescendants(old.child(j3), child, offset + 1, f3);
+    if (j3 < oldSize && old.child(j3).sameMarkup(child)) changedDescendants(old.child(j3), child, offset + 1, f3);
     else child.nodesBetween(0, child.content.size, f3, offset + 1);
     offset += child.nodeSize;
   }
@@ -48112,12 +49098,10 @@ function changedDescendants(old, cur, offset, f3) {
 function fixTables(state, oldState) {
   let tr2;
   const check = (node, pos) => {
-    if (node.type.spec.tableRole == "table")
-      tr2 = fixTable(state, node, pos, tr2);
+    if (node.type.spec.tableRole == "table") tr2 = fixTable(state, node, pos, tr2);
   };
   if (!oldState) state.doc.descendants(check);
-  else if (oldState.doc != state.doc)
-    changedDescendants(oldState.doc, state.doc, 0, check);
+  else if (oldState.doc != state.doc) changedDescendants(oldState.doc, state.doc, 0, check);
   return tr2;
 }
 function fixTable(state, table, tablePos, tr2) {
@@ -48133,14 +49117,9 @@ function fixTable(state, table, tablePos, tr2) {
       if (!cell) continue;
       const attrs = cell.attrs;
       for (let j3 = 0; j3 < attrs.rowspan; j3++) mustAdd[prob.row + j3] += prob.n;
-      tr2.setNodeMarkup(
-        tr2.mapping.map(tablePos + 1 + prob.pos),
-        null,
-        removeColSpan(attrs, attrs.colspan - prob.n, prob.n)
-      );
-    } else if (prob.type == "missing") {
-      mustAdd[prob.row] += prob.n;
-    } else if (prob.type == "overlong_rowspan") {
+      tr2.setNodeMarkup(tr2.mapping.map(tablePos + 1 + prob.pos), null, removeColSpan(attrs, attrs.colspan - prob.n, prob.n));
+    } else if (prob.type == "missing") mustAdd[prob.row] += prob.n;
+    else if (prob.type == "overlong_rowspan") {
       const cell = table.nodeAt(prob.pos);
       if (!cell) continue;
       tr2.setNodeMarkup(tr2.mapping.map(tablePos + 1 + prob.pos), null, {
@@ -48160,20 +49139,17 @@ function fixTable(state, table, tablePos, tr2) {
     }
   }
   let first2, last;
-  for (let i3 = 0; i3 < mustAdd.length; i3++)
-    if (mustAdd[i3]) {
-      if (first2 == null) first2 = i3;
-      last = i3;
-    }
+  for (let i3 = 0; i3 < mustAdd.length; i3++) if (mustAdd[i3]) {
+    if (first2 == null) first2 = i3;
+    last = i3;
+  }
   for (let i3 = 0, pos = tablePos + 1; i3 < map2.height; i3++) {
     const row = table.child(i3);
     const end3 = pos + row.nodeSize;
     const add5 = mustAdd[i3];
     if (add5 > 0) {
       let role = "cell";
-      if (row.firstChild) {
-        role = row.firstChild.type.spec.tableRole;
-      }
+      if (row.firstChild) role = row.firstChild.type.spec.tableRole;
       const nodes = [];
       for (let j3 = 0; j3 < add5; j3++) {
         const node = tableNodeTypes(state.schema)[role].createAndFill();
@@ -48192,27 +49168,22 @@ function selectedRect(state) {
   const table = $pos.node(-1);
   const tableStart = $pos.start(-1);
   const map2 = TableMap.get(table);
-  const rect = sel instanceof CellSelection ? map2.rectBetween(
-    sel.$anchorCell.pos - tableStart,
-    sel.$headCell.pos - tableStart
-  ) : map2.findCell($pos.pos - tableStart);
-  return { ...rect, tableStart, map: map2, table };
+  return {
+    ...sel instanceof CellSelection ? map2.rectBetween(sel.$anchorCell.pos - tableStart, sel.$headCell.pos - tableStart) : map2.findCell($pos.pos - tableStart),
+    tableStart,
+    map: map2,
+    table
+  };
 }
 function addColumn(tr2, { map: map2, tableStart, table }, col) {
   let refColumn = col > 0 ? -1 : 0;
-  if (columnIsHeader(map2, table, col + refColumn)) {
-    refColumn = col == 0 || col == map2.width ? null : 0;
-  }
+  if (columnIsHeader(map2, table, col + refColumn)) refColumn = col == 0 || col == map2.width ? null : 0;
   for (let row = 0; row < map2.height; row++) {
     const index8 = row * map2.width + col;
     if (col > 0 && col < map2.width && map2.map[index8 - 1] == map2.map[index8]) {
       const pos = map2.map[index8];
       const cell = table.nodeAt(pos);
-      tr2.setNodeMarkup(
-        tr2.mapping.map(tableStart + pos),
-        null,
-        addColSpan(cell.attrs, col - map2.colCount(pos))
-      );
+      tr2.setNodeMarkup(tr2.mapping.map(tableStart + pos), null, addColSpan(cell.attrs, col - map2.colCount(pos)));
       row += cell.attrs.rowspan - 1;
     } else {
       const type = refColumn == null ? tableNodeTypes(table.type.schema).cell : table.nodeAt(map2.map[index8 + refColumn]).type;
@@ -48245,13 +49216,8 @@ function removeColumn(tr2, { map: map2, table, tableStart }, col) {
     const pos = map2.map[index8];
     const cell = table.nodeAt(pos);
     const attrs = cell.attrs;
-    if (col > 0 && map2.map[index8 - 1] == pos || col < map2.width - 1 && map2.map[index8 + 1] == pos) {
-      tr2.setNodeMarkup(
-        tr2.mapping.slice(mapStart).map(tableStart + pos),
-        null,
-        removeColSpan(attrs, col - map2.colCount(pos))
-      );
-    } else {
+    if (col > 0 && map2.map[index8 - 1] == pos || col < map2.width - 1 && map2.map[index8 + 1] == pos) tr2.setNodeMarkup(tr2.mapping.slice(mapStart).map(tableStart + pos), null, removeColSpan(attrs, col - map2.colCount(pos)));
+    else {
       const start2 = tr2.mapping.slice(mapStart).map(tableStart + pos);
       tr2.delete(start2, start2 + cell.nodeSize);
     }
@@ -48268,9 +49234,7 @@ function deleteColumn(state, dispatch2) {
       removeColumn(tr2, rect, i3);
       if (i3 == rect.left) break;
       const table = rect.tableStart ? tr2.doc.nodeAt(rect.tableStart - 1) : tr2.doc;
-      if (!table) {
-        throw RangeError("No table found");
-      }
+      if (!table) throw new RangeError("No table found");
       rect.table = table;
       rect.map = TableMap.get(table);
     }
@@ -48279,35 +49243,30 @@ function deleteColumn(state, dispatch2) {
   return true;
 }
 function rowIsHeader(map2, table, row) {
-  var _a;
+  var _table$nodeAt;
   const headerCell = tableNodeTypes(table.type.schema).header_cell;
-  for (let col = 0; col < map2.width; col++)
-    if (((_a = table.nodeAt(map2.map[col + row * map2.width])) == null ? void 0 : _a.type) != headerCell)
-      return false;
+  for (let col = 0; col < map2.width; col++) if (((_table$nodeAt = table.nodeAt(map2.map[col + row * map2.width])) === null || _table$nodeAt === void 0 ? void 0 : _table$nodeAt.type) != headerCell) return false;
   return true;
 }
 function addRow(tr2, { map: map2, tableStart, table }, row) {
-  var _a;
   let rowPos = tableStart;
   for (let i3 = 0; i3 < row; i3++) rowPos += table.child(i3).nodeSize;
   const cells = [];
   let refRow = row > 0 ? -1 : 0;
-  if (rowIsHeader(map2, table, row + refRow))
-    refRow = row == 0 || row == map2.height ? null : 0;
-  for (let col = 0, index8 = map2.width * row; col < map2.width; col++, index8++) {
-    if (row > 0 && row < map2.height && map2.map[index8] == map2.map[index8 - map2.width]) {
-      const pos = map2.map[index8];
-      const attrs = table.nodeAt(pos).attrs;
-      tr2.setNodeMarkup(tableStart + pos, null, {
-        ...attrs,
-        rowspan: attrs.rowspan + 1
-      });
-      col += attrs.colspan - 1;
-    } else {
-      const type = refRow == null ? tableNodeTypes(table.type.schema).cell : (_a = table.nodeAt(map2.map[index8 + refRow * map2.width])) == null ? void 0 : _a.type;
-      const node = type == null ? void 0 : type.createAndFill();
-      if (node) cells.push(node);
-    }
+  if (rowIsHeader(map2, table, row + refRow)) refRow = row == 0 || row == map2.height ? null : 0;
+  for (let col = 0, index8 = map2.width * row; col < map2.width; col++, index8++) if (row > 0 && row < map2.height && map2.map[index8] == map2.map[index8 - map2.width]) {
+    const pos = map2.map[index8];
+    const attrs = table.nodeAt(pos).attrs;
+    tr2.setNodeMarkup(tableStart + pos, null, {
+      ...attrs,
+      rowspan: attrs.rowspan + 1
+    });
+    col += attrs.colspan - 1;
+  } else {
+    var _table$nodeAt2;
+    const type = refRow == null ? tableNodeTypes(table.type.schema).cell : (_table$nodeAt2 = table.nodeAt(map2.map[index8 + refRow * map2.width])) === null || _table$nodeAt2 === void 0 ? void 0 : _table$nodeAt2.type;
+    const node = type === null || type === void 0 ? void 0 : type.createAndFill();
+    if (node) cells.push(node);
   }
   tr2.insert(rowPos, tableNodeTypes(table.type.schema).row.create(null, cells));
   return tr2;
@@ -48349,10 +49308,10 @@ function removeRow(tr2, { map: map2, table, tableStart }, row) {
     } else if (row < map2.height && pos == map2.map[index8 + map2.width]) {
       const cell = table.nodeAt(pos);
       const attrs = cell.attrs;
-      const copy2 = cell.type.create(
-        { ...attrs, rowspan: cell.attrs.rowspan - 1 },
-        cell.content
-      );
+      const copy2 = cell.type.create({
+        ...attrs,
+        rowspan: cell.attrs.rowspan - 1
+      }, cell.content);
       const newPos = map2.positionAt(row + 1, col, table);
       tr2.insert(tr2.mapping.slice(mapFrom).map(tableStart + newPos), copy2);
       col += attrs.colspan - 1;
@@ -48368,9 +49327,7 @@ function deleteRow(state, dispatch2) {
       removeRow(tr2, rect, i3);
       if (i3 == rect.top) break;
       const table = rect.tableStart ? tr2.doc.nodeAt(rect.tableStart - 1) : tr2.doc;
-      if (!table) {
-        throw RangeError("No table found");
-      }
+      if (!table) throw new RangeError("No table found");
       rect.table = table;
       rect.map = TableMap.get(rect.table);
     }
@@ -48386,14 +49343,12 @@ function cellsOverlapRectangle({ width, height, map: map2 }, rect) {
   let indexTop = rect.top * width + rect.left, indexLeft = indexTop;
   let indexBottom = (rect.bottom - 1) * width + rect.left, indexRight = indexTop + (rect.right - rect.left - 1);
   for (let i3 = rect.top; i3 < rect.bottom; i3++) {
-    if (rect.left > 0 && map2[indexLeft] == map2[indexLeft - 1] || rect.right < width && map2[indexRight] == map2[indexRight + 1])
-      return true;
+    if (rect.left > 0 && map2[indexLeft] == map2[indexLeft - 1] || rect.right < width && map2[indexRight] == map2[indexRight + 1]) return true;
     indexLeft += width;
     indexRight += width;
   }
   for (let i3 = rect.left; i3 < rect.right; i3++) {
-    if (rect.top > 0 && map2[indexTop] == map2[indexTop - width] || rect.bottom < height && map2[indexBottom] == map2[indexBottom + width])
-      return true;
+    if (rect.top > 0 && map2[indexTop] == map2[indexTop - width] || rect.bottom < height && map2[indexBottom] == map2[indexBottom + width]) return true;
     indexTop++;
     indexBottom++;
   }
@@ -48401,8 +49356,7 @@ function cellsOverlapRectangle({ width, height, map: map2 }, rect) {
 }
 function mergeCells(state, dispatch2) {
   const sel = state.selection;
-  if (!(sel instanceof CellSelection) || sel.$anchorCell.pos == sel.$headCell.pos)
-    return false;
+  if (!(sel instanceof CellSelection) || sel.$anchorCell.pos == sel.$headCell.pos) return false;
   const rect = selectedRect(state), { map: map2 } = rect;
   if (cellsOverlapRectangle(map2, rect)) return false;
   if (dispatch2) {
@@ -48411,41 +49365,31 @@ function mergeCells(state, dispatch2) {
     let content = Fragment.empty;
     let mergedPos;
     let mergedCell;
-    for (let row = rect.top; row < rect.bottom; row++) {
-      for (let col = rect.left; col < rect.right; col++) {
-        const cellPos = map2.map[row * map2.width + col];
-        const cell = rect.table.nodeAt(cellPos);
-        if (seen[cellPos] || !cell) continue;
-        seen[cellPos] = true;
-        if (mergedPos == null) {
-          mergedPos = cellPos;
-          mergedCell = cell;
-        } else {
-          if (!isEmpty(cell)) content = content.append(cell.content);
-          const mapped = tr2.mapping.map(cellPos + rect.tableStart);
-          tr2.delete(mapped, mapped + cell.nodeSize);
-        }
+    for (let row = rect.top; row < rect.bottom; row++) for (let col = rect.left; col < rect.right; col++) {
+      const cellPos = map2.map[row * map2.width + col];
+      const cell = rect.table.nodeAt(cellPos);
+      if (seen[cellPos] || !cell) continue;
+      seen[cellPos] = true;
+      if (mergedPos == null) {
+        mergedPos = cellPos;
+        mergedCell = cell;
+      } else {
+        if (!isEmpty(cell)) content = content.append(cell.content);
+        const mapped = tr2.mapping.map(cellPos + rect.tableStart);
+        tr2.delete(mapped, mapped + cell.nodeSize);
       }
     }
-    if (mergedPos == null || mergedCell == null) {
-      return true;
-    }
+    if (mergedPos == null || mergedCell == null) return true;
     tr2.setNodeMarkup(mergedPos + rect.tableStart, null, {
-      ...addColSpan(
-        mergedCell.attrs,
-        mergedCell.attrs.colspan,
-        rect.right - rect.left - mergedCell.attrs.colspan
-      ),
+      ...addColSpan(mergedCell.attrs, mergedCell.attrs.colspan, rect.right - rect.left - mergedCell.attrs.colspan),
       rowspan: rect.bottom - rect.top
     });
-    if (content.size) {
+    if (content.size > 0) {
       const end3 = mergedPos + 1 + mergedCell.content.size;
       const start2 = isEmpty(mergedCell) ? mergedPos + 1 : end3;
       tr2.replaceWith(start2 + rect.tableStart, end3 + rect.tableStart, content);
     }
-    tr2.setSelection(
-      new CellSelection(tr2.doc.resolve(mergedPos + rect.tableStart))
-    );
+    tr2.setSelection(new CellSelection(tr2.doc.resolve(mergedPos + rect.tableStart)));
     dispatch2(tr2);
   }
   return true;
@@ -48458,63 +49402,57 @@ function splitCell(state, dispatch2) {
 }
 function splitCellWithType(getCellType) {
   return (state, dispatch2) => {
-    var _a;
     const sel = state.selection;
     let cellNode;
     let cellPos;
     if (!(sel instanceof CellSelection)) {
+      var _cellAround;
       cellNode = cellWrapping(sel.$from);
       if (!cellNode) return false;
-      cellPos = (_a = cellAround(sel.$from)) == null ? void 0 : _a.pos;
+      cellPos = (_cellAround = cellAround(sel.$from)) === null || _cellAround === void 0 ? void 0 : _cellAround.pos;
     } else {
       if (sel.$anchorCell.pos != sel.$headCell.pos) return false;
       cellNode = sel.$anchorCell.nodeAfter;
       cellPos = sel.$anchorCell.pos;
     }
-    if (cellNode == null || cellPos == null) {
-      return false;
-    }
-    if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) {
-      return false;
-    }
+    if (cellNode == null || cellPos == null) return false;
+    if (cellNode.attrs.colspan == 1 && cellNode.attrs.rowspan == 1) return false;
     if (dispatch2) {
       let baseAttrs = cellNode.attrs;
       const attrs = [];
       const colwidth = baseAttrs.colwidth;
-      if (baseAttrs.rowspan > 1) baseAttrs = { ...baseAttrs, rowspan: 1 };
-      if (baseAttrs.colspan > 1) baseAttrs = { ...baseAttrs, colspan: 1 };
+      if (baseAttrs.rowspan > 1) baseAttrs = {
+        ...baseAttrs,
+        rowspan: 1
+      };
+      if (baseAttrs.colspan > 1) baseAttrs = {
+        ...baseAttrs,
+        colspan: 1
+      };
       const rect = selectedRect(state), tr2 = state.tr;
-      for (let i3 = 0; i3 < rect.right - rect.left; i3++)
-        attrs.push(
-          colwidth ? {
-            ...baseAttrs,
-            colwidth: colwidth && colwidth[i3] ? [colwidth[i3]] : null
-          } : baseAttrs
-        );
+      for (let i3 = 0; i3 < rect.right - rect.left; i3++) attrs.push(colwidth ? {
+        ...baseAttrs,
+        colwidth: colwidth && colwidth[i3] ? [colwidth[i3]] : null
+      } : baseAttrs);
       let lastCell;
       for (let row = rect.top; row < rect.bottom; row++) {
         let pos = rect.map.positionAt(row, rect.left, rect.table);
         if (row == rect.top) pos += cellNode.nodeSize;
         for (let col = rect.left, i3 = 0; col < rect.right; col++, i3++) {
           if (col == rect.left && row == rect.top) continue;
-          tr2.insert(
-            lastCell = tr2.mapping.map(pos + rect.tableStart, 1),
-            getCellType({ node: cellNode, row, col }).createAndFill(attrs[i3])
-          );
+          tr2.insert(lastCell = tr2.mapping.map(pos + rect.tableStart, 1), getCellType({
+            node: cellNode,
+            row,
+            col
+          }).createAndFill(attrs[i3]));
         }
       }
-      tr2.setNodeMarkup(
-        cellPos,
-        getCellType({ node: cellNode, row: rect.top, col: rect.left }),
-        attrs[0]
-      );
-      if (sel instanceof CellSelection)
-        tr2.setSelection(
-          new CellSelection(
-            tr2.doc.resolve(sel.$anchorCell.pos),
-            lastCell ? tr2.doc.resolve(lastCell) : void 0
-          )
-        );
+      tr2.setNodeMarkup(cellPos, getCellType({
+        node: cellNode,
+        row: rect.top,
+        col: rect.left
+      }), attrs[0]);
+      if (sel instanceof CellSelection) tr2.setSelection(new CellSelection(tr2.doc.resolve(sel.$anchorCell.pos), lastCell ? tr2.doc.resolve(lastCell) : void 0));
       dispatch2(tr2);
     }
     return true;
@@ -48527,19 +49465,16 @@ function setCellAttr(name, value) {
     if ($cell.nodeAfter.attrs[name] === value) return false;
     if (dispatch2) {
       const tr2 = state.tr;
-      if (state.selection instanceof CellSelection)
-        state.selection.forEachCell((node, pos) => {
-          if (node.attrs[name] !== value)
-            tr2.setNodeMarkup(pos, null, {
-              ...node.attrs,
-              [name]: value
-            });
-        });
-      else
-        tr2.setNodeMarkup($cell.pos, null, {
-          ...$cell.nodeAfter.attrs,
+      if (state.selection instanceof CellSelection) state.selection.forEachCell((node, pos) => {
+        if (node.attrs[name] !== value) tr2.setNodeMarkup(pos, null, {
+          ...node.attrs,
           [name]: value
         });
+      });
+      else tr2.setNodeMarkup($cell.pos, null, {
+        ...$cell.nodeAfter.attrs,
+        [name]: value
+      });
       dispatch2(tr2);
     }
     return true;
@@ -48551,34 +49486,20 @@ function deprecated_toggleHeader(type) {
     if (dispatch2) {
       const types = tableNodeTypes(state.schema);
       const rect = selectedRect(state), tr2 = state.tr;
-      const cells = rect.map.cellsInRect(
-        type == "column" ? {
-          left: rect.left,
-          top: 0,
-          right: rect.right,
-          bottom: rect.map.height
-        } : type == "row" ? {
-          left: 0,
-          top: rect.top,
-          right: rect.map.width,
-          bottom: rect.bottom
-        } : rect
-      );
+      const cells = rect.map.cellsInRect(type == "column" ? {
+        left: rect.left,
+        top: 0,
+        right: rect.right,
+        bottom: rect.map.height
+      } : type == "row" ? {
+        left: 0,
+        top: rect.top,
+        right: rect.map.width,
+        bottom: rect.bottom
+      } : rect);
       const nodes = cells.map((pos) => rect.table.nodeAt(pos));
-      for (let i3 = 0; i3 < cells.length; i3++)
-        if (nodes[i3].type == types.header_cell)
-          tr2.setNodeMarkup(
-            rect.tableStart + cells[i3],
-            types.cell,
-            nodes[i3].attrs
-          );
-      if (tr2.steps.length == 0)
-        for (let i3 = 0; i3 < cells.length; i3++)
-          tr2.setNodeMarkup(
-            rect.tableStart + cells[i3],
-            types.header_cell,
-            nodes[i3].attrs
-          );
+      for (let i3 = 0; i3 < cells.length; i3++) if (nodes[i3].type == types.header_cell) tr2.setNodeMarkup(rect.tableStart + cells[i3], types.cell, nodes[i3].attrs);
+      if (tr2.steps.length === 0) for (let i3 = 0; i3 < cells.length; i3++) tr2.setNodeMarkup(rect.tableStart + cells[i3], types.header_cell, nodes[i3].attrs);
       dispatch2(tr2);
     }
     return true;
@@ -48593,9 +49514,7 @@ function isHeaderEnabledByType(type, rect, types) {
   });
   for (let i3 = 0; i3 < cellPositions.length; i3++) {
     const cell = rect.table.nodeAt(cellPositions[i3]);
-    if (cell && cell.type !== types.header_cell) {
-      return false;
-    }
+    if (cell && cell.type !== types.header_cell) return false;
   }
   return true;
 }
@@ -48608,13 +49527,8 @@ function toggleHeader(type, options) {
       const types = tableNodeTypes(state.schema);
       const rect = selectedRect(state), tr2 = state.tr;
       const isHeaderRowEnabled = isHeaderEnabledByType("row", rect, types);
-      const isHeaderColumnEnabled = isHeaderEnabledByType(
-        "column",
-        rect,
-        types
-      );
-      const isHeaderEnabled = type === "column" ? isHeaderRowEnabled : type === "row" ? isHeaderColumnEnabled : false;
-      const selectionStartsAt = isHeaderEnabled ? 1 : 0;
+      const isHeaderColumnEnabled = isHeaderEnabledByType("column", rect, types);
+      const selectionStartsAt = (type === "column" ? isHeaderRowEnabled : type === "row" ? isHeaderColumnEnabled : false) ? 1 : 0;
       const cellsRect = type == "column" ? {
         left: 0,
         top: selectionStartsAt,
@@ -48630,24 +49544,16 @@ function toggleHeader(type, options) {
       rect.map.cellsInRect(cellsRect).forEach((relativeCellPos) => {
         const cellPos = relativeCellPos + rect.tableStart;
         const cell = tr2.doc.nodeAt(cellPos);
-        if (cell) {
-          tr2.setNodeMarkup(cellPos, newType, cell.attrs);
-        }
+        if (cell) tr2.setNodeMarkup(cellPos, newType, cell.attrs);
       });
       dispatch2(tr2);
     }
     return true;
   };
 }
-var toggleHeaderRow = toggleHeader("row", {
-  useDeprecatedLogic: true
-});
-var toggleHeaderColumn = toggleHeader("column", {
-  useDeprecatedLogic: true
-});
-var toggleHeaderCell = toggleHeader("cell", {
-  useDeprecatedLogic: true
-});
+var toggleHeaderRow = toggleHeader("row", { useDeprecatedLogic: true });
+var toggleHeaderColumn = toggleHeader("column", { useDeprecatedLogic: true });
+var toggleHeaderCell = toggleHeader("cell", { useDeprecatedLogic: true });
 function findNextCell($cell, dir) {
   if (dir < 0) {
     const before = $cell.nodeBefore;
@@ -48655,15 +49561,11 @@ function findNextCell($cell, dir) {
     for (let row = $cell.index(-1) - 1, rowEnd = $cell.before(); row >= 0; row--) {
       const rowNode = $cell.node(-1).child(row);
       const lastChild = rowNode.lastChild;
-      if (lastChild) {
-        return rowEnd - 1 - lastChild.nodeSize;
-      }
+      if (lastChild) return rowEnd - 1 - lastChild.nodeSize;
       rowEnd -= rowNode.nodeSize;
     }
   } else {
-    if ($cell.index() < $cell.parent.childCount - 1) {
-      return $cell.pos + $cell.nodeAfter.nodeSize;
-    }
+    if ($cell.index() < $cell.parent.childCount - 1) return $cell.pos + $cell.nodeAfter.nodeSize;
     const table = $cell.node(-1);
     for (let row = $cell.indexAfter(-1), rowStart = $cell.after(); row < table.childCount; row++) {
       const rowNode = table.child(row);
@@ -48680,24 +49582,16 @@ function goToNextCell(direction) {
     if (cell == null) return false;
     if (dispatch2) {
       const $cell = state.doc.resolve(cell);
-      dispatch2(
-        state.tr.setSelection(TextSelection.between($cell, moveCellForward($cell))).scrollIntoView()
-      );
+      dispatch2(state.tr.setSelection(TextSelection.between($cell, moveCellForward($cell))).scrollIntoView());
     }
     return true;
   };
 }
 function deleteTable(state, dispatch2) {
   const $pos = state.selection.$anchor;
-  for (let d3 = $pos.depth; d3 > 0; d3--) {
-    const node = $pos.node(d3);
-    if (node.type.spec.tableRole == "table") {
-      if (dispatch2)
-        dispatch2(
-          state.tr.delete($pos.before(d3), $pos.after(d3)).scrollIntoView()
-        );
-      return true;
-    }
+  for (let d3 = $pos.depth; d3 > 0; d3--) if ($pos.node(d3).type.spec.tableRole == "table") {
+    if (dispatch2) dispatch2(state.tr.delete($pos.before(d3), $pos.after(d3)).scrollIntoView());
+    return true;
   }
   return false;
 }
@@ -48708,19 +49602,14 @@ function deleteCellSelection(state, dispatch2) {
     const tr2 = state.tr;
     const baseContent = tableNodeTypes(state.schema).cell.createAndFill().content;
     sel.forEachCell((cell, pos) => {
-      if (!cell.content.eq(baseContent))
-        tr2.replace(
-          tr2.mapping.map(pos + 1),
-          tr2.mapping.map(pos + cell.nodeSize - 1),
-          new Slice(baseContent, 0, 0)
-        );
+      if (!cell.content.eq(baseContent)) tr2.replace(tr2.mapping.map(pos + 1), tr2.mapping.map(pos + cell.nodeSize - 1), new Slice(baseContent, 0, 0));
     });
     if (tr2.docChanged) dispatch2(tr2);
   }
   return true;
 }
 function pastedCells(slice2) {
-  if (!slice2.size) return null;
+  if (slice2.size === 0) return null;
   let { content, openStart, openEnd } = slice2;
   while (content.childCount == 1 && (openStart > 0 && openEnd > 0 || content.child(0).type.spec.tableRole == "table")) {
     openStart--;
@@ -48730,28 +49619,15 @@ function pastedCells(slice2) {
   const first2 = content.child(0);
   const role = first2.type.spec.tableRole;
   const schema = first2.type.schema, rows = [];
-  if (role == "row") {
-    for (let i3 = 0; i3 < content.childCount; i3++) {
-      let cells = content.child(i3).content;
-      const left = i3 ? 0 : Math.max(0, openStart - 1);
-      const right = i3 < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1);
-      if (left || right)
-        cells = fitSlice(
-          tableNodeTypes(schema).row,
-          new Slice(cells, left, right)
-        ).content;
-      rows.push(cells);
-    }
-  } else if (role == "cell" || role == "header_cell") {
-    rows.push(
-      openStart || openEnd ? fitSlice(
-        tableNodeTypes(schema).row,
-        new Slice(content, openStart, openEnd)
-      ).content : content
-    );
-  } else {
-    return null;
+  if (role == "row") for (let i3 = 0; i3 < content.childCount; i3++) {
+    let cells = content.child(i3).content;
+    const left = i3 ? 0 : Math.max(0, openStart - 1);
+    const right = i3 < content.childCount - 1 ? 0 : Math.max(0, openEnd - 1);
+    if (left || right) cells = fitSlice(tableNodeTypes(schema).row, new Slice(cells, left, right)).content;
+    rows.push(cells);
   }
+  else if (role == "cell" || role == "header_cell") rows.push(openStart || openEnd ? fitSlice(tableNodeTypes(schema).row, new Slice(content, openStart, openEnd)).content : content);
+  else return null;
   return ensureRectangular(schema, rows);
 }
 function ensureRectangular(schema, rows) {
@@ -48760,8 +49636,7 @@ function ensureRectangular(schema, rows) {
     const row = rows[i3];
     for (let j3 = row.childCount - 1; j3 >= 0; j3--) {
       const { rowspan, colspan } = row.child(j3).attrs;
-      for (let r3 = i3; r3 < i3 + rowspan; r3++)
-        widths[r3] = (widths[r3] || 0) + colspan;
+      for (let r3 = i3; r3 < i3 + rowspan; r3++) widths[r3] = (widths[r3] || 0) + colspan;
     }
   }
   let width = 0;
@@ -48771,18 +49646,19 @@ function ensureRectangular(schema, rows) {
     if (widths[r3] < width) {
       const empty3 = tableNodeTypes(schema).cell.createAndFill();
       const cells = [];
-      for (let i3 = widths[r3]; i3 < width; i3++) {
-        cells.push(empty3);
-      }
+      for (let i3 = widths[r3]; i3 < width; i3++) cells.push(empty3);
       rows[r3] = rows[r3].append(Fragment.from(cells));
     }
   }
-  return { height: rows.length, width, rows };
+  return {
+    height: rows.length,
+    width,
+    rows
+  };
 }
 function fitSlice(nodeType, slice2) {
   const node = nodeType.createAndFill();
-  const tr2 = new Transform(node).replace(0, node.content.size, slice2);
-  return tr2.doc;
+  return new Transform(node).replace(0, node.content.size, slice2).doc;
 }
 function clipCells({ width, height, rows }, newWidth, newHeight) {
   if (width != newWidth) {
@@ -48792,19 +49668,10 @@ function clipCells({ width, height, rows }, newWidth, newHeight) {
       const frag = rows[row], cells = [];
       for (let col = added[row] || 0, i3 = 0; col < newWidth; i3++) {
         let cell = frag.child(i3 % frag.childCount);
-        if (col + cell.attrs.colspan > newWidth)
-          cell = cell.type.createChecked(
-            removeColSpan(
-              cell.attrs,
-              cell.attrs.colspan,
-              col + cell.attrs.colspan - newWidth
-            ),
-            cell.content
-          );
+        if (col + cell.attrs.colspan > newWidth) cell = cell.type.createChecked(removeColSpan(cell.attrs, cell.attrs.colspan, col + cell.attrs.colspan - newWidth), cell.content);
         cells.push(cell);
         col += cell.attrs.colspan;
-        for (let j3 = 1; j3 < cell.attrs.rowspan; j3++)
-          added[row + j3] = (added[row + j3] || 0) + cell.attrs.colspan;
+        for (let j3 = 1; j3 < cell.attrs.rowspan; j3++) added[row + j3] = (added[row + j3] || 0) + cell.attrs.colspan;
       }
       newRows.push(Fragment.from(cells));
     }
@@ -48817,14 +49684,10 @@ function clipCells({ width, height, rows }, newWidth, newHeight) {
       const cells = [], source = rows[i3 % height];
       for (let j3 = 0; j3 < source.childCount; j3++) {
         let cell = source.child(j3);
-        if (row + cell.attrs.rowspan > newHeight)
-          cell = cell.type.create(
-            {
-              ...cell.attrs,
-              rowspan: Math.max(1, newHeight - cell.attrs.rowspan)
-            },
-            cell.content
-          );
+        if (row + cell.attrs.rowspan > newHeight) cell = cell.type.create({
+          ...cell.attrs,
+          rowspan: Math.max(1, newHeight - cell.attrs.rowspan)
+        }, cell.content);
         cells.push(cell);
       }
       newRows.push(Fragment.from(cells));
@@ -48832,33 +49695,32 @@ function clipCells({ width, height, rows }, newWidth, newHeight) {
     rows = newRows;
     height = newHeight;
   }
-  return { width, height, rows };
+  return {
+    width,
+    height,
+    rows
+  };
 }
 function growTable(tr2, map2, table, start2, width, height, mapFrom) {
   const schema = tr2.doc.type.schema;
   const types = tableNodeTypes(schema);
   let empty3;
   let emptyHead;
-  if (width > map2.width) {
-    for (let row = 0, rowEnd = 0; row < map2.height; row++) {
-      const rowNode = table.child(row);
-      rowEnd += rowNode.nodeSize;
-      const cells = [];
-      let add5;
-      if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell)
-        add5 = empty3 || (empty3 = types.cell.createAndFill());
-      else add5 = emptyHead || (emptyHead = types.header_cell.createAndFill());
-      for (let i3 = map2.width; i3 < width; i3++) cells.push(add5);
-      tr2.insert(tr2.mapping.slice(mapFrom).map(rowEnd - 1 + start2), cells);
-    }
+  if (width > map2.width) for (let row = 0, rowEnd = 0; row < map2.height; row++) {
+    const rowNode = table.child(row);
+    rowEnd += rowNode.nodeSize;
+    const cells = [];
+    let add5;
+    if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell) add5 = empty3 || (empty3 = types.cell.createAndFill());
+    else add5 = emptyHead || (emptyHead = types.header_cell.createAndFill());
+    for (let i3 = map2.width; i3 < width; i3++) cells.push(add5);
+    tr2.insert(tr2.mapping.slice(mapFrom).map(rowEnd - 1 + start2), cells);
   }
   if (height > map2.height) {
     const cells = [];
-    for (let i3 = 0, start22 = (map2.height - 1) * map2.width; i3 < Math.max(map2.width, width); i3++) {
-      const header = i3 >= map2.width ? false : table.nodeAt(map2.map[start22 + i3]).type == types.header_cell;
-      cells.push(
-        header ? emptyHead || (emptyHead = types.header_cell.createAndFill()) : empty3 || (empty3 = types.cell.createAndFill())
-      );
+    for (let i3 = 0, start$1 = (map2.height - 1) * map2.width; i3 < Math.max(map2.width, width); i3++) {
+      const header = i3 >= map2.width ? false : table.nodeAt(map2.map[start$1 + i3]).type == types.header_cell;
+      cells.push(header ? emptyHead || (emptyHead = types.header_cell.createAndFill()) : empty3 || (empty3 = types.cell.createAndFill()));
     }
     const emptyRow = types.row.create(null, Fragment.from(cells)), rows = [];
     for (let i3 = map2.height; i3 < height; i3++) rows.push(emptyRow);
@@ -48879,13 +49741,10 @@ function isolateHorizontal(tr2, map2, table, start2, left, right, top, mapFrom) 
         ...cell.attrs,
         rowspan: top - cellTop
       });
-      tr2.insert(
-        tr2.mapping.slice(mapFrom).map(map2.positionAt(top, cellLeft, table)),
-        cell.type.createAndFill({
-          ...cell.attrs,
-          rowspan: cellTop + cell.attrs.rowspan - top
-        })
-      );
+      tr2.insert(tr2.mapping.slice(mapFrom).map(map2.positionAt(top, cellLeft, table)), cell.type.createAndFill({
+        ...cell.attrs,
+        rowspan: cellTop + cell.attrs.rowspan - top
+      }));
       col += cell.attrs.colspan - 1;
     }
   }
@@ -48901,21 +49760,8 @@ function isolateVertical(tr2, map2, table, start2, top, bottom, left, mapFrom) {
       const cell = table.nodeAt(pos);
       const cellLeft = map2.colCount(pos);
       const updatePos = tr2.mapping.slice(mapFrom).map(pos + start2);
-      tr2.setNodeMarkup(
-        updatePos,
-        null,
-        removeColSpan(
-          cell.attrs,
-          left - cellLeft,
-          cell.attrs.colspan - (left - cellLeft)
-        )
-      );
-      tr2.insert(
-        updatePos + cell.nodeSize,
-        cell.type.createAndFill(
-          removeColSpan(cell.attrs, 0, left - cellLeft)
-        )
-      );
+      tr2.setNodeMarkup(updatePos, null, removeColSpan(cell.attrs, left - cellLeft, cell.attrs.colspan - (left - cellLeft)));
+      tr2.insert(updatePos + cell.nodeSize, cell.type.createAndFill(removeColSpan(cell.attrs, 0, left - cellLeft)));
       row += cell.attrs.rowspan - 1;
     }
   }
@@ -48923,9 +49769,7 @@ function isolateVertical(tr2, map2, table, start2, top, bottom, left, mapFrom) {
 }
 function insertCells(state, dispatch2, tableStart, rect, cells) {
   let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc;
-  if (!table) {
-    throw new Error("No table found");
-  }
+  if (!table) throw new Error("No table found");
   let map2 = TableMap.get(table);
   const { top, left } = rect;
   const right = left + cells.width, bottom = top + cells.height;
@@ -48933,36 +49777,21 @@ function insertCells(state, dispatch2, tableStart, rect, cells) {
   let mapFrom = 0;
   function recomp() {
     table = tableStart ? tr2.doc.nodeAt(tableStart - 1) : tr2.doc;
-    if (!table) {
-      throw new Error("No table found");
-    }
+    if (!table) throw new Error("No table found");
     map2 = TableMap.get(table);
     mapFrom = tr2.mapping.maps.length;
   }
   if (growTable(tr2, map2, table, tableStart, right, bottom, mapFrom)) recomp();
-  if (isolateHorizontal(tr2, map2, table, tableStart, left, right, top, mapFrom))
-    recomp();
-  if (isolateHorizontal(tr2, map2, table, tableStart, left, right, bottom, mapFrom))
-    recomp();
-  if (isolateVertical(tr2, map2, table, tableStart, top, bottom, left, mapFrom))
-    recomp();
-  if (isolateVertical(tr2, map2, table, tableStart, top, bottom, right, mapFrom))
-    recomp();
+  if (isolateHorizontal(tr2, map2, table, tableStart, left, right, top, mapFrom)) recomp();
+  if (isolateHorizontal(tr2, map2, table, tableStart, left, right, bottom, mapFrom)) recomp();
+  if (isolateVertical(tr2, map2, table, tableStart, top, bottom, left, mapFrom)) recomp();
+  if (isolateVertical(tr2, map2, table, tableStart, top, bottom, right, mapFrom)) recomp();
   for (let row = top; row < bottom; row++) {
     const from2 = map2.positionAt(row, left, table), to2 = map2.positionAt(row, right, table);
-    tr2.replace(
-      tr2.mapping.slice(mapFrom).map(from2 + tableStart),
-      tr2.mapping.slice(mapFrom).map(to2 + tableStart),
-      new Slice(cells.rows[row - top], 0, 0)
-    );
+    tr2.replace(tr2.mapping.slice(mapFrom).map(from2 + tableStart), tr2.mapping.slice(mapFrom).map(to2 + tableStart), new Slice(cells.rows[row - top], 0, 0));
   }
   recomp();
-  tr2.setSelection(
-    new CellSelection(
-      tr2.doc.resolve(tableStart + map2.positionAt(top, left, table)),
-      tr2.doc.resolve(tableStart + map2.positionAt(bottom - 1, right - 1, table))
-    )
-  );
+  tr2.setSelection(new CellSelection(tr2.doc.resolve(tableStart + map2.positionAt(top, left, table)), tr2.doc.resolve(tableStart + map2.positionAt(bottom - 1, right - 1, table))));
   dispatch2(tr2);
 }
 var handleKeyDown2 = keydownHandler({
@@ -48988,29 +49817,17 @@ function arrow2(axis, dir) {
   return (state, dispatch2, view) => {
     if (!view) return false;
     const sel = state.selection;
-    if (sel instanceof CellSelection) {
-      return maybeSetSelection(
-        state,
-        dispatch2,
-        Selection.near(sel.$headCell, dir)
-      );
-    }
+    if (sel instanceof CellSelection) return maybeSetSelection(state, dispatch2, Selection.near(sel.$headCell, dir));
     if (axis != "horiz" && !sel.empty) return false;
     const end3 = atEndOfCell(view, axis, dir);
     if (end3 == null) return false;
-    if (axis == "horiz") {
-      return maybeSetSelection(
-        state,
-        dispatch2,
-        Selection.near(state.doc.resolve(sel.head + dir), dir)
-      );
-    } else {
+    if (axis == "horiz") return maybeSetSelection(state, dispatch2, Selection.near(state.doc.resolve(sel.head + dir), dir));
+    else {
       const $cell = state.doc.resolve(end3);
       const $next = nextCell($cell, axis, dir);
       let newSel;
       if ($next) newSel = Selection.near($next, 1);
-      else if (dir < 0)
-        newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1);
+      else if (dir < 0) newSel = Selection.near(state.doc.resolve($cell.before(-1)), -1);
       else newSel = Selection.near(state.doc.resolve($cell.after(-1)), 1);
       return maybeSetSelection(state, dispatch2, newSel);
     }
@@ -49021,20 +49838,15 @@ function shiftArrow(axis, dir) {
     if (!view) return false;
     const sel = state.selection;
     let cellSel;
-    if (sel instanceof CellSelection) {
-      cellSel = sel;
-    } else {
+    if (sel instanceof CellSelection) cellSel = sel;
+    else {
       const end3 = atEndOfCell(view, axis, dir);
       if (end3 == null) return false;
       cellSel = new CellSelection(state.doc.resolve(end3));
     }
     const $head = nextCell(cellSel.$headCell, axis, dir);
     if (!$head) return false;
-    return maybeSetSelection(
-      state,
-      dispatch2,
-      new CellSelection(cellSel.$anchorCell, $head)
-    );
+    return maybeSetSelection(state, dispatch2, new CellSelection(cellSel.$anchorCell, $head));
   };
 }
 function handleTripleClick2(view, pos) {
@@ -49048,65 +49860,45 @@ function handlePaste(view, _3, slice2) {
   let cells = pastedCells(slice2);
   const sel = view.state.selection;
   if (sel instanceof CellSelection) {
-    if (!cells)
-      cells = {
-        width: 1,
-        height: 1,
-        rows: [
-          Fragment.from(
-            fitSlice(tableNodeTypes(view.state.schema).cell, slice2)
-          )
-        ]
-      };
+    if (!cells) cells = {
+      width: 1,
+      height: 1,
+      rows: [Fragment.from(fitSlice(tableNodeTypes(view.state.schema).cell, slice2))]
+    };
     const table = sel.$anchorCell.node(-1);
     const start2 = sel.$anchorCell.start(-1);
-    const rect = TableMap.get(table).rectBetween(
-      sel.$anchorCell.pos - start2,
-      sel.$headCell.pos - start2
-    );
+    const rect = TableMap.get(table).rectBetween(sel.$anchorCell.pos - start2, sel.$headCell.pos - start2);
     cells = clipCells(cells, rect.right - rect.left, rect.bottom - rect.top);
     insertCells(view.state, view.dispatch, start2, rect, cells);
     return true;
   } else if (cells) {
     const $cell = selectionCell(view.state);
     const start2 = $cell.start(-1);
-    insertCells(
-      view.state,
-      view.dispatch,
-      start2,
-      TableMap.get($cell.node(-1)).findCell($cell.pos - start2),
-      cells
-    );
+    insertCells(view.state, view.dispatch, start2, TableMap.get($cell.node(-1)).findCell($cell.pos - start2), cells);
     return true;
-  } else {
-    return false;
-  }
+  } else return false;
 }
 function handleMouseDown(view, startEvent) {
-  var _a;
+  var _cellUnderMouse;
   if (startEvent.ctrlKey || startEvent.metaKey) return;
   const startDOMCell = domInCell(view, startEvent.target);
   let $anchor;
   if (startEvent.shiftKey && view.state.selection instanceof CellSelection) {
     setCellSelection(view.state.selection.$anchorCell, startEvent);
     startEvent.preventDefault();
-  } else if (startEvent.shiftKey && startDOMCell && ($anchor = cellAround(view.state.selection.$anchor)) != null && ((_a = cellUnderMouse(view, startEvent)) == null ? void 0 : _a.pos) != $anchor.pos) {
+  } else if (startEvent.shiftKey && startDOMCell && ($anchor = cellAround(view.state.selection.$anchor)) != null && ((_cellUnderMouse = cellUnderMouse(view, startEvent)) === null || _cellUnderMouse === void 0 ? void 0 : _cellUnderMouse.pos) != $anchor.pos) {
     setCellSelection($anchor, startEvent);
     startEvent.preventDefault();
-  } else if (!startDOMCell) {
-    return;
-  }
-  function setCellSelection($anchor2, event) {
+  } else if (!startDOMCell) return;
+  function setCellSelection($anchor$1, event) {
     let $head = cellUnderMouse(view, event);
     const starting = tableEditingKey.getState(view.state) == null;
-    if (!$head || !inSameTable($anchor2, $head)) {
-      if (starting) $head = $anchor2;
-      else return;
-    }
-    const selection2 = new CellSelection($anchor2, $head);
+    if (!$head || !inSameTable($anchor$1, $head)) if (starting) $head = $anchor$1;
+    else return;
+    const selection2 = new CellSelection($anchor$1, $head);
     if (starting || !view.state.selection.eq(selection2)) {
       const tr2 = view.state.tr.setSelection(selection2);
-      if (starting) tr2.setMeta(tableEditingKey, $anchor2.pos);
+      if (starting) tr2.setMeta(tableEditingKey, $anchor$1.pos);
       view.dispatch(tr2);
     }
   }
@@ -49114,20 +49906,18 @@ function handleMouseDown(view, startEvent) {
     view.root.removeEventListener("mouseup", stop);
     view.root.removeEventListener("dragstart", stop);
     view.root.removeEventListener("mousemove", move);
-    if (tableEditingKey.getState(view.state) != null)
-      view.dispatch(view.state.tr.setMeta(tableEditingKey, -1));
+    if (tableEditingKey.getState(view.state) != null) view.dispatch(view.state.tr.setMeta(tableEditingKey, -1));
   }
   function move(_event) {
     const event = _event;
     const anchor = tableEditingKey.getState(view.state);
-    let $anchor2;
-    if (anchor != null) {
-      $anchor2 = view.state.doc.resolve(anchor);
-    } else if (domInCell(view, event.target) != startDOMCell) {
-      $anchor2 = cellUnderMouse(view, startEvent);
-      if (!$anchor2) return stop();
+    let $anchor$1;
+    if (anchor != null) $anchor$1 = view.state.doc.resolve(anchor);
+    else if (domInCell(view, event.target) != startDOMCell) {
+      $anchor$1 = cellUnderMouse(view, startEvent);
+      if (!$anchor$1) return stop();
     }
-    if ($anchor2) setCellSelection($anchor2, event);
+    if ($anchor$1) setCellSelection($anchor$1, event);
   }
   view.root.addEventListener("mouseup", stop);
   view.root.addEventListener("dragstart", stop);
@@ -49137,8 +49927,8 @@ function atEndOfCell(view, axis, dir) {
   if (!(view.state.selection instanceof TextSelection)) return null;
   const { $head } = view.state.selection;
   for (let d3 = $head.depth - 1; d3 >= 0; d3--) {
-    const parent = $head.node(d3), index8 = dir < 0 ? $head.index(d3) : $head.indexAfter(d3);
-    if (index8 != (dir < 0 ? 0 : parent.childCount)) return null;
+    const parent = $head.node(d3);
+    if ((dir < 0 ? $head.index(d3) : $head.indexAfter(d3)) != (dir < 0 ? 0 : parent.childCount)) return null;
     if (parent.type.spec.tableRole == "cell" || parent.type.spec.tableRole == "header_cell") {
       const cellPos = $head.before(d3);
       const dirStr = axis == "vert" ? dir > 0 ? "down" : "up" : dir > 0 ? "right" : "left";
@@ -49148,11 +49938,7 @@ function atEndOfCell(view, axis, dir) {
   return null;
 }
 function domInCell(view, dom2) {
-  for (; dom2 && dom2 != view.dom; dom2 = dom2.parentNode) {
-    if (dom2.nodeName == "TD" || dom2.nodeName == "TH") {
-      return dom2;
-    }
-  }
+  for (; dom2 && dom2 != view.dom; dom2 = dom2.parentNode) if (dom2.nodeName == "TD" || dom2.nodeName == "TH") return dom2;
   return null;
 }
 function cellUnderMouse(view, event) {
@@ -49161,7 +49947,8 @@ function cellUnderMouse(view, event) {
     top: event.clientY
   });
   if (!mousePos) return null;
-  return mousePos ? cellAround(view.state.doc.resolve(mousePos.pos)) : null;
+  const pos = mousePos.inside >= 0 ? mousePos.inside : mousePos.pos;
+  return cellAround(view.state.doc.resolve(pos));
 }
 var TableView = class {
   constructor(node, defaultCellMinWidth) {
@@ -49170,10 +49957,7 @@ var TableView = class {
     this.dom = document.createElement("div");
     this.dom.className = "tableWrapper";
     this.table = this.dom.appendChild(document.createElement("table"));
-    this.table.style.setProperty(
-      "--default-cell-min-width",
-      `${defaultCellMinWidth}px`
-    );
+    this.table.style.setProperty("--default-cell-min-width", `${defaultCellMinWidth}px`);
     this.colgroup = this.table.appendChild(document.createElement("colgroup"));
     updateColumnsOnResize(node, this.colgroup, this.table, defaultCellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement("tbody"));
@@ -49181,12 +49965,7 @@ var TableView = class {
   update(node) {
     if (node.type != this.node.type) return false;
     this.node = node;
-    updateColumnsOnResize(
-      node,
-      this.colgroup,
-      this.table,
-      this.defaultCellMinWidth
-    );
+    updateColumnsOnResize(node, this.colgroup, this.table, this.defaultCellMinWidth);
     return true;
   }
   ignoreMutation(record) {
@@ -49194,7 +49973,6 @@ var TableView = class {
   }
 };
 function updateColumnsOnResize(node, colgroup, table, defaultCellMinWidth, overrideCol, overrideValue) {
-  var _a;
   let totalWidth = 0;
   let fixedWidth = true;
   let nextDOM = colgroup.firstChild;
@@ -49208,20 +49986,19 @@ function updateColumnsOnResize(node, colgroup, table, defaultCellMinWidth, overr
       totalWidth += hasWidth || defaultCellMinWidth;
       if (!hasWidth) fixedWidth = false;
       if (!nextDOM) {
-        const col2 = document.createElement("col");
-        col2.style.width = cssWidth;
-        colgroup.appendChild(col2);
+        const col$1 = document.createElement("col");
+        col$1.style.width = cssWidth;
+        colgroup.appendChild(col$1);
       } else {
-        if (nextDOM.style.width != cssWidth) {
-          nextDOM.style.width = cssWidth;
-        }
+        if (nextDOM.style.width != cssWidth) nextDOM.style.width = cssWidth;
         nextDOM = nextDOM.nextSibling;
       }
     }
   }
   while (nextDOM) {
+    var _nextDOM$parentNode;
     const after = nextDOM.nextSibling;
-    (_a = nextDOM.parentNode) == null ? void 0 : _a.removeChild(nextDOM);
+    (_nextDOM$parentNode = nextDOM.parentNode) === null || _nextDOM$parentNode === void 0 || _nextDOM$parentNode.removeChild(nextDOM);
     nextDOM = after;
   }
   if (fixedWidth) {
@@ -49232,28 +50009,18 @@ function updateColumnsOnResize(node, colgroup, table, defaultCellMinWidth, overr
     table.style.minWidth = totalWidth + "px";
   }
 }
-var columnResizingPluginKey = new PluginKey(
-  "tableColumnResizing"
-);
-function columnResizing({
-  handleWidth = 5,
-  cellMinWidth = 25,
-  defaultCellMinWidth = 100,
-  View = TableView,
-  lastColumnResizable = true
-} = {}) {
+var columnResizingPluginKey = new PluginKey("tableColumnResizing");
+function columnResizing({ handleWidth = 5, cellMinWidth = 25, defaultCellMinWidth = 100, View = TableView, lastColumnResizable = true } = {}) {
   const plugin = new Plugin({
     key: columnResizingPluginKey,
     state: {
       init(_3, state) {
-        var _a, _b;
-        const nodeViews = (_b = (_a = plugin.spec) == null ? void 0 : _a.props) == null ? void 0 : _b.nodeViews;
+        var _plugin$spec;
+        const nodeViews = (_plugin$spec = plugin.spec) === null || _plugin$spec === void 0 || (_plugin$spec = _plugin$spec.props) === null || _plugin$spec === void 0 ? void 0 : _plugin$spec.nodeViews;
         const tableName = tableNodeTypes(state.schema).table.name;
-        if (View && nodeViews) {
-          nodeViews[tableName] = (node, view) => {
-            return new View(node, defaultCellMinWidth, view);
-          };
-        }
+        if (View && nodeViews) nodeViews[tableName] = (node, view) => {
+          return new View(node, defaultCellMinWidth, view);
+        };
         return new ResizeState(-1, false);
       },
       apply(tr2, prev) {
@@ -49273,21 +50040,19 @@ function columnResizing({
           handleMouseLeave(view);
         },
         mousedown: (view, event) => {
-          handleMouseDown2(view, event, cellMinWidth, defaultCellMinWidth);
+          handleMouseDown$1(view, event, cellMinWidth, defaultCellMinWidth);
         }
       },
       decorations: (state) => {
         const pluginState = columnResizingPluginKey.getState(state);
-        if (pluginState && pluginState.activeHandle > -1) {
-          return handleDecorations(state, pluginState.activeHandle);
-        }
+        if (pluginState && pluginState.activeHandle > -1) return handleDecorations(state, pluginState.activeHandle);
       },
       nodeViews: {}
     }
   });
   return plugin;
 }
-var ResizeState = class _ResizeState {
+var ResizeState = class ResizeState2 {
   constructor(activeHandle, dragging) {
     this.activeHandle = activeHandle;
     this.dragging = dragging;
@@ -49295,16 +50060,12 @@ var ResizeState = class _ResizeState {
   apply(tr2) {
     const state = this;
     const action = tr2.getMeta(columnResizingPluginKey);
-    if (action && action.setHandle != null)
-      return new _ResizeState(action.setHandle, false);
-    if (action && action.setDragging !== void 0)
-      return new _ResizeState(state.activeHandle, action.setDragging);
+    if (action && action.setHandle != null) return new ResizeState2(action.setHandle, false);
+    if (action && action.setDragging !== void 0) return new ResizeState2(state.activeHandle, action.setDragging);
     if (state.activeHandle > -1 && tr2.docChanged) {
       let handle = tr2.mapping.map(state.activeHandle, -1);
-      if (!pointsAtCell(tr2.doc.resolve(handle))) {
-        handle = -1;
-      }
-      return new _ResizeState(handle, state.dragging);
+      if (!pointsAtCell(tr2.doc.resolve(handle))) handle = -1;
+      return new ResizeState2(handle, state.dragging);
     }
     return state;
   }
@@ -49318,10 +50079,8 @@ function handleMouseMove(view, event, handleWidth, lastColumnResizable) {
     let cell = -1;
     if (target) {
       const { left, right } = target.getBoundingClientRect();
-      if (event.clientX - left <= handleWidth)
-        cell = edgeCell(view, event, "left", handleWidth);
-      else if (right - event.clientX <= handleWidth)
-        cell = edgeCell(view, event, "right", handleWidth);
+      if (event.clientX - left <= handleWidth) cell = edgeCell(view, event, "left", handleWidth);
+      else if (right - event.clientX <= handleWidth) cell = edgeCell(view, event, "right", handleWidth);
     }
     if (cell != pluginState.activeHandle) {
       if (!lastColumnResizable && cell !== -1) {
@@ -49329,10 +50088,7 @@ function handleMouseMove(view, event, handleWidth, lastColumnResizable) {
         const table = $cell.node(-1);
         const map2 = TableMap.get(table);
         const tableStart = $cell.start(-1);
-        const col = map2.colCount($cell.pos - tableStart) + $cell.nodeAfter.attrs.colspan - 1;
-        if (col == map2.width - 1) {
-          return;
-        }
+        if (map2.colCount($cell.pos - tableStart) + $cell.nodeAfter.attrs.colspan - 1 == map2.width - 1) return;
       }
       updateHandle(view, cell);
     }
@@ -49341,58 +50097,39 @@ function handleMouseMove(view, event, handleWidth, lastColumnResizable) {
 function handleMouseLeave(view) {
   if (!view.editable) return;
   const pluginState = columnResizingPluginKey.getState(view.state);
-  if (pluginState && pluginState.activeHandle > -1 && !pluginState.dragging)
-    updateHandle(view, -1);
+  if (pluginState && pluginState.activeHandle > -1 && !pluginState.dragging) updateHandle(view, -1);
 }
-function handleMouseDown2(view, event, cellMinWidth, defaultCellMinWidth) {
-  var _a;
+function handleMouseDown$1(view, event, cellMinWidth, defaultCellMinWidth) {
+  var _view$dom$ownerDocume;
   if (!view.editable) return false;
-  const win = (_a = view.dom.ownerDocument.defaultView) != null ? _a : window;
+  const win = (_view$dom$ownerDocume = view.dom.ownerDocument.defaultView) !== null && _view$dom$ownerDocume !== void 0 ? _view$dom$ownerDocume : window;
   const pluginState = columnResizingPluginKey.getState(view.state);
-  if (!pluginState || pluginState.activeHandle == -1 || pluginState.dragging)
-    return false;
+  if (!pluginState || pluginState.activeHandle == -1 || pluginState.dragging) return false;
   const cell = view.state.doc.nodeAt(pluginState.activeHandle);
   const width = currentColWidth(view, pluginState.activeHandle, cell.attrs);
-  view.dispatch(
-    view.state.tr.setMeta(columnResizingPluginKey, {
-      setDragging: { startX: event.clientX, startWidth: width }
-    })
-  );
-  function finish(event2) {
+  view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setDragging: {
+    startX: event.clientX,
+    startWidth: width
+  } }));
+  function finish(event$1) {
     win.removeEventListener("mouseup", finish);
     win.removeEventListener("mousemove", move);
-    const pluginState2 = columnResizingPluginKey.getState(view.state);
-    if (pluginState2 == null ? void 0 : pluginState2.dragging) {
-      updateColumnWidth(
-        view,
-        pluginState2.activeHandle,
-        draggedWidth(pluginState2.dragging, event2, cellMinWidth)
-      );
-      view.dispatch(
-        view.state.tr.setMeta(columnResizingPluginKey, { setDragging: null })
-      );
+    const pluginState$1 = columnResizingPluginKey.getState(view.state);
+    if (pluginState$1 === null || pluginState$1 === void 0 ? void 0 : pluginState$1.dragging) {
+      updateColumnWidth(view, pluginState$1.activeHandle, draggedWidth(pluginState$1.dragging, event$1, cellMinWidth));
+      view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setDragging: null }));
     }
   }
-  function move(event2) {
-    if (!event2.which) return finish(event2);
-    const pluginState2 = columnResizingPluginKey.getState(view.state);
-    if (!pluginState2) return;
-    if (pluginState2.dragging) {
-      const dragged = draggedWidth(pluginState2.dragging, event2, cellMinWidth);
-      displayColumnWidth(
-        view,
-        pluginState2.activeHandle,
-        dragged,
-        defaultCellMinWidth
-      );
+  function move(event$1) {
+    if (!event$1.which) return finish(event$1);
+    const pluginState$1 = columnResizingPluginKey.getState(view.state);
+    if (!pluginState$1) return;
+    if (pluginState$1.dragging) {
+      const dragged = draggedWidth(pluginState$1.dragging, event$1, cellMinWidth);
+      displayColumnWidth(view, pluginState$1.activeHandle, dragged, defaultCellMinWidth);
     }
   }
-  displayColumnWidth(
-    view,
-    pluginState.activeHandle,
-    width,
-    defaultCellMinWidth
-  );
+  displayColumnWidth(view, pluginState.activeHandle, width, defaultCellMinWidth);
   win.addEventListener("mouseup", finish);
   win.addEventListener("mousemove", move);
   event.preventDefault();
@@ -49402,20 +50139,17 @@ function currentColWidth(view, cellPos, { colspan, colwidth }) {
   const width = colwidth && colwidth[colwidth.length - 1];
   if (width) return width;
   const dom2 = view.domAtPos(cellPos);
-  const node = dom2.node.childNodes[dom2.offset];
-  let domWidth = node.offsetWidth, parts = colspan;
+  let domWidth = dom2.node.childNodes[dom2.offset].offsetWidth, parts = colspan;
   if (colwidth) {
-    for (let i3 = 0; i3 < colspan; i3++)
-      if (colwidth[i3]) {
-        domWidth -= colwidth[i3];
-        parts--;
-      }
+    for (let i3 = 0; i3 < colspan; i3++) if (colwidth[i3]) {
+      domWidth -= colwidth[i3];
+      parts--;
+    }
   }
   return domWidth / parts;
 }
 function domCellAround(target) {
-  while (target && target.nodeName != "TD" && target.nodeName != "TH")
-    target = target.classList && target.classList.contains("ProseMirror") ? null : target.parentNode;
+  while (target && target.nodeName != "TD" && target.nodeName != "TH") target = target.classList && target.classList.contains("ProseMirror") ? null : target.parentNode;
   return target;
 }
 function edgeCell(view, event, side, handleWidth) {
@@ -49438,9 +50172,7 @@ function draggedWidth(dragging, event, resizeMinWidth) {
   return Math.max(resizeMinWidth, dragging.startWidth + offset);
 }
 function updateHandle(view, value) {
-  view.dispatch(
-    view.state.tr.setMeta(columnResizingPluginKey, { setHandle: value })
-  );
+  view.dispatch(view.state.tr.setMeta(columnResizingPluginKey, { setHandle: value }));
 }
 function updateColumnWidth(view, cell, width) {
   const $cell = view.state.doc.resolve(cell);
@@ -49456,7 +50188,10 @@ function updateColumnWidth(view, cell, width) {
     if (attrs.colwidth && attrs.colwidth[index8] == width) continue;
     const colwidth = attrs.colwidth ? attrs.colwidth.slice() : zeroes(attrs.colspan);
     colwidth[index8] = width;
-    tr2.setNodeMarkup(start2 + pos, null, { ...attrs, colwidth });
+    tr2.setNodeMarkup(start2 + pos, null, {
+      ...attrs,
+      colwidth
+    });
   }
   if (tr2.docChanged) view.dispatch(tr2);
 }
@@ -49465,64 +50200,38 @@ function displayColumnWidth(view, cell, width, defaultCellMinWidth) {
   const table = $cell.node(-1), start2 = $cell.start(-1);
   const col = TableMap.get(table).colCount($cell.pos - start2) + $cell.nodeAfter.attrs.colspan - 1;
   let dom2 = view.domAtPos($cell.start(-1)).node;
-  while (dom2 && dom2.nodeName != "TABLE") {
-    dom2 = dom2.parentNode;
-  }
+  while (dom2 && dom2.nodeName != "TABLE") dom2 = dom2.parentNode;
   if (!dom2) return;
-  updateColumnsOnResize(
-    table,
-    dom2.firstChild,
-    dom2,
-    defaultCellMinWidth,
-    col,
-    width
-  );
+  updateColumnsOnResize(table, dom2.firstChild, dom2, defaultCellMinWidth, col, width);
 }
 function zeroes(n3) {
   return Array(n3).fill(0);
 }
 function handleDecorations(state, cell) {
-  var _a;
   const decorations = [];
   const $cell = state.doc.resolve(cell);
   const table = $cell.node(-1);
-  if (!table) {
-    return DecorationSet.empty;
-  }
+  if (!table) return DecorationSet.empty;
   const map2 = TableMap.get(table);
   const start2 = $cell.start(-1);
   const col = map2.colCount($cell.pos - start2) + $cell.nodeAfter.attrs.colspan - 1;
   for (let row = 0; row < map2.height; row++) {
     const index8 = col + row * map2.width;
     if ((col == map2.width - 1 || map2.map[index8] != map2.map[index8 + 1]) && (row == 0 || map2.map[index8] != map2.map[index8 - map2.width])) {
+      var _columnResizingPlugin;
       const cellPos = map2.map[index8];
       const pos = start2 + cellPos + table.nodeAt(cellPos).nodeSize - 1;
       const dom2 = document.createElement("div");
       dom2.className = "column-resize-handle";
-      if ((_a = columnResizingPluginKey.getState(state)) == null ? void 0 : _a.dragging) {
-        decorations.push(
-          Decoration.node(
-            start2 + cellPos,
-            start2 + cellPos + table.nodeAt(cellPos).nodeSize,
-            {
-              class: "column-resize-dragging"
-            }
-          )
-        );
-      }
+      if ((_columnResizingPlugin = columnResizingPluginKey.getState(state)) === null || _columnResizingPlugin === void 0 ? void 0 : _columnResizingPlugin.dragging) decorations.push(Decoration.node(start2 + cellPos, start2 + cellPos + table.nodeAt(cellPos).nodeSize, { class: "column-resize-dragging" }));
       decorations.push(Decoration.widget(pos, dom2));
     }
   }
   return DecorationSet.create(state.doc, decorations);
 }
-function tableEditing({
-  allowTableNodeSelection = false
-} = {}) {
+function tableEditing({ allowTableNodeSelection = false } = {}) {
   return new Plugin({
     key: tableEditingKey,
-    // This piece of state is used to remember when a mouse-drag
-    // cell-selection is happening, so that it can continue even as
-    // transactions (which might move its anchor cell) come in.
     state: {
       init() {
         return null;
@@ -49537,9 +50246,7 @@ function tableEditing({
     },
     props: {
       decorations: drawCellSelection,
-      handleDOMEvents: {
-        mousedown: handleMouseDown
-      },
+      handleDOMEvents: { mousedown: handleMouseDown },
       createSelectionBetween(view) {
         return tableEditingKey.getState(view.state) != null ? view.state.selection : null;
       },
@@ -49548,11 +50255,7 @@ function tableEditing({
       handlePaste
     },
     appendTransaction(_3, oldState, state) {
-      return normalizeSelection(
-        state,
-        fixTables(state, oldState),
-        allowTableNodeSelection
-      );
+      return normalizeSelection(state, fixTables(state, oldState), allowTableNodeSelection);
     }
   });
 }
@@ -49695,7 +50398,8 @@ function updateColumns(node, colgroup, table, cellMinWidth, overrideCol, overrid
     (_a = nextDOM.parentNode) == null ? void 0 : _a.removeChild(nextDOM);
     nextDOM = after;
   }
-  if (fixedWidth) {
+  const hasUserWidth = node.attrs.style && typeof node.attrs.style === "string" && /\bwidth\s*:/i.test(node.attrs.style);
+  if (fixedWidth && !hasUserWidth) {
     table.style.width = `${totalWidth}px`;
     table.style.minWidth = "";
   } else {
@@ -49710,6 +50414,9 @@ var TableView2 = class {
     this.dom = document.createElement("div");
     this.dom.className = "tableWrapper";
     this.table = this.dom.appendChild(document.createElement("table"));
+    if (node.attrs.style) {
+      this.table.style.cssText = node.attrs.style;
+    }
     this.colgroup = this.table.appendChild(document.createElement("colgroup"));
     updateColumns(node, this.colgroup, this.table, cellMinWidth);
     this.contentDOM = this.table.appendChild(document.createElement("tbody"));
@@ -49899,6 +50606,7 @@ var Table = Node3.create({
     return {
       HTMLAttributes: {},
       resizable: false,
+      renderWrapper: false,
       handleWidth: 5,
       cellMinWidth: 25,
       // TODO: fix
@@ -49916,15 +50624,22 @@ var Table = Node3.create({
   },
   renderHTML({ node, HTMLAttributes }) {
     const { colgroup, tableWidth, tableMinWidth } = createColGroup(node, this.options.cellMinWidth);
+    const userStyles = HTMLAttributes.style;
+    function getTableStyle() {
+      if (userStyles) {
+        return userStyles;
+      }
+      return tableWidth ? `width: ${tableWidth}` : `min-width: ${tableMinWidth}`;
+    }
     const table = [
       "table",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        style: tableWidth ? `width: ${tableWidth}` : `min-width: ${tableMinWidth}`
+        style: getTableStyle()
       }),
       colgroup,
       ["tbody", 0]
     ];
-    return table;
+    return this.options.renderWrapper ? ["div", { class: "tableWrapper" }, table] : table;
   },
   parseMarkdown: (token, h4) => {
     const rows = [];
@@ -50099,7 +50814,8 @@ var Image = Node3.create({
     return {
       inline: false,
       allowBase64: false,
-      HTMLAttributes: {}
+      HTMLAttributes: {},
+      resize: false
     };
   },
   inline() {
@@ -50151,6 +50867,70 @@ var Image = Node3.create({
     const alt = (_d = (_c = node.attrs) == null ? void 0 : _c.alt) != null ? _d : "";
     const title = (_f = (_e = node.attrs) == null ? void 0 : _e.title) != null ? _f : "";
     return title ? `![${alt}](${src} "${title}")` : `![${alt}](${src})`;
+  },
+  addNodeView() {
+    if (!this.options.resize || !this.options.resize.enabled || typeof document === "undefined") {
+      return null;
+    }
+    const { directions, minWidth, minHeight, alwaysPreserveAspectRatio } = this.options.resize;
+    return ({ node, getPos, HTMLAttributes, editor }) => {
+      const el = document.createElement("img");
+      Object.entries(HTMLAttributes).forEach(([key, value]) => {
+        if (value != null) {
+          switch (key) {
+            case "width":
+            case "height":
+              break;
+            default:
+              el.setAttribute(key, value);
+              break;
+          }
+        }
+      });
+      el.src = HTMLAttributes.src;
+      const nodeView = new ResizableNodeView({
+        element: el,
+        editor,
+        node,
+        getPos,
+        onResize: (width, height) => {
+          el.style.width = `${width}px`;
+          el.style.height = `${height}px`;
+        },
+        onCommit: (width, height) => {
+          const pos = getPos();
+          if (pos === void 0) {
+            return;
+          }
+          this.editor.chain().setNodeSelection(pos).updateAttributes(this.name, {
+            width,
+            height
+          }).run();
+        },
+        onUpdate: (updatedNode, _decorations, _innerDecorations) => {
+          if (updatedNode.type !== node.type) {
+            return false;
+          }
+          return true;
+        },
+        options: {
+          directions,
+          min: {
+            width: minWidth,
+            height: minHeight
+          },
+          preserveAspectRatio: alwaysPreserveAspectRatio === true
+        }
+      });
+      const dom2 = nodeView.dom;
+      dom2.style.visibility = "hidden";
+      dom2.style.pointerEvents = "none";
+      el.onload = () => {
+        dom2.style.visibility = "";
+        dom2.style.pointerEvents = "";
+      };
+      return nodeView;
+    };
   },
   addCommands() {
     return {
@@ -50515,9 +51295,9 @@ var TextStyleKit = Extension.create({
 
 // app/javascript/components/NoteFormModal.js
 function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
-  const [concepts, setConcepts] = (0, import_react16.useState)([]);
-  const [sources, setSources] = (0, import_react16.useState)([]);
-  const [formData, setFormData] = (0, import_react16.useState)({
+  const [concepts, setConcepts] = (0, import_react15.useState)([]);
+  const [sources, setSources] = (0, import_react15.useState)([]);
+  const [formData, setFormData] = (0, import_react15.useState)({
     body: "",
     note_type: "note",
     context: "",
@@ -50527,7 +51307,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
     source_id: "",
     tags: ""
   });
-  const [error, setError] = (0, import_react16.useState)("");
+  const [error, setError] = (0, import_react15.useState)("");
   const editor = useEditor({
     extensions: [
       index_default3,
@@ -50561,12 +51341,12 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
       setFormData({ ...formData, body: editor2.getHTML() });
     }
   });
-  (0, import_react16.useEffect)(() => {
+  (0, import_react15.useEffect)(() => {
     if (editor && isOpen) {
       editor.commands.setContent(formData.body || "");
     }
   }, [isOpen, editor]);
-  (0, import_react16.useEffect)(() => {
+  (0, import_react15.useEffect)(() => {
     if (isOpen) {
       if (!conceptId && !sourceId && !item) {
         fetchConcepts();
@@ -50649,7 +51429,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
       setError("An error occurred while saving the note");
     }
   };
-  return /* @__PURE__ */ import_react16.default.createElement(
+  return /* @__PURE__ */ import_react15.default.createElement(
     Modal,
     {
       isOpen,
@@ -50657,19 +51437,19 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
       title: item ? "Edit Note" : "New Note",
       size: "medium"
     },
-    /* @__PURE__ */ import_react16.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react16.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react16.default.createElement(
+    /* @__PURE__ */ import_react15.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react15.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Type *"), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
         value: formData.note_type,
         onChange: (e3) => setFormData({ ...formData, note_type: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "note" }, "Note"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "question" }, "Question"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "connection" }, "Connection"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "todo" }, "To Do Item")
-    )), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Body *"), /* @__PURE__ */ import_react16.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react16.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-1 flex-wrap bg-sand" }, /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "note" }, "Note"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "question" }, "Question"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "connection" }, "Connection"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "todo" }, "To Do Item")
+    )), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Body *"), /* @__PURE__ */ import_react15.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react15.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-1 flex-wrap bg-sand" }, /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50677,8 +51457,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("bold") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Bold"
       },
-      /* @__PURE__ */ import_react16.default.createElement("strong", null, "B")
-    ), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("strong", null, "B")
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50686,8 +51466,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("italic") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Italic"
       },
-      /* @__PURE__ */ import_react16.default.createElement("em", null, "I")
-    ), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("em", null, "I")
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50695,8 +51475,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("underline") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Underline"
       },
-      /* @__PURE__ */ import_react16.default.createElement("u", null, "U")
-    ), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("u", null, "U")
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50704,8 +51484,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: `px-3 py-1 rounded text-sm text-olive ${editor.isActive("strike") ? "bg-olive/20" : "hover:bg-olive/10"}`,
         title: "Strikethrough"
       },
-      /* @__PURE__ */ import_react16.default.createElement("s", null, "S")
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("s", null, "S")
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
         onChange: (e3) => {
@@ -50719,14 +51499,14 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: "px-2 py-1 rounded text-sm text-olive border border-olive/20 bg-sand hover:bg-olive/10",
         value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : editor.isActive("heading", { level: 5 }) ? "5" : editor.isActive("heading", { level: 6 }) ? "6" : ""
       },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "Paragraph"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "1" }, "Heading 1"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "2" }, "Heading 2"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "3" }, "Heading 3"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "4" }, "Heading 4"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "5" }, "Heading 5"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "6" }, "Heading 6")
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "Paragraph"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "1" }, "Heading 1"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "2" }, "Heading 2"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "3" }, "Heading 3"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "4" }, "Heading 4"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "5" }, "Heading 5"),
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "6" }, "Heading 6")
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "input",
       {
         type: "color",
@@ -50735,7 +51515,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: "w-8 h-6 rounded cursor-pointer border border-olive/20",
         title: "Text Color"
       }
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "input",
       {
         type: "color",
@@ -50743,7 +51523,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: "w-8 h-6 rounded cursor-pointer border border-olive/20",
         title: "Highlight Color"
       }
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50752,7 +51532,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Align Left"
       },
       "\u2B05"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50761,7 +51541,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Align Center"
       },
       "\u2194"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50770,7 +51550,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Align Right"
       },
       "\u27A1"
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50779,7 +51559,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Bullet List"
       },
       "\u2022 List"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50788,7 +51568,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Numbered List"
       },
       "1. List"
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50802,7 +51582,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Add Link"
       },
       "\u{1F517}"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50811,7 +51591,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Blockquote"
       },
       "\u201C\u201D"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50820,7 +51600,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Horizontal Rule"
       },
       "\u2015"
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-px h-6 bg-olive/20 mx-1" }), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50829,7 +51609,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Insert Table"
       },
       "\u25A6"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50843,13 +51623,13 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         title: "Insert Image"
       },
       "\u{1F5BC}"
-    )), /* @__PURE__ */ import_react16.default.createElement(
+    )), /* @__PURE__ */ import_react15.default.createElement(
       EditorContent,
       {
         editor,
         className: "px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
       }
-    ))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react16.default.createElement(
+    ))), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react15.default.createElement(
       "textarea",
       {
         value: formData.context,
@@ -50858,25 +51638,25 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What prompted this note?"
       }
-    )), !conceptId && /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react16.default.createElement(
+    )), !conceptId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
         value: formData.concept_id,
         onChange: (e3) => setFormData({ ...formData, concept_id: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "None (general note)"),
-      concepts.map((concept) => /* @__PURE__ */ import_react16.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    )), !sourceId && /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "None (general note)"),
+      concepts.map((concept) => /* @__PURE__ */ import_react15.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
+    )), !sourceId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
         value: formData.source_id,
         onChange: (e3) => setFormData({ ...formData, source_id: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "None"),
-      sources.map((source) => /* @__PURE__ */ import_react16.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
-    )), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "None"),
+      sources.map((source) => /* @__PURE__ */ import_react15.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
+    )), /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags (one per line)"), /* @__PURE__ */ import_react15.default.createElement(
       "textarea",
       {
         value: formData.tags,
@@ -50884,7 +51664,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         rows: "2",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react16.default.createElement(
+    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react15.default.createElement(
       "input",
       {
         type: "date",
@@ -50892,7 +51672,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         onChange: (e3) => setFormData({ ...formData, noted_on: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react16.default.createElement(
+    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react15.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -50901,14 +51681,14 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         onChange: (e3) => setFormData({ ...formData, pinned: e3.target.checked }),
         className: "rounded"
       }
-    ), /* @__PURE__ */ import_react16.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Note"
-    ), /* @__PURE__ */ import_react16.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement(
       "button",
       {
         type: "button",
@@ -50922,11 +51702,11 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
 
 // app/javascript/components/ConceptShow.js
 function ConceptShow({ conceptId }) {
-  const [concept, setConcept] = (0, import_react18.useState)(null);
-  const [loading, setLoading] = (0, import_react18.useState)(true);
-  const [editing, setEditing] = (0, import_react18.useState)(false);
-  const [showConnections, setShowConnections] = (0, import_react18.useState)(true);
-  (0, import_react18.useEffect)(() => {
+  const [concept, setConcept] = (0, import_react17.useState)(null);
+  const [loading, setLoading] = (0, import_react17.useState)(true);
+  const [editing, setEditing] = (0, import_react17.useState)(false);
+  const [showConnections, setShowConnections] = (0, import_react17.useState)(true);
+  (0, import_react17.useEffect)(() => {
     fetchConcept();
   }, []);
   const fetchConcept = async () => {
@@ -50941,12 +51721,12 @@ function ConceptShow({ conceptId }) {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-lg" }, "Loading..."));
+    return /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-lg" }, "Loading..."));
   }
   if (!concept) {
-    return /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-center py-12" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-lg" }, "Concept not found"));
+    return /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-center py-12" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-lg" }, "Concept not found"));
   }
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react18.default.createElement("a", { href: "/concepts", className: "text-sm text-primary hover:text-accent-dark" }, "\u2190 Back to Constructs")), /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react17.default.createElement("a", { href: "/concepts", className: "text-sm text-primary hover:text-accent-dark" }, "\u2190 Back to Constructs")), /* @__PURE__ */ import_react17.default.createElement(
     ConceptFormModal,
     {
       isOpen: editing,
@@ -50957,32 +51737,32 @@ function ConceptShow({ conceptId }) {
         setEditing(false);
       }
     }
-  ), !editing && /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(ConceptDisplay, { concept, onEdit: () => setEditing(true) }), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConnectionManager, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptPeople, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptSources, { conceptId })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react18.default.createElement(ConceptNotes, { conceptId }))));
+  ), !editing && /* @__PURE__ */ import_react17.default.createElement(import_react17.default.Fragment, null, /* @__PURE__ */ import_react17.default.createElement(ConceptDisplay, { concept, onEdit: () => setEditing(true) }), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConnectionManager, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptPeople, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptSources, { conceptId })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react17.default.createElement(ConceptNotes, { conceptId }))));
 }
 function ConceptDisplay({ concept, onEdit }) {
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded" }, concept.level_status)), /* @__PURE__ */ import_react18.default.createElement("h1", { className: "text-4xl mb-2" }, concept.label), /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "Last updated: ", new Date(concept.updated_at).toLocaleDateString(), concept.last_reviewed_on && /* @__PURE__ */ import_react18.default.createElement("span", { className: "ml-4" }, "Last reviewed: ", new Date(concept.last_reviewed_on).toLocaleDateString()))), /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react17.default.createElement("div", null, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, concept.node_type), concept.level_status && /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded" }, concept.level_status)), /* @__PURE__ */ import_react17.default.createElement("h1", { className: "text-4xl mb-2" }, concept.label), /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "Last updated: ", new Date(concept.updated_at).toLocaleDateString(), concept.last_reviewed_on && /* @__PURE__ */ import_react17.default.createElement("span", { className: "ml-4" }, "Last reviewed: ", new Date(concept.last_reviewed_on).toLocaleDateString()))), /* @__PURE__ */ import_react17.default.createElement(
     "button",
     {
       onClick: onEdit,
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     "Edit"
-  )), /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-6 mb-8" }, concept.summary_top && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Top-level)", content: concept.summary_top }), concept.summary_mid && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Mid-level)", content: concept.summary_mid }), concept.summary_deep && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Summary (Deep)", content: concept.summary_deep })), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid md:grid-cols-2 gap-6 mb-8" }, /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Mechanisms", items: concept.mechanisms }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Signature Techniques", items: concept.signature_techniques }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Strengths", items: concept.strengths }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Weaknesses", items: concept.weaknesses }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Adjacent Models", items: concept.adjacent_models }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Contrasts With", items: concept.contrasts_with }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Integrates With", items: concept.integrates_with }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Intake Questions", items: concept.intake_questions }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Micro Skills", items: concept.micro_skills }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Practice Prompts", items: concept.practice_prompts }), /* @__PURE__ */ import_react18.default.createElement(ArraySection, { title: "Assessment Links", items: concept.assessment_links })), concept.evidence_brief && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Evidence Brief", content: concept.evidence_brief, className: "mb-6" }), concept.confidence_note && /* @__PURE__ */ import_react18.default.createElement(Section, { title: "Confidence Note", content: concept.confidence_note, className: "mb-6" }), concept.tags && concept.tags.length > 0 && /* @__PURE__ */ import_react18.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex flex-wrap gap-2" }, concept.tags.map((tag, idx) => /* @__PURE__ */ import_react18.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
+  )), /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-6 mb-8" }, concept.summary_top && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Top-level)", content: concept.summary_top }), concept.summary_mid && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Mid-level)", content: concept.summary_mid }), concept.summary_deep && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Summary (Deep)", content: concept.summary_deep })), /* @__PURE__ */ import_react17.default.createElement("div", { className: "grid md:grid-cols-2 gap-6 mb-8" }, /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Mechanisms", items: concept.mechanisms }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Signature Techniques", items: concept.signature_techniques }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Strengths", items: concept.strengths }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Weaknesses", items: concept.weaknesses }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Adjacent Models", items: concept.adjacent_models }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Contrasts With", items: concept.contrasts_with }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Integrates With", items: concept.integrates_with }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Intake Questions", items: concept.intake_questions }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Micro Skills", items: concept.micro_skills }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Practice Prompts", items: concept.practice_prompts }), /* @__PURE__ */ import_react17.default.createElement(ArraySection, { title: "Assessment Links", items: concept.assessment_links })), concept.evidence_brief && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Evidence Brief", content: concept.evidence_brief, className: "mb-6" }), concept.confidence_note && /* @__PURE__ */ import_react17.default.createElement(Section, { title: "Confidence Note", content: concept.confidence_note, className: "mb-6" }), concept.tags && concept.tags.length > 0 && /* @__PURE__ */ import_react17.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex flex-wrap gap-2" }, concept.tags.map((tag, idx) => /* @__PURE__ */ import_react17.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
 }
 function Section({ title, content, className = "" }) {
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className }, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react18.default.createElement("p", { className: "leading-relaxed whitespace-pre-wrap" }, content));
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className }, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react17.default.createElement("p", { className: "leading-relaxed whitespace-pre-wrap" }, content));
 }
 function ArraySection({ title, items }) {
   if (!items || items.length === 0) return null;
-  return /* @__PURE__ */ import_react18.default.createElement("div", null, /* @__PURE__ */ import_react18.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react18.default.createElement("ul", { className: "list-disc list-inside space-y-1" }, items.map((item, idx) => /* @__PURE__ */ import_react18.default.createElement("li", { key: idx, className: "text-sm" }, item))));
+  return /* @__PURE__ */ import_react17.default.createElement("div", null, /* @__PURE__ */ import_react17.default.createElement("h3", { className: "text-lg mb-2" }, title), /* @__PURE__ */ import_react17.default.createElement("ul", { className: "list-disc list-inside space-y-1" }, items.map((item, idx) => /* @__PURE__ */ import_react17.default.createElement("li", { key: idx, className: "text-sm" }, item))));
 }
 function ConnectionManager({ conceptId }) {
-  const [connections, setConnections] = (0, import_react18.useState)([]);
-  const [concepts, setConcepts] = (0, import_react18.useState)([]);
-  const [allConcepts, setAllConcepts] = (0, import_react18.useState)([]);
-  const [loading, setLoading] = (0, import_react18.useState)(true);
-  const [creatingConnection, setCreatingConnection] = (0, import_react18.useState)(false);
-  (0, import_react18.useEffect)(() => {
+  const [connections, setConnections] = (0, import_react17.useState)([]);
+  const [concepts, setConcepts] = (0, import_react17.useState)([]);
+  const [allConcepts, setAllConcepts] = (0, import_react17.useState)([]);
+  const [loading, setLoading] = (0, import_react17.useState)(true);
+  const [creatingConnection, setCreatingConnection] = (0, import_react17.useState)(false);
+  (0, import_react17.useEffect)(() => {
     fetchConnections();
     fetchConcepts();
   }, []);
@@ -51045,14 +51825,14 @@ function ConnectionManager({ conceptId }) {
     applies_to: "Applies to",
     treats: "Treats"
   };
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl" }, "Relationships"), /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl" }, "Relationships"), /* @__PURE__ */ import_react17.default.createElement(
     "button",
     {
       onClick: () => setCreatingConnection(!creatingConnection),
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingConnection ? "Cancel" : "+ Add Relationship"
-  )), /* @__PURE__ */ import_react18.default.createElement(
+  )), /* @__PURE__ */ import_react17.default.createElement(
     ConnectionFormModal,
     {
       isOpen: creatingConnection,
@@ -51065,18 +51845,18 @@ function ConnectionManager({ conceptId }) {
         setCreatingConnection(false);
       }
     }
-  ), loading ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm" }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "No relationships yet") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-4" }, connections.map((connection) => {
+  ), loading ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm" }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "No relationships yet") : /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-4" }, connections.map((connection) => {
     const isSource = connection.src_concept.id === parseInt(conceptId);
     const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
     const direction = isSource ? "\u2192" : "\u2190";
-    return /* @__PURE__ */ import_react18.default.createElement("div", { key: connection.id, className: "flex items-center justify-between border-b border-gray-200 pb-4" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-3 flex-1 flex-wrap" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap" }, connection.relationship_label || relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-gray-400" }, direction), /* @__PURE__ */ import_react18.default.createElement(
+    return /* @__PURE__ */ import_react17.default.createElement("div", { key: connection.id, className: "flex items-center justify-between border-b border-gray-200 pb-4" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-3 flex-1 flex-wrap" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap" }, connection.relationship_label || relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-gray-400" }, direction), /* @__PURE__ */ import_react17.default.createElement(
       "a",
       {
         href: `/concepts/${otherConcept.id}`,
         className: "text-lg hover:text-primary font-medium"
       },
       otherConcept.label
-    ), /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs text-gray-500" }, "(", otherConcept.node_type, ")"), connection.description && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600 w-full mt-2" }, connection.description)), /* @__PURE__ */ import_react18.default.createElement(
+    ), /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs text-gray-500" }, "(", otherConcept.node_type, ")"), connection.description && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600 w-full mt-2" }, connection.description)), /* @__PURE__ */ import_react17.default.createElement(
       "button",
       {
         onClick: () => handleDeleteConnection(connection.id),
@@ -51087,9 +51867,9 @@ function ConnectionManager({ conceptId }) {
   })));
 }
 function ConceptPeople({ conceptId }) {
-  const [people, setPeople] = (0, import_react18.useState)([]);
-  const [loading, setLoading] = (0, import_react18.useState)(true);
-  (0, import_react18.useEffect)(() => {
+  const [people, setPeople] = (0, import_react17.useState)([]);
+  const [loading, setLoading] = (0, import_react17.useState)(true);
+  (0, import_react17.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -51105,21 +51885,21 @@ function ConceptPeople({ conceptId }) {
   };
   if (loading) return null;
   if (people.length === 0) return null;
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl mb-6" }, "Related People"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-4" }, people.map((person) => /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl mb-6" }, "Related People"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-4" }, people.map((person) => /* @__PURE__ */ import_react17.default.createElement(
     "a",
     {
       key: person.id,
       href: `/people/${person.id}`,
       className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
     },
-    /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, person.full_name), person.role && /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, person.role)),
-    person.summary && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, person.summary)
+    /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, person.full_name), person.role && /* @__PURE__ */ import_react17.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, person.role)),
+    person.summary && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, person.summary)
   ))));
 }
 function ConceptSources({ conceptId }) {
-  const [sources, setSources] = (0, import_react18.useState)([]);
-  const [loading, setLoading] = (0, import_react18.useState)(true);
-  (0, import_react18.useEffect)(() => {
+  const [sources, setSources] = (0, import_react17.useState)([]);
+  const [loading, setLoading] = (0, import_react17.useState)(true);
+  (0, import_react17.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -51135,22 +51915,22 @@ function ConceptSources({ conceptId }) {
   };
   if (loading) return null;
   if (sources.length === 0) return null;
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Sources"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-3" }, sources.map((source) => /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Sources"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-3" }, sources.map((source) => /* @__PURE__ */ import_react17.default.createElement(
     "a",
     {
       key: source.id,
       href: `/sources/${source.id}`,
       className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
     },
-    /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center justify-between mb-1" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-center gap-2 text-xs text-gray-500" }, source.kind && /* @__PURE__ */ import_react18.default.createElement("span", { className: "uppercase" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react18.default.createElement("span", null, source.year))),
-    source.authors && /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, source.authors)
+    /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center justify-between mb-1" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-center gap-2 text-xs text-gray-500" }, source.kind && /* @__PURE__ */ import_react17.default.createElement("span", { className: "uppercase" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react17.default.createElement("span", null, source.year))),
+    source.authors && /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, source.authors)
   ))));
 }
 function ConceptNotes({ conceptId }) {
-  const [notes, setNotes] = (0, import_react18.useState)([]);
-  const [loading, setLoading] = (0, import_react18.useState)(true);
-  const [creatingNote, setCreatingNote] = (0, import_react18.useState)(false);
-  (0, import_react18.useEffect)(() => {
+  const [notes, setNotes] = (0, import_react17.useState)([]);
+  const [loading, setLoading] = (0, import_react17.useState)(true);
+  const [creatingNote, setCreatingNote] = (0, import_react17.useState)(false);
+  (0, import_react17.useEffect)(() => {
     fetchNotes();
   }, []);
   const fetchNotes = async () => {
@@ -51196,14 +51976,14 @@ function ConceptNotes({ conceptId }) {
     application: "bg-green-100 text-green-800",
     synthesis: "bg-indigo-100 text-indigo-800"
   };
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react18.default.createElement("h2", { className: "text-2xl" }, "Notes"), /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex justify-between items-center mb-6" }, /* @__PURE__ */ import_react17.default.createElement("h2", { className: "text-2xl" }, "Notes"), /* @__PURE__ */ import_react17.default.createElement(
     "button",
     {
       onClick: () => setCreatingNote(!creatingNote),
       className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingNote ? "Cancel" : "+ Add Note"
-  )), /* @__PURE__ */ import_react18.default.createElement(
+  )), /* @__PURE__ */ import_react17.default.createElement(
     NoteFormModal,
     {
       isOpen: creatingNote,
@@ -51214,29 +51994,29 @@ function ConceptNotes({ conceptId }) {
         setCreatingNote(false);
       }
     }
-  ), loading ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react18.default.createElement("div", { key: note.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), /* @__PURE__ */ import_react18.default.createElement(
+  ), loading ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet") : /* @__PURE__ */ import_react17.default.createElement("div", { className: "space-y-4" }, notes.map((note) => /* @__PURE__ */ import_react17.default.createElement("div", { key: note.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), /* @__PURE__ */ import_react17.default.createElement(
     "button",
     {
       onClick: () => handleDeleteNote(note.id),
       className: "text-sm text-accent-dark hover:text-primary"
     },
     "Delete"
-  )), /* @__PURE__ */ import_react18.default.createElement("p", { className: "mb-3 whitespace-pre-wrap" }, note.body), note.context && /* @__PURE__ */ import_react18.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)), note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react18.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))), /* @__PURE__ */ import_react18.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())))));
+  )), /* @__PURE__ */ import_react17.default.createElement("p", { className: "mb-3 whitespace-pre-wrap" }, note.body), note.context && /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react17.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)), note.tags && note.tags.length > 0 && /* @__PURE__ */ import_react17.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.tags.map((tag, idx) => /* @__PURE__ */ import_react17.default.createElement("span", { key: idx, className: "text-xs bg-sand px-2 py-1 rounded" }, tag))), /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())))));
 }
 
 // app/javascript/components/SourcesIndex.js
-var import_react24 = __toESM(require_react());
+var import_react23 = __toESM(require_react());
 
 // app/javascript/components/SourceFormModal.js
-var import_react22 = __toESM(require_react());
+var import_react21 = __toESM(require_react());
 
 // app/javascript/components/TagSelector.js
-var import_react19 = __toESM(require_react());
+var import_react18 = __toESM(require_react());
 function TagSelector({ selectedTags = [], onChange: onChange16 }) {
-  const [allTags, setAllTags] = (0, import_react19.useState)([]);
-  const [filter2, setFilter] = (0, import_react19.useState)("");
-  const [loading, setLoading] = (0, import_react19.useState)(true);
-  (0, import_react19.useEffect)(() => {
+  const [allTags, setAllTags] = (0, import_react18.useState)([]);
+  const [filter2, setFilter] = (0, import_react18.useState)("");
+  const [loading, setLoading] = (0, import_react18.useState)(true);
+  (0, import_react18.useEffect)(() => {
     fetchTags();
   }, []);
   const fetchTags = async () => {
@@ -51270,9 +52050,9 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
   };
   const canCreateNew = filter2.trim() && !allTags.includes(filter2.trim()) && !selectedTags.includes(filter2.trim());
   if (loading) {
-    return /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading tags...");
+    return /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading tags...");
   }
-  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react19.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement(
     "input",
     {
       type: "text",
@@ -51287,7 +52067,7 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
       placeholder: "Type to filter or create new tag...",
       className: "w-full px-3 py-2 text-sm border border-gray-300 rounded"
     }
-  ), canCreateNew && /* @__PURE__ */ import_react19.default.createElement(
+  ), canCreateNew && /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       type: "button",
@@ -51298,14 +52078,14 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
     '+ Create "',
     filter2.trim(),
     '"'
-  )), selectedTags.length > 0 && /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedTags.map((tag) => /* @__PURE__ */ import_react19.default.createElement(
+  )), selectedTags.length > 0 && /* @__PURE__ */ import_react18.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedTags.map((tag) => /* @__PURE__ */ import_react18.default.createElement(
     "span",
     {
       key: tag,
       className: "inline-flex items-center gap-1 px-2 py-1 bg-primary text-sand text-xs rounded"
     },
     tag,
-    /* @__PURE__ */ import_react19.default.createElement(
+    /* @__PURE__ */ import_react18.default.createElement(
       "button",
       {
         type: "button",
@@ -51315,13 +52095,13 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
       },
       "\xD7"
     )
-  )))), /* @__PURE__ */ import_react19.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredTags.length === 0 ? /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching tags. Press Enter to create new." : "No tags yet.") : /* @__PURE__ */ import_react19.default.createElement("div", { className: "space-y-2" }, filteredTags.map((tag) => /* @__PURE__ */ import_react19.default.createElement(
+  )))), /* @__PURE__ */ import_react18.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredTags.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching tags. Press Enter to create new." : "No tags yet.") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-2" }, filteredTags.map((tag) => /* @__PURE__ */ import_react18.default.createElement(
     "label",
     {
       key: tag,
       className: "flex items-center gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded"
     },
-    /* @__PURE__ */ import_react19.default.createElement(
+    /* @__PURE__ */ import_react18.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -51331,17 +52111,17 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
         style: { accentColor: "#414431" }
       }
     ),
-    /* @__PURE__ */ import_react19.default.createElement("span", { className: "text-sm" }, tag)
+    /* @__PURE__ */ import_react18.default.createElement("span", { className: "text-sm" }, tag)
   )))));
 }
 
 // app/javascript/components/ConceptSelector.js
-var import_react20 = __toESM(require_react());
+var import_react19 = __toESM(require_react());
 function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
-  const [allConcepts, setAllConcepts] = (0, import_react20.useState)([]);
-  const [filter2, setFilter] = (0, import_react20.useState)("");
-  const [loading, setLoading] = (0, import_react20.useState)(true);
-  (0, import_react20.useEffect)(() => {
+  const [allConcepts, setAllConcepts] = (0, import_react19.useState)([]);
+  const [filter2, setFilter] = (0, import_react19.useState)("");
+  const [loading, setLoading] = (0, import_react19.useState)(true);
+  (0, import_react19.useEffect)(() => {
     fetchConcepts();
   }, []);
   const fetchConcepts = async () => {
@@ -51395,9 +52175,9 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
   const canCreateNew = filter2.trim() && !allConcepts.some((c5) => c5.label.toLowerCase() === filter2.trim().toLowerCase());
   const selectedConcepts = allConcepts.filter((c5) => selectedConceptIds.includes(c5.id));
   if (loading) {
-    return /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading concepts...");
+    return /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading concepts...");
   }
-  return /* @__PURE__ */ import_react20.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react20.default.createElement(
+  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react19.default.createElement(
     "input",
     {
       type: "text",
@@ -51412,7 +52192,7 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
       placeholder: "Type to filter or create new concept...",
       className: "w-full px-3 py-2 text-sm border border-gray-300 rounded"
     }
-  ), canCreateNew && /* @__PURE__ */ import_react20.default.createElement(
+  ), canCreateNew && /* @__PURE__ */ import_react19.default.createElement(
     "button",
     {
       type: "button",
@@ -51423,14 +52203,14 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
     '+ Create "',
     filter2.trim(),
     '"'
-  )), selectedConcepts.length > 0 && /* @__PURE__ */ import_react20.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedConcepts.map((concept) => /* @__PURE__ */ import_react20.default.createElement(
+  )), selectedConcepts.length > 0 && /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedConcepts.map((concept) => /* @__PURE__ */ import_react19.default.createElement(
     "span",
     {
       key: concept.id,
       className: "inline-flex items-center gap-1 px-2 py-1 bg-primary text-sand text-xs rounded"
     },
     concept.label,
-    /* @__PURE__ */ import_react20.default.createElement(
+    /* @__PURE__ */ import_react19.default.createElement(
       "button",
       {
         type: "button",
@@ -51440,13 +52220,13 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
       },
       "\xD7"
     )
-  )))), /* @__PURE__ */ import_react20.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredConcepts.length === 0 ? /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching concepts. Press Enter to create new." : "No concepts yet.") : /* @__PURE__ */ import_react20.default.createElement("div", { className: "space-y-2" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react20.default.createElement(
+  )))), /* @__PURE__ */ import_react19.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredConcepts.length === 0 ? /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching concepts. Press Enter to create new." : "No concepts yet.") : /* @__PURE__ */ import_react19.default.createElement("div", { className: "space-y-2" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react19.default.createElement(
     "label",
     {
       key: concept.id,
       className: "flex items-center gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded"
     },
-    /* @__PURE__ */ import_react20.default.createElement(
+    /* @__PURE__ */ import_react19.default.createElement(
       "input",
       {
         type: "checkbox",
@@ -51456,13 +52236,13 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
         style: { accentColor: "#414431" }
       }
     ),
-    /* @__PURE__ */ import_react20.default.createElement("span", { className: "text-sm" }, concept.label),
-    concept.node_type && concept.node_type !== "concept" && /* @__PURE__ */ import_react20.default.createElement("span", { className: "text-xs text-gray-500 ml-auto" }, "(", concept.node_type, ")")
+    /* @__PURE__ */ import_react19.default.createElement("span", { className: "text-sm" }, concept.label),
+    concept.node_type && concept.node_type !== "concept" && /* @__PURE__ */ import_react19.default.createElement("span", { className: "text-xs text-gray-500 ml-auto" }, "(", concept.node_type, ")")
   )))));
 }
 
 // app/javascript/components/AuthorDisambiguationModal.js
-var import_react21 = __toESM(require_react());
+var import_react20 = __toESM(require_react());
 function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
   const parseAuthorName = (authorString) => {
     const parts = authorString.split(",").map((s3) => s3.trim());
@@ -51473,8 +52253,8 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
     const middleName = initialParts.slice(1).join(" ").replace(/\./g, "") || "";
     return { firstName, middleName, lastName };
   };
-  const [authorData, setAuthorData] = (0, import_react21.useState)([]);
-  (0, import_react21.useEffect)(() => {
+  const [authorData, setAuthorData] = (0, import_react20.useState)([]);
+  (0, import_react20.useEffect)(() => {
     if (isOpen && authors.length > 0) {
       const initialData = authors.map((author) => {
         const parsed = parseAuthorName(author);
@@ -51570,12 +52350,12 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
     }
     return null;
   };
-  return /* @__PURE__ */ import_react21.default.createElement(Modal, { isOpen, onClose, title: "Review Authors", size: "large" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm text-gray-600 mb-4" }, "We detected ", authors.length, " author", authors.length !== 1 ? "s" : "", ". You can link to existing people in your database or add more details before creating new records."), authorData.map((author, index8) => {
+  return /* @__PURE__ */ import_react20.default.createElement(Modal, { isOpen, onClose, title: "Review Authors", size: "large" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, /* @__PURE__ */ import_react20.default.createElement("p", { className: "text-sm text-gray-600 mb-4" }, "We detected ", authors.length, " author", authors.length !== 1 ? "s" : "", ". You can link to existing people in your database or add more details before creating new records."), authorData.map((author, index8) => {
     const linkedPerson = getLinkedPerson(author);
     const hasPotentialMatches = author.potentialMatches && author.potentialMatches.length > 0;
-    return /* @__PURE__ */ import_react21.default.createElement("div", { key: index8, className: "border border-gray-300 rounded p-4 bg-white" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-3" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-xs text-gray-500 mb-1" }, "From citation:"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "font-medium text-gray-900" }, author.originalName)), author.action === "link" && linkedPerson ? (
+    return /* @__PURE__ */ import_react20.default.createElement("div", { key: index8, className: "border border-gray-300 rounded p-4 bg-white" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "mb-3" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-xs text-gray-500 mb-1" }, "From citation:"), /* @__PURE__ */ import_react20.default.createElement("div", { className: "font-medium text-gray-900" }, author.originalName)), author.action === "link" && linkedPerson ? (
       /* Linked State */
-      /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-primary-light bg-opacity-20 border border-primary-light rounded p-3" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-sm font-medium text-primary" }, "\u2713 Linked to existing person"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-sm mt-1" }, linkedPerson.full_name), linkedPerson.role && /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-xs text-gray-600" }, linkedPerson.role)), /* @__PURE__ */ import_react21.default.createElement(
+      /* @__PURE__ */ import_react20.default.createElement("div", { className: "bg-primary-light bg-opacity-20 border border-primary-light rounded p-3" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-sm font-medium text-primary" }, "\u2713 Linked to existing person"), /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-sm mt-1" }, linkedPerson.full_name), linkedPerson.role && /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-xs text-gray-600" }, linkedPerson.role)), /* @__PURE__ */ import_react20.default.createElement(
         "button",
         {
           type: "button",
@@ -51586,7 +52366,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
       )))
     ) : (
       /* Create New Person State */
-      /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "First Name(s)"), /* @__PURE__ */ import_react21.default.createElement(
+      /* @__PURE__ */ import_react20.default.createElement(import_react20.default.Fragment, null, /* @__PURE__ */ import_react20.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "First Name(s)"), /* @__PURE__ */ import_react20.default.createElement(
         "input",
         {
           type: "text",
@@ -51595,7 +52375,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
           className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
           placeholder: "e.g., Peter or P"
         }
-      )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Middle Name(s)"), /* @__PURE__ */ import_react21.default.createElement(
+      )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Middle Name(s)"), /* @__PURE__ */ import_react20.default.createElement(
         "input",
         {
           type: "text",
@@ -51604,7 +52384,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
           className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
           placeholder: "e.g., Michael or M"
         }
-      ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Last Name *"), /* @__PURE__ */ import_react21.default.createElement(
+      ))), /* @__PURE__ */ import_react20.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Last Name *"), /* @__PURE__ */ import_react20.default.createElement(
         "input",
         {
           type: "text",
@@ -51613,7 +52393,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
           className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
           placeholder: "e.g., Gollwitzer"
         }
-      )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "ORCID (optional)"), /* @__PURE__ */ import_react21.default.createElement(
+      )), /* @__PURE__ */ import_react20.default.createElement("div", null, /* @__PURE__ */ import_react20.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "ORCID (optional)"), /* @__PURE__ */ import_react20.default.createElement(
         "input",
         {
           type: "text",
@@ -51622,7 +52402,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
           className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
           placeholder: "0000-0000-0000-0000"
         }
-      )))), author.loadingMatches && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mt-3 text-xs text-gray-500" }, "Searching for existing people..."), !author.loadingMatches && hasPotentialMatches && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mt-4 pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Could this be one of these existing people?"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-2" }, author.potentialMatches.map((person) => /* @__PURE__ */ import_react21.default.createElement(
+      )))), author.loadingMatches && /* @__PURE__ */ import_react20.default.createElement("div", { className: "mt-3 text-xs text-gray-500" }, "Searching for existing people..."), !author.loadingMatches && hasPotentialMatches && /* @__PURE__ */ import_react20.default.createElement("div", { className: "mt-4 pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Could this be one of these existing people?"), /* @__PURE__ */ import_react20.default.createElement("div", { className: "space-y-2" }, author.potentialMatches.map((person) => /* @__PURE__ */ import_react20.default.createElement(
         "button",
         {
           key: person.id,
@@ -51630,11 +52410,11 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
           onClick: () => handleLinkToPerson(index8, person),
           className: "w-full text-left px-3 py-2 text-sm bg-sand hover:bg-primary-light rounded border border-gray-200"
         },
-        /* @__PURE__ */ import_react21.default.createElement("div", { className: "font-medium" }, person.full_name),
-        person.role && /* @__PURE__ */ import_react21.default.createElement("div", { className: "text-xs text-gray-600" }, person.role)
+        /* @__PURE__ */ import_react20.default.createElement("div", { className: "font-medium" }, person.full_name),
+        person.role && /* @__PURE__ */ import_react20.default.createElement("div", { className: "text-xs text-gray-600" }, person.role)
       )))))
     ));
-  }), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
+  }), /* @__PURE__ */ import_react20.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react20.default.createElement(
     "button",
     {
       type: "button",
@@ -51642,7 +52422,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     "Confirm & Save"
-  ), /* @__PURE__ */ import_react21.default.createElement(
+  ), /* @__PURE__ */ import_react20.default.createElement(
     "button",
     {
       type: "button",
@@ -51655,7 +52435,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
 
 // app/javascript/components/SourceFormModal.js
 function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = (0, import_react22.useState)({
+  const [formData, setFormData] = (0, import_react21.useState)({
     title: "",
     authors: "",
     year: "",
@@ -51684,13 +52464,13 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     website_name: "",
     access_date: ""
   });
-  const [pdfFile, setPdfFile] = (0, import_react22.useState)(null);
-  const [extractUrl, setExtractUrl] = (0, import_react22.useState)("");
-  const [extracting, setExtracting] = (0, import_react22.useState)(false);
-  const [error, setError] = (0, import_react22.useState)("");
-  const [showAuthorModal, setShowAuthorModal] = (0, import_react22.useState)(false);
-  const [parsedAuthors, setParsedAuthors] = (0, import_react22.useState)([]);
-  (0, import_react22.useEffect)(() => {
+  const [pdfFile, setPdfFile] = (0, import_react21.useState)(null);
+  const [extractUrl, setExtractUrl] = (0, import_react21.useState)("");
+  const [extracting, setExtracting] = (0, import_react21.useState)(false);
+  const [error, setError] = (0, import_react21.useState)("");
+  const [showAuthorModal, setShowAuthorModal] = (0, import_react21.useState)(false);
+  const [parsedAuthors, setParsedAuthors] = (0, import_react21.useState)([]);
+  (0, import_react21.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -51879,7 +52659,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const showBookFields = formData.kind === "textbook" || formData.kind === "manual";
   const showChapterFields = formData.kind === "chapter";
   const showWebsiteFields = formData.kind === "video_demo";
-  return /* @__PURE__ */ import_react22.default.createElement(import_react22.default.Fragment, null, /* @__PURE__ */ import_react22.default.createElement(
+  return /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement(
     Modal,
     {
       isOpen,
@@ -51887,7 +52667,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Source" : "New Source",
       size: "large"
     },
-    /* @__PURE__ */ import_react22.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, error && /* @__PURE__ */ import_react22.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), !item && /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-3 pb-4 border-b border-gray-200 bg-blue-50 p-4 rounded" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium text-blue-900" }, "Quick Add from URL or DOI"), /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-sm text-blue-700" }, /* @__PURE__ */ import_react22.default.createElement("strong", null, "Best results:"), " Use DOI directly (e.g., ", /* @__PURE__ */ import_react22.default.createElement("span", { className: "font-mono" }, "10.1234/example"), ")"), /* @__PURE__ */ import_react22.default.createElement("p", { className: "text-xs text-blue-600 mb-2" }, "Also works with: PubMed, arXiv, and open-access journal URLs. Note: Some paywalled sites heavily obfuscate content - use DOI for those."), /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react22.default.createElement(
+    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), !item && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-3 pb-4 border-b border-gray-200 bg-blue-50 p-4 rounded" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium text-blue-900" }, "Quick Add from URL or DOI"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm text-blue-700" }, /* @__PURE__ */ import_react21.default.createElement("strong", null, "Best results:"), " Use DOI directly (e.g., ", /* @__PURE__ */ import_react21.default.createElement("span", { className: "font-mono" }, "10.1234/example"), ")"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-blue-600 mb-2" }, "Also works with: PubMed, arXiv, and open-access journal URLs. Note: Some paywalled sites heavily obfuscate content - use DOI for those."), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51897,7 +52677,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "flex-1 px-4 py-2 border border-blue-300 rounded bg-white",
         disabled: extracting
       }
-    ), /* @__PURE__ */ import_react22.default.createElement(
+    ), /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "button",
@@ -51906,7 +52686,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
       },
       extracting ? "Extracting..." : "Extract"
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium" }, "Basic Information"), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51915,7 +52695,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51924,7 +52704,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Last, F., Last, F."
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Year"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Year"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "number",
@@ -51933,22 +52713,22 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "2024"
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Source Type *"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Source Type *"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         value: formData.kind,
         onChange: (e3) => setFormData({ ...formData, kind: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "article" }, "Article"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "rct" }, "RCT (Research Study)"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "meta_analysis" }, "Meta-Analysis"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "textbook" }, "Textbook"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "chapter" }, "Book Chapter"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "manual" }, "Manual"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "guideline" }, "Guideline"),
-      /* @__PURE__ */ import_react22.default.createElement("option", { value: "video_demo" }, "Video/Website")
-    ))), showArticleFields && /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium" }, "Article Details"), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react22.default.createElement(
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "article" }, "Article"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "rct" }, "RCT (Research Study)"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "meta_analysis" }, "Meta-Analysis"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "textbook" }, "Textbook"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "chapter" }, "Book Chapter"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "manual" }, "Manual"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "guideline" }, "Guideline"),
+      /* @__PURE__ */ import_react21.default.createElement("option", { value: "video_demo" }, "Video/Website")
+    ))), showArticleFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Article Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51957,7 +52737,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "e.g., Journal of Clinical Psychology"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Volume"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Volume"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51966,7 +52746,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "42"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Issue"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Issue"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51975,7 +52755,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "3"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Pages"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Pages"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51984,7 +52764,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "123-145"
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -51993,7 +52773,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "10.1000/example"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publication Date"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publication Date"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "date",
@@ -52001,7 +52781,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, publication_date: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Keywords (one per line)"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Keywords (one per line)"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.keywords.join("\n"),
@@ -52010,7 +52790,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "machine learning\nneural networks\ncognitive therapy"
       }
-    ))), showBookFields && /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium" }, "Book Details"), /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), showBookFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Book Details"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52019,7 +52799,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Wiley"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Edition"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Edition"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52028,7 +52808,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "3rd ed."
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "ISBN"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "ISBN"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52037,7 +52817,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "978-0-123456-78-9"
       }
-    ))), showChapterFields && /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium" }, "Chapter Details"), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Book Title"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), showChapterFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Chapter Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Book Title"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52046,7 +52826,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Handbook of Clinical Psychology"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Chapter Number"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Chapter Number"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "number",
@@ -52055,7 +52835,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "5"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Pages"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Pages"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52064,7 +52844,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "123-145"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Edition"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Edition"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52073,7 +52853,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "2nd ed."
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52081,7 +52861,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, publisher_or_venue: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52090,7 +52870,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "10.1000/example"
       }
-    ))), showWebsiteFields && /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react22.default.createElement("h3", { className: "text-lg font-medium" }, "Website/Video Details"), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Website Name"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), showWebsiteFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Website/Video Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Website Name"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52099,7 +52879,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "YouTube, Vimeo, etc."
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "url",
@@ -52108,7 +52888,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "https://..."
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Access Date"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Access Date"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "date",
@@ -52116,7 +52896,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, access_date: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "space-y-4" }, !showWebsiteFields && /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react22.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, !showWebsiteFields && /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "url",
@@ -52125,7 +52905,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "https://..."
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Abstract"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Abstract"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.abstract,
@@ -52134,7 +52914,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Full abstract from the source..."
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary (3-5 lines of key findings)"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary (3-5 lines of key findings)"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.summary,
@@ -52142,19 +52922,19 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
         onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react21.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    )), /* @__PURE__ */ import_react22.default.createElement("div", null, /* @__PURE__ */ import_react22.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react22.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react22.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react21.default.createElement(
       "a",
       {
         href: item.pdf_url,
@@ -52163,7 +52943,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "text-primary underline hover:text-accent-dark"
       },
       item.pdf_filename
-    )), /* @__PURE__ */ import_react22.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "file",
@@ -52171,14 +52951,14 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setPdfFile(e3.target.files[0]),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
       }
-    ), pdfFile && /* @__PURE__ */ import_react22.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name))), /* @__PURE__ */ import_react22.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react22.default.createElement(
+    ), pdfFile && /* @__PURE__ */ import_react21.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Source"
-    ), /* @__PURE__ */ import_react22.default.createElement(
+    ), /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "button",
@@ -52187,7 +52967,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       },
       "Cancel"
     )))
-  ), /* @__PURE__ */ import_react22.default.createElement(
+  ), /* @__PURE__ */ import_react21.default.createElement(
     AuthorDisambiguationModal,
     {
       isOpen: showAuthorModal,
@@ -52199,7 +52979,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 }
 
 // node_modules/@fortawesome/react-fontawesome/dist/index.js
-var import_react23 = __toESM(require_react(), 1);
+var import_react22 = __toESM(require_react(), 1);
 
 // node_modules/@fortawesome/fontawesome-svg-core/index.mjs
 function _arrayLikeToArray(r3, a5) {
@@ -54048,16 +54828,16 @@ var bindInternal4 = function bindInternal42(func, thisContext) {
   };
 };
 var reduce = function fastReduceObject(subject, fn, initialValue, thisContext) {
-  var keys2 = Object.keys(subject), length = keys2.length, iterator = thisContext !== void 0 ? bindInternal4(fn, thisContext) : fn, i3, key, result;
+  var keys3 = Object.keys(subject), length = keys3.length, iterator = thisContext !== void 0 ? bindInternal4(fn, thisContext) : fn, i3, key, result;
   if (initialValue === void 0) {
     i3 = 1;
-    result = subject[keys2[0]];
+    result = subject[keys3[0]];
   } else {
     i3 = 0;
     result = initialValue;
   }
   for (; i3 < length; i3++) {
-    key = keys2[i3];
+    key = keys3[i3];
     result = iterator(result, subject[key], key, subject);
   }
   return result;
@@ -56106,9 +56886,9 @@ function convert(createElement4, element, extraProps = {}) {
   }
   return createElement4(element.tag, { ...remaining, ...attrs }, ...children2);
 }
-var makeReactConverter = convert.bind(null, import_react23.default.createElement);
+var makeReactConverter = convert.bind(null, import_react22.default.createElement);
 var useAccessibilityId = (id2, hasAccessibleProps) => {
-  const generatedId = (0, import_react23.useId)();
+  const generatedId = (0, import_react22.useId)();
   return id2 || (hasAccessibleProps ? generatedId : void 0);
 };
 var Logger = class {
@@ -56321,7 +57101,7 @@ var DEFAULT_PROPS = {
   widthAuto: false
 };
 var DEFAULT_PROP_KEYS = new Set(Object.keys(DEFAULT_PROPS));
-var FontAwesomeIcon = import_react23.default.forwardRef((props, ref) => {
+var FontAwesomeIcon = import_react22.default.forwardRef((props, ref) => {
   const allProps = { ...DEFAULT_PROPS, ...props };
   const {
     icon: iconArgs,
@@ -56454,11 +57234,11 @@ var faListUl = {
 
 // app/javascript/components/SourcesIndex.js
 function SourcesIndex() {
-  const [sources, setSources] = (0, import_react24.useState)([]);
-  const [loading, setLoading] = (0, import_react24.useState)(true);
-  const [showForm, setShowForm] = (0, import_react24.useState)(false);
-  const [filterKind, setFilterKind] = (0, import_react24.useState)("all");
-  (0, import_react24.useEffect)(() => {
+  const [sources, setSources] = (0, import_react23.useState)([]);
+  const [loading, setLoading] = (0, import_react23.useState)(true);
+  const [showForm, setShowForm] = (0, import_react23.useState)(false);
+  const [filterKind, setFilterKind] = (0, import_react23.useState)("all");
+  (0, import_react23.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -56475,16 +57255,16 @@ function SourcesIndex() {
   const filteredSources = filterKind === "all" ? sources : sources.filter((source) => source.kind === filterKind);
   const kinds = ["manual", "textbook", "rct", "meta_analysis", "guideline", "video_demo", "article", "chapter"];
   if (loading) {
-    return /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg" }, "Loading sources..."));
+    return /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg" }, "Loading sources..."));
   }
-  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react24.default.createElement("h1", { className: "text-4xl" }, "Sources"), /* @__PURE__ */ import_react24.default.createElement(
+  return /* @__PURE__ */ import_react23.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react23.default.createElement("h1", { className: "text-4xl" }, "Sources"), /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Source"
-  )), /* @__PURE__ */ import_react24.default.createElement(
+  )), /* @__PURE__ */ import_react23.default.createElement(
     SourceFormModal,
     {
       isOpen: showForm,
@@ -56494,7 +57274,7 @@ function SourcesIndex() {
         setShowForm(false);
       }
     }
-  ), /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react24.default.createElement(
+  ), /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       onClick: () => setFilterKind("all"),
@@ -56506,7 +57286,7 @@ function SourcesIndex() {
   ), kinds.map((kind) => {
     const count = sources.filter((s3) => s3.kind === kind).length;
     if (count === 0) return null;
-    return /* @__PURE__ */ import_react24.default.createElement(
+    return /* @__PURE__ */ import_react23.default.createElement(
       "button",
       {
         key: kind,
@@ -56518,11 +57298,11 @@ function SourcesIndex() {
       count,
       ")"
     );
-  })), filteredSources.length === 0 ? /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg mb-4" }, "No sources yet."), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm" }, "Add your first source to build your evidence base.")) : /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, filteredSources.map((source) => /* @__PURE__ */ import_react24.default.createElement(SourceCard, { key: source.id, source, onUpdate: fetchSources }))));
+  })), filteredSources.length === 0 ? /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-lg mb-4" }, "No sources yet."), /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm" }, "Add your first source to build your evidence base.")) : /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-4" }, filteredSources.map((source) => /* @__PURE__ */ import_react23.default.createElement(SourceCard, { key: source.id, source, onUpdate: fetchSources }))));
 }
 function SourceCard({ source, onUpdate }) {
-  const [showEdit, setShowEdit] = (0, import_react24.useState)(false);
-  const [showFullAbstract, setShowFullAbstract] = (0, import_react24.useState)(false);
+  const [showEdit, setShowEdit] = (0, import_react23.useState)(false);
+  const [showFullAbstract, setShowFullAbstract] = (0, import_react23.useState)(false);
   const handleDelete2 = async () => {
     if (!confirm("Are you sure you want to delete this source?")) return;
     try {
@@ -56558,7 +57338,7 @@ function SourceCard({ source, onUpdate }) {
     return parts.length > 0 ? parts.join(", ") : null;
   };
   const citationInfo = getCitationInfo();
-  return /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex justify-between items-start mb-3" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, source.kind && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs text-gray-600" }, source.year), source.doi && /* @__PURE__ */ import_react24.default.createElement(
+  return /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-6 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex justify-between items-start mb-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center gap-3 mb-2" }, source.kind && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs text-gray-600" }, source.year), source.doi && /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       href: `https://doi.org/${source.doi}`,
@@ -56569,7 +57349,7 @@ function SourceCard({ source, onUpdate }) {
     },
     "DOI: ",
     source.doi
-  )), /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react24.default.createElement("a", { href: `/sources/${source.id}`, className: "hover:text-primary" }, source.title)), source.authors && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-600 mb-2" }, source.authors), citationInfo && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-500 mb-2 italic" }, citationInfo)), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-2 ml-4" }, source.url && /* @__PURE__ */ import_react24.default.createElement(
+  )), /* @__PURE__ */ import_react23.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react23.default.createElement("a", { href: `/sources/${source.id}`, className: "hover:text-primary" }, source.title)), source.authors && /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm text-gray-600 mb-2" }, source.authors), citationInfo && /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm text-gray-500 mb-2 italic" }, citationInfo)), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex gap-2 ml-4" }, source.url && /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       href: source.url,
@@ -56578,22 +57358,22 @@ function SourceCard({ source, onUpdate }) {
       className: "px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors",
       title: "View Source"
     },
-    /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faExternalLinkAlt })
-  ), /* @__PURE__ */ import_react24.default.createElement(
+    /* @__PURE__ */ import_react23.default.createElement(FontAwesomeIcon, { icon: faExternalLinkAlt })
+  ), /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       onClick: () => setShowEdit(true),
       className: "px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
     },
     "Edit"
-  ), /* @__PURE__ */ import_react24.default.createElement(
+  ), /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       onClick: handleDelete2,
       className: "px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  ))), source.abstract && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-3" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: `text-sm text-gray-700 ${showFullAbstract ? "" : "line-clamp-3"}` }, source.abstract), source.abstract.length > 200 && /* @__PURE__ */ import_react24.default.createElement(
+  ))), source.abstract && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: `text-sm text-gray-700 ${showFullAbstract ? "" : "line-clamp-3"}` }, source.abstract), source.abstract.length > 200 && /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       onClick: () => setShowFullAbstract(!showFullAbstract),
@@ -56601,7 +57381,7 @@ function SourceCard({ source, onUpdate }) {
       style: { background: "none", padding: 0, color: "#414431" }
     },
     showFullAbstract ? "Show Less" : "Show More"
-  )), source.summary && !source.abstract && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm mb-3" }, source.summary), (source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0) && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, source.concepts?.map((concept) => /* @__PURE__ */ import_react24.default.createElement(
+  )), source.summary && !source.abstract && /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm mb-3" }, source.summary), (source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0) && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, source.concepts?.map((concept) => /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       key: concept.id,
@@ -56609,7 +57389,7 @@ function SourceCard({ source, onUpdate }) {
       className: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     concept.label
-  )), source.tags?.map((tag, idx) => /* @__PURE__ */ import_react24.default.createElement(
+  )), source.tags?.map((tag, idx) => /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       key: idx,
@@ -56617,7 +57397,7 @@ function SourceCard({ source, onUpdate }) {
       className: "text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     tag
-  )), source.people?.map((person) => /* @__PURE__ */ import_react24.default.createElement(
+  )), source.people?.map((person) => /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       key: person.id,
@@ -56625,7 +57405,7 @@ function SourceCard({ source, onUpdate }) {
       className: "text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     person.full_name
-  ))), source.keywords && source.keywords.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-3 flex flex-wrap gap-1" }, source.keywords.slice(0, 5).map((keyword, idx) => /* @__PURE__ */ import_react24.default.createElement("span", { key: idx, className: "text-xs bg-gray-100 px-2 py-1 rounded" }, keyword)), source.keywords.length > 5 && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs text-gray-500 px-2 py-1" }, "+", source.keywords.length - 5, " more")), source.pdf_url && /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-xs mb-3" }, /* @__PURE__ */ import_react24.default.createElement(
+  ))), source.keywords && source.keywords.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3 flex flex-wrap gap-1" }, source.keywords.slice(0, 5).map((keyword, idx) => /* @__PURE__ */ import_react23.default.createElement("span", { key: idx, className: "text-xs bg-gray-100 px-2 py-1 rounded" }, keyword)), source.keywords.length > 5 && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs text-gray-500 px-2 py-1" }, "+", source.keywords.length - 5, " more")), source.pdf_url && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs mb-3" }, /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       href: source.pdf_url,
@@ -56634,7 +57414,7 @@ function SourceCard({ source, onUpdate }) {
       className: "text-primary hover:text-accent-dark underline font-medium"
     },
     "\u{1F4C4} View PDF"
-  )), /* @__PURE__ */ import_react24.default.createElement("div", { className: "pt-3 border-t border-gray-200 text-xs text-gray-500 flex items-center gap-2" }, /* @__PURE__ */ import_react24.default.createElement("span", null, source.notes_count || 0, " note", source.notes_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react24.default.createElement("span", null, "\u2022"), /* @__PURE__ */ import_react24.default.createElement("a", { href: `/notes/new?source_id=${source.id}`, className: "text-primary hover:text-accent-dark" }, "+ New Note"))), /* @__PURE__ */ import_react24.default.createElement(
+  )), /* @__PURE__ */ import_react23.default.createElement("div", { className: "pt-3 border-t border-gray-200 text-xs text-gray-500 flex items-center gap-2" }, /* @__PURE__ */ import_react23.default.createElement("span", null, source.notes_count || 0, " note", source.notes_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react23.default.createElement("span", null, "\u2022"), /* @__PURE__ */ import_react23.default.createElement("a", { href: `/notes/new?source_id=${source.id}`, className: "text-primary hover:text-accent-dark" }, "+ New Note"))), /* @__PURE__ */ import_react23.default.createElement(
     SourceFormModal,
     {
       isOpen: showEdit,
@@ -56649,13 +57429,13 @@ function SourceCard({ source, onUpdate }) {
 }
 
 // app/javascript/components/PeopleIndex.js
-var import_react26 = __toESM(require_react());
+var import_react25 = __toESM(require_react());
 
 // app/javascript/components/PersonFormModal.js
-var import_react25 = __toESM(require_react());
+var import_react24 = __toESM(require_react());
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [sources, setSources] = (0, import_react25.useState)([]);
-  const [formData, setFormData] = (0, import_react25.useState)({
+  const [sources, setSources] = (0, import_react24.useState)([]);
+  const [formData, setFormData] = (0, import_react24.useState)({
     full_name: "",
     role: "theorist",
     summary: "",
@@ -56664,8 +57444,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     source_ids: [],
     tags: []
   });
-  const [error, setError] = (0, import_react25.useState)("");
-  (0, import_react25.useEffect)(() => {
+  const [error, setError] = (0, import_react24.useState)("");
+  (0, import_react24.useEffect)(() => {
     if (isOpen) {
       fetchSources();
       if (item) {
@@ -56732,7 +57512,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     const items = value.split("\n").filter((item2) => item2.trim());
     setFormData({ ...formData, aka: items });
   };
-  return /* @__PURE__ */ import_react25.default.createElement(
+  return /* @__PURE__ */ import_react24.default.createElement(
     Modal,
     {
       isOpen,
@@ -56740,7 +57520,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Person" : "New Person",
       size: "medium"
     },
-    /* @__PURE__ */ import_react25.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react25.default.createElement(
+    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react24.default.createElement(
       "input",
       {
         type: "text",
@@ -56749,19 +57529,19 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react24.default.createElement(
       "select",
       {
         value: formData.role,
         onChange: (e3) => setFormData({ ...formData, role: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "theorist" }, "Theorist"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "clinician" }, "Clinician"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "researcher" }, "Researcher"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "peer" }, "Peer"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "client" }, "Client")
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react25.default.createElement(
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "theorist" }, "Theorist"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "clinician" }, "Clinician"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "researcher" }, "Researcher"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "peer" }, "Peer"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "client" }, "Client")
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react24.default.createElement(
       "textarea",
       {
         value: formData.aka.join("\n"),
@@ -56770,7 +57550,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Aaron T. Beck\nA.T. Beck"
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react24.default.createElement(
       "textarea",
       {
         value: formData.summary,
@@ -56778,19 +57558,19 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react24.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
         onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Sources (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Sources (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react24.default.createElement(
       "select",
       {
         multiple: true,
@@ -56802,15 +57582,15 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         size: "5"
       },
-      sources.map((source) => /* @__PURE__ */ import_react25.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
-    ), /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources")), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react25.default.createElement(
+      sources.map((source) => /* @__PURE__ */ import_react24.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
+    ), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources")), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Person"
-    ), /* @__PURE__ */ import_react25.default.createElement(
+    ), /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "button",
@@ -56824,11 +57604,11 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/PeopleIndex.js
 function PeopleIndex() {
-  const [people, setPeople] = (0, import_react26.useState)([]);
-  const [loading, setLoading] = (0, import_react26.useState)(true);
-  const [showForm, setShowForm] = (0, import_react26.useState)(false);
-  const [filterRole, setFilterRole] = (0, import_react26.useState)("all");
-  (0, import_react26.useEffect)(() => {
+  const [people, setPeople] = (0, import_react25.useState)([]);
+  const [loading, setLoading] = (0, import_react25.useState)(true);
+  const [showForm, setShowForm] = (0, import_react25.useState)(false);
+  const [filterRole, setFilterRole] = (0, import_react25.useState)("all");
+  (0, import_react25.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -56845,16 +57625,16 @@ function PeopleIndex() {
   const filteredPeople = filterRole === "all" ? people : people.filter((person) => person.role === filterRole);
   const roles = ["theorist", "clinician", "researcher", "peer", "client"];
   if (loading) {
-    return /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg" }, "Loading people..."));
+    return /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-lg" }, "Loading people..."));
   }
-  return /* @__PURE__ */ import_react26.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react26.default.createElement("h1", { className: "text-4xl" }, "People & Lineage"), /* @__PURE__ */ import_react26.default.createElement(
+  return /* @__PURE__ */ import_react25.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react25.default.createElement("h1", { className: "text-4xl" }, "People & Lineage"), /* @__PURE__ */ import_react25.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Person"
-  )), /* @__PURE__ */ import_react26.default.createElement(
+  )), /* @__PURE__ */ import_react25.default.createElement(
     PersonFormModal,
     {
       isOpen: showForm,
@@ -56864,7 +57644,7 @@ function PeopleIndex() {
         setShowForm(false);
       }
     }
-  ), /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react26.default.createElement(
+  ), /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react25.default.createElement(
     "button",
     {
       onClick: () => setFilterRole("all"),
@@ -56876,7 +57656,7 @@ function PeopleIndex() {
   ), roles.map((role) => {
     const count = people.filter((p3) => p3.role === role).length;
     if (count === 0) return null;
-    return /* @__PURE__ */ import_react26.default.createElement(
+    return /* @__PURE__ */ import_react25.default.createElement(
       "button",
       {
         key: role,
@@ -56888,7 +57668,7 @@ function PeopleIndex() {
       count,
       ")"
     );
-  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react26.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react26.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
+  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react25.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react25.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react25.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
 }
 function PersonCard({ person, onUpdate }) {
   const handleDelete2 = async () => {
@@ -56911,14 +57691,14 @@ function PersonCard({ person, onUpdate }) {
       alert("An error occurred while deleting the person");
     }
   };
-  return /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react26.default.createElement(
+  return /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react25.default.createElement(
     "button",
     {
       onClick: handleDelete2,
       className: "px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  )), /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react26.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), (person.concepts?.length > 0 || person.tags?.length > 0) && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, person.concepts?.map((concept) => /* @__PURE__ */ import_react26.default.createElement(
+  )), /* @__PURE__ */ import_react25.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react25.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), (person.concepts?.length > 0 || person.tags?.length > 0) && /* @__PURE__ */ import_react25.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, person.concepts?.map((concept) => /* @__PURE__ */ import_react25.default.createElement(
     "a",
     {
       key: concept.id,
@@ -56926,7 +57706,7 @@ function PersonCard({ person, onUpdate }) {
       className: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     concept.label
-  )), person.tags?.map((tag, idx) => /* @__PURE__ */ import_react26.default.createElement(
+  )), person.tags?.map((tag, idx) => /* @__PURE__ */ import_react25.default.createElement(
     "a",
     {
       key: idx,
@@ -56934,13 +57714,13 @@ function PersonCard({ person, onUpdate }) {
       className: "text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     tag
-  ))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-3 text-xs text-gray-500" }, /* @__PURE__ */ import_react26.default.createElement("span", null, person.sources_count || 0, " source", person.sources_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react26.default.createElement("span", null, person.notes_count || 0, " note", person.notes_count !== 1 ? "s" : "")), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString())));
+  ))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-3 text-xs text-gray-500" }, /* @__PURE__ */ import_react25.default.createElement("span", null, person.sources_count || 0, " source", person.sources_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react25.default.createElement("span", null, person.notes_count || 0, " note", person.notes_count !== 1 ? "s" : "")), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString())));
 }
 
 // app/javascript/components/PersonShow.js
-var import_react27 = __toESM(require_react());
+var import_react26 = __toESM(require_react());
 function PersonShow() {
-  const [showEditModal, setShowEditModal] = (0, import_react27.useState)(false);
+  const [showEditModal, setShowEditModal] = (0, import_react26.useState)(false);
   const rootElement = document.getElementById("person-show-root");
   const personData = rootElement ? JSON.parse(rootElement.dataset.person) : null;
   if (!personData) return null;
@@ -56950,7 +57730,7 @@ function PersonShow() {
   const handleSuccess = () => {
     window.location.reload();
   };
-  import_react27.default.useEffect(() => {
+  import_react26.default.useEffect(() => {
     const editButton = document.querySelector('[data-action="click->person-show#openEditModal"]');
     if (editButton) {
       const handler = (e3) => {
@@ -56961,7 +57741,7 @@ function PersonShow() {
       return () => editButton.removeEventListener("click", handler);
     }
   }, []);
-  return /* @__PURE__ */ import_react27.default.createElement(
+  return /* @__PURE__ */ import_react26.default.createElement(
     PersonFormModal,
     {
       isOpen: showEditModal,
@@ -56982,14 +57762,14 @@ function PersonShow() {
 }
 
 // app/javascript/components/ConnectionVisualization.js
-var import_react28 = __toESM(require_react());
+var import_react27 = __toESM(require_react());
 function ConnectionVisualization() {
-  const [concepts, setConcepts] = (0, import_react28.useState)([]);
-  const [connections, setConnections] = (0, import_react28.useState)([]);
-  const [loading, setLoading] = (0, import_react28.useState)(true);
-  const [selectedType, setSelectedType] = (0, import_react28.useState)("all");
-  const [selectedRelType, setSelectedRelType] = (0, import_react28.useState)("all");
-  (0, import_react28.useEffect)(() => {
+  const [concepts, setConcepts] = (0, import_react27.useState)([]);
+  const [connections, setConnections] = (0, import_react27.useState)([]);
+  const [loading, setLoading] = (0, import_react27.useState)(true);
+  const [selectedType, setSelectedType] = (0, import_react27.useState)("all");
+  const [selectedRelType, setSelectedRelType] = (0, import_react27.useState)("all");
+  (0, import_react27.useEffect)(() => {
     fetchData();
   }, []);
   const fetchData = async () => {
@@ -57046,57 +57826,57 @@ function ConnectionVisualization() {
     related_to: "bg-slate-100 border-slate-300"
   };
   if (loading) {
-    return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("p", null, "Loading visualization..."));
+    return /* @__PURE__ */ import_react27.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react27.default.createElement("p", null, "Loading visualization..."));
   }
-  return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react28.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react28.default.createElement(
+  return /* @__PURE__ */ import_react27.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react27.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react27.default.createElement(
     "select",
     {
       value: selectedType,
       onChange: (e3) => setSelectedType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "model" }, "Model"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "technique" }, "Technique"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "mechanism" }, "Mechanism"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "construct" }, "Construct"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "measure" }, "Measure"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "population" }, "Population")
-  )), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react28.default.createElement(
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "model" }, "Model"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "technique" }, "Technique"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "mechanism" }, "Mechanism"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "construct" }, "Construct"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "measure" }, "Measure"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "population" }, "Population")
+  )), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react27.default.createElement(
     "select",
     {
       value: selectedRelType,
       onChange: (e3) => setSelectedRelType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "all" }, "All Relationships"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "adjacent" }, "Adjacent"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "builds_on" }, "Builds On"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "subsumes" }, "Subsumes")
-  ))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react28.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react28.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "all" }, "All Relationships"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "adjacent" }, "Adjacent"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "builds_on" }, "Builds On"),
+    /* @__PURE__ */ import_react27.default.createElement("option", { value: "subsumes" }, "Subsumes")
+  ))), /* @__PURE__ */ import_react27.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react27.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react27.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react27.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react27.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react27.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
     const conceptConnections = filteredConnections.filter(
       (e3) => e3.src_concept.id === concept.id || e3.dst_concept.id === concept.id
     );
-    return /* @__PURE__ */ import_react28.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react28.default.createElement(
+    return /* @__PURE__ */ import_react27.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react27.default.createElement(
       "a",
       {
         href: `/concepts/${concept.id}`,
         className: "text-lg font-medium hover:text-primary"
       },
       concept.label
-    ), concept.summary_top && /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
+    ), concept.summary_top && /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react27.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react27.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
       const isSource = connection.src_concept.id === concept.id;
       const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
       const direction = isSource ? "\u2192" : "\u2190";
-      return /* @__PURE__ */ import_react28.default.createElement(
+      return /* @__PURE__ */ import_react27.default.createElement(
         "div",
         {
           key: connection.id,
           className: `${relTypeColors[connection.rel_type]} border rounded px-3 py-2`
         },
-        /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react28.default.createElement(
+        /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react27.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react27.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react27.default.createElement(
           "a",
           {
             href: `/concepts/${otherConcept.id}`,
@@ -57104,20 +57884,20 @@ function ConnectionVisualization() {
           },
           otherConcept.label
         )),
-        connection.strength && /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
+        connection.strength && /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
       );
     })));
-  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
+  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
 }
 
 // app/javascript/components/NotesIndex.js
-var import_react29 = __toESM(require_react());
+var import_react28 = __toESM(require_react());
 function NotesIndex() {
-  const [notes, setNotes] = (0, import_react29.useState)([]);
-  const [loading, setLoading] = (0, import_react29.useState)(true);
-  const [filterType, setFilterType] = (0, import_react29.useState)("all");
-  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react29.useState)(false);
-  (0, import_react29.useEffect)(() => {
+  const [notes, setNotes] = (0, import_react28.useState)([]);
+  const [loading, setLoading] = (0, import_react28.useState)(true);
+  const [filterType, setFilterType] = (0, import_react28.useState)("all");
+  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react28.useState)(false);
+  (0, import_react28.useEffect)(() => {
     fetchNotes();
   }, [filterType, showPinnedOnly]);
   const fetchNotes = async () => {
@@ -57182,20 +57962,20 @@ function NotesIndex() {
     connection: "bg-green-100 text-green-800",
     todo: "bg-yellow-100 text-yellow-800"
   };
-  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react29.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg mb-6" }, "Capture notes, questions, connections, and to-do items as you learn"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react29.default.createElement("div", null, /* @__PURE__ */ import_react29.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react29.default.createElement(
+  return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react28.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes"), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg mb-6" }, "Capture notes, questions, connections, and to-do items as you learn"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react28.default.createElement(
     "select",
     {
       value: filterType,
       onChange: (e3) => setFilterType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "note" }, "Note"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "connection" }, "Connection"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "todo" }, "To Do Item")
-  )), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "note" }, "Note"),
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "connection" }, "Connection"),
+    /* @__PURE__ */ import_react28.default.createElement("option", { value: "todo" }, "To Do Item")
+  )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react28.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -57204,20 +57984,20 @@ function NotesIndex() {
       onChange: (e3) => setShowPinnedOnly(e3.target.checked),
       className: "rounded"
     }
-  ), /* @__PURE__ */ import_react29.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react29.default.createElement(
+  ), /* @__PURE__ */ import_react28.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react28.default.createElement(
     "a",
     {
       href: "/notes/new",
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark inline-block"
     },
     "+ New Note"
-  ))), loading ? /* @__PURE__ */ import_react29.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" }, notes.map((note) => /* @__PURE__ */ import_react29.default.createElement(
+  ))), loading ? /* @__PURE__ */ import_react28.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" }, notes.map((note) => /* @__PURE__ */ import_react28.default.createElement(
     "div",
     {
       key: note.id,
       className: "bg-white border border-gray-300 rounded-lg p-6 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, note.pinned && /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-primary text-lg", title: "Pinned" }, "\u{1F4CC}"), /* @__PURE__ */ import_react29.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, note.pinned && /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-primary text-lg", title: "Pinned" }, "\u{1F4CC}"), /* @__PURE__ */ import_react28.default.createElement("span", { className: `text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || "bg-gray-100"}` }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react28.default.createElement(
       "a",
       {
         href: `/concepts/${note.concept.id}`,
@@ -57225,14 +58005,14 @@ function NotesIndex() {
       },
       "\u2192 ",
       note.concept.label
-    )), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react29.default.createElement(
+    )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(
       "button",
       {
         onClick: () => handleTogglePin(note),
         className: "px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
       },
       note.pinned ? "Unpin" : "Pin"
-    ), /* @__PURE__ */ import_react29.default.createElement(
+    ), /* @__PURE__ */ import_react28.default.createElement(
       "button",
       {
         onClick: () => handleDeleteNote(note.id),
@@ -57240,16 +58020,16 @@ function NotesIndex() {
       },
       "Delete"
     ))),
-    /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-3 leading-relaxed prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100", dangerouslySetInnerHTML: { __html: note.body } }),
-    note.context && /* @__PURE__ */ import_react29.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react29.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
-    (note.source || note.people?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.source && /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-3 leading-relaxed prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100", dangerouslySetInnerHTML: { __html: note.body } }),
+    note.context && /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
+    (note.source || note.people?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.source && /* @__PURE__ */ import_react28.default.createElement(
       "a",
       {
         href: `/sources/${note.source.id}`,
         className: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
       },
       note.source.title
-    ), note.people?.map((person) => /* @__PURE__ */ import_react29.default.createElement(
+    ), note.people?.map((person) => /* @__PURE__ */ import_react28.default.createElement(
       "a",
       {
         key: person.id,
@@ -57257,7 +58037,7 @@ function NotesIndex() {
         className: "text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
       },
       person.full_name
-    )), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react29.default.createElement(
+    )), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react28.default.createElement(
       "a",
       {
         key: idx,
@@ -57266,20 +58046,20 @@ function NotesIndex() {
       },
       typeof tag === "string" ? tag : tag.name
     ))),
-    /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react29.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
+    /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react28.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
   ))));
 }
 
 // app/javascript/components/NotesForm.js
-var import_react32 = __toESM(require_react());
+var import_react31 = __toESM(require_react());
 
 // app/javascript/components/SourceSelector.js
-var import_react30 = __toESM(require_react());
+var import_react29 = __toESM(require_react());
 function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
-  const [allSources, setAllSources] = (0, import_react30.useState)([]);
-  const [filter2, setFilter] = (0, import_react30.useState)("");
-  const [loading, setLoading] = (0, import_react30.useState)(true);
-  (0, import_react30.useEffect)(() => {
+  const [allSources, setAllSources] = (0, import_react29.useState)([]);
+  const [filter2, setFilter] = (0, import_react29.useState)("");
+  const [loading, setLoading] = (0, import_react29.useState)(true);
+  (0, import_react29.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -57303,8 +58083,8 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       onChange16([...selectedSourceIds, sourceId]);
     }
   };
-  if (loading) return /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading sources...");
-  return /* @__PURE__ */ import_react30.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react30.default.createElement(
+  if (loading) return /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading sources...");
+  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react29.default.createElement(
     "input",
     {
       type: "text",
@@ -57313,7 +58093,7 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       placeholder: "Type to filter sources...",
       className: "w-full px-4 py-2 border-b border-gray-300 rounded-t bg-white"
     }
-  ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredSources.length === 0 ? /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "No sources found") : filteredSources.map((source) => /* @__PURE__ */ import_react30.default.createElement("label", { key: source.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react30.default.createElement(
+  ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredSources.length === 0 ? /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-500" }, "No sources found") : filteredSources.map((source) => /* @__PURE__ */ import_react29.default.createElement("label", { key: source.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react29.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -57322,16 +58102,16 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       className: "mt-1 rounded",
       style: { accentColor: "#414431" }
     }
-  ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-sm" }, source.title, " ", source.year && `(${source.year})`)))), /* @__PURE__ */ import_react30.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedSourceIds.length, " selected"));
+  ), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-sm" }, source.title, " ", source.year && `(${source.year})`)))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedSourceIds.length, " selected"));
 }
 
 // app/javascript/components/PeopleSelector.js
-var import_react31 = __toESM(require_react());
+var import_react30 = __toESM(require_react());
 function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
-  const [allPeople, setAllPeople] = (0, import_react31.useState)([]);
-  const [filter2, setFilter] = (0, import_react31.useState)("");
-  const [loading, setLoading] = (0, import_react31.useState)(true);
-  (0, import_react31.useEffect)(() => {
+  const [allPeople, setAllPeople] = (0, import_react30.useState)([]);
+  const [filter2, setFilter] = (0, import_react30.useState)("");
+  const [loading, setLoading] = (0, import_react30.useState)(true);
+  (0, import_react30.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -57355,8 +58135,8 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       onChange16([...selectedPersonIds, personId]);
     }
   };
-  if (loading) return /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading people...");
-  return /* @__PURE__ */ import_react31.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react31.default.createElement(
+  if (loading) return /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading people...");
+  return /* @__PURE__ */ import_react30.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react30.default.createElement(
     "input",
     {
       type: "text",
@@ -57365,7 +58145,7 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       placeholder: "Type to filter people...",
       className: "w-full px-4 py-2 border-b border-gray-300 rounded-t bg-white"
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredPeople.length === 0 ? /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-gray-500" }, "No people found") : filteredPeople.map((person) => /* @__PURE__ */ import_react31.default.createElement("label", { key: person.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredPeople.length === 0 ? /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "No people found") : filteredPeople.map((person) => /* @__PURE__ */ import_react30.default.createElement("label", { key: person.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react30.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -57374,7 +58154,7 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       className: "mt-1 rounded",
       style: { accentColor: "#414431" }
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("span", { className: "text-sm" }, person.full_name, " ", person.role && `(${person.role})`)))), /* @__PURE__ */ import_react31.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedPersonIds.length, " selected"));
+  ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-sm" }, person.full_name, " ", person.role && `(${person.role})`)))), /* @__PURE__ */ import_react30.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedPersonIds.length, " selected"));
 }
 
 // app/javascript/components/NotesForm.js
@@ -57384,7 +58164,7 @@ function NotesForm() {
   const sourceIdFromUrl = rootElement?.dataset.sourceId;
   const conceptIdFromUrl = rootElement?.dataset.conceptId;
   const isEdit = !!noteData.id;
-  const [formData, setFormData] = (0, import_react32.useState)({
+  const [formData, setFormData] = (0, import_react31.useState)({
     body: noteData.body || "",
     note_type: noteData.note_type || "note",
     context: noteData.context || "",
@@ -57395,7 +58175,7 @@ function NotesForm() {
     tags: noteData.tags ? noteData.tags.map((t4) => t4.name) : [],
     person_ids: noteData.people ? noteData.people.map((p3) => p3.id) : []
   });
-  const [error, setError] = (0, import_react32.useState)("");
+  const [error, setError] = (0, import_react31.useState)("");
   const editor = useEditor({
     extensions: [
       index_default3,
@@ -57429,7 +58209,7 @@ function NotesForm() {
       setFormData((prev) => ({ ...prev, body: editor2.getHTML() }));
     }
   });
-  (0, import_react32.useEffect)(() => {
+  (0, import_react31.useEffect)(() => {
     if (editor && formData.body) {
       editor.commands.setContent(formData.body);
     }
@@ -57460,19 +58240,19 @@ function NotesForm() {
     }
   };
   if (!editor) return null;
-  return /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react32.default.createElement("a", { href: "/notes", className: "text-primary hover:text-accent-dark" }, "\u2190 Back to Notes")), /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl mb-6" }, isEdit ? "Edit Note" : "New Note"), /* @__PURE__ */ import_react32.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-6" }, error && /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Note Type"), /* @__PURE__ */ import_react32.default.createElement(
+  return /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react31.default.createElement("a", { href: "/notes", className: "text-primary hover:text-accent-dark" }, "\u2190 Back to Notes")), /* @__PURE__ */ import_react31.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl mb-6" }, isEdit ? "Edit Note" : "New Note"), /* @__PURE__ */ import_react31.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-6" }, error && /* @__PURE__ */ import_react31.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Note Type"), /* @__PURE__ */ import_react31.default.createElement(
     "select",
     {
       value: formData.note_type,
       onChange: (e3) => setFormData({ ...formData, note_type: e3.target.value }),
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "note" }, "Note"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "connection" }, "Connection"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "todo" }, "To Do Item")
-  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-2" }, "Note Content *"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react32.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-0 flex-wrap bg-sand" }, /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "note" }, "Note"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "connection" }, "Connection"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "todo" }, "To Do Item")
+  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-2" }, "Note Content *"), /* @__PURE__ */ import_react31.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react31.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-0 flex-wrap bg-sand" }, /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57481,8 +58261,8 @@ function NotesForm() {
       style: { background: editor.isActive("bold") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Bold"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faBold })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faBold })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57491,8 +58271,8 @@ function NotesForm() {
       style: { background: editor.isActive("italic") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Italic"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faItalic })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faItalic })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57501,8 +58281,8 @@ function NotesForm() {
       style: { background: editor.isActive("underline") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Underline"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faUnderline })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faUnderline })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57511,8 +58291,8 @@ function NotesForm() {
       style: { background: editor.isActive("strike") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Strikethrough"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "select",
     {
       onChange: (e3) => {
@@ -57527,14 +58307,14 @@ function NotesForm() {
       style: { color: "#414431" },
       value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : editor.isActive("heading", { level: 5 }) ? "5" : editor.isActive("heading", { level: 6 }) ? "6" : ""
     },
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "" }, "Paragraph"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "1" }, "Heading 1"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "2" }, "Heading 2"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "3" }, "Heading 3"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "4" }, "Heading 4"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "5" }, "Heading 5"),
-    /* @__PURE__ */ import_react32.default.createElement("option", { value: "6" }, "Heading 6")
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "" }, "Paragraph"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "1" }, "Heading 1"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "2" }, "Heading 2"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "3" }, "Heading 3"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "4" }, "Heading 4"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "5" }, "Heading 5"),
+    /* @__PURE__ */ import_react31.default.createElement("option", { value: "6" }, "Heading 6")
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "color",
@@ -57543,7 +58323,7 @@ function NotesForm() {
       className: "w-8 h-6 rounded cursor-pointer border border-primary/20",
       title: "Text Color"
     }
-  ), /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "color",
@@ -57551,7 +58331,7 @@ function NotesForm() {
       className: "w-8 h-6 rounded cursor-pointer border border-primary/20",
       title: "Highlight Color"
     }
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57560,8 +58340,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "left" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Left"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignLeft })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignLeft })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57570,8 +58350,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "center" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Center"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignCenter })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignCenter })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57580,8 +58360,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "right" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Right"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignRight })
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignRight })
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57590,8 +58370,8 @@ function NotesForm() {
       style: { background: editor.isActive("bulletList") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Bullet List"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faListUl })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faListUl })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57600,8 +58380,8 @@ function NotesForm() {
       style: { background: editor.isActive("orderedList") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Numbered List"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faListOl })
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faListOl })
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57615,8 +58395,8 @@ function NotesForm() {
       style: { background: editor.isActive("link") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Insert Link"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faLink })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faLink })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57626,8 +58406,8 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Remove Link"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faUnlink })
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faUnlink })
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57636,8 +58416,8 @@ function NotesForm() {
       style: { background: editor.isActive("blockquote") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Blockquote"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57646,8 +58426,8 @@ function NotesForm() {
       style: { background: editor.isActive("codeBlock") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Code Block"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faCode })
-  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faCode })
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57656,8 +58436,8 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Insert Table"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faTable })
-  ), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faTable })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "button",
@@ -57671,14 +58451,14 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Insert Image"
     },
-    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faImage })
-  )), /* @__PURE__ */ import_react32.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faImage })
+  )), /* @__PURE__ */ import_react31.default.createElement(
     EditorContent,
     {
       editor,
       className: "px-4 py-2 min-h-[300px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
     }
-  ))), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react32.default.createElement(
+  ))), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react31.default.createElement(
     "textarea",
     {
       value: formData.context,
@@ -57687,31 +58467,31 @@ function NotesForm() {
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
       placeholder: "What prompted this note?"
     }
-  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react32.default.createElement(
+  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react31.default.createElement(
     ConceptSelector,
     {
       selectedConceptIds: formData.concept_id ? [parseInt(formData.concept_id)] : [],
       onChange: (concept_ids) => setFormData({ ...formData, concept_id: concept_ids[0] || "" })
     }
-  ), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one construct (optional)")), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one construct (optional)")), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react31.default.createElement(
     SourceSelector,
     {
       selectedSourceIds: formData.source_id ? [parseInt(formData.source_id)] : [],
       onChange: (source_ids) => setFormData({ ...formData, source_id: source_ids[0] || "" })
     }
-  ), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one source (optional)")), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one source (optional)")), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react31.default.createElement(
     TagSelector,
     {
       selectedTags: formData.tags,
       onChange: (tags) => setFormData({ ...formData, tags })
     }
-  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People"), /* @__PURE__ */ import_react32.default.createElement(
+  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People"), /* @__PURE__ */ import_react31.default.createElement(
     PeopleSelector,
     {
       selectedPersonIds: formData.person_ids,
       onChange: (person_ids) => setFormData({ ...formData, person_ids })
     }
-  )), /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react32.default.createElement(
+  )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "date",
@@ -57719,7 +58499,7 @@ function NotesForm() {
       onChange: (e3) => setFormData({ ...formData, noted_on: e3.target.value }),
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
     }
-  )), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react32.default.createElement(
+  )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -57728,14 +58508,14 @@ function NotesForm() {
       onChange: (e3) => setFormData({ ...formData, pinned: e3.target.checked }),
       className: "rounded"
     }
-  ), /* @__PURE__ */ import_react32.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       type: "submit",
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     isEdit ? "Save Changes" : "Create Note"
-  ), /* @__PURE__ */ import_react32.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "a",
     {
       href: "/notes",
@@ -57746,18 +58526,18 @@ function NotesForm() {
 }
 
 // app/javascript/components/TagsIndex.js
-var import_react35 = __toESM(require_react());
+var import_react34 = __toESM(require_react());
 
 // app/javascript/components/TagFormModal.js
-var import_react34 = __toESM(require_react());
+var import_react33 = __toESM(require_react());
 function TagFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = (0, import_react34.useState)({
+  const [formData, setFormData] = (0, import_react33.useState)({
     name: "",
     description: "",
     color: "#414431"
   });
-  const [error, setError] = (0, import_react34.useState)("");
-  (0, import_react34.useEffect)(() => {
+  const [error, setError] = (0, import_react33.useState)("");
+  (0, import_react33.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -57802,7 +58582,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       setError("An error occurred while saving the tag");
     }
   };
-  return /* @__PURE__ */ import_react34.default.createElement(
+  return /* @__PURE__ */ import_react33.default.createElement(
     Modal,
     {
       isOpen,
@@ -57810,7 +58590,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Tag" : "New Tag",
       size: "medium"
     },
-    /* @__PURE__ */ import_react34.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react33.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react33.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react33.default.createElement(
       "input",
       {
         type: "text",
@@ -57819,7 +58599,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react34.default.createElement(
+    )), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react33.default.createElement(
       "textarea",
       {
         value: formData.description,
@@ -57828,7 +58608,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What does this tag represent?"
       }
-    )), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react34.default.createElement(
+    )), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react33.default.createElement(
       "input",
       {
         type: "color",
@@ -57836,14 +58616,14 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, color: e3.target.value }),
         className: "w-full h-12 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react34.default.createElement(
+    )), /* @__PURE__ */ import_react33.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react33.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Tag"
-    ), /* @__PURE__ */ import_react34.default.createElement(
+    ), /* @__PURE__ */ import_react33.default.createElement(
       "button",
       {
         type: "button",
@@ -57857,12 +58637,12 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/TagsIndex.js
 function TagsIndex() {
-  const [tags, setTags] = (0, import_react35.useState)([]);
-  const [selectedTag, setSelectedTag] = (0, import_react35.useState)(null);
-  const [loading, setLoading] = (0, import_react35.useState)(true);
-  const [sortBy, setSortBy] = (0, import_react35.useState)("popularity");
-  const [creatingTag, setCreatingTag] = (0, import_react35.useState)(false);
-  (0, import_react35.useEffect)(() => {
+  const [tags, setTags] = (0, import_react34.useState)([]);
+  const [selectedTag, setSelectedTag] = (0, import_react34.useState)(null);
+  const [loading, setLoading] = (0, import_react34.useState)(true);
+  const [sortBy, setSortBy] = (0, import_react34.useState)("popularity");
+  const [creatingTag, setCreatingTag] = (0, import_react34.useState)(false);
+  (0, import_react34.useEffect)(() => {
     fetchTags();
   }, [sortBy]);
   const fetchTags = async () => {
@@ -57904,23 +58684,23 @@ function TagsIndex() {
       console.error("Error deleting tag:", error);
     }
   };
-  return /* @__PURE__ */ import_react35.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react35.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react35.default.createElement("div", null, /* @__PURE__ */ import_react35.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react35.default.createElement(
+  return /* @__PURE__ */ import_react34.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react34.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react34.default.createElement(
     "select",
     {
       value: sortBy,
       onChange: (e3) => setSortBy(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react35.default.createElement("option", { value: "popularity" }, "Popularity"),
-    /* @__PURE__ */ import_react35.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
-  )), /* @__PURE__ */ import_react35.default.createElement(
+    /* @__PURE__ */ import_react34.default.createElement("option", { value: "popularity" }, "Popularity"),
+    /* @__PURE__ */ import_react34.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
+  )), /* @__PURE__ */ import_react34.default.createElement(
     "button",
     {
       onClick: () => setCreatingTag(!creatingTag),
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingTag ? "Cancel" : "+ New Tag"
-  )), /* @__PURE__ */ import_react35.default.createElement(
+  )), /* @__PURE__ */ import_react34.default.createElement(
     TagFormModal,
     {
       isOpen: creatingTag,
@@ -57930,22 +58710,22 @@ function TagsIndex() {
         setCreatingTag(false);
       }
     }
-  )), loading ? /* @__PURE__ */ import_react35.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react35.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react35.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react35.default.createElement(
+  )), loading ? /* @__PURE__ */ import_react34.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react34.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react34.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
       key: tag.id,
       className: `flex items-center justify-between p-3 rounded cursor-pointer hover:bg-sand transition-colors ${selectedTag?.id === tag.id ? "bg-sand" : ""}`,
       onClick: () => handleTagClick(tag)
     },
-    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react35.default.createElement(
+    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react34.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: tag.color }
       }
-    ), /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
-    /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
-  ))))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react35.default.createElement(
+    ), /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
+    /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
+  ))))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react34.default.createElement(
     TagDetail,
     {
       tag: selectedTag,
@@ -57955,10 +58735,10 @@ function TagsIndex() {
         setTags(tags.map((t4) => t4.id === updatedTag.id ? updatedTag : t4));
       }
     }
-  ) : /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
+  ) : /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
 }
 function TagDetail({ tag, onDelete, onUpdate }) {
-  const [editing, setEditing] = (0, import_react35.useState)(false);
+  const [editing, setEditing] = (0, import_react34.useState)(false);
   const typeLabels = {
     Concept: "Constructs",
     Source: "Sources",
@@ -57966,7 +58746,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     Connection: "Relationships",
     Note: "Notes"
   };
-  return /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, /* @__PURE__ */ import_react35.default.createElement(
+  return /* @__PURE__ */ import_react34.default.createElement(import_react34.default.Fragment, null, /* @__PURE__ */ import_react34.default.createElement(
     TagFormModal,
     {
       isOpen: editing,
@@ -57977,46 +58757,46 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         setEditing(false);
       }
     }
-  ), /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react35.default.createElement(
+  ), /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
       className: "w-6 h-6 rounded-full",
       style: { backgroundColor: tag.color }
     }
-  ), /* @__PURE__ */ import_react35.default.createElement("div", null, /* @__PURE__ */ import_react35.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react35.default.createElement(
+  ), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react34.default.createElement(
     "button",
     {
       onClick: () => setEditing(true),
       className: "px-4 py-2 text-sm border border-gray-300 rounded hover:bg-sand"
     },
     "Edit"
-  ), /* @__PURE__ */ import_react35.default.createElement(
+  ), /* @__PURE__ */ import_react34.default.createElement(
     "button",
     {
       onClick: onDelete,
       className: "px-4 py-2 text-sm text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  ))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react35.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react35.default.createElement(
+  ))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react34.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react34.default.createElement(
     "a",
     {
       key: concept.id,
       href: `/concepts/${concept.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
-    concept.summary_top && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
-  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react35.default.createElement("div", { key: source.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)), source.authors && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors))))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react35.default.createElement("div", { key: person.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, person.role)))))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react35.default.createElement("div", { key: note.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, note.note_type), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm" }, note.body), note.concept && /* @__PURE__ */ import_react35.default.createElement("a", { href: `/concepts/${note.concept.id}`, className: "text-xs text-primary hover:underline mt-1 block" }, "\u2192 ", note.concept.label)))))));
+    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
+    concept.summary_top && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
+  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react34.default.createElement("div", { key: source.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)), source.authors && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors))))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react34.default.createElement("div", { key: person.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, person.role)))))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react34.default.createElement("div", { key: note.id, className: "p-3 border border-gray-200 rounded" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, note.note_type), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm" }, note.body), note.concept && /* @__PURE__ */ import_react34.default.createElement("a", { href: `/concepts/${note.concept.id}`, className: "text-xs text-primary hover:underline mt-1 block" }, "\u2192 ", note.concept.label)))))));
 }
 
 // app/javascript/components/Dashboard.js
-var import_react38 = __toESM(require_react());
-
-// app/javascript/components/ConceptRelationshipMap.js
 var import_react37 = __toESM(require_react());
 
+// app/javascript/components/ConceptRelationshipMap.js
+var import_react36 = __toESM(require_react());
+
 // node_modules/react-kapsule/dist/react-kapsule.mjs
-var import_react36 = __toESM(require_react(), 1);
+var import_react35 = __toESM(require_react(), 1);
 
 // node_modules/jerrypick/dist/jerrypick.mjs
 function _iterableToArrayLimit2(arr, i3) {
@@ -58102,8 +58882,8 @@ function _toPropertyKey2(arg) {
   var key = _toPrimitive2(arg, "string");
   return typeof key === "symbol" ? key : String(key);
 }
-var omit = function omit2(obj, keys2) {
-  var keySet = new Set(keys2);
+var omit = function omit2(obj, keys3) {
+  var keySet = new Set(keys3);
   return Object.assign.apply(Object, [{}].concat(_toConsumableArray2(Object.entries(obj).filter(function(_ref2) {
     var _ref3 = _slicedToArray2(_ref2, 1), key = _ref3[0];
     return !keySet.has(key);
@@ -58170,9 +58950,9 @@ function index(kapsuleComponent) {
   var _ref2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ref$wrapperElementTy = _ref2.wrapperElementType, wrapperElementType = _ref$wrapperElementTy === void 0 ? "div" : _ref$wrapperElementTy, _ref$nodeMapper = _ref2.nodeMapper, nodeMapper = _ref$nodeMapper === void 0 ? function(node) {
     return node;
   } : _ref$nodeMapper, _ref$methodNames = _ref2.methodNames, methodNames = _ref$methodNames === void 0 ? [] : _ref$methodNames, _ref$initPropNames = _ref2.initPropNames, initPropNames = _ref$initPropNames === void 0 ? [] : _ref$initPropNames;
-  return /* @__PURE__ */ (0, import_react36.forwardRef)(function(props, ref) {
-    var domEl = (0, import_react36.useRef)();
-    var comp = (0, import_react36.useMemo)(function() {
+  return /* @__PURE__ */ (0, import_react35.forwardRef)(function(props, ref) {
+    var domEl = (0, import_react35.useRef)();
+    var comp = (0, import_react35.useMemo)(function() {
       var configOptions = Object.fromEntries(initPropNames.filter(function(p3) {
         return props.hasOwnProperty(p3);
       }).map(function(prop) {
@@ -58182,11 +58962,11 @@ function index(kapsuleComponent) {
     }, []);
     useEffectOnce(function() {
       comp(nodeMapper(domEl.current));
-    }, import_react36.useLayoutEffect);
+    }, import_react35.useLayoutEffect);
     useEffectOnce(function() {
       return comp._destructor instanceof Function ? comp._destructor : void 0;
     });
-    var _call = (0, import_react36.useCallback)(
+    var _call = (0, import_react35.useCallback)(
       function(method) {
         for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
@@ -58195,14 +58975,14 @@ function index(kapsuleComponent) {
       },
       [comp]
     );
-    var prevPropsRef = (0, import_react36.useRef)({});
+    var prevPropsRef = (0, import_react35.useRef)({});
     Object.keys(omit(props, [].concat(_toConsumableArray3(methodNames), _toConsumableArray3(initPropNames)))).filter(function(p3) {
       return prevPropsRef.current[p3] !== props[p3];
     }).forEach(function(p3) {
       return _call(p3, props[p3]);
     });
     prevPropsRef.current = props;
-    (0, import_react36.useImperativeHandle)(ref, function() {
+    (0, import_react35.useImperativeHandle)(ref, function() {
       return Object.fromEntries(methodNames.map(function(method) {
         return [method, function() {
           for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -58212,17 +58992,17 @@ function index(kapsuleComponent) {
         }];
       }));
     }, [_call]);
-    return /* @__PURE__ */ import_react36.default.createElement(wrapperElementType, {
+    return /* @__PURE__ */ import_react35.default.createElement(wrapperElementType, {
       ref: domEl
     });
   });
 }
 function useEffectOnce(effect) {
-  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react36.useEffect;
-  var destroyFunc = (0, import_react36.useRef)();
-  var effectCalled = (0, import_react36.useRef)(false);
-  var renderAfterCalled = (0, import_react36.useRef)(false);
-  var _useState = (0, import_react36.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
+  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react35.useEffect;
+  var destroyFunc = (0, import_react35.useRef)();
+  var effectCalled = (0, import_react35.useRef)(false);
+  var renderAfterCalled = (0, import_react35.useRef)(false);
+  var _useState = (0, import_react35.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
   _useState2[0];
   var setVal = _useState2[1];
   if (effectCalled.current) {
@@ -61108,11 +61888,11 @@ var Symbol_default = Symbol2;
 
 // node_modules/lodash-es/_getRawTag.js
 var objectProto = Object.prototype;
-var hasOwnProperty = objectProto.hasOwnProperty;
+var hasOwnProperty2 = objectProto.hasOwnProperty;
 var nativeObjectToString = objectProto.toString;
 var symToStringTag = Symbol_default ? Symbol_default.toStringTag : void 0;
 function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag), tag = value[symToStringTag];
+  var isOwn = hasOwnProperty2.call(value, symToStringTag), tag = value[symToStringTag];
   try {
     value[symToStringTag] = void 0;
     var unmasked = true;
@@ -63473,7 +64253,7 @@ function I2(n3, l3, u3, t4, i3, r3, o3, e3, f3, c5, s3) {
 }
 function P2(n3, l3, u3, t4, i3) {
   var r3, o3, e3, f3, c5, s3 = u3.length, a5 = s3, h4 = 0;
-  for (n3.__k = new Array(i3), r3 = 0; r3 < i3; r3++) null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? (f3 = r3 + h4, (o3 = n3.__k[r3] = "string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? m2(null, o3, null, null, null) : w2(o3) ? m2(k2, { children: o3 }, null, null, null) : null == o3.constructor && o3.__b > 0 ? m2(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : o3).__ = n3, o3.__b = n3.__b + 1, e3 = null, -1 != (c5 = o3.__i = L2(o3, u3, f3, a5)) && (a5--, (e3 = u3[c5]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c5 && (i3 > s3 ? h4-- : i3 < s3 && h4++), "function" != typeof o3.type && (o3.__u |= 4)) : c5 != f3 && (c5 == f3 - 1 ? h4-- : c5 == f3 + 1 ? h4++ : (c5 > f3 ? h4-- : h4++, o3.__u |= 4))) : n3.__k[r3] = null;
+  for (n3.__k = new Array(i3), r3 = 0; r3 < i3; r3++) null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? ("string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? o3 = n3.__k[r3] = m2(null, o3, null, null, null) : w2(o3) ? o3 = n3.__k[r3] = m2(k2, { children: o3 }, null, null, null) : null == o3.constructor && o3.__b > 0 ? o3 = n3.__k[r3] = m2(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : n3.__k[r3] = o3, f3 = r3 + h4, o3.__ = n3, o3.__b = n3.__b + 1, -1 != (c5 = o3.__i = L2(o3, u3, f3, a5)) && (a5--, (e3 = u3[c5]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c5 && (i3 > s3 ? h4-- : i3 < s3 && h4++), "function" != typeof o3.type && (o3.__u |= 4)) : c5 != f3 && (c5 == f3 - 1 ? h4-- : c5 == f3 + 1 ? h4++ : (c5 > f3 ? h4-- : h4++, o3.__u |= 4))) : n3.__k[r3] = null;
   if (a5) for (r3 = 0; r3 < s3; r3++) null != (e3 = u3[r3]) && 0 == (2 & e3.__u) && (e3.__e == t4 && (t4 = S2(e3)), D2(e3, e3));
   return t4;
 }
@@ -63491,7 +64271,7 @@ function A2(n3, l3, u3, t4) {
 }
 function L2(n3, l3, u3, t4) {
   var i3, r3, o3, e3 = n3.key, f3 = n3.type, c5 = l3[u3], s3 = null != c5 && 0 == (2 & c5.__u);
-  if (null === c5 && null == n3.key || s3 && e3 == c5.key && f3 == c5.type) return u3;
+  if (null === c5 && null == e3 || s3 && e3 == c5.key && f3 == c5.type) return u3;
   if (t4 > (s3 ? 1 : 0)) {
     for (i3 = u3 - 1, r3 = u3 + 1; i3 >= 0 || r3 < l3.length; ) if (null != (c5 = l3[o3 = i3 >= 0 ? i3-- : r3++]) && 0 == (2 & c5.__u) && e3 == c5.key && f3 == c5.type) return o3;
   }
@@ -63533,9 +64313,9 @@ function O(n3, u3, t4, i3, r3, o3, e3, f3, c5, s3) {
   if (null != u3.constructor) return null;
   128 & t4.__u && (c5 = !!(32 & t4.__u), o3 = [f3 = u3.__e = t4.__e]), (a5 = l2.__b) && a5(u3);
   n: if ("function" == typeof j3) try {
-    if (b2 = u3.props, S3 = "prototype" in j3 && j3.prototype.render, C3 = (a5 = j3.contextType) && i3[a5.__c], M2 = a5 ? C3 ? C3.props.value : a5.__ : i3, t4.__c ? m5 = (h4 = u3.__c = t4.__c).__ = h4.__E : (S3 ? u3.__c = h4 = new j3(b2, M2) : (u3.__c = h4 = new x2(b2, M2), h4.constructor = j3, h4.render = E2), C3 && C3.sub(h4), h4.props = b2, h4.state || (h4.state = {}), h4.context = M2, h4.__n = i3, p3 = h4.__d = true, h4.__h = [], h4._sb = []), S3 && null == h4.__s && (h4.__s = h4.state), S3 && null != j3.getDerivedStateFromProps && (h4.__s == h4.state && (h4.__s = d2({}, h4.__s)), d2(h4.__s, j3.getDerivedStateFromProps(b2, h4.__s))), v3 = h4.props, y6 = h4.state, h4.__v = u3, p3) S3 && null == j3.getDerivedStateFromProps && null != h4.componentWillMount && h4.componentWillMount(), S3 && null != h4.componentDidMount && h4.__h.push(h4.componentDidMount);
+    if (b2 = u3.props, S3 = "prototype" in j3 && j3.prototype.render, C3 = (a5 = j3.contextType) && i3[a5.__c], M2 = a5 ? C3 ? C3.props.value : a5.__ : i3, t4.__c ? m5 = (h4 = u3.__c = t4.__c).__ = h4.__E : (S3 ? u3.__c = h4 = new j3(b2, M2) : (u3.__c = h4 = new x2(b2, M2), h4.constructor = j3, h4.render = E2), C3 && C3.sub(h4), h4.state || (h4.state = {}), h4.__n = i3, p3 = h4.__d = true, h4.__h = [], h4._sb = []), S3 && null == h4.__s && (h4.__s = h4.state), S3 && null != j3.getDerivedStateFromProps && (h4.__s == h4.state && (h4.__s = d2({}, h4.__s)), d2(h4.__s, j3.getDerivedStateFromProps(b2, h4.__s))), v3 = h4.props, y6 = h4.state, h4.__v = u3, p3) S3 && null == j3.getDerivedStateFromProps && null != h4.componentWillMount && h4.componentWillMount(), S3 && null != h4.componentDidMount && h4.__h.push(h4.componentDidMount);
     else {
-      if (S3 && null == j3.getDerivedStateFromProps && b2 !== v3 && null != h4.componentWillReceiveProps && h4.componentWillReceiveProps(b2, M2), !h4.__e && null != h4.shouldComponentUpdate && false === h4.shouldComponentUpdate(b2, h4.__s, M2) || u3.__v == t4.__v) {
+      if (S3 && null == j3.getDerivedStateFromProps && b2 !== v3 && null != h4.componentWillReceiveProps && h4.componentWillReceiveProps(b2, M2), u3.__v == t4.__v || !h4.__e && null != h4.shouldComponentUpdate && false === h4.shouldComponentUpdate(b2, h4.__s, M2)) {
         for (u3.__v != t4.__v && (h4.props = b2, h4.state = h4.__s, h4.__d = false), u3.__e = t4.__e, u3.__k = t4.__k, u3.__k.some(function(n4) {
           n4 && (n4.__ = u3);
         }), $2 = 0; $2 < h4._sb.length; $2++) h4.__h.push(h4._sb[$2]);
@@ -63586,7 +64366,7 @@ function V(n3) {
   return "object" != typeof n3 || null == n3 || n3.__b && n3.__b > 0 ? n3 : w2(n3) ? n3.map(V) : d2({}, n3);
 }
 function q2(u3, t4, i3, r3, o3, e3, f3, c5, s3) {
-  var a5, h4, v3, y6, d3, _3, m5, b2 = i3.props, k3 = t4.props, x6 = t4.type;
+  var a5, h4, v3, y6, d3, _3, m5, b2 = i3.props || p2, k3 = t4.props, x6 = t4.type;
   if ("svg" == x6 ? o3 = "http://www.w3.org/2000/svg" : "math" == x6 ? o3 = "http://www.w3.org/1998/Math/MathML" : o3 || (o3 = "http://www.w3.org/1999/xhtml"), null != e3) {
     for (a5 = 0; a5 < e3.length; a5++) if ((d3 = e3[a5]) && "setAttribute" in d3 == !!x6 && (x6 ? d3.localName == x6 : 3 == d3.nodeType)) {
       u3 = d3, e3[a5] = null;
@@ -63599,7 +64379,7 @@ function q2(u3, t4, i3, r3, o3, e3, f3, c5, s3) {
   }
   if (null == x6) b2 === k3 || c5 && u3.data == k3 || (u3.data = k3);
   else {
-    if (e3 = e3 && n2.call(u3.childNodes), b2 = i3.props || p2, !c5 && null != e3) for (b2 = {}, a5 = 0; a5 < u3.attributes.length; a5++) b2[(d3 = u3.attributes[a5]).name] = d3.value;
+    if (e3 = e3 && n2.call(u3.childNodes), !c5 && null != e3) for (b2 = {}, a5 = 0; a5 < u3.attributes.length; a5++) b2[(d3 = u3.attributes[a5]).name] = d3.value;
     for (a5 in b2) if (d3 = b2[a5], "children" == a5) ;
     else if ("dangerouslySetInnerHTML" == a5) v3 = d3;
     else if (!(a5 in k3)) {
@@ -66462,7 +67242,7 @@ var index6 = (function() {
   var keyAccessors = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : [];
   var multiItem = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : true;
   var flattenKeys = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : false;
-  var keys2 = (keyAccessors instanceof Array ? keyAccessors.length ? keyAccessors : [void 0] : [keyAccessors]).map(function(key) {
+  var keys3 = (keyAccessors instanceof Array ? keyAccessors.length ? keyAccessors : [void 0] : [keyAccessors]).map(function(key) {
     return {
       keyAccessor: key,
       isProp: !(key instanceof Function)
@@ -66471,7 +67251,7 @@ var index6 = (function() {
   var indexedResult = list.reduce(function(res, item) {
     var iterObj = res;
     var itemVal = item;
-    keys2.forEach(function(_ref2, idx) {
+    keys3.forEach(function(_ref2, idx) {
       var keyAccessor = _ref2.keyAccessor, isProp = _ref2.isProp;
       var key;
       if (isProp) {
@@ -66481,7 +67261,7 @@ var index6 = (function() {
       } else {
         key = keyAccessor(itemVal, idx);
       }
-      if (idx + 1 < keys2.length) {
+      if (idx + 1 < keys3.length) {
         if (!iterObj.hasOwnProperty(key)) {
           iterObj[key] = {};
         }
@@ -66502,7 +67282,7 @@ var index6 = (function() {
   if (multiItem instanceof Function) {
     (function reduce2(node) {
       var level = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1;
-      if (level === keys2.length) {
+      if (level === keys3.length) {
         Object.keys(node).forEach(function(k3) {
           return node[k3] = multiItem(node[k3]);
         });
@@ -66518,7 +67298,7 @@ var index6 = (function() {
     result = [];
     (function flatten(node) {
       var accKeys = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : [];
-      if (accKeys.length === keys2.length) {
+      if (accKeys.length === keys3.length) {
         result.push({
           keys: accKeys,
           vals: node
@@ -68192,20 +68972,20 @@ ForceGraph2D.propTypes = ForceGraph2DPropTypes;
 
 // app/javascript/components/ConceptRelationshipMap.js
 function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = (0, import_react37.useState)({ nodes: [], links: [] });
-  const [loading, setLoading] = (0, import_react37.useState)(true);
-  const [filterType, setFilterType] = (0, import_react37.useState)("all");
-  const [highlightNodes, setHighlightNodes] = (0, import_react37.useState)(/* @__PURE__ */ new Set());
-  const [highlightLinks, setHighlightLinks] = (0, import_react37.useState)(/* @__PURE__ */ new Set());
-  const [hoverNode, setHoverNode] = (0, import_react37.useState)(null);
-  const fgRef = (0, import_react37.useRef)();
-  const labelBounds = (0, import_react37.useRef)(/* @__PURE__ */ new Map());
-  const currentFrame = (0, import_react37.useRef)(0);
-  const nodesPainted = (0, import_react37.useRef)(0);
-  (0, import_react37.useEffect)(() => {
+  const [graphData, setGraphData] = (0, import_react36.useState)({ nodes: [], links: [] });
+  const [loading, setLoading] = (0, import_react36.useState)(true);
+  const [filterType, setFilterType] = (0, import_react36.useState)("all");
+  const [highlightNodes, setHighlightNodes] = (0, import_react36.useState)(/* @__PURE__ */ new Set());
+  const [highlightLinks, setHighlightLinks] = (0, import_react36.useState)(/* @__PURE__ */ new Set());
+  const [hoverNode, setHoverNode] = (0, import_react36.useState)(null);
+  const fgRef = (0, import_react36.useRef)();
+  const labelBounds = (0, import_react36.useRef)(/* @__PURE__ */ new Map());
+  const currentFrame = (0, import_react36.useRef)(0);
+  const nodesPainted = (0, import_react36.useRef)(0);
+  (0, import_react36.useEffect)(() => {
     fetchGraphData();
   }, []);
-  (0, import_react37.useEffect)(() => {
+  (0, import_react36.useEffect)(() => {
     if (fgRef.current && graphData.nodes.length > 0) {
       const fg = fgRef.current;
       Promise.resolve().then(() => (init_src4(), src_exports)).then((d3) => {
@@ -68520,45 +69300,45 @@ function ConceptRelationshipMap() {
     ctx.setLineDash([]);
   };
   if (loading) {
-    return /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("p", null, "Loading relationship map..."));
+    return /* @__PURE__ */ import_react36.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react36.default.createElement("p", null, "Loading relationship map..."));
   }
   const filteredData = getFilteredData();
-  return /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react37.default.createElement(
+  return /* @__PURE__ */ import_react36.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react36.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setFilterType("all"),
       className: `px-3 py-1 rounded text-sm ${filterType === "all" ? "bg-primary text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "All"
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setFilterType("hierarchical"),
       className: `px-3 py-1 rounded text-sm ${filterType === "hierarchical" ? "bg-accent-dark text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Hierarchical"
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setFilterType("semantic"),
       className: `px-3 py-1 rounded text-sm ${filterType === "semantic" ? "bg-primary text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Semantic"
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setFilterType("sequential"),
       className: `px-3 py-1 rounded text-sm ${filterType === "sequential" ? "bg-accent text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Sequential"
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setFilterType("influence"),
       className: `px-3 py-1 rounded text-sm ${filterType === "influence" ? "bg-accent-light text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Influence"
-  ))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react37.default.createElement(
+  ))), /* @__PURE__ */ import_react36.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react36.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react36.default.createElement(
     ForceGraph2D,
     {
       ref: fgRef,
@@ -68579,15 +69359,15 @@ function ConceptRelationshipMap() {
       width: void 0,
       height: 400
     }
-  )), hoverNode && /* @__PURE__ */ import_react37.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react37.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react37.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
+  )), hoverNode && /* @__PURE__ */ import_react36.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react36.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react36.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react36.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react36.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
 }
 
 // app/javascript/components/Dashboard.js
 function Dashboard() {
-  const [stats, setStats] = (0, import_react38.useState)(null);
-  const [recentActivity, setRecentActivity] = (0, import_react38.useState)([]);
-  const [loading, setLoading] = (0, import_react38.useState)(true);
-  (0, import_react38.useEffect)(() => {
+  const [stats, setStats] = (0, import_react37.useState)(null);
+  const [recentActivity, setRecentActivity] = (0, import_react37.useState)([]);
+  const [loading, setLoading] = (0, import_react37.useState)(true);
+  (0, import_react37.useEffect)(() => {
     fetchDashboardData();
   }, []);
   const fetchDashboardData = async () => {
@@ -68648,83 +69428,83 @@ function Dashboard() {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react38.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react38.default.createElement("p", null, "Loading dashboard..."));
+    return /* @__PURE__ */ import_react37.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react37.default.createElement("p", null, "Loading dashboard..."));
   }
-  return /* @__PURE__ */ import_react38.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react38.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react38.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react37.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react37.default.createElement(
     ActionCard,
     {
       title: "Add Concept",
       description: "Create a new knowledge concept",
       link: "/concepts"
     }
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     ActionCard,
     {
       title: "Add Note",
       description: "Capture a new insight or reflection",
       link: "/notes"
     }
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     ActionCard,
     {
       title: "Add Source",
       description: "Add a new reference or resource",
       link: "/sources"
     }
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     ActionCard,
     {
       title: "View Graph",
       description: "Explore your knowledge network",
       link: "/connections"
     }
-  ))), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react38.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react38.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react38.default.createElement(
+  ))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react37.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       className: "bg-primary h-2 rounded-full",
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react38.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react38.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react38.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react38.default.createElement(
+  )), /* @__PURE__ */ import_react37.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react37.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       className: `h-2 rounded-full ${status === "deep" ? "bg-green-600" : status === "basic" ? "bg-yellow-600" : "bg-gray-400"}`,
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react38.default.createElement(ConceptRelationshipMap, null));
+  )), /* @__PURE__ */ import_react37.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react37.default.createElement(ConceptRelationshipMap, null));
 }
 function StatCard({ label, value, link }) {
-  return /* @__PURE__ */ import_react38.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       href: link,
       className: "bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react38.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
-    /* @__PURE__ */ import_react38.default.createElement("div", { className: "text-sm text-gray-600" }, label)
+    /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
+    /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-sm text-gray-600" }, label)
   );
 }
 function ActionCard({ title, description, link }) {
-  return /* @__PURE__ */ import_react38.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       href: link,
       className: "bg-white border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
     },
-    /* @__PURE__ */ import_react38.default.createElement("h3", { className: "font-medium mb-1" }, title),
-    /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-sm text-gray-600" }, description)
+    /* @__PURE__ */ import_react37.default.createElement("h3", { className: "font-medium mb-1" }, title),
+    /* @__PURE__ */ import_react37.default.createElement("p", { className: "text-sm text-gray-600" }, description)
   );
 }
 
 // app/javascript/components/GlobalSearch.js
-var import_react39 = __toESM(require_react());
+var import_react38 = __toESM(require_react());
 function GlobalSearch() {
-  const [query, setQuery] = (0, import_react39.useState)("");
-  const [results, setResults] = (0, import_react39.useState)(null);
-  const [loading, setLoading] = (0, import_react39.useState)(false);
-  const [showResults, setShowResults] = (0, import_react39.useState)(false);
-  const searchRef = (0, import_react39.useRef)(null);
-  const timeoutRef = (0, import_react39.useRef)(null);
-  (0, import_react39.useEffect)(() => {
+  const [query, setQuery] = (0, import_react38.useState)("");
+  const [results, setResults] = (0, import_react38.useState)(null);
+  const [loading, setLoading] = (0, import_react38.useState)(false);
+  const [showResults, setShowResults] = (0, import_react38.useState)(false);
+  const searchRef = (0, import_react38.useRef)(null);
+  const timeoutRef = (0, import_react38.useRef)(null);
+  (0, import_react38.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
@@ -68733,7 +69513,7 @@ function GlobalSearch() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  (0, import_react39.useEffect)(() => {
+  (0, import_react38.useEffect)(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -68765,7 +69545,7 @@ function GlobalSearch() {
     }
   };
   const totalResults = results ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length : 0;
-  return /* @__PURE__ */ import_react39.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react39.default.createElement(
+  return /* @__PURE__ */ import_react38.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react38.default.createElement(
     "input",
     {
       type: "text",
@@ -68775,10 +69555,10 @@ function GlobalSearch() {
       placeholder: "Search across everything...",
       className: "w-full px-4 py-2 pl-10 border border-gray-300 rounded bg-white"
     }
-  ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
+  ), /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
 }
 function SearchSection({ title, items, type }) {
-  return /* @__PURE__ */ import_react39.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react39.default.createElement(SearchResultItem, { key: item.id, item, type }))));
+  return /* @__PURE__ */ import_react38.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react38.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react38.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react38.default.createElement(SearchResultItem, { key: item.id, item, type }))));
 }
 function SearchResultItem({ item, type }) {
   const getLink = () => {
@@ -68812,29 +69592,29 @@ function SearchResultItem({ item, type }) {
     if (type === "note") return item.note_type;
     return null;
   };
-  return /* @__PURE__ */ import_react39.default.createElement(
+  return /* @__PURE__ */ import_react38.default.createElement(
     "a",
     {
       href: getLink(),
       className: "block px-4 py-3 hover:bg-sand transition-colors",
       onClick: () => window.location.href = getLink()
     },
-    /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react39.default.createElement(
+    /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react38.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: item.color }
       }
-    )), /* @__PURE__ */ import_react39.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
+    )), /* @__PURE__ */ import_react38.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
   );
 }
 
 // app/javascript/components/UserDropdown.js
-var import_react40 = __toESM(require_react());
+var import_react39 = __toESM(require_react());
 function UserDropdown({ userEmail }) {
-  const [isOpen, setIsOpen] = (0, import_react40.useState)(false);
-  const dropdownRef = (0, import_react40.useRef)(null);
-  (0, import_react40.useEffect)(() => {
+  const [isOpen, setIsOpen] = (0, import_react39.useState)(false);
+  const dropdownRef = (0, import_react39.useRef)(null);
+  (0, import_react39.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -68861,21 +69641,21 @@ function UserDropdown({ userEmail }) {
     document.body.appendChild(form);
     form.submit();
   };
-  return /* @__PURE__ */ import_react40.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react40.default.createElement(
+  return /* @__PURE__ */ import_react39.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setIsOpen(!isOpen),
       className: "flex items-center gap-2 px-3 py-2 rounded hover:bg-sand hover:text-primary transition-colors"
     },
-    /* @__PURE__ */ import_react40.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react40.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
-  ), isOpen && /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react40.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react40.default.createElement(
+    /* @__PURE__ */ import_react39.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react39.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
+  ), isOpen && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react39.default.createElement(
     "a",
     {
       href: "/users/edit",
       className: "block px-4 py-2 text-sm hover:bg-sand transition-colors"
     },
     "Edit My Information"
-  )), /* @__PURE__ */ import_react40.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react40.default.createElement(
+  )), /* @__PURE__ */ import_react39.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: handleSignOut,
@@ -68889,53 +69669,53 @@ function UserDropdown({ userEmail }) {
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(SourcesIndex, null));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react41.default.createElement(PersonShow, null));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react40.default.createElement(PersonShow, null));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react41.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react40.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(TagsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react41.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react40.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react41.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react40.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react41.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react40.default.createElement(UserDropdown, { userEmail }));
   }
 });
 /*! Bundled license information:
