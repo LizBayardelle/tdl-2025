@@ -343,10 +343,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Title *</label>
-                <input
-                  type="text"
+                <textarea
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  rows="2"
                   className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
                   required
                 />
@@ -701,25 +701,29 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Metadata Tab */}
           {activeTab === 'metadata' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+              <div className="flex flex-col">
                 <label className="block text-sm font-medium mb-1">
                   Concepts
                 </label>
-                <ConceptSelector
-                  selectedConceptIds={formData.concept_ids}
-                  onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
-                />
+                <div className="flex-1 overflow-hidden">
+                  <ConceptSelector
+                    selectedConceptIds={formData.concept_ids}
+                    onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+                  />
+                </div>
               </div>
 
-              <div>
+              <div className="flex flex-col">
                 <label className="block text-sm font-medium mb-1">
                   Tags
                 </label>
-                <TagSelector
-                  selectedTags={formData.tags}
-                  onChange={(tags) => setFormData({ ...formData, tags })}
-                />
+                <div className="flex-1 overflow-hidden">
+                  <TagSelector
+                    selectedTags={formData.tags}
+                    onChange={(tags) => setFormData({ ...formData, tags })}
+                  />
+                </div>
               </div>
             </div>
           )}

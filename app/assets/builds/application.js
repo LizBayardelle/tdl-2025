@@ -52052,7 +52052,7 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
   if (loading) {
     return /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading tags...");
   }
-  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement(
+  return /* @__PURE__ */ import_react18.default.createElement("div", { className: "border border-gray-300 rounded bg-white h-full flex flex-col" }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react18.default.createElement(
     "input",
     {
       type: "text",
@@ -52095,7 +52095,7 @@ function TagSelector({ selectedTags = [], onChange: onChange16 }) {
       },
       "\xD7"
     )
-  )))), /* @__PURE__ */ import_react18.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredTags.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching tags. Press Enter to create new." : "No tags yet.") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-2" }, filteredTags.map((tag) => /* @__PURE__ */ import_react18.default.createElement(
+  )))), /* @__PURE__ */ import_react18.default.createElement("div", { className: "flex-1 overflow-y-auto p-3" }, filteredTags.length === 0 ? /* @__PURE__ */ import_react18.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching tags. Press Enter to create new." : "No tags yet.") : /* @__PURE__ */ import_react18.default.createElement("div", { className: "space-y-2" }, filteredTags.map((tag) => /* @__PURE__ */ import_react18.default.createElement(
     "label",
     {
       key: tag,
@@ -52177,7 +52177,7 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
   if (loading) {
     return /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500" }, "Loading concepts...");
   }
-  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react19.default.createElement(
+  return /* @__PURE__ */ import_react19.default.createElement("div", { className: "border border-gray-300 rounded bg-white h-full flex flex-col" }, /* @__PURE__ */ import_react19.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react19.default.createElement(
     "input",
     {
       type: "text",
@@ -52220,7 +52220,7 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16 }) {
       },
       "\xD7"
     )
-  )))), /* @__PURE__ */ import_react19.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3" }, filteredConcepts.length === 0 ? /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching concepts. Press Enter to create new." : "No concepts yet.") : /* @__PURE__ */ import_react19.default.createElement("div", { className: "space-y-2" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react19.default.createElement(
+  )))), /* @__PURE__ */ import_react19.default.createElement("div", { className: "flex-1 overflow-y-auto p-3" }, filteredConcepts.length === 0 ? /* @__PURE__ */ import_react19.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, filter2 ? "No matching concepts. Press Enter to create new." : "No concepts yet.") : /* @__PURE__ */ import_react19.default.createElement("div", { className: "space-y-2" }, filteredConcepts.map((concept) => /* @__PURE__ */ import_react19.default.createElement(
     "label",
     {
       key: concept.id,
@@ -52707,11 +52707,11 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       },
       tab.label
     ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
-      "input",
+      "textarea",
       {
-        type: "text",
         value: formData.title,
         onChange: (e3) => setFormData({ ...formData, title: e3.target.value }),
+        rows: "2",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
@@ -52950,19 +52950,19 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), activeTab === "metadata" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), activeTab === "metadata" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react21.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
         onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react21.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    )))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
+    ))))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",

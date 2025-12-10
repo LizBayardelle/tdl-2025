@@ -72,7 +72,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
   }
 
   return (
-    <div className="border border-gray-300 rounded bg-white">
+    <div className="border border-gray-300 rounded bg-white h-full flex flex-col">
       {/* Search/Filter Input */}
       <div className="p-3 border-b border-gray-200">
         <input
@@ -126,7 +126,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
       )}
 
       {/* Scrollable Concept List */}
-      <div className="max-h-48 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-3">
         {filteredConcepts.length === 0 ? (
           <div className="text-sm text-gray-500 text-center py-4">
             {filter ? 'No matching concepts. Press Enter to create new.' : 'No concepts yet.'}
