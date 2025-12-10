@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
+import SourceSelector from './SourceSelector';
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
-  const [sources, setSources] = useState([]);
   const [formData, setFormData] = useState({
     full_name: '',
     role: 'theorist',
@@ -20,7 +20,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   useEffect(() => {
     if (isOpen) {
       setActiveTab('basic');
-      fetchSources();
       if (item) {
         setFormData({
           full_name: item.full_name || '',
@@ -45,16 +44,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       setError('');
     }
   }, [isOpen, item]);
-
-  const fetchSources = async () => {
-    try {
-      const response = await fetch('/sources.json');
-      const data = await response.json();
-      setSources(data);
-    } catch (error) {
-      console.error('Error fetching sources:', error);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,7 +167,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Details Tab */}
           {activeTab === 'details' && (
-            <div className="space-y-4">
+            <div className="h-full flex flex-col gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Summary
@@ -186,41 +175,28 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                 <textarea
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  rows="8"
+                  rows="6"
                   className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
                 />
               </div>
 
-              <div>
+              <div className="flex flex-col flex-1">
                 <label className="block text-sm font-medium mb-1">
-                  Link Sources (hold Cmd/Ctrl to select multiple)
+                  Sources
                 </label>
-                <select
-                  multiple
-                  value={formData.source_ids}
-                  onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-                    setFormData({ ...formData, source_ids: selected });
-                  }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  size="8"
-                >
-                  {sources.map(source => (
-                    <option key={source.id} value={source.id}>
-                      {source.title} {source.year ? `(${source.year})` : ''}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-gray-600 mt-1">
-                  Selected: {formData.source_ids.length} {formData.source_ids.length === 1 ? 'source' : 'sources'}
-                </p>
+                <div className="flex-1 overflow-hidden">
+                  <SourceSelector
+                    selectedSourceIds={formData.source_ids}
+                    onChange={(source_ids) => setFormData({ ...formData, source_ids })}
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* Metadata Tab */}
           {activeTab === 'metadata' && (
-            <div className="grid grid-cols-1 gap-4 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
               <div className="flex flex-col">
                 <label className="block text-sm font-medium mb-1">
                   Concepts
