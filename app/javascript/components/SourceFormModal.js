@@ -5,6 +5,7 @@ import ConceptSelector from './ConceptSelector';
 import AuthorDisambiguationModal from './AuthorDisambiguationModal';
 
 export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
+  const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
     title: '',
     authors: '',
@@ -260,6 +261,14 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const showChapterFields = formData.kind === 'chapter';
   const showWebsiteFields = formData.kind === 'video_demo';
 
+  const tabs = [
+    { id: 'basic', label: 'Basic Info' },
+    { id: 'publication', label: 'Publication' },
+    { id: 'content', label: 'Content' },
+    { id: 'metadata', label: 'Metadata' },
+    { id: 'files', label: 'Files' }
+  ];
+
   return (
     <>
     <Modal
@@ -268,16 +277,16 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       title={item ? 'Edit Source' : 'New Source'}
       size="large"
     >
-      <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+      <form onSubmit={handleSubmit} className="flex flex-col max-h-[70vh]">
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
+          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
         {/* URL Extraction */}
         {!item && (
-          <div className="space-y-3 pb-4 border-b border-gray-200 bg-blue-50 p-4 rounded">
+          <div className="space-y-3 pb-4 mb-4 border-b border-gray-200 bg-blue-50 p-4 rounded">
             <h3 className="text-lg font-medium text-blue-900">Quick Add from URL or DOI</h3>
             <p className="text-sm text-blue-700">
               <strong>Best results:</strong> Use DOI directly (e.g., <span className="font-mono">10.1234/example</span>)
@@ -306,393 +315,417 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           </div>
         )}
 
-        {/* Basic Info */}
-        <div className="space-y-4 pb-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium">Basic Information</h3>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Title *</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Authors</label>
-              <input
-                type="text"
-                value={formData.authors}
-                onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="Last, F., Last, F."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Year</label>
-              <input
-                type="number"
-                value={formData.year}
-                onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="2024"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Source Type *</label>
-            <select
-              value={formData.kind}
-              onChange={(e) => setFormData({ ...formData, kind: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+        {/* Tab Navigation */}
+        <div className="flex gap-1 border-b border-gray-200 mb-4">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 text-sm transition-colors ${
+                activeTab === tab.id
+                  ? 'border-b-2 border-primary text-primary font-medium'
+                  : 'text-gray-600 hover:text-primary'
+              }`}
+              style={{ background: 'transparent' }}
             >
-              <option value="article">Article</option>
-              <option value="rct">RCT (Research Study)</option>
-              <option value="meta_analysis">Meta-Analysis</option>
-              <option value="textbook">Textbook</option>
-              <option value="chapter">Book Chapter</option>
-              <option value="manual">Manual</option>
-              <option value="guideline">Guideline</option>
-              <option value="video_demo">Video/Website</option>
-            </select>
-          </div>
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Article-specific fields */}
-        {showArticleFields && (
-          <div className="space-y-4 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium">Article Details</h3>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Journal Name</label>
-              <input
-                type="text"
-                value={formData.journal_name}
-                onChange={(e) => setFormData({ ...formData, journal_name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="e.g., Journal of Clinical Psychology"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
+        {/* Scrollable Tab Content */}
+        <div className="overflow-y-auto px-1 flex-1">
+          {/* Basic Info Tab */}
+          {activeTab === 'basic' && (
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Volume</label>
+                <label className="block text-sm font-medium mb-1">Title *</label>
                 <input
                   type="text"
-                  value={formData.volume}
-                  onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="42"
+                  required
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Issue</label>
-                <input
-                  type="text"
-                  value={formData.issue}
-                  onChange={(e) => setFormData({ ...formData, issue: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="3"
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Authors</label>
+                  <input
+                    type="text"
+                    value={formData.authors}
+                    onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    placeholder="Last, F., Last, F."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Year</label>
+                  <input
+                    type="number"
+                    value={formData.year}
+                    onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    placeholder="2024"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Pages</label>
-                <input
-                  type="text"
-                  value={formData.pages}
-                  onChange={(e) => setFormData({ ...formData, pages: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="123-145"
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Source Type *</label>
+                  <select
+                    value={formData.kind}
+                    onChange={(e) => setFormData({ ...formData, kind: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  >
+                    <option value="article">Article</option>
+                    <option value="rct">RCT (Research Study)</option>
+                    <option value="meta_analysis">Meta-Analysis</option>
+                    <option value="textbook">Textbook</option>
+                    <option value="chapter">Book Chapter</option>
+                    <option value="manual">Manual</option>
+                    <option value="guideline">Guideline</option>
+                    <option value="video_demo">Video/Website</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">URL</label>
+                  <input
+                    type="url"
+                    value={formData.url}
+                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">DOI</label>
-                <input
-                  type="text"
-                  value={formData.doi}
-                  onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="10.1000/example"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Publication Date</label>
-                <input
-                  type="date"
-                  value={formData.publication_date}
-                  onChange={(e) => setFormData({ ...formData, publication_date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Keywords (one per line)</label>
-              <textarea
-                value={formData.keywords.join('\n')}
-                onChange={(e) => handleArrayInput('keywords', e.target.value)}
-                rows="3"
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="machine learning&#10;neural networks&#10;cognitive therapy"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Book-specific fields */}
-        {showBookFields && (
-          <div className="space-y-4 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium">Book Details</h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Publisher</label>
-                <input
-                  type="text"
-                  value={formData.publisher_or_venue}
-                  onChange={(e) => setFormData({ ...formData, publisher_or_venue: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="Wiley"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Edition</label>
-                <input
-                  type="text"
-                  value={formData.edition}
-                  onChange={(e) => setFormData({ ...formData, edition: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="3rd ed."
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">ISBN</label>
-              <input
-                type="text"
-                value={formData.isbn}
-                onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="978-0-123456-78-9"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Chapter-specific fields */}
-        {showChapterFields && (
-          <div className="space-y-4 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium">Chapter Details</h3>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Book Title</label>
-              <input
-                type="text"
-                value={formData.book_title}
-                onChange={(e) => setFormData({ ...formData, book_title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="Handbook of Clinical Psychology"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Chapter Number</label>
-                <input
-                  type="number"
-                  value={formData.chapter_number}
-                  onChange={(e) => setFormData({ ...formData, chapter_number: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="5"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Pages</label>
-                <input
-                  type="text"
-                  value={formData.pages}
-                  onChange={(e) => setFormData({ ...formData, pages: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="123-145"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Edition</label>
-                <input
-                  type="text"
-                  value={formData.edition}
-                  onChange={(e) => setFormData({ ...formData, edition: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                  placeholder="2nd ed."
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Publisher</label>
-              <input
-                type="text"
-                value={formData.publisher_or_venue}
-                onChange={(e) => setFormData({ ...formData, publisher_or_venue: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">DOI</label>
-              <input
-                type="text"
-                value={formData.doi}
-                onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="10.1000/example"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Website-specific fields */}
-        {showWebsiteFields && (
-          <div className="space-y-4 pb-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium">Website/Video Details</h3>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Website Name</label>
-              <input
-                type="text"
-                value={formData.website_name}
-                onChange={(e) => setFormData({ ...formData, website_name: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="YouTube, Vimeo, etc."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">URL</label>
-              <input
-                type="url"
-                value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="https://..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Access Date</label>
-              <input
-                type="date"
-                value={formData.access_date}
-                onChange={(e) => setFormData({ ...formData, access_date: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Common fields for all types */}
-        <div className="space-y-4">
-          {!showWebsiteFields && (
-            <div>
-              <label className="block text-sm font-medium mb-1">URL</label>
-              <input
-                type="url"
-                value={formData.url}
-                onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                placeholder="https://..."
-              />
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Abstract</label>
-            <textarea
-              value={formData.abstract}
-              onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
-              rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-              placeholder="Full abstract from the source..."
-            />
-          </div>
+          {/* Publication Tab */}
+          {activeTab === 'publication' && (
+            <div className="space-y-4">
+              {/* Article-specific fields */}
+              {showArticleFields && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Journal Name</label>
+                    <input
+                      type="text"
+                      value={formData.journal_name}
+                      onChange={(e) => setFormData({ ...formData, journal_name: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      placeholder="e.g., Journal of Clinical Psychology"
+                    />
+                  </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Summary (3-5 lines of key findings)
-            </label>
-            <textarea
-              value={formData.summary}
-              onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              rows="4"
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Volume</label>
+                      <input
+                        type="text"
+                        value={formData.volume}
+                        onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="42"
+                      />
+                    </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Concepts
-            </label>
-            <ConceptSelector
-              selectedConceptIds={formData.concept_ids}
-              onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
-            />
-          </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Issue</label>
+                      <input
+                        type="text"
+                        value={formData.issue}
+                        onChange={(e) => setFormData({ ...formData, issue: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="3"
+                      />
+                    </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Tags
-            </label>
-            <TagSelector
-              selectedTags={formData.tags}
-              onChange={(tags) => setFormData({ ...formData, tags })}
-            />
-          </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Pages</label>
+                      <input
+                        type="text"
+                        value={formData.pages}
+                        onChange={(e) => setFormData({ ...formData, pages: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="123-145"
+                      />
+                    </div>
+                  </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              PDF File
-            </label>
-            {item?.pdf_url && !pdfFile && (
-              <div className="mb-2 text-sm">
-                <span className="text-gray-600">Current file: </span>
-                <a
-                  href={item.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline hover:text-accent-dark"
-                >
-                  {item.pdf_filename}
-                </a>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">DOI</label>
+                      <input
+                        type="text"
+                        value={formData.doi}
+                        onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="10.1000/example"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Publication Date</label>
+                      <input
+                        type="date"
+                        value={formData.publication_date}
+                        onChange={(e) => setFormData({ ...formData, publication_date: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Keywords (one per line)</label>
+                    <textarea
+                      value={formData.keywords.join('\n')}
+                      onChange={(e) => handleArrayInput('keywords', e.target.value)}
+                      rows="3"
+                      className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      placeholder="machine learning&#10;neural networks&#10;cognitive therapy"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Book-specific fields */}
+              {showBookFields && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Publisher</label>
+                      <input
+                        type="text"
+                        value={formData.publisher_or_venue}
+                        onChange={(e) => setFormData({ ...formData, publisher_or_venue: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="Wiley"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Edition</label>
+                      <input
+                        type="text"
+                        value={formData.edition}
+                        onChange={(e) => setFormData({ ...formData, edition: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="3rd ed."
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">ISBN</label>
+                    <input
+                      type="text"
+                      value={formData.isbn}
+                      onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      placeholder="978-0-123456-78-9"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Chapter-specific fields */}
+              {showChapterFields && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Book Title</label>
+                    <input
+                      type="text"
+                      value={formData.book_title}
+                      onChange={(e) => setFormData({ ...formData, book_title: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      placeholder="Handbook of Clinical Psychology"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Chapter Number</label>
+                      <input
+                        type="number"
+                        value={formData.chapter_number}
+                        onChange={(e) => setFormData({ ...formData, chapter_number: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Pages</label>
+                      <input
+                        type="text"
+                        value={formData.pages}
+                        onChange={(e) => setFormData({ ...formData, pages: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="123-145"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Edition</label>
+                      <input
+                        type="text"
+                        value={formData.edition}
+                        onChange={(e) => setFormData({ ...formData, edition: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="2nd ed."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Publisher</label>
+                      <input
+                        type="text"
+                        value={formData.publisher_or_venue}
+                        onChange={(e) => setFormData({ ...formData, publisher_or_venue: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">DOI</label>
+                      <input
+                        type="text"
+                        value={formData.doi}
+                        onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="10.1000/example"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Website-specific fields */}
+              {showWebsiteFields && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Website Name</label>
+                      <input
+                        type="text"
+                        value={formData.website_name}
+                        onChange={(e) => setFormData({ ...formData, website_name: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="YouTube, Vimeo, etc."
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Access Date</label>
+                      <input
+                        type="date"
+                        value={formData.access_date}
+                        onChange={(e) => setFormData({ ...formData, access_date: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Content Tab */}
+          {activeTab === 'content' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Abstract</label>
+                <textarea
+                  value={formData.abstract}
+                  onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
+                  rows="6"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  placeholder="Full abstract from the source..."
+                />
               </div>
-            )}
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => setPdfFile(e.target.files[0])}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
-            />
-            {pdfFile && (
-              <p className="mt-1 text-sm text-gray-600">
-                Selected: {pdfFile.name}
-              </p>
-            )}
-          </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Summary (3-5 lines of key findings)
+                </label>
+                <textarea
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Metadata Tab */}
+          {activeTab === 'metadata' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Concepts
+                </label>
+                <ConceptSelector
+                  selectedConceptIds={formData.concept_ids}
+                  onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Tags
+                </label>
+                <TagSelector
+                  selectedTags={formData.tags}
+                  onChange={(tags) => setFormData({ ...formData, tags })}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Files Tab */}
+          {activeTab === 'files' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  PDF File
+                </label>
+                {item?.pdf_url && !pdfFile && (
+                  <div className="mb-2 text-sm">
+                    <span className="text-gray-600">Current file: </span>
+                    <a
+                      href={item.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-accent-dark"
+                    >
+                      {item.pdf_filename}
+                    </a>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setPdfFile(e.target.files[0])}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
+                />
+                {pdfFile && (
+                  <p className="mt-1 text-sm text-gray-600">
+                    Selected: {pdfFile.name}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white">

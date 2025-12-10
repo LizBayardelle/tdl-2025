@@ -43,15 +43,16 @@ class SourcesController < ApplicationController
     authors_string = params[:source][:authors]
     keywords_array = params[:source][:keywords]
     concept_ids = params[:source][:concept_ids]
+    person_ids = params[:source][:person_ids]
+    override_authors = params[:source][:override_authors]
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :override_authors, :processed_authors)
 
     @source = current_user.sources.build(source_params_clean)
 
-    # Set authors and keywords directly on columns (they conflict with associations)
-    @source[:authors] = authors_string if authors_string.present?
+    # Set keywords directly on column
     @source[:keywords] = keywords_array if keywords_array.present?
 
     if @source.save
@@ -61,8 +62,24 @@ class SourcesController < ApplicationController
       # Set concept associations
       @source.concept_ids = concept_ids if concept_ids.present?
 
-      # Parse authors and create/link Person records
-      parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+      # Handle people associations
+      if person_ids.present?
+        person_ids.each do |person_id|
+          next if person_id.blank?
+          person = current_user.people.find_by(id: person_id)
+          @source.people << person if person && !@source.people.include?(person)
+        end
+      end
+
+      # Auto-generate authors from linked people unless override is enabled
+      if override_authors == 'true' || override_authors == true
+        @source[:authors] = authors_string if authors_string.present?
+        parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+      elsif @source.people.any?
+        @source[:authors] = @source.people.map(&:full_name).join(', ')
+      end
+
+      @source.save if @source.changed?
 
       render json: @source.as_json.merge(
         tags: @source.tags.pluck(:name),
@@ -79,13 +96,14 @@ class SourcesController < ApplicationController
     authors_string = params[:source][:authors]
     keywords_array = params[:source][:keywords]
     concept_ids = params[:source][:concept_ids]
+    person_ids = params[:source][:person_ids]
+    override_authors = params[:source][:override_authors]
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :override_authors, :processed_authors)
 
-    # Set authors and keywords directly on columns (they conflict with associations)
-    @source[:authors] = authors_string if authors_string.present?
+    # Set keywords directly on column
     @source[:keywords] = keywords_array if keywords_array.present?
 
     if @source.update(source_params_clean)
@@ -95,8 +113,27 @@ class SourcesController < ApplicationController
       # Set concept associations
       @source.concept_ids = concept_ids if concept_ids.present?
 
-      # Parse authors and create/link Person records
-      parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+      # Handle people associations
+      @source.source_people.destroy_all
+      if person_ids.present?
+        person_ids.each do |person_id|
+          next if person_id.blank?
+          person = current_user.people.find_by(id: person_id)
+          @source.people << person if person
+        end
+      end
+
+      # Auto-generate authors from linked people unless override is enabled
+      if override_authors == 'true' || override_authors == true
+        @source[:authors] = authors_string if authors_string.present?
+        parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+      elsif @source.people.any?
+        @source[:authors] = @source.people.map(&:full_name).join(', ')
+      else
+        @source[:authors] = nil
+      end
+
+      @source.save if @source.changed?
 
       render json: @source.as_json.merge(
         tags: @source.tags.pluck(:name),
@@ -239,9 +276,12 @@ class SourcesController < ApplicationController
       :formatted_citation,
       :pdf,
       :processed_authors,
+      :override_authors,
       tags: [],
+      methodologies: [],
       keywords: [],
-      concept_ids: []
+      concept_ids: [],
+      person_ids: []
     )
   end
 end

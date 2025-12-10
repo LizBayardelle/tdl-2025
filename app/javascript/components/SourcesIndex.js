@@ -271,6 +271,16 @@ function SourceCard({ source, onUpdate }) {
           </div>
         )}
 
+        {source.methodologies && source.methodologies.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-2">
+            {source.methodologies.map((methodology, idx) => (
+              <span key={idx} className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded">
+                {methodology}
+              </span>
+            ))}
+          </div>
+        )}
+
         {source.keywords && source.keywords.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1">
             {source.keywords.slice(0, 5).map((keyword, idx) => (

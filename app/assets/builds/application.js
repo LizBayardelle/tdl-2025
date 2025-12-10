@@ -52435,6 +52435,7 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
 
 // app/javascript/components/SourceFormModal.js
 function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
+  const [activeTab, setActiveTab] = (0, import_react21.useState)("basic");
   const [formData, setFormData] = (0, import_react21.useState)({
     title: "",
     authors: "",
@@ -52659,6 +52660,13 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const showBookFields = formData.kind === "textbook" || formData.kind === "manual";
   const showChapterFields = formData.kind === "chapter";
   const showWebsiteFields = formData.kind === "video_demo";
+  const tabs = [
+    { id: "basic", label: "Basic Info" },
+    { id: "publication", label: "Publication" },
+    { id: "content", label: "Content" },
+    { id: "metadata", label: "Metadata" },
+    { id: "files", label: "Files" }
+  ];
   return /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement(
     Modal,
     {
@@ -52667,7 +52675,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Source" : "New Source",
       size: "large"
     },
-    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), !item && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-3 pb-4 border-b border-gray-200 bg-blue-50 p-4 rounded" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium text-blue-900" }, "Quick Add from URL or DOI"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm text-blue-700" }, /* @__PURE__ */ import_react21.default.createElement("strong", null, "Best results:"), " Use DOI directly (e.g., ", /* @__PURE__ */ import_react21.default.createElement("span", { className: "font-mono" }, "10.1234/example"), ")"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-blue-600 mb-2" }, "Also works with: PubMed, arXiv, and open-access journal URLs. Note: Some paywalled sites heavily obfuscate content - use DOI for those."), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react21.default.createElement(
+    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col max-h-[70vh]" }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), !item && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-3 pb-4 mb-4 border-b border-gray-200 bg-blue-50 p-4 rounded" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium text-blue-900" }, "Quick Add from URL or DOI"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-sm text-blue-700" }, /* @__PURE__ */ import_react21.default.createElement("strong", null, "Best results:"), " Use DOI directly (e.g., ", /* @__PURE__ */ import_react21.default.createElement("span", { className: "font-mono" }, "10.1234/example"), ")"), /* @__PURE__ */ import_react21.default.createElement("p", { className: "text-xs text-blue-600 mb-2" }, "Also works with: PubMed, arXiv, and open-access journal URLs. Note: Some paywalled sites heavily obfuscate content - use DOI for those."), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52686,7 +52694,17 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
       },
       extracting ? "Extracting..." : "Extract"
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-1 border-b border-gray-200 mb-4" }, tabs.map((tab) => /* @__PURE__ */ import_react21.default.createElement(
+      "button",
+      {
+        key: tab.id,
+        type: "button",
+        onClick: () => setActiveTab(tab.id),
+        className: `px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? "border-b-2 border-primary text-primary font-medium" : "text-gray-600 hover:text-primary"}`,
+        style: { background: "transparent" }
+      },
+      tab.label
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 flex-1" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52695,7 +52713,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Authors"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52713,7 +52731,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "2024"
       }
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Source Type *"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Source Type *"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         value: formData.kind,
@@ -52728,7 +52746,16 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "manual" }, "Manual"),
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "guideline" }, "Guideline"),
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "video_demo" }, "Video/Website")
-    ))), showArticleFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Article Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "url",
+        value: formData.url,
+        onChange: (e3) => setFormData({ ...formData, url: e3.target.value }),
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
+        placeholder: "https://..."
+      }
+    )))), activeTab === "publication" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, showArticleFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52737,7 +52764,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "e.g., Journal of Clinical Psychology"
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Volume"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Volume"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52764,7 +52791,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "123-145"
       }
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "DOI"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52790,7 +52817,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "machine learning\nneural networks\ncognitive therapy"
       }
-    ))), showBookFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Book Details"), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), showBookFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52817,7 +52844,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "978-0-123456-78-9"
       }
-    ))), showChapterFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Chapter Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Book Title"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), showChapterFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Book Title"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52826,7 +52853,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Handbook of Clinical Psychology"
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Chapter Number"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-3 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Chapter Number"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "number",
@@ -52853,7 +52880,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "2nd ed."
       }
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Publisher"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52870,7 +52897,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "10.1000/example"
       }
-    ))), showWebsiteFields && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4 pb-4 border-b border-gray-200" }, /* @__PURE__ */ import_react21.default.createElement("h3", { className: "text-lg font-medium" }, "Website/Video Details"), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Website Name"), /* @__PURE__ */ import_react21.default.createElement(
+    )))), showWebsiteFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Website Name"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52878,15 +52905,6 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, website_name: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "YouTube, Vimeo, etc."
-      }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
-      "input",
-      {
-        type: "url",
-        value: formData.url,
-        onChange: (e3) => setFormData({ ...formData, url: e3.target.value }),
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
-        placeholder: "https://..."
       }
     )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Access Date"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
@@ -52896,21 +52914,12 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, access_date: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, !showWebsiteFields && /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
-      "input",
-      {
-        type: "url",
-        value: formData.url,
-        onChange: (e3) => setFormData({ ...formData, url: e3.target.value }),
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
-        placeholder: "https://..."
-      }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Abstract"), /* @__PURE__ */ import_react21.default.createElement(
+    ))))), activeTab === "content" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Abstract"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.abstract,
         onChange: (e3) => setFormData({ ...formData, abstract: e3.target.value }),
-        rows: "4",
+        rows: "6",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Full abstract from the source..."
       }
@@ -52922,7 +52931,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), activeTab === "metadata" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
@@ -52934,7 +52943,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react21.default.createElement(
+    ))), activeTab === "files" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react21.default.createElement(
       "a",
       {
         href: item.pdf_url,
@@ -52951,7 +52960,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setPdfFile(e3.target.files[0]),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
       }
-    ), pdfFile && /* @__PURE__ */ import_react21.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
+    ), pdfFile && /* @__PURE__ */ import_react21.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name)))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",
@@ -57405,7 +57414,7 @@ function SourceCard({ source, onUpdate }) {
       className: "text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     person.full_name
-  ))), source.keywords && source.keywords.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3 flex flex-wrap gap-1" }, source.keywords.slice(0, 5).map((keyword, idx) => /* @__PURE__ */ import_react23.default.createElement("span", { key: idx, className: "text-xs bg-gray-100 px-2 py-1 rounded" }, keyword)), source.keywords.length > 5 && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs text-gray-500 px-2 py-1" }, "+", source.keywords.length - 5, " more")), source.pdf_url && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs mb-3" }, /* @__PURE__ */ import_react23.default.createElement(
+  ))), source.methodologies && source.methodologies.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, source.methodologies.map((methodology, idx) => /* @__PURE__ */ import_react23.default.createElement("span", { key: idx, className: "text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded" }, methodology))), source.keywords && source.keywords.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3 flex flex-wrap gap-1" }, source.keywords.slice(0, 5).map((keyword, idx) => /* @__PURE__ */ import_react23.default.createElement("span", { key: idx, className: "text-xs bg-gray-100 px-2 py-1 rounded" }, keyword)), source.keywords.length > 5 && /* @__PURE__ */ import_react23.default.createElement("span", { className: "text-xs text-gray-500 px-2 py-1" }, "+", source.keywords.length - 5, " more")), source.pdf_url && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs mb-3" }, /* @__PURE__ */ import_react23.default.createElement(
     "a",
     {
       href: source.pdf_url,
