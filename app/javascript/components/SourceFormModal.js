@@ -326,7 +326,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   ? 'border-b-2 border-primary text-primary font-medium'
                   : 'text-primary hover:text-accent-dark'
               }`}
-              style={{ background: 'transparent' }}
+              style={{
+                background: 'transparent',
+                color: activeTab === tab.id ? '#414431' : '#414431'
+              }}
             >
               {tab.label}
             </button>

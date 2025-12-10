@@ -52700,7 +52700,10 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         type: "button",
         onClick: () => setActiveTab(tab.id),
         className: `px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? "border-b-2 border-primary text-primary font-medium" : "text-primary hover:text-accent-dark"}`,
-        style: { background: "transparent" }
+        style: {
+          background: "transparent",
+          color: activeTab === tab.id ? "#414431" : "#414431"
+        }
       },
       tab.label
     ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 min-h-[400px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
