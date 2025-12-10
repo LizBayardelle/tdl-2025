@@ -52,7 +52,7 @@ class TagsController < ApplicationController
         }
       ),
       notes: taggables[:notes].as_json(
-        only: [:id, :body, :note_type, :created_at],
+        only: [:id, :title, :body, :note_type, :created_at],
         include: { concept: { only: [:id, :label] } }
       )
     )

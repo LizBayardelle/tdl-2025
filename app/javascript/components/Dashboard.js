@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import ConceptRelationshipMap from './ConceptRelationshipMap';
+import ConceptFormModal from './ConceptFormModal';
+import SourceFormModal from './SourceFormModal';
+import PersonFormModal from './PersonFormModal';
+import NoteFormModal from './NoteFormModal';
+import TagFormModal from './TagFormModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLightbulb, faBook, faUser, faStickyNote, faTag } from '@fortawesome/free-solid-svg-icons';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showConceptModal, setShowConceptModal] = useState(false);
+  const [showSourceModal, setShowSourceModal] = useState(false);
+  const [showPersonModal, setShowPersonModal] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -94,29 +106,81 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <div className="mb-6 sm:mb-8">
         <h2 className="text-xl sm:text-2xl mb-3 sm:mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           <ActionCard
+            icon={faLightbulb}
             title="Add Concept"
             description="Create a new knowledge concept"
-            link="/concepts"
+            onClick={() => setShowConceptModal(true)}
           />
           <ActionCard
-            title="Add Note"
-            description="Capture a new insight or reflection"
-            link="/notes"
-          />
-          <ActionCard
+            icon={faBook}
             title="Add Source"
             description="Add a new reference or resource"
-            link="/sources"
+            onClick={() => setShowSourceModal(true)}
           />
           <ActionCard
-            title="View Graph"
-            description="Explore your knowledge network"
-            link="/connections"
+            icon={faUser}
+            title="Add Person"
+            description="Add someone to your network"
+            onClick={() => setShowPersonModal(true)}
+          />
+          <ActionCard
+            icon={faStickyNote}
+            title="Add Note"
+            description="Capture a new insight or reflection"
+            onClick={() => setShowNoteModal(true)}
+          />
+          <ActionCard
+            icon={faTag}
+            title="Add Tag"
+            description="Create a new organizing tag"
+            onClick={() => setShowTagModal(true)}
           />
         </div>
       </div>
+
+      {/* Modals */}
+      <ConceptFormModal
+        isOpen={showConceptModal}
+        onClose={() => setShowConceptModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowConceptModal(false);
+        }}
+      />
+      <SourceFormModal
+        isOpen={showSourceModal}
+        onClose={() => setShowSourceModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowSourceModal(false);
+        }}
+      />
+      <PersonFormModal
+        isOpen={showPersonModal}
+        onClose={() => setShowPersonModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowPersonModal(false);
+        }}
+      />
+      <NoteFormModal
+        isOpen={showNoteModal}
+        onClose={() => setShowNoteModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowNoteModal(false);
+        }}
+      />
+      <TagFormModal
+        isOpen={showTagModal}
+        onClose={() => setShowTagModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowTagModal(false);
+        }}
+      />
 
       {/* Overview Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -275,13 +339,31 @@ function ActivityItem({ activity }) {
   return null;
 }
 
-function ActionCard({ title, description, link }) {
+function ActionCard({ icon, title, description, onClick, link }) {
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className="!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow text-left w-full"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          {icon && <FontAwesomeIcon icon={icon} className="text-primary text-lg" />}
+          <h3 className="font-medium text-gray-800">{title}</h3>
+        </div>
+        <p className="text-sm text-gray-600">{description}</p>
+      </button>
+    );
+  }
+
   return (
     <a
       href={link}
-      className="bg-white border border-gray-300 rounded-lg p-4 hover:bg-sand transition-colors"
+      className="!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow block"
     >
-      <h3 className="font-medium mb-1">{title}</h3>
+      <div className="flex items-center gap-2 mb-2">
+        {icon && <FontAwesomeIcon icon={icon} className="text-primary text-lg" />}
+        <h3 className="font-medium text-gray-800">{title}</h3>
+      </div>
       <p className="text-sm text-gray-600">{description}</p>
     </a>
   );

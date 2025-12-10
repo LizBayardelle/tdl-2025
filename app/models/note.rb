@@ -22,7 +22,7 @@ class Note < ApplicationRecord
   validates :user_id, presence: true
 
   # Scopes
-  scope :recent, -> { order(created_at: :desc) }
+  scope :recent, -> { order(pinned: :desc, created_at: :desc) }
   scope :by_type, ->(type) { where(note_type: type) }
   scope :pinned, -> { where(pinned: true) }
   scope :for_concept, ->(concept_id) { where(concept_id: concept_id) }

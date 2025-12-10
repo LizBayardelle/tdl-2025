@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbtack, faPen, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 
 export default function NotesIndex() {
   const [notes, setNotes] = useState([]);
@@ -47,7 +49,7 @@ export default function NotesIndex() {
 
   const handleTogglePin = async (note) => {
     try {
-      const response = await fetch(`/notes/${note.id}`, {
+      const response = await fetch(`/notes/${note.id}.json`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -71,14 +73,6 @@ export default function NotesIndex() {
     synthesis: 'Synthesis',
     connection: 'Connection',
     todo: 'To Do Item'
-  };
-
-  const noteTypeColors = {
-    note: 'bg-blue-100 text-blue-800',
-    question: 'bg-purple-100 text-purple-800',
-    synthesis: 'bg-indigo-100 text-indigo-800',
-    connection: 'bg-green-100 text-green-800',
-    todo: 'bg-yellow-100 text-yellow-800'
   };
 
   return (
@@ -143,10 +137,14 @@ export default function NotesIndex() {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2 flex-1">
-                  {note.pinned && (
-                    <span className="text-primary text-lg" title="Pinned">📌</span>
-                  )}
-                  <span className={`text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || 'bg-gray-100'}`}>
+                  <button
+                    onClick={() => handleTogglePin(note)}
+                    className={`!bg-transparent border-0 transition-colors ${note.pinned ? '!text-primary' : '!text-sand hover:!text-primary'}`}
+                    title={note.pinned ? 'Unpin' : 'Pin'}
+                  >
+                    <FontAwesomeIcon icon={faThumbtack} />
+                  </button>
+                  <span className="text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium">
                     {noteTypeLabels[note.note_type] || note.note_type}
                   </span>
                   {note.concept && (
@@ -159,22 +157,40 @@ export default function NotesIndex() {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => handleTogglePin(note)}
-                    className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
+                  <a
+                    href={`/notes/${note.id}/edit`}
+                    className="text-primary hover:text-accent-dark transition-colors"
+                    title="Edit"
                   >
-                    {note.pinned ? 'Unpin' : 'Pin'}
-                  </button>
+                    <FontAwesomeIcon icon={faPen} />
+                  </a>
                   <button
                     onClick={() => handleDeleteNote(note.id)}
-                    className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
+                    className="!text-primary hover:!text-accent-dark transition-colors !bg-transparent border-0"
+                    title="Delete"
                   >
-                    Delete
+                    <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </div>
               </div>
 
-              <div className="mb-3 leading-relaxed prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100" dangerouslySetInnerHTML={{ __html: note.body }} />
+              {note.title ? (
+                <a href={`/notes/${note.id}`} className="block mb-3">
+                  <h3 className="text-xl font-bold text-primary hover:text-accent-dark transition-colors">
+                    {note.title}
+                  </h3>
+                </a>
+              ) : (
+                <a
+                  href={`/notes/${note.id}`}
+                  className="inline-block mb-3 text-primary hover:text-accent-dark transition-colors"
+                  title="View note"
+                >
+                  <FontAwesomeIcon icon={faEye} className="text-lg" />
+                </a>
+              )}
+
+              <div className="mb-3 leading-relaxed prose prose-sm max-w-none line-clamp-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100" dangerouslySetInnerHTML={{ __html: note.body }} />
 
               {note.context && (
                 <div className="bg-sand rounded p-3 mb-3">

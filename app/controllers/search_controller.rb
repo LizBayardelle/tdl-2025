@@ -26,8 +26,8 @@ class SearchController < ApplicationController
     ).limit(10)
 
     notes = current_user.notes.where(
-      "body ILIKE ? OR context ILIKE ?",
-      "%#{query}%", "%#{query}%"
+      "title ILIKE ? OR body ILIKE ? OR context ILIKE ?",
+      "%#{query}%", "%#{query}%", "%#{query}%"
     ).includes(:concept).limit(10)
 
     tags = current_user.tags.where(
@@ -41,7 +41,7 @@ class SearchController < ApplicationController
       sources: sources.as_json(only: [:id, :title, :kind, :authors]),
       people: people.as_json(only: [:id, :full_name, :role]),
       notes: notes.as_json(
-        only: [:id, :body, :note_type, :created_at],
+        only: [:id, :title, :body, :note_type, :created_at],
         include: { concept: { only: [:id, :label] } }
       ),
       tags: tags.map { |tag|

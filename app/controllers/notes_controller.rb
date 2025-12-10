@@ -45,9 +45,17 @@ class NotesController < ApplicationController
 
   # GET /notes/:id
   def show
-    render json: @note.as_json(include: {
-      concept: { only: [:id, :label, :node_type, :summary_top] }
-    })
+    respond_to do |format|
+      format.html
+      format.json {
+        render json: @note.as_json(include: {
+          concept: { only: [:id, :label, :node_type, :summary_top] },
+          source: { only: [:id, :title, :authors, :year] },
+          people: { only: [:id, :full_name, :role] },
+          tags: { only: [:id, :name] }
+        })
+      }
+    end
   end
 
   # POST /notes
@@ -116,7 +124,10 @@ class NotesController < ApplicationController
         format.html { redirect_to notes_path, notice: 'Note updated successfully.' }
         format.json {
           render json: @note.as_json(include: {
-            concept: { only: [:id, :label, :node_type] }
+            concept: { only: [:id, :label, :node_type] },
+            source: { only: [:id, :title, :authors, :year] },
+            people: { only: [:id, :full_name, :role] },
+            tags: { only: [:id, :name] }
           })
         }
       end

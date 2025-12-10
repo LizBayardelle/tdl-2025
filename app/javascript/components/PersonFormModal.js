@@ -119,11 +119,11 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           ))}
         </div>
 
-        {/* Scrollable Tab Content */}
-        <div className="overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
+        {/* Tab Content */}
+        <div className="overflow-hidden bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
-            <div className="space-y-4">
+            <div className="space-y-4 h-full overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium mb-1">Full Name *</label>
                 <input
@@ -168,23 +168,22 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           {/* Details Tab */}
           {activeTab === 'details' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-              <div className="flex flex-col">
+              <div>
                 <label className="block text-sm font-medium mb-1">
                   Summary
                 </label>
                 <textarea
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  rows="20"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white flex-1"
+                  className="w-full h-[370px] px-4 py-2 border border-gray-300 rounded bg-white overflow-y-auto resize-none"
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div>
                 <label className="block text-sm font-medium mb-1">
                   Sources
                 </label>
-                <div className="flex-1 overflow-hidden">
+                <div className="h-[370px]">
                   <SourceSelector
                     selectedSourceIds={formData.source_ids}
                     onChange={(source_ids) => setFormData({ ...formData, source_ids })}
@@ -197,11 +196,11 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           {/* Metadata Tab */}
           {activeTab === 'metadata' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-              <div className="flex flex-col">
+              <div>
                 <label className="block text-sm font-medium mb-1">
                   Concepts
                 </label>
-                <div className="flex-1 overflow-hidden">
+                <div className="h-[370px]">
                   <ConceptSelector
                     selectedConceptIds={formData.concept_ids}
                     onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
@@ -209,11 +208,11 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                 </div>
               </div>
 
-              <div className="flex flex-col">
+              <div>
                 <label className="block text-sm font-medium mb-1">
                   Tags
                 </label>
-                <div className="flex-1 overflow-hidden">
+                <div className="h-[370px]">
                   <TagSelector
                     selectedTags={formData.tags}
                     onChange={(tags) => setFormData({ ...formData, tags })}

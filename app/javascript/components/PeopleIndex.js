@@ -40,7 +40,7 @@ export default function PeopleIndex() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl">People & Lineage</h1>
+        <h1 className="text-4xl">People</h1>
         <button
           onClick={() => setShowForm(!showForm)}
           className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
@@ -105,6 +105,8 @@ export default function PeopleIndex() {
 }
 
 function PersonCard({ person, onUpdate }) {
+  const [showEdit, setShowEdit] = useState(false);
+
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this person?')) return;
 
@@ -130,20 +132,29 @@ function PersonCard({ person, onUpdate }) {
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-2">
-        {person.role && (
-          <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-            {person.role}
-          </span>
-        )}
-        <button
-          onClick={handleDelete}
-          className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
-        >
-          Delete
-        </button>
-      </div>
+    <>
+      <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
+        <div className="flex justify-between items-start mb-2">
+          {person.role && (
+            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
+              {person.role}
+            </span>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowEdit(true)}
+              className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
+            >
+              Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
 
       <h3 className="text-xl mb-2">
         <a href={`/people/${person.id}`} className="hover:text-primary">
@@ -194,5 +205,15 @@ function PersonCard({ person, onUpdate }) {
         </span>
       </div>
     </div>
+    <PersonFormModal
+      isOpen={showEdit}
+      onClose={() => setShowEdit(false)}
+      onSuccess={() => {
+        onUpdate();
+        setShowEdit(false);
+      }}
+      item={person}
+    />
+  </>
   );
 }

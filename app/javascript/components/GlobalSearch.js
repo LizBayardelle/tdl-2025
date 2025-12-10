@@ -135,20 +135,29 @@ function SearchSection({ title, items, type }) {
 }
 
 function SearchResultItem({ item, type }) {
+  const stripHtml = (html) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const getLink = () => {
     if (type === 'concept') return `/concepts/${item.id}`;
-    if (type === 'source') return `/sources`;
-    if (type === 'person') return `/people`;
-    if (type === 'note') return `/notes`;
+    if (type === 'source') return `/sources/${item.id}`;
+    if (type === 'person') return `/people/${item.id}`;
+    if (type === 'note') return `/notes/${item.id}`;
     if (type === 'tag') return `/tags`;
     return '#';
   };
 
   const getTitle = () => {
     if (type === 'concept') return item.label;
-    if (type === 'source') return item.title;
+    if (type === 'source') return item.title || item.full_name;
     if (type === 'person') return item.full_name;
-    if (type === 'note') return item.body?.substring(0, 100) + (item.body?.length > 100 ? '...' : '');
+    if (type === 'note') {
+      const plainText = stripHtml(item.body || '');
+      return item.title || plainText.substring(0, 100) + (plainText.length > 100 ? '...' : '');
+    }
     if (type === 'tag') return item.name;
     return '';
   };

@@ -28,6 +28,7 @@ export default function NotesForm() {
   const isEdit = !!noteData.id;
 
   const [formData, setFormData] = useState({
+    title: noteData.title || '',
     body: noteData.body || '',
     note_type: noteData.note_type || 'note',
     context: noteData.context || '',
@@ -85,7 +86,7 @@ export default function NotesForm() {
     setError('');
 
     try {
-      const url = isEdit ? `/notes/${noteData.id}` : '/notes';
+      const url = isEdit ? `/notes/${noteData.id}.json` : '/notes.json';
       const method = isEdit ? 'PATCH' : 'POST';
 
       const response = await fetch(url, {
@@ -140,6 +141,17 @@ export default function NotesForm() {
               <option value="connection">Connection</option>
               <option value="todo">To Do Item</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+              placeholder="Brief title for this note (optional)"
+            />
           </div>
 
           <div>

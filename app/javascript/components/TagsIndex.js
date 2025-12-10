@@ -256,7 +256,11 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           <h3 className="text-lg mb-3">Sources</h3>
           <div className="space-y-2">
             {tag.sources.map(source => (
-              <div key={source.id} className="p-3 border border-gray-200 rounded">
+              <a
+                key={source.id}
+                href={`/sources/${source.id}`}
+                className="block p-3 border border-gray-200 rounded hover:bg-sand"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{source.title}</span>
                   <span className="text-xs text-gray-500">{source.kind}</span>
@@ -264,7 +268,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                 {source.authors && (
                   <p className="text-sm text-gray-600 mt-1">{source.authors}</p>
                 )}
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -275,10 +279,42 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           <h3 className="text-lg mb-3">People</h3>
           <div className="space-y-2">
             {tag.people.map(person => (
-              <div key={person.id} className="p-3 border border-gray-200 rounded">
+              <a
+                key={person.id}
+                href={`/people/${person.id}`}
+                className="block p-3 border border-gray-200 rounded hover:bg-sand"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{person.full_name}</span>
                   <span className="text-xs text-gray-500">{person.role}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tag.connections && tag.connections.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg mb-3">Relationships</h3>
+          <div className="space-y-2">
+            {tag.connections.map(connection => (
+              <div
+                key={connection.id}
+                className="p-3 border border-gray-200 rounded bg-sand"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <a href={`/concepts/${connection.src.id}`} className="font-medium text-primary hover:underline">
+                    {connection.src.label}
+                  </a>
+                  <span className="text-xs text-gray-500">→</span>
+                  <a href={`/concepts/${connection.dst.id}`} className="font-medium text-primary hover:underline">
+                    {connection.dst.label}
+                  </a>
+                </div>
+                <div className="text-xs text-gray-600">
+                  {connection.rel_type}
+                  {connection.description && `: ${connection.description}`}
                 </div>
               </div>
             ))}
@@ -291,22 +327,29 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           <h3 className="text-lg mb-3">Notes</h3>
           <div className="space-y-2">
             {tag.notes.map(note => (
-              <div key={note.id} className="p-3 border border-gray-200 rounded">
+              <a
+                key={note.id}
+                href={`/notes/${note.id}`}
+                className="block p-3 border border-gray-200 rounded hover:bg-sand"
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
+                  <span className="text-xs uppercase tracking-wider text-gray-800 bg-sand px-2 py-1 rounded font-medium">
                     {note.note_type}
                   </span>
                   <span className="text-xs text-gray-500">
                     {new Date(note.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-sm">{note.body}</p>
-                {note.concept && (
-                  <a href={`/concepts/${note.concept.id}`} className="text-xs text-primary hover:underline mt-1 block">
-                    → {note.concept.label}
-                  </a>
+                {note.title && (
+                  <div className="font-semibold text-sm mb-1">{note.title}</div>
                 )}
-              </div>
+                <div className="text-sm line-clamp-2 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: note.body }} />
+                {note.concept && (
+                  <span className="text-xs text-primary mt-1 block">
+                    → {note.concept.label}
+                  </span>
+                )}
+              </a>
             ))}
           </div>
         </div>
