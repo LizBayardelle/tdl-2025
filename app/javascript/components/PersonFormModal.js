@@ -167,20 +167,20 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Details Tab */}
           {activeTab === 'details' && (
-            <div className="h-full flex flex-col gap-4">
-              <div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+              <div className="flex flex-col">
                 <label className="block text-sm font-medium mb-1">
                   Summary
                 </label>
                 <textarea
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  rows="6"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  rows="20"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white flex-1"
                 />
               </div>
 
-              <div className="flex flex-col flex-1">
+              <div className="flex flex-col">
                 <label className="block text-sm font-medium mb-1">
                   Sources
                 </label>

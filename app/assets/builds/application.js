@@ -57636,15 +57636,15 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Aaron T. Beck\nA.T. Beck"
       }
-    ))), activeTab === "details" && /* @__PURE__ */ import_react25.default.createElement("div", { className: "h-full flex flex-col gap-4" }, /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react25.default.createElement(
+    ))), activeTab === "details" && /* @__PURE__ */ import_react25.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react25.default.createElement(
       "textarea",
       {
         value: formData.summary,
         onChange: (e3) => setFormData({ ...formData, summary: e3.target.value }),
-        rows: "6",
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
+        rows: "20",
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white flex-1"
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex flex-col flex-1" }, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sources"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sources"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react25.default.createElement(
       SourceSelector,
       {
         selectedSourceIds: formData.source_ids,
