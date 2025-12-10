@@ -315,21 +315,17 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 border-b border-gray-200 mb-4">
+        <div className="flex gap-1 mb-0">
           {tabs.map(tab => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm transition-colors ${
+              className={`px-6 py-2 font-medium rounded-t-lg ${
                 activeTab === tab.id
-                  ? 'border-b-2 border-primary text-primary font-medium'
-                  : 'text-primary hover:text-accent-dark'
+                  ? '!bg-sand !text-gray-800'
+                  : '!bg-primary !text-sand hover:!bg-accent-dark'
               }`}
-              style={{
-                background: 'transparent',
-                color: activeTab === tab.id ? '#414431' : '#414431'
-              }}
             >
               {tab.label}
             </button>
@@ -337,7 +333,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Scrollable Tab Content */}
-        <div className="overflow-y-auto px-1 h-[450px]">
+        <div className="overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
             <div className="space-y-4">
@@ -730,7 +726,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
         </div>
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
+        {/* Form Actions */}
+        <div className="flex gap-3 pt-6 mt-0">
           <button
             type="submit"
             className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"

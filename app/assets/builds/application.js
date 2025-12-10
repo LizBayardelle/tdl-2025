@@ -52693,20 +52693,16 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
       },
       extracting ? "Extracting..." : "Extract"
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-1 border-b border-gray-200 mb-4" }, tabs.map((tab) => /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-1 mb-0" }, tabs.map((tab) => /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         key: tab.id,
         type: "button",
         onClick: () => setActiveTab(tab.id),
-        className: `px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? "border-b-2 border-primary text-primary font-medium" : "text-primary hover:text-accent-dark"}`,
-        style: {
-          background: "transparent",
-          color: activeTab === tab.id ? "#414431" : "#414431"
-        }
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === tab.id ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       tab.label
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.title,
@@ -52962,7 +52958,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    ))))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
+    ))))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",
