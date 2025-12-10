@@ -265,8 +265,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     { id: 'basic', label: 'Basic Info' },
     { id: 'publication', label: 'Publication' },
     { id: 'content', label: 'Content' },
-    { id: 'metadata', label: 'Metadata' },
-    { id: 'files', label: 'Files' }
+    { id: 'metadata', label: 'Metadata' }
   ];
 
   return (
@@ -325,7 +324,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
               className={`px-4 py-2 text-sm transition-colors ${
                 activeTab === tab.id
                   ? 'border-b-2 border-primary text-primary font-medium'
-                  : 'text-gray-600 hover:text-primary'
+                  : 'text-primary hover:text-accent-dark'
               }`}
               style={{ background: 'transparent' }}
             >
@@ -335,7 +334,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Scrollable Tab Content */}
-        <div className="overflow-y-auto px-1 flex-1">
+        <div className="overflow-y-auto px-1 min-h-[400px]">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
             <div className="space-y-4">
@@ -403,6 +402,36 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                     placeholder="https://..."
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  PDF File
+                </label>
+                {item?.pdf_url && !pdfFile && (
+                  <div className="mb-2 text-sm">
+                    <span className="text-gray-600">Current file: </span>
+                    <a
+                      href={item.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary underline hover:text-accent-dark"
+                    >
+                      {item.pdf_filename}
+                    </a>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setPdfFile(e.target.files[0])}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
+                />
+                {pdfFile && (
+                  <p className="mt-1 text-sm text-gray-600">
+                    Selected: {pdfFile.name}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -692,40 +721,6 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             </div>
           )}
 
-          {/* Files Tab */}
-          {activeTab === 'files' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  PDF File
-                </label>
-                {item?.pdf_url && !pdfFile && (
-                  <div className="mb-2 text-sm">
-                    <span className="text-gray-600">Current file: </span>
-                    <a
-                      href={item.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary underline hover:text-accent-dark"
-                    >
-                      {item.pdf_filename}
-                    </a>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => setPdfFile(e.target.files[0])}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
-                />
-                {pdfFile && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Selected: {pdfFile.name}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white">

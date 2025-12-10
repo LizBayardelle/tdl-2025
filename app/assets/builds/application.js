@@ -52664,8 +52664,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     { id: "basic", label: "Basic Info" },
     { id: "publication", label: "Publication" },
     { id: "content", label: "Content" },
-    { id: "metadata", label: "Metadata" },
-    { id: "files", label: "Files" }
+    { id: "metadata", label: "Metadata" }
   ];
   return /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement(
     Modal,
@@ -52700,11 +52699,11 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         key: tab.id,
         type: "button",
         onClick: () => setActiveTab(tab.id),
-        className: `px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? "border-b-2 border-primary text-primary font-medium" : "text-gray-600 hover:text-primary"}`,
+        className: `px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? "border-b-2 border-primary text-primary font-medium" : "text-primary hover:text-accent-dark"}`,
         style: { background: "transparent" }
       },
       tab.label
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 flex-1" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 min-h-[400px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52755,7 +52754,24 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "https://..."
       }
-    )))), activeTab === "publication" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, showArticleFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react21.default.createElement(
+      "a",
+      {
+        href: item.pdf_url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "text-primary underline hover:text-accent-dark"
+      },
+      item.pdf_filename
+    )), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "file",
+        accept: ".pdf",
+        onChange: (e3) => setPdfFile(e3.target.files[0]),
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
+      }
+    ), pdfFile && /* @__PURE__ */ import_react21.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name))), activeTab === "publication" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, showArticleFields && /* @__PURE__ */ import_react21.default.createElement(import_react21.default.Fragment, null, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Journal Name"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -52943,24 +52959,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    ))), activeTab === "files" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "PDF File"), item?.pdf_url && !pdfFile && /* @__PURE__ */ import_react21.default.createElement("div", { className: "mb-2 text-sm" }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "text-gray-600" }, "Current file: "), /* @__PURE__ */ import_react21.default.createElement(
-      "a",
-      {
-        href: item.pdf_url,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        className: "text-primary underline hover:text-accent-dark"
-      },
-      item.pdf_filename
-    )), /* @__PURE__ */ import_react21.default.createElement(
-      "input",
-      {
-        type: "file",
-        accept: ".pdf",
-        onChange: (e3) => setPdfFile(e3.target.files[0]),
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
-      }
-    ), pdfFile && /* @__PURE__ */ import_react21.default.createElement("p", { className: "mt-1 text-sm text-gray-600" }, "Selected: ", pdfFile.name)))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
+    )))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "submit",
