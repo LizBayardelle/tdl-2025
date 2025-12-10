@@ -57441,6 +57441,7 @@ var import_react25 = __toESM(require_react());
 // app/javascript/components/PersonFormModal.js
 var import_react24 = __toESM(require_react());
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
+  const [activeTab, setActiveTab] = (0, import_react24.useState)("basic");
   const [sources, setSources] = (0, import_react24.useState)([]);
   const [formData, setFormData] = (0, import_react24.useState)({
     full_name: "",
@@ -57454,6 +57455,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [error, setError] = (0, import_react24.useState)("");
   (0, import_react24.useEffect)(() => {
     if (isOpen) {
+      setActiveTab("basic");
       fetchSources();
       if (item) {
         setFormData({
@@ -57519,6 +57521,11 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     const items = value.split("\n").filter((item2) => item2.trim());
     setFormData({ ...formData, aka: items });
   };
+  const tabs = [
+    { id: "basic", label: "Basic Info" },
+    { id: "details", label: "Details" },
+    { id: "metadata", label: "Metadata" }
+  ];
   return /* @__PURE__ */ import_react24.default.createElement(
     Modal,
     {
@@ -57527,7 +57534,16 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Person" : "New Person",
       size: "medium"
     },
-    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react24.default.createElement(
+    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col max-h-[70vh]" }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-1 mb-0" }, tabs.map((tab) => /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        key: tab.id,
+        type: "button",
+        onClick: () => setActiveTab(tab.id),
+        className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === tab.id ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
+      },
+      tab.label
+    ))), /* @__PURE__ */ import_react24.default.createElement("div", { className: "overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react24.default.createElement(
       "input",
       {
         type: "text",
@@ -57557,25 +57573,13 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Aaron T. Beck\nA.T. Beck"
       }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react24.default.createElement(
+    ))), activeTab === "details" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react24.default.createElement(
       "textarea",
       {
         value: formData.summary,
         onChange: (e3) => setFormData({ ...formData, summary: e3.target.value }),
-        rows: "4",
+        rows: "8",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
-      }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react24.default.createElement(
-      ConceptSelector,
-      {
-        selectedConceptIds: formData.concept_ids,
-        onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
-      }
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement(
-      TagSelector,
-      {
-        selectedTags: formData.tags,
-        onChange: (tags) => setFormData({ ...formData, tags })
       }
     )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link Sources (hold Cmd/Ctrl to select multiple)"), /* @__PURE__ */ import_react24.default.createElement(
       "select",
@@ -57587,10 +57591,22 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           setFormData({ ...formData, source_ids: selected });
         },
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
-        size: "5"
+        size: "8"
       },
       sources.map((source) => /* @__PURE__ */ import_react24.default.createElement("option", { key: source.id, value: source.id }, source.title, " ", source.year ? `(${source.year})` : ""))
-    ), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources")), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement(
+    ), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Selected: ", formData.source_ids.length, " ", formData.source_ids.length === 1 ? "source" : "sources"))), activeTab === "metadata" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "grid grid-cols-1 gap-4 h-full" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react24.default.createElement(
+      ConceptSelector,
+      {
+        selectedConceptIds: formData.concept_ids,
+        onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
+      }
+    ))), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-col" }, /* @__PURE__ */ import_react24.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex-1 overflow-hidden" }, /* @__PURE__ */ import_react24.default.createElement(
+      TagSelector,
+      {
+        selectedTags: formData.tags,
+        onChange: (tags) => setFormData({ ...formData, tags })
+      }
+    ))))), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "submit",

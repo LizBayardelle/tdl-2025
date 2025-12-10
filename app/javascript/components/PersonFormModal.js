@@ -4,6 +4,7 @@ import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
+  const [activeTab, setActiveTab] = useState('basic');
   const [sources, setSources] = useState([]);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -18,6 +19,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab('basic');
       fetchSources();
       if (item) {
         setFormData({
@@ -90,6 +92,12 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     setFormData({ ...formData, aka: items });
   };
 
+  const tabs = [
+    { id: 'basic', label: 'Basic Info' },
+    { id: 'details', label: 'Details' },
+    { id: 'metadata', label: 'Metadata' }
+  ];
+
   return (
     <Modal
       isOpen={isOpen}
@@ -97,110 +105,151 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title={item ? 'Edit Person' : 'New Person'}
       size="medium"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="flex flex-col max-h-[70vh]">
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
+          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Full Name *</label>
-          <input
-            type="text"
-            value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
-          />
+        {/* Tab Navigation */}
+        <div className="flex gap-1 mb-0">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-2 font-medium rounded-t-lg ${
+                activeTab === tab.id
+                  ? '!bg-sand !text-gray-800'
+                  : '!bg-primary !text-sand hover:!bg-accent-dark'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Role</label>
-          <select
-            value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          >
-            <option value="theorist">Theorist</option>
-            <option value="clinician">Clinician</option>
-            <option value="researcher">Researcher</option>
-            <option value="peer">Peer</option>
-            <option value="client">Client</option>
-          </select>
+        {/* Scrollable Tab Content */}
+        <div className="overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
+          {/* Basic Info Tab */}
+          {activeTab === 'basic' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                >
+                  <option value="theorist">Theorist</option>
+                  <option value="clinician">Clinician</option>
+                  <option value="researcher">Researcher</option>
+                  <option value="peer">Peer</option>
+                  <option value="client">Client</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Also Known As (one per line)
+                </label>
+                <textarea
+                  value={formData.aka.join('\n')}
+                  onChange={(e) => handleArrayInput(e.target.value)}
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  placeholder="Aaron T. Beck&#10;A.T. Beck"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Details Tab */}
+          {activeTab === 'details' && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Summary
+                </label>
+                <textarea
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                  rows="8"
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Link Sources (hold Cmd/Ctrl to select multiple)
+                </label>
+                <select
+                  multiple
+                  value={formData.source_ids}
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
+                    setFormData({ ...formData, source_ids: selected });
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  size="8"
+                >
+                  {sources.map(source => (
+                    <option key={source.id} value={source.id}>
+                      {source.title} {source.year ? `(${source.year})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-600 mt-1">
+                  Selected: {formData.source_ids.length} {formData.source_ids.length === 1 ? 'source' : 'sources'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Metadata Tab */}
+          {activeTab === 'metadata' && (
+            <div className="grid grid-cols-1 gap-4 h-full">
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium mb-1">
+                  Concepts
+                </label>
+                <div className="flex-1 overflow-hidden">
+                  <ConceptSelector
+                    selectedConceptIds={formData.concept_ids}
+                    onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium mb-1">
+                  Tags
+                </label>
+                <div className="flex-1 overflow-hidden">
+                  <TagSelector
+                    selectedTags={formData.tags}
+                    onChange={(tags) => setFormData({ ...formData, tags })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Also Known As (one per line)
-          </label>
-          <textarea
-            value={formData.aka.join('\n')}
-            onChange={(e) => handleArrayInput(e.target.value)}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="Aaron T. Beck&#10;A.T. Beck"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Summary
-          </label>
-          <textarea
-            value={formData.summary}
-            onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-            rows="4"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Concepts
-          </label>
-          <ConceptSelector
-            selectedConceptIds={formData.concept_ids}
-            onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Tags
-          </label>
-          <TagSelector
-            selectedTags={formData.tags}
-            onChange={(tags) => setFormData({ ...formData, tags })}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Link Sources (hold Cmd/Ctrl to select multiple)
-          </label>
-          <select
-            multiple
-            value={formData.source_ids}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-              setFormData({ ...formData, source_ids: selected });
-            }}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            size="5"
-          >
-            {sources.map(source => (
-              <option key={source.id} value={source.id}>
-                {source.title} {source.year ? `(${source.year})` : ''}
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-gray-600 mt-1">
-            Selected: {formData.source_ids.length} {formData.source_ids.length === 1 ? 'source' : 'sources'}
-          </p>
-        </div>
-
-        <div className="flex gap-3 pt-4 border-t border-gray-200">
+        {/* Form Actions */}
+        <div className="flex gap-3 pt-6 mt-0">
           <button
             type="submit"
             className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
