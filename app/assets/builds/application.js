@@ -57595,7 +57595,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       isOpen,
       onClose,
       title: item ? "Edit Person" : "New Person",
-      size: "medium"
+      size: "large"
     },
     /* @__PURE__ */ import_react25.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col max-h-[70vh]" }, error && /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-1 mb-0" }, tabs.map((tab) => /* @__PURE__ */ import_react25.default.createElement(
       "button",

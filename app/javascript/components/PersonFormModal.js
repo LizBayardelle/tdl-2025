@@ -92,7 +92,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       isOpen={isOpen}
       onClose={onClose}
       title={item ? 'Edit Person' : 'New Person'}
-      size="medium"
+      size="large"
     >
       <form onSubmit={handleSubmit} className="flex flex-col max-h-[70vh]">
         {error && (
