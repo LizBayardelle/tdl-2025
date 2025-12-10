@@ -701,7 +701,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Metadata Tab */}
           {activeTab === 'metadata' && (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Concepts

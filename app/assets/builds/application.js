@@ -52950,7 +52950,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       }
-    ))), activeTab === "metadata" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), activeTab === "metadata" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react21.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
