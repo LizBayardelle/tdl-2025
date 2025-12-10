@@ -337,7 +337,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Scrollable Tab Content */}
-        <div className="overflow-y-auto px-1 min-h-[400px]">
+        <div className="overflow-y-auto px-1 h-[450px]">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
             <div className="space-y-4">

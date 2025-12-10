@@ -52706,7 +52706,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         }
       },
       tab.label
-    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 min-h-[400px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", { className: "overflow-y-auto px-1 h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react21.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
