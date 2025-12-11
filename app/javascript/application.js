@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import ConceptsIndex from './components/ConceptsIndex';
 import ConceptShow from './components/ConceptShow';
 import SourcesIndex from './components/SourcesIndex';
+import SourceShow from './components/SourceShow';
 import PeopleIndex from './components/PeopleIndex';
 import PersonShow from './components/PersonShow';
 import ConnectionVisualization from './components/ConnectionVisualization';
@@ -32,6 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const sourcesIndexRoot = document.getElementById('sources-index-root');
   if (sourcesIndexRoot) {
     createRoot(sourcesIndexRoot).render(<SourcesIndex />);
+  }
+
+  const sourceShowRoot = document.getElementById('source-show-root');
+  if (sourceShowRoot) {
+    const sourceId = sourceShowRoot.dataset.sourceId;
+    createRoot(sourceShowRoot).render(<SourceShow sourceId={sourceId} />);
   }
 
   const peopleIndexRoot = document.getElementById('people-index-root');

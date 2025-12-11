@@ -1335,7 +1335,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React31 = require_react(), Internals = {
+      var React33 = require_react(), Internals = {
         d: {
           f: noop7,
           r: function() {
@@ -1353,7 +1353,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React31.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React33.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -2888,7 +2888,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React31.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React33.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -18520,14 +18520,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React31 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React33 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React31.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React33.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -21315,7 +21315,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React31.version;
+        var isomorphicReactPackageVersion = React33.version;
         if ("19.2.1" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.1\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21464,7 +21464,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React31.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React33.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState28({
+        cachedValue = useState29({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect27(
+        useEffect28(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,8 +21512,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React31 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState28 = React31.useState, useEffect27 = React31.useEffect, useLayoutEffect3 = React31.useLayoutEffect, useDebugValue3 = React31.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React31.useSyncExternalStore ? React31.useSyncExternalStore : shim;
+      var React33 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState29 = React33.useState, useEffect28 = React33.useEffect, useLayoutEffect3 = React33.useLayoutEffect, useDebugValue3 = React33.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React33.useSyncExternalStore ? React33.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21745,18 +21745,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React31 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React31.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React33 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React33.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React31 = {
+      React33 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React31.react_stack_bottom_frame.bind(
-        React31,
+      var unknownOwnerDebugStack = React33.react_stack_bottom_frame.bind(
+        React33,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21809,7 +21809,7 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React31 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef6 = React31.useRef, useEffect27 = React31.useEffect, useMemo5 = React31.useMemo, useDebugValue3 = React31.useDebugValue;
+      var React33 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef6 = React33.useRef, useEffect28 = React33.useEffect, useMemo5 = React33.useMemo, useDebugValue3 = React33.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef6(null);
         if (null === instRef.current) {
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect27(
+        useEffect28(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -23824,7 +23824,7 @@ var init_src4 = __esm({
 });
 
 // app/javascript/application.js
-var import_react40 = __toESM(require_react());
+var import_react41 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -57481,19 +57481,83 @@ function SourceCard({ source, onUpdate }) {
   ));
 }
 
-// app/javascript/components/PeopleIndex.js
-var import_react26 = __toESM(require_react());
-
-// app/javascript/components/PersonFormModal.js
-var import_react25 = __toESM(require_react());
-
-// app/javascript/components/SourceSelector.js
+// app/javascript/components/SourceShow.js
 var import_react24 = __toESM(require_react());
-function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
-  const [allSources, setAllSources] = (0, import_react24.useState)([]);
-  const [filter2, setFilter] = (0, import_react24.useState)("");
+function SourceShow({ sourceId }) {
+  const [source, setSource] = (0, import_react24.useState)(null);
   const [loading, setLoading] = (0, import_react24.useState)(true);
   (0, import_react24.useEffect)(() => {
+    fetchSource();
+  }, []);
+  const fetchSource = async () => {
+    try {
+      const response = await fetch(`/sources/${sourceId}.json`);
+      const data = await response.json();
+      setSource(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching source:", error);
+      setLoading(false);
+    }
+  };
+  if (loading) {
+    return /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg" }, "Loading..."));
+  }
+  if (!source) {
+    return /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-center py-12" }, /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg" }, "Source not found"));
+  }
+  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react24.default.createElement("a", { href: "/sources", className: "text-sm text-primary hover:text-accent-dark" }, "\u2190 Back to Sources")), /* @__PURE__ */ import_react24.default.createElement(SourceDisplay, { source }), source.concepts && source.concepts.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react24.default.createElement(SourceConcepts, { concepts: source.concepts })), source.people && source.people.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mt-8" }, /* @__PURE__ */ import_react24.default.createElement(SourcePeople, { people: source.people })));
+}
+function SourceDisplay({ source }) {
+  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center gap-3 mb-3" }, source.kind && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, source.kind.replace("_", " ")), source.year && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-sm text-gray-600" }, source.year)), /* @__PURE__ */ import_react24.default.createElement("h1", { className: "text-4xl mb-3" }, source.title), source.authors && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-lg text-gray-700 mb-2" }, source.authors), /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-600" }, "Last updated: ", new Date(source.updated_at).toLocaleDateString()))), source.summary && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-lg font-medium mb-2" }, "Summary"), /* @__PURE__ */ import_react24.default.createElement("p", { className: "leading-relaxed whitespace-pre-wrap" }, source.summary)), source.doi_or_url && /* @__PURE__ */ import_react24.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-lg font-medium mb-2" }, "Link"), /* @__PURE__ */ import_react24.default.createElement(
+    "a",
+    {
+      href: source.doi_or_url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "text-primary hover:text-accent-dark underline break-all"
+    },
+    source.doi_or_url
+  )), source.tags && source.tags.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-wrap gap-2" }, source.tags.map((tag, idx) => /* @__PURE__ */ import_react24.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
+}
+function SourceConcepts({ concepts }) {
+  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react24.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Constructs (", concepts.length, ")"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "grid gap-3 md:grid-cols-2 lg:grid-cols-3" }, concepts.map((concept) => /* @__PURE__ */ import_react24.default.createElement(
+    "a",
+    {
+      key: concept.id,
+      href: `/concepts/${concept.id}`,
+      className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
+    },
+    /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "font-medium" }, concept.label), concept.node_type && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
+    concept.summary_top && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, concept.summary_top)
+  ))));
+}
+function SourcePeople({ people }) {
+  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react24.default.createElement("h2", { className: "text-2xl mb-6" }, "Related People (", people.length, ")"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-4" }, people.map((person) => /* @__PURE__ */ import_react24.default.createElement(
+    "a",
+    {
+      key: person.id,
+      href: `/people/${person.id}`,
+      className: "border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
+    },
+    /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "font-medium" }, person.full_name), person.role && /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded" }, person.role)),
+    person.summary && /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-600 line-clamp-2" }, person.summary)
+  ))));
+}
+
+// app/javascript/components/PeopleIndex.js
+var import_react27 = __toESM(require_react());
+
+// app/javascript/components/PersonFormModal.js
+var import_react26 = __toESM(require_react());
+
+// app/javascript/components/SourceSelector.js
+var import_react25 = __toESM(require_react());
+function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
+  const [allSources, setAllSources] = (0, import_react25.useState)([]);
+  const [filter2, setFilter] = (0, import_react25.useState)("");
+  const [loading, setLoading] = (0, import_react25.useState)(true);
+  (0, import_react25.useEffect)(() => {
     fetchSources();
   }, []);
   const fetchSources = async () => {
@@ -57518,8 +57582,8 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
     }
   };
   const selectedSources = allSources.filter((s3) => selectedSourceIds.includes(s3.id));
-  if (loading) return /* @__PURE__ */ import_react24.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading sources...");
-  return /* @__PURE__ */ import_react24.default.createElement("div", { className: "border border-gray-300 rounded bg-white h-full flex flex-col" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement(
+  if (loading) return /* @__PURE__ */ import_react25.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading sources...");
+  return /* @__PURE__ */ import_react25.default.createElement("div", { className: "border border-gray-300 rounded bg-white h-full flex flex-col" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react25.default.createElement(
     "input",
     {
       type: "text",
@@ -57528,7 +57592,7 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       placeholder: "Type to filter sources...",
       className: "w-full px-3 py-2 text-sm border border-gray-300 rounded"
     }
-  )), selectedSources.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedSources.map((source) => /* @__PURE__ */ import_react24.default.createElement(
+  )), selectedSources.length > 0 && /* @__PURE__ */ import_react25.default.createElement("div", { className: "p-3 border-b border-gray-200 bg-sand" }, /* @__PURE__ */ import_react25.default.createElement("div", { className: "text-xs font-medium mb-2 text-gray-600" }, "Selected:"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex flex-wrap gap-2" }, selectedSources.map((source) => /* @__PURE__ */ import_react25.default.createElement(
     "span",
     {
       key: source.id,
@@ -57537,7 +57601,7 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
     source.title,
     " ",
     source.year && `(${source.year})`,
-    /* @__PURE__ */ import_react24.default.createElement(
+    /* @__PURE__ */ import_react25.default.createElement(
       "button",
       {
         type: "button",
@@ -57547,7 +57611,7 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       },
       "\xD7"
     )
-  )))), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex-1 overflow-y-auto p-3" }, filteredSources.length === 0 ? /* @__PURE__ */ import_react24.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, "No sources found") : /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-2" }, filteredSources.map((source) => /* @__PURE__ */ import_react24.default.createElement("label", { key: source.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded" }, /* @__PURE__ */ import_react24.default.createElement(
+  )))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex-1 overflow-y-auto p-3" }, filteredSources.length === 0 ? /* @__PURE__ */ import_react25.default.createElement("div", { className: "text-sm text-gray-500 text-center py-4" }, "No sources found") : /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-2" }, filteredSources.map((source) => /* @__PURE__ */ import_react25.default.createElement("label", { key: source.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded" }, /* @__PURE__ */ import_react25.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -57556,13 +57620,13 @@ function SourceSelector({ selectedSourceIds = [], onChange: onChange16 }) {
       className: "mt-1 rounded border-gray-300",
       style: { accentColor: "#414431" }
     }
-  ), /* @__PURE__ */ import_react24.default.createElement("span", { className: "text-sm" }, source.title, " ", source.year && `(${source.year})`))))));
+  ), /* @__PURE__ */ import_react25.default.createElement("span", { className: "text-sm" }, source.title, " ", source.year && `(${source.year})`))))));
 }
 
 // app/javascript/components/PersonFormModal.js
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [activeTab, setActiveTab] = (0, import_react25.useState)("basic");
-  const [formData, setFormData] = (0, import_react25.useState)({
+  const [activeTab, setActiveTab] = (0, import_react26.useState)("basic");
+  const [formData, setFormData] = (0, import_react26.useState)({
     full_name: "",
     role: "theorist",
     summary: "",
@@ -57571,8 +57635,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     source_ids: [],
     tags: []
   });
-  const [error, setError] = (0, import_react25.useState)("");
-  (0, import_react25.useEffect)(() => {
+  const [error, setError] = (0, import_react26.useState)("");
+  (0, import_react26.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basic");
       if (item) {
@@ -57635,7 +57699,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     { id: "details", label: "Details" },
     { id: "metadata", label: "Metadata" }
   ];
-  return /* @__PURE__ */ import_react25.default.createElement(
+  return /* @__PURE__ */ import_react26.default.createElement(
     Modal,
     {
       isOpen,
@@ -57643,7 +57707,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Person" : "New Person",
       size: "large"
     },
-    /* @__PURE__ */ import_react25.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col max-h-[70vh]" }, error && /* @__PURE__ */ import_react25.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-1 mb-0" }, tabs.map((tab) => /* @__PURE__ */ import_react25.default.createElement(
+    /* @__PURE__ */ import_react26.default.createElement("form", { onSubmit: handleSubmit, className: "flex flex-col max-h-[70vh]" }, error && /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4" }, error), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-1 mb-0" }, tabs.map((tab) => /* @__PURE__ */ import_react26.default.createElement(
       "button",
       {
         key: tab.id,
@@ -57652,7 +57716,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: `px-6 py-2 font-medium rounded-t-lg ${activeTab === tab.id ? "!bg-sand !text-gray-800" : "!bg-primary !text-sand hover:!bg-accent-dark"}`
       },
       tab.label
-    ))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "overflow-hidden bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react25.default.createElement("div", { className: "space-y-4 h-full overflow-y-auto" }, /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react25.default.createElement(
+    ))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "overflow-hidden bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]" }, activeTab === "basic" && /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-4 h-full overflow-y-auto" }, /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Full Name *"), /* @__PURE__ */ import_react26.default.createElement(
       "input",
       {
         type: "text",
@@ -57661,19 +57725,19 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Role"), /* @__PURE__ */ import_react26.default.createElement(
       "select",
       {
         value: formData.role,
         onChange: (e3) => setFormData({ ...formData, role: e3.target.value }),
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
       },
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "theorist" }, "Theorist"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "clinician" }, "Clinician"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "researcher" }, "Researcher"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "peer" }, "Peer"),
-      /* @__PURE__ */ import_react25.default.createElement("option", { value: "client" }, "Client")
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react25.default.createElement(
+      /* @__PURE__ */ import_react26.default.createElement("option", { value: "theorist" }, "Theorist"),
+      /* @__PURE__ */ import_react26.default.createElement("option", { value: "clinician" }, "Clinician"),
+      /* @__PURE__ */ import_react26.default.createElement("option", { value: "researcher" }, "Researcher"),
+      /* @__PURE__ */ import_react26.default.createElement("option", { value: "peer" }, "Peer"),
+      /* @__PURE__ */ import_react26.default.createElement("option", { value: "client" }, "Client")
+    )), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react26.default.createElement(
       "textarea",
       {
         value: formData.aka.join("\n"),
@@ -57682,39 +57746,39 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "Aaron T. Beck\nA.T. Beck"
       }
-    ))), activeTab === "details" && /* @__PURE__ */ import_react25.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react25.default.createElement(
+    ))), activeTab === "details" && /* @__PURE__ */ import_react26.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Summary"), /* @__PURE__ */ import_react26.default.createElement(
       "textarea",
       {
         value: formData.summary,
         onChange: (e3) => setFormData({ ...formData, summary: e3.target.value }),
         className: "w-full h-[370px] px-4 py-2 border border-gray-300 rounded bg-white overflow-y-auto resize-none"
       }
-    )), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sources"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react25.default.createElement(
+    )), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sources"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react26.default.createElement(
       SourceSelector,
       {
         selectedSourceIds: formData.source_ids,
         onChange: (source_ids) => setFormData({ ...formData, source_ids })
       }
-    )))), activeTab === "metadata" && /* @__PURE__ */ import_react25.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react25.default.createElement(
+    )))), activeTab === "metadata" && /* @__PURE__ */ import_react26.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-4 h-full" }, /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Concepts"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react26.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
         onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
       }
-    ))), /* @__PURE__ */ import_react25.default.createElement("div", null, /* @__PURE__ */ import_react25.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react25.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react25.default.createElement(
+    ))), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "h-[370px]" }, /* @__PURE__ */ import_react26.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    ))))), /* @__PURE__ */ import_react25.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react25.default.createElement(
+    ))))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-3 pt-6 mt-0" }, /* @__PURE__ */ import_react26.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Person"
-    ), /* @__PURE__ */ import_react25.default.createElement(
+    ), /* @__PURE__ */ import_react26.default.createElement(
       "button",
       {
         type: "button",
@@ -57728,11 +57792,11 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/PeopleIndex.js
 function PeopleIndex() {
-  const [people, setPeople] = (0, import_react26.useState)([]);
-  const [loading, setLoading] = (0, import_react26.useState)(true);
-  const [showForm, setShowForm] = (0, import_react26.useState)(false);
-  const [filterRole, setFilterRole] = (0, import_react26.useState)("all");
-  (0, import_react26.useEffect)(() => {
+  const [people, setPeople] = (0, import_react27.useState)([]);
+  const [loading, setLoading] = (0, import_react27.useState)(true);
+  const [showForm, setShowForm] = (0, import_react27.useState)(false);
+  const [filterRole, setFilterRole] = (0, import_react27.useState)("all");
+  (0, import_react27.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -57749,16 +57813,16 @@ function PeopleIndex() {
   const filteredPeople = filterRole === "all" ? people : people.filter((person) => person.role === filterRole);
   const roles = ["theorist", "clinician", "researcher", "peer", "client"];
   if (loading) {
-    return /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg" }, "Loading people..."));
+    return /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-lg" }, "Loading people..."));
   }
-  return /* @__PURE__ */ import_react26.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react26.default.createElement("h1", { className: "text-4xl" }, "People"), /* @__PURE__ */ import_react26.default.createElement(
+  return /* @__PURE__ */ import_react27.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex justify-between items-center mb-8" }, /* @__PURE__ */ import_react27.default.createElement("h1", { className: "text-4xl" }, "People"), /* @__PURE__ */ import_react27.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
     },
     showForm ? "Cancel" : "New Person"
-  )), /* @__PURE__ */ import_react26.default.createElement(
+  )), /* @__PURE__ */ import_react27.default.createElement(
     PersonFormModal,
     {
       isOpen: showForm,
@@ -57768,7 +57832,7 @@ function PeopleIndex() {
         setShowForm(false);
       }
     }
-  ), /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react26.default.createElement(
+  ), /* @__PURE__ */ import_react27.default.createElement("div", { className: "mb-6 flex gap-2 flex-wrap" }, /* @__PURE__ */ import_react27.default.createElement(
     "button",
     {
       onClick: () => setFilterRole("all"),
@@ -57780,7 +57844,7 @@ function PeopleIndex() {
   ), roles.map((role) => {
     const count = people.filter((p3) => p3.role === role).length;
     if (count === 0) return null;
-    return /* @__PURE__ */ import_react26.default.createElement(
+    return /* @__PURE__ */ import_react27.default.createElement(
       "button",
       {
         key: role,
@@ -57792,10 +57856,10 @@ function PeopleIndex() {
       count,
       ")"
     );
-  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react26.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react26.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
+  })), filteredPeople.length === 0 ? /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded" }, /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-lg mb-4" }, "No people yet."), /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-sm" }, "Add people to track intellectual lineage and influence.")) : /* @__PURE__ */ import_react27.default.createElement("div", { className: "grid gap-4 md:grid-cols-2 lg:grid-cols-3" }, filteredPeople.map((person) => /* @__PURE__ */ import_react27.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))));
 }
 function PersonCard({ person, onUpdate }) {
-  const [showEdit, setShowEdit] = (0, import_react26.useState)(false);
+  const [showEdit, setShowEdit] = (0, import_react27.useState)(false);
   const handleDelete2 = async () => {
     if (!confirm("Are you sure you want to delete this person?")) return;
     try {
@@ -57816,21 +57880,21 @@ function PersonCard({ person, onUpdate }) {
       alert("An error occurred while deleting the person");
     }
   };
-  return /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, /* @__PURE__ */ import_react26.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react26.default.createElement(
+  return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("div", { className: "bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex justify-between items-start mb-2" }, person.role && /* @__PURE__ */ import_react27.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded" }, person.role), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react27.default.createElement(
     "button",
     {
       onClick: () => setShowEdit(true),
       className: "px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
     },
     "Edit"
-  ), /* @__PURE__ */ import_react26.default.createElement(
+  ), /* @__PURE__ */ import_react27.default.createElement(
     "button",
     {
       onClick: handleDelete2,
       className: "px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  ))), /* @__PURE__ */ import_react26.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react26.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react26.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), (person.concepts?.length > 0 || person.tags?.length > 0) && /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, person.concepts?.map((concept) => /* @__PURE__ */ import_react26.default.createElement(
+  ))), /* @__PURE__ */ import_react27.default.createElement("h3", { className: "text-xl mb-2" }, /* @__PURE__ */ import_react27.default.createElement("a", { href: `/people/${person.id}`, className: "hover:text-primary" }, person.full_name)), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-xs text-gray-600 mb-2" }, "Also known as: ", person.aka.join(", ")), person.summary && /* @__PURE__ */ import_react27.default.createElement("p", { className: "text-sm mb-3 line-clamp-3" }, person.summary), (person.concepts?.length > 0 || person.tags?.length > 0) && /* @__PURE__ */ import_react27.default.createElement("div", { className: "mb-3 flex flex-wrap gap-2" }, person.concepts?.map((concept) => /* @__PURE__ */ import_react27.default.createElement(
     "a",
     {
       key: concept.id,
@@ -57838,7 +57902,7 @@ function PersonCard({ person, onUpdate }) {
       className: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     concept.label
-  )), person.tags?.map((tag, idx) => /* @__PURE__ */ import_react26.default.createElement(
+  )), person.tags?.map((tag, idx) => /* @__PURE__ */ import_react27.default.createElement(
     "a",
     {
       key: idx,
@@ -57846,7 +57910,7 @@ function PersonCard({ person, onUpdate }) {
       className: "text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
     },
     tag
-  ))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex gap-3 text-xs text-gray-500" }, /* @__PURE__ */ import_react26.default.createElement("span", null, person.sources_count || 0, " source", person.sources_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react26.default.createElement("span", null, person.notes_count || 0, " note", person.notes_count !== 1 ? "s" : "")), /* @__PURE__ */ import_react26.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString()))), /* @__PURE__ */ import_react26.default.createElement(
+  ))), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex justify-between items-center pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex gap-3 text-xs text-gray-500" }, /* @__PURE__ */ import_react27.default.createElement("span", null, person.sources_count || 0, " source", person.sources_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react27.default.createElement("span", null, person.notes_count || 0, " note", person.notes_count !== 1 ? "s" : "")), /* @__PURE__ */ import_react27.default.createElement("span", { className: "text-xs text-gray-500" }, "Updated ", new Date(person.updated_at).toLocaleDateString()))), /* @__PURE__ */ import_react27.default.createElement(
     PersonFormModal,
     {
       isOpen: showEdit,
@@ -57861,9 +57925,9 @@ function PersonCard({ person, onUpdate }) {
 }
 
 // app/javascript/components/PersonShow.js
-var import_react27 = __toESM(require_react());
+var import_react28 = __toESM(require_react());
 function PersonShow() {
-  const [showEditModal, setShowEditModal] = (0, import_react27.useState)(false);
+  const [showEditModal, setShowEditModal] = (0, import_react28.useState)(false);
   const rootElement = document.getElementById("person-show-root");
   const personData = rootElement ? JSON.parse(rootElement.dataset.person) : null;
   if (!personData) return null;
@@ -57873,7 +57937,7 @@ function PersonShow() {
   const handleSuccess = () => {
     window.location.reload();
   };
-  import_react27.default.useEffect(() => {
+  import_react28.default.useEffect(() => {
     const editButton = document.querySelector('[data-action="click->person-show#openEditModal"]');
     if (editButton) {
       const handler = (e3) => {
@@ -57884,7 +57948,7 @@ function PersonShow() {
       return () => editButton.removeEventListener("click", handler);
     }
   }, []);
-  return /* @__PURE__ */ import_react27.default.createElement(
+  return /* @__PURE__ */ import_react28.default.createElement(
     PersonFormModal,
     {
       isOpen: showEditModal,
@@ -57905,14 +57969,14 @@ function PersonShow() {
 }
 
 // app/javascript/components/ConnectionVisualization.js
-var import_react28 = __toESM(require_react());
+var import_react29 = __toESM(require_react());
 function ConnectionVisualization() {
-  const [concepts, setConcepts] = (0, import_react28.useState)([]);
-  const [connections, setConnections] = (0, import_react28.useState)([]);
-  const [loading, setLoading] = (0, import_react28.useState)(true);
-  const [selectedType, setSelectedType] = (0, import_react28.useState)("all");
-  const [selectedRelType, setSelectedRelType] = (0, import_react28.useState)("all");
-  (0, import_react28.useEffect)(() => {
+  const [concepts, setConcepts] = (0, import_react29.useState)([]);
+  const [connections, setConnections] = (0, import_react29.useState)([]);
+  const [loading, setLoading] = (0, import_react29.useState)(true);
+  const [selectedType, setSelectedType] = (0, import_react29.useState)("all");
+  const [selectedRelType, setSelectedRelType] = (0, import_react29.useState)("all");
+  (0, import_react29.useEffect)(() => {
     fetchData();
   }, []);
   const fetchData = async () => {
@@ -57969,57 +58033,57 @@ function ConnectionVisualization() {
     related_to: "bg-slate-100 border-slate-300"
   };
   if (loading) {
-    return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("p", null, "Loading visualization..."));
+    return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react29.default.createElement("p", null, "Loading visualization..."));
   }
-  return /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react28.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react28.default.createElement(
+  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react29.default.createElement("h1", { className: "text-4xl mb-4" }, "Knowledge Graph"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg mb-6" }, "Explore relationships between constructs"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex gap-4 mb-6" }, /* @__PURE__ */ import_react29.default.createElement("div", null, /* @__PURE__ */ import_react29.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react29.default.createElement(
     "select",
     {
       value: selectedType,
       onChange: (e3) => setSelectedType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "model" }, "Model"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "technique" }, "Technique"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "mechanism" }, "Mechanism"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "construct" }, "Construct"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "measure" }, "Measure"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "population" }, "Population")
-  )), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react28.default.createElement(
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "model" }, "Model"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "technique" }, "Technique"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "mechanism" }, "Mechanism"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "construct" }, "Construct"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "measure" }, "Measure"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "population" }, "Population")
+  )), /* @__PURE__ */ import_react29.default.createElement("div", null, /* @__PURE__ */ import_react29.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react29.default.createElement(
     "select",
     {
       value: selectedRelType,
       onChange: (e3) => setSelectedRelType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "all" }, "All Relationships"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "adjacent" }, "Adjacent"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "builds_on" }, "Builds On"),
-    /* @__PURE__ */ import_react28.default.createElement("option", { value: "subsumes" }, "Subsumes")
-  ))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react28.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react28.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "all" }, "All Relationships"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "adjacent" }, "Adjacent"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "contrasts_with" }, "Contrasts With"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "integrates_with" }, "Integrates With"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "builds_on" }, "Builds On"),
+    /* @__PURE__ */ import_react29.default.createElement("option", { value: "subsumes" }, "Subsumes")
+  ))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 mb-4" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm font-medium mb-2" }, "Legend:"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(relTypeLabels).map(([key, label]) => /* @__PURE__ */ import_react29.default.createElement("div", { key, className: "flex items-center gap-2" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: `w-4 h-4 rounded border ${relTypeColors[key]}` }), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-xs" }, label)))))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "space-y-8" }, Object.entries(conceptsByType).map(([type, typeConcepts]) => /* @__PURE__ */ import_react29.default.createElement("div", { key: type, className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react29.default.createElement("h2", { className: "text-xl mb-4 capitalize" }, type.replace("_", " "), "s (", typeConcepts.length, ")"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "space-y-4" }, typeConcepts.map((concept) => {
     const conceptConnections = filteredConnections.filter(
       (e3) => e3.src_concept.id === concept.id || e3.dst_concept.id === concept.id
     );
-    return /* @__PURE__ */ import_react28.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react28.default.createElement(
+    return /* @__PURE__ */ import_react29.default.createElement("div", { key: concept.id, className: "border border-gray-200 rounded-lg p-4" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react29.default.createElement(
       "a",
       {
         href: `/concepts/${concept.id}`,
         className: "text-lg font-medium hover:text-primary"
       },
       concept.label
-    ), concept.summary_top && /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
+    ), concept.summary_top && /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
       const isSource = connection.src_concept.id === concept.id;
       const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
       const direction = isSource ? "\u2192" : "\u2190";
-      return /* @__PURE__ */ import_react28.default.createElement(
+      return /* @__PURE__ */ import_react29.default.createElement(
         "div",
         {
           key: connection.id,
           className: `${relTypeColors[connection.rel_type]} border rounded px-3 py-2`
         },
-        /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react28.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react28.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react28.default.createElement(
+        /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 text-xs" }, /* @__PURE__ */ import_react29.default.createElement("span", { className: "font-medium" }, relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-gray-600" }, direction), /* @__PURE__ */ import_react29.default.createElement(
           "a",
           {
             href: `/concepts/${otherConcept.id}`,
@@ -58027,20 +58091,20 @@ function ConnectionVisualization() {
           },
           otherConcept.label
         )),
-        connection.strength && /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
+        connection.strength && /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-xs text-gray-600 mt-1" }, "Strength: ", connection.strength, "/5")
       );
     })));
-  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
+  }))))), filteredConcepts.length === 0 && /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg text-gray-600" }, "No constructs match your filters")));
 }
 
 // app/javascript/components/NotesIndex.js
-var import_react29 = __toESM(require_react());
+var import_react30 = __toESM(require_react());
 function NotesIndex() {
-  const [notes, setNotes] = (0, import_react29.useState)([]);
-  const [loading, setLoading] = (0, import_react29.useState)(true);
-  const [filterType, setFilterType] = (0, import_react29.useState)("all");
-  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react29.useState)(false);
-  (0, import_react29.useEffect)(() => {
+  const [notes, setNotes] = (0, import_react30.useState)([]);
+  const [loading, setLoading] = (0, import_react30.useState)(true);
+  const [filterType, setFilterType] = (0, import_react30.useState)("all");
+  const [showPinnedOnly, setShowPinnedOnly] = (0, import_react30.useState)(false);
+  (0, import_react30.useEffect)(() => {
     fetchNotes();
   }, [filterType, showPinnedOnly]);
   const fetchNotes = async () => {
@@ -58098,20 +58162,20 @@ function NotesIndex() {
     connection: "Connection",
     todo: "To Do Item"
   };
-  return /* @__PURE__ */ import_react29.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react29.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg mb-6" }, "Capture notes, questions, connections, and to-do items as you learn"), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react29.default.createElement("div", null, /* @__PURE__ */ import_react29.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react29.default.createElement(
+  return /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react30.default.createElement("h1", { className: "text-4xl mb-4" }, "Notes"), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-lg mb-6" }, "Capture notes, questions, connections, and to-do items as you learn"), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react30.default.createElement("div", null, /* @__PURE__ */ import_react30.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Type"), /* @__PURE__ */ import_react30.default.createElement(
     "select",
     {
       value: filterType,
       onChange: (e3) => setFilterType(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "note" }, "Note"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "connection" }, "Connection"),
-    /* @__PURE__ */ import_react29.default.createElement("option", { value: "todo" }, "To Do Item")
-  )), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "all" }, "All Types"),
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "note" }, "Note"),
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "connection" }, "Connection"),
+    /* @__PURE__ */ import_react30.default.createElement("option", { value: "todo" }, "To Do Item")
+  )), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react30.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -58120,28 +58184,28 @@ function NotesIndex() {
       onChange: (e3) => setShowPinnedOnly(e3.target.checked),
       className: "rounded"
     }
-  ), /* @__PURE__ */ import_react29.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react29.default.createElement(
+  ), /* @__PURE__ */ import_react30.default.createElement("label", { htmlFor: "pinned-filter", className: "text-sm" }, "Pinned only")), /* @__PURE__ */ import_react30.default.createElement(
     "a",
     {
       href: "/notes/new",
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark inline-block"
     },
     "+ New Note"
-  ))), loading ? /* @__PURE__ */ import_react29.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react29.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" }, notes.map((note) => /* @__PURE__ */ import_react29.default.createElement(
+  ))), loading ? /* @__PURE__ */ import_react30.default.createElement("p", null, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react30.default.createElement("div", { className: "text-center py-12 bg-white border border-gray-300 rounded-lg" }, /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-lg text-gray-600" }, "No notes yet")) : /* @__PURE__ */ import_react30.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" }, notes.map((note) => /* @__PURE__ */ import_react30.default.createElement(
     "div",
     {
       key: note.id,
       className: "bg-white border border-gray-300 rounded-lg p-6 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-start justify-between mb-3" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-2 flex-1" }, /* @__PURE__ */ import_react30.default.createElement(
       "button",
       {
         onClick: () => handleTogglePin(note),
         className: `!bg-transparent border-0 transition-colors ${note.pinned ? "!text-primary" : "!text-sand hover:!text-primary"}`,
         title: note.pinned ? "Unpin" : "Pin"
       },
-      /* @__PURE__ */ import_react29.default.createElement(FontAwesomeIcon, { icon: faThumbtack })
-    ), /* @__PURE__ */ import_react29.default.createElement("span", { className: "text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium" }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react29.default.createElement(
+      /* @__PURE__ */ import_react30.default.createElement(FontAwesomeIcon, { icon: faThumbtack })
+    ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium" }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/concepts/${note.concept.id}`,
@@ -58149,42 +58213,42 @@ function NotesIndex() {
       },
       "\u2192 ",
       note.concept.label
-    )), /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react29.default.createElement(
+    )), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/notes/${note.id}/edit`,
         className: "text-primary hover:text-accent-dark transition-colors",
         title: "Edit"
       },
-      /* @__PURE__ */ import_react29.default.createElement(FontAwesomeIcon, { icon: faPen })
-    ), /* @__PURE__ */ import_react29.default.createElement(
+      /* @__PURE__ */ import_react30.default.createElement(FontAwesomeIcon, { icon: faPen })
+    ), /* @__PURE__ */ import_react30.default.createElement(
       "button",
       {
         onClick: () => handleDeleteNote(note.id),
         className: "!text-primary hover:!text-accent-dark transition-colors !bg-transparent border-0",
         title: "Delete"
       },
-      /* @__PURE__ */ import_react29.default.createElement(FontAwesomeIcon, { icon: faTrash })
+      /* @__PURE__ */ import_react30.default.createElement(FontAwesomeIcon, { icon: faTrash })
     ))),
-    note.title ? /* @__PURE__ */ import_react29.default.createElement("a", { href: `/notes/${note.id}`, className: "block mb-3" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "text-xl font-bold text-primary hover:text-accent-dark transition-colors" }, note.title)) : /* @__PURE__ */ import_react29.default.createElement(
+    note.title ? /* @__PURE__ */ import_react30.default.createElement("a", { href: `/notes/${note.id}`, className: "block mb-3" }, /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xl font-bold text-primary hover:text-accent-dark transition-colors" }, note.title)) : /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/notes/${note.id}`,
         className: "inline-block mb-3 text-primary hover:text-accent-dark transition-colors",
         title: "View note"
       },
-      /* @__PURE__ */ import_react29.default.createElement(FontAwesomeIcon, { icon: faEye, className: "text-lg" })
+      /* @__PURE__ */ import_react30.default.createElement(FontAwesomeIcon, { icon: faEye, className: "text-lg" })
     ),
-    /* @__PURE__ */ import_react29.default.createElement("div", { className: "mb-3 leading-relaxed prose prose-sm max-w-none line-clamp-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100", dangerouslySetInnerHTML: { __html: note.body } }),
-    note.context && /* @__PURE__ */ import_react29.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react29.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
-    (note.source || note.people?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.source && /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react30.default.createElement("div", { className: "mb-3 leading-relaxed prose prose-sm max-w-none line-clamp-4 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100", dangerouslySetInnerHTML: { __html: note.body } }),
+    note.context && /* @__PURE__ */ import_react30.default.createElement("div", { className: "bg-sand rounded p-3 mb-3" }, /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-700" }, /* @__PURE__ */ import_react30.default.createElement("span", { className: "font-medium" }, "Context:"), " ", note.context)),
+    (note.source || note.people?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex flex-wrap gap-2 mb-3" }, note.source && /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/sources/${note.source.id}`,
         className: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
       },
       note.source.title
-    ), note.people?.map((person) => /* @__PURE__ */ import_react29.default.createElement(
+    ), note.people?.map((person) => /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         key: person.id,
@@ -58192,7 +58256,7 @@ function NotesIndex() {
         className: "text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
       },
       person.full_name
-    )), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react29.default.createElement(
+    )), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         key: idx,
@@ -58201,20 +58265,20 @@ function NotesIndex() {
       },
       typeof tag === "string" ? tag : tag.name
     ))),
-    /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react29.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
+    /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString(), note.noted_on && note.noted_on !== new Date(note.created_at).toISOString().split("T")[0] && /* @__PURE__ */ import_react30.default.createElement("span", { className: "ml-3" }, "Noted: ", new Date(note.noted_on).toLocaleDateString()))
   ))));
 }
 
 // app/javascript/components/NotesForm.js
-var import_react31 = __toESM(require_react());
+var import_react32 = __toESM(require_react());
 
 // app/javascript/components/PeopleSelector.js
-var import_react30 = __toESM(require_react());
+var import_react31 = __toESM(require_react());
 function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
-  const [allPeople, setAllPeople] = (0, import_react30.useState)([]);
-  const [filter2, setFilter] = (0, import_react30.useState)("");
-  const [loading, setLoading] = (0, import_react30.useState)(true);
-  (0, import_react30.useEffect)(() => {
+  const [allPeople, setAllPeople] = (0, import_react31.useState)([]);
+  const [filter2, setFilter] = (0, import_react31.useState)("");
+  const [loading, setLoading] = (0, import_react31.useState)(true);
+  (0, import_react31.useEffect)(() => {
     fetchPeople();
   }, []);
   const fetchPeople = async () => {
@@ -58238,8 +58302,8 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       onChange16([...selectedPersonIds, personId]);
     }
   };
-  if (loading) return /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading people...");
-  return /* @__PURE__ */ import_react30.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react30.default.createElement(
+  if (loading) return /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-gray-500" }, "Loading people...");
+  return /* @__PURE__ */ import_react31.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "text",
@@ -58248,7 +58312,7 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       placeholder: "Type to filter people...",
       className: "w-full px-4 py-2 border-b border-gray-300 rounded-t bg-white"
     }
-  ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredPeople.length === 0 ? /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-500" }, "No people found") : filteredPeople.map((person) => /* @__PURE__ */ import_react30.default.createElement("label", { key: person.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react30.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-h-48 overflow-y-auto p-3 space-y-2" }, filteredPeople.length === 0 ? /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-gray-500" }, "No people found") : filteredPeople.map((person) => /* @__PURE__ */ import_react31.default.createElement("label", { key: person.id, className: "flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded" }, /* @__PURE__ */ import_react31.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -58257,7 +58321,7 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16 }) {
       className: "mt-1 rounded",
       style: { accentColor: "#414431" }
     }
-  ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-sm" }, person.full_name, " ", person.role && `(${person.role})`)))), /* @__PURE__ */ import_react30.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedPersonIds.length, " selected"));
+  ), /* @__PURE__ */ import_react31.default.createElement("span", { className: "text-sm" }, person.full_name, " ", person.role && `(${person.role})`)))), /* @__PURE__ */ import_react31.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-600 border-t border-gray-200" }, selectedPersonIds.length, " selected"));
 }
 
 // app/javascript/components/NotesForm.js
@@ -58267,7 +58331,7 @@ function NotesForm() {
   const sourceIdFromUrl = rootElement?.dataset.sourceId;
   const conceptIdFromUrl = rootElement?.dataset.conceptId;
   const isEdit = !!noteData.id;
-  const [formData, setFormData] = (0, import_react31.useState)({
+  const [formData, setFormData] = (0, import_react32.useState)({
     title: noteData.title || "",
     body: noteData.body || "",
     note_type: noteData.note_type || "note",
@@ -58279,7 +58343,7 @@ function NotesForm() {
     tags: noteData.tags ? noteData.tags.map((t4) => t4.name) : [],
     person_ids: noteData.people ? noteData.people.map((p3) => p3.id) : []
   });
-  const [error, setError] = (0, import_react31.useState)("");
+  const [error, setError] = (0, import_react32.useState)("");
   const editor = useEditor({
     extensions: [
       index_default3,
@@ -58313,7 +58377,7 @@ function NotesForm() {
       setFormData((prev) => ({ ...prev, body: editor2.getHTML() }));
     }
   });
-  (0, import_react31.useEffect)(() => {
+  (0, import_react32.useEffect)(() => {
     if (editor && formData.body) {
       editor.commands.setContent(formData.body);
     }
@@ -58344,19 +58408,19 @@ function NotesForm() {
     }
   };
   if (!editor) return null;
-  return /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react31.default.createElement("a", { href: "/notes", className: "text-primary hover:text-accent-dark" }, "\u2190 Back to Notes")), /* @__PURE__ */ import_react31.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl mb-6" }, isEdit ? "Edit Note" : "New Note"), /* @__PURE__ */ import_react31.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-6" }, error && /* @__PURE__ */ import_react31.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Note Type"), /* @__PURE__ */ import_react31.default.createElement(
+  return /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react32.default.createElement("a", { href: "/notes", className: "text-primary hover:text-accent-dark" }, "\u2190 Back to Notes")), /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl mb-6" }, isEdit ? "Edit Note" : "New Note"), /* @__PURE__ */ import_react32.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-6" }, error && /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Note Type"), /* @__PURE__ */ import_react32.default.createElement(
     "select",
     {
       value: formData.note_type,
       onChange: (e3) => setFormData({ ...formData, note_type: e3.target.value }),
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "note" }, "Note"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "connection" }, "Connection"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "todo" }, "To Do Item")
-  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title"), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "note" }, "Note"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "connection" }, "Connection"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "todo" }, "To Do Item")
+  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Title"), /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "text",
@@ -58365,7 +58429,7 @@ function NotesForm() {
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
       placeholder: "Brief title for this note (optional)"
     }
-  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-2" }, "Note Content *"), /* @__PURE__ */ import_react31.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react31.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-0 flex-wrap bg-sand" }, /* @__PURE__ */ import_react31.default.createElement(
+  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-2" }, "Note Content *"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "border border-gray-300 rounded bg-white" }, editor && /* @__PURE__ */ import_react32.default.createElement("div", { className: "border-b border-gray-200 p-2 flex gap-0 flex-wrap bg-sand" }, /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58374,8 +58438,8 @@ function NotesForm() {
       style: { background: editor.isActive("bold") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Bold"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faBold })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faBold })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58384,8 +58448,8 @@ function NotesForm() {
       style: { background: editor.isActive("italic") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Italic"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faItalic })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faItalic })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58394,8 +58458,8 @@ function NotesForm() {
       style: { background: editor.isActive("underline") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Underline"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faUnderline })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faUnderline })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58404,8 +58468,8 @@ function NotesForm() {
       style: { background: editor.isActive("strike") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Strikethrough"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "select",
     {
       onChange: (e3) => {
@@ -58420,14 +58484,14 @@ function NotesForm() {
       style: { color: "#414431" },
       value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : editor.isActive("heading", { level: 5 }) ? "5" : editor.isActive("heading", { level: 6 }) ? "6" : ""
     },
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "" }, "Paragraph"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "1" }, "Heading 1"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "2" }, "Heading 2"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "3" }, "Heading 3"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "4" }, "Heading 4"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "5" }, "Heading 5"),
-    /* @__PURE__ */ import_react31.default.createElement("option", { value: "6" }, "Heading 6")
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "" }, "Paragraph"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "1" }, "Heading 1"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "2" }, "Heading 2"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "3" }, "Heading 3"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "4" }, "Heading 4"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "5" }, "Heading 5"),
+    /* @__PURE__ */ import_react32.default.createElement("option", { value: "6" }, "Heading 6")
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "color",
@@ -58436,7 +58500,7 @@ function NotesForm() {
       className: "w-8 h-6 rounded cursor-pointer border border-primary/20",
       title: "Text Color"
     }
-  ), /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "color",
@@ -58444,7 +58508,7 @@ function NotesForm() {
       className: "w-8 h-6 rounded cursor-pointer border border-primary/20",
       title: "Highlight Color"
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58453,8 +58517,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "left" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Left"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignLeft })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignLeft })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58463,8 +58527,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "center" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Center"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignCenter })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignCenter })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58473,8 +58537,8 @@ function NotesForm() {
       style: { background: editor.isActive({ textAlign: "right" }) ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Align Right"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faAlignRight })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faAlignRight })
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58483,8 +58547,8 @@ function NotesForm() {
       style: { background: editor.isActive("bulletList") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Bullet List"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faListUl })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faListUl })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58493,8 +58557,8 @@ function NotesForm() {
       style: { background: editor.isActive("orderedList") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Numbered List"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faListOl })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faListOl })
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58508,8 +58572,8 @@ function NotesForm() {
       style: { background: editor.isActive("link") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Insert Link"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faLink })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faLink })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58519,8 +58583,8 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Remove Link"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faUnlink })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faUnlink })
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58529,8 +58593,8 @@ function NotesForm() {
       style: { background: editor.isActive("blockquote") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Blockquote"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58539,8 +58603,8 @@ function NotesForm() {
       style: { background: editor.isActive("codeBlock") ? "rgba(65, 68, 49, 0.2)" : "transparent", color: "#414431" },
       title: "Code Block"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faCode })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faCode })
+  ), /* @__PURE__ */ import_react32.default.createElement("div", { className: "w-px h-6 bg-primary/20 mx-1" }), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58549,8 +58613,8 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Insert Table"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faTable })
-  ), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faTable })
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
@@ -58564,14 +58628,14 @@ function NotesForm() {
       style: { background: "transparent", color: "#414431" },
       title: "Insert Image"
     },
-    /* @__PURE__ */ import_react31.default.createElement(FontAwesomeIcon, { icon: faImage })
-  )), /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react32.default.createElement(FontAwesomeIcon, { icon: faImage })
+  )), /* @__PURE__ */ import_react32.default.createElement(
     EditorContent,
     {
       editor,
       className: "px-4 py-2 min-h-[300px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
     }
-  ))), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react31.default.createElement(
+  ))), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react32.default.createElement(
     "textarea",
     {
       value: formData.context,
@@ -58580,31 +58644,31 @@ function NotesForm() {
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
       placeholder: "What prompted this note?"
     }
-  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react31.default.createElement(
+  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react32.default.createElement(
     ConceptSelector,
     {
       selectedConceptIds: formData.concept_id ? [parseInt(formData.concept_id)] : [],
       onChange: (concept_ids) => setFormData({ ...formData, concept_id: concept_ids[0] || "" })
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one construct (optional)")), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one construct (optional)")), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react32.default.createElement(
     SourceSelector,
     {
       selectedSourceIds: formData.source_id ? [parseInt(formData.source_id)] : [],
       onChange: (source_ids) => setFormData({ ...formData, source_id: source_ids[0] || "" })
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one source (optional)")), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Select one source (optional)")), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Tags"), /* @__PURE__ */ import_react32.default.createElement(
     TagSelector,
     {
       selectedTags: formData.tags,
       onChange: (tags) => setFormData({ ...formData, tags })
     }
-  )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People"), /* @__PURE__ */ import_react31.default.createElement(
+  )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link People"), /* @__PURE__ */ import_react32.default.createElement(
     PeopleSelector,
     {
       selectedPersonIds: formData.person_ids,
       onChange: (person_ids) => setFormData({ ...formData, person_ids })
     }
-  )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react31.default.createElement(
+  )), /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Date Noted"), /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "date",
@@ -58612,7 +58676,7 @@ function NotesForm() {
       onChange: (e3) => setFormData({ ...formData, noted_on: e3.target.value }),
       className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
     }
-  )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react31.default.createElement(
+  )), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex items-center gap-2 mt-6" }, /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "checkbox",
@@ -58621,14 +58685,14 @@ function NotesForm() {
       onChange: (e3) => setFormData({ ...formData, pinned: e3.target.checked }),
       className: "rounded"
     }
-  ), /* @__PURE__ */ import_react31.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement("label", { htmlFor: "pinned", className: "text-sm" }, "Pin this note"))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "submit",
       className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     isEdit ? "Save Changes" : "Create Note"
-  ), /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react32.default.createElement(
     "a",
     {
       href: "/notes",
@@ -58639,18 +58703,18 @@ function NotesForm() {
 }
 
 // app/javascript/components/TagsIndex.js
-var import_react34 = __toESM(require_react());
+var import_react35 = __toESM(require_react());
 
 // app/javascript/components/TagFormModal.js
-var import_react33 = __toESM(require_react());
+var import_react34 = __toESM(require_react());
 function TagFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = (0, import_react33.useState)({
+  const [formData, setFormData] = (0, import_react34.useState)({
     name: "",
     description: "",
     color: "#414431"
   });
-  const [error, setError] = (0, import_react33.useState)("");
-  (0, import_react33.useEffect)(() => {
+  const [error, setError] = (0, import_react34.useState)("");
+  (0, import_react34.useEffect)(() => {
     if (isOpen) {
       if (item) {
         setFormData({
@@ -58695,7 +58759,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       setError("An error occurred while saving the tag");
     }
   };
-  return /* @__PURE__ */ import_react33.default.createElement(
+  return /* @__PURE__ */ import_react34.default.createElement(
     Modal,
     {
       isOpen,
@@ -58703,7 +58767,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       title: item ? "Edit Tag" : "New Tag",
       size: "medium"
     },
-    /* @__PURE__ */ import_react33.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react33.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react33.default.createElement(
+    /* @__PURE__ */ import_react34.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-4" }, error && /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded" }, error), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Name *"), /* @__PURE__ */ import_react34.default.createElement(
       "input",
       {
         type: "text",
@@ -58712,7 +58776,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         required: true
       }
-    )), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react33.default.createElement(
+    )), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Description"), /* @__PURE__ */ import_react34.default.createElement(
       "textarea",
       {
         value: formData.description,
@@ -58721,7 +58785,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What does this tag represent?"
       }
-    )), /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react33.default.createElement(
+    )), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Color"), /* @__PURE__ */ import_react34.default.createElement(
       "input",
       {
         type: "color",
@@ -58729,14 +58793,14 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, color: e3.target.value }),
         className: "w-full h-12 border border-gray-300 rounded bg-white"
       }
-    )), /* @__PURE__ */ import_react33.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react33.default.createElement(
+    )), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex gap-3 pt-4 border-t border-gray-200" }, /* @__PURE__ */ import_react34.default.createElement(
       "button",
       {
         type: "submit",
         className: "px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
       },
       item ? "Save Changes" : "Create Tag"
-    ), /* @__PURE__ */ import_react33.default.createElement(
+    ), /* @__PURE__ */ import_react34.default.createElement(
       "button",
       {
         type: "button",
@@ -58750,12 +58814,12 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
 
 // app/javascript/components/TagsIndex.js
 function TagsIndex() {
-  const [tags, setTags] = (0, import_react34.useState)([]);
-  const [selectedTag, setSelectedTag] = (0, import_react34.useState)(null);
-  const [loading, setLoading] = (0, import_react34.useState)(true);
-  const [sortBy, setSortBy] = (0, import_react34.useState)("popularity");
-  const [creatingTag, setCreatingTag] = (0, import_react34.useState)(false);
-  (0, import_react34.useEffect)(() => {
+  const [tags, setTags] = (0, import_react35.useState)([]);
+  const [selectedTag, setSelectedTag] = (0, import_react35.useState)(null);
+  const [loading, setLoading] = (0, import_react35.useState)(true);
+  const [sortBy, setSortBy] = (0, import_react35.useState)("popularity");
+  const [creatingTag, setCreatingTag] = (0, import_react35.useState)(false);
+  (0, import_react35.useEffect)(() => {
     fetchTags();
   }, [sortBy]);
   const fetchTags = async () => {
@@ -58797,23 +58861,23 @@ function TagsIndex() {
       console.error("Error deleting tag:", error);
     }
   };
-  return /* @__PURE__ */ import_react34.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react34.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react34.default.createElement(
+  return /* @__PURE__ */ import_react35.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-8" }, /* @__PURE__ */ import_react35.default.createElement("h1", { className: "text-4xl mb-4" }, "Tags"), /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-lg mb-6" }, "Browse and organize your knowledge by tags"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-4 mb-6" }, /* @__PURE__ */ import_react35.default.createElement("div", null, /* @__PURE__ */ import_react35.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Sort by"), /* @__PURE__ */ import_react35.default.createElement(
     "select",
     {
       value: sortBy,
       onChange: (e3) => setSortBy(e3.target.value),
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react34.default.createElement("option", { value: "popularity" }, "Popularity"),
-    /* @__PURE__ */ import_react34.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
-  )), /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("option", { value: "popularity" }, "Popularity"),
+    /* @__PURE__ */ import_react35.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
+  )), /* @__PURE__ */ import_react35.default.createElement(
     "button",
     {
       onClick: () => setCreatingTag(!creatingTag),
       className: "ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
     },
     creatingTag ? "Cancel" : "+ New Tag"
-  )), /* @__PURE__ */ import_react34.default.createElement(
+  )), /* @__PURE__ */ import_react35.default.createElement(
     TagFormModal,
     {
       isOpen: creatingTag,
@@ -58823,22 +58887,22 @@ function TagsIndex() {
         setCreatingTag(false);
       }
     }
-  )), loading ? /* @__PURE__ */ import_react34.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react34.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react34.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react34.default.createElement(
+  )), loading ? /* @__PURE__ */ import_react35.default.createElement("p", null, "Loading tags...") : /* @__PURE__ */ import_react35.default.createElement("div", { className: "grid lg:grid-cols-3 gap-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "lg:col-span-1" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react35.default.createElement("h2", { className: "text-xl mb-4" }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600" }, "No tags yet") : /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tags.map((tag) => /* @__PURE__ */ import_react35.default.createElement(
     "div",
     {
       key: tag.id,
       className: `flex items-center justify-between p-3 rounded cursor-pointer hover:bg-sand transition-colors ${selectedTag?.id === tag.id ? "bg-sand" : ""}`,
       onClick: () => handleTagClick(tag)
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-2" }, tag.color && /* @__PURE__ */ import_react35.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: tag.color }
       }
-    ), /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
-    /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
-  ))))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react34.default.createElement(
+    ), /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, tag.name)), tag.description && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, tag.description)),
+    /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500 ml-2" }, tag.taggings_count || 0)
+  ))))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "lg:col-span-2" }, selectedTag ? /* @__PURE__ */ import_react35.default.createElement(
     TagDetail,
     {
       tag: selectedTag,
@@ -58848,10 +58912,10 @@ function TagsIndex() {
         setTags(tags.map((t4) => t4.id === updatedTag.id ? updatedTag : t4));
       }
     }
-  ) : /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
+  ) : /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-12 text-center" }, /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-lg text-gray-600" }, "Select a tag to view details")))));
 }
 function TagDetail({ tag, onDelete, onUpdate }) {
-  const [editing, setEditing] = (0, import_react34.useState)(false);
+  const [editing, setEditing] = (0, import_react35.useState)(false);
   const typeLabels = {
     Concept: "Constructs",
     Source: "Sources",
@@ -58859,7 +58923,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     Connection: "Relationships",
     Note: "Notes"
   };
-  return /* @__PURE__ */ import_react34.default.createElement(import_react34.default.Fragment, null, /* @__PURE__ */ import_react34.default.createElement(
+  return /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, /* @__PURE__ */ import_react35.default.createElement(
     TagFormModal,
     {
       isOpen: editing,
@@ -58870,82 +58934,82 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         setEditing(false);
       }
     }
-  ), /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react34.default.createElement(
+  ), /* @__PURE__ */ import_react35.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex justify-between items-start mb-6" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-3" }, tag.color && /* @__PURE__ */ import_react35.default.createElement(
     "div",
     {
       className: "w-6 h-6 rounded-full",
       style: { backgroundColor: tag.color }
     }
-  ), /* @__PURE__ */ import_react34.default.createElement("div", null, /* @__PURE__ */ import_react34.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react34.default.createElement(
+  ), /* @__PURE__ */ import_react35.default.createElement("div", null, /* @__PURE__ */ import_react35.default.createElement("h2", { className: "text-3xl" }, tag.name), tag.description && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-gray-600 mt-1" }, tag.description))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react35.default.createElement(
     "button",
     {
       onClick: () => setEditing(true),
       className: "px-4 py-2 text-sm border border-gray-300 rounded hover:bg-sand"
     },
     "Edit"
-  ), /* @__PURE__ */ import_react34.default.createElement(
+  ), /* @__PURE__ */ import_react35.default.createElement(
     "button",
     {
       onClick: onDelete,
       className: "px-4 py-2 text-sm text-white bg-accent hover:bg-accent-dark rounded transition-colors"
     },
     "Delete"
-  ))), /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react34.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react34.default.createElement(
+  ))), /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex flex-wrap gap-3" }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react35.default.createElement("div", { key: type, className: "bg-sand px-4 py-2 rounded" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, typeLabels[type] || type), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-gray-600 ml-2" }, count))))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Constructs"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.concepts.map((concept) => /* @__PURE__ */ import_react35.default.createElement(
     "a",
     {
       key: concept.id,
       href: `/concepts/${concept.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
-    concept.summary_top && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
-  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, concept.label), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, concept.node_type)),
+    concept.summary_top && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)
+  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Sources"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.sources.map((source) => /* @__PURE__ */ import_react35.default.createElement(
     "a",
     {
       key: source.id,
       href: `/sources/${source.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)),
-    source.authors && /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors)
-  )))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, source.title), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, source.kind)),
+    source.authors && /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, source.authors)
+  )))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "People"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.people.map((person) => /* @__PURE__ */ import_react35.default.createElement(
     "a",
     {
       key: person.id,
       href: `/people/${person.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, person.role))
-  )))), tag.connections && tag.connections.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Relationships"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.connections.map((connection) => /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "font-medium" }, person.full_name), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, person.role))
+  )))), tag.connections && tag.connections.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Relationships"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.connections.map((connection) => /* @__PURE__ */ import_react35.default.createElement(
     "div",
     {
       key: connection.id,
       className: "p-3 border border-gray-200 rounded bg-sand"
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, /* @__PURE__ */ import_react34.default.createElement("a", { href: `/concepts/${connection.src.id}`, className: "font-medium text-primary hover:underline" }, connection.src.label), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, "\u2192"), /* @__PURE__ */ import_react34.default.createElement("a", { href: `/concepts/${connection.dst.id}`, className: "font-medium text-primary hover:underline" }, connection.dst.label)),
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "text-xs text-gray-600" }, connection.rel_type, connection.description && `: ${connection.description}`)
-  )))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react34.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, /* @__PURE__ */ import_react35.default.createElement("a", { href: `/concepts/${connection.src.id}`, className: "font-medium text-primary hover:underline" }, connection.src.label), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, "\u2192"), /* @__PURE__ */ import_react35.default.createElement("a", { href: `/concepts/${connection.dst.id}`, className: "font-medium text-primary hover:underline" }, connection.dst.label)),
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "text-xs text-gray-600" }, connection.rel_type, connection.description && `: ${connection.description}`)
+  )))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react35.default.createElement("h3", { className: "text-lg mb-3" }, "Notes"), /* @__PURE__ */ import_react35.default.createElement("div", { className: "space-y-2" }, tag.notes.map((note) => /* @__PURE__ */ import_react35.default.createElement(
     "a",
     {
       key: note.id,
       href: `/notes/${note.id}`,
       className: "block p-3 border border-gray-200 rounded hover:bg-sand"
     },
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs uppercase tracking-wider text-gray-800 bg-sand px-2 py-1 rounded font-medium" }, note.note_type), /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())),
-    note.title && /* @__PURE__ */ import_react34.default.createElement("div", { className: "font-semibold text-sm mb-1" }, note.title),
-    /* @__PURE__ */ import_react34.default.createElement("div", { className: "text-sm line-clamp-2 prose prose-sm max-w-none", dangerouslySetInnerHTML: { __html: note.body } }),
-    note.concept && /* @__PURE__ */ import_react34.default.createElement("span", { className: "text-xs text-primary mt-1 block" }, "\u2192 ", note.concept.label)
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs uppercase tracking-wider text-gray-800 bg-sand px-2 py-1 rounded font-medium" }, note.note_type), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())),
+    note.title && /* @__PURE__ */ import_react35.default.createElement("div", { className: "font-semibold text-sm mb-1" }, note.title),
+    /* @__PURE__ */ import_react35.default.createElement("div", { className: "text-sm line-clamp-2 prose prose-sm max-w-none", dangerouslySetInnerHTML: { __html: note.body } }),
+    note.concept && /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-primary mt-1 block" }, "\u2192 ", note.concept.label)
   ))))));
 }
 
 // app/javascript/components/Dashboard.js
-var import_react37 = __toESM(require_react());
+var import_react38 = __toESM(require_react());
 
 // app/javascript/components/ConceptRelationshipMap.js
-var import_react36 = __toESM(require_react());
+var import_react37 = __toESM(require_react());
 
 // node_modules/react-kapsule/dist/react-kapsule.mjs
-var import_react35 = __toESM(require_react(), 1);
+var import_react36 = __toESM(require_react(), 1);
 
 // node_modules/jerrypick/dist/jerrypick.mjs
 function _iterableToArrayLimit2(arr, i3) {
@@ -59099,9 +59163,9 @@ function index(kapsuleComponent) {
   var _ref2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ref$wrapperElementTy = _ref2.wrapperElementType, wrapperElementType = _ref$wrapperElementTy === void 0 ? "div" : _ref$wrapperElementTy, _ref$nodeMapper = _ref2.nodeMapper, nodeMapper = _ref$nodeMapper === void 0 ? function(node) {
     return node;
   } : _ref$nodeMapper, _ref$methodNames = _ref2.methodNames, methodNames = _ref$methodNames === void 0 ? [] : _ref$methodNames, _ref$initPropNames = _ref2.initPropNames, initPropNames = _ref$initPropNames === void 0 ? [] : _ref$initPropNames;
-  return /* @__PURE__ */ (0, import_react35.forwardRef)(function(props, ref) {
-    var domEl = (0, import_react35.useRef)();
-    var comp = (0, import_react35.useMemo)(function() {
+  return /* @__PURE__ */ (0, import_react36.forwardRef)(function(props, ref) {
+    var domEl = (0, import_react36.useRef)();
+    var comp = (0, import_react36.useMemo)(function() {
       var configOptions = Object.fromEntries(initPropNames.filter(function(p3) {
         return props.hasOwnProperty(p3);
       }).map(function(prop) {
@@ -59111,11 +59175,11 @@ function index(kapsuleComponent) {
     }, []);
     useEffectOnce(function() {
       comp(nodeMapper(domEl.current));
-    }, import_react35.useLayoutEffect);
+    }, import_react36.useLayoutEffect);
     useEffectOnce(function() {
       return comp._destructor instanceof Function ? comp._destructor : void 0;
     });
-    var _call = (0, import_react35.useCallback)(
+    var _call = (0, import_react36.useCallback)(
       function(method) {
         for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
@@ -59124,14 +59188,14 @@ function index(kapsuleComponent) {
       },
       [comp]
     );
-    var prevPropsRef = (0, import_react35.useRef)({});
+    var prevPropsRef = (0, import_react36.useRef)({});
     Object.keys(omit(props, [].concat(_toConsumableArray3(methodNames), _toConsumableArray3(initPropNames)))).filter(function(p3) {
       return prevPropsRef.current[p3] !== props[p3];
     }).forEach(function(p3) {
       return _call(p3, props[p3]);
     });
     prevPropsRef.current = props;
-    (0, import_react35.useImperativeHandle)(ref, function() {
+    (0, import_react36.useImperativeHandle)(ref, function() {
       return Object.fromEntries(methodNames.map(function(method) {
         return [method, function() {
           for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -59141,17 +59205,17 @@ function index(kapsuleComponent) {
         }];
       }));
     }, [_call]);
-    return /* @__PURE__ */ import_react35.default.createElement(wrapperElementType, {
+    return /* @__PURE__ */ import_react36.default.createElement(wrapperElementType, {
       ref: domEl
     });
   });
 }
 function useEffectOnce(effect) {
-  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react35.useEffect;
-  var destroyFunc = (0, import_react35.useRef)();
-  var effectCalled = (0, import_react35.useRef)(false);
-  var renderAfterCalled = (0, import_react35.useRef)(false);
-  var _useState = (0, import_react35.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
+  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react36.useEffect;
+  var destroyFunc = (0, import_react36.useRef)();
+  var effectCalled = (0, import_react36.useRef)(false);
+  var renderAfterCalled = (0, import_react36.useRef)(false);
+  var _useState = (0, import_react36.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
   _useState2[0];
   var setVal = _useState2[1];
   if (effectCalled.current) {
@@ -69121,20 +69185,20 @@ ForceGraph2D.propTypes = ForceGraph2DPropTypes;
 
 // app/javascript/components/ConceptRelationshipMap.js
 function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = (0, import_react36.useState)({ nodes: [], links: [] });
-  const [loading, setLoading] = (0, import_react36.useState)(true);
-  const [filterType, setFilterType] = (0, import_react36.useState)("all");
-  const [highlightNodes, setHighlightNodes] = (0, import_react36.useState)(/* @__PURE__ */ new Set());
-  const [highlightLinks, setHighlightLinks] = (0, import_react36.useState)(/* @__PURE__ */ new Set());
-  const [hoverNode, setHoverNode] = (0, import_react36.useState)(null);
-  const fgRef = (0, import_react36.useRef)();
-  const labelBounds = (0, import_react36.useRef)(/* @__PURE__ */ new Map());
-  const currentFrame = (0, import_react36.useRef)(0);
-  const nodesPainted = (0, import_react36.useRef)(0);
-  (0, import_react36.useEffect)(() => {
+  const [graphData, setGraphData] = (0, import_react37.useState)({ nodes: [], links: [] });
+  const [loading, setLoading] = (0, import_react37.useState)(true);
+  const [filterType, setFilterType] = (0, import_react37.useState)("all");
+  const [highlightNodes, setHighlightNodes] = (0, import_react37.useState)(/* @__PURE__ */ new Set());
+  const [highlightLinks, setHighlightLinks] = (0, import_react37.useState)(/* @__PURE__ */ new Set());
+  const [hoverNode, setHoverNode] = (0, import_react37.useState)(null);
+  const fgRef = (0, import_react37.useRef)();
+  const labelBounds = (0, import_react37.useRef)(/* @__PURE__ */ new Map());
+  const currentFrame = (0, import_react37.useRef)(0);
+  const nodesPainted = (0, import_react37.useRef)(0);
+  (0, import_react37.useEffect)(() => {
     fetchGraphData();
   }, []);
-  (0, import_react36.useEffect)(() => {
+  (0, import_react37.useEffect)(() => {
     if (fgRef.current && graphData.nodes.length > 0) {
       const fg = fgRef.current;
       Promise.resolve().then(() => (init_src4(), src_exports)).then((d3) => {
@@ -69449,45 +69513,45 @@ function ConceptRelationshipMap() {
     ctx.setLineDash([]);
   };
   if (loading) {
-    return /* @__PURE__ */ import_react36.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react36.default.createElement("p", null, "Loading relationship map..."));
+    return /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("p", null, "Loading relationship map..."));
   }
   const filteredData = getFilteredData();
-  return /* @__PURE__ */ import_react36.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react36.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react36.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-4 sm:p-6" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-xl sm:text-2xl" }, "Concept Relationship Map"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex flex-wrap gap-2" }, /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setFilterType("all"),
       className: `px-3 py-1 rounded text-sm ${filterType === "all" ? "bg-primary text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "All"
-  ), /* @__PURE__ */ import_react36.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setFilterType("hierarchical"),
       className: `px-3 py-1 rounded text-sm ${filterType === "hierarchical" ? "bg-accent-dark text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Hierarchical"
-  ), /* @__PURE__ */ import_react36.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setFilterType("semantic"),
       className: `px-3 py-1 rounded text-sm ${filterType === "semantic" ? "bg-primary text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Semantic"
-  ), /* @__PURE__ */ import_react36.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setFilterType("sequential"),
       className: `px-3 py-1 rounded text-sm ${filterType === "sequential" ? "bg-accent text-sand" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Sequential"
-  ), /* @__PURE__ */ import_react36.default.createElement(
+  ), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setFilterType("influence"),
       className: `px-3 py-1 rounded text-sm ${filterType === "influence" ? "bg-accent-light text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`
     },
     "Influence"
-  ))), /* @__PURE__ */ import_react36.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react36.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react36.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react36.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react36.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react36.default.createElement(
+  ))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-dark" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-primary" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-4 h-4 rounded-full bg-accent-light" }), /* @__PURE__ */ import_react37.default.createElement("span", null, "Influence"))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "border border-gray-200 rounded overflow-hidden", style: { height: "400px", minHeight: "300px" } }, /* @__PURE__ */ import_react37.default.createElement(
     ForceGraph2D,
     {
       ref: fgRef,
@@ -69508,20 +69572,20 @@ function ConceptRelationshipMap() {
       width: void 0,
       height: 400
     }
-  )), hoverNode && /* @__PURE__ */ import_react36.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react36.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react36.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react36.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react36.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
+  )), hoverNode && /* @__PURE__ */ import_react37.default.createElement("div", { className: "mt-4 p-4 bg-sand border border-gray-300 rounded" }, /* @__PURE__ */ import_react37.default.createElement("h3", { className: "font-medium text-lg" }, hoverNode.label), /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-sm text-gray-600 mt-1" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded mr-2" }, hoverNode.type), /* @__PURE__ */ import_react37.default.createElement("span", { className: "inline-block bg-white px-2 py-1 rounded" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
 }
 
 // app/javascript/components/Dashboard.js
 function Dashboard() {
-  const [stats, setStats] = (0, import_react37.useState)(null);
-  const [recentActivity, setRecentActivity] = (0, import_react37.useState)([]);
-  const [loading, setLoading] = (0, import_react37.useState)(true);
-  const [showConceptModal, setShowConceptModal] = (0, import_react37.useState)(false);
-  const [showSourceModal, setShowSourceModal] = (0, import_react37.useState)(false);
-  const [showPersonModal, setShowPersonModal] = (0, import_react37.useState)(false);
-  const [showNoteModal, setShowNoteModal] = (0, import_react37.useState)(false);
-  const [showTagModal, setShowTagModal] = (0, import_react37.useState)(false);
-  (0, import_react37.useEffect)(() => {
+  const [stats, setStats] = (0, import_react38.useState)(null);
+  const [recentActivity, setRecentActivity] = (0, import_react38.useState)([]);
+  const [loading, setLoading] = (0, import_react38.useState)(true);
+  const [showConceptModal, setShowConceptModal] = (0, import_react38.useState)(false);
+  const [showSourceModal, setShowSourceModal] = (0, import_react38.useState)(false);
+  const [showPersonModal, setShowPersonModal] = (0, import_react38.useState)(false);
+  const [showNoteModal, setShowNoteModal] = (0, import_react38.useState)(false);
+  const [showTagModal, setShowTagModal] = (0, import_react38.useState)(false);
+  (0, import_react38.useEffect)(() => {
     fetchDashboardData();
   }, []);
   const fetchDashboardData = async () => {
@@ -69582,9 +69646,9 @@ function Dashboard() {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react37.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react37.default.createElement("p", null, "Loading dashboard..."));
+    return /* @__PURE__ */ import_react38.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react38.default.createElement("p", null, "Loading dashboard..."));
   }
-  return /* @__PURE__ */ import_react37.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react37.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react37.default.createElement(
+  return /* @__PURE__ */ import_react38.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" }, /* @__PURE__ */ import_react38.default.createElement("h1", { className: "text-3xl sm:text-4xl mb-6 sm:mb-8" }, "Dashboard"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "mb-6 sm:mb-8" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-xl sm:text-2xl mb-3 sm:mb-4" }, "Quick Actions"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4" }, /* @__PURE__ */ import_react38.default.createElement(
     ActionCard,
     {
       icon: faLightbulb,
@@ -69592,7 +69656,7 @@ function Dashboard() {
       description: "Create a new knowledge concept",
       onClick: () => setShowConceptModal(true)
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     ActionCard,
     {
       icon: faBook,
@@ -69600,7 +69664,7 @@ function Dashboard() {
       description: "Add a new reference or resource",
       onClick: () => setShowSourceModal(true)
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     ActionCard,
     {
       icon: faUser,
@@ -69608,7 +69672,7 @@ function Dashboard() {
       description: "Add someone to your network",
       onClick: () => setShowPersonModal(true)
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     ActionCard,
     {
       icon: faStickyNote,
@@ -69616,7 +69680,7 @@ function Dashboard() {
       description: "Capture a new insight or reflection",
       onClick: () => setShowNoteModal(true)
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     ActionCard,
     {
       icon: faTag,
@@ -69624,7 +69688,7 @@ function Dashboard() {
       description: "Create a new organizing tag",
       onClick: () => setShowTagModal(true)
     }
-  ))), /* @__PURE__ */ import_react37.default.createElement(
+  ))), /* @__PURE__ */ import_react38.default.createElement(
     ConceptFormModal,
     {
       isOpen: showConceptModal,
@@ -69634,7 +69698,7 @@ function Dashboard() {
         setShowConceptModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     SourceFormModal,
     {
       isOpen: showSourceModal,
@@ -69644,7 +69708,7 @@ function Dashboard() {
         setShowSourceModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     PersonFormModal,
     {
       isOpen: showPersonModal,
@@ -69654,7 +69718,7 @@ function Dashboard() {
         setShowPersonModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     NoteFormModal,
     {
       isOpen: showNoteModal,
@@ -69664,7 +69728,7 @@ function Dashboard() {
         setShowNoteModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement(
     TagFormModal,
     {
       isOpen: showTagModal,
@@ -69674,64 +69738,64 @@ function Dashboard() {
         setShowTagModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react37.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react37.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react37.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react37.default.createElement(
+  ), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8" }, /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Concepts", value: stats.totalConcepts, link: "/concepts" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Sources", value: stats.totalSources, link: "/sources" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "People", value: stats.totalPeople, link: "/people" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Connections", value: stats.totalConnections, link: "/connections" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Notes", value: stats.totalNotes, link: "/notes" }), /* @__PURE__ */ import_react38.default.createElement(StatCard, { label: "Tags", value: stats.totalTags, link: "/tags" })), /* @__PURE__ */ import_react38.default.createElement("div", { className: "grid lg:grid-cols-2 gap-8 mb-8" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-2xl mb-4" }, "Concepts by Type"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByType).map(([type, count]) => /* @__PURE__ */ import_react38.default.createElement("div", { key: type, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react38.default.createElement("span", { className: "capitalize" }, type.replace("_", " ")), /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react38.default.createElement(
     "div",
     {
       className: "bg-primary h-2 rounded-full",
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react37.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react37.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react37.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react37.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react37.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react37.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react37.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react37.default.createElement(
+  )), /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count)))))), /* @__PURE__ */ import_react38.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-6" }, /* @__PURE__ */ import_react38.default.createElement("h2", { className: "text-2xl mb-4" }, "Mastery Progress"), /* @__PURE__ */ import_react38.default.createElement("div", { className: "space-y-3" }, Object.entries(stats.conceptsByStatus).map(([status, count]) => /* @__PURE__ */ import_react38.default.createElement("div", { key: status, className: "flex items-center justify-between" }, /* @__PURE__ */ import_react38.default.createElement("span", { className: "capitalize" }, status), /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "w-32 bg-sand rounded-full h-2" }, /* @__PURE__ */ import_react38.default.createElement(
     "div",
     {
       className: `h-2 rounded-full ${status === "deep" ? "bg-green-600" : status === "basic" ? "bg-yellow-600" : "bg-gray-400"}`,
       style: { width: `${count / stats.totalConcepts * 100}%` }
     }
-  )), /* @__PURE__ */ import_react37.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react37.default.createElement(ConceptRelationshipMap, null));
+  )), /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-sm font-medium w-8 text-right" }, count))))))), /* @__PURE__ */ import_react38.default.createElement(ConceptRelationshipMap, null));
 }
 function StatCard({ label, value, link }) {
-  return /* @__PURE__ */ import_react37.default.createElement(
+  return /* @__PURE__ */ import_react38.default.createElement(
     "a",
     {
       href: link,
       className: "bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
-    /* @__PURE__ */ import_react37.default.createElement("div", { className: "text-sm text-gray-600" }, label)
+    /* @__PURE__ */ import_react38.default.createElement("div", { className: "text-3xl font-light mb-1" }, value),
+    /* @__PURE__ */ import_react38.default.createElement("div", { className: "text-sm text-gray-600" }, label)
   );
 }
 function ActionCard({ icon: icon3, title, description, onClick, link }) {
   if (onClick) {
-    return /* @__PURE__ */ import_react37.default.createElement(
+    return /* @__PURE__ */ import_react38.default.createElement(
       "button",
       {
         onClick,
         className: "!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow text-left w-full"
       },
-      /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2 mb-2" }, icon3 && /* @__PURE__ */ import_react37.default.createElement(FontAwesomeIcon, { icon: icon3, className: "text-primary text-lg" }), /* @__PURE__ */ import_react37.default.createElement("h3", { className: "font-medium text-gray-800" }, title)),
-      /* @__PURE__ */ import_react37.default.createElement("p", { className: "text-sm text-gray-600" }, description)
+      /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-2 mb-2" }, icon3 && /* @__PURE__ */ import_react38.default.createElement(FontAwesomeIcon, { icon: icon3, className: "text-primary text-lg" }), /* @__PURE__ */ import_react38.default.createElement("h3", { className: "font-medium text-gray-800" }, title)),
+      /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-sm text-gray-600" }, description)
     );
   }
-  return /* @__PURE__ */ import_react37.default.createElement(
+  return /* @__PURE__ */ import_react38.default.createElement(
     "a",
     {
       href: link,
       className: "!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow block"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { className: "flex items-center gap-2 mb-2" }, icon3 && /* @__PURE__ */ import_react37.default.createElement(FontAwesomeIcon, { icon: icon3, className: "text-primary text-lg" }), /* @__PURE__ */ import_react37.default.createElement("h3", { className: "font-medium text-gray-800" }, title)),
-    /* @__PURE__ */ import_react37.default.createElement("p", { className: "text-sm text-gray-600" }, description)
+    /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-2 mb-2" }, icon3 && /* @__PURE__ */ import_react38.default.createElement(FontAwesomeIcon, { icon: icon3, className: "text-primary text-lg" }), /* @__PURE__ */ import_react38.default.createElement("h3", { className: "font-medium text-gray-800" }, title)),
+    /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-sm text-gray-600" }, description)
   );
 }
 
 // app/javascript/components/GlobalSearch.js
-var import_react38 = __toESM(require_react());
+var import_react39 = __toESM(require_react());
 function GlobalSearch() {
-  const [query, setQuery] = (0, import_react38.useState)("");
-  const [results, setResults] = (0, import_react38.useState)(null);
-  const [loading, setLoading] = (0, import_react38.useState)(false);
-  const [showResults, setShowResults] = (0, import_react38.useState)(false);
-  const searchRef = (0, import_react38.useRef)(null);
-  const timeoutRef = (0, import_react38.useRef)(null);
-  (0, import_react38.useEffect)(() => {
+  const [query, setQuery] = (0, import_react39.useState)("");
+  const [results, setResults] = (0, import_react39.useState)(null);
+  const [loading, setLoading] = (0, import_react39.useState)(false);
+  const [showResults, setShowResults] = (0, import_react39.useState)(false);
+  const searchRef = (0, import_react39.useRef)(null);
+  const timeoutRef = (0, import_react39.useRef)(null);
+  (0, import_react39.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
@@ -69740,7 +69804,7 @@ function GlobalSearch() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  (0, import_react38.useEffect)(() => {
+  (0, import_react39.useEffect)(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -69772,7 +69836,7 @@ function GlobalSearch() {
     }
   };
   const totalResults = results ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length : 0;
-  return /* @__PURE__ */ import_react38.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react38.default.createElement(
+  return /* @__PURE__ */ import_react39.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react39.default.createElement(
     "input",
     {
       type: "text",
@@ -69782,10 +69846,10 @@ function GlobalSearch() {
       placeholder: "Search across everything...",
       className: "w-full px-4 py-2 pl-10 border border-gray-300 rounded bg-white"
     }
-  ), /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react38.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react38.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
+  ), /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react39.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
 }
 function SearchSection({ title, items, type }) {
-  return /* @__PURE__ */ import_react38.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react38.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react38.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react38.default.createElement(SearchResultItem, { key: item.id, item, type }))));
+  return /* @__PURE__ */ import_react39.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react39.default.createElement(SearchResultItem, { key: item.id, item, type }))));
 }
 function SearchResultItem({ item, type }) {
   const stripHtml = (html) => {
@@ -69827,29 +69891,29 @@ function SearchResultItem({ item, type }) {
     if (type === "note") return item.note_type;
     return null;
   };
-  return /* @__PURE__ */ import_react38.default.createElement(
+  return /* @__PURE__ */ import_react39.default.createElement(
     "a",
     {
       href: getLink(),
       className: "block px-4 py-3 hover:bg-sand transition-colors",
       onClick: () => window.location.href = getLink()
     },
-    /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react38.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react38.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react38.default.createElement(
+    /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react39.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react39.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: item.color }
       }
-    )), /* @__PURE__ */ import_react38.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react38.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
+    )), /* @__PURE__ */ import_react39.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
   );
 }
 
 // app/javascript/components/UserDropdown.js
-var import_react39 = __toESM(require_react());
+var import_react40 = __toESM(require_react());
 function UserDropdown({ userEmail }) {
-  const [isOpen, setIsOpen] = (0, import_react39.useState)(false);
-  const dropdownRef = (0, import_react39.useRef)(null);
-  (0, import_react39.useEffect)(() => {
+  const [isOpen, setIsOpen] = (0, import_react40.useState)(false);
+  const dropdownRef = (0, import_react40.useRef)(null);
+  (0, import_react40.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -69876,21 +69940,21 @@ function UserDropdown({ userEmail }) {
     document.body.appendChild(form);
     form.submit();
   };
-  return /* @__PURE__ */ import_react39.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react39.default.createElement(
+  return /* @__PURE__ */ import_react40.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react40.default.createElement(
     "button",
     {
       onClick: () => setIsOpen(!isOpen),
       className: "flex items-center gap-2 px-3 py-2 rounded hover:bg-sand hover:text-primary transition-colors"
     },
-    /* @__PURE__ */ import_react39.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react39.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
-  ), isOpen && /* @__PURE__ */ import_react39.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react39.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react39.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react39.default.createElement(
+    /* @__PURE__ */ import_react40.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react40.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
+  ), isOpen && /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "p-4 border-b border-gray-200" }, /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-sm text-gray-600 truncate" }, userEmail)), /* @__PURE__ */ import_react40.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react40.default.createElement(
     "a",
     {
       href: "/users/edit",
       className: "block px-4 py-2 text-sm hover:bg-sand transition-colors"
     },
     "Edit My Information"
-  )), /* @__PURE__ */ import_react39.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react39.default.createElement(
+  )), /* @__PURE__ */ import_react40.default.createElement("div", { className: "border-t border-gray-200 py-2" }, /* @__PURE__ */ import_react40.default.createElement(
     "button",
     {
       onClick: handleSignOut,
@@ -69904,53 +69968,58 @@ function UserDropdown({ userEmail }) {
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(SourcesIndex, null));
+  }
+  const sourceShowRoot = document.getElementById("source-show-root");
+  if (sourceShowRoot) {
+    const sourceId = sourceShowRoot.dataset.sourceId;
+    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react41.default.createElement(SourceShow, { sourceId }));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react40.default.createElement(PersonShow, null));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react41.default.createElement(PersonShow, null));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react40.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react41.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react40.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react41.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react40.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react41.default.createElement(TagsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react40.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react41.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react40.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react41.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react40.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react41.default.createElement(UserDropdown, { userEmail }));
   }
 });
 /*! Bundled license information:
