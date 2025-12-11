@@ -297,7 +297,7 @@ function SourceCard({ source, onUpdate }) {
         )}
 
         {source.pdf_url && (
-          <div className="text-xs mb-3">
+          <div className="text-xs mb-3 flex items-center gap-3">
             <a
               href={source.pdf_url}
               target="_blank"
@@ -305,6 +305,12 @@ function SourceCard({ source, onUpdate }) {
               className="text-primary hover:text-accent-dark underline font-medium"
             >
               📄 View PDF
+            </a>
+            <a
+              href={`/sources/${source.id}/study`}
+              className="text-accent-dark hover:text-plum underline font-medium"
+            >
+              📖 Study PDF
             </a>
           </div>
         )}

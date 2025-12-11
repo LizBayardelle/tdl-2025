@@ -16,6 +16,7 @@ import TagsIndex from './components/TagsIndex';
 import Dashboard from './components/Dashboard';
 import GlobalSearch from './components/GlobalSearch';
 import UserDropdown from './components/UserDropdown';
+import PdfStudyMode from './components/PdfStudyMode';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -85,5 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
     createRoot(userDropdownRoot).render(<UserDropdown userEmail={userEmail} />);
+  }
+
+  const pdfStudyRoot = document.getElementById('pdf-study-root');
+  if (pdfStudyRoot) {
+    const sourceId = pdfStudyRoot.dataset.sourceId;
+    const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
+    const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
+    createRoot(pdfStudyRoot).render(
+      <PdfStudyMode
+        sourceId={sourceId}
+        sourceTitle={sourceTitle}
+        pdfUrl={pdfUrl}
+      />
+    );
   }
 });

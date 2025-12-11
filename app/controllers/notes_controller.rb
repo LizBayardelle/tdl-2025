@@ -13,6 +13,9 @@ class NotesController < ApplicationController
     # Filter by concept
     @notes = @notes.for_concept(params[:concept_id]) if params[:concept_id].present?
 
+    # Filter by source
+    @notes = @notes.where(source_id: params[:source_id]) if params[:source_id].present?
+
     # Filter by pinned
     @notes = @notes.pinned if params[:pinned] == 'true'
 

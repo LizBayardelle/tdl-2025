@@ -1,0 +1,6 @@
+<div
+  id="pdf-study-root"
+  data-source-id="<%= @source.id %>"
+  data-source-title="<%= @source.title %>"
+  data-pdf-url="<%= @source.pdf.attached? ? rails_blob_path(@source.pdf, only_path: true) : '' %>"
+></div>

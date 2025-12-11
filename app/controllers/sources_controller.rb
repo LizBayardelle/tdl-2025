@@ -1,6 +1,6 @@
 class SourcesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_source, only: [:show, :update, :destroy]
+  before_action :set_source, only: [:show, :study, :update, :destroy]
 
   def index
     @sources = current_user.sources.recent
@@ -36,6 +36,11 @@ class SourcesController < ApplicationController
         )
       }
     end
+  end
+
+  def study
+    # Full-screen PDF study mode with notes sidebar
+    render layout: 'study'
   end
 
   def create

@@ -101,12 +101,23 @@ function SourceDisplay({ source, onEdit }) {
             Last updated: {new Date(source.updated_at).toLocaleDateString()}
           </p>
         </div>
-        <button
-          onClick={onEdit}
-          className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          Edit
-        </button>
+        <div className="flex gap-2">
+          {source.pdf_url && (
+            <a
+              href={`/sources/${source.id}/study`}
+              className="px-4 py-2 bg-accent-dark text-sand rounded hover:bg-plum inline-flex items-center gap-2"
+            >
+              <i className="fas fa-book-open"></i>
+              Study PDF
+            </a>
+          )}
+          <button
+            onClick={onEdit}
+            className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+          >
+            Edit
+          </button>
+        </div>
       </div>
 
       {source.summary && (

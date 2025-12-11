@@ -11,6 +11,9 @@ Rails.application.routes.draw do
     collection do
       post :extract_metadata
     end
+    member do
+      get :study
+    end
   end
   resources :people, only: [:index, :show, :create, :update, :destroy] do
     collection do
