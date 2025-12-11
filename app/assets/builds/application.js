@@ -57518,7 +57518,7 @@ function SourceDisplay({ source }) {
       className: "text-primary hover:text-accent-dark underline break-all"
     },
     source.doi_or_url
-  )), source.tags && source.tags.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-wrap gap-2" }, source.tags.map((tag, idx) => /* @__PURE__ */ import_react24.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag)))));
+  )), source.tags && source.tags.length > 0 && /* @__PURE__ */ import_react24.default.createElement("div", { className: "pt-6 border-t border-gray-200" }, /* @__PURE__ */ import_react24.default.createElement("h3", { className: "text-lg mb-2" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "flex flex-wrap gap-2" }, source.tags.map((tag, idx) => /* @__PURE__ */ import_react24.default.createElement("span", { key: idx, className: "text-xs bg-sand px-3 py-1 rounded" }, tag.name)))));
 }
 function SourceConcepts({ concepts }) {
   return /* @__PURE__ */ import_react24.default.createElement("div", { className: "bg-white border border-gray-300 rounded-lg p-8" }, /* @__PURE__ */ import_react24.default.createElement("h2", { className: "text-2xl mb-6" }, "Related Constructs (", concepts.length, ")"), /* @__PURE__ */ import_react24.default.createElement("div", { className: "grid gap-3 md:grid-cols-2 lg:grid-cols-3" }, concepts.map((concept) => /* @__PURE__ */ import_react24.default.createElement(

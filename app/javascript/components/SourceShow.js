@@ -113,7 +113,7 @@ function SourceDisplay({ source }) {
           <div className="flex flex-wrap gap-2">
             {source.tags.map((tag, idx) => (
               <span key={idx} className="text-xs bg-sand px-3 py-1 rounded">
-                {tag}
+                {tag.name}
               </span>
             ))}
           </div>
