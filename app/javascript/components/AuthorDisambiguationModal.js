@@ -257,18 +257,18 @@ export default function AuthorDisambiguationModal({ isOpen, onClose, authors, on
           );
         })}
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white">
+        <div className="flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200 sticky bottom-0 bg-white">
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+            className="btn-primary"
           >
             Confirm & Save
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
+            className="btn-secondary"
           >
             Cancel
           </button>

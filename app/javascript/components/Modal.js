@@ -25,21 +25,25 @@ export default function Modal({ isOpen, onClose, title, children, size = 'medium
           className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full mx-auto"
           style={{ zIndex: 9999, maxWidth: '95vw' }}
         >
-          <div className={`${sizeClasses[size]} mx-auto`}>
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
-              <h3 className="text-xl font-medium">{title}</h3>
-              <button
-                onClick={onClose}
-                className="!text-olive text-2xl leading-none !bg-transparent hover:opacity-80"
-                type="button"
-              >
-                ×
-              </button>
-            </div>
+          {/* Close button in absolute top right corner */}
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-4 !text-olive text-3xl leading-none !bg-transparent hover:opacity-80 z-10"
+            type="button"
+          >
+            ×
+          </button>
 
-            {/* Body */}
-            <div className="px-6 py-4 max-h-[70vh] overflow-y-auto bg-white">
+          {/* Header */}
+          <div className="bg-sand border-b border-gray-300">
+            <div className={`${sizeClasses[size]} mx-auto px-6 py-6`}>
+              <h3 className="text-3xl font-medium text-center">{title}</h3>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="bg-white">
+            <div className={`${sizeClasses[size]} mx-auto px-6 pt-6 pb-4 max-h-[70vh] overflow-y-auto`}>
               {children}
             </div>
           </div>

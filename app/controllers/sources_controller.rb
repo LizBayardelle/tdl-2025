@@ -114,7 +114,7 @@ class SourcesController < ApplicationController
       @source.concept_ids = concept_ids if concept_ids.present?
 
       # Handle people associations
-      @source.source_people.destroy_all
+      @source.person_sources.destroy_all
       if person_ids.present?
         person_ids.each do |person_id|
           next if person_id.blank?

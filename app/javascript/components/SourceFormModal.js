@@ -11,6 +11,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     authors: '',
     year: '',
     kind: 'article',
+    methodologies: [],
     publisher_or_venue: '',
     doi: '',
     url: '',
@@ -44,12 +45,14 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab('basic'); // Always reset to Basic Info tab when modal opens
       if (item) {
         setFormData({
           title: item.title || '',
           authors: item.authors || '',
           year: item.year || '',
           kind: item.kind || 'article',
+          methodologies: item.methodologies || [],
           publisher_or_venue: item.publisher_or_venue || '',
           doi: item.doi || '',
           url: item.url || '',
@@ -77,6 +80,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           authors: '',
           year: '',
           kind: 'article',
+          methodologies: [],
           publisher_or_venue: '',
           doi: '',
           url: '',
@@ -105,7 +109,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   }, [isOpen, item]);
 
   const parseAuthors = (authorsString) => {
-    if (!authorsString || authorsString.trim() === '') return [];
+    if (!authorsString || typeof authorsString !== 'string' || authorsString.trim() === '') return [];
 
     // Split on pattern: period, comma, space, capital letter (start of next author)
     return authorsString.split(/\.\s*,\s*(?=[A-Z])/).map(author => author.trim() + '.');
@@ -150,6 +154,11 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (pdfFile) {
         const formDataToSend = new FormData();
 
+        // Add method override for PATCH requests
+        if (method === 'PATCH') {
+          formDataToSend.append('_method', 'PATCH');
+        }
+
         // Append all form fields
         Object.keys(dataToSend).forEach(key => {
           if (key === 'processed_authors') {
@@ -173,7 +182,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       }
 
       const response = await fetch(url, {
-        method,
+        method: pdfFile && method === 'PATCH' ? 'POST' : method,
         headers,
         body: requestBody,
       });
@@ -285,12 +294,12 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
         {/* URL Extraction */}
         {!item && (
-          <div className="space-y-3 pb-4 mb-4 border-b border-gray-200 bg-blue-50 p-4 rounded">
-            <h3 className="text-lg font-medium text-blue-900">Quick Add from URL or DOI</h3>
-            <p className="text-sm text-blue-700">
+          <div className="space-y-3 pb-4 mb-4 border-b border-gray-200 p-4 rounded" style={{ backgroundColor: '#d3d6c6' }}>
+            <h3 className="text-lg font-medium text-primary">Quick Add from URL or DOI</h3>
+            <p className="text-sm text-olive">
               <strong>Best results:</strong> Use DOI directly (e.g., <span className="font-mono">10.1234/example</span>)
             </p>
-            <p className="text-xs text-blue-600 mb-2">
+            <p className="text-xs text-gray-700 mb-2">
               Also works with: PubMed, arXiv, and open-access journal URLs. Note: Some paywalled sites heavily obfuscate content - use DOI for those.
             </p>
             <div className="flex gap-2">
@@ -299,7 +308,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                 value={extractUrl}
                 onChange={(e) => setExtractUrl(e.target.value)}
                 placeholder="DOI, doi.org link, or article URL..."
-                className="flex-1 px-4 py-2 border border-blue-300 rounded bg-white"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded bg-white"
                 disabled={extracting}
               />
               <button
@@ -332,8 +341,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           ))}
         </div>
 
-        {/* Scrollable Tab Content */}
-        <div className="overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
+        {/* Tab Content */}
+        <div className="bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
             <div className="space-y-4">
@@ -404,6 +413,58 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-2">Research Type(s)</label>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 p-4 border border-gray-300 rounded bg-white max-h-48 overflow-y-auto">
+                  {[
+                    'Meta-analysis',
+                    'Systematic review',
+                    'Literature review',
+                    'RCT',
+                    'Experimental',
+                    'Quasi-experimental',
+                    'Natural experiment',
+                    'Observational',
+                    'Cross-sectional',
+                    'Longitudinal',
+                    'Cohort study',
+                    'Case study',
+                    'Quantitative',
+                    'Qualitative',
+                    'Mixed methods',
+                    'Secondary data analysis',
+                    'Pilot study',
+                    'Theoretical paper',
+                    'Psychometrics',
+                    'Replication study',
+                    'Computational modeling',
+                    'Predictive modeling'
+                  ].map(methodology => (
+                    <label key={methodology} className="flex items-center text-sm">
+                      <input
+                        type="checkbox"
+                        checked={formData.methodologies.includes(methodology)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              methodologies: [...formData.methodologies, methodology]
+                            });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              methodologies: formData.methodologies.filter(m => m !== methodology)
+                            });
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      {methodology}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium mb-1">
                   PDF File
                 </label>
@@ -420,17 +481,26 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                     </a>
                   </div>
                 )}
+                {pdfFile && (
+                  <div className="mb-2 p-3 bg-sage rounded border border-gray-300">
+                    <p className="text-sm font-medium text-olive">
+                      Selected: {pdfFile.name}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setPdfFile(null)}
+                      className="text-xs text-accent-dark hover:underline mt-1"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setPdfFile(e.target.files[0])}
                   className="w-full px-4 py-2 border border-gray-300 rounded bg-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-sand file:text-primary hover:file:bg-primary hover:file:text-sand"
                 />
-                {pdfFile && (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Selected: {pdfFile.name}
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -727,17 +797,17 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-3 pt-6 mt-0">
+        <div className="flex justify-center gap-3 pt-6 pb-6">
           <button
             type="submit"
-            className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+            className="btn-primary"
           >
             {item ? 'Save Changes' : 'Create Source'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
+            className="btn-secondary"
           >
             Cancel
           </button>

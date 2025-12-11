@@ -542,17 +542,17 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-3 pt-6 mt-0">
+        <div className="flex justify-center gap-3 pt-6 pb-6">
           <button
             type="submit"
-            className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+            className="btn-primary"
           >
             {item ? 'Save Changes' : 'Create Construct'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
+            className="btn-secondary"
           >
             Cancel
           </button>

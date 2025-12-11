@@ -120,10 +120,10 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Tab Content */}
-        <div className="overflow-hidden bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg h-[450px]">
+        <div className="bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg">
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
-            <div className="space-y-4 h-full overflow-y-auto">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Full Name *</label>
                 <input
@@ -224,17 +224,17 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Form Actions */}
-        <div className="flex gap-3 pt-6 mt-0">
+        <div className="flex justify-center gap-3 pt-6 pb-6">
           <button
             type="submit"
-            className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+            className="btn-primary"
           >
             {item ? 'Save Changes' : 'Create Person'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 rounded hover:bg-sand"
+            className="btn-secondary"
           >
             Cancel
           </button>

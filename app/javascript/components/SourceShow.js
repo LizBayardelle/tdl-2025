@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import SourceFormModal from './SourceFormModal';
 
 export default function SourceShow({ sourceId }) {
   const [source, setSource] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     fetchSource();
@@ -44,7 +46,17 @@ export default function SourceShow({ sourceId }) {
         </a>
       </div>
 
-      <SourceDisplay source={source} />
+      <SourceFormModal
+        isOpen={editing}
+        onClose={() => setEditing(false)}
+        item={source}
+        onSuccess={(updatedSource) => {
+          setSource(updatedSource);
+          setEditing(false);
+        }}
+      />
+
+      <SourceDisplay source={source} onEdit={() => setEditing(true)} />
 
       {source.concepts && source.concepts.length > 0 && (
         <div className="mt-8">
@@ -61,17 +73,22 @@ export default function SourceShow({ sourceId }) {
   );
 }
 
-function SourceDisplay({ source }) {
+function SourceDisplay({ source, onEdit }) {
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-8">
       <div className="flex justify-between items-start mb-6">
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
             {source.kind && (
               <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
                 {source.kind.replace('_', ' ')}
               </span>
             )}
+            {source.methodologies && source.methodologies.length > 0 && source.methodologies.map((methodology, idx) => (
+              <span key={idx} className="text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded">
+                {methodology}
+              </span>
+            ))}
             {source.year && (
               <span className="text-sm text-gray-600">{source.year}</span>
             )}
@@ -84,6 +101,12 @@ function SourceDisplay({ source }) {
             Last updated: {new Date(source.updated_at).toLocaleDateString()}
           </p>
         </div>
+        <button
+          onClick={onEdit}
+          className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
+        >
+          Edit
+        </button>
       </div>
 
       {source.summary && (
@@ -112,9 +135,13 @@ function SourceDisplay({ source }) {
           <h3 className="text-lg mb-2">Tags</h3>
           <div className="flex flex-wrap gap-2">
             {source.tags.map((tag, idx) => (
-              <span key={idx} className="text-xs bg-sand px-3 py-1 rounded">
+              <a
+                key={idx}
+                href={`/tags/${tag.slug}`}
+                className="text-xs bg-sand px-3 py-1 rounded hover:bg-primary hover:text-white transition-colors"
+              >
                 {tag.name}
-              </span>
+              </a>
             ))}
           </div>
         </div>
