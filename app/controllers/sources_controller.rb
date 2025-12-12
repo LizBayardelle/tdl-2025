@@ -31,10 +31,10 @@ class SourcesController < ApplicationController
         render json: @source.as_json(
           include: {
             concepts: { only: [:id, :label, :node_type, :summary_top] },
-            people: { only: [:id, :full_name, :role, :summary] }
+            people: { only: [:id, :full_name, :role, :summary] },
+            tags: { only: [:id, :name, :slug] }
           }
         ).merge(
-          tags: @source.tags.pluck(:name),
           concept_ids: @source.concept_ids,
           keywords: @source[:keywords] || []
         )

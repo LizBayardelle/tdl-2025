@@ -52540,7 +52540,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           url: item.url || "",
           citation: item.citation || "",
           summary: item.summary || "",
-          tags: item.tags || [],
+          tags: Array.isArray(item.tags) ? item.tags.map((t4) => typeof t4 === "string" ? t4 : t4.name) : [],
           concept_ids: item.concept_ids || [],
           journal_name: item.journal_name || "",
           volume: item.volume || "",
