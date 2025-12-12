@@ -2,11 +2,15 @@ class Note < ApplicationRecord
   include Taggable
 
   belongs_to :user
-  belongs_to :concept, optional: true
+  belongs_to :concept, optional: true  # Legacy single concept
   belongs_to :source, optional: true
   has_many :note_links, dependent: :destroy
   has_many :person_notes, dependent: :destroy
   has_many :people, through: :person_notes
+
+  # Many-to-many concepts
+  has_many :concept_notes, dependent: :destroy
+  has_many :concepts, through: :concept_notes
 
   # Enums
   enum :note_type, {

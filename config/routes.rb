@@ -22,6 +22,12 @@ Rails.application.routes.draw do
   end
   resources :notes
   resources :tags, only: [:index, :show, :create, :update, :destroy]
+  resources :highlight_colors, only: [:index, :create, :update, :destroy] do
+    collection do
+      post :reorder
+    end
+  end
+  resources :highlights, only: [:index, :create, :destroy]
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

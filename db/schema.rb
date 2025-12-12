@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_09_200200) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_12_194219) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -103,6 +103,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_09_200200) do
     t.index ["user_id"], name: "index_authors_on_user_id"
   end
 
+  create_table "concept_notes", force: :cascade do |t|
+    t.bigint "note_id", null: false
+    t.bigint "concept_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concept_id"], name: "index_concept_notes_on_concept_id"
+    t.index ["note_id"], name: "index_concept_notes_on_note_id"
+  end
+
   create_table "concept_sources", force: :cascade do |t|
     t.bigint "concept_id", null: false
     t.bigint "source_id", null: false
@@ -164,6 +173,29 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_09_200200) do
     t.index ["src_concept_id", "dst_concept_id"], name: "index_connections_on_src_concept_id_and_dst_concept_id", unique: true
     t.index ["src_concept_id"], name: "index_connections_on_src_concept_id"
     t.index ["user_id"], name: "index_connections_on_user_id"
+  end
+
+  create_table "highlight_colors", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "label"
+    t.string "color_hex"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_highlight_colors_on_user_id"
+  end
+
+  create_table "highlights", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "source_id", null: false
+    t.integer "page_number"
+    t.text "text_content"
+    t.string "color_hex"
+    t.jsonb "bounds"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_id"], name: "index_highlights_on_source_id"
+    t.index ["user_id"], name: "index_highlights_on_user_id"
   end
 
   create_table "note_links", force: :cascade do |t|
@@ -357,12 +389,17 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_09_200200) do
   add_foreign_key "article_concepts", "concepts"
   add_foreign_key "articles", "users"
   add_foreign_key "authors", "users"
+  add_foreign_key "concept_notes", "concepts"
+  add_foreign_key "concept_notes", "notes"
   add_foreign_key "concept_sources", "concepts"
   add_foreign_key "concept_sources", "sources"
   add_foreign_key "concepts", "users"
   add_foreign_key "connections", "concepts", column: "dst_concept_id"
   add_foreign_key "connections", "concepts", column: "src_concept_id"
   add_foreign_key "connections", "users"
+  add_foreign_key "highlight_colors", "users"
+  add_foreign_key "highlights", "sources"
+  add_foreign_key "highlights", "users"
   add_foreign_key "note_links", "notes"
   add_foreign_key "notes", "articles"
   add_foreign_key "notes", "concepts"

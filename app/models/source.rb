@@ -16,6 +16,9 @@ class Source < ApplicationRecord
   # Notes
   has_many :notes, dependent: :nullify
 
+  # Highlights
+  has_many :highlights, dependent: :destroy
+
   # PDF Attachment
   has_one_attached :pdf
 

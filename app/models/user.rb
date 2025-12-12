@@ -10,4 +10,6 @@ class User < ApplicationRecord
   has_many :people, dependent: :destroy
   has_many :notes, dependent: :destroy
   has_many :tags, dependent: :destroy
+  has_many :highlight_colors, dependent: :destroy
+  has_many :highlights, dependent: :destroy
 end

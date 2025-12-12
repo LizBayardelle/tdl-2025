@@ -1335,7 +1335,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React34 = require_react(), Internals = {
+      var React35 = require_react(), Internals = {
         d: {
           f: noop7,
           r: function() {
@@ -1353,7 +1353,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React34.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React35.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -2888,7 +2888,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React34.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React35.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -18520,14 +18520,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React34 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React35 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React34.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React35.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -21315,7 +21315,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React34.version;
+        var isomorphicReactPackageVersion = React35.version;
         if ("19.2.1" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.1\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21464,7 +21464,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React34.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React35.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState30({
+        cachedValue = useState31({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect35(
+        useEffect36(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,8 +21512,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React34 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState30 = React34.useState, useEffect35 = React34.useEffect, useLayoutEffect4 = React34.useLayoutEffect, useDebugValue3 = React34.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React34.useSyncExternalStore ? React34.useSyncExternalStore : shim;
+      var React35 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState31 = React35.useState, useEffect36 = React35.useEffect, useLayoutEffect4 = React35.useLayoutEffect, useDebugValue3 = React35.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React35.useSyncExternalStore ? React35.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21745,18 +21745,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React34 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React34.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React35 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React35.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React34 = {
+      React35 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React34.react_stack_bottom_frame.bind(
-        React34,
+      var unknownOwnerDebugStack = React35.react_stack_bottom_frame.bind(
+        React35,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21809,7 +21809,7 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React34 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef12 = React34.useRef, useEffect35 = React34.useEffect, useMemo11 = React34.useMemo, useDebugValue3 = React34.useDebugValue;
+      var React35 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef12 = React35.useRef, useEffect36 = React35.useEffect, useMemo11 = React35.useMemo, useDebugValue3 = React35.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef12(null);
         if (null === instRef.current) {
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect35(
+        useEffect36(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -23871,7 +23871,7 @@ var require_warning = __commonJS({
 });
 
 // app/javascript/application.js
-var import_react54 = __toESM(require_react());
+var import_react55 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -70114,7 +70114,7 @@ function UserDropdown({ userEmail }) {
 }
 
 // app/javascript/components/PdfStudyMode.js
-var import_react53 = __toESM(require_react());
+var import_react54 = __toESM(require_react());
 
 // node_modules/react-pdf/node_modules/pdfjs-dist/build/pdf.mjs
 var pdf_exports = {};
@@ -97113,13 +97113,220 @@ function Page(props) {
 displayWorkerWarning();
 GlobalWorkerOptions.workerSrc = "pdf.worker.mjs";
 
+// app/javascript/components/ColorSchemeManager.js
+var import_react53 = __toESM(require_react());
+function ColorSchemeManager({ isOpen, onClose }) {
+  const [colors, setColors] = (0, import_react53.useState)([]);
+  const [loading, setLoading] = (0, import_react53.useState)(true);
+  const [editingId, setEditingId] = (0, import_react53.useState)(null);
+  const [editLabel, setEditLabel] = (0, import_react53.useState)("");
+  const [editColor, setEditColor] = (0, import_react53.useState)("#FFFF00");
+  (0, import_react53.useEffect)(() => {
+    if (isOpen) {
+      fetchColors();
+    }
+  }, [isOpen]);
+  const fetchColors = async () => {
+    try {
+      const response = await fetch("/highlight_colors.json");
+      const data = await response.json();
+      setColors(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching colors:", error);
+      setLoading(false);
+    }
+  };
+  const handleCreate = async () => {
+    if (!editLabel.trim()) return;
+    try {
+      const response = await fetch("/highlight_colors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          highlight_color: {
+            label: editLabel,
+            color_hex: editColor.toUpperCase()
+          }
+        })
+      });
+      if (response.ok) {
+        const newColor = await response.json();
+        setColors([...colors, newColor]);
+        setEditLabel("");
+        setEditColor("#FFFF00");
+      }
+    } catch (error) {
+      console.error("Error creating color:", error);
+    }
+  };
+  const handleUpdate = async (id2) => {
+    if (!editLabel.trim()) return;
+    try {
+      const response = await fetch(`/highlight_colors/${id2}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          highlight_color: {
+            label: editLabel,
+            color_hex: editColor.toUpperCase()
+          }
+        })
+      });
+      if (response.ok) {
+        const updatedColor = await response.json();
+        setColors(colors.map((c5) => c5.id === id2 ? updatedColor : c5));
+        setEditingId(null);
+        setEditLabel("");
+        setEditColor("#FFFF00");
+      }
+    } catch (error) {
+      console.error("Error updating color:", error);
+    }
+  };
+  const handleDelete2 = async (id2) => {
+    if (!confirm("Delete this color scheme?")) return;
+    try {
+      const response = await fetch(`/highlight_colors/${id2}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        setColors(colors.filter((c5) => c5.id !== id2));
+      }
+    } catch (error) {
+      console.error("Error deleting color:", error);
+    }
+  };
+  const startEdit = (color2) => {
+    setEditingId(color2.id);
+    setEditLabel(color2.label);
+    setEditColor(color2.color_hex);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditLabel("");
+    setEditColor("#FFFF00");
+  };
+  if (!isOpen) return null;
+  return /* @__PURE__ */ import_react53.default.createElement(
+    "div",
+    {
+      className: "fixed inset-0 flex items-center justify-center z-50",
+      style: { backgroundColor: "rgba(0, 0, 0, 0.6)" },
+      onClick: onClose
+    },
+    /* @__PURE__ */ import_react53.default.createElement(
+      "div",
+      {
+        className: "bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col",
+        onClick: (e3) => e3.stopPropagation()
+      },
+      /* @__PURE__ */ import_react53.default.createElement("div", { className: "bg-sand border-b border-gray-300 px-6 py-4" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react53.default.createElement("h2", { className: "text-2xl font-medium" }, "Color Coding Scheme"), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: onClose,
+          className: "text-2xl hover:text-gray-700",
+          style: { background: "none", color: "#4B5563", padding: 0, border: "none" }
+        },
+        "\xD7"
+      ))),
+      /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex-1 overflow-y-auto p-6" }, loading ? /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-center text-gray-600" }, "Loading...") : /* @__PURE__ */ import_react53.default.createElement("div", { className: "space-y-3" }, colors.map((color2) => /* @__PURE__ */ import_react53.default.createElement("div", { key: color2.id, className: "flex items-center gap-3 p-3 border border-gray-300 rounded" }, editingId === color2.id ? /* @__PURE__ */ import_react53.default.createElement(import_react53.default.Fragment, null, /* @__PURE__ */ import_react53.default.createElement(
+        "input",
+        {
+          type: "color",
+          value: editColor,
+          onChange: (e3) => setEditColor(e3.target.value),
+          className: "w-12 h-12 rounded cursor-pointer"
+        }
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: editLabel,
+          onChange: (e3) => setEditLabel(e3.target.value),
+          className: "flex-1 px-3 py-2 border border-gray-300 rounded",
+          placeholder: "Label"
+        }
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: () => handleUpdate(color2.id),
+          className: "px-3 py-2 bg-primary text-sand rounded hover:bg-accent-dark text-sm"
+        },
+        "Save"
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: cancelEdit,
+          className: "px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+        },
+        "Cancel"
+      )) : /* @__PURE__ */ import_react53.default.createElement(import_react53.default.Fragment, null, /* @__PURE__ */ import_react53.default.createElement(
+        "div",
+        {
+          className: "w-12 h-12 rounded border border-gray-300",
+          style: { backgroundColor: color2.color_hex }
+        }
+      ), /* @__PURE__ */ import_react53.default.createElement("span", { className: "flex-1 font-medium" }, color2.label), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: () => startEdit(color2),
+          className: "px-3 py-1 text-sm border border-gray-300 rounded hover:bg-sand"
+        },
+        "Edit"
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: () => handleDelete2(color2.id),
+          className: "px-3 py-1 text-sm text-white bg-accent hover:bg-accent-dark rounded"
+        },
+        "Delete"
+      )))), /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex items-center gap-3 p-3 border-2 border-dashed border-gray-300 rounded bg-gray-50" }, /* @__PURE__ */ import_react53.default.createElement(
+        "input",
+        {
+          type: "color",
+          value: editColor,
+          onChange: (e3) => setEditColor(e3.target.value),
+          className: "w-12 h-12 rounded cursor-pointer"
+        }
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: editLabel,
+          onChange: (e3) => setEditLabel(e3.target.value),
+          placeholder: "New color label...",
+          className: "flex-1 px-3 py-2 border border-gray-300 rounded bg-white"
+        }
+      ), /* @__PURE__ */ import_react53.default.createElement(
+        "button",
+        {
+          onClick: handleCreate,
+          disabled: !editLabel.trim(),
+          className: "px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark disabled:opacity-50"
+        },
+        "Add Color"
+      ))))
+    )
+  );
+}
+
 // app/javascript/components/PdfStudyMode.js
 pdf_exports.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdf_exports.version}/build/pdf.worker.min.mjs`;
 function MultiSelectWithCreate({ options, selected, onChange: onChange16, placeholder, labelKey = "label", valueKey = "id", maxSelections = null }) {
-  const [searchTerm, setSearchTerm] = (0, import_react53.useState)("");
-  const [isOpen, setIsOpen] = (0, import_react53.useState)(false);
-  const wrapperRef = (0, import_react53.useRef)(null);
-  (0, import_react53.useEffect)(() => {
+  const [searchTerm, setSearchTerm] = (0, import_react54.useState)("");
+  const [isOpen, setIsOpen] = (0, import_react54.useState)(false);
+  const wrapperRef = (0, import_react54.useRef)(null);
+  (0, import_react54.useEffect)(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -97159,7 +97366,7 @@ function MultiSelectWithCreate({ options, selected, onChange: onChange16, placeh
   const removeItem = (option) => {
     onChange16(selected.filter((s3) => s3[valueKey] !== option[valueKey]));
   };
-  return /* @__PURE__ */ import_react53.default.createElement("div", { ref: wrapperRef, className: "relative" }, /* @__PURE__ */ import_react53.default.createElement(
+  return /* @__PURE__ */ import_react54.default.createElement("div", { ref: wrapperRef, className: "relative" }, /* @__PURE__ */ import_react54.default.createElement(
     "input",
     {
       type: "text",
@@ -97170,14 +97377,14 @@ function MultiSelectWithCreate({ options, selected, onChange: onChange16, placeh
       placeholder,
       className: "w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
     }
-  ), selected.length > 0 && /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex flex-wrap gap-1 mt-2" }, selected.map((item) => /* @__PURE__ */ import_react53.default.createElement(
+  ), selected.length > 0 && /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex flex-wrap gap-1 mt-2" }, selected.map((item) => /* @__PURE__ */ import_react54.default.createElement(
     "span",
     {
       key: item[valueKey],
       className: "text-xs bg-sand text-primary px-2 py-1 rounded flex items-center gap-1"
     },
     item[labelKey],
-    /* @__PURE__ */ import_react53.default.createElement(
+    /* @__PURE__ */ import_react54.default.createElement(
       "button",
       {
         type: "button",
@@ -97186,15 +97393,15 @@ function MultiSelectWithCreate({ options, selected, onChange: onChange16, placeh
       },
       "\xD7"
     )
-  ))), isOpen && /* @__PURE__ */ import_react53.default.createElement("div", { className: "absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto" }, filteredOptions.length === 0 && searchTerm.trim() ? /* @__PURE__ */ import_react53.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-500" }, 'Press Enter to create "', searchTerm, '"') : filteredOptions.map((option) => {
+  ))), isOpen && /* @__PURE__ */ import_react54.default.createElement("div", { className: "absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-48 overflow-y-auto" }, filteredOptions.length === 0 && searchTerm.trim() ? /* @__PURE__ */ import_react54.default.createElement("div", { className: "px-3 py-2 text-xs text-gray-500" }, 'Press Enter to create "', searchTerm, '"') : filteredOptions.map((option) => {
     const isSelected = selected.some((s3) => s3[valueKey] === option[valueKey]);
-    return /* @__PURE__ */ import_react53.default.createElement(
+    return /* @__PURE__ */ import_react54.default.createElement(
       "label",
       {
         key: option[valueKey],
         className: "flex items-center px-3 py-2 hover:bg-sand cursor-pointer text-sm"
       },
-      /* @__PURE__ */ import_react53.default.createElement(
+      /* @__PURE__ */ import_react54.default.createElement(
         "input",
         {
           type: "checkbox",
@@ -97208,26 +97415,39 @@ function MultiSelectWithCreate({ options, selected, onChange: onChange16, placeh
   })));
 }
 function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
-  const [numPages, setNumPages] = (0, import_react53.useState)(null);
-  const [scale, setScale] = (0, import_react53.useState)(1);
-  const [notes, setNotes] = (0, import_react53.useState)([]);
-  const [concepts, setConcepts] = (0, import_react53.useState)([]);
-  const [tags, setTags] = (0, import_react53.useState)([]);
-  const [loading, setLoading] = (0, import_react53.useState)(true);
-  const [newNote, setNewNote] = (0, import_react53.useState)({ title: "", body: "" });
-  const [selectedConcepts, setSelectedConcepts] = (0, import_react53.useState)([]);
-  const [selectedTags, setSelectedTags] = (0, import_react53.useState)([]);
-  const [saving, setSaving] = (0, import_react53.useState)(false);
-  const [sortOrder, setSortOrder] = (0, import_react53.useState)("recent");
-  (0, import_react53.useEffect)(() => {
+  const [numPages, setNumPages] = (0, import_react54.useState)(null);
+  const [scale, setScale] = (0, import_react54.useState)(1);
+  const [notes, setNotes] = (0, import_react54.useState)([]);
+  const [concepts, setConcepts] = (0, import_react54.useState)([]);
+  const [tags, setTags] = (0, import_react54.useState)([]);
+  const [loading, setLoading] = (0, import_react54.useState)(true);
+  const [newNote, setNewNote] = (0, import_react54.useState)({ title: "", body: "" });
+  const [selectedConcepts, setSelectedConcepts] = (0, import_react54.useState)([]);
+  const [selectedTags, setSelectedTags] = (0, import_react54.useState)([]);
+  const [saving, setSaving] = (0, import_react54.useState)(false);
+  const [sortOrder, setSortOrder] = (0, import_react54.useState)("recent");
+  const [showColorManager, setShowColorManager] = (0, import_react54.useState)(false);
+  const [highlightColors, setHighlightColors] = (0, import_react54.useState)([]);
+  const [showColorPicker, setShowColorPicker] = (0, import_react54.useState)(false);
+  const [selection2, setSelection] = (0, import_react54.useState)(null);
+  const [pickerPosition, setPickerPosition] = (0, import_react54.useState)({ x: 0, y: 0 });
+  const [highlights, setHighlights] = (0, import_react54.useState)([]);
+  const [editingNoteId, setEditingNoteId] = (0, import_react54.useState)(null);
+  const [editingNoteData, setEditingNoteData] = (0, import_react54.useState)({ title: "", body: "" });
+  const [editingConcepts, setEditingConcepts] = (0, import_react54.useState)([]);
+  const [editingTags, setEditingTags] = (0, import_react54.useState)([]);
+  (0, import_react54.useEffect)(() => {
     fetchNotes();
     fetchConcepts();
     fetchTags();
+    fetchHighlightColors();
+    fetchHighlights();
   }, []);
   const fetchNotes = async () => {
     try {
       const response = await fetch(`/notes.json?source_id=${sourceId}`);
       const data = await response.json();
+      console.log("Fetched notes:", data);
       setNotes(data);
       setLoading(false);
     } catch (error) {
@@ -97253,15 +97473,64 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       console.error("Error fetching tags:", error);
     }
   };
+  const fetchHighlightColors = async () => {
+    try {
+      const response = await fetch("/highlight_colors.json");
+      const data = await response.json();
+      setHighlightColors(data);
+    } catch (error) {
+      console.error("Error fetching highlight colors:", error);
+    }
+  };
+  const fetchHighlights = async () => {
+    try {
+      const response = await fetch(`/highlights.json?source_id=${sourceId}`);
+      const data = await response.json();
+      setHighlights(data);
+    } catch (error) {
+      console.error("Error fetching highlights:", error);
+    }
+  };
+  const applyHighlights = () => {
+    console.log("Applying highlights:", highlights.length);
+    highlights.forEach((highlight) => {
+      const textLayers = document.querySelectorAll(".textLayer");
+      const highlightText = highlight.text_content.replace(/\s+/g, " ").trim().toLowerCase();
+      console.log("Looking for:", highlightText.substring(0, 60) + "...");
+      textLayers.forEach((textLayer, layerIndex) => {
+        const layerText = textLayer.textContent.replace(/\s+/g, " ").trim().toLowerCase();
+        if (layerText.includes(highlightText)) {
+          console.log("\u2713 Found in layer", layerIndex);
+          const spans = Array.from(textLayer.querySelectorAll("span:not(.markedContent)"));
+          let currentText = "";
+          const startIndex = layerText.indexOf(highlightText);
+          const endIndex = startIndex + highlightText.length;
+          spans.forEach((span, spanIndex) => {
+            const spanText = span.textContent;
+            const beforeLength = currentText.length;
+            currentText += spanText.replace(/\s+/g, " ");
+            const afterLength = currentText.length;
+            if (beforeLength <= endIndex && afterLength >= startIndex) {
+              if (!span.dataset.highlighted) {
+                span.style.backgroundColor = highlight.color_hex;
+                span.style.mixBlendMode = "multiply";
+                span.dataset.highlighted = "true";
+                console.log("  \u2192 Highlighted:", spanText.trim().substring(0, 40));
+              }
+            }
+          });
+        }
+      });
+    });
+  };
   const handleSaveNote = async () => {
     if (!newNote.body.trim()) return;
     setSaving(true);
     try {
       const tagsArray = selectedTags.map((tag) => tag.name);
-      let conceptId = null;
-      if (selectedConcepts.length > 0) {
-        const firstConcept = selectedConcepts[0];
-        if (String(firstConcept.id).startsWith("new_")) {
+      const conceptIds = [];
+      for (const concept of selectedConcepts) {
+        if (String(concept.id).startsWith("new_")) {
           const conceptResponse = await fetch("/concepts", {
             method: "POST",
             headers: {
@@ -97270,18 +97539,18 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             },
             body: JSON.stringify({
               concept: {
-                label: firstConcept.label,
+                label: concept.label,
                 node_type: "construct"
               }
             })
           });
           if (conceptResponse.ok) {
             const newConcept = await conceptResponse.json();
-            conceptId = newConcept.id;
+            conceptIds.push(newConcept.id);
             setConcepts([...concepts, newConcept]);
           }
         } else {
-          conceptId = firstConcept.id;
+          conceptIds.push(concept.id);
         }
       }
       const response = await fetch("/notes", {
@@ -97296,7 +97565,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             title: newNote.title,
             body: newNote.body,
             source_id: sourceId,
-            concept_id: conceptId,
+            concept_ids: conceptIds,
             tags: tagsArray
           }
         })
@@ -97307,6 +97576,10 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         setNewNote({ title: "", body: "" });
         setSelectedConcepts([]);
         setSelectedTags([]);
+        const noteEditor = document.querySelector("[contenteditable]");
+        if (noteEditor) {
+          noteEditor.innerHTML = "";
+        }
       }
     } catch (error) {
       console.error("Error saving note:", error);
@@ -97317,20 +97590,206 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   const onDocumentLoadSuccess = ({ numPages: numPages2 }) => {
     setNumPages(numPages2);
   };
+  const handleTextSelection = () => {
+    const sel = window.getSelection();
+    const selectedText = sel.toString().trim();
+    if (selectedText.length > 0) {
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelection({
+        text: selectedText,
+        range,
+        rect
+      });
+      setPickerPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + 5
+      });
+      setShowColorPicker(true);
+    } else {
+      setShowColorPicker(false);
+    }
+  };
+  const handleAddQuote = (color2 = null) => {
+    if (!selection2) return;
+    const borderColor = color2 ? color2.color_hex : "#414431";
+    const bgColor = color2 ? `${color2.color_hex}20` : "rgba(246, 240, 233, 0.5)";
+    const colorLabel = color2 ? `<span style="font-size: 0.75rem; color: ${color2.color_hex}; font-weight: 600;">[${color2.label}]</span> ` : "";
+    const quote = `<blockquote style="border-left: 4px solid ${borderColor}; background-color: ${bgColor}; padding: 0.75rem 1rem; margin: 1rem 0; font-style: italic; color: #4a5568; border-radius: 0 0.25rem 0.25rem 0;">${selection2.text}<br><em style="font-size: 0.875rem; color: #6b7280;">${colorLabel}(Page 1)</em></blockquote>`;
+    const noteEditor = document.querySelector("[contenteditable]");
+    if (noteEditor) {
+      noteEditor.focus();
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.selectNodeContents(noteEditor);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      document.execCommand("insertHTML", false, quote);
+      setNewNote({
+        ...newNote,
+        body: noteEditor.innerHTML
+      });
+    }
+    setShowColorPicker(false);
+    setSelection(null);
+  };
+  const handleCreateHighlight = async (color2) => {
+    if (!selection2) return;
+    try {
+      const response = await fetch("/highlights", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          highlight: {
+            source_id: sourceId,
+            page_number: 1,
+            // TODO: Determine actual page number
+            text_content: selection2.text,
+            color_hex: color2.color_hex,
+            bounds: null
+            // TODO: Calculate actual bounds
+          }
+        })
+      });
+      if (response.ok) {
+        const newHighlight = await response.json();
+        const updatedHighlights = [...highlights, newHighlight];
+        setHighlights(updatedHighlights);
+        window.getSelection().removeAllRanges();
+        setShowColorPicker(false);
+        setSelection(null);
+        setTimeout(() => applyHighlights(), 100);
+      }
+    } catch (error) {
+      console.error("Error creating highlight:", error);
+    }
+  };
   const handleClose = () => {
     window.location.href = `/sources/${sourceId}`;
+  };
+  const handleEditNote = (note) => {
+    setEditingNoteId(note.id);
+    setEditingNoteData({ title: note.title || "", body: note.body });
+    if (note.concepts && note.concepts.length > 0) {
+      setEditingConcepts(note.concepts.map((c5) => ({ id: c5.id, label: c5.label })));
+    } else {
+      setEditingConcepts([]);
+    }
+    if (note.tags && note.tags.length > 0) {
+      setEditingTags(note.tags.map((tag) => ({ id: tag.name, name: tag.name })));
+    } else {
+      setEditingTags([]);
+    }
+    setTimeout(() => {
+      const editor = document.querySelector(`#edit-note-${note.id}`);
+      if (editor) {
+        editor.innerHTML = note.body;
+      }
+    }, 10);
+  };
+  const handleCancelEdit = () => {
+    setEditingNoteId(null);
+    setEditingNoteData({ title: "", body: "" });
+    setEditingConcepts([]);
+    setEditingTags([]);
+  };
+  const handleSaveEdit = async () => {
+    if (!editingNoteId) return;
+    try {
+      const tagsArray = editingTags.map((tag) => tag.name);
+      const conceptIds = [];
+      for (const concept of editingConcepts) {
+        if (String(concept.id).startsWith("new_")) {
+          const conceptResponse = await fetch("/concepts", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+              concept: {
+                label: concept.label,
+                node_type: "construct"
+              }
+            })
+          });
+          if (conceptResponse.ok) {
+            const newConcept = await conceptResponse.json();
+            conceptIds.push(newConcept.id);
+            setConcepts([...concepts, newConcept]);
+          }
+        } else {
+          conceptIds.push(concept.id);
+        }
+      }
+      const response = await fetch(`/notes/${editingNoteId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          note: {
+            title: editingNoteData.title,
+            body: editingNoteData.body,
+            concept_ids: conceptIds,
+            tags: tagsArray
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchNotes();
+        setEditingNoteId(null);
+        setEditingNoteData({ title: "", body: "" });
+        setEditingConcepts([]);
+        setEditingTags([]);
+      }
+    } catch (error) {
+      console.error("Error updating note:", error);
+    }
+  };
+  const handleDeleteNote = async (noteId) => {
+    if (!confirm("Delete this note?")) return;
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        setNotes(notes.filter((n3) => n3.id !== noteId));
+      }
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
   };
   const handleKeyPress = (e3) => {
     if (e3.key === "Escape") {
       handleClose();
     }
   };
-  (0, import_react53.useEffect)(() => {
+  (0, import_react54.useEffect)(() => {
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
   }, []);
+  (0, import_react54.useEffect)(() => {
+    document.addEventListener("mouseup", handleTextSelection);
+    return () => document.removeEventListener("mouseup", handleTextSelection);
+  }, [highlightColors]);
+  (0, import_react54.useEffect)(() => {
+    if (highlights.length > 0 && numPages) {
+      setTimeout(applyHighlights, 1500);
+    }
+  }, [highlights, numPages]);
   if (!pdfUrl) {
-    return /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex items-center justify-center h-screen" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-xl text-gray-600" }, "No PDF available for this source"), /* @__PURE__ */ import_react53.default.createElement(
+    return /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex items-center justify-center h-screen" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react54.default.createElement("p", { className: "text-xl text-gray-600" }, "No PDF available for this source"), /* @__PURE__ */ import_react54.default.createElement(
       "button",
       {
         onClick: handleClose,
@@ -97339,35 +97798,35 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       "Back to Source"
     )));
   }
-  return /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex h-screen overflow-hidden" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex-1 flex flex-col bg-gray-100 overflow-hidden" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "bg-primary px-6 py-4 flex items-center justify-between" }, /* @__PURE__ */ import_react53.default.createElement("h1", { className: "text-xl font-medium flex-1 leading-snug", style: { color: "white" } }, sourceTitle), /* @__PURE__ */ import_react53.default.createElement(
+  return /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex h-screen overflow-hidden" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex-1 flex flex-col bg-gray-100 overflow-hidden" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "bg-primary px-6 py-4 flex items-center justify-between" }, /* @__PURE__ */ import_react54.default.createElement("h1", { className: "text-xl font-medium flex-1 leading-snug", style: { color: "white" } }, sourceTitle), /* @__PURE__ */ import_react54.default.createElement(
     "button",
     {
       onClick: handleClose,
       className: "ml-4 btn-secondary flex-shrink-0"
     },
-    /* @__PURE__ */ import_react53.default.createElement("i", { className: "fas fa-times mr-2" }),
+    /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-times mr-2" }),
     "Close (Esc)"
-  )), /* @__PURE__ */ import_react53.default.createElement("div", { className: "bg-white border-b border-gray-300 px-6 py-3 flex items-center justify-between" }, /* @__PURE__ */ import_react53.default.createElement("span", { className: "text-sm" }, numPages ? `${numPages} pages` : "Loading..."), /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react53.default.createElement(
+  )), /* @__PURE__ */ import_react54.default.createElement("div", { className: "bg-white border-b border-gray-300 px-6 py-3 flex items-center justify-between" }, /* @__PURE__ */ import_react54.default.createElement("span", { className: "text-sm" }, numPages ? `${numPages} pages` : "Loading..."), /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react54.default.createElement(
     "button",
     {
       onClick: () => setScale((s3) => Math.max(0.5, s3 - 0.1)),
       className: "px-3 py-1 bg-sand rounded hover:bg-khaki transition-colors"
     },
-    /* @__PURE__ */ import_react53.default.createElement("i", { className: "fas fa-minus" })
-  ), /* @__PURE__ */ import_react53.default.createElement("span", { className: "text-sm w-16 text-center" }, Math.round(scale * 100), "%"), /* @__PURE__ */ import_react53.default.createElement(
+    /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-minus" })
+  ), /* @__PURE__ */ import_react54.default.createElement("span", { className: "text-sm w-16 text-center" }, Math.round(scale * 100), "%"), /* @__PURE__ */ import_react54.default.createElement(
     "button",
     {
       onClick: () => setScale((s3) => Math.min(2, s3 + 0.1)),
       className: "px-3 py-1 bg-sand rounded hover:bg-khaki transition-colors"
     },
-    /* @__PURE__ */ import_react53.default.createElement("i", { className: "fas fa-plus" })
-  ))), /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex-1 overflow-auto p-6 flex flex-col items-center gap-4" }, /* @__PURE__ */ import_react53.default.createElement(
+    /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-plus" })
+  ))), /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex-1 overflow-auto p-6 flex flex-col items-center gap-4" }, /* @__PURE__ */ import_react54.default.createElement(
     Document_default,
     {
       file: pdfUrl,
       onLoadSuccess: onDocumentLoadSuccess
     },
-    Array.from(new Array(numPages), (el, index8) => /* @__PURE__ */ import_react53.default.createElement("div", { key: `page_${index8 + 1}`, className: "shadow-lg mb-4" }, /* @__PURE__ */ import_react53.default.createElement(
+    Array.from(new Array(numPages), (el, index8) => /* @__PURE__ */ import_react54.default.createElement("div", { key: `page_${index8 + 1}`, className: "shadow-lg mb-4" }, /* @__PURE__ */ import_react54.default.createElement(
       Page,
       {
         pageNumber: index8 + 1,
@@ -97376,7 +97835,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         renderAnnotationLayer: true
       }
     )))
-  ))), /* @__PURE__ */ import_react53.default.createElement("div", { className: "w-96 bg-sand border-l border-gray-300 flex flex-col overflow-hidden" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "p-6 bg-white border-b border-gray-300" }, /* @__PURE__ */ import_react53.default.createElement("h2", { className: "text-xl font-medium mb-4" }, "Create Note"), /* @__PURE__ */ import_react53.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react53.default.createElement(
+  ))), /* @__PURE__ */ import_react54.default.createElement("div", { className: "w-96 bg-sand border-l border-gray-300 flex flex-col overflow-hidden" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "p-6 bg-white border-b border-gray-300" }, /* @__PURE__ */ import_react54.default.createElement("h2", { className: "text-xl font-medium mb-4" }, "Create Note"), /* @__PURE__ */ import_react54.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react54.default.createElement(
     "input",
     {
       type: "text",
@@ -97385,16 +97844,15 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       placeholder: "Note title (optional)",
       className: "w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
     }
-  ), /* @__PURE__ */ import_react53.default.createElement(
-    "textarea",
+  ), /* @__PURE__ */ import_react54.default.createElement(
+    "div",
     {
-      value: newNote.body,
-      onChange: (e3) => setNewNote({ ...newNote, body: e3.target.value }),
+      contentEditable: true,
+      onInput: (e3) => setNewNote({ ...newNote, body: e3.currentTarget.innerHTML }),
       placeholder: "Note content...",
-      rows: "6",
-      className: "w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+      className: "w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm min-h-[150px] prose prose-sm max-w-none focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
     }
-  ), /* @__PURE__ */ import_react53.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react53.default.createElement(
+  ), /* @__PURE__ */ import_react54.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react54.default.createElement(
     MultiSelectWithCreate,
     {
       options: concepts,
@@ -97404,7 +97862,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       labelKey: "label",
       valueKey: "id"
     }
-  ), /* @__PURE__ */ import_react53.default.createElement(
+  ), /* @__PURE__ */ import_react54.default.createElement(
     MultiSelectWithCreate,
     {
       options: tags,
@@ -97414,7 +97872,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       labelKey: "name",
       valueKey: "id"
     }
-  )), /* @__PURE__ */ import_react53.default.createElement(
+  )), /* @__PURE__ */ import_react54.default.createElement(
     "button",
     {
       onClick: handleSaveNote,
@@ -97422,96 +97880,211 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       className: "w-full btn-primary disabled:opacity-50"
     },
     saving ? "Saving..." : "Add Note"
-  ))), /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex-1 overflow-y-auto p-6" }, /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex items-center justify-between mb-4" }, /* @__PURE__ */ import_react53.default.createElement("h2", { className: "text-lg font-medium" }, "Notes (", notes.length, ")"), /* @__PURE__ */ import_react53.default.createElement(
+  ))), /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex-1 overflow-y-auto p-6" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex items-center justify-between mb-4" }, /* @__PURE__ */ import_react54.default.createElement("h2", { className: "text-lg font-medium" }, "Notes (", notes.length, ")"), /* @__PURE__ */ import_react54.default.createElement(
     "select",
     {
       value: sortOrder,
       onChange: (e3) => setSortOrder(e3.target.value),
       className: "text-xs px-2 py-1 border border-gray-300 rounded bg-white"
     },
-    /* @__PURE__ */ import_react53.default.createElement("option", { value: "recent" }, "Most Recent"),
-    /* @__PURE__ */ import_react53.default.createElement("option", { value: "oldest" }, "First Created")
-  )), loading ? /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-sm text-gray-600" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet. Create your first note above!") : /* @__PURE__ */ import_react53.default.createElement("div", { className: "space-y-3" }, [...notes].sort((a5, b2) => {
+    /* @__PURE__ */ import_react54.default.createElement("option", { value: "recent" }, "Most Recent"),
+    /* @__PURE__ */ import_react54.default.createElement("option", { value: "oldest" }, "First Created")
+  )), loading ? /* @__PURE__ */ import_react54.default.createElement("p", { className: "text-sm text-gray-600" }, "Loading notes...") : notes.length === 0 ? /* @__PURE__ */ import_react54.default.createElement("p", { className: "text-sm text-gray-600" }, "No notes yet. Create your first note above!") : /* @__PURE__ */ import_react54.default.createElement("div", { className: "space-y-3" }, [...notes].sort((a5, b2) => {
     if (sortOrder === "recent") {
       return new Date(b2.created_at) - new Date(a5.created_at);
     } else {
       return new Date(a5.created_at) - new Date(b2.created_at);
     }
-  }).map((note) => /* @__PURE__ */ import_react53.default.createElement(
+  }).map((note) => /* @__PURE__ */ import_react54.default.createElement(
     "div",
     {
       key: note.id,
       className: "bg-white border border-gray-300 rounded p-4"
     },
-    note.title && /* @__PURE__ */ import_react53.default.createElement("h3", { className: "font-medium text-sm mb-2" }, note.title),
-    /* @__PURE__ */ import_react53.default.createElement(
-      "div",
-      {
-        className: "text-sm text-gray-700 prose prose-sm max-w-none",
-        dangerouslySetInnerHTML: { __html: note.body }
+    editingNoteId === note.id ? (
+      /* Edit mode */
+      /* @__PURE__ */ import_react54.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react54.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: editingNoteData.title,
+          onChange: (e3) => setEditingNoteData({ ...editingNoteData, title: e3.target.value }),
+          placeholder: "Note title (optional)",
+          className: "w-full px-2 py-1 border border-gray-300 rounded text-sm"
+        }
+      ), /* @__PURE__ */ import_react54.default.createElement(
+        "div",
+        {
+          id: `edit-note-${note.id}`,
+          contentEditable: true,
+          onInput: (e3) => setEditingNoteData({ ...editingNoteData, body: e3.currentTarget.innerHTML }),
+          className: "w-full px-2 py-1 border border-gray-300 rounded text-sm min-h-[100px] prose prose-sm max-w-none focus:outline-none focus:ring-2 focus:ring-primary"
+        }
+      ), /* @__PURE__ */ import_react54.default.createElement("div", { className: "grid grid-cols-2 gap-2" }, /* @__PURE__ */ import_react54.default.createElement(
+        MultiSelectWithCreate,
+        {
+          options: concepts,
+          selected: editingConcepts,
+          onChange: setEditingConcepts,
+          placeholder: "Constructs",
+          labelKey: "label",
+          valueKey: "id"
+        }
+      ), /* @__PURE__ */ import_react54.default.createElement(
+        MultiSelectWithCreate,
+        {
+          options: tags,
+          selected: editingTags,
+          onChange: setEditingTags,
+          placeholder: "Tags",
+          labelKey: "name",
+          valueKey: "id"
+        }
+      )), /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex gap-2" }, /* @__PURE__ */ import_react54.default.createElement(
+        "button",
+        {
+          onClick: handleSaveEdit,
+          className: "px-3 py-1 bg-primary text-sand rounded hover:bg-accent-dark text-xs"
+        },
+        "Save"
+      ), /* @__PURE__ */ import_react54.default.createElement(
+        "button",
+        {
+          onClick: handleCancelEdit,
+          className: "px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-xs"
+        },
+        "Cancel"
+      )))
+    ) : (
+      /* View mode */
+      /* @__PURE__ */ import_react54.default.createElement(import_react54.default.Fragment, null, /* @__PURE__ */ import_react54.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react54.default.createElement("div", { className: "absolute top-0 right-0 flex gap-1" }, /* @__PURE__ */ import_react54.default.createElement(
+        "button",
+        {
+          onClick: () => handleEditNote(note),
+          className: "text-sm hover:opacity-70",
+          style: { background: "transparent", color: "#6f5060", border: "none", padding: "0.25rem" },
+          title: "Edit"
+        },
+        /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-edit" })
+      ), /* @__PURE__ */ import_react54.default.createElement(
+        "button",
+        {
+          onClick: () => handleDeleteNote(note.id),
+          className: "text-sm hover:opacity-70",
+          style: { background: "transparent", color: "#6f5060", border: "none", padding: "0.25rem" },
+          title: "Delete"
+        },
+        /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-trash" })
+      )), note.title && /* @__PURE__ */ import_react54.default.createElement("h3", { className: "font-medium text-sm mb-2 pr-16" }, note.title)), /* @__PURE__ */ import_react54.default.createElement(
+        "div",
+        {
+          className: "text-sm text-gray-700 prose prose-sm max-w-none",
+          dangerouslySetInnerHTML: { __html: note.body }
+        }
+      ), (note.concepts?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex flex-wrap gap-1 mt-2" }, note.concepts?.map((concept, idx) => /* @__PURE__ */ import_react54.default.createElement("span", { key: idx, className: "text-xs bg-accent-dark text-sand px-2 py-1 rounded" }, concept.label)), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react54.default.createElement("span", { key: idx, className: "text-xs bg-primary text-sand px-2 py-1 rounded" }, tag.name))), /* @__PURE__ */ import_react54.default.createElement("p", { className: "text-xs text-gray-500 mt-2" }, new Date(note.created_at).toLocaleDateString(), " at ", new Date(note.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })))
+    )
+  ))))), /* @__PURE__ */ import_react54.default.createElement(
+    "button",
+    {
+      onClick: () => setShowColorManager(true),
+      className: "fixed bottom-8 left-8 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-accent-dark transition-colors flex items-center justify-center z-40",
+      title: "Manage Color Coding Scheme"
+    },
+    /* @__PURE__ */ import_react54.default.createElement("i", { className: "fas fa-palette" })
+  ), /* @__PURE__ */ import_react54.default.createElement(
+    ColorSchemeManager,
+    {
+      isOpen: showColorManager,
+      onClose: () => setShowColorManager(false)
+    }
+  ), showColorPicker && /* @__PURE__ */ import_react54.default.createElement(
+    "div",
+    {
+      className: "fixed bg-white border border-gray-300 rounded shadow-lg p-3 z-50",
+      style: {
+        left: `${pickerPosition.x}px`,
+        top: `${pickerPosition.y}px`,
+        transform: "translateX(-50%)"
       }
-    ),
-    (note.concept || note.tags?.length > 0) && /* @__PURE__ */ import_react53.default.createElement("div", { className: "flex flex-wrap gap-1 mt-2" }, note.concept && /* @__PURE__ */ import_react53.default.createElement("span", { className: "text-xs bg-accent-dark text-sand px-2 py-1 rounded" }, note.concept.label), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react53.default.createElement("span", { key: idx, className: "text-xs bg-primary text-sand px-2 py-1 rounded" }, tag.name))),
-    /* @__PURE__ */ import_react53.default.createElement("p", { className: "text-xs text-gray-500 mt-2" }, new Date(note.created_at).toLocaleDateString(), " at ", new Date(note.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
-  ))))));
+    },
+    /* @__PURE__ */ import_react54.default.createElement("div", { className: "text-xs font-medium mb-2 text-center text-gray-600" }, "Add Quote to Note"),
+    /* @__PURE__ */ import_react54.default.createElement("div", { className: "flex gap-2 items-center" }, /* @__PURE__ */ import_react54.default.createElement(
+      "button",
+      {
+        onClick: () => handleAddQuote(),
+        className: "px-3 py-2 bg-sand border border-gray-300 rounded hover:bg-primary hover:text-sand text-sm whitespace-nowrap transition-colors",
+        title: "No color coding"
+      },
+      "Default"
+    ), highlightColors.map((color2) => /* @__PURE__ */ import_react54.default.createElement(
+      "button",
+      {
+        key: color2.id,
+        onClick: () => handleAddQuote(color2),
+        className: "w-8 h-8 rounded border-2 border-gray-300 hover:scale-110 transition-transform",
+        style: { backgroundColor: color2.color_hex },
+        title: color2.label
+      }
+    )))
+  ));
 }
 
 // app/javascript/application.js
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react54.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react55.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react54.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react55.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react54.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react55.default.createElement(SourcesIndex, null));
   }
   const sourceShowRoot = document.getElementById("source-show-root");
   if (sourceShowRoot) {
     const sourceId = sourceShowRoot.dataset.sourceId;
-    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react54.default.createElement(SourceShow, { sourceId }));
+    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react55.default.createElement(SourceShow, { sourceId }));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react54.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react55.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react54.default.createElement(PersonShow, null));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react55.default.createElement(PersonShow, null));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react54.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react55.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react54.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react55.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react54.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react55.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react54.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react55.default.createElement(TagsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react54.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react55.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react54.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react55.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react54.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react55.default.createElement(UserDropdown, { userEmail }));
   }
   const pdfStudyRoot = document.getElementById("pdf-study-root");
   if (pdfStudyRoot) {
@@ -97519,7 +98092,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
     const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
     (0, import_client.createRoot)(pdfStudyRoot).render(
-      /* @__PURE__ */ import_react54.default.createElement(
+      /* @__PURE__ */ import_react55.default.createElement(
         PdfStudyMode,
         {
           sourceId,

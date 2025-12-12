@@ -6,7 +6,9 @@ class Concept < ApplicationRecord
   has_many :sources, through: :concept_sources
   has_many :people_concepts, class_name: 'PersonConcept', dependent: :destroy
   has_many :people, through: :people_concepts
-  has_many :notes, dependent: :destroy
+  has_many :notes, dependent: :destroy  # Legacy: notes with concept_id pointing here
+  has_many :concept_notes, dependent: :destroy
+  has_many :linked_notes, through: :concept_notes, source: :note  # Many-to-many notes
   has_many :outgoing_connections, class_name: 'Connection', foreign_key: 'src_concept_id', dependent: :destroy
   has_many :incoming_connections, class_name: 'Connection', foreign_key: 'dst_concept_id', dependent: :destroy
 

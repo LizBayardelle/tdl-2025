@@ -28,7 +28,7 @@ class NotesController < ApplicationController
       format.html
       format.json {
         render json: @notes.as_json(include: {
-          concept: { only: [:id, :label, :node_type] },
+          concepts: { only: [:id, :label, :node_type] },
           source: { only: [:id, :title, :authors, :year] },
           people: { only: [:id, :full_name, :role] },
           tags: { only: [:id, :name] }
@@ -66,8 +66,9 @@ class NotesController < ApplicationController
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
     source_ids = params[:note][:source_ids]
+    concept_ids = params[:note][:concept_ids]
 
-    @note = current_user.notes.build(note_params.except(:tags, :person_ids, :source_ids))
+    @note = current_user.notes.build(note_params.except(:tags, :person_ids, :source_ids, :concept_ids))
 
     if @note.save
       # Handle tags
@@ -84,13 +85,22 @@ class NotesController < ApplicationController
         end
       end
 
+      # Handle concept associations (many-to-many)
+      if concept_ids.present?
+        concept_ids.each do |concept_id|
+          next if concept_id.blank?
+          concept = current_user.concepts.find_by(id: concept_id)
+          ConceptNote.create!(concept: concept, note: @note) if concept
+        end
+      end
+
       # Handle source associations (note: source_id is singular, already handled in note_params)
 
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note created successfully.' }
         format.json {
           render json: @note.as_json(include: {
-            concept: { only: [:id, :label, :node_type] }
+            concepts: { only: [:id, :label, :node_type] }
           }), status: :created
         }
       end
@@ -106,8 +116,9 @@ class NotesController < ApplicationController
   def update
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
+    concept_ids = params[:note][:concept_ids]
 
-    if @note.update(note_params.except(:tags, :person_ids, :source_ids))
+    if @note.update(note_params.except(:tags, :person_ids, :source_ids, :concept_ids))
       # Handle tags
       @note.tag_list = tags_array if tags_array.present?
 
@@ -123,11 +134,21 @@ class NotesController < ApplicationController
         end
       end
 
+      # Handle concept associations (many-to-many)
+      @note.concept_notes.destroy_all
+      if concept_ids.present?
+        concept_ids.each do |concept_id|
+          next if concept_id.blank?
+          concept = current_user.concepts.find_by(id: concept_id)
+          ConceptNote.create!(concept: concept, note: @note) if concept
+        end
+      end
+
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note updated successfully.' }
         format.json {
           render json: @note.as_json(include: {
-            concept: { only: [:id, :label, :node_type] },
+            concepts: { only: [:id, :label, :node_type] },
             source: { only: [:id, :title, :authors, :year] },
             people: { only: [:id, :full_name, :role] },
             tags: { only: [:id, :name] }
@@ -166,7 +187,8 @@ class NotesController < ApplicationController
       :source_id,
       tags: [],
       person_ids: [],
-      source_ids: []
+      source_ids: [],
+      concept_ids: []
     )
   end
 end
