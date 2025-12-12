@@ -51352,7 +51352,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
     context: "",
     pinned: false,
     noted_on: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-    concept_id: "",
+    concept_ids: [],
     source_id: "",
     tags: ""
   });
@@ -51408,7 +51408,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
           context: item.context || "",
           pinned: item.pinned || false,
           noted_on: item.noted_on || (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-          concept_id: item.concept_id || conceptId || "",
+          concept_ids: item.concepts?.map((c5) => c5.id) || (conceptId ? [conceptId] : []),
           source_id: item.source_id || sourceId || "",
           tags: (item.tags || []).join("\n")
         });
@@ -51419,7 +51419,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
           context: "",
           pinned: false,
           noted_on: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
-          concept_id: conceptId || "",
+          concept_ids: conceptId ? [conceptId] : [],
           source_id: sourceId || "",
           tags: ""
         });
@@ -51450,7 +51450,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
     setError("");
     const payload = {
       ...formData,
-      concept_id: formData.concept_id || null,
+      concept_ids: formData.concept_ids || [],
       source_id: formData.source_id || null,
       tags: formData.tags.split("\n").filter((t4) => t4.trim())
     };
@@ -51687,16 +51687,20 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
         placeholder: "What prompted this note?"
       }
-    )), !conceptId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Construct"), /* @__PURE__ */ import_react15.default.createElement(
+    )), !conceptId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Constructs"), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
-        value: formData.concept_id,
-        onChange: (e3) => setFormData({ ...formData, concept_id: e3.target.value }),
-        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white"
+        multiple: true,
+        value: formData.concept_ids,
+        onChange: (e3) => {
+          const selected = Array.from(e3.target.selectedOptions, (option) => parseInt(option.value));
+          setFormData({ ...formData, concept_ids: selected });
+        },
+        className: "w-full px-4 py-2 border border-gray-300 rounded bg-white",
+        size: "5"
       },
-      /* @__PURE__ */ import_react15.default.createElement("option", { value: "" }, "None (general note)"),
       concepts.map((concept) => /* @__PURE__ */ import_react15.default.createElement("option", { key: concept.id, value: concept.id }, concept.label, " (", concept.node_type, ")"))
-    )), !sourceId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react15.default.createElement(
+    ), /* @__PURE__ */ import_react15.default.createElement("p", { className: "text-xs text-gray-600 mt-1" }, "Hold Ctrl/Cmd to select multiple")), !sourceId && /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Link to Source"), /* @__PURE__ */ import_react15.default.createElement(
       "select",
       {
         value: formData.source_id,
@@ -58354,15 +58358,16 @@ function NotesIndex() {
         title: note.pinned ? "Unpin" : "Pin"
       },
       /* @__PURE__ */ import_react30.default.createElement(FontAwesomeIcon, { icon: faThumbtack })
-    ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium" }, noteTypeLabels[note.note_type] || note.note_type), note.concept && /* @__PURE__ */ import_react30.default.createElement(
+    ), /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium" }, noteTypeLabels[note.note_type] || note.note_type), note.concepts?.map((concept) => /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
-        href: `/concepts/${note.concept.id}`,
+        key: concept.id,
+        href: `/concepts/${concept.id}`,
         className: "text-xs text-primary hover:underline"
       },
       "\u2192 ",
-      note.concept.label
-    )), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react30.default.createElement(
+      concept.label
+    ))), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/notes/${note.id}/edit`,
@@ -59147,7 +59152,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex items-center justify-between mb-2" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs uppercase tracking-wider text-gray-800 bg-sand px-2 py-1 rounded font-medium" }, note.note_type), /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-gray-500" }, new Date(note.created_at).toLocaleDateString())),
     note.title && /* @__PURE__ */ import_react35.default.createElement("div", { className: "font-semibold text-sm mb-1" }, note.title),
     /* @__PURE__ */ import_react35.default.createElement("div", { className: "text-sm line-clamp-2 prose prose-sm max-w-none", dangerouslySetInnerHTML: { __html: note.body } }),
-    note.concept && /* @__PURE__ */ import_react35.default.createElement("span", { className: "text-xs text-primary mt-1 block" }, "\u2192 ", note.concept.label)
+    note.concepts?.length > 0 && /* @__PURE__ */ import_react35.default.createElement("div", { className: "flex flex-wrap gap-1 mt-2" }, note.concepts.map((concept) => /* @__PURE__ */ import_react35.default.createElement("span", { key: concept.id, className: "text-xs bg-accent-dark text-sand px-2 py-1 rounded" }, concept.label)))
   ))))));
 }
 

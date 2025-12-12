@@ -344,10 +344,14 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   <div className="font-semibold text-sm mb-1">{note.title}</div>
                 )}
                 <div className="text-sm line-clamp-2 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: note.body }} />
-                {note.concept && (
-                  <span className="text-xs text-primary mt-1 block">
-                    → {note.concept.label}
-                  </span>
+                {note.concepts?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {note.concepts.map((concept) => (
+                      <span key={concept.id} className="text-xs bg-accent-dark text-sand px-2 py-1 rounded">
+                        {concept.label}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </a>
             ))}

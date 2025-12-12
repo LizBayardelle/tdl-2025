@@ -147,14 +147,15 @@ export default function NotesIndex() {
                   <span className="text-xs uppercase tracking-wider px-3 py-1 rounded bg-sand text-gray-800 font-medium">
                     {noteTypeLabels[note.note_type] || note.note_type}
                   </span>
-                  {note.concept && (
+                  {note.concepts?.map((concept) => (
                     <a
-                      href={`/concepts/${note.concept.id}`}
+                      key={concept.id}
+                      href={`/concepts/${concept.id}`}
                       className="text-xs text-primary hover:underline"
                     >
-                      → {note.concept.label}
+                      → {concept.label}
                     </a>
-                  )}
+                  ))}
                 </div>
                 <div className="flex items-center gap-3">
                   <a

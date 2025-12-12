@@ -24,9 +24,11 @@
         <h1 class="text-3xl font-bold mb-4"><%= @note.title %></h1>
       <% end %>
 
-      <% if @note.concept %>
-        <div class="mb-4">
-          <%= link_to @note.concept.label, concept_path(@note.concept), class: "text-primary hover:underline font-medium" %>
+      <% if @note.concepts.any? %>
+        <div class="mb-4 flex flex-wrap gap-2">
+          <% @note.concepts.each do |concept| %>
+            <%= link_to concept.label, concept_path(concept), class: "text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary transition-colors" %>
+          <% end %>
         </div>
       <% end %>
     </div>

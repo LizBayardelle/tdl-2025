@@ -23,7 +23,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
     context: '',
     pinned: false,
     noted_on: new Date().toISOString().split('T')[0],
-    concept_id: '',
+    concept_ids: [],
     source_id: '',
     tags: ''
   });
@@ -82,7 +82,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           context: item.context || '',
           pinned: item.pinned || false,
           noted_on: item.noted_on || new Date().toISOString().split('T')[0],
-          concept_id: item.concept_id || conceptId || '',
+          concept_ids: item.concepts?.map(c => c.id) || (conceptId ? [conceptId] : []),
           source_id: item.source_id || sourceId || '',
           tags: (item.tags || []).join('\n')
         });
@@ -93,7 +93,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           context: '',
           pinned: false,
           noted_on: new Date().toISOString().split('T')[0],
-          concept_id: conceptId || '',
+          concept_ids: conceptId ? [conceptId] : [],
           source_id: sourceId || '',
           tags: ''
         });
@@ -128,7 +128,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
 
     const payload = {
       ...formData,
-      concept_id: formData.concept_id || null,
+      concept_ids: formData.concept_ids || [],
       source_id: formData.source_id || null,
       tags: formData.tags.split('\n').filter(t => t.trim())
     };
@@ -411,19 +411,24 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
 
         {!conceptId && (
           <div>
-            <label className="block text-sm font-medium mb-1">Link to Construct</label>
+            <label className="block text-sm font-medium mb-1">Link to Constructs</label>
             <select
-              value={formData.concept_id}
-              onChange={(e) => setFormData({ ...formData, concept_id: e.target.value })}
+              multiple
+              value={formData.concept_ids}
+              onChange={(e) => {
+                const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
+                setFormData({ ...formData, concept_ids: selected });
+              }}
               className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+              size="5"
             >
-              <option value="">None (general note)</option>
               {concepts.map(concept => (
                 <option key={concept.id} value={concept.id}>
                   {concept.label} ({concept.node_type})
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-600 mt-1">Hold Ctrl/Cmd to select multiple</p>
           </div>
         )}
 

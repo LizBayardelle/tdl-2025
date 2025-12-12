@@ -52,7 +52,7 @@ class NotesController < ApplicationController
       format.html
       format.json {
         render json: @note.as_json(include: {
-          concept: { only: [:id, :label, :node_type, :summary_top] },
+          concepts: { only: [:id, :label, :node_type, :summary_top] },
           source: { only: [:id, :title, :authors, :year] },
           people: { only: [:id, :full_name, :role] },
           tags: { only: [:id, :name] }
