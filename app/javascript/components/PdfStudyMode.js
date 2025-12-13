@@ -123,6 +123,7 @@ function MultiSelectWithCreate({ options, selected, onChange, placeholder, label
 
 export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   const [numPages, setNumPages] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1.0);
   const [notes, setNotes] = useState([]);
   const [concepts, setConcepts] = useState([]);
@@ -143,6 +144,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   const [editingNoteData, setEditingNoteData] = useState({ title: '', body: '' });
   const [editingConcepts, setEditingConcepts] = useState([]);
   const [editingTags, setEditingTags] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchNotes();
@@ -302,6 +304,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             source_id: sourceId,
             concept_ids: conceptIds,
             tags: tagsArray,
+            page_number: currentPage,
           }
         }),
       });
@@ -366,7 +369,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     const bgColor = color ? `${color.color_hex}20` : 'rgba(246, 240, 233, 0.5)'; // add transparency
     const colorLabel = color ? `<span style="font-size: 0.75rem; color: ${color.color_hex}; font-weight: 600;">[${color.label}]</span> ` : '';
 
-    const quote = `<blockquote style="border-left: 4px solid ${borderColor}; background-color: ${bgColor}; padding: 0.75rem 1rem; margin: 1rem 0; font-style: italic; color: #4a5568; border-radius: 0 0.25rem 0.25rem 0;">${selection.text}<br><em style="font-size: 0.875rem; color: #6b7280;">${colorLabel}(Page 1)</em></blockquote>`;
+    const quote = `<blockquote style="border-left: 4px solid ${borderColor}; background-color: ${bgColor}; padding: 0.75rem 1rem; margin: 1rem 0; font-style: italic; color: #4a5568; border-radius: 0 0.25rem 0.25rem 0;">${selection.text}<br><em style="font-size: 0.875rem; color: #6b7280;">${colorLabel}(Page ${currentPage})</em></blockquote>`;
 
     // Get the contenteditable div and insert at cursor position
     const noteEditor = document.querySelector('[contenteditable]');
@@ -560,6 +563,17 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     }
   };
 
+  const handlePageClick = (pageNumber) => {
+    const pageElement = document.getElementById(`page-${pageNumber}`);
+    if (pageElement) {
+      pageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Close sidebar on mobile after clicking page link
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
+    }
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Escape') {
       handleClose();
@@ -584,6 +598,34 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     }
   }, [highlights, numPages]);
 
+  // Track current page with IntersectionObserver
+  useEffect(() => {
+    if (!numPages) return;
+
+    const options = {
+      root: document.getElementById('pdf-container'),
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const pageNum = parseInt(entry.target.dataset.pageNumber);
+          setCurrentPage(pageNum);
+        }
+      });
+    }, options);
+
+    // Observe all page elements
+    const pageElements = document.querySelectorAll('[data-page-number]');
+    pageElements.forEach((el) => observer.observe(el));
+
+    return () => {
+      pageElements.forEach((el) => observer.unobserve(el));
+    };
+  }, [numPages]);
+
   if (!pdfUrl) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -605,21 +647,22 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       {/* PDF Viewer - Left Side */}
       <div className="flex-1 flex flex-col bg-gray-100 overflow-hidden">
         {/* Header */}
-        <div className="bg-primary px-6 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-medium flex-1 leading-snug" style={{ color: 'white' }}>{sourceTitle}</h1>
+        <div className="bg-primary px-6 py-4 relative">
+          <h1 className="text-lg md:text-xl font-medium pr-8" style={{ color: '#f6f0e9' }}>{sourceTitle}</h1>
           <button
             onClick={handleClose}
-            className="ml-4 btn-secondary flex-shrink-0"
+            className="absolute top-4 right-4 hover:opacity-70"
+            style={{ background: 'transparent', color: '#f6f0e9', border: 'none', padding: '0.25rem' }}
+            title="Close (Esc)"
           >
-            <i className="fas fa-times mr-2"></i>
-            Close (Esc)
+            <i className="fas fa-times text-xl"></i>
           </button>
         </div>
 
         {/* PDF Controls */}
         <div className="bg-white border-b border-gray-300 px-6 py-3 flex items-center justify-between">
           <span className="text-sm">
-            {numPages ? `${numPages} pages` : 'Loading...'}
+            {numPages ? `Page ${currentPage} of ${numPages}` : 'Loading...'}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -639,16 +682,22 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         </div>
 
         {/* PDF Document - All Pages */}
-        <div className="flex-1 overflow-auto p-6 flex flex-col items-center gap-4">
+        <div className="flex-1 overflow-auto p-2 md:p-6 flex flex-col items-center gap-4" id="pdf-container">
           <Document
             file={pdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
           >
             {Array.from(new Array(numPages), (el, index) => (
-              <div key={`page_${index + 1}`} className="shadow-lg mb-4">
+              <div
+                key={`page_${index + 1}`}
+                className="shadow-lg mb-4 w-full max-w-full"
+                data-page-number={index + 1}
+                id={`page-${index + 1}`}
+              >
                 <Page
                   pageNumber={index + 1}
                   scale={scale}
+                  width={typeof window !== 'undefined' && window.innerWidth < 768 ? window.innerWidth - 16 : undefined}
                   renderTextLayer={true}
                   renderAnnotationLayer={true}
                 />
@@ -658,8 +707,37 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         </div>
       </div>
 
+      {/* Mobile Toggle Button - Arrow Tab */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`
+          md:hidden fixed top-1/2 -translate-y-1/2 z-50
+          bg-accent-dark text-sand px-2 py-6 rounded-l-lg shadow-lg
+          flex items-center justify-center
+          transition-all duration-300 ease-in-out
+          ${sidebarOpen ? 'right-[90%]' : 'right-0'}
+        `}
+        aria-label="Toggle notes sidebar"
+      >
+        <i className={`fas fa-chevron-${sidebarOpen ? 'right' : 'left'}`}></i>
+      </button>
+
+      {/* Backdrop overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-30"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Notes Sidebar - Right Side */}
-      <div className="w-96 bg-sand border-l border-gray-300 flex flex-col overflow-hidden">
+      <div className={`
+        w-[90%] md:w-96 bg-sand border-l border-gray-300 flex flex-col overflow-hidden
+        fixed md:relative right-0 top-0 bottom-0 z-40
+        transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+      `}>
         {/* New Note Form */}
         <div className="p-6 bg-white border-b border-gray-300">
           <h2 className="text-xl font-medium mb-4">Create Note</h2>
@@ -675,7 +753,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               contentEditable
               onInput={(e) => setNewNote({ ...newNote, body: e.currentTarget.innerHTML })}
               placeholder="Note content..."
-              className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm min-h-[150px] prose prose-sm max-w-none focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
+              className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm min-h-[100px] md:min-h-[150px] prose prose-sm max-w-none focus:outline-none focus:ring-2 focus:ring-primary overflow-auto"
             />
             <div className="grid grid-cols-2 gap-2">
               <MultiSelectWithCreate
@@ -735,11 +813,11 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               }).map(note => (
                 <div
                   key={note.id}
-                  className="bg-white border border-gray-300 rounded p-4"
+                  className="bg-white border border-gray-300 rounded overflow-hidden shadow-md hover:shadow-lg transition-shadow"
                 >
                   {editingNoteId === note.id ? (
                     /* Edit mode */
-                    <div className="space-y-2">
+                    <div className="space-y-2 p-4">
                       <input
                         type="text"
                         value={editingNoteData.title}
@@ -789,8 +867,31 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                   ) : (
                     /* View mode */
                     <>
-                      <div className="relative">
-                        <div className="absolute top-0 right-0 flex gap-1">
+                      {note.title && (
+                        <div className="px-4 py-2 flex items-center justify-between bg-primary">
+                          <h3 className="font-semibold text-sm" style={{ color: '#f6f0e9' }}>{note.title}</h3>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleEditNote(note)}
+                              className="text-sm hover:opacity-70"
+                              style={{ background: 'transparent', color: '#f6f0e9', border: 'none', padding: '0.25rem' }}
+                              title="Edit"
+                            >
+                              <i className="fas fa-edit"></i>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="text-sm hover:opacity-70"
+                              style={{ background: 'transparent', color: '#f6f0e9', border: 'none', padding: '0.25rem' }}
+                              title="Delete"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {!note.title && (
+                        <div className="absolute top-2 right-2 flex gap-1 z-10">
                           <button
                             onClick={() => handleEditNote(note)}
                             className="text-sm hover:opacity-70"
@@ -808,31 +909,43 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                             <i className="fas fa-trash"></i>
                           </button>
                         </div>
-                        {note.title && (
-                          <h3 className="font-medium text-sm mb-2 pr-16">{note.title}</h3>
+                      )}
+                      <div className="p-4">
+                        <div
+                          className="text-sm text-gray-700 prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={{ __html: note.body }}
+                        />
+                        {(note.concepts?.length > 0 || note.tags?.length > 0) && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {note.concepts?.map((concept, idx) => (
+                              <span key={idx} className="text-xs bg-accent-dark text-sand px-2 py-1 rounded">
+                                {concept.label}
+                              </span>
+                            ))}
+                            {note.tags?.map((tag, idx) => (
+                              <span key={idx} className="text-xs bg-primary text-sand px-2 py-1 rounded">
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
-                      <div
-                        className="text-sm text-gray-700 prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: note.body }}
-                      />
-                      {(note.concepts?.length > 0 || note.tags?.length > 0) && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {note.concepts?.map((concept, idx) => (
-                            <span key={idx} className="text-xs bg-accent-dark text-sand px-2 py-1 rounded">
-                              {concept.label}
-                            </span>
-                          ))}
-                          {note.tags?.map((tag, idx) => (
-                            <span key={idx} className="text-xs bg-primary text-sand px-2 py-1 rounded">
-                              {tag.name}
-                            </span>
-                          ))}
+                      <div className="px-4 py-1 bg-sage flex items-center justify-between">
+                        <div className="text-xs">
+                          {note.page_number && (
+                            <button
+                              onClick={() => handlePageClick(note.page_number)}
+                              className="font-medium hover:underline"
+                              style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', color: '#414431' }}
+                            >
+                              Page {note.page_number}
+                            </button>
+                          )}
                         </div>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(note.created_at).toLocaleDateString()} at {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                        <div className="text-xs text-primary">
+                          {new Date(note.created_at).toLocaleDateString()} at {new Date(note.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>
@@ -845,7 +958,11 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       {/* Floating Color Scheme Button */}
       <button
         onClick={() => setShowColorManager(true)}
-        className="fixed bottom-8 left-8 w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-accent-dark transition-colors flex items-center justify-center z-40"
+        className={`
+          fixed bottom-8 left-8 w-14 h-14 bg-primary text-white rounded-full shadow-lg
+          hover:bg-accent-dark transition-colors flex items-center justify-center z-40
+          ${sidebarOpen ? 'md:flex hidden' : 'flex'}
+        `}
         title="Manage Color Coding Scheme"
       >
         <i className="fas fa-palette"></i>

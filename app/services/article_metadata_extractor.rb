@@ -171,8 +171,11 @@ class ArticleMetadataExtractor
       type = message['type']
       kind = case type
       when 'journal-article' then 'article'
-      when 'book-chapter' then 'chapter'
-      when 'book' then 'textbook'
+      when 'book-chapter' then 'book_chapter'
+      when 'book' then 'book'
+      when 'proceedings-article' then 'conference'
+      when 'report' then 'report'
+      when 'dissertation' then 'dissertation'
       else 'article'
       end
 
@@ -385,7 +388,7 @@ class ArticleMetadataExtractor
       - title: Article title
       - authors: Author names as a string (format: "Last, F., Last, F.")
       - year: Publication year (integer)
-      - kind: Source type (one of: article, rct, meta_analysis, textbook, chapter, manual, guideline, video_demo)
+      - kind: Source type (one of: article, book, book_chapter, conference, report, thesis, dissertation, website, video, podcast, other)
       - journal_name: Journal name (for articles)
       - volume: Volume number (for articles)
       - issue: Issue number (for articles)
@@ -394,11 +397,11 @@ class ArticleMetadataExtractor
       - url: The URL of the source
       - abstract: Article abstract or summary
       - keywords: Array of keywords
-      - publisher_or_venue: Publisher name (for books)
+      - publisher_or_venue: Publisher/organization name (for books, reports, thesis, etc.)
       - book_title: Book title (for chapters)
       - edition: Edition (for books)
       - isbn: ISBN (for books)
-      - website_name: Website name (for web sources)
+      - website_name: Website name (for web sources, videos, podcasts)
 
       Only include fields that you can find. Return valid JSON only, no other text.
 

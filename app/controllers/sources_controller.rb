@@ -36,7 +36,9 @@ class SourcesController < ApplicationController
           }
         ).merge(
           concept_ids: @source.concept_ids,
-          keywords: @source[:keywords] || []
+          keywords: @source[:keywords] || [],
+          pdf_url: @source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(@source.pdf, only_path: true) : nil,
+          pdf_filename: @source.pdf.attached? ? @source.pdf.filename.to_s : nil
         )
       }
     end

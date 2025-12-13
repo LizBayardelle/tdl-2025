@@ -8,6 +8,11 @@ export default function SourcesIndex() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filterKind, setFilterKind] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterYear, setFilterYear] = useState('all');
+  const [filterConcept, setFilterConcept] = useState('all');
+  const [filterTag, setFilterTag] = useState('all');
+  const [filterPerson, setFilterPerson] = useState('all');
 
   useEffect(() => {
     fetchSources();
@@ -25,11 +30,74 @@ export default function SourcesIndex() {
     }
   };
 
-  const filteredSources = filterKind === 'all'
-    ? sources
-    : sources.filter(source => source.kind === filterKind);
+  // Get unique values for filters
+  const years = [...new Set(sources.map(s => s.year).filter(Boolean))].sort((a, b) => b - a);
 
-  const kinds = ['manual', 'textbook', 'rct', 'meta_analysis', 'guideline', 'video_demo', 'article', 'chapter'];
+  const conceptsMap = new Map();
+  sources.forEach(s => {
+    (s.concepts || []).forEach(c => {
+      if (!conceptsMap.has(c.id)) {
+        conceptsMap.set(c.id, { id: c.id, label: c.label });
+      }
+    });
+  });
+  const allConcepts = Array.from(conceptsMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+
+  const allTags = [...new Set(sources.flatMap(s => s.tags || []))].sort();
+
+  const peopleMap = new Map();
+  sources.forEach(s => {
+    (s.people || []).forEach(p => {
+      if (!peopleMap.has(p.id)) {
+        peopleMap.set(p.id, { id: p.id, full_name: p.full_name });
+      }
+    });
+  });
+  const allPeople = Array.from(peopleMap.values()).sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+  // Filter sources
+  const filteredSources = sources.filter(source => {
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesTitle = source.title?.toLowerCase().includes(query);
+      const matchesAuthors = typeof source.authors === 'string' && source.authors.toLowerCase().includes(query);
+      const matchesAbstract = source.abstract?.toLowerCase().includes(query);
+      const matchesSummary = source.summary?.toLowerCase().includes(query);
+      if (!matchesTitle && !matchesAuthors && !matchesAbstract && !matchesSummary) {
+        return false;
+      }
+    }
+
+    // Kind filter
+    if (filterKind !== 'all' && source.kind !== filterKind) {
+      return false;
+    }
+
+    // Year filter
+    if (filterYear !== 'all' && source.year !== parseInt(filterYear)) {
+      return false;
+    }
+
+    // Concept filter
+    if (filterConcept !== 'all' && !source.concepts?.some(c => c.id === parseInt(filterConcept))) {
+      return false;
+    }
+
+    // Tag filter
+    if (filterTag !== 'all' && !source.tags?.includes(filterTag)) {
+      return false;
+    }
+
+    // Person filter
+    if (filterPerson !== 'all' && !source.people?.some(p => p.id === parseInt(filterPerson))) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const kinds = ['article', 'book', 'book_chapter', 'conference', 'report', 'thesis', 'dissertation', 'website', 'video', 'podcast', 'other'];
 
   if (loading) {
     return (
@@ -60,34 +128,105 @@ export default function SourcesIndex() {
         }}
       />
 
-      <div className="mb-6 flex gap-2 flex-wrap">
-        <button
-          onClick={() => setFilterKind('all')}
-          className={`px-4 py-2 rounded text-sm ${
-            filterKind === 'all'
-              ? 'bg-primary text-sand'
-              : 'bg-white border border-gray-300 hover:bg-sand'
-          }`}
-        >
-          All ({sources.length})
-        </button>
-        {kinds.map(kind => {
-          const count = sources.filter(s => s.kind === kind).length;
-          if (count === 0) return null;
-          return (
-            <button
-              key={kind}
-              onClick={() => setFilterKind(kind)}
-              className={`px-4 py-2 rounded capitalize text-sm ${
-                filterKind === kind
-                  ? 'bg-primary text-sand'
-                  : 'bg-white border border-gray-300 hover:bg-sand'
-              }`}
-            >
-              {kind.replace('_', ' ')} ({count})
-            </button>
-          );
-        })}
+      {/* Search Box */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search sources by title, author, abstract, or summary..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded bg-white text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+        />
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Type</label>
+          <select
+            value={filterKind}
+            onChange={(e) => setFilterKind(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+          >
+            <option value="all">All Types</option>
+            <option value="article">Article</option>
+            <option value="book">Book</option>
+            <option value="book_chapter">Book Chapter</option>
+            <option value="conference">Conference Paper</option>
+            <option value="report">Report</option>
+            <option value="thesis">Thesis</option>
+            <option value="dissertation">Dissertation</option>
+            <option value="website">Website</option>
+            <option value="video">Video</option>
+            <option value="podcast">Podcast</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Year</label>
+          <select
+            value={filterYear}
+            onChange={(e) => setFilterYear(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+          >
+            <option value="all">All Years</option>
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Construct</label>
+          <select
+            value={filterConcept}
+            onChange={(e) => setFilterConcept(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+          >
+            <option value="all">All Constructs</option>
+            {allConcepts.map(concept => (
+              <option key={concept.id} value={concept.id}>
+                {concept.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Tag</label>
+          <select
+            value={filterTag}
+            onChange={(e) => setFilterTag(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+          >
+            <option value="all">All Tags</option>
+            {allTags.map(tag => (
+              <option key={tag} value={tag}>{tag}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Author</label>
+          <select
+            value={filterPerson}
+            onChange={(e) => setFilterPerson(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded bg-white text-sm"
+          >
+            <option value="all">All Authors</option>
+            {allPeople.map(person => (
+              <option key={person.id} value={person.id}>
+                {person.full_name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Results count */}
+      <div className="mb-4 text-sm text-gray-600">
+        Showing {filteredSources.length} of {sources.length} sources
       </div>
 
       {filteredSources.length === 0 ? (
@@ -133,18 +272,20 @@ function SourceCard({ source, onUpdate }) {
   const getCitationInfo = () => {
     const parts = [];
 
-    if (source.kind === 'article' || source.kind === 'rct' || source.kind === 'meta_analysis') {
+    if (source.kind === 'article' || source.kind === 'conference') {
       if (source.journal_name) parts.push(source.journal_name);
       const volIssue = [source.volume, source.issue && `(${source.issue})`].filter(Boolean).join('');
       if (volIssue) parts.push(volIssue);
       if (source.pages) parts.push(`pp. ${source.pages}`);
-    } else if (source.kind === 'textbook' || source.kind === 'manual') {
+    } else if (source.kind === 'book') {
       if (source.publisher_or_venue) parts.push(source.publisher_or_venue);
       if (source.edition) parts.push(source.edition);
-    } else if (source.kind === 'chapter') {
+    } else if (source.kind === 'book_chapter') {
       if (source.book_title) parts.push(`In: ${source.book_title}`);
       if (source.pages) parts.push(`pp. ${source.pages}`);
-    } else if (source.kind === 'video_demo') {
+    } else if (source.kind === 'report' || source.kind === 'thesis' || source.kind === 'dissertation') {
+      if (source.publisher_or_venue) parts.push(source.publisher_or_venue);
+    } else if (source.kind === 'video' || source.kind === 'website' || source.kind === 'podcast') {
       if (source.website_name) parts.push(source.website_name);
     }
 
@@ -192,17 +333,6 @@ function SourceCard({ source, onUpdate }) {
             )}
           </div>
           <div className="flex gap-2 ml-4">
-            {source.url && (
-              <a
-                href={source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
-                title="View Source"
-              >
-                <FontAwesomeIcon icon={faExternalLinkAlt} />
-              </a>
-            )}
             <button
               onClick={() => setShowEdit(true)}
               className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
@@ -263,7 +393,7 @@ function SourceCard({ source, onUpdate }) {
               <a
                 key={person.id}
                 href={`/people/${person.id}`}
-                className="text-xs bg-sand text-primary border border-primary px-3 py-1 rounded hover:bg-primary-light transition-colors"
+                className="text-xs bg-sand text-primary px-3 py-1 rounded hover:bg-primary hover:text-sand transition-colors"
               >
                 {person.full_name}
               </a>

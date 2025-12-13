@@ -185,6 +185,7 @@ class NotesController < ApplicationController
       :noted_on,
       :concept_id,
       :source_id,
+      :page_number,
       tags: [],
       person_ids: [],
       source_ids: [],

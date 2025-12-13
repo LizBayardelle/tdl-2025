@@ -24,14 +24,17 @@ class Source < ApplicationRecord
 
   # Enums
   enum :kind, {
-    manual: "manual",
-    textbook: "textbook",
-    rct: "rct",
-    meta_analysis: "meta_analysis",
-    guideline: "guideline",
-    video_demo: "video_demo",
     article: "article",
-    chapter: "chapter"
+    book: "book",
+    book_chapter: "book_chapter",
+    website: "website",
+    video: "video",
+    report: "report",
+    thesis: "thesis",
+    dissertation: "dissertation",
+    conference: "conference",
+    podcast: "podcast",
+    other: "other"
   }, prefix: true
 
   # Validations
@@ -57,14 +60,16 @@ class Source < ApplicationRecord
   # Generate APA citation based on source type
   def generate_citation
     case kind
-    when 'article'
+    when 'article', 'conference'
       generate_article_citation
-    when 'textbook', 'manual'
+    when 'book'
       generate_book_citation
-    when 'chapter'
+    when 'book_chapter'
       generate_chapter_citation
-    when 'website'
+    when 'website', 'video', 'podcast'
       generate_website_citation
+    when 'report', 'thesis', 'dissertation'
+      generate_report_citation
     else
       generate_generic_citation
     end
@@ -117,6 +122,17 @@ class Source < ApplicationRecord
     citation = "#{author_list} (#{access_year}). #{title}."
     citation += " #{website_name}." if website_name.present? && ordered_authors.any?
     citation += " #{url}" if url.present?
+
+    citation
+  end
+
+  def generate_report_citation
+    author_list = ordered_authors.map(&:full_name).join(', ')
+    pub_year = year || 'n.d.'
+
+    citation = "#{author_list} (#{pub_year}). #{title}."
+    citation += " #{publisher_or_venue}." if publisher_or_venue.present?
+    citation += " https://doi.org/#{doi}" if doi.present?
 
     citation
   end

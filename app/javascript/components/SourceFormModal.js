@@ -265,10 +265,11 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     }
   };
 
-  const showArticleFields = formData.kind === 'article' || formData.kind === 'rct' || formData.kind === 'meta_analysis';
-  const showBookFields = formData.kind === 'textbook' || formData.kind === 'manual';
-  const showChapterFields = formData.kind === 'chapter';
-  const showWebsiteFields = formData.kind === 'video_demo';
+  const showArticleFields = formData.kind === 'article' || formData.kind === 'conference';
+  const showBookFields = formData.kind === 'book';
+  const showChapterFields = formData.kind === 'book_chapter';
+  const showWebsiteFields = formData.kind === 'website' || formData.kind === 'video' || formData.kind === 'podcast';
+  const showReportFields = formData.kind === 'report' || formData.kind === 'thesis' || formData.kind === 'dissertation';
 
   const tabs = [
     { id: 'basic', label: 'Basic Info' },
@@ -390,13 +391,16 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                     className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
                   >
                     <option value="article">Article</option>
-                    <option value="rct">RCT (Research Study)</option>
-                    <option value="meta_analysis">Meta-Analysis</option>
-                    <option value="textbook">Textbook</option>
-                    <option value="chapter">Book Chapter</option>
-                    <option value="manual">Manual</option>
-                    <option value="guideline">Guideline</option>
-                    <option value="video_demo">Video/Website</option>
+                    <option value="book">Book</option>
+                    <option value="book_chapter">Book Chapter</option>
+                    <option value="conference">Conference Paper</option>
+                    <option value="report">Report</option>
+                    <option value="thesis">Thesis</option>
+                    <option value="dissertation">Dissertation</option>
+                    <option value="website">Website</option>
+                    <option value="video">Video</option>
+                    <option value="podcast">Podcast</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 
@@ -729,6 +733,37 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         value={formData.access_date}
                         onChange={(e) => setFormData({ ...formData, access_date: e.target.value })}
                         className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Report/Thesis/Dissertation-specific fields */}
+              {showReportFields && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        {formData.kind === 'thesis' || formData.kind === 'dissertation' ? 'University' : 'Publisher/Organization'}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.publisher_or_venue}
+                        onChange={(e) => setFormData({ ...formData, publisher_or_venue: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder={formData.kind === 'thesis' || formData.kind === 'dissertation' ? 'University name' : 'Publisher or organization'}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">DOI</label>
+                      <input
+                        type="text"
+                        value={formData.doi}
+                        onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                        placeholder="10.1000/example"
                       />
                     </div>
                   </div>
