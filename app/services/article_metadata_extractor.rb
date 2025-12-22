@@ -53,6 +53,21 @@ class ArticleMetadataExtractor
 
   private
 
+  def strip_html_tags(text)
+    return nil if text.nil?
+    # Strip HTML/XML tags and decode HTML entities
+    text = text.gsub(/<[^>]+>/, ' ')  # Replace tags with space
+    text = text.gsub(/\s+/, ' ')      # Collapse multiple spaces
+    text = text.strip                  # Remove leading/trailing whitespace
+    # Decode common HTML entities
+    text = text.gsub('&lt;', '<')
+    text = text.gsub('&gt;', '>')
+    text = text.gsub('&amp;', '&')
+    text = text.gsub('&quot;', '"')
+    text = text.gsub('&apos;', "'")
+    text
+  end
+
   def extract_doi_from_url(url)
     # Check if it's a doi.org URL
     if url.match?(/doi\.org/)
@@ -197,7 +212,7 @@ class ArticleMetadataExtractor
         'pages' => message['page'],
         'doi' => doi,
         'url' => "https://doi.org/#{doi}",
-        'abstract' => message['abstract'],
+        'abstract' => strip_html_tags(message['abstract']),
         'publisher_or_venue' => message['publisher'],
         'book_title' => message['container-title']&.first
       }
@@ -469,6 +484,10 @@ class ArticleMetadataExtractor
       if metadata.empty? || metadata.keys == ['url']
         raise "Unable to extract metadata from this page. The page may be heavily obfuscated or require JavaScript. Try using the DOI directly if you have it, or enter metadata manually."
       end
+
+      # Strip HTML/XML tags from text fields
+      metadata['abstract'] = strip_html_tags(metadata['abstract']) if metadata['abstract']
+      metadata['summary'] = strip_html_tags(metadata['summary']) if metadata['summary']
 
       # Add the original URL
       metadata['url'] = @url
