@@ -5,7 +5,7 @@ export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    color: '#414431'
+    color: '#674675'
   });
   const [error, setError] = useState('');
 
@@ -15,13 +15,13 @@ export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData({
           name: item.name || '',
           description: item.description || '',
-          color: item.color || '#414431'
+          color: item.color || '#674675'
         });
       } else {
         setFormData({
           name: '',
           description: '',
-          color: '#414431'
+          color: '#674675'
         });
       }
       setError('');
@@ -40,6 +40,7 @@ export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
         body: JSON.stringify({ tag: formData }),
@@ -63,59 +64,158 @@ export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={item ? 'Edit Tag' : 'New Tag'}
       size="medium"
+      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
-            {error}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Header */}
+        <div style={{
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-6)',
+        }}>
+          <h3 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-purple)',
+            margin: 0,
+            textAlign: 'center'
+          }}>
+            {item ? 'Edit Tag' : 'New Tag'}
+          </h3>
+        </div>
+
+        {/* Body */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          background: 'var(--background)',
+          padding: 'var(--space-6)'
+        }}>
+          {error && (
+            <div style={{
+              background: 'var(--accent-purple-light)',
+              border: '1px solid var(--accent-purple)',
+              color: 'var(--error)',
+              padding: 'var(--space-3) var(--space-4)',
+              borderRadius: 'var(--radius)',
+              marginBottom: 'var(--space-4)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label required">Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="form-input"
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-base)'
+              }}
+              required
+            />
           </div>
-        )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Name *</label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            required
-          />
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label">Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows="3"
+              className="form-textarea"
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-base)',
+                resize: 'vertical'
+              }}
+              placeholder="What does this tag represent?"
+            />
+          </div>
+
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label">Color</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <input
+                type="color"
+                value={formData.color}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                style={{
+                  width: '60px',
+                  height: '40px',
+                  border: '1px solid var(--neutral-200)',
+                  borderRadius: 'var(--radius)',
+                  cursor: 'pointer'
+                }}
+              />
+              <input
+                type="text"
+                value={formData.color}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="form-input"
+                style={{
+                  flex: 1,
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontSize: 'var(--text-sm)'
+                }}
+                placeholder="#674675"
+              />
+            </div>
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="What does this tag represent?"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Color</label>
-          <input
-            type="color"
-            value={formData.color}
-            onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-            className="w-full h-12 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div className="flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200">
+        {/* Footer */}
+        <div style={{
+          borderTop: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-4)',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+        }}>
           <button
             type="submit"
             className="btn-primary"
+            style={{
+              background: 'var(--accent-purple)',
+              fontFamily: 'var(--font-body)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#7c2bc9'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
           >
             {item ? 'Save Changes' : 'Create Tag'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
+            style={{
+              padding: 'var(--space-2) var(--space-4)',
+              fontSize: 'var(--text-base)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-body)',
+              color: 'var(--accent-purple)',
+              background: 'var(--accent-purple-light)',
+              border: '1px solid var(--accent-purple)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent-purple)';
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-purple-light)';
+              e.currentTarget.style.color = 'var(--accent-purple)';
+            }}
           >
             Cancel
           </button>

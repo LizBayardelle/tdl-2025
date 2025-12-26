@@ -57,6 +57,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
         body: JSON.stringify({ person: formData }),
@@ -94,25 +95,57 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       title={item ? 'Edit Person' : 'New Person'}
       size="large"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col max-h-[70vh]">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxHeight: '70vh' }}>
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
+          <div style={{
+            background: 'var(--accent-gold-light)',
+            border: '1px solid var(--accent-gold)',
+            color: 'var(--error)',
+            padding: 'var(--space-3) var(--space-4)',
+            borderRadius: 'var(--radius)',
+            marginBottom: 'var(--space-4)',
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-sm)'
+          }}>
             {error}
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 mb-0">
+        <div style={{
+          display: 'flex',
+          gap: 'var(--space-1)',
+          marginBottom: 0,
+          borderBottom: '2px solid var(--neutral-200)'
+        }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`px-6 py-2 font-medium rounded-t-lg ${
-                activeTab === tab.id
-                  ? 'bg-sand text-gray-800'
-                  : 'bg-primary text-sand hover:bg-accent-dark'
-              }`}
+              style={{
+                padding: 'var(--space-3) var(--space-6)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeTab === tab.id ? '2px solid var(--accent-gold)' : '2px solid transparent',
+                color: activeTab === tab.id ? 'var(--accent-gold)' : 'var(--neutral-600)',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                marginBottom: '-2px'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = 'var(--neutral-900)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.color = 'var(--neutral-600)';
+                }
+              }}
             >
               {tab.label}
             </button>
@@ -120,27 +153,59 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg">
+        <div style={{
+          padding: 'var(--space-6)',
+          flex: 1,
+          overflowY: 'auto'
+        }}>
           {/* Basic Info Tab */}
           {activeTab === 'basic' && (
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <div>
-                <label className="block text-sm font-medium mb-1">Full Name *</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
+                  Full Name *
+                </label>
                 <input
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-input"
+                  style={{
+                    width: '100%',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)'
+                  }}
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Role</label>
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
+                  Role
+                </label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-input"
+                  style={{
+                    width: '100%',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)'
+                  }}
                 >
                   <option value="theorist">Theorist</option>
                   <option value="clinician">Clinician</option>
@@ -151,14 +216,27 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
                   Also Known As (one per line)
                 </label>
                 <textarea
                   value={formData.aka.join('\n')}
                   onChange={(e) => handleArrayInput(e.target.value)}
                   rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-input"
+                  style={{
+                    width: '100%',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)',
+                    resize: 'vertical'
+                  }}
                   placeholder="Aaron T. Beck&#10;A.T. Beck"
                 />
               </div>
@@ -167,23 +245,50 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Details Tab */}
           {activeTab === 'details' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-4)',
+              height: '100%'
+            }}>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
                   Summary
                 </label>
                 <textarea
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  className="w-full h-[370px] px-4 py-2 border border-gray-300 rounded bg-white overflow-y-auto resize-none"
+                  className="form-input"
+                  style={{
+                    width: '100%',
+                    height: '370px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)',
+                    resize: 'none',
+                    overflowY: 'auto'
+                  }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
                   Sources
                 </label>
-                <div className="h-[370px]">
+                <div style={{ height: '370px' }}>
                   <SourceSelector
                     selectedSourceIds={formData.source_ids}
                     onChange={(source_ids) => setFormData({ ...formData, source_ids })}
@@ -195,12 +300,24 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Metadata Tab */}
           {activeTab === 'metadata' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--space-4)',
+              height: '100%'
+            }}>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
                   Concepts
                 </label>
-                <div className="h-[370px]">
+                <div style={{ height: '370px' }}>
                   <ConceptSelector
                     selectedConceptIds={formData.concept_ids}
                     onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
@@ -209,10 +326,17 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-700)',
+                  marginBottom: 'var(--space-2)'
+                }}>
                   Tags
                 </label>
-                <div className="h-[370px]">
+                <div style={{ height: '370px' }}>
                   <TagSelector
                     selectedTags={formData.tags}
                     onChange={(tags) => setFormData({ ...formData, tags })}
@@ -224,10 +348,23 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
 
         {/* Form Actions */}
-        <div className="flex justify-center gap-3 pt-6 pb-6">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+          paddingTop: 'var(--space-6)',
+          paddingBottom: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             type="submit"
             className="btn-primary"
+            style={{
+              background: 'var(--accent-gold)',
+              fontFamily: 'var(--font-body)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#8a6324'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
           >
             {item ? 'Save Changes' : 'Create Person'}
           </button>
@@ -235,6 +372,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
             type="button"
             onClick={onClose}
             className="btn-secondary"
+            style={{ fontFamily: 'var(--font-body)' }}
           >
             Cancel
           </button>

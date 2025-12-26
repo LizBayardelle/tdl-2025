@@ -7,10 +7,32 @@ export default function TagsIndex() {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('popularity');
   const [creatingTag, setCreatingTag] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
 
   useEffect(() => {
     fetchTags();
   }, [sortBy]);
+
+  // Auto-select first tag on initial load
+  useEffect(() => {
+    if (tags.length > 0 && !selectedTag) {
+      handleTagClick(tags[0]);
+    }
+  }, [tags]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchTags = async () => {
     try {
@@ -29,6 +51,10 @@ export default function TagsIndex() {
       const response = await fetch(`/tags/${tag.id}.json`);
       const data = await response.json();
       setSelectedTag(data);
+      // Close sidebar on mobile after selection
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      }
     } catch (error) {
       console.error('Error fetching tag details:', error);
     }
@@ -56,89 +82,245 @@ export default function TagsIndex() {
     }
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl mb-4">Tags</h1>
-        <p className="text-lg mb-6">
-          Browse and organize your knowledge by tags
-        </p>
-
-        <div className="flex items-center gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium mb-1">Sort by</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="popularity">Popularity</option>
-              <option value="alphabetical">Alphabetical</option>
-            </select>
-          </div>
-
-          <button
-            onClick={() => setCreatingTag(!creatingTag)}
-            className="ml-auto mt-6 px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-          >
-            {creatingTag ? 'Cancel' : '+ New Tag'}
-          </button>
-        </div>
-
-        <TagFormModal
-          isOpen={creatingTag}
-          onClose={() => setCreatingTag(false)}
-          onSuccess={(newTag) => {
-            setTags([newTag, ...tags]);
-            setCreatingTag(false);
-          }}
-        />
+  if (loading) {
+    return (
+      <div style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-600)' }}>Loading tags...</p>
       </div>
+    );
+  }
 
-      {loading ? (
-        <p>Loading tags...</p>
-      ) : (
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-300 rounded-lg p-6">
-              <h2 className="text-xl mb-4">All Tags ({tags.length})</h2>
+  return (
+    <>
+      <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        {/* Sidebar Toggle Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="sidebar-toggle"
+          style={{
+            position: 'absolute',
+            left: sidebarOpen ? '280px' : '0',
+            top: '200px',
+            zIndex: 20,
+            background: 'var(--accent-purple)',
+            color: 'white',
+            border: 'none',
+            padding: 'var(--space-2)',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            borderRadius: '0 4px 4px 0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '48px'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#7c2bc9'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
+        >
+          <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
+        </button>
+
+        {/* Left Sidebar */}
+        {sidebarOpen && (
+          <aside style={{
+            width: '280px',
+            background: 'var(--sidebar-bg)',
+            overflowY: 'auto',
+            padding: 'var(--space-4)',
+            boxShadow: 'var(--shadow-sidebar)',
+            flexShrink: 0
+          }}>
+            {/* Sort and New Tag */}
+            <div style={{ marginBottom: 'var(--space-4)' }}>
+              <label style={{
+                display: 'block',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-body)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'var(--neutral-500)',
+                marginBottom: 'var(--space-2)'
+              }}>
+                Sort by
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="form-input"
+                style={{
+                  width: '100%',
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                <option value="popularity">Popularity</option>
+                <option value="alphabetical">Alphabetical</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => setCreatingTag(true)}
+              className="btn-primary"
+              style={{
+                width: '100%',
+                background: 'var(--accent-purple)',
+                marginBottom: 'var(--space-4)',
+                fontFamily: 'var(--font-body)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#7c2bc9'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
+            >
+              <i className="fas fa-plus" style={{ marginRight: 'var(--space-2)' }}></i>
+              New Tag
+            </button>
+
+            {/* Tags List */}
+            <div style={{
+              borderTop: '1px solid var(--neutral-200)',
+              paddingTop: 'var(--space-3)'
+            }}>
+              <h2 style={{
+                fontSize: 'var(--text-xs)',
+                fontWeight: 700,
+                fontFamily: 'var(--font-body)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'var(--neutral-500)',
+                marginBottom: 'var(--space-3)'
+              }}>
+                All Tags ({tags.length})
+              </h2>
               {tags.length === 0 ? (
-                <p className="text-sm text-gray-600">No tags yet</p>
+                <p style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-600)',
+                  fontFamily: 'var(--font-body)',
+                  textAlign: 'center',
+                  padding: 'var(--space-4)'
+                }}>No tags yet</p>
               ) : (
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
                   {tags.map(tag => (
                     <div
                       key={tag.id}
-                      className={`flex items-center justify-between p-3 rounded cursor-pointer hover:bg-sand transition-colors ${
-                        selectedTag?.id === tag.id ? 'bg-sand' : ''
-                      }`}
                       onClick={() => handleTagClick(tag)}
+                      style={{
+                        padding: 'var(--space-2)',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        background: selectedTag?.id === tag.id ? 'var(--accent-purple)' : 'transparent',
+                        color: selectedTag?.id === tag.id ? 'white' : 'var(--neutral-900)',
+                        transition: 'all 0.15s',
+                        fontFamily: 'var(--font-body)'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedTag?.id !== tag.id) {
+                          e.currentTarget.style.background = 'var(--neutral-100)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedTag?.id !== tag.id) {
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
                     >
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          {tag.color && (
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: tag.color }}
-                            />
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}>
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            fontSize: 'var(--text-sm)',
+                            fontWeight: 500
+                          }}>
+                            {tag.color && (
+                              <div
+                                style={{
+                                  width: '10px',
+                                  height: '10px',
+                                  borderRadius: '50%',
+                                  background: tag.color,
+                                  flexShrink: 0
+                                }}
+                              />
+                            )}
+                            <span style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {tag.name}
+                            </span>
+                          </div>
+                          {tag.description && (
+                            <p style={{
+                              fontSize: 'var(--text-xs)',
+                              marginTop: 'var(--space-1)',
+                              opacity: 0.8,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {tag.description}
+                            </p>
                           )}
-                          <span className="font-medium">{tag.name}</span>
                         </div>
-                        {tag.description && (
-                          <p className="text-xs text-gray-600 mt-1">{tag.description}</p>
-                        )}
+                        <span style={{
+                          fontSize: 'var(--text-xs)',
+                          marginLeft: 'var(--space-2)',
+                          flexShrink: 0,
+                          opacity: 0.7
+                        }}>
+                          {tag.taggings_count || 0}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {tag.taggings_count || 0}
-                      </span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Header */}
+          <div style={{
+            padding: 'var(--space-6)',
+            borderBottom: '1px solid var(--neutral-200)',
+            background: 'white'
+          }}>
+            <h1 style={{
+              fontSize: 'var(--text-4xl)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-purple)',
+              margin: 0
+            }}>Tags</h1>
+            <p style={{
+              fontSize: 'var(--text-base)',
+              color: 'var(--neutral-600)',
+              fontFamily: 'var(--font-body)',
+              marginTop: 'var(--space-2)',
+              marginBottom: 0
+            }}>
+              Browse and organize your knowledge by tags
+            </p>
           </div>
 
-          <div className="lg:col-span-2">
+          {/* Content Area */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 'var(--space-6)',
+            background: 'var(--background)'
+          }}>
             {selectedTag ? (
               <TagDetail
                 tag={selectedTag}
@@ -148,17 +330,20 @@ export default function TagsIndex() {
                   setTags(tags.map(t => t.id === updatedTag.id ? updatedTag : t));
                 }}
               />
-            ) : (
-              <div className="bg-white border border-gray-300 rounded-lg p-12 text-center">
-                <p className="text-lg text-gray-600">
-                  Select a tag to view details
-                </p>
-              </div>
-            )}
+            ) : null}
           </div>
-        </div>
-      )}
-    </div>
+        </main>
+      </div>
+
+      <TagFormModal
+        isOpen={creatingTag}
+        onClose={() => setCreatingTag(false)}
+        onSuccess={(newTag) => {
+          setTags([newTag, ...tags]);
+          setCreatingTag(false);
+        }}
+      />
+    </>
   );
 }
 
@@ -166,7 +351,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
   const [editing, setEditing] = useState(false);
 
   const typeLabels = {
-    Concept: 'Constructs',
+    Concept: 'Concepts',
     Source: 'Sources',
     Person: 'People',
     Connection: 'Relationships',
@@ -184,181 +369,539 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           setEditing(false);
         }}
       />
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex items-center gap-3">
-          {tag.color && (
-            <div
-              className="w-6 h-6 rounded-full"
-              style={{ backgroundColor: tag.color }}
-            />
-          )}
-          <div>
-            <h2 className="text-3xl">{tag.name}</h2>
+      <div style={{ overflow: 'visible' }}>
+        {/* Header */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          display: 'flex',
+          alignItems: 'start',
+          justifyContent: 'space-between',
+          gap: 'var(--space-4)',
+          background: 'white'
+        }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+              {tag.color && (
+                <div
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: tag.color,
+                    flexShrink: 0
+                  }}
+                />
+              )}
+              <h2 style={{
+                fontSize: 'var(--text-3xl)',
+                fontWeight: 700,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-purple)',
+                margin: 0
+              }}>
+                {tag.name}
+              </h2>
+            </div>
             {tag.description && (
-              <p className="text-gray-600 mt-1">{tag.description}</p>
+              <p style={{
+                fontSize: 'var(--text-base)',
+                color: 'var(--neutral-600)',
+                fontFamily: 'var(--font-body)',
+                margin: 0
+              }}>
+                {tag.description}
+              </p>
             )}
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setEditing(true)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-sand"
-          >
-            Edit
-          </button>
-          <button
-            onClick={onDelete}
-            className="px-4 py-2 text-sm text-white bg-accent hover:bg-accent-dark rounded transition-colors"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <h3 className="text-lg mb-3">Tagged Items ({tag.taggings_count})</h3>
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(tag.taggings_by_type || {}).map(([type, count]) => (
-            <div key={type} className="bg-sand px-4 py-2 rounded">
-              <span className="font-medium">{typeLabels[type] || type}</span>
-              <span className="text-gray-600 ml-2">{count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {tag.concepts && tag.concepts.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg mb-3">Constructs</h3>
-          <div className="space-y-2">
-            {tag.concepts.map(concept => (
-              <a
-                key={concept.id}
-                href={`/concepts/${concept.id}`}
-                className="block p-3 border border-gray-200 rounded hover:bg-sand"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{concept.label}</span>
-                  <span className="text-xs text-gray-500">{concept.node_type}</span>
-                </div>
-                {concept.summary_top && (
-                  <p className="text-sm text-gray-600 mt-1">{concept.summary_top}</p>
-                )}
-              </a>
-            ))}
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            <button
+              onClick={() => setEditing(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-purple)',
+                cursor: 'pointer',
+                padding: 'var(--space-2)',
+                fontSize: 'var(--text-lg)',
+                transition: 'color 0.15s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-purple-light)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-purple)'}
+              title="Edit"
+            >
+              <i className="fas fa-edit"></i>
+            </button>
+            <button
+              onClick={onDelete}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-purple)',
+                cursor: 'pointer',
+                padding: 'var(--space-2)',
+                fontSize: 'var(--text-lg)',
+                transition: 'color 0.15s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-purple-light)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-purple)'}
+              title="Delete"
+            >
+              <i className="fas fa-trash"></i>
+            </button>
           </div>
         </div>
-      )}
 
-      {tag.sources && tag.sources.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg mb-3">Sources</h3>
-          <div className="space-y-2">
-            {tag.sources.map(source => (
-              <a
-                key={source.id}
-                href={`/sources/${source.id}`}
-                className="block p-3 border border-gray-200 rounded hover:bg-sand"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{source.title}</span>
-                  <span className="text-xs text-gray-500">{source.kind}</span>
-                </div>
-                {source.authors && (
-                  <p className="text-sm text-gray-600 mt-1">{source.authors}</p>
-                )}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tag.people && tag.people.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg mb-3">People</h3>
-          <div className="space-y-2">
-            {tag.people.map(person => (
-              <a
-                key={person.id}
-                href={`/people/${person.id}`}
-                className="block p-3 border border-gray-200 rounded hover:bg-sand"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{person.full_name}</span>
-                  <span className="text-xs text-gray-500">{person.role}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {tag.connections && tag.connections.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg mb-3">Relationships</h3>
-          <div className="space-y-2">
-            {tag.connections.map(connection => (
+        {/* Summary Stats */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'white'
+        }}>
+          <h3 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--neutral-900)',
+            marginBottom: 'var(--space-3)'
+          }}>
+            Tagged Items ({tag.taggings_count})
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            {Object.entries(tag.taggings_by_type || {}).map(([type, count]) => (
               <div
-                key={connection.id}
-                className="p-3 border border-gray-200 rounded bg-sand"
+                key={type}
+                style={{
+                  background: 'var(--accent-purple)',
+                  color: 'white',
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: '4px',
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: 500
+                }}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <a href={`/concepts/${connection.src.id}`} className="font-medium text-primary hover:underline">
-                    {connection.src.label}
-                  </a>
-                  <span className="text-xs text-gray-500">→</span>
-                  <a href={`/concepts/${connection.dst.id}`} className="font-medium text-primary hover:underline">
-                    {connection.dst.label}
-                  </a>
-                </div>
-                <div className="text-xs text-gray-600">
-                  {connection.rel_type}
-                  {connection.description && `: ${connection.description}`}
-                </div>
+                <span>{typeLabels[type] || type}</span>
+                <span style={{ marginLeft: 'var(--space-2)', opacity: 0.8 }}>({count})</span>
               </div>
             ))}
           </div>
         </div>
-      )}
 
-      {tag.notes && tag.notes.length > 0 && (
-        <div className="mb-6">
-          <h3 className="text-lg mb-3">Notes</h3>
-          <div className="space-y-2">
-            {tag.notes.map(note => (
-              <a
-                key={note.id}
-                href={`/notes/${note.id}`}
-                className="block p-3 border border-gray-200 rounded hover:bg-sand"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs uppercase tracking-wider text-gray-800 bg-sand px-2 py-1 rounded font-medium">
-                    {note.note_type}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {new Date(note.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                {note.title && (
-                  <div className="font-semibold text-sm mb-1">{note.title}</div>
-                )}
-                <div className="text-sm line-clamp-2 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: note.body }} />
-                {note.concepts?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {note.concepts.map((concept) => (
-                      <span key={concept.id} className="text-xs bg-accent-dark text-sand px-2 py-1 rounded">
+        {/* Body with color-coded sections */}
+        <div style={{ padding: 'var(--space-6)', background: 'white' }}>
+          {tag.people && tag.people.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <h3 style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-gold)',
+                marginBottom: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}>
+                <i className="fas fa-user" style={{ fontSize: 'var(--text-sm)' }}></i>
+                People
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: 'var(--space-3)'
+              }}>
+                {tag.people.map(person => (
+                  <a
+                    key={person.id}
+                    href={`/people/${person.id}`}
+                    className="card"
+                    style={{
+                      padding: 'var(--space-3)',
+                      textDecoration: 'none',
+                      borderLeft: '3px solid var(--accent-gold)',
+                      transition: 'all 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                  >
+                    <div style={{
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-body)',
+                      color: 'var(--neutral-900)',
+                      marginBottom: 'var(--space-1)'
+                    }}>
+                      {person.full_name}
+                    </div>
+                    {person.role && (
+                      <div style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-600)',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {person.role}
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tag.concepts && tag.concepts.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <h3 style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-green)',
+                marginBottom: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}>
+                <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
+                Concepts
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: 'var(--space-3)'
+              }}>
+                {tag.concepts.map(concept => (
+                  <a
+                    key={concept.id}
+                    href={`/concepts/${concept.id}`}
+                    className="card"
+                    style={{
+                      padding: 'var(--space-3)',
+                      textDecoration: 'none',
+                      borderLeft: '3px solid var(--accent-green)',
+                      transition: 'all 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 'var(--space-1)'
+                    }}>
+                      <div style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-body)',
+                        color: 'var(--neutral-900)'
+                      }}>
                         {concept.label}
+                      </div>
+                      {concept.node_type && (
+                        <span style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--neutral-600)',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          {concept.node_type}
+                        </span>
+                      )}
+                    </div>
+                    {concept.summary_top && (
+                      <p style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-600)',
+                        fontFamily: 'var(--font-body)',
+                        margin: 0,
+                        lineHeight: 1.4
+                      }}>
+                        {concept.summary_top}
+                      </p>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tag.sources && tag.sources.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <h3 style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-blue)',
+                marginBottom: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}>
+                <i className="fas fa-book" style={{ fontSize: 'var(--text-sm)' }}></i>
+                Sources
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: 'var(--space-3)'
+              }}>
+                {tag.sources.map(source => (
+                  <a
+                    key={source.id}
+                    href={`/sources/${source.id}`}
+                    className="card"
+                    style={{
+                      padding: 'var(--space-3)',
+                      textDecoration: 'none',
+                      borderLeft: '3px solid var(--accent-blue)',
+                      transition: 'all 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'start',
+                      justifyContent: 'space-between',
+                      gap: 'var(--space-2)',
+                      marginBottom: 'var(--space-1)'
+                    }}>
+                      <div style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-body)',
+                        color: 'var(--neutral-900)',
+                        flex: 1,
+                        lineHeight: 1.4
+                      }}>
+                        {source.title}
+                      </div>
+                      {source.kind && (
+                        <span style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--neutral-600)',
+                          fontFamily: 'var(--font-body)',
+                          flexShrink: 0
+                        }}>
+                          {source.kind}
+                        </span>
+                      )}
+                    </div>
+                    {source.authors && (
+                      <p style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-600)',
+                        fontFamily: 'var(--font-body)',
+                        margin: 0
+                      }}>
+                        {source.authors}
+                      </p>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tag.notes && tag.notes.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <h3 style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-teal)',
+                marginBottom: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}>
+                <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-sm)' }}></i>
+                Notes
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: 'var(--space-3)'
+              }}>
+                {tag.notes.map(note => (
+                  <a
+                    key={note.id}
+                    href={`/notes/${note.id}`}
+                    className="card"
+                    style={{
+                      padding: 'var(--space-3)',
+                      textDecoration: 'none',
+                      borderLeft: '3px solid var(--accent-teal)',
+                      transition: 'all 0.15s',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 'var(--space-2)'
+                    }}>
+                      <span style={{
+                        fontSize: 'var(--text-xs)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'white',
+                        background: 'var(--accent-teal)',
+                        padding: 'var(--space-1) var(--space-2)',
+                        borderRadius: '4px',
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 600
+                      }}>
+                        {note.note_type}
                       </span>
-                    ))}
+                      <span style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-600)',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {new Date(note.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {note.title && (
+                      <div style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-body)',
+                        color: 'var(--neutral-900)',
+                        marginBottom: 'var(--space-1)'
+                      }}>
+                        {note.title}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-700)',
+                        fontFamily: 'var(--font-body)',
+                        lineHeight: 1.4,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                      dangerouslySetInnerHTML={{ __html: note.body }}
+                    />
+                    {note.concepts?.length > 0 && (
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 'var(--space-1)',
+                        marginTop: 'var(--space-2)'
+                      }}>
+                        {note.concepts.map((concept) => (
+                          <span
+                            key={concept.id}
+                            style={{
+                              fontSize: 'var(--text-xs)',
+                              background: 'var(--accent-green)',
+                              color: 'white',
+                              padding: 'var(--space-1) var(--space-2)',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--font-body)'
+                            }}
+                          >
+                            {concept.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tag.connections && tag.connections.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <h3 style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                color: 'var(--accent-purple)',
+                marginBottom: 'var(--space-3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)'
+              }}>
+                <i className="fas fa-link" style={{ fontSize: 'var(--text-sm)' }}></i>
+                Relationships
+              </h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                gap: 'var(--space-3)'
+              }}>
+                {tag.connections.map(connection => (
+                  <div
+                    key={connection.id}
+                    className="card"
+                    style={{
+                      padding: 'var(--space-3)',
+                      borderLeft: '3px solid var(--accent-purple)'
+                    }}
+                  >
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      marginBottom: 'var(--space-1)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      <a
+                        href={`/concepts/${connection.src.id}`}
+                        style={{
+                          fontWeight: 600,
+                          color: 'var(--accent-green)',
+                          textDecoration: 'none'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        {connection.src.label}
+                      </a>
+                      <span style={{ color: 'var(--neutral-500)' }}>→</span>
+                      <a
+                        href={`/concepts/${connection.dst.id}`}
+                        style={{
+                          fontWeight: 600,
+                          color: 'var(--accent-green)',
+                          textDecoration: 'none'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                        onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                      >
+                        {connection.dst.label}
+                      </a>
+                    </div>
+                    <div style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-600)',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      {connection.rel_type}
+                      {connection.description && `: ${connection.description}`}
+                    </div>
                   </div>
-                )}
-              </a>
-            ))}
-          </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
     </>
   );
 }

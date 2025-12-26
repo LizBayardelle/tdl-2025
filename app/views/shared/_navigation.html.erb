@@ -25,7 +25,7 @@
         <% end %>
       </div>
 
-      <!-- Right side: Desktop Navigation, Search, User dropdown, Mobile menu button -->
+      <!-- Right side: Desktop Navigation, User dropdown, Mobile menu button -->
       <div style="display: flex; align-items: center; gap: 1.5rem;">
         <% if user_signed_in? %>
           <!-- Desktop Navigation -->
@@ -33,45 +33,157 @@
             <%= link_to "Dashboard", dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
             <%= link_to "Concepts", concepts_path, class: "nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
             <%= link_to "Sources", sources_path, class: "nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
+            <%= link_to "People", people_path, class: "nav-link #{current_page?(people_path) ? 'active' : ''}" %>
             <%= link_to "Notes", notes_path, class: "nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
             <%= link_to "Tags", tags_path, class: "nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
           </div>
-          <div style="display: none;" class="sm:block" id="global-search-root"></div>
-          <div style="display: none;" class="sm:block" id="user-dropdown-root" data-user-email="<%= current_user.email %>"></div>
+
+          <!-- Desktop User Dropdown -->
+          <div class="hidden md:block" style="position: relative;">
+            <button
+              type="button"
+              id="user-menu-button"
+              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
+              onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';"
+              onmouseout="this.style.background='transparent';"
+            >
+              <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+            </button>
+            <div
+              id="user-menu-dropdown"
+              style="display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg); min-width: 200px; overflow: hidden; z-index: 50;"
+            >
+              <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--neutral-200); font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600);">
+                <%= current_user.email %>
+              </div>
+              <%= link_to edit_user_registration_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
+                <i class="fas fa-user" style="width: 1.25rem; margin-right: 0.5rem;"></i>Account
+              <% end %>
+              <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s;" do %>
+                <i class="fas fa-sign-out-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sign out
+              <% end %>
+            </div>
+          </div>
 
           <!-- Mobile menu button -->
-          <button type="button" style="display: block; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
+          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
             <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
         <% else %>
-          <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
-          <%= link_to "Sign Up", new_user_registration_path, class: "btn-primary", style: "font-family: var(--font-display);" %>
+          <!-- Not logged in - Desktop User Dropdown -->
+          <div class="hidden md:block" style="position: relative;">
+            <button
+              type="button"
+              id="user-menu-button"
+              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
+              onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';"
+              onmouseout="this.style.background='transparent';"
+            >
+              <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+            </button>
+            <div
+              id="user-menu-dropdown"
+              style="display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow-lg); min-width: 200px; overflow: hidden; z-index: 50;"
+            >
+              <%= link_to new_user_session_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
+                <i class="fas fa-sign-in-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sign In
+              <% end %>
+              <%= link_to new_user_registration_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s;" do %>
+                <i class="fas fa-user-plus" style="width: 1.25rem; margin-right: 0.5rem;"></i>Create Account
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
         <% end %>
       </div>
     </div>
   </div>
 
-  <!-- Mobile menu -->
-  <% if user_signed_in? %>
-    <div id="mobile-menu" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.2);" class="md:hidden">
-      <div style="padding: 0.5rem 1rem;">
+  <!-- Mobile menu (only visible when button is clicked on mobile) -->
+  <div id="mobile-menu" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.2);" class="md:hidden">
+    <div style="padding: 0.5rem 1rem;">
+      <% if user_signed_in? %>
         <%= link_to "Dashboard", dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
         <%= link_to "Concepts", concepts_path, class: "mobile-nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
         <%= link_to "Sources", sources_path, class: "mobile-nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
+        <%= link_to "People", people_path, class: "mobile-nav-link #{current_page?(people_path) ? 'active' : ''}" %>
         <%= link_to "Notes", notes_path, class: "mobile-nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
         <%= link_to "Tags", tags_path, class: "mobile-nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
 
         <!-- Mobile user menu -->
-        <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;" class="sm:hidden">
-          <div style="padding: 0.75rem 1rem; font-size: var(--text-sm); color: rgba(255, 255, 255, 0.7);"><%= current_user.email %></div>
+        <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;">
+          <div style="padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: rgba(255, 255, 255, 0.7);"><%= current_user.email %></div>
+          <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link" %>
           <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "mobile-nav-link" %>
         </div>
-      </div>
+      <% else %>
+        <%= link_to "Sign In", new_user_session_path, class: "mobile-nav-link" %>
+        <%= link_to "Create Account", new_user_registration_path, class: "mobile-nav-link" %>
+      <% end %>
     </div>
-  <% end %>
+  </div>
 </nav>
+
+<style>
+  .nav-link {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    transition: all 0.15s;
+    display: inline-block;
+  }
+
+  .nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+  }
+
+  .mobile-nav-link {
+    display: block;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    transition: all 0.15s;
+    margin-bottom: 0.25rem;
+  }
+
+  .mobile-nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .mobile-nav-link.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+  }
+
+  #user-menu-dropdown a:hover {
+    background: var(--neutral-100);
+  }
+</style>
 
 <script>
   // Mobile menu toggle
@@ -85,6 +197,28 @@
           mobileMenu.style.display = 'block';
         } else {
           mobileMenu.style.display = 'none';
+        }
+      });
+    }
+
+    // Desktop user menu toggle
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenuDropdown = document.getElementById('user-menu-dropdown');
+
+    if (userMenuButton && userMenuDropdown) {
+      userMenuButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (userMenuDropdown.style.display === 'none') {
+          userMenuDropdown.style.display = 'block';
+        } else {
+          userMenuDropdown.style.display = 'none';
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+          userMenuDropdown.style.display = 'none';
         }
       });
     }
