@@ -13,10 +13,12 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import Image from '@tiptap/extension-image';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
+import ConceptSelector from './ConceptSelector';
+import TagSelector from './TagSelector';
 
 export default function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
-  const [concepts, setConcepts] = useState([]);
   const [sources, setSources] = useState([]);
+  const [activeTab, setActiveTab] = useState('content');
   const [formData, setFormData] = useState({
     body: '',
     note_type: 'note',
@@ -25,7 +27,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
     noted_on: new Date().toISOString().split('T')[0],
     concept_ids: [],
     source_id: '',
-    tags: ''
+    tags: []
   });
   const [error, setError] = useState('');
 
@@ -71,8 +73,8 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
 
   useEffect(() => {
     if (isOpen) {
+      setActiveTab('content');
       if (!conceptId && !sourceId && !item) {
-        fetchConcepts();
         fetchSources();
       }
       if (item) {
@@ -84,7 +86,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           noted_on: item.noted_on || new Date().toISOString().split('T')[0],
           concept_ids: item.concepts?.map(c => c.id) || (conceptId ? [conceptId] : []),
           source_id: item.source_id || sourceId || '',
-          tags: (item.tags || []).join('\n')
+          tags: item.tags?.map(t => t.name) || []
         });
       } else {
         setFormData({
@@ -95,22 +97,12 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           noted_on: new Date().toISOString().split('T')[0],
           concept_ids: conceptId ? [conceptId] : [],
           source_id: sourceId || '',
-          tags: ''
+          tags: []
         });
       }
       setError('');
     }
   }, [isOpen, item, conceptId, sourceId]);
-
-  const fetchConcepts = async () => {
-    try {
-      const response = await fetch('/concepts.json');
-      const data = await response.json();
-      setConcepts(data);
-    } catch (error) {
-      console.error('Error fetching concepts:', error);
-    }
-  };
 
   const fetchSources = async () => {
     try {
@@ -130,17 +122,20 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
       ...formData,
       concept_ids: formData.concept_ids || [],
       source_id: formData.source_id || null,
-      tags: formData.tags.split('\n').filter(t => t.trim())
+      tags: formData.tags || []
     };
 
     try {
+      console.log('Submitting note. item:', item, 'item.id:', item?.id);
       const url = item ? `/notes/${item.id}` : '/notes';
       const method = item ? 'PATCH' : 'POST';
+      console.log('URL:', url, 'Method:', method);
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
         body: JSON.stringify({ note: payload }),
@@ -165,40 +160,162 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
       isOpen={isOpen}
       onClose={onClose}
       title={item ? 'Edit Note' : 'New Note'}
-      size="medium"
+      size="large"
+      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
+          <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
+            <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
             {error}
           </div>
         )}
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Type *</label>
-          <select
-            value={formData.note_type}
-            onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          >
-            <option value="note">Note</option>
-            <option value="question">Question</option>
-            <option value="synthesis">Synthesis</option>
-            <option value="connection">Connection</option>
-            <option value="todo">To Do Item</option>
-          </select>
-        </div>
+        {/* Sidebar + Content Layout */}
+        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden' }}>
+          {/* Left Sidebar Navigation */}
+          <div className="w-12 md:w-[200px]" style={{
+            background: 'var(--sidebar-bg)',
+            padding: 'var(--space-2)',
+            paddingTop: 'var(--space-6)',
+            flexShrink: 0,
+          }}>
+            <div className="hidden md:block" style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--neutral-500)',
+              marginBottom: 'var(--space-3)',
+              fontFamily: 'var(--font-body)',
+            }}>
+              Sections
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Body *</label>
-          <div className="border border-gray-300 rounded bg-white">
+            <button
+              type="button"
+              onClick={() => setActiveTab('content')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'content' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'content') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'content') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Content"
+            >
+              <i className="fas fa-file-alt" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Content</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('connections')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'connections' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'connections') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'connections') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Connections"
+            >
+              <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Connections</span>
+            </button>
+          </div>
+
+          {/* Content Area */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            background: 'var(--background)',
+            padding: 'var(--space-6)',
+          }}>
+            {activeTab === 'content' && (
+              <div className="space-y-4">
+            <div>
+              <label className="form-label required teal">Type</label>
+              <select
+                value={formData.note_type}
+                onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
+                className="form-select"
+              >
+                <option value="note">Note</option>
+                <option value="question">Question</option>
+                <option value="synthesis">Synthesis</option>
+                <option value="connection">Connection</option>
+                <option value="todo">To Do Item</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label required teal">Body</label>
+              <div style={{
+                border: '1px solid var(--neutral-300)',
+                borderRadius: 'var(--radius)',
+                background: 'white',
+                overflow: 'hidden'
+              }}>
             {editor && (
-              <div className="border-b border-gray-200 p-2 flex gap-1 flex-wrap bg-sand">
+              <div style={{
+                borderBottom: '1px solid var(--neutral-200)',
+                padding: 'var(--space-2)',
+                display: 'flex',
+                gap: 'var(--space-1)',
+                flexWrap: 'wrap',
+                background: 'white'
+              }}>
                 {/* Text formatting */}
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBold().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('bold') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('bold') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('bold') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('bold') && (e.currentTarget.style.background = 'transparent')}
                   title="Bold"
                 >
                   <strong>B</strong>
@@ -206,7 +323,18 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleItalic().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('italic') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('italic') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('italic') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('italic') && (e.currentTarget.style.background = 'transparent')}
                   title="Italic"
                 >
                   <em>I</em>
@@ -214,7 +342,18 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleUnderline().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('underline') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('underline') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('underline') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('underline') && (e.currentTarget.style.background = 'transparent')}
                   title="Underline"
                 >
                   <u>U</u>
@@ -222,13 +361,24 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleStrike().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('strike') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('strike') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('strike') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('strike') && (e.currentTarget.style.background = 'transparent')}
                   title="Strikethrough"
                 >
                   <s>S</s>
                 </button>
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Headings dropdown */}
                 <select
@@ -240,7 +390,16 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                       editor.chain().focus().setParagraph().run();
                     }
                   }}
-                  className="px-2 py-1 rounded text-sm text-olive border border-olive/20 bg-sand hover:bg-olive/10"
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    border: '1px solid rgba(99, 156, 161, 0.2)',
+                    background: 'var(--neutral-50)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
                   value={
                     editor.isActive('heading', { level: 1 }) ? '1' :
                     editor.isActive('heading', { level: 2 }) ? '2' :
@@ -259,14 +418,20 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                   <option value="6">Heading 6</option>
                 </select>
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Text color */}
                 <input
                   type="color"
                   onInput={(e) => editor.chain().focus().setColor(e.target.value).run()}
                   value={editor.getAttributes('textStyle').color || '#000000'}
-                  className="w-8 h-6 rounded cursor-pointer border border-olive/20"
+                  style={{
+                    width: '32px',
+                    height: '24px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    border: '1px solid rgba(99, 156, 161, 0.2)'
+                  }}
                   title="Text Color"
                 />
 
@@ -274,17 +439,34 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <input
                   type="color"
                   onInput={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
-                  className="w-8 h-6 rounded cursor-pointer border border-olive/20"
+                  style={{
+                    width: '32px',
+                    height: '24px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    border: '1px solid rgba(99, 156, 161, 0.2)'
+                  }}
                   title="Highlight Color"
                 />
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Text alignment */}
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive({ textAlign: 'left' }) ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive({ textAlign: 'left' }) ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive({ textAlign: 'left' }) && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive({ textAlign: 'left' }) && (e.currentTarget.style.background = 'transparent')}
                   title="Align Left"
                 >
                   ⬅
@@ -292,7 +474,18 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive({ textAlign: 'center' }) ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive({ textAlign: 'center' }) ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive({ textAlign: 'center' }) && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive({ textAlign: 'center' }) && (e.currentTarget.style.background = 'transparent')}
                   title="Align Center"
                 >
                   ↔
@@ -300,19 +493,41 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive({ textAlign: 'right' }) ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive({ textAlign: 'right' }) ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive({ textAlign: 'right' }) && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive({ textAlign: 'right' }) && (e.currentTarget.style.background = 'transparent')}
                   title="Align Right"
                 >
                   ➡
                 </button>
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Lists */}
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBulletList().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('bulletList') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('bulletList') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('bulletList') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('bulletList') && (e.currentTarget.style.background = 'transparent')}
                   title="Bullet List"
                 >
                   • List
@@ -320,13 +535,24 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('orderedList') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('orderedList') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('orderedList') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('orderedList') && (e.currentTarget.style.background = 'transparent')}
                   title="Numbered List"
                 >
                   1. List
                 </button>
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Link */}
                 <button
@@ -337,7 +563,18 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                       editor.chain().focus().setLink({ href: url }).run();
                     }
                   }}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('link') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('link') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('link') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('link') && (e.currentTarget.style.background = 'transparent')}
                   title="Add Link"
                 >
                   🔗
@@ -347,7 +584,18 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                  className={`px-3 py-1 rounded text-sm text-olive ${editor.isActive('blockquote') ? 'bg-olive/20' : 'hover:bg-olive/10'}`}
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: editor.isActive('blockquote') ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => !editor.isActive('blockquote') && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)')}
+                  onMouseLeave={(e) => !editor.isActive('blockquote') && (e.currentTarget.style.background = 'transparent')}
                   title="Blockquote"
                 >
                   &ldquo;&rdquo;
@@ -357,19 +605,41 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                  className="px-3 py-1 rounded text-sm text-olive hover:bg-olive/10"
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   title="Horizontal Rule"
                 >
                   ―
                 </button>
 
-                <div className="w-px h-6 bg-olive/20 mx-1"></div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
 
                 {/* Table */}
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-                  className="px-3 py-1 rounded text-sm text-olive hover:bg-olive/10"
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   title="Insert Table"
                 >
                   ▦
@@ -384,111 +654,137 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                       editor.chain().focus().setImage({ src: url }).run();
                     }
                   }}
-                  className="px-3 py-1 rounded text-sm text-olive hover:bg-olive/10"
+                  style={{
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontSize: 'var(--text-sm)',
+                    color: '#639CA1',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   title="Insert Image"
                 >
                   🖼
                 </button>
               </div>
             )}
-            <EditorContent
-              editor={editor}
-              className="px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
-            />
+                <EditorContent
+                  editor={editor}
+                  className="px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
+                />
+              </div>
+            </div>
+
+                <div>
+                  <label className="form-label">Context</label>
+                  <textarea
+                    value={formData.context}
+                    onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+                    rows="2"
+                    className="form-textarea"
+                    placeholder="What prompted this note?"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="form-label">Date Noted</label>
+                    <input
+                      type="date"
+                      value={formData.noted_on}
+                      onChange={(e) => setFormData({ ...formData, noted_on: e.target.value })}
+                      className="form-input"
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginTop: 'var(--space-6)' }}>
+                    <input
+                      type="checkbox"
+                      id="pinned"
+                      checked={formData.pinned}
+                      onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+                      style={{
+                        borderRadius: '4px',
+                        border: '1px solid var(--neutral-300)',
+                        accentColor: '#639CA1'
+                      }}
+                    />
+                    <label htmlFor="pinned" className="text-sm">
+                      Pin this note
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'connections' && (
+              <div className="space-y-4">
+                {!sourceId && (
+                  <div>
+                    <label className="form-label">Link to Source</label>
+                    <select
+                      value={formData.source_id}
+                      onChange={(e) => setFormData({ ...formData, source_id: e.target.value })}
+                      className="form-select"
+                    >
+                      <option value="">None</option>
+                      {sources.map(source => (
+                        <option key={source.id} value={source.id}>
+                          {source.title} {source.year ? `(${source.year})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ height: '300px' }}>
+                  {!conceptId && (
+                    <div style={{ height: '100%' }}>
+                      <label className="form-label">Link to Constructs</label>
+                      <ConceptSelector
+                        selectedConceptIds={formData.concept_ids}
+                        onChange={(conceptIds) => setFormData({ ...formData, concept_ids: conceptIds })}
+                        themeColor="#639CA1"
+                      />
+                    </div>
+                  )}
+
+                  <div style={{ height: '100%' }}>
+                    <label className="form-label">Tags</label>
+                    <TagSelector
+                      selectedTags={formData.tags}
+                      onChange={(tags) => setFormData({ ...formData, tags: tags })}
+                      themeColor="#639CA1"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Context</label>
-          <textarea
-            value={formData.context}
-            onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-            rows="2"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="What prompted this note?"
-          />
-        </div>
-
-        {!conceptId && (
-          <div>
-            <label className="block text-sm font-medium mb-1">Link to Constructs</label>
-            <select
-              multiple
-              value={formData.concept_ids}
-              onChange={(e) => {
-                const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
-                setFormData({ ...formData, concept_ids: selected });
-              }}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-              size="5"
-            >
-              {concepts.map(concept => (
-                <option key={concept.id} value={concept.id}>
-                  {concept.label} ({concept.node_type})
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-600 mt-1">Hold Ctrl/Cmd to select multiple</p>
-          </div>
-        )}
-
-        {!sourceId && (
-          <div>
-            <label className="block text-sm font-medium mb-1">Link to Source</label>
-            <select
-              value={formData.source_id}
-              onChange={(e) => setFormData({ ...formData, source_id: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            >
-              <option value="">None</option>
-              {sources.map(source => (
-                <option key={source.id} value={source.id}>
-                  {source.title} {source.year ? `(${source.year})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Tags (one per line)</label>
-          <textarea
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            rows="2"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Date Noted</label>
-            <input
-              type="date"
-              value={formData.noted_on}
-              onChange={(e) => setFormData({ ...formData, noted_on: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 mt-6">
-            <input
-              type="checkbox"
-              id="pinned"
-              checked={formData.pinned}
-              onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
-              className="rounded"
-            />
-            <label htmlFor="pinned" className="text-sm">
-              Pin this note
-            </label>
-          </div>
-        </div>
-
-        <div className="flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200">
+        {/* Footer */}
+        <div style={{
+          borderTop: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-4)',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+        }}>
           <button
             type="submit"
             className="btn-primary"
+            style={{
+              background: '#639CA1',
+              color: 'white'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#527d81'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#639CA1'}
           >
             {item ? 'Save Changes' : 'Create Note'}
           </button>

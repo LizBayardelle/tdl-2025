@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function PeopleSelector({ selectedPersonIds = [], onChange }) {
+export default function PeopleSelector({ selectedPersonIds = [], onChange, themeColor = 'var(--primary)' }) {
   const [allPeople, setAllPeople] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -35,39 +35,207 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange }) {
     }
   };
 
-  if (loading) return <p className="text-sm text-gray-500">Loading people...</p>;
+  const handleCreateFromFilter = async () => {
+    if (filter.trim() && !allPeople.some(p => p.full_name.toLowerCase() === filter.trim().toLowerCase())) {
+      try {
+        const response = await fetch('/people', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          },
+          body: JSON.stringify({
+            person: {
+              full_name: filter.trim(),
+              role: 'researcher'
+            }
+          }),
+        });
+
+        if (response.ok) {
+          const newPerson = await response.json();
+          setAllPeople([...allPeople, newPerson].sort((a, b) => a.full_name.localeCompare(b.full_name)));
+          onChange([...selectedPersonIds, newPerson.id]);
+          setFilter('');
+        }
+      } catch (error) {
+        console.error('Error creating person:', error);
+      }
+    }
+  };
+
+  const canCreateNew = filter.trim() &&
+                       !allPeople.some(p => p.full_name.toLowerCase() === filter.trim().toLowerCase());
+
+  const selectedPeople = allPeople.filter(p => selectedPersonIds.includes(p.id));
+
+  if (loading) {
+    return (
+      <div style={{
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-500)',
+        fontFamily: 'var(--font-body)'
+      }}>
+        Loading people...
+      </div>
+    );
+  }
 
   return (
-    <div className="border border-gray-300 rounded bg-white">
-      <input
-        type="text"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        placeholder="Type to filter people..."
-        className="w-full px-4 py-2 border-b border-gray-300 rounded-t bg-white"
-      />
-      <div className="max-h-48 overflow-y-auto p-3 space-y-2">
-        {filteredPeople.length === 0 ? (
-          <p className="text-sm text-gray-500">No people found</p>
-        ) : (
-          filteredPeople.map(person => (
-            <label key={person.id} className="flex items-start gap-2 cursor-pointer hover:bg-sand p-1 rounded">
-              <input
-                type="checkbox"
-                checked={selectedPersonIds.includes(person.id)}
-                onChange={() => handleToggle(person.id)}
-                className="mt-1 rounded"
-                style={{ accentColor: '#414431' }}
-              />
-              <span className="text-sm">
-                {person.full_name} {person.role && `(${person.role})`}
-              </span>
-            </label>
-          ))
+    <div style={{
+      border: '1px solid var(--neutral-300)',
+      borderRadius: '4px',
+      background: 'white',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      {/* Search/Filter Input */}
+      <div style={{ padding: 'var(--space-3)', borderBottom: '1px solid var(--neutral-200)' }}>
+        <input
+          type="text"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && canCreateNew) {
+              e.preventDefault();
+              handleCreateFromFilter();
+            }
+          }}
+          placeholder="Type to filter or create new person..."
+          className="form-input"
+          style={{ width: '100%', fontSize: 'var(--text-sm)' }}
+        />
+        {canCreateNew && (
+          <button
+            type="button"
+            onClick={handleCreateFromFilter}
+            style={{
+              background: 'none',
+              padding: 0,
+              color: themeColor,
+              fontSize: 'var(--text-xs)',
+              border: 'none',
+              cursor: 'pointer',
+              marginTop: 'var(--space-2)',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            + Create "{filter.trim()}"
+          </button>
         )}
       </div>
-      <div className="px-3 py-2 text-xs text-gray-600 border-t border-gray-200">
-        {selectedPersonIds.length} selected
+
+      {/* Selected People */}
+      {selectedPeople.length > 0 && (
+        <div style={{
+          padding: 'var(--space-3)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--neutral-50)'
+        }}>
+          <div style={{
+            fontSize: 'var(--text-xs)',
+            fontWeight: 500,
+            marginBottom: 'var(--space-2)',
+            color: 'var(--neutral-600)',
+            fontFamily: 'var(--font-body)'
+          }}>
+            Selected:
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            {selectedPeople.map(person => (
+              <span
+                key={person.id}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  padding: 'var(--space-1) var(--space-2)',
+                  background: themeColor,
+                  color: 'white',
+                  fontSize: 'var(--text-xs)',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                {person.full_name}
+                <button
+                  type="button"
+                  onClick={() => handleToggle(person.id)}
+                  style={{
+                    background: 'none',
+                    padding: 0,
+                    fontSize: '14px',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    opacity: 0.8
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Scrollable People List */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-3)' }}>
+        {filteredPeople.length === 0 ? (
+          <div style={{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--neutral-500)',
+            textAlign: 'center',
+            padding: 'var(--space-4) 0',
+            fontFamily: 'var(--font-body)'
+          }}>
+            {filter ? 'No matching people. Press Enter to create new.' : 'No people yet.'}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+            {filteredPeople.map(person => (
+              <label
+                key={person.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1) var(--space-2)',
+                  borderRadius: '4px',
+                  transition: 'background 0.15s',
+                  fontFamily: 'var(--font-body)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedPersonIds.includes(person.id)}
+                  onChange={() => handleToggle(person.id)}
+                  style={{
+                    borderRadius: '4px',
+                    border: '1px solid var(--neutral-300)',
+                    accentColor: themeColor
+                  }}
+                />
+                <span style={{ fontSize: 'var(--text-sm)' }}>{person.full_name}</span>
+                {person.role && person.role !== 'researcher' && (
+                  <span style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--neutral-500)',
+                    marginLeft: 'auto'
+                  }}>
+                    ({person.role})
+                  </span>
+                )}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

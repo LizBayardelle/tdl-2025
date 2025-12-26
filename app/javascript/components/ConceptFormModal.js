@@ -6,9 +6,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
   const [concepts, setConcepts] = useState([]);
   const [activeTab, setActiveTab] = useState('basics');
+  const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
+  const [newRelationships, setNewRelationships] = useState([]);
   const [formData, setFormData] = useState({
     label: '',
-    node_type: 'model',
+    node_type: 'construct',
     level_status: 'mapped',
     summary_top: '',
     summary_mid: '',
@@ -36,6 +38,8 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   useEffect(() => {
     if (isOpen) {
       setActiveTab('basics');
+      setDeletedRelationshipIds([]);
+      setNewRelationships([]);
       fetchPeople();
       fetchConcepts();
       if (item) {
@@ -67,7 +71,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       } else {
         setFormData({
           label: '',
-          node_type: 'model',
+          node_type: 'construct',
           level_status: 'mapped',
           summary_top: '',
           summary_mid: '',
@@ -120,6 +124,88 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     setFormData({ ...formData, [field]: items });
   };
 
+  const handleDeleteRelationship = async (relationshipId) => {
+    if (!confirm('Are you sure you want to delete this relationship?')) return;
+
+    try {
+      const response = await fetch(`/connections/${relationshipId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+
+      if (response.ok) {
+        setDeletedRelationshipIds([...deletedRelationshipIds, relationshipId]);
+      } else {
+        alert('Failed to delete relationship');
+      }
+    } catch (error) {
+      console.error('Error deleting relationship:', error);
+      alert('An error occurred while deleting the relationship');
+    }
+  };
+
+  const handleAddRelationship = async () => {
+    if (!item?.id) {
+      alert('Please save the construct first before adding relationships');
+      return;
+    }
+
+    if (!formData.new_relationship_dst_concept_id) {
+      alert('Please select a construct to relate to');
+      return;
+    }
+
+    try {
+      const response = await fetch('/connections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          connection: {
+            src_concept_id: item.id,
+            dst_concept_id: formData.new_relationship_dst_concept_id,
+            rel_type: formData.new_relationship_rel_type,
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Find the destination concept
+        const dstConcept = concepts.find(c => c.id === parseInt(formData.new_relationship_dst_concept_id));
+
+        // Add to newRelationships state
+        setNewRelationships([
+          ...newRelationships,
+          {
+            id: data.id,
+            rel_type: formData.new_relationship_rel_type,
+            dst_concept: dstConcept,
+            relationship_label: data.relationship_label,
+          }
+        ]);
+
+        // Reset the form
+        setFormData({
+          ...formData,
+          new_relationship_dst_concept_id: '',
+          new_relationship_rel_type: 'related_to'
+        });
+      } else {
+        const data = await response.json();
+        alert(data.errors?.join(', ') || 'Failed to create relationship');
+      }
+    } catch (error) {
+      console.error('Error creating relationship:', error);
+      alert('An error occurred while creating the relationship');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -151,91 +237,227 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     }
   };
 
+  const handleClose = () => {
+    // If we added or deleted relationships, refresh the parent
+    if (newRelationships.length > 0 || deletedRelationshipIds.length > 0) {
+      onSuccess();
+    }
+    onClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title={item ? 'Edit Construct' : 'New Construct'}
       size="large"
+      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col h-full">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded mb-4">
+          <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
+            <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
             {error}
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex gap-1 mb-0">
-          <button
-            type="button"
-            onClick={() => setActiveTab('basics')}
-            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'basics' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
-          >
-            Basics
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('summaries')}
-            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'summaries' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
-          >
-            Summaries
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('details')}
-            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'details' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
-          >
-            Details
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('relationships')}
-            className={`px-6 py-2 font-medium rounded-t-lg ${activeTab === 'relationships' ? '!bg-sand !text-gray-800' : '!bg-primary !text-sand hover:!bg-accent-dark'}`}
-          >
-            Relationships
-          </button>
-        </div>
+        {/* Sidebar + Content Layout */}
+        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden' }}>
+          {/* Left Sidebar Navigation */}
+          <div className="w-12 md:w-[200px]" style={{
+            background: 'var(--sidebar-bg)',
+            padding: 'var(--space-2)',
+            paddingTop: 'var(--space-6)',
+            flexShrink: 0,
+          }}>
+            <div className="hidden md:block" style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--neutral-500)',
+              marginBottom: 'var(--space-3)',
+              fontFamily: 'var(--font-body)',
+            }}>
+              Sections
+            </div>
 
-        {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto bg-sand p-6 rounded-b-lg rounded-tr-lg shadow-lg" style={{ minHeight: '400px' }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('basics')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'basics' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'basics') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'basics') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Basics"
+            >
+              <i className="fas fa-info-circle" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Basics</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('summaries')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'summaries' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'summaries') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'summaries') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Summaries"
+            >
+              <i className="fas fa-align-left" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Summaries</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('details')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'details' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'details') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'details') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Details"
+            >
+              <i className="fas fa-list-ul" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Details</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('relationships')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-700)',
+                background: activeTab === 'relationships' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                transition: 'background 0.15s',
+                marginBottom: '0.25rem',
+                textAlign: 'left',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'relationships') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'relationships') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Relationships"
+            >
+              <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
+              <span className="hidden md:inline">Relationships</span>
+            </button>
+          </div>
+
+          {/* Content Area */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            background: 'var(--background)',
+            padding: 'var(--space-6)',
+          }}>
           {activeTab === 'basics' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Label *</label>
+                <label className="form-label required">Label</label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-input"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Type *</label>
+                  <label className="form-label required">Type</label>
                   <select
                     value={formData.node_type}
                     onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-select"
                   >
-                    <option value="model">Model</option>
-                    <option value="technique">Technique</option>
+                    <option value="school_of_thought">School of Thought</option>
                     <option value="construct">Construct</option>
-                    <option value="measure">Measure</option>
-                    <option value="population">Population</option>
-                    <option value="category">Category</option>
-                    <option value="discipline">Discipline</option>
+                    <option value="subject">Subject</option>
+                    <option value="theory">Theory</option>
+                    <option value="model">Model</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
+                  <label className="form-label">Status</label>
                   <select
                     value={formData.level_status}
                     onChange={(e) => setFormData({ ...formData, level_status: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-select"
                   >
                     <option value="mapped">Mapped</option>
                     <option value="basic">Basic</option>
@@ -245,14 +467,15 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Summary Top (2-3 sentences)
+                <label className="form-label">
+                  Summary Top
                 </label>
+                <div className="form-helper">2-3 sentences</div>
                 <textarea
                   value={formData.summary_top}
                   onChange={(e) => setFormData({ ...formData, summary_top: e.target.value })}
                   rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
             </div>
@@ -261,26 +484,24 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           {activeTab === 'summaries' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Summary Mid (~200 words)
-                </label>
+                <label className="form-label">Summary Mid</label>
+                <div className="form-helper">~200 words</div>
                 <textarea
                   value={formData.summary_mid}
                   onChange={(e) => setFormData({ ...formData, summary_mid: e.target.value })}
                   rows="8"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Summary Deep (~600 words)
-                </label>
+                <label className="form-label">Summary Deep</label>
+                <div className="form-helper">~600 words</div>
                 <textarea
                   value={formData.summary_deep}
                   onChange={(e) => setFormData({ ...formData, summary_deep: e.target.value })}
                   rows="12"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
             </div>
@@ -290,118 +511,108 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
             <div className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Mechanisms (one per line)
-                  </label>
+                  <label className="form-label">Mechanisms</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.mechanisms.join('\n')}
                     onChange={(e) => handleArrayInput('mechanisms', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Signature Techniques (one per line)
-                  </label>
+                  <label className="form-label">Signature Techniques</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.signature_techniques.join('\n')}
                     onChange={(e) => handleArrayInput('signature_techniques', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Strengths (one per line)
-                  </label>
+                  <label className="form-label">Strengths</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.strengths.join('\n')}
                     onChange={(e) => handleArrayInput('strengths', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Weaknesses (one per line)
-                  </label>
+                  <label className="form-label">Weaknesses</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.weaknesses.join('\n')}
                     onChange={(e) => handleArrayInput('weaknesses', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Intake Questions (one per line)
-                  </label>
+                  <label className="form-label">Intake Questions</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.intake_questions.join('\n')}
                     onChange={(e) => handleArrayInput('intake_questions', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Micro Skills (one per line)
-                  </label>
+                  <label className="form-label">Micro Skills</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.micro_skills.join('\n')}
                     onChange={(e) => handleArrayInput('micro_skills', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Practice Prompts (one per line)
-                  </label>
+                  <label className="form-label">Practice Prompts</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.practice_prompts.join('\n')}
                     onChange={(e) => handleArrayInput('practice_prompts', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Assessment Links (one per line)
-                  </label>
+                  <label className="form-label">Assessment Links</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.assessment_links.join('\n')}
                     onChange={(e) => handleArrayInput('assessment_links', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Tags (one per line)
-                  </label>
+                  <label className="form-label">Tags</label>
+                  <div className="form-helper">One per line</div>
                   <textarea
                     value={formData.tags.join('\n')}
                     onChange={(e) => handleArrayInput('tags', e.target.value)}
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                    className="form-textarea"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Link People (hold Cmd/Ctrl to select multiple)
-                </label>
+                <label className="form-label">Link People</label>
+                <div className="form-helper">Hold Cmd/Ctrl to select multiple</div>
                 <select
                   multiple
                   value={formData.people_ids}
@@ -409,7 +620,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                     const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
                     setFormData({ ...formData, people_ids: selected });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-select"
                   size="5"
                 >
                   {people.map(person => (
@@ -418,32 +629,28 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="form-helper" style={{ marginTop: 'var(--space-2)' }}>
                   Selected: {formData.people_ids.length} {formData.people_ids.length === 1 ? 'person' : 'people'}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Evidence Brief
-                </label>
+                <label className="form-label">Evidence Brief</label>
                 <textarea
                   value={formData.evidence_brief}
                   onChange={(e) => setFormData({ ...formData, evidence_brief: e.target.value })}
                   rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Confidence Note
-                </label>
+                <label className="form-label">Confidence Note</label>
                 <textarea
                   value={formData.confidence_note}
                   onChange={(e) => setFormData({ ...formData, confidence_note: e.target.value })}
                   rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
             </div>
@@ -451,17 +658,43 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {activeTab === 'relationships' && (
             <div className="space-y-4">
-              {/* Quick Add Relationship */}
-              <div className="bg-white border-2 border-primary rounded-lg p-4">
-                <label className="block text-sm font-medium mb-3 text-primary">Quick Add Relationship</label>
-                <div className="flex flex-wrap items-center gap-2 text-lg">
-                  <span className="font-medium text-primary">
-                    {formData.label || '[This Construct]'}
+              {/* Relationships */}
+              <div style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'var(--text-xl)',
+                fontWeight: 700,
+                color: 'var(--primary)',
+                marginBottom: 'var(--space-3)',
+              }}>
+                Relationships
+              </div>
+
+              <div style={{
+                background: 'var(--accent-green-light)',
+                border: '2px solid var(--primary)',
+                borderRadius: 'var(--radius)',
+                padding: 'var(--space-4)',
+              }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 2fr 2fr auto',
+                  gap: 'var(--space-2)',
+                  alignItems: 'center',
+                  marginBottom: 'var(--space-3)',
+                }}>
+                  <span style={{
+                    fontWeight: 600,
+                    color: 'var(--primary)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-base)',
+                    lineHeight: 1,
+                  }}>
+                    {formData.label || 'This'}
                   </span>
                   <select
                     value={formData.new_relationship_rel_type}
                     onChange={(e) => setFormData({ ...formData, new_relationship_rel_type: e.target.value })}
-                    className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base"
+                    className="form-select"
                   >
                     <optgroup label="Hierarchical">
                       <option value="parent_of">is a parent of</option>
@@ -495,54 +728,248 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                     onChange={(e) => setFormData({ ...formData, new_relationship_dst_concept_id: e.target.value })}
                     excludeId={item?.id}
                     placeholder="select a construct..."
+                    className="form-select"
                   />
+                  <button
+                    type="button"
+                    onClick={handleAddRelationship}
+                    className="btn-primary"
+                    style={{
+                      padding: 'var(--space-2) var(--space-4)',
+                      whiteSpace: 'nowrap',
+                    }}
+                    disabled={!item?.id || !formData.new_relationship_dst_concept_id}
+                  >
+                    Add
+                  </button>
                 </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  This relationship will be created when you save the construct.
-                </p>
+
+                {!item?.id && (
+                  <p className="form-helper" style={{ marginTop: 'var(--space-2)', color: 'var(--neutral-500)' }}>
+                    Save the construct first before adding relationships.
+                  </p>
+                )}
+
+                {/* Existing Relationships */}
+                {item && (item.outgoing_connections?.length > 0 || item.incoming_connections?.length > 0 || newRelationships.length > 0) && (
+                  <div style={{ marginTop: 'var(--space-4)' }}>
+                    <div style={{
+                      background: 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: 'var(--radius)',
+                      overflow: 'hidden',
+                    }}>
+                      {item.outgoing_connections?.filter(conn => !deletedRelationshipIds.includes(conn.id)).map((conn) => (
+                        <div
+                          key={`out-${conn.id}`}
+                          style={{
+                            padding: 'var(--space-3)',
+                            borderBottom: '1px solid var(--neutral-200)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            fontSize: 'var(--text-sm)',
+                          }}
+                        >
+                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                            {item.label}
+                          </span>
+                          <span style={{ color: 'var(--neutral-500)' }}>
+                            {conn.rel_type.replace(/_/g, ' ')}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                            {conn.dst_concept?.label || 'Unknown'}
+                          </span>
+                          {conn.relationship_label && (
+                            <span style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-500)',
+                              fontStyle: 'italic',
+                            }}>
+                              "{conn.relationship_label}"
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRelationship(conn.id)}
+                            style={{
+                              marginLeft: 'auto',
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'var(--error)',
+                              cursor: 'pointer',
+                              padding: 'var(--space-1)',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
+                          </button>
+                        </div>
+                      ))}
+                      {newRelationships.map((conn) => (
+                        <div
+                          key={`new-${conn.id}`}
+                          style={{
+                            padding: 'var(--space-3)',
+                            borderBottom: '1px solid var(--neutral-200)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            fontSize: 'var(--text-sm)',
+                            background: 'var(--accent-green-light)',
+                          }}
+                        >
+                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                            {item.label}
+                          </span>
+                          <span style={{ color: 'var(--neutral-500)' }}>
+                            {conn.rel_type.replace(/_/g, ' ')}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                            {conn.dst_concept?.label || 'Unknown'}
+                          </span>
+                          {conn.relationship_label && (
+                            <span style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-500)',
+                              fontStyle: 'italic',
+                            }}>
+                              "{conn.relationship_label}"
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRelationship(conn.id)}
+                            style={{
+                              marginLeft: 'auto',
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'var(--error)',
+                              cursor: 'pointer',
+                              padding: 'var(--space-1)',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
+                          </button>
+                        </div>
+                      ))}
+                      {item.incoming_connections?.filter(conn => !deletedRelationshipIds.includes(conn.id)).map((conn) => (
+                        <div
+                          key={`in-${conn.id}`}
+                          style={{
+                            padding: 'var(--space-3)',
+                            borderBottom: '1px solid var(--neutral-200)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-2)',
+                            fontSize: 'var(--text-sm)',
+                          }}
+                        >
+                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                            {conn.src_concept?.label || 'Unknown'}
+                          </span>
+                          <span style={{ color: 'var(--neutral-500)' }}>
+                            {conn.rel_type.replace(/_/g, ' ')}
+                          </span>
+                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                            {item.label}
+                          </span>
+                          {conn.relationship_label && (
+                            <span style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-500)',
+                              fontStyle: 'italic',
+                            }}>
+                              "{conn.relationship_label}"
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRelationship(conn.id)}
+                            style={{
+                              marginLeft: 'auto',
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'var(--error)',
+                              cursor: 'pointer',
+                              padding: 'var(--space-1)',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'background 0.15s',
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                          >
+                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Adjacent Models (one per line)
-                </label>
+                <label className="form-label">Adjacent Models</label>
+                <div className="form-helper">One per line</div>
                 <textarea
                   value={formData.adjacent_models.join('\n')}
                   onChange={(e) => handleArrayInput('adjacent_models', e.target.value)}
                   rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Contrasts With (one per line)
-                </label>
+                <label className="form-label">Contrasts With</label>
+                <div className="form-helper">One per line</div>
                 <textarea
                   value={formData.contrasts_with.join('\n')}
                   onChange={(e) => handleArrayInput('contrasts_with', e.target.value)}
                   rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">
-                  Integrates With (one per line)
-                </label>
+                <label className="form-label">Integrates With</label>
+                <div className="form-helper">One per line</div>
                 <textarea
                   value={formData.integrates_with.join('\n')}
                   onChange={(e) => handleArrayInput('integrates_with', e.target.value)}
                   rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
+                  className="form-textarea"
                 />
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Form Actions */}
-        <div className="flex justify-center gap-3 pt-6 pb-6">
+        {/* Footer */}
+        <div style={{
+          borderTop: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-4)',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+        }}>
           <button
             type="submit"
             className="btn-primary"
@@ -551,7 +978,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           </button>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="btn-secondary"
           >
             Cancel

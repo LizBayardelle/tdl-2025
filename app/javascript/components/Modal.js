@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Modal({ isOpen, onClose, title, children, size = 'medium' }) {
+export default function Modal({ isOpen, onClose, title, children, size = 'medium', hideHeader = false }) {
   if (!isOpen) return null;
 
   const sizeClasses = {
@@ -28,25 +28,35 @@ export default function Modal({ isOpen, onClose, title, children, size = 'medium
           {/* Close button in absolute top right corner */}
           <button
             onClick={onClose}
-            className="absolute top-2 right-4 !text-olive text-3xl leading-none !bg-transparent hover:opacity-80 z-10"
+            className="absolute top-2 right-4 text-olive text-3xl leading-none bg-transparent hover:opacity-80 z-10"
             type="button"
           >
             ×
           </button>
 
-          {/* Header */}
-          <div className="bg-sand border-b border-gray-300">
-            <div className={`${sizeClasses[size]} mx-auto px-6 py-6`}>
-              <h3 className="text-3xl font-medium text-center">{title}</h3>
-            </div>
-          </div>
+          {!hideHeader && (
+            <>
+              {/* Header */}
+              <div className="bg-sand border-b border-gray-300">
+                <div className={`${sizeClasses[size]} mx-auto px-6 py-6`}>
+                  <h3 className="text-3xl font-medium text-center">{title}</h3>
+                </div>
+              </div>
 
-          {/* Body */}
-          <div className="bg-white">
-            <div className={`${sizeClasses[size]} mx-auto px-6 pt-6 pb-4 max-h-[70vh] overflow-y-auto`}>
+              {/* Body */}
+              <div className="bg-white">
+                <div className={`${sizeClasses[size]} mx-auto px-6 pt-6 pb-4 max-h-[70vh] overflow-y-auto`}>
+                  {children}
+                </div>
+              </div>
+            </>
+          )}
+
+          {hideHeader && (
+            <div className="bg-white" style={{ height: '80vh', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
               {children}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

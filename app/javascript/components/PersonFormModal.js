@@ -110,8 +110,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
               onClick={() => setActiveTab(tab.id)}
               className={`px-6 py-2 font-medium rounded-t-lg ${
                 activeTab === tab.id
-                  ? '!bg-sand !text-gray-800'
-                  : '!bg-primary !text-sand hover:!bg-accent-dark'
+                  ? 'bg-sand text-gray-800'
+                  : 'bg-primary text-sand hover:bg-accent-dark'
               }`}
             >
               {tab.label}

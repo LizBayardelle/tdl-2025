@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import SourceFormModal from './SourceFormModal';
+import NoteFormModal from './NoteFormModal';
 
 export default function SourceShow({ sourceId }) {
   const [source, setSource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [allSources, setAllSources] = useState([]);
+  const [sourcesLoading, setSourcesLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
 
   useEffect(() => {
     fetchSource();
+    fetchAllSources();
   }, []);
 
   const fetchSource = async () => {
@@ -22,63 +29,253 @@ export default function SourceShow({ sourceId }) {
     }
   };
 
+  const fetchAllSources = async () => {
+    try {
+      const response = await fetch('/sources.json');
+      const data = await response.json();
+      setAllSources(data);
+      setSourcesLoading(false);
+    } catch (error) {
+      console.error('Error fetching sources:', error);
+      setSourcesLoading(false);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <p className="text-lg">Loading...</p>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'var(--space-8) 0' }}>
+        <p style={{ fontSize: 'var(--text-lg)', fontFamily: 'var(--font-body)', color: 'var(--neutral-600)' }}>Loading...</p>
       </div>
     );
   }
 
   if (!source) {
     return (
-      <div className="text-center py-12">
-        <p className="text-lg">Source not found</p>
+      <div style={{ textAlign: 'center', padding: 'var(--space-8) 0' }}>
+        <p style={{ fontSize: 'var(--text-lg)', fontFamily: 'var(--font-body)', color: 'var(--neutral-600)' }}>Source not found</p>
       </div>
     );
   }
 
+  // Filter and sort sources
+  const filteredSources = allSources
+    .filter(s => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      const authorsStr = typeof s.authors === 'string' ? s.authors : '';
+      return s.title?.toLowerCase().includes(query) ||
+             authorsStr.toLowerCase().includes(query);
+    })
+    .sort((a, b) => {
+      if (sortBy === 'alphabetical') {
+        return (a.title || '').localeCompare(b.title || '');
+      } else if (sortBy === 'type') {
+        return (a.kind || '').localeCompare(b.kind || '');
+      } else {
+        // recent (default)
+        return new Date(b.updated_at) - new Date(a.updated_at);
+      }
+    });
+
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-      <div className="mb-4 md:mb-6 flex justify-between items-center">
-        <a href="/sources" className="text-sm text-primary hover:text-accent-dark">
-          ← Back to Sources
-        </a>
-        <button
-          onClick={() => setEditing(true)}
-          className="text-sm hover:opacity-70"
-          style={{ background: 'transparent', color: '#6f9e7f', border: 'none', padding: 0 }}
-        >
-          Edit
-        </button>
-      </div>
-
-      <SourceFormModal
-        isOpen={editing}
-        onClose={() => setEditing(false)}
-        item={source}
-        onSuccess={(updatedSource) => {
-          setSource(updatedSource);
-          setEditing(false);
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Left Sidebar - Sources List */}
+      <aside
+        style={{
+          width: sidebarOpen ? '280px' : '0',
+          background: 'var(--sidebar-bg)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          transition: 'width 0.3s ease',
+          boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+          position: 'relative',
+          flexShrink: 0
         }}
-      />
+      >
+        {sidebarOpen && (
+          <div style={{ width: '280px', padding: 'var(--space-4)' }}>
+            {/* Search */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search sources..."
+              className="form-input"
+              style={{
+                width: '100%',
+                marginBottom: 'var(--space-3)',
+                fontSize: 'var(--text-sm)'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-blue)';
+                e.currentTarget.style.outline = 'none';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--neutral-300)';
+              }}
+            />
 
-      <SourceDisplay source={source} />
+            {/* Sort */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="form-select"
+              style={{
+                width: '100%',
+                marginBottom: 'var(--space-4)',
+                fontSize: 'var(--text-xs)'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-blue)';
+                e.currentTarget.style.outline = 'none';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--neutral-300)';
+              }}
+            >
+              <option value="recent">Recently Updated</option>
+              <option value="alphabetical">Alphabetical</option>
+              <option value="type">By Type</option>
+            </select>
 
-      {source.concepts && source.concepts.length > 0 && (
-        <div className="mt-8">
-          <SourceConcepts concepts={source.concepts} />
+            {/* Sources List */}
+            <div style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--neutral-500)',
+              marginBottom: 'var(--space-2)',
+              fontFamily: 'var(--font-body)'
+            }}>
+              All Sources ({filteredSources.length})
+            </div>
+
+            {sourcesLoading ? (
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+                Loading...
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+                {filteredSources.map(s => (
+                  <a
+                    key={s.id}
+                    href={`/sources/${s.id}`}
+                    style={{
+                      padding: 'var(--space-2)',
+                      borderRadius: '4px',
+                      textDecoration: 'none',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      lineHeight: 1.3,
+                      color: s.id === parseInt(sourceId) ? 'var(--accent-blue)' : 'var(--neutral-700)',
+                      background: s.id === parseInt(sourceId) ? 'var(--accent-blue-light)' : 'transparent',
+                      fontWeight: s.id === parseInt(sourceId) ? 600 : 400,
+                      transition: 'all 0.15s',
+                      display: 'block'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (s.id !== parseInt(sourceId)) {
+                        e.currentTarget.style.background = 'var(--neutral-100)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (s.id !== parseInt(sourceId)) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
+                  >
+                    {s.title}
+                    {s.kind && (
+                      <div style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                        marginTop: 'var(--space-1)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>
+                        {s.kind.replace(/_/g, ' ')}
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </aside>
+
+      {/* Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        style={{
+          position: 'fixed',
+          left: sidebarOpen ? '280px' : '0',
+          top: '100px',
+          zIndex: 50,
+          background: 'var(--accent-blue)',
+          color: 'white',
+          padding: 'var(--space-2)',
+          borderRadius: '0 4px 4px 0',
+          boxShadow: 'var(--shadow)',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'left 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        aria-label="Toggle sources sidebar"
+      >
+        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`}></i>
+      </button>
+
+      {/* Main Content */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 var(--space-6)', width: '100%' }}>
+        {/* Header with Back and Edit */}
+        <div style={{ marginBottom: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 'var(--space-4)' }}>
+          <a
+            href="/sources"
+            style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--accent-blue)',
+              textDecoration: 'none',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500,
+              transition: 'color 0.15s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue-dark)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
+          >
+            ← Back to Index
+          </a>
+          <button
+            onClick={() => setEditing(true)}
+            className="icon-btn"
+            style={{ color: 'var(--accent-blue)' }}
+            title="Edit Source"
+          >
+            <i className="fas fa-pen"></i>
+          </button>
         </div>
-      )}
 
-      {source.people && source.people.length > 0 && (
-        <div className="mt-8">
-          <SourcePeople people={source.people} />
+        <SourceFormModal
+          isOpen={editing}
+          onClose={() => setEditing(false)}
+          item={source}
+          onSuccess={(updatedSource) => {
+            setSource(updatedSource);
+            setEditing(false);
+            fetchAllSources(); // Refresh sidebar
+          }}
+        />
+
+        <div style={{ background: 'white', padding: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+          <SourceDisplay source={source} />
+          <SourceNotes sourceId={source.id} />
         </div>
-      )}
-
-      <div className="mt-8">
-        <SourceNotes sourceId={source.id} />
+        </div>
       </div>
     </div>
   );
@@ -86,21 +283,44 @@ export default function SourceShow({ sourceId }) {
 
 function SourceDisplay({ source }) {
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-4 md:p-8">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 md:gap-3 mb-3 flex-wrap">
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 'var(--space-6)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', marginBottom: 'var(--space-3)' }}>
           {source.kind && (
-            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-              {source.kind.replace('_', ' ')}
+            <span style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: 'var(--accent-blue-light)',
+              color: 'var(--accent-blue)',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 600
+            }}>
+              {source.kind.replace(/_/g, ' ')}
             </span>
           )}
           {source.methodologies && source.methodologies.length > 0 && source.methodologies.map((methodology, idx) => (
-            <span key={idx} className="text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-2 py-1 rounded">
+            <span key={idx} style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: 'var(--neutral-100)',
+              color: 'var(--neutral-700)',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500
+            }}>
               {methodology}
             </span>
           ))}
           {source.year && (
-            <span className="text-xs md:text-sm text-gray-600">{source.year}</span>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
+              {source.year}
+            </span>
           )}
           {source.pdf_url && (
             <>
@@ -108,148 +328,225 @@ function SourceDisplay({ source }) {
                 href={source.pdf_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-auto px-3 py-1.5 md:px-4 md:py-2 bg-sand text-primary rounded hover:bg-khaki inline-flex items-center gap-1.5 md:gap-2 border border-gray-300 text-xs md:text-sm"
+                className="btn-secondary"
+                style={{
+                  marginLeft: 'auto',
+                  fontSize: 'var(--text-sm)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)'
+                }}
               >
                 <i className="fas fa-file-pdf"></i>
-                <span className="hidden sm:inline">View PDF</span>
-                <span className="sm:hidden">PDF</span>
+                <span>View PDF</span>
               </a>
               <a
                 href={`/sources/${source.id}/study`}
-                className="px-3 py-1.5 md:px-4 md:py-2 bg-accent-dark text-sand rounded hover:bg-plum inline-flex items-center gap-1.5 md:gap-2 text-xs md:text-sm"
+                className="btn-primary"
+                style={{
+                  background: 'var(--accent-blue)',
+                  fontSize: 'var(--text-sm)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-blue-dark)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-blue)'}
               >
                 <i className="fas fa-book-open"></i>
-                <span className="hidden sm:inline">Take Notes</span>
-                <span className="sm:hidden">Notes</span>
+                <span>Take Notes</span>
               </a>
             </>
           )}
         </div>
-        <h1 className="text-2xl md:text-4xl mb-2 md:mb-3 leading-tight">{source.title}</h1>
+        <h1 style={{
+          fontSize: 'var(--text-3xl)',
+          fontWeight: 700,
+          fontFamily: 'var(--font-display)',
+          color: 'var(--neutral-900)',
+          lineHeight: 1.2,
+          marginBottom: 'var(--space-2)'
+        }}>
+          {source.title}
+        </h1>
         {source.authors && (
-          <p className="text-sm md:text-lg text-gray-700 mb-1 md:mb-2">{source.authors}</p>
+          <p style={{
+            fontSize: 'var(--text-lg)',
+            color: 'var(--neutral-700)',
+            fontFamily: 'var(--font-body)',
+            marginBottom: 'var(--space-1)'
+          }}>
+            {source.authors}
+          </p>
         )}
-        <p className="text-xs md:text-sm text-gray-600">
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', fontFamily: 'var(--font-body)' }}>
           Last updated: {new Date(source.updated_at).toLocaleDateString()}
         </p>
       </div>
 
-      {source.summary && (
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Summary</h3>
-          <p className="leading-relaxed whitespace-pre-wrap">{source.summary}</p>
-        </div>
-      )}
-
-      {source.abstract && (
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Abstract</h3>
-          <p className="leading-relaxed whitespace-pre-wrap">{source.abstract}</p>
-        </div>
-      )}
-
-      {source.doi_or_url && (
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Link</h3>
-          <a
-            href={source.doi_or_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:text-accent-dark underline break-all"
-          >
-            {source.doi_or_url}
-          </a>
-        </div>
-      )}
-
-      {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0) || (source.people && source.people.length > 0)) && (
-        <div className="pt-6 border-t border-gray-200">
-          <div className="flex flex-wrap gap-2">
-            {source.concepts?.map((concept) => (
-              <a
-                key={concept.id}
-                href={`/concepts/${concept.id}`}
-                className="text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:opacity-80 transition-opacity"
-              >
-                {concept.label}
-              </a>
-            ))}
-            {source.tags?.map((tag, idx) => (
-              <a
-                key={idx}
-                href={`/tags/${tag.slug || tag.name}`}
-                className="text-xs bg-primary text-sand px-3 py-1 rounded hover:opacity-80 transition-opacity"
-              >
-                {tag.name}
-              </a>
-            ))}
-            {source.people?.map((person) => (
-              <a
-                key={person.id}
-                href={`/people/${person.id}`}
-                className="text-xs bg-sand text-primary px-3 py-1 rounded hover:bg-primary hover:text-sand transition-colors"
-              >
-                {person.full_name}
-              </a>
-            ))}
+      {/* Content */}
+      <div>
+        {source.summary && (
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-blue)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Summary
+            </h3>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+                lineHeight: 1.6,
+                color: 'var(--neutral-700)'
+              }}
+              dangerouslySetInnerHTML={{ __html: source.summary }}
+            />
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
+        )}
 
-function SourceConcepts({ concepts }) {
-  return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 className="text-2xl mb-6">Related Constructs ({concepts.length})</h2>
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {concepts.map(concept => (
-          <a
-            key={concept.id}
-            href={`/concepts/${concept.id}`}
-            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{concept.label}</span>
-              {concept.node_type && (
-                <span className="text-xs text-gray-500">{concept.node_type}</span>
-              )}
-            </div>
-            {concept.summary_top && (
-              <p className="text-sm text-gray-600 line-clamp-2">{concept.summary_top}</p>
-            )}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
+        {source.abstract && (
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-blue)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Abstract
+            </h3>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+                lineHeight: 1.6,
+                color: 'var(--neutral-700)'
+              }}
+              dangerouslySetInnerHTML={{ __html: source.abstract }}
+            />
+          </div>
+        )}
 
-function SourcePeople({ people }) {
-  return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 className="text-2xl mb-6">Related People ({people.length})</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {people.map(person => (
-          <a
-            key={person.id}
-            href={`/people/${person.id}`}
-            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{person.full_name}</span>
-              {person.role && (
-                <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-                  {person.role}
-                </span>
-              )}
+        {(source.url || source.doi) && (
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-blue)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Link
+            </h3>
+            <a
+              href={source.url || source.doi}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: 'var(--accent-blue)',
+                textDecoration: 'underline',
+                wordBreak: 'break-all',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)'
+              }}
+            >
+              {source.url || source.doi}
+            </a>
+          </div>
+        )}
+
+        {/* Metadata Tags */}
+        {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0)) && (
+          <div style={{ paddingTop: 'var(--space-6)', borderTop: '1px solid var(--neutral-200)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {source.concepts?.map((concept) => (
+                <a
+                  key={concept.id}
+                  href={`/concepts/${concept.id}`}
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    background: 'var(--accent-green)',
+                    color: 'white',
+                    padding: 'var(--space-1) var(--space-3)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 500,
+                    transition: 'opacity 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  {concept.label}
+                </a>
+              ))}
+              {source.tags?.map((tag, idx) => (
+                <a
+                  key={idx}
+                  href={`/tags/${tag.slug || tag.name}`}
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    background: 'var(--accent-purple)',
+                    color: 'white',
+                    padding: 'var(--space-1) var(--space-3)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 500,
+                    transition: 'opacity 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  {tag.name}
+                </a>
+              ))}
             </div>
-            {person.summary && (
-              <p className="text-sm text-gray-600 line-clamp-2">{person.summary}</p>
-            )}
-          </a>
-        ))}
+          </div>
+        )}
+
+        {/* Authors Section */}
+        {source.people && source.people.length > 0 && (
+          <div style={{ marginTop: 'var(--space-8)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-2xl)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-gold)',
+              margin: '0 0 var(--space-3) 0'
+            }}>
+              Authors
+            </h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {source.people.map((person) => (
+                <a
+                  key={person.id}
+                  href={`/people/${person.id}`}
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    background: 'var(--accent-gold)',
+                    color: 'white',
+                    padding: 'var(--space-1) var(--space-3)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 500,
+                    transition: 'opacity 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                >
+                  {person.full_name}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -258,6 +555,7 @@ function SourcePeople({ people }) {
 function SourceNotes({ sourceId }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creatingNote, setCreatingNote] = useState(false);
 
   useEffect(() => {
     fetchNotes();
@@ -277,61 +575,203 @@ function SourceNotes({ sourceId }) {
 
   if (loading) {
     return (
-      <div className="bg-white border border-gray-300 rounded-lg p-8">
-        <h2 className="text-2xl mb-6">Notes</h2>
-        <p className="text-sm text-gray-600">Loading notes...</p>
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        <h2 style={{
+          fontSize: 'var(--text-2xl)',
+          fontWeight: 700,
+          fontFamily: 'var(--font-display)',
+          color: '#639CA1',
+          margin: '0 0 var(--space-3) 0'
+        }}>
+          Notes
+        </h2>
+        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+          Loading notes...
+        </p>
       </div>
     );
   }
 
   if (notes.length === 0) {
-    return null;
+    return (
+      <>
+        <NoteFormModal
+          isOpen={creatingNote}
+          onClose={() => setCreatingNote(false)}
+          sourceId={sourceId}
+          onSuccess={(newNote) => {
+            fetchNotes();
+            setCreatingNote(false);
+          }}
+        />
+        <div style={{ marginTop: 'var(--space-8)' }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: '#639CA1',
+            margin: '0 0 var(--space-3) 0'
+          }}>
+            Notes
+          </h2>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            No notes yet.{' '}
+            <button
+              onClick={() => setCreatingNote(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#639CA1',
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: 0,
+                textDecoration: 'underline',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)'
+              }}
+            >
+              Create the first note
+            </button>
+          </p>
+        </div>
+      </>
+    );
   }
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-4 md:p-8">
-      <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Notes ({notes.length})</h2>
-      <div className="space-y-4">
-        {notes.map(note => (
-          <div key={note.id} className="border border-gray-200 rounded overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-            {note.title && (
-              <div className="px-4 py-2 bg-primary">
-                <h3 className="font-semibold text-sm md:text-base" style={{ color: '#f6f0e9' }}>{note.title}</h3>
-              </div>
-            )}
-            <div className="p-4">
-              <div
-                className="text-sm text-gray-700 prose prose-sm max-w-none line-clamp-3 mb-2"
-                dangerouslySetInnerHTML={{ __html: note.body }}
-              />
-              {(note.concepts?.length > 0 || note.tags?.length > 0) && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {note.concepts?.map((concept) => (
-                    <span key={concept.id} className="text-xs bg-accent-dark text-sand px-2 py-1 rounded">
-                      {concept.label}
-                    </span>
-                  ))}
-                  {note.tags?.map((tag, idx) => (
-                    <span key={idx} className="text-xs bg-primary text-sand px-2 py-1 rounded">
-                      {tag.name}
-                    </span>
-                  ))}
+    <>
+      <NoteFormModal
+        isOpen={creatingNote}
+        onClose={() => setCreatingNote(false)}
+        sourceId={sourceId}
+        onSuccess={(newNote) => {
+          fetchNotes();
+          setCreatingNote(false);
+        }}
+      />
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        {/* Notes Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: '#639CA1',
+            margin: 0
+          }}>
+            Notes ({notes.length})
+          </h2>
+          <button
+            onClick={() => setCreatingNote(true)}
+            className="btn-secondary"
+            style={{
+              fontSize: 'var(--text-sm)',
+              background: '#639CA1',
+              color: 'white',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#527d81';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#639CA1';
+            }}
+          >
+            + New Note
+          </button>
+        </div>
+
+      {/* Notes Cards */}
+      <div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          {notes.map(note => (
+            <div key={note.id} className="card" style={{ overflow: 'hidden' }}>
+              {note.title && (
+                <div style={{
+                  background: '#639CA1',
+                  padding: 'var(--space-3) var(--space-4)',
+                  borderBottom: '1px solid var(--neutral-200)'
+                }}>
+                  <h3 style={{
+                    fontWeight: 600,
+                    fontSize: 'var(--text-base)',
+                    fontFamily: 'var(--font-display)',
+                    color: 'white',
+                    margin: 0
+                  }}>
+                    {note.title}
+                  </h3>
                 </div>
               )}
-            </div>
-            <div className="px-4 py-1 bg-sage flex items-center justify-between">
-              <div className="text-xs text-primary">
-                {note.page_number && (
-                  <span className="font-medium">Page {note.page_number}</span>
+              <div style={{ padding: 'var(--space-4)' }}>
+                <div
+                  style={{
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--neutral-700)',
+                    fontFamily: 'var(--font-body)',
+                    lineHeight: 1.6,
+                    marginBottom: 'var(--space-3)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}
+                  dangerouslySetInnerHTML={{ __html: note.body }}
+                />
+                {(note.concepts?.length > 0 || note.tags?.length > 0) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+                    {note.concepts?.map((concept) => (
+                      <span key={concept.id} style={{
+                        fontSize: 'var(--text-xs)',
+                        background: 'var(--accent-green)',
+                        color: 'white',
+                        padding: 'var(--space-1) var(--space-2)',
+                        borderRadius: '4px',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {concept.label}
+                      </span>
+                    ))}
+                    {note.tags?.map((tag, idx) => (
+                      <span key={idx} style={{
+                        fontSize: 'var(--text-xs)',
+                        background: 'var(--accent-purple)',
+                        color: 'white',
+                        padding: 'var(--space-1) var(--space-2)',
+                        borderRadius: '4px',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
-              <div className="text-xs text-primary">
-                {new Date(note.created_at).toLocaleDateString()}
+              <div style={{
+                padding: 'var(--space-2) var(--space-4)',
+                background: 'var(--card-footer)',
+                borderTop: '1px solid var(--neutral-200)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ fontSize: 'var(--text-xs)', color: '#639CA1', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
+                  {note.page_number && <span>Page {note.page_number}</span>}
+                </div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+                  {new Date(note.created_at).toLocaleDateString()}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
+    </>
   );
 }

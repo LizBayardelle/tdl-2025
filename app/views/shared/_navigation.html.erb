@@ -1,43 +1,53 @@
-<nav class="bg-white border-b border-gray-300">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <%= link_to root_path, class: "hover:text-primary transition-colors" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-          </svg>
+<%
+  # Determine nav color based on current path
+  nav_color = case request.path
+  when %r{^/concepts}
+    '#556B2F'  # Green - Concepts
+  when %r{^/sources}
+    '#2d5466'  # Slate blue - Sources
+  when %r{^/notes}
+    '#639CA1'  # Teal - Notes
+  when %r{^/people}
+    '#a67c2e'  # Brass - People
+  when %r{^/tags}
+    '#674675'  # Plum - Tags
+  else
+    '#494949'  # Dark gray - Default
+  end
+%>
+<nav style="background: <%= nav_color %>; box-shadow: var(--shadow-nav); position: relative; z-index: 10;">
+  <div style="max-width: 1280px; margin: 0 auto; padding: 0 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
+      <!-- Logo/Brand -->
+      <div style="display: flex; align-items: center;">
+        <%= link_to root_path, style: "font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: white; text-decoration: none; letter-spacing: -0.02em;" do %>
+          <span>Top-Down Learning</span>
         <% end %>
       </div>
 
-      <!-- Desktop Navigation -->
-      <% if user_signed_in? %>
-        <div class="hidden lg:flex space-x-6">
-          <%= link_to "Dashboard", dashboard_path, class: "text-sm hover:text-primary transition-colors #{current_page?(dashboard_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "Concepts", concepts_path, class: "text-sm hover:text-primary transition-colors #{current_page?(concepts_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "Connections", connections_path, class: "text-sm hover:text-primary transition-colors #{current_page?(connections_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "Sources", sources_path, class: "text-sm hover:text-primary transition-colors #{current_page?(sources_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "People", people_path, class: "text-sm hover:text-primary transition-colors #{current_page?(people_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "Notes", notes_path, class: "text-sm hover:text-primary transition-colors #{current_page?(notes_path) ? 'text-primary font-medium' : ''}" %>
-          <%= link_to "Tags", tags_path, class: "text-sm hover:text-primary transition-colors #{current_page?(tags_path) ? 'text-primary font-medium' : ''}" %>
-        </div>
-      <% end %>
-
-      <!-- Right side: Search, User dropdown, Mobile menu button -->
-      <div class="flex items-center space-x-4">
+      <!-- Right side: Desktop Navigation, Search, User dropdown, Mobile menu button -->
+      <div style="display: flex; align-items: center; gap: 1.5rem;">
         <% if user_signed_in? %>
-          <div class="hidden sm:block" id="global-search-root"></div>
-          <div class="hidden sm:block" id="user-dropdown-root" data-user-email="<%= current_user.email %>"></div>
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex" style="align-items: center; gap: 1.5rem;">
+            <%= link_to "Dashboard", dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
+            <%= link_to "Concepts", concepts_path, class: "nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
+            <%= link_to "Sources", sources_path, class: "nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
+            <%= link_to "Notes", notes_path, class: "nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
+            <%= link_to "Tags", tags_path, class: "nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
+          </div>
+          <div style="display: none;" class="sm:block" id="global-search-root"></div>
+          <div style="display: none;" class="sm:block" id="user-dropdown-root" data-user-email="<%= current_user.email %>"></div>
 
           <!-- Mobile menu button -->
-          <button type="button" class="lg:hidden p-2 rounded-md hover:bg-sand transition-colors" id="mobile-menu-button">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button type="button" style="display: block; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
+            <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </button>
         <% else %>
-          <%= link_to "Sign In", new_user_session_path, class: "text-sm px-4 py-2 hover:text-primary transition-colors" %>
-          <%= link_to "Sign Up", new_user_registration_path, class: "text-sm px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors" %>
+          <%= link_to "Sign In", new_user_session_path, class: "nav-link" %>
+          <%= link_to "Sign Up", new_user_registration_path, class: "btn-primary", style: "font-family: var(--font-display);" %>
         <% end %>
       </div>
     </div>
@@ -45,20 +55,18 @@
 
   <!-- Mobile menu -->
   <% if user_signed_in? %>
-    <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-200">
-      <div class="px-4 py-2 space-y-1">
-        <%= link_to "Dashboard", dashboard_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(dashboard_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "Concepts", concepts_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(concepts_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "Connections", connections_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(connections_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "Sources", sources_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(sources_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "People", people_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(people_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "Notes", notes_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(notes_path) ? 'text-primary font-medium bg-sand' : ''}" %>
-        <%= link_to "Tags", tags_path, class: "block px-3 py-2 text-base hover:bg-sand rounded #{current_page?(tags_path) ? 'text-primary font-medium bg-sand' : ''}" %>
+    <div id="mobile-menu" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.2);" class="md:hidden">
+      <div style="padding: 0.5rem 1rem;">
+        <%= link_to "Dashboard", dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
+        <%= link_to "Concepts", concepts_path, class: "mobile-nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
+        <%= link_to "Sources", sources_path, class: "mobile-nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
+        <%= link_to "Notes", notes_path, class: "mobile-nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
+        <%= link_to "Tags", tags_path, class: "mobile-nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
 
         <!-- Mobile user menu -->
-        <div class="pt-4 border-t border-gray-200 sm:hidden">
-          <div class="px-3 py-2 text-sm text-gray-600"><%= current_user.email %></div>
-          <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "block px-3 py-2 text-base hover:bg-sand rounded text-accent-dark" %>
+        <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;" class="sm:hidden">
+          <div style="padding: 0.75rem 1rem; font-size: var(--text-sm); color: rgba(255, 255, 255, 0.7);"><%= current_user.email %></div>
+          <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "mobile-nav-link" %>
         </div>
       </div>
     </div>
@@ -73,7 +81,11 @@
 
     if (menuButton && mobileMenu) {
       menuButton.addEventListener('click', function() {
-        mobileMenu.classList.toggle('hidden');
+        if (mobileMenu.style.display === 'none') {
+          mobileMenu.style.display = 'block';
+        } else {
+          mobileMenu.style.display = 'none';
+        }
       });
     }
   });

@@ -1,0 +1,780 @@
+/*
+  DESIGN SYSTEM - Military Academic Theme
+
+  Complete CSS variable system and component classes for consistent styling
+  across the entire application.
+
+  To use: Import this file and apply the classes/variables as needed.
+*/
+
+/* ============================================
+   CSS VARIABLES - The Foundation
+   ============================================ */
+
+:root {
+  /* PRIMARY PALETTE - Military Green */
+  --primary: #556B2F;        /* Army green - main brand color */
+  --primary-dark: #3d4d22;   /* Darker green for hovers */
+  --primary-light: #8b9f6f;  /* Lighter green for accents */
+
+  /* ACCENT COLORS - Semantic Categorization */
+  --accent-green: #556B2F;        /* Concepts - matches primary */
+  --accent-green-light: #e8ebe0;  /* Pastel version */
+
+  --accent-blue: #2d5466;         /* Sources - slate blue */
+  --accent-blue-dark: #234552;    /* Darker blue for hovers */
+  --accent-blue-light: #e3eaed;   /* Pastel version */
+
+  --accent-gold: #a67c2e;         /* People - brass/gold */
+  --accent-gold-light: #f5efe0;   /* Pastel version */
+
+  --accent-purple: #674675;       /* Tags - muted plum */
+  --accent-purple-light: #ebe5ed; /* Pastel version */
+
+  --accent-teal: #639CA1;         /* Notes - teal */
+  --accent-teal-light: #e8f2f3;   /* Pastel version */
+
+  /* SEMANTIC COLORS - Feedback & States */
+  --success: var(--primary);      /* Green for success messages */
+  --warning: var(--accent-gold);  /* Brass for warnings */
+  --error: #8b2d2d;               /* Burgundy for errors (not fire truck red) */
+
+  /* NEUTRAL PALETTE - Grays */
+  --neutral-100: #e8e6e1;    /* Subtle divisions, hover states */
+  --neutral-200: #d1cec6;    /* Borders, dividers */
+  --neutral-300: #b8b5ad;    /* Disabled states */
+  --neutral-400: #9a968e;    /* Placeholder text */
+  --neutral-500: #6e6b65;    /* Secondary text */
+  --neutral-600: #4a4843;    /* Body text */
+  --neutral-700: #363430;    /* Headings */
+  --neutral-800: #252421;    /* Dark backgrounds */
+  --neutral-900: #1a1917;    /* Maximum contrast */
+
+  /* BACKGROUNDS */
+  --background: #ffffff;       /* Clean white - main content area */
+  --sidebar-bg: #f5f5f5;       /* Light greige - sidebar */
+  --card-header: #ffffff;      /* White - card headers */
+  --card-footer: #f5f5f5;      /* Light gray - card footers */
+
+  /* TYPOGRAPHY */
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Merriweather', Georgia, serif; /* For headings, labels, buttons */
+
+  /* FONT SIZES */
+  --text-xs: 0.75rem;        /* 12px - tiny labels */
+  --text-sm: 0.875rem;       /* 14px - body text */
+  --text-base: 0.9375rem;    /* 15px - base size */
+  --text-lg: 1.125rem;       /* 18px - subheadings */
+  --text-xl: 1.25rem;        /* 20px - headings */
+  --text-2xl: 1.5rem;        /* 24px - page titles */
+  --text-3xl: 1.875rem;      /* 30px - hero text */
+
+  /* SPACING SCALE - 4px base unit */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+
+  /* BORDER RADIUS */
+  --radius-sm: 2px;     /* Small elements (icon buttons, small tags) */
+  --radius: 4px;        /* Standard (buttons, inputs, cards) */
+  --radius-full: 9999px; /* Pills (badges, toggles) */
+
+  /* SHADOWS - Depth & Layering */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-card-hover: 0 8px 16px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --shadow-sidebar: inset -8px 0 16px -8px rgba(0, 0, 0, 0.25);
+  --shadow-nav: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  /* TRANSITIONS */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+}
+
+/* ============================================
+   BUTTON COMPONENTS
+   ============================================ */
+
+/* Primary Button - Main actions */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button - Outline style */
+.btn-secondary {
+  background: transparent;
+  color: var(--neutral-700);
+  border: 1px solid var(--neutral-300);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background: var(--neutral-100);
+  border-color: var(--neutral-400);
+}
+
+/* Primary Outline Button */
+.btn-outline-primary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-outline-primary:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+/* Destructive Button */
+.btn-destructive {
+  background: var(--error);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-destructive:hover {
+  background: color-mix(in srgb, var(--error) 80%, black);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Destructive Outline */
+.btn-outline-destructive {
+  background: transparent;
+  color: var(--error);
+  border: 1px solid var(--error);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-outline-destructive:hover {
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+/* Colored Variant Buttons - For semantic actions */
+.btn-source {
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-person {
+  background: var(--accent-gold);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+/* Icon Button */
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--neutral-500);
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.icon-btn:hover {
+  background: var(--neutral-200);
+  color: var(--neutral-700);
+}
+
+.icon-btn.pinned {
+  color: var(--primary);
+}
+
+/* ============================================
+   NAVIGATION COMPONENTS
+   ============================================ */
+
+/* Navigation Link - Desktop */
+.nav-link {
+  font-family: var(--font-display);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  transition: all var(--transition-fast);
+  background: transparent;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link.active {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Navigation Link */
+.mobile-nav-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  font-size: var(--text-base);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius);
+  background: transparent;
+  font-weight: 400;
+  margin-bottom: 0.25rem;
+  transition: background var(--transition-fast);
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mobile-nav-link.active {
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+
+/* ============================================
+   FORM COMPONENTS
+   ============================================ */
+
+/* Form Label */
+.form-label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  color: var(--neutral-700);
+}
+
+.form-label.required::after {
+  content: " *";
+  color: var(--error);
+}
+
+/* Teal variant for notes modal */
+.form-label.required.teal::after {
+  color: var(--accent-teal);
+}
+
+/* Helper Text */
+.form-helper {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--neutral-500);
+  margin-bottom: 0.25rem;
+}
+
+/* Error Message */
+.form-error {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--error);
+  margin-top: 0.25rem;
+}
+
+/* Text Input */
+.form-input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border: 2px solid var(--primary);
+  padding: calc(var(--space-3) - 1px); /* Compensate for thicker border */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.form-input.error {
+  border: 2px solid var(--error);
+  padding: calc(var(--space-3) - 1px);
+}
+
+.form-input::placeholder {
+  color: var(--neutral-400);
+}
+
+/* Select Dropdown */
+.form-select {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  background: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.form-select:focus {
+  outline: none;
+  border: 2px solid var(--primary);
+  padding: calc(var(--space-3) - 1px);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+/* Textarea */
+.form-textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  resize: vertical;
+  transition: all var(--transition-fast);
+}
+
+.form-textarea:focus {
+  outline: none;
+  border: 2px solid var(--primary);
+  padding: calc(var(--space-3) - 1px);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+/* Checkbox & Radio Styling */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Checkbox/Radio Item Wrapper */
+.form-check-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  transition: background var(--transition-fast);
+}
+
+.form-check-item:hover {
+  background: var(--neutral-100);
+}
+
+.form-check-item input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.form-check-item span {
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+}
+
+/* ============================================
+   TOGGLE SWITCH
+   ============================================ */
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--neutral-300);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-base);
+  cursor: pointer;
+}
+
+.toggle-switch.active {
+  background: var(--primary);
+}
+
+.toggle-switch .toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform var(--transition-base);
+}
+
+.toggle-switch.active .toggle-slider {
+  transform: translateX(20px);
+}
+
+.toggle-switch.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+
+/* Tag - Pastel version for cards */
+.tag {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  background: var(--neutral-100);
+  color: var(--neutral-700);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  display: inline-block;
+}
+
+.tag:hover {
+  background: var(--neutral-200);
+}
+
+/* Semantic Tag Colors - Pastel */
+.tag.concept {
+  background: var(--accent-green-light);
+  color: var(--accent-green);
+}
+
+.tag.source {
+  background: var(--accent-blue-light);
+  color: var(--accent-blue);
+}
+
+.tag.person {
+  background: var(--accent-gold-light);
+  color: var(--accent-gold);
+}
+
+.tag.tag-purple {
+  background: var(--accent-purple-light);
+  color: var(--accent-purple);
+}
+
+/* Filter Badge - Bold pill version */
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.375rem 0.75rem;
+  color: white;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+/* Color-coded filter badges */
+.filter-badge.concept { background: var(--accent-green); }
+.filter-badge.source { background: var(--accent-blue); }
+.filter-badge.person { background: var(--accent-gold); }
+.filter-badge.tag { background: var(--accent-purple); }
+
+.filter-badge button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  font-size: var(--text-sm);
+}
+
+/* ============================================
+   ALERTS & MESSAGES
+   ============================================ */
+
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+}
+
+.alert-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.alert-success {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  border-color: var(--success);
+}
+
+.alert-success .alert-title {
+  color: var(--success);
+}
+
+.alert-warning {
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border-color: var(--warning);
+}
+
+.alert-warning .alert-title {
+  color: var(--warning);
+}
+
+.alert-error {
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+  border-color: var(--error);
+}
+
+.alert-error .alert-title {
+  color: var(--error);
+}
+
+.alert-info {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-color: var(--primary);
+}
+
+.alert-info .alert-title {
+  color: var(--primary);
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+
+.card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background: var(--card-header);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--neutral-900);
+  flex: 1;
+}
+
+.card-body {
+  padding: var(--space-4);
+  flex: 1;
+}
+
+.card-footer {
+  padding: var(--space-2) var(--space-4);
+  background: var(--card-footer);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--neutral-500);
+  margin-top: auto;
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--neutral-700);
+}
+
+.text-display {
+  font-family: var(--font-display);
+}
+
+.text-body {
+  font-family: var(--font-body);
+}
+
+/* ============================================
+   ICON SYSTEM
+   ============================================ */
+
+.icon {
+  color: var(--primary);
+}
+
+.icon.white {
+  color: white;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.progress-bar {
+  width: 200px;
+  height: 4px;
+  background: var(--neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Sidebar toggle visible on all screen sizes */
+
+/* ============================================
+   SIDEBAR & NAVIGATION COMPONENTS
+   ============================================ */
+
+.sidebar {
+  background: var(--sidebar-bg);
+  box-shadow: var(--shadow-sidebar);
+}
+
+.sidebar-section {
+  margin-bottom: var(--space-6);
+}
+
+.sidebar-section-title {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--neutral-500);
+  margin-bottom: var(--space-3);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Shadows */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow { box-shadow: var(--shadow); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Spacing */
+.p-0 { padding: 0; }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-0 { margin: 0; }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+/* Border Radius */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded { border-radius: var(--radius); }
+.rounded-full { border-radius: var(--radius-full); }

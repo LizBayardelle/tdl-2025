@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     end
     member do
       get :study
+      get :notes
     end
   end
   resources :people, only: [:index, :show, :create, :update, :destroy] do

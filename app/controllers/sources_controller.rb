@@ -1,6 +1,6 @@
 class SourcesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_source, only: [:show, :study, :update, :destroy]
+  before_action :set_source, only: [:show, :study, :notes, :update, :destroy]
 
   def index
     @sources = current_user.sources.recent
@@ -47,6 +47,27 @@ class SourcesController < ApplicationController
   def study
     # Full-screen PDF study mode with notes sidebar
     render layout: 'study'
+  end
+
+  def notes
+    @notes = @source.notes.order(created_at: :desc)
+    render json: @notes.map { |note|
+      {
+        id: note.id,
+        title: note.title,
+        body: note.body,
+        note_type: note.note_type,
+        context: note.context,
+        pinned: note.pinned,
+        noted_on: note.noted_on,
+        page_number: note.page_number,
+        created_at: note.created_at,
+        updated_at: note.updated_at,
+        source_id: note.source_id,
+        concepts: note.concepts.map { |c| { id: c.id, label: c.label } },
+        tags: note.tags
+      }
+    }
   end
 
   def create

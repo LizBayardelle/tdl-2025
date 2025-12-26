@@ -58,17 +58,20 @@ export default function ConceptRelationshipMap() {
       ]);
 
       // Build nodes - each concept becomes a node
-      const nodes = concepts.map(concept => ({
-        id: concept.id,
-        label: concept.label,
-        type: concept.node_type,
-        slug: concept.slug,
-        level_status: concept.level_status || 'mapped',
-        // Count connections for node sizing
-        connectionCount: connections.filter(c =>
-          c.src_concept_id === concept.id || c.dst_concept_id === concept.id
-        ).length
-      }));
+      // Only include concepts that have at least one connection
+      const nodes = concepts
+        .map(concept => ({
+          id: concept.id,
+          label: concept.label,
+          type: concept.node_type,
+          slug: concept.slug,
+          level_status: concept.level_status || 'mapped',
+          // Count connections for node sizing
+          connectionCount: connections.filter(c =>
+            c.src_concept_id === concept.id || c.dst_concept_id === concept.id
+          ).length
+        }))
+        .filter(node => node.connectionCount > 0);
 
       // Build links - each connection becomes a link
       const links = connections.map(connection => ({

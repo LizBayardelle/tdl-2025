@@ -5,8 +5,9 @@ import SourceFormModal from './SourceFormModal';
 import PersonFormModal from './PersonFormModal';
 import NoteFormModal from './NoteFormModal';
 import TagFormModal from './TagFormModal';
+import ConnectionFormModal from './ConnectionFormModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLightbulb, faBook, faUser, faStickyNote, faTag } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [showPersonModal, setShowPersonModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
+  const [showConnectionModal, setShowConnectionModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -103,41 +105,50 @@ export default function Dashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <h1 className="text-3xl sm:text-4xl mb-6 sm:mb-8">Dashboard</h1>
 
-      {/* Quick Actions */}
-      <div className="mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl mb-3 sm:mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          <ActionCard
-            icon={faLightbulb}
-            title="Add Concept"
-            description="Create a new knowledge concept"
-            onClick={() => setShowConceptModal(true)}
-          />
-          <ActionCard
-            icon={faBook}
-            title="Add Source"
-            description="Add a new reference or resource"
-            onClick={() => setShowSourceModal(true)}
-          />
-          <ActionCard
-            icon={faUser}
-            title="Add Person"
-            description="Add someone to your network"
-            onClick={() => setShowPersonModal(true)}
-          />
-          <ActionCard
-            icon={faStickyNote}
-            title="Add Note"
-            description="Capture a new insight or reflection"
-            onClick={() => setShowNoteModal(true)}
-          />
-          <ActionCard
-            icon={faTag}
-            title="Add Tag"
-            description="Create a new organizing tag"
-            onClick={() => setShowTagModal(true)}
-          />
-        </div>
+      {/* Overview Stats with Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <StatActionCard
+          label="Concepts"
+          subtitle="Knowledge constructs"
+          value={stats.totalConcepts}
+          link="/concepts"
+          onAdd={() => setShowConceptModal(true)}
+        />
+        <StatActionCard
+          label="Sources"
+          subtitle="References & resources"
+          value={stats.totalSources}
+          link="/sources"
+          onAdd={() => setShowSourceModal(true)}
+        />
+        <StatActionCard
+          label="People"
+          subtitle="Authors & researchers"
+          value={stats.totalPeople}
+          link="/people"
+          onAdd={() => setShowPersonModal(true)}
+        />
+        <StatActionCard
+          label="Connections"
+          subtitle="Concept relationships"
+          value={stats.totalConnections}
+          link="/connections"
+          onAdd={() => setShowConnectionModal(true)}
+        />
+        <StatActionCard
+          label="Notes"
+          subtitle="Insights & reflections"
+          value={stats.totalNotes}
+          link="/notes"
+          onAdd={() => setShowNoteModal(true)}
+        />
+        <StatActionCard
+          label="Tags"
+          subtitle="Organizing labels"
+          value={stats.totalTags}
+          link="/tags"
+          onAdd={() => setShowTagModal(true)}
+        />
       </div>
 
       {/* Modals */}
@@ -181,16 +192,14 @@ export default function Dashboard() {
           setShowTagModal(false);
         }}
       />
-
-      {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Concepts" value={stats.totalConcepts} link="/concepts" />
-        <StatCard label="Sources" value={stats.totalSources} link="/sources" />
-        <StatCard label="People" value={stats.totalPeople} link="/people" />
-        <StatCard label="Connections" value={stats.totalConnections} link="/connections" />
-        <StatCard label="Notes" value={stats.totalNotes} link="/notes" />
-        <StatCard label="Tags" value={stats.totalTags} link="/tags" />
-      </div>
+      <ConnectionFormModal
+        isOpen={showConnectionModal}
+        onClose={() => setShowConnectionModal(false)}
+        onSuccess={() => {
+          fetchDashboardData();
+          setShowConnectionModal(false);
+        }}
+      />
 
       <div className="grid lg:grid-cols-2 gap-8 mb-8">
         {/* Concepts by Type */}
@@ -246,15 +255,31 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ label, value, link }) {
+function StatActionCard({ label, subtitle, value, link, onAdd }) {
   return (
-    <a
-      href={link}
-      className="bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow"
-    >
-      <div className="text-3xl font-light mb-1">{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
-    </a>
+    <div className="bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow relative">
+      <a href={link} className="block">
+        <div className="text-3xl sm:text-4xl font-light mb-1">{value}</div>
+        <div className="text-base sm:text-lg mb-0.5" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+          {label}
+        </div>
+        <div className="text-xs text-gray-500" style={{ fontFamily: 'Inter, sans-serif' }}>
+          {subtitle}
+        </div>
+      </a>
+      {onAdd && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            onAdd();
+          }}
+          className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-primary text-sand rounded-full hover:bg-accent-dark transition-colors"
+          title={`Add ${label.slice(0, -1)}`}
+        >
+          <FontAwesomeIcon icon={faPlus} className="text-xs" />
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -337,34 +362,4 @@ function ActivityItem({ activity }) {
   }
 
   return null;
-}
-
-function ActionCard({ icon, title, description, onClick, link }) {
-  if (onClick) {
-    return (
-      <button
-        onClick={onClick}
-        className="!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow text-left w-full"
-      >
-        <div className="flex items-center gap-2 mb-2">
-          {icon && <FontAwesomeIcon icon={icon} className="text-primary text-lg" />}
-          <h3 className="font-medium text-gray-800">{title}</h3>
-        </div>
-        <p className="text-sm text-gray-600">{description}</p>
-      </button>
-    );
-  }
-
-  return (
-    <a
-      href={link}
-      className="!bg-white border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow block"
-    >
-      <div className="flex items-center gap-2 mb-2">
-        {icon && <FontAwesomeIcon icon={icon} className="text-primary text-lg" />}
-        <h3 className="font-medium text-gray-800">{title}</h3>
-      </div>
-      <p className="text-sm text-gray-600">{description}</p>
-    </a>
-  );
 }

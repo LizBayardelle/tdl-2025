@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
+export default function ConceptSelector({ selectedConceptIds = [], onChange, themeColor = 'var(--accent-green)' }) {
   const [allConcepts, setAllConcepts] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -68,13 +68,28 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
   const selectedConcepts = allConcepts.filter(c => selectedConceptIds.includes(c.id));
 
   if (loading) {
-    return <div className="text-sm text-gray-500">Loading concepts...</div>;
+    return (
+      <div style={{
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-500)',
+        fontFamily: 'var(--font-body)'
+      }}>
+        Loading concepts...
+      </div>
+    );
   }
 
   return (
-    <div className="border border-gray-300 rounded bg-white h-full flex flex-col">
+    <div style={{
+      border: '1px solid var(--neutral-300)',
+      borderRadius: '4px',
+      background: 'white',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       {/* Search/Filter Input */}
-      <div className="p-3 border-b border-gray-200">
+      <div style={{ padding: 'var(--space-3)', borderBottom: '1px solid var(--neutral-200)' }}>
         <input
           type="text"
           value={filter}
@@ -86,14 +101,23 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
             }
           }}
           placeholder="Type to filter or create new concept..."
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+          className="form-input"
+          style={{ width: '100%', fontSize: 'var(--text-sm)' }}
         />
         {canCreateNew && (
           <button
             type="button"
             onClick={handleCreateFromFilter}
-            className="mt-2 text-xs hover:text-accent-dark"
-            style={{ background: 'none', padding: 0, color: '#414431' }}
+            style={{
+              background: 'none',
+              padding: 0,
+              color: themeColor,
+              fontSize: 'var(--text-xs)',
+              border: 'none',
+              cursor: 'pointer',
+              marginTop: 'var(--space-2)',
+              fontFamily: 'var(--font-body)',
+            }}
           >
             + Create "{filter.trim()}"
           </button>
@@ -102,20 +126,51 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
 
       {/* Selected Concepts */}
       {selectedConcepts.length > 0 && (
-        <div className="p-3 border-b border-gray-200 bg-sand">
-          <div className="text-xs font-medium mb-2 text-gray-600">Selected:</div>
-          <div className="flex flex-wrap gap-2">
+        <div style={{
+          padding: 'var(--space-3)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--neutral-50)'
+        }}>
+          <div style={{
+            fontSize: 'var(--text-xs)',
+            fontWeight: 500,
+            marginBottom: 'var(--space-2)',
+            color: 'var(--neutral-600)',
+            fontFamily: 'var(--font-body)'
+          }}>
+            Selected:
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
             {selectedConcepts.map(concept => (
               <span
                 key={concept.id}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-primary text-sand text-xs rounded"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  padding: 'var(--space-1) var(--space-2)',
+                  background: themeColor,
+                  color: 'white',
+                  fontSize: 'var(--text-xs)',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-body)'
+                }}
               >
                 {concept.label}
                 <button
                   type="button"
                   onClick={() => handleToggleConcept(concept.id)}
-                  className="hover:text-accent-light"
-                  style={{ background: 'none', padding: 0, fontSize: '14px' }}
+                  style={{
+                    background: 'none',
+                    padding: 0,
+                    fontSize: '14px',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    opacity: 0.8
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.8'}
                 >
                   ×
                 </button>
@@ -126,28 +181,54 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange }) {
       )}
 
       {/* Scrollable Concept List */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-3)' }}>
         {filteredConcepts.length === 0 ? (
-          <div className="text-sm text-gray-500 text-center py-4">
+          <div style={{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--neutral-500)',
+            textAlign: 'center',
+            padding: 'var(--space-4) 0',
+            fontFamily: 'var(--font-body)'
+          }}>
             {filter ? 'No matching concepts. Press Enter to create new.' : 'No concepts yet.'}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             {filteredConcepts.map(concept => (
               <label
                 key={concept.id}
-                className="flex items-center gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1) var(--space-2)',
+                  borderRadius: '4px',
+                  transition: 'background 0.15s',
+                  fontFamily: 'var(--font-body)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <input
                   type="checkbox"
                   checked={selectedConceptIds.includes(concept.id)}
                   onChange={() => handleToggleConcept(concept.id)}
-                  className="rounded border-gray-300"
-                  style={{ accentColor: '#414431' }}
+                  style={{
+                    borderRadius: '4px',
+                    border: '1px solid var(--neutral-300)',
+                    accentColor: themeColor
+                  }}
                 />
-                <span className="text-sm">{concept.label}</span>
+                <span style={{ fontSize: 'var(--text-sm)' }}>{concept.label}</span>
                 {concept.node_type && concept.node_type !== 'concept' && (
-                  <span className="text-xs text-gray-500 ml-auto">({concept.node_type})</span>
+                  <span style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--neutral-500)',
+                    marginLeft: 'auto'
+                  }}>
+                    ({concept.node_type})
+                  </span>
                 )}
               </label>
             ))}

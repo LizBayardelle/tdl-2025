@@ -41,7 +41,7 @@ export default function UserDropdown({ userEmail }) {
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-sand hover:text-primary transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-khaki transition-colors text-sand"
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
@@ -49,25 +49,25 @@ export default function UserDropdown({ userEmail }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-lg shadow-lg z-50">
-          <div className="p-4 border-b border-gray-200">
+        <div className="absolute right-0 mt-2 w-64 bg-primary text-sand border border-khaki rounded-lg shadow-lg z-50" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+          <div className="p-4 border-b border-khaki">
             <p className="text-sm font-medium">Signed in as</p>
-            <p className="text-sm text-gray-600 truncate">{userEmail}</p>
+            <p className="user-email text-sm truncate">{userEmail}</p>
           </div>
 
           <div className="py-2">
             <a
               href="/users/edit"
-              className="block px-4 py-2 text-sm hover:bg-sand transition-colors"
+              className="block px-4 py-2 text-sm hover:bg-khaki transition-colors"
             >
               Edit My Information
             </a>
           </div>
 
-          <div className="border-t border-gray-200 py-2">
+          <div className="border-t border-khaki py-2">
             <button
               onClick={handleSignOut}
-              className="w-full text-left px-4 py-2 text-sm text-accent-dark hover:bg-sand transition-colors"
+              className="w-full text-left px-4 py-2 text-sm hover:bg-khaki transition-colors"
             >
               Sign Out
             </button>
