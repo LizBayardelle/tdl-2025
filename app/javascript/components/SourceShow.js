@@ -248,7 +248,7 @@ export default function SourceShow({ sourceId }) {
             onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue-dark)'}
             onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
           >
-            ← Back to Index
+            ← Back to Sources
           </a>
           <button
             onClick={() => setEditing(true)}
@@ -334,7 +334,18 @@ function SourceDisplay({ source }) {
                   fontSize: 'var(--text-sm)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 'var(--space-2)'
+                  gap: 'var(--space-2)',
+                  background: 'var(--accent-blue-light)',
+                  color: 'var(--accent-blue)',
+                  border: '1px solid var(--accent-blue-light)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-blue)';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-blue-light)';
+                  e.currentTarget.style.color = 'var(--accent-blue)';
                 }}
               >
                 <i className="fas fa-file-pdf"></i>
@@ -470,17 +481,23 @@ function SourceDisplay({ source }) {
                   href={`/concepts/${concept.id}`}
                   style={{
                     fontSize: 'var(--text-xs)',
-                    background: 'var(--accent-green)',
-                    color: 'white',
+                    background: 'var(--accent-green-light)',
+                    color: 'var(--accent-green)',
                     padding: 'var(--space-1) var(--space-3)',
                     borderRadius: '4px',
                     textDecoration: 'none',
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
-                    transition: 'opacity 0.15s'
+                    transition: 'all 0.15s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-green)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-green-light)';
+                    e.currentTarget.style.color = 'var(--accent-green)';
+                  }}
                 >
                   {concept.label}
                 </a>
@@ -491,17 +508,23 @@ function SourceDisplay({ source }) {
                   href={`/tags/${tag.slug || tag.name}`}
                   style={{
                     fontSize: 'var(--text-xs)',
-                    background: 'var(--accent-purple)',
-                    color: 'white',
+                    background: 'var(--accent-purple-light)',
+                    color: 'var(--accent-purple)',
                     padding: 'var(--space-1) var(--space-3)',
                     borderRadius: '4px',
                     textDecoration: 'none',
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
-                    transition: 'opacity 0.15s'
+                    transition: 'all 0.15s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-purple)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-purple-light)';
+                    e.currentTarget.style.color = 'var(--accent-purple)';
+                  }}
                 >
                   {tag.name}
                 </a>
@@ -529,17 +552,23 @@ function SourceDisplay({ source }) {
                   href={`/people/${person.id}`}
                   style={{
                     fontSize: 'var(--text-xs)',
-                    background: 'var(--accent-gold)',
-                    color: 'white',
+                    background: 'var(--accent-gold-light)',
+                    color: 'var(--accent-gold)',
                     padding: 'var(--space-1) var(--space-3)',
                     borderRadius: '4px',
                     textDecoration: 'none',
                     fontFamily: 'var(--font-body)',
                     fontWeight: 500,
-                    transition: 'opacity 0.15s'
+                    transition: 'all 0.15s'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-gold)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--accent-gold-light)';
+                    e.currentTarget.style.color = 'var(--accent-gold)';
+                  }}
                 >
                   {person.full_name}
                 </a>
@@ -728,11 +757,12 @@ function SourceNotes({ sourceId }) {
                     {note.concepts?.map((concept) => (
                       <span key={concept.id} style={{
                         fontSize: 'var(--text-xs)',
-                        background: 'var(--accent-green)',
-                        color: 'white',
+                        background: 'var(--accent-green-light)',
+                        color: 'var(--accent-green)',
                         padding: 'var(--space-1) var(--space-2)',
                         borderRadius: '4px',
-                        fontFamily: 'var(--font-body)'
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500
                       }}>
                         {concept.label}
                       </span>
@@ -740,11 +770,12 @@ function SourceNotes({ sourceId }) {
                     {note.tags?.map((tag, idx) => (
                       <span key={idx} style={{
                         fontSize: 'var(--text-xs)',
-                        background: 'var(--accent-purple)',
-                        color: 'white',
+                        background: 'var(--accent-purple-light)',
+                        color: 'var(--accent-purple)',
                         padding: 'var(--space-1) var(--space-2)',
                         borderRadius: '4px',
-                        fontFamily: 'var(--font-body)'
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500
                       }}>
                         {tag.name}
                       </span>

@@ -183,14 +183,13 @@ export default function ConceptRelationshipMap() {
 
   const paintNode = (node, ctx, globalScale) => {
     // Clear label bounds at the start of each render frame
-    // We detect a new frame by checking if this is the first node
     if (nodesPainted.current === 0) {
       labelBounds.current.clear();
       currentFrame.current++;
     }
     nodesPainted.current++;
 
-    // Reset counter after all nodes are painted (will be reset by next frame)
+    // Reset counter after all nodes are painted
     if (nodesPainted.current >= graphData.nodes.length) {
       nodesPainted.current = 0;
     }
@@ -199,32 +198,20 @@ export default function ConceptRelationshipMap() {
     const fontSize = 12 / globalScale;
     const nodeSize = 3 + (node.connectionCount || 0) * 0.5;
 
-    // Theme colors
-    const themeColors = {
-      olive: '#414431',
-      khaki: '#cab7a2',
-      sand: '#F6F0E9',
-      plum: '#51344d',
-      eggplant: '#6f5060',
-      dusty: '#bf979b'
+    // Design system colors
+    const colors = {
+      green: '#556B2F',
+      greenLight: '#e8f4ed'
     };
 
-    // Determine node color based on type and highlight
+    // All nodes are green, just vary by highlight state
     let nodeColor;
     if (hoverNode && node.id === hoverNode.id) {
-      nodeColor = themeColors.plum; // accent-dark for hover
+      nodeColor = colors.green; // Same green but will have different styling
     } else if (highlightNodes.size > 0 && !highlightNodes.has(node.id)) {
-      nodeColor = '#e5e7eb'; // gray (faded)
+      nodeColor = '#d1d5db'; // gray (faded)
     } else {
-      // Color by node type using theme colors
-      switch (node.type) {
-        case 'framework': nodeColor = themeColors.plum; break; // accent-dark
-        case 'theory': nodeColor = themeColors.olive; break; // primary
-        case 'method': nodeColor = themeColors.eggplant; break; // accent
-        case 'skill': nodeColor = themeColors.khaki; break; // primary-light
-        case 'tool': nodeColor = themeColors.dusty; break; // accent-light
-        default: nodeColor = '#6b7280'; // gray
-      }
+      nodeColor = colors.green;
     }
 
     // Draw node
@@ -235,21 +222,21 @@ export default function ConceptRelationshipMap() {
 
     // Draw border for highlighted nodes
     if (highlightNodes.has(node.id)) {
-      ctx.strokeStyle = themeColors.olive;
+      ctx.strokeStyle = colors.green;
       ctx.lineWidth = 1.5 / globalScale;
       ctx.stroke();
     }
 
     // Draw label with collision detection
-    ctx.font = `${fontSize}px Sans-Serif`;
+    ctx.font = `${fontSize}px Inter, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : '#1a1a1a';
+    ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : 'var(--neutral-900)';
 
     // Measure text dimensions
     const textMetrics = ctx.measureText(label);
     const textWidth = textMetrics.width;
-    const textHeight = fontSize * 1.2; // Approximate height with padding
+    const textHeight = fontSize * 1.2;
     const padding = 2 / globalScale;
 
     // Try different positions for the label
@@ -282,9 +269,9 @@ export default function ConceptRelationshipMap() {
       hasOverlap = true;
     }
 
-    // If all positions overlap, truncate the label at the default position
+    // If all positions overlap, truncate the label
     if (hasOverlap) {
-      const maxWidth = 80 / globalScale; // Max width before truncation
+      const maxWidth = 80 / globalScale;
       displayLabel = truncateText(ctx, label, maxWidth);
 
       const truncatedMetrics = ctx.measureText(displayLabel);
@@ -306,14 +293,14 @@ export default function ConceptRelationshipMap() {
       // Draw background for hover label
       const hoverMetrics = ctx.measureText(displayLabel);
       const hoverWidth = hoverMetrics.width;
-      ctx.fillStyle = 'rgba(246, 240, 233, 0.9)'; // sand with transparency
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.fillRect(
         bestPosition.x - hoverWidth / 2 - padding * 2,
         bestPosition.y - textHeight / 2 - padding,
         hoverWidth + padding * 4,
         textHeight + padding * 2
       );
-      ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : '#1a1a1a';
+      ctx.fillStyle = 'var(--neutral-900)';
     }
 
     ctx.fillText(displayLabel, bestPosition.x, bestPosition.y);
@@ -323,46 +310,43 @@ export default function ConceptRelationshipMap() {
     const sourceId = link.source.id || link.source;
     const targetId = link.target.id || link.target;
 
-    // Theme colors
-    const themeColors = {
-      olive: '#414431',
-      khaki: '#cab7a2',
-      plum: '#51344d',
-      eggplant: '#6f5060',
-      dusty: '#bf979b'
-    };
-
-    // Determine link color and style based on category
+    // All links are grey, vary by line style
     let linkColor;
     let linkWidth = 1;
     let dashPattern = [];
+    let isDouble = false;
 
     if (highlightLinks.size > 0 && !highlightLinks.has(link)) {
       linkColor = '#e5e7eb';
       linkWidth = 0.5;
     } else {
+      linkColor = '#6b7280'; // All links are grey
+
       switch (link.category) {
         case 'hierarchical':
-          linkColor = themeColors.plum; // accent-dark
-          linkWidth = 2;
+          // Bold solid line
+          linkWidth = 2.5;
+          dashPattern = [];
           break;
         case 'semantic':
-          linkColor = themeColors.olive; // primary
-          linkWidth = 1;
-          dashPattern = [5, 5];
+          // Dashed line
+          linkWidth = 1.5;
+          dashPattern = [8, 4];
           break;
         case 'sequential':
-          linkColor = themeColors.eggplant; // accent
-          linkWidth = 1.5;
+          // Solid line (medium)
+          linkWidth = 2;
+          dashPattern = [];
           break;
         case 'influence':
-          linkColor = themeColors.dusty; // accent-light
-          linkWidth = 1;
-          dashPattern = [2, 2];
+          // Dotted line
+          linkWidth = 1.5;
+          dashPattern = [2, 3];
           break;
         default:
-          linkColor = '#6b7280'; // gray
+          // Regular solid
           linkWidth = 1;
+          dashPattern = [];
       }
     }
 
@@ -388,16 +372,21 @@ export default function ConceptRelationshipMap() {
 
     // Draw arrow for directional relationships
     if (link.category === 'hierarchical' || link.category === 'sequential') {
-      const arrowLength = 8 / globalScale;
-      const arrowWidth = 4 / globalScale;
+      const arrowLength = 12 / globalScale;
+      const arrowWidth = 6 / globalScale;
 
       const dx = end.x - start.x;
       const dy = end.y - start.y;
       const angle = Math.atan2(dy, dx);
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Position arrow at the end
-      const arrowX = end.x;
-      const arrowY = end.y;
+      // Calculate arrow position - offset from node center by node radius plus padding
+      const nodeRadius = 3 + ((end.connectionCount || 0) * 0.5);
+      const padding = 3 / globalScale; // Extra padding
+      const offset = (nodeRadius + padding) / distance;
+
+      const arrowX = end.x - dx * offset;
+      const arrowY = end.y - dy * offset;
 
       ctx.save();
       ctx.translate(arrowX, arrowY);
@@ -419,8 +408,13 @@ export default function ConceptRelationshipMap() {
 
   if (loading) {
     return (
-      <div className="bg-white border border-gray-300 rounded-lg p-6">
-        <p>Loading relationship map...</p>
+      <div className="card" style={{ padding: 'var(--space-6)' }}>
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          color: 'var(--neutral-600)'
+        }}>
+          Loading relationship map...
+        </p>
       </div>
     );
   }
@@ -428,85 +422,218 @@ export default function ConceptRelationshipMap() {
   const filteredData = getFilteredData();
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-4 sm:p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-        <h2 className="text-xl sm:text-2xl">Concept Relationship Map</h2>
+    <div className="card" style={{ padding: 'var(--space-6)' }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-4)',
+        marginBottom: 'var(--space-4)'
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-green)',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)'
+          }}>
+            <i className="fas fa-project-diagram" style={{ fontSize: 'var(--text-lg)' }}></i>
+            Concept Relationship Map
+          </h2>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilterType('all')}
-            className={`px-3 py-1 rounded text-sm ${
-              filterType === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setFilterType('hierarchical')}
-            className={`px-3 py-1 rounded text-sm ${
-              filterType === 'hierarchical'
-                ? 'bg-accent-dark text-sand'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Hierarchical
-          </button>
-          <button
-            onClick={() => setFilterType('semantic')}
-            className={`px-3 py-1 rounded text-sm ${
-              filterType === 'semantic'
-                ? 'bg-primary text-sand'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Semantic
-          </button>
-          <button
-            onClick={() => setFilterType('sequential')}
-            className={`px-3 py-1 rounded text-sm ${
-              filterType === 'sequential'
-                ? 'bg-accent text-sand'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Sequential
-          </button>
-          <button
-            onClick={() => setFilterType('influence')}
-            className={`px-3 py-1 rounded text-sm ${
-              filterType === 'influence'
-                ? 'bg-accent-light text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Influence
-          </button>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 'var(--space-2)'
+          }}>
+            <button
+              onClick={() => setFilterType('all')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'all' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'all' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'all') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'all') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilterType('hierarchical')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'hierarchical' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'hierarchical' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'hierarchical') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'hierarchical') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              Hierarchical
+            </button>
+            <button
+              onClick={() => setFilterType('semantic')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'semantic' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'semantic' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'semantic') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'semantic') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              Semantic
+            </button>
+            <button
+              onClick={() => setFilterType('sequential')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'sequential' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'sequential' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'sequential') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'sequential') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              Sequential
+            </button>
+            <button
+              onClick={() => setFilterType('influence')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'influence' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'influence' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'influence') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'influence') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              Influence
+            </button>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 'var(--space-4)',
+          fontSize: 'var(--text-sm)',
+          fontFamily: 'var(--font-body)',
+          color: 'var(--neutral-700)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <svg width="32" height="3" style={{ flexShrink: 0 }}>
+              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="2.5" />
+            </svg>
+            <span>Hierarchical</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <svg width="32" height="3" style={{ flexShrink: 0 }}>
+              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="8,4" />
+            </svg>
+            <span>Semantic</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <svg width="32" height="3" style={{ flexShrink: 0 }}>
+              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="2" />
+            </svg>
+            <span>Sequential</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <svg width="32" height="3" style={{ flexShrink: 0 }}>
+              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="2,3" />
+            </svg>
+            <span>Influence</span>
+          </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="mb-4 flex flex-wrap gap-4 sm:gap-6 text-xs sm:text-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-accent-dark" />
-          <span>Hierarchical</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-primary" />
-          <span>Semantic</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-accent" />
-          <span>Sequential</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-accent-light" />
-          <span>Influence</span>
-        </div>
-      </div>
-
-      <div className="border border-gray-200 rounded overflow-hidden" style={{ height: '400px', minHeight: '300px' }}>
+      <div style={{
+        border: '1px solid var(--neutral-200)',
+        borderRadius: 'var(--radius)',
+        overflow: 'hidden',
+        height: '500px',
+        minHeight: '400px'
+      }}>
         <ForceGraph2D
           ref={fgRef}
           graphData={filteredData}
@@ -524,18 +651,50 @@ export default function ConceptRelationshipMap() {
           enableZoomInteraction={true}
           enablePanInteraction={true}
           width={undefined}
-          height={400}
+          height={500}
         />
       </div>
 
       {hoverNode && (
-        <div className="mt-4 p-4 bg-sand border border-gray-300 rounded">
-          <h3 className="font-medium text-lg">{hoverNode.label}</h3>
-          <div className="text-sm text-gray-600 mt-1">
-            <span className="inline-block bg-white px-2 py-1 rounded mr-2">
-              {hoverNode.type}
+        <div style={{
+          marginTop: 'var(--space-4)',
+          padding: 'var(--space-4)',
+          background: 'var(--accent-green-light)',
+          border: '1px solid var(--accent-green)',
+          borderRadius: 'var(--radius)'
+        }}>
+          <h3 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-body)',
+            color: 'var(--neutral-900)',
+            marginBottom: 'var(--space-2)'
+          }}>
+            {hoverNode.label}
+          </h3>
+          <div style={{
+            fontSize: 'var(--text-sm)',
+            fontFamily: 'var(--font-body)',
+            color: 'var(--neutral-700)',
+            display: 'flex',
+            gap: 'var(--space-2)',
+            flexWrap: 'wrap'
+          }}>
+            <span style={{
+              display: 'inline-block',
+              background: 'white',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: 'var(--radius)',
+              textTransform: 'capitalize'
+            }}>
+              {hoverNode.type.replace(/_/g, ' ')}
             </span>
-            <span className="inline-block bg-white px-2 py-1 rounded">
+            <span style={{
+              display: 'inline-block',
+              background: 'white',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: 'var(--radius)'
+            }}>
               {hoverNode.connectionCount} connection{hoverNode.connectionCount !== 1 ? 's' : ''}
             </span>
           </div>

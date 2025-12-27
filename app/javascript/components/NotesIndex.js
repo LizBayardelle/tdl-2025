@@ -195,8 +195,7 @@ export default function NotesIndex() {
           style={{
             position: 'absolute',
             left: sidebarOpen ? '280px' : '0',
-            top: '50%',
-            transform: 'translateY(-50%)',
+            top: '200px',
             zIndex: 20,
             background: 'var(--accent-teal)',
             color: 'white',
@@ -283,16 +282,17 @@ export default function NotesIndex() {
                         alignItems: 'center',
                         gap: 'var(--space-1)',
                         fontSize: 'var(--text-xs)',
-                        background: 'var(--accent-green)',
-                        color: 'white',
+                        background: 'var(--accent-green-light)',
+                        color: 'var(--accent-green)',
                         padding: 'var(--space-1) var(--space-2)',
                         borderRadius: '4px',
-                        fontFamily: 'var(--font-body)'
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500
                       }}>
                         {concept.label}
                         <button
                           onClick={() => setSelectedConcepts(selectedConcepts.filter(cid => cid !== id))}
-                          style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-green)', cursor: 'pointer', padding: 0 }}
                         >
                           <i className="fas fa-times" style={{ fontSize: '10px' }}></i>
                         </button>
@@ -307,16 +307,17 @@ export default function NotesIndex() {
                         alignItems: 'center',
                         gap: 'var(--space-1)',
                         fontSize: 'var(--text-xs)',
-                        background: 'var(--accent-blue)',
-                        color: 'white',
+                        background: 'var(--accent-blue-light)',
+                        color: 'var(--accent-blue)',
                         padding: 'var(--space-1) var(--space-2)',
                         borderRadius: '4px',
-                        fontFamily: 'var(--font-body)'
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500
                       }}>
                         {source.title}
                         <button
                           onClick={() => setSelectedSources(selectedSources.filter(sid => sid !== id))}
-                          style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', cursor: 'pointer', padding: 0 }}
                         >
                           <i className="fas fa-times" style={{ fontSize: '10px' }}></i>
                         </button>
@@ -329,16 +330,17 @@ export default function NotesIndex() {
                       alignItems: 'center',
                       gap: 'var(--space-1)',
                       fontSize: 'var(--text-xs)',
-                      background: 'var(--accent-purple)',
-                      color: 'white',
+                      background: 'var(--accent-purple-light)',
+                      color: 'var(--accent-purple)',
                       padding: 'var(--space-1) var(--space-2)',
                       borderRadius: '4px',
-                      fontFamily: 'var(--font-body)'
+                      fontFamily: 'var(--font-body)',
+                      fontWeight: 500
                     }}>
                       {tag}
                       <button
                         onClick={() => setSelectedTags(selectedTags.filter(t => t !== tag))}
-                        style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', padding: 0 }}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent-purple)', cursor: 'pointer', padding: 0 }}
                       >
                         <i className="fas fa-times" style={{ fontSize: '10px' }}></i>
                       </button>
@@ -560,39 +562,60 @@ export default function NotesIndex() {
             borderBottom: '1px solid var(--neutral-200)',
             background: 'white'
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 'var(--space-4)'
-            }}>
-              <h1 style={{
-                fontSize: 'var(--text-4xl)',
-                fontWeight: 700,
-                fontFamily: 'var(--font-display)',
-                color: 'var(--accent-teal)',
-                margin: 0
-              }}>Notes</h1>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{
+                  fontSize: 'var(--text-3xl)',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--neutral-900)',
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'var(--space-1)',
+                  margin: 0
+                }}>Notes</h1>
+                <p style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-500)',
+                  fontFamily: 'var(--font-body)',
+                  margin: 0
+                }}>
+                  Showing {filteredNotes.length} of {notes.length} notes
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setEditingNote(null);
                   setShowFormModal(true);
                 }}
-                className="btn-primary"
-                style={{ background: 'var(--accent-teal)' }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#4a8187'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-teal)'}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-teal)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 'var(--text-xl)',
+                  transition: 'all 0.15s',
+                  boxShadow: 'var(--shadow-md)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#4a8187';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-teal)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                title="New Note"
               >
-                <i className="fas fa-plus" style={{ marginRight: 'var(--space-2)' }}></i>
-                New Note
+                <i className="fas fa-plus"></i>
               </button>
-            </div>
-            <div style={{
-              fontSize: 'var(--text-sm)',
-              color: 'var(--neutral-600)',
-              fontFamily: 'var(--font-body)'
-            }}>
-              Showing {filteredNotes.length} of {notes.length} notes
             </div>
           </div>
 
@@ -601,6 +624,7 @@ export default function NotesIndex() {
             flex: 1,
             overflowY: 'auto',
             padding: 'var(--space-6)',
+            paddingLeft: 'calc(var(--space-6) + 24px)',
             background: 'var(--background)'
           }}>
             {filteredNotes.length === 0 ? (
@@ -627,7 +651,7 @@ export default function NotesIndex() {
                     {note.title && (
                       <div style={{
                         background: 'var(--accent-teal)',
-                        padding: 'var(--space-3) var(--space-4)',
+                        padding: '5px var(--space-4)',
                         borderBottom: '1px solid var(--neutral-200)',
                         display: 'flex',
                         alignItems: 'center',
@@ -642,7 +666,8 @@ export default function NotesIndex() {
                           flex: 1,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          lineHeight: 1.2
                         }}>
                           {note.title}
                         </h3>
@@ -705,16 +730,23 @@ export default function NotesIndex() {
                               href={`/concepts/${concept.id}`}
                               style={{
                                 fontSize: 'var(--text-xs)',
-                                background: 'var(--accent-green)',
-                                color: 'white',
+                                background: 'var(--accent-green-light)',
+                                color: 'var(--accent-green)',
                                 padding: 'var(--space-1) var(--space-2)',
                                 borderRadius: '4px',
                                 fontFamily: 'var(--font-body)',
+                                fontWeight: 500,
                                 textDecoration: 'none',
-                                transition: 'opacity 0.15s'
+                                transition: 'all 0.15s'
                               }}
-                              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-                              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'var(--accent-green)';
+                                e.currentTarget.style.color = 'white';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'var(--accent-green-light)';
+                                e.currentTarget.style.color = 'var(--accent-green)';
+                              }}
                             >
                               {concept.label}
                             </a>
@@ -722,11 +754,12 @@ export default function NotesIndex() {
                           {note.tags?.map((tag, idx) => (
                             <span key={idx} style={{
                               fontSize: 'var(--text-xs)',
-                              background: 'var(--accent-purple)',
-                              color: 'white',
+                              background: 'var(--accent-purple-light)',
+                              color: 'var(--accent-purple)',
                               padding: 'var(--space-1) var(--space-2)',
                               borderRadius: '4px',
-                              fontFamily: 'var(--font-body)'
+                              fontFamily: 'var(--font-body)',
+                              fontWeight: 500
                             }}>
                               {typeof tag === 'string' ? tag : tag.name}
                             </span>
@@ -745,13 +778,16 @@ export default function NotesIndex() {
                       <div style={{
                         fontSize: 'var(--text-xs)',
                         color: 'var(--neutral-600)',
-                        fontFamily: 'var(--font-body)'
+                        fontFamily: 'var(--font-body)',
+                        lineHeight: 1
                       }}>
                         {note.source && (
                           <a href={`/sources/${note.source.id}`} style={{
                             color: 'var(--accent-blue)',
                             textDecoration: 'none',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            lineHeight: 1,
+                            display: 'block'
                           }}>
                             {note.source.title}
                           </a>

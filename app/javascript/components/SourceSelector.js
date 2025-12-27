@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function SourceSelector({ selectedSourceIds = [], onChange }) {
+export default function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onChange, multiple = true, themeColor = 'var(--accent-blue)' }) {
   const [allSources, setAllSources] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -28,46 +28,126 @@ export default function SourceSelector({ selectedSourceIds = [], onChange }) {
     : allSources;
 
   const handleToggle = (sourceId) => {
-    if (selectedSourceIds.includes(sourceId)) {
-      onChange(selectedSourceIds.filter(id => id !== sourceId));
+    if (multiple) {
+      if (selectedSourceIds.includes(sourceId)) {
+        onChange(selectedSourceIds.filter(id => id !== sourceId));
+      } else {
+        onChange([...selectedSourceIds, sourceId]);
+      }
     } else {
-      onChange([...selectedSourceIds, sourceId]);
+      // Single select mode
+      onChange(selectedSourceId === sourceId ? null : sourceId);
     }
   };
 
-  const selectedSources = allSources.filter(s => selectedSourceIds.includes(s.id));
+  const selectedSources = multiple
+    ? allSources.filter(s => selectedSourceIds.includes(s.id))
+    : (selectedSourceId ? allSources.filter(s => s.id === selectedSourceId) : []);
 
-  if (loading) return <p className="text-sm text-gray-500">Loading sources...</p>;
+  if (loading) {
+    return (
+      <p style={{
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-500)',
+        fontFamily: 'var(--font-body)'
+      }}>
+        Loading sources...
+      </p>
+    );
+  }
 
   return (
-    <div className="border border-gray-300 rounded bg-white h-full flex flex-col">
+    <div style={{
+      border: '1px solid var(--neutral-300)',
+      borderRadius: 'var(--radius)',
+      background: 'white',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      fontFamily: 'var(--font-body)'
+    }}>
       {/* Search/Filter Input */}
-      <div className="p-3 border-b border-gray-200">
+      <div style={{
+        padding: 'var(--space-3)',
+        borderBottom: '1px solid var(--neutral-200)'
+      }}>
         <input
           type="text"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Type to filter sources..."
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
+          style={{
+            width: '100%',
+            padding: 'var(--space-2) var(--space-3)',
+            fontSize: 'var(--text-sm)',
+            border: '1px solid var(--neutral-300)',
+            borderRadius: 'var(--radius)',
+            fontFamily: 'var(--font-body)'
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-2) - 1px) calc(var(--space-3) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = '1px solid var(--neutral-300)';
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-2) var(--space-3)';
+          }}
         />
       </div>
 
       {/* Selected Sources */}
       {selectedSources.length > 0 && (
-        <div className="p-3 border-b border-gray-200 bg-sand">
-          <div className="text-xs font-medium mb-2 text-gray-600">Selected:</div>
-          <div className="flex flex-wrap gap-2">
+        <div style={{
+          padding: 'var(--space-3)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: `color-mix(in srgb, ${themeColor} 10%, white)`
+        }}>
+          <div style={{
+            fontSize: 'var(--text-xs)',
+            fontWeight: 600,
+            marginBottom: 'var(--space-2)',
+            color: 'var(--neutral-600)',
+            fontFamily: 'var(--font-body)'
+          }}>
+            Selected:
+          </div>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 'var(--space-2)'
+          }}>
             {selectedSources.map(source => (
               <span
                 key={source.id}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-primary text-sand text-xs rounded"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  padding: 'var(--space-1) var(--space-2)',
+                  background: themeColor,
+                  color: 'white',
+                  fontSize: 'var(--text-xs)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: 'var(--font-body)'
+                }}
               >
                 {source.title} {source.year && `(${source.year})`}
                 <button
                   type="button"
                   onClick={() => handleToggle(source.id)}
-                  className="hover:text-accent-light"
-                  style={{ background: 'none', padding: 0, fontSize: '14px' }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    color: 'white',
+                    transition: 'opacity 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                   ×
                 </button>
@@ -78,23 +158,56 @@ export default function SourceSelector({ selectedSourceIds = [], onChange }) {
       )}
 
       {/* Scrollable Source List */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: 'var(--space-3)'
+      }}>
         {filteredSources.length === 0 ? (
-          <div className="text-sm text-gray-500 text-center py-4">
+          <div style={{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--neutral-500)',
+            textAlign: 'center',
+            padding: 'var(--space-4)',
+            fontFamily: 'var(--font-body)'
+          }}>
             No sources found
           </div>
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
             {filteredSources.map(source => (
-              <label key={source.id} className="flex items-start gap-2 cursor-pointer hover:bg-sand px-2 py-1 rounded">
+              <label
+                key={source.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'start',
+                  gap: 'var(--space-2)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-2)',
+                  borderRadius: 'var(--radius)',
+                  transition: 'background 0.15s',
+                  fontFamily: 'var(--font-body)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = `color-mix(in srgb, ${themeColor} 10%, white)`}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
                 <input
-                  type="checkbox"
-                  checked={selectedSourceIds.includes(source.id)}
+                  type={multiple ? "checkbox" : "radio"}
+                  checked={multiple ? selectedSourceIds.includes(source.id) : selectedSourceId === source.id}
                   onChange={() => handleToggle(source.id)}
-                  className="mt-1 rounded border-gray-300"
-                  style={{ accentColor: '#414431' }}
+                  style={{
+                    marginTop: '2px',
+                    borderRadius: 'var(--radius)',
+                    border: '1px solid var(--neutral-300)',
+                    accentColor: themeColor,
+                    cursor: 'pointer'
+                  }}
                 />
-                <span className="text-sm">
+                <span style={{
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-900)'
+                }}>
                   {source.title} {source.year && `(${source.year})`}
                 </span>
               </label>

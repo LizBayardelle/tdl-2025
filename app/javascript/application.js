@@ -49,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const personShowRoot = document.getElementById('person-show-root');
   if (personShowRoot) {
-    createRoot(personShowRoot).render(<PersonShow />);
+    const personId = personShowRoot.dataset.personId;
+    createRoot(personShowRoot).render(<PersonShow personId={personId} />);
   }
 
   const connectionVisualizationRoot = document.getElementById('connection-visualization-root');

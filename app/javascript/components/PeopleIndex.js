@@ -5,10 +5,31 @@ export default function PeopleIndex() {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [filterRole, setFilterRole] = useState('all');
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedConcepts, setSelectedConcepts] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     fetchPeople();
+  }, []);
+
+  // Handle responsive sidebar - closed on mobile by default (below md: 768px)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const fetchPeople = async () => {
@@ -23,11 +44,80 @@ export default function PeopleIndex() {
     }
   };
 
-  const filteredPeople = filterRole === 'all'
-    ? people
-    : people.filter(person => person.role === filterRole);
+  // Get unique values for filters
+  const personRoles = [...new Set(people.map(p => p.role))].filter(Boolean).sort();
 
-  const roles = ['theorist', 'clinician', 'researcher', 'peer', 'client'];
+  const conceptsMap = new Map();
+  people.forEach(p => {
+    (p.concepts || []).forEach(c => {
+      if (!conceptsMap.has(c.id)) {
+        conceptsMap.set(c.id, { id: c.id, label: c.label });
+      }
+    });
+  });
+  const allConcepts = Array.from(conceptsMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+
+  const allTags = [...new Set(people.flatMap(p => p.tags || []))].filter(Boolean).sort();
+
+  // Filter people
+  const filteredPeople = people.filter(person => {
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = person.full_name?.toLowerCase().includes(query);
+      const matchesAka = person.aka?.some(aka => aka.toLowerCase().includes(query));
+      const matchesSummary = person.summary?.toLowerCase().includes(query);
+      if (!matchesName && !matchesAka && !matchesSummary) {
+        return false;
+      }
+    }
+
+    // Role filter
+    if (selectedRoles.length > 0 && !selectedRoles.includes(person.role)) {
+      return false;
+    }
+
+    // Concept filter
+    if (selectedConcepts.length > 0 && !person.concepts?.some(c => selectedConcepts.includes(c.id))) {
+      return false;
+    }
+
+    // Tag filter
+    if (selectedTags.length > 0 && !person.tags?.some(t => selectedTags.includes(t))) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Toggle selections
+  const toggleRole = (role) => {
+    setSelectedRoles(prev =>
+      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
+    );
+  };
+
+  const toggleConcept = (conceptId) => {
+    setSelectedConcepts(prev =>
+      prev.includes(conceptId) ? prev.filter(c => c !== conceptId) : [...prev, conceptId]
+    );
+  };
+
+  const toggleTag = (tag) => {
+    setSelectedTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedRoles([]);
+    setSelectedConcepts([]);
+    setSelectedTags([]);
+    setSearchQuery('');
+  };
+
+  const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 ||
+                          selectedTags.length > 0 || searchQuery;
 
   if (loading) {
     return (
@@ -38,68 +128,431 @@ export default function PeopleIndex() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl">People</h1>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-6 py-2 bg-primary text-sand rounded hover:bg-accent-dark transition-colors"
-        >
-          {showForm ? 'Cancel' : 'New Person'}
-        </button>
-      </div>
-
-      <PersonFormModal
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSuccess={() => {
-          fetchPeople();
-          setShowForm(false);
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: sidebarOpen ? '280px' : '0',
+          background: 'var(--sidebar-bg)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: sidebarOpen ? 'var(--space-6)' : '0',
+          boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
+          transition: 'all 0.3s ease',
         }}
-      />
+      >
+        {sidebarOpen && (
+          <>
+            {/* Search */}
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--neutral-500)',
+                  marginBottom: 'var(--space-3)',
+                }}
+              >
+                Search
+              </div>
+              <input
+                type="text"
+                placeholder="Name, summary..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-input"
+                style={{
+                  width: '100%',
+                  fontSize: 'var(--text-sm)',
+                  padding: 'var(--space-2)',
+                }}
+              />
+            </div>
 
-      <div className="mb-6 flex gap-2 flex-wrap">
-        <button
-          onClick={() => setFilterRole('all')}
-          className={`px-4 py-2 rounded text-sm ${
-            filterRole === 'all'
-              ? 'bg-primary text-sand'
-              : 'bg-white border border-gray-300 hover:bg-sand'
-          }`}
-        >
-          All ({people.length})
-        </button>
-        {roles.map(role => {
-          const count = people.filter(p => p.role === role).length;
-          if (count === 0) return null;
-          return (
-            <button
-              key={role}
-              onClick={() => setFilterRole(role)}
-              className={`px-4 py-2 rounded capitalize text-sm ${
-                filterRole === role
-                  ? 'bg-primary text-sand'
-                  : 'bg-white border border-gray-300 hover:bg-sand'
-              }`}
-            >
-              {role} ({count})
-            </button>
-          );
-        })}
+            {/* Clear all button */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  width: '100%',
+                  padding: 'var(--space-2)',
+                  marginBottom: 'var(--space-6)',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--accent-gold)',
+                  background: 'transparent',
+                  border: '1px solid var(--accent-gold)',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-gold-light)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                Clear All Filters
+              </button>
+            )}
+
+            {/* Role filters */}
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--neutral-500)',
+                  marginBottom: 'var(--space-3)',
+                }}
+              >
+                Role
+              </div>
+
+              <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                {personRoles.map(role => {
+                  const count = people.filter(p => p.role === role).length;
+                  const isSelected = selectedRoles.includes(role);
+                  return (
+                    <label
+                      key={role}
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                        padding: 'var(--space-1) var(--space-2)',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                        transition: 'background 0.15s',
+                        marginBottom: '0.125rem',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          toggleRole(role);
+                        }}
+                        style={{ accentColor: 'var(--accent-gold)' }}
+                      />
+                      <span style={{ flex: 1, textTransform: 'capitalize' }}>{role.replace(/_/g, ' ')}</span>
+                      <span
+                        style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--neutral-400)',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {count}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Concept filters */}
+            {allConcepts.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Concept
+                </div>
+
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                  {allConcepts.map(concept => {
+                    const count = people.filter(p => p.concepts?.some(c => c.id === concept.id)).length;
+                    const isSelected = selectedConcepts.includes(concept.id);
+                    return (
+                      <label
+                        key={concept.id}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleConcept(concept.id);
+                          }}
+                          style={{ accentColor: 'var(--accent-gold)' }}
+                        />
+                        <span style={{ flex: 1 }}>{concept.label}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Tag filters */}
+            {allTags.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Tag
+                </div>
+
+                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                  {allTags.map(tag => {
+                    const count = people.filter(p => p.tags?.includes(tag)).length;
+                    const isSelected = selectedTags.includes(tag);
+                    return (
+                      <label
+                        key={tag}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleTag(tag);
+                          }}
+                          style={{ accentColor: 'var(--accent-gold)' }}
+                        />
+                        <span style={{ flex: 1 }}>{tag}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {filteredPeople.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-gray-300 rounded">
-          <p className="text-lg mb-4">No people yet.</p>
-          <p className="text-sm">Add people to track intellectual lineage and influence.</p>
+      {/* Toggle button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        style={{
+          position: 'absolute',
+          left: sidebarOpen ? '280px' : '0',
+          top: '164px',
+          width: '24px',
+          height: '48px',
+          background: 'var(--accent-gold)',
+          border: 'none',
+          color: 'white',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderTopRightRadius: '4px',
+          borderBottomRightRadius: '4px',
+          transition: 'left 0.3s ease',
+          zIndex: 5,
+          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
+        }}
+        className="sidebar-toggle"
+        title={sidebarOpen ? 'Hide filters' : 'Show filters'}
+      >
+        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
+      </button>
+
+      {/* Main content */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'white'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-3xl)',
+                  fontWeight: 700,
+                  color: 'var(--neutral-900)',
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'var(--space-1)',
+                }}
+              >
+                People
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-500)',
+                  margin: 0,
+                }}
+              >
+                {filteredPeople.length} of {people.length} people
+              </p>
+            </div>
+            <button
+              onClick={() => setShowForm(!showForm)}
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'var(--accent-gold)',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 'var(--text-xl)',
+                transition: 'all 0.15s',
+                boxShadow: 'var(--shadow-md)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#8a6624';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--accent-gold)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+              }}
+              title="New Person"
+            >
+              <i className="fas fa-plus"></i>
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPeople.map(person => (
-            <PersonCard key={person.id} person={person} onUpdate={fetchPeople} />
-          ))}
+
+        <PersonFormModal
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          onSuccess={() => {
+            fetchPeople();
+            setShowForm(false);
+          }}
+        />
+
+        {/* People Cards */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-6)',
+          paddingLeft: 'calc(var(--space-6) + 24px)',
+          background: 'var(--background)'
+        }}>
+          {filteredPeople.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1.5rem',
+                background: 'white',
+                border: '1px solid var(--neutral-200)',
+                borderRadius: '4px',
+              }}
+            >
+              <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
+                No people found.
+              </p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+                {hasActiveFilters ? 'Try adjusting your filters.' : 'Add your first person to track intellectual lineage and influence.'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              {filteredPeople.map(person => (
+                <PersonCard key={person.id} person={person} onUpdate={fetchPeople} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </main>
     </div>
   );
 }
@@ -108,7 +561,7 @@ function PersonCard({ person, onUpdate }) {
   const [showEdit, setShowEdit] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this person?')) return;
+    if (!confirm(`Are you sure you want to delete "${person.full_name}"?`)) return;
 
     try {
       const response = await fetch(`/people/${person.id}`, {
@@ -121,99 +574,176 @@ function PersonCard({ person, onUpdate }) {
       if (response.ok) {
         onUpdate();
       } else {
-        // Show error message from backend
         const data = await response.json();
         alert(data.error || 'Failed to delete person');
       }
     } catch (error) {
       console.error('Error deleting person:', error);
-      alert('An error occurred while deleting the person');
     }
   };
 
   return (
     <>
-      <div className="bg-white border border-gray-300 rounded p-4 hover:shadow-lg transition-shadow">
-        <div className="flex justify-between items-start mb-2">
-          {person.role && (
-            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-              {person.role}
-            </span>
-          )}
-          <div className="flex gap-2">
+      <div
+        className="card"
+        style={{
+          overflow: 'hidden',
+          transition: 'all 0.2s',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
+        {/* Card Header */}
+        <div style={{
+          background: 'var(--card-header)',
+          padding: 'var(--space-3) var(--space-4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderBottom: '1px solid var(--neutral-200)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flex: 1 }}>
+            <i className="fas fa-user" style={{ color: 'var(--accent-gold)', fontSize: 'var(--text-lg)' }}></i>
+            <a
+              href={`/people/${person.id}`}
+              style={{
+                fontSize: 'var(--text-sm)',
+                fontWeight: 600,
+                color: 'var(--neutral-900)',
+                textDecoration: 'none',
+                lineHeight: 1.4,
+                transition: 'color 0.15s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+            >
+              {person.full_name}
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', gap: 'var(--space-2)', marginLeft: 'var(--space-4)' }}>
             <button
               onClick={() => setShowEdit(true)}
-              className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-sand transition-colors"
+              className="icon-btn"
+              title="Edit"
+              style={{ color: 'var(--accent-gold)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
             >
-              Edit
+              <i className="fas fa-pen"></i>
             </button>
             <button
               onClick={handleDelete}
-              className="px-3 py-1 text-xs text-white bg-accent hover:bg-accent-dark rounded transition-colors"
+              className="icon-btn"
+              title="Delete"
+              style={{ color: 'var(--accent-gold)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
             >
-              Delete
+              <i className="fas fa-trash"></i>
             </button>
           </div>
         </div>
 
-      <h3 className="text-xl mb-2">
-        <a href={`/people/${person.id}`} className="hover:text-primary">
-          {person.full_name}
-        </a>
-      </h3>
+        {/* Card Body */}
+        <div style={{ padding: 'var(--space-4)' }}>
+          {/* Role and AKA */}
+          {(person.role || person.aka?.length > 0) && (
+            <div style={{ marginBottom: 'var(--space-3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', fontSize: 'var(--text-xs)' }}>
+                {person.role && (
+                  <span className="tag" style={{ textTransform: 'uppercase', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)' }}>
+                    {person.role.replace(/_/g, ' ')}
+                  </span>
+                )}
+                {person.aka && person.aka.length > 0 && (
+                  <span style={{ color: 'var(--neutral-600)', fontSize: 'var(--text-xs)' }}>
+                    Also known as: {person.aka.join(', ')}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
-      {person.aka && person.aka.length > 0 && (
-        <p className="text-xs text-gray-600 mb-2">
-          Also known as: {person.aka.join(', ')}
-        </p>
-      )}
+          {/* Summary */}
+          {person.summary && (
+            <div style={{ marginBottom: 'var(--space-3)' }}>
+              <div
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  lineHeight: 1.6,
+                  color: 'var(--neutral-700)',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                }}
+                dangerouslySetInnerHTML={{ __html: person.summary }}
+              />
+            </div>
+          )}
 
-      {person.summary && (
-        <p className="text-sm mb-3 line-clamp-3">{person.summary}</p>
-      )}
-
-      {(person.concepts?.length > 0 || person.tags?.length > 0) && (
-        <div className="mb-3 flex flex-wrap gap-2">
-          {person.concepts?.map((concept) => (
-            <a
-              key={concept.id}
-              href={`/concepts/${concept.id}`}
-              className="text-xs bg-accent-dark text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
-            >
-              {concept.label}
-            </a>
-          ))}
-          {person.tags?.map((tag, idx) => (
-            <a
-              key={idx}
-              href={`/tags/${tag}`}
-              className="text-xs bg-primary text-sand px-3 py-1 rounded hover:bg-primary-light transition-colors"
-            >
-              {tag}
-            </a>
-          ))}
+          {/* Tags */}
+          {(person.concepts?.length > 0 || person.tags?.length > 0) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {person.concepts?.map((concept) => (
+                <a
+                  key={concept.id}
+                  href={`/concepts/${concept.id}`}
+                  className="tag concept"
+                  style={{ textDecoration: 'none' }}
+                >
+                  {concept.label}
+                </a>
+              ))}
+              {person.tags?.map((tag, idx) => (
+                <span key={idx} className="tag tag-purple">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-        <div className="flex gap-3 text-xs text-gray-500">
-          <span>{person.sources_count || 0} source{person.sources_count !== 1 ? 's' : ''}</span>
-          <span>{person.notes_count || 0} note{person.notes_count !== 1 ? 's' : ''}</span>
+        {/* Card Footer */}
+        <div style={{
+          padding: 'var(--space-2) var(--space-4)',
+          background: 'var(--card-footer)',
+          borderTop: '1px solid var(--neutral-200)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: 'var(--text-xs)',
+          color: 'var(--neutral-500)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <span>{person.sources_count || 0} source{person.sources_count !== 1 ? 's' : ''}</span>
+            <span>•</span>
+            <span>{person.notes_count || 0} note{person.notes_count !== 1 ? 's' : ''}</span>
+          </div>
+
+          <span style={{ color: 'var(--neutral-500)' }}>
+            Updated {new Date(person.updated_at).toLocaleDateString()}
+          </span>
         </div>
-        <span className="text-xs text-gray-500">
-          Updated {new Date(person.updated_at).toLocaleDateString()}
-        </span>
       </div>
-    </div>
-    <PersonFormModal
-      isOpen={showEdit}
-      onClose={() => setShowEdit(false)}
-      onSuccess={() => {
-        onUpdate();
-        setShowEdit(false);
-      }}
-      item={person}
-    />
-  </>
+
+      <PersonFormModal
+        isOpen={showEdit}
+        onClose={() => setShowEdit(false)}
+        onSuccess={() => {
+          onUpdate();
+          setShowEdit(false);
+        }}
+        item={person}
+      />
+    </>
   );
 }

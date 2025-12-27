@@ -15,9 +15,9 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
+import SourceSelector from './SourceSelector';
 
 export default function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
-  const [sources, setSources] = useState([]);
   const [activeTab, setActiveTab] = useState('content');
   const [formData, setFormData] = useState({
     body: '',
@@ -26,7 +26,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
     pinned: false,
     noted_on: new Date().toISOString().split('T')[0],
     concept_ids: [],
-    source_id: '',
+    source_id: null,
     tags: []
   });
   const [error, setError] = useState('');
@@ -74,9 +74,6 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
   useEffect(() => {
     if (isOpen) {
       setActiveTab('content');
-      if (!conceptId && !sourceId && !item) {
-        fetchSources();
-      }
       if (item) {
         setFormData({
           body: item.body || '',
@@ -85,7 +82,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           pinned: item.pinned || false,
           noted_on: item.noted_on || new Date().toISOString().split('T')[0],
           concept_ids: item.concepts?.map(c => c.id) || (conceptId ? [conceptId] : []),
-          source_id: item.source_id || sourceId || '',
+          source_id: item.source_id || sourceId || null,
           tags: item.tags?.map(t => t.name) || []
         });
       } else {
@@ -96,23 +93,13 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           pinned: false,
           noted_on: new Date().toISOString().split('T')[0],
           concept_ids: conceptId ? [conceptId] : [],
-          source_id: sourceId || '',
+          source_id: sourceId || null,
           tags: []
         });
       }
       setError('');
     }
   }, [isOpen, item, conceptId, sourceId]);
-
-  const fetchSources = async () => {
-    try {
-      const response = await fetch('/sources.json');
-      const data = await response.json();
-      setSources(data);
-    } catch (error) {
-      console.error('Error fetching sources:', error);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -723,28 +710,22 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
 
             {activeTab === 'connections' && (
               <div className="space-y-4">
-                {!sourceId && (
-                  <div>
-                    <label className="form-label">Link to Source</label>
-                    <select
-                      value={formData.source_id}
-                      onChange={(e) => setFormData({ ...formData, source_id: e.target.value })}
-                      className="form-select"
-                    >
-                      <option value="">None</option>
-                      {sources.map(source => (
-                        <option key={source.id} value={source.id}>
-                          {source.title} {source.year ? `(${source.year})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ height: '300px' }}>
+                  {!sourceId && (
+                    <div style={{ height: '100%' }}>
+                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Source</label>
+                      <SourceSelector
+                        selectedSourceId={formData.source_id}
+                        onChange={(sourceId) => setFormData({ ...formData, source_id: sourceId })}
+                        multiple={false}
+                        themeColor="#639CA1"
+                      />
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ height: '300px' }}>
                   {!conceptId && (
                     <div style={{ height: '100%' }}>
-                      <label className="form-label">Link to Constructs</label>
+                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Constructs</label>
                       <ConceptSelector
                         selectedConceptIds={formData.concept_ids}
                         onChange={(conceptIds) => setFormData({ ...formData, concept_ids: conceptIds })}
@@ -754,7 +735,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
                   )}
 
                   <div style={{ height: '100%' }}>
-                    <label className="form-label">Tags</label>
+                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Tags</label>
                     <TagSelector
                       selectedTags={formData.tags}
                       onChange={(tags) => setFormData({ ...formData, tags: tags })}

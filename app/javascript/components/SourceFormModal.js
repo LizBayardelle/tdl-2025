@@ -1029,6 +1029,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         onChange={(html) => setFormData({ ...formData, abstract: html })}
                         placeholder="Full abstract from the source..."
                         rows={6}
+                        themeColor="var(--accent-blue)"
                       />
                     </div>
 
@@ -1039,6 +1040,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         onChange={(html) => setFormData({ ...formData, summary: html })}
                         placeholder="Key findings and takeaways..."
                         rows={4}
+                        themeColor="var(--accent-blue)"
                       />
                     </div>
 

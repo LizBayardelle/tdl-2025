@@ -1,40 +1,69 @@
-<div class="min-h-screen flex items-center justify-center bg-sand py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-4xl">
-        Log in
-      </h2>
+<div style="min-height: calc(100vh - 64px); background: var(--background); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem;">
+  <div style="max-width: 480px; width: 100%;">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+        Welcome back
+      </h1>
+      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600);">
+        Sign in to continue building your knowledge framework
+      </p>
     </div>
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "mt-8 space-y-6" }) do |f| %>
-      <div class="rounded-md shadow-sm -space-y-px">
-        <div>
-          <%= f.label :email, class: "sr-only" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-              class: "appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 bg-white rounded-t-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 text-base",
-              placeholder: "Email address" %>
-        </div>
-        <div>
-          <%= f.label :password, class: "sr-only" %>
-          <%= f.password_field :password, autocomplete: "current-password",
-              class: "appearance-none rounded-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 bg-white rounded-b-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 text-base",
-              placeholder: "Password" %>
-        </div>
-      </div>
 
-      <% if devise_mapping.rememberable? %>
-        <div class="flex items-center">
-          <%= f.check_box :remember_me, class: "h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" %>
-          <%= f.label :remember_me, class: "ml-2 block text-sm" %>
-        </div>
-      <% end %>
+    <!-- Sign In Form Card -->
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="padding: var(--space-6);">
+          <!-- Email Field -->
+          <div style="margin-bottom: var(--space-4);">
+            <%= f.label :email, "Email", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "your@email.com", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
 
-      <div>
-        <%= f.submit "Log in", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-md text-sand bg-primary hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" %>
+          <!-- Password Field -->
+          <div style="margin-bottom: var(--space-4);">
+            <%= f.label :password, "Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.password_field :password, autocomplete: "current-password", placeholder: "Enter your password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
+
+          <!-- Remember Me -->
+          <% if devise_mapping.rememberable? %>
+            <div style="margin-bottom: var(--space-6);">
+              <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
+                <%= f.check_box :remember_me, style: "width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary);" %>
+                <span style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700);">Remember me</span>
+              </label>
+            </div>
+          <% end %>
+
+          <!-- Submit Button -->
+          <%= f.submit "Sign In", class: "btn-primary", style: "width: 100%; background: var(--primary); color: white; border: none; padding: var(--space-3) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+        </div>
       </div>
     <% end %>
 
-    <div class="text-center">
+    <!-- Links -->
+    <div style="text-align: center;">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 </div>
+
+<style>
+  .form-input:focus {
+    outline: none;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+    padding: calc(var(--space-3) - 1px);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+</style>

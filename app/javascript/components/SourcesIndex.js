@@ -513,73 +513,70 @@ export default function SourcesIndex() {
       </button>
 
       {/* Main content */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          paddingTop: 'var(--space-6)',
-          paddingRight: 'var(--space-6)',
-          paddingBottom: 'var(--space-6)',
-          paddingLeft: 'calc(var(--space-6) + 24px)',
-          background: 'var(--background)',
-        }}
-      >
-        <div style={{ marginBottom: 'var(--space-6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <h1
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'white'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-3xl)',
+                  fontWeight: 700,
+                  color: 'var(--neutral-900)',
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'var(--space-1)',
+                }}
+              >
+                Sources
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-500)',
+                  margin: 0,
+                }}
+              >
+                {filteredSources.length} of {sources.length} sources
+              </p>
+            </div>
+            <button
+              onClick={() => setShowForm(!showForm)}
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-3xl)',
-                fontWeight: 700,
-                color: 'var(--neutral-900)',
-                letterSpacing: '-0.02em',
-                marginBottom: 'var(--space-1)',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'var(--accent-blue)',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 'var(--text-xl)',
+                transition: 'all 0.15s',
+                boxShadow: 'var(--shadow-md)',
               }}
-            >
-              Sources
-            </h1>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-500)',
-                margin: 0,
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--accent-blue-dark)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
               }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--accent-blue)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+              }}
+              title="New Source"
             >
-              {filteredSources.length} of {sources.length} sources
-            </p>
+              <i className="fas fa-plus"></i>
+            </button>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: 'var(--accent-blue)',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'var(--text-xl)',
-              transition: 'all 0.15s',
-              boxShadow: 'var(--shadow-md)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-blue-dark)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent-blue)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-            }}
-            title="New Source"
-          >
-            <i className="fas fa-plus"></i>
-          </button>
         </div>
 
         <SourceFormModal
@@ -591,31 +588,40 @@ export default function SourcesIndex() {
           }}
         />
 
-        {filteredSources.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '3rem 1.5rem',
-              background: 'white',
-              border: '1px solid var(--neutral-200)',
-              borderRadius: '4px',
-            }}
-          >
-            <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
-              No sources found.
-            </p>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-              {hasActiveFilters ? 'Try adjusting your filters.' : 'Add your first source to build your evidence base.'}
-            </p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            {filteredSources.map(source => (
-              <SourceCard key={source.id} source={source} onUpdate={fetchSources} />
-            ))}
-          </div>
-        )}
-      </div>
+        {/* Sources Cards */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-6)',
+          paddingLeft: 'calc(var(--space-6) + 24px)',
+          background: 'var(--background)'
+        }}>
+          {filteredSources.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1.5rem',
+                background: 'white',
+                border: '1px solid var(--neutral-200)',
+                borderRadius: '4px',
+              }}
+            >
+              <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
+                No sources found.
+              </p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+                {hasActiveFilters ? 'Try adjusting your filters.' : 'Add your first source to build your evidence base.'}
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              {filteredSources.map(source => (
+                <SourceCard key={source.id} source={source} onUpdate={fetchSources} />
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
@@ -670,26 +676,22 @@ function SourceCard({ source, onUpdate }) {
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--neutral-200)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flex: 1 }}>
-            {source.pdf_url && (
-              <i className="fas fa-file-pdf" style={{ color: 'var(--accent-blue)', fontSize: 'var(--text-lg)' }}></i>
-            )}
-            <a
-              href={`/sources/${source.id}`}
-              style={{
-                fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--neutral-900)',
-                textDecoration: 'none',
-                lineHeight: 1.4,
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-            >
-              {source.title}
-            </a>
-          </div>
+          <a
+            href={`/sources/${source.id}`}
+            style={{
+              fontSize: 'var(--text-sm)',
+              fontWeight: 600,
+              color: 'var(--neutral-900)',
+              textDecoration: 'none',
+              lineHeight: 1.4,
+              transition: 'color 0.15s',
+              flex: 1,
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+          >
+            {source.title}
+          </a>
 
           <div style={{ display: 'flex', gap: 'var(--space-2)', marginLeft: 'var(--space-4)' }}>
             <button
@@ -843,22 +845,35 @@ function SourceCard({ source, onUpdate }) {
           color: 'var(--neutral-500)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <span>{source.notes_count || 0} note{source.notes_count !== 1 ? 's' : ''}</span>
-            <span>•</span>
-            <a
-              href={`/notes/new?source_id=${source.id}`}
-              style={{
-                color: 'var(--neutral-600)',
-                textDecoration: 'none',
-                transition: 'text-decoration 0.15s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-            >
-              + New Note
-            </a>
             {source.pdf_url && (
               <>
+                <a
+                  href={source.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--accent-blue)',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <i className="fas fa-file-pdf" style={{ fontSize: 'var(--text-base)' }}></i>
+                </a>
+                <a
+                  href={source.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--neutral-600)',
+                    textDecoration: 'none',
+                    transition: 'text-decoration 0.15s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                >
+                  View PDF
+                </a>
                 <span>•</span>
                 <a
                   href={`/sources/${source.id}/study`}
@@ -870,29 +885,13 @@ function SourceCard({ source, onUpdate }) {
                   onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
                   onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                 >
-                  <i className="fas fa-sticky-note" style={{ marginRight: '0.25rem' }}></i>
                   Take Notes on PDF
                 </a>
               </>
             )}
           </div>
 
-          {source.pdf_url && (
-            <a
-              href={source.pdf_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                color: 'var(--neutral-600)',
-                textDecoration: 'none',
-                transition: 'text-decoration 0.15s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-              onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-            >
-              <i className="fas fa-external-link-alt"></i> View PDF
-            </a>
-          )}
+          <span>{source.notes_count || 0} note{source.notes_count !== 1 ? 's' : ''}</span>
         </div>
       </div>
 

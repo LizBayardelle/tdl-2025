@@ -1,43 +1,121 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<div style="min-height: calc(100vh - 64px); background: var(--background); padding: var(--space-8) var(--space-6);">
+  <div style="max-width: 600px; margin: 0 auto;">
+    <!-- Header -->
+    <div style="margin-bottom: var(--space-8);">
+      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: var(--space-2);">
+        Account Settings
+      </h1>
+      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-500); margin: 0;">
+        Update your email and password
+      </p>
+    </div>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+      <!-- Error Messages -->
+      <%= render "devise/shared/error_messages", resource: resource %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
+      <!-- Main Settings Card -->
+      <div class="card" style="margin-bottom: var(--space-6);">
+        <div style="padding: var(--space-6);">
+          <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: var(--space-6);">
+            Login Information
+          </h2>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-  <% end %>
+          <!-- Email Field -->
+          <div style="margin-bottom: var(--space-6);">
+            <%= f.label :email, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+            <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+              <div style="font-size: var(--text-xs); color: var(--warning); margin-top: var(--space-2);">
+                <i class="fas fa-clock"></i> Waiting for confirmation: <%= resource.unconfirmed_email %>
+              </div>
+            <% end %>
+          </div>
 
-  <div class="field">
-    <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-    <% if @minimum_password_length %>
-      <br />
-      <em><%= @minimum_password_length %> characters minimum</em>
+          <!-- Password Section -->
+          <div style="margin-bottom: var(--space-6);">
+            <%= f.label :password, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" %>
+            <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
+              Leave blank if you don't want to change it
+            </div>
+            <%= f.password_field :password, autocomplete: "new-password", class: "form-input", placeholder: "New password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+            <% if @minimum_password_length %>
+              <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-top: var(--space-2);">
+                <%= @minimum_password_length %> characters minimum
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Password Confirmation -->
+          <div style="margin-bottom: var(--space-6);">
+            <%= f.label :password_confirmation, "Confirm New Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-input", placeholder: "Confirm new password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
+
+          <!-- Current Password -->
+          <div style="padding-top: var(--space-4); border-top: 1px solid var(--neutral-200);">
+            <%= f.label :current_password, class: "form-label required", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" %>
+            <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
+              We need your current password to confirm your changes
+            </div>
+            <%= f.password_field :current_password, autocomplete: "current-password", class: "form-input", placeholder: "Current password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
+        </div>
+
+        <!-- Card Footer with Actions -->
+        <div style="padding: var(--space-4) var(--space-6); background: var(--card-footer); border-top: 1px solid var(--neutral-200); display: flex; gap: var(--space-3); justify-content: flex-end;">
+          <%= link_to "Cancel", :back, style: "background: transparent; color: var(--neutral-700); border: 1px solid var(--neutral-300); padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s;" %>
+          <%= f.submit "Update Account", class: "btn-primary", style: "background: var(--primary); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+        </div>
+      </div>
     <% end %>
+
+    <!-- Delete Account Section -->
+    <div class="card" style="border: 1px solid var(--error);">
+      <div style="padding: var(--space-6);">
+        <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--error); margin-bottom: var(--space-3);">
+          <i class="fas fa-exclamation-triangle"></i> Danger Zone
+        </h2>
+        <p style="font-size: var(--text-sm); color: var(--neutral-600); margin-bottom: var(--space-4); line-height: 1.6;">
+          Once you delete your account, there is no going back. This action cannot be undone and will permanently delete all your data.
+        </p>
+        <%= button_to "Delete My Account", registration_path(resource_name),
+          data: { confirm: "Are you absolutely sure? This will permanently delete your account and all associated data. This action cannot be undone." },
+          method: :delete,
+          style: "background: var(--error); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+      </div>
+    </div>
   </div>
+</div>
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
+<style>
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+    padding: calc(var(--space-3) - 1px);
+  }
 
-  <div class="field">
-    <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
-    <%= f.password_field :current_password, autocomplete: "current-password" %>
-  </div>
+  .btn-primary:hover {
+    background: var(--primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
 
-  <div class="actions">
-    <%= f.submit "Update" %>
-  </div>
-<% end %>
+  .btn-primary:active {
+    transform: translateY(0);
+  }
 
-<h3>Cancel my account</h3>
+  input[type="submit"][style*="var(--error)"]:hover,
+  button[style*="var(--error)"]:hover {
+    background: #6b1f1f !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
 
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></div>
-
-<%= link_to "Back", :back %>
+  a[href]:hover {
+    background: var(--neutral-100) !important;
+  }
+</style>

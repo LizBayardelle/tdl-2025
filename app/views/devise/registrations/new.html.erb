@@ -1,49 +1,74 @@
-<div class="min-h-screen flex items-center justify-center bg-sand py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <div>
-      <h2 class="mt-6 text-center text-4xl">
-        Sign up
-      </h2>
+<div style="min-height: calc(100vh - 64px); background: var(--background); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem;">
+  <div style="max-width: 480px; width: 100%;">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+        Create your account
+      </h1>
+      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600);">
+        Start building your knowledge framework
+      </p>
     </div>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "mt-8 space-y-6" }) do |f| %>
+    <!-- Sign Up Form Card -->
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
-      <div class="rounded-md shadow-sm space-y-4">
-        <div>
-          <%= f.label :email, class: "block text-sm font-medium mb-1" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email",
-              class: "appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-base",
-              placeholder: "Email address" %>
-        </div>
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="padding: var(--space-6);">
+          <!-- Email Field -->
+          <div style="margin-bottom: var(--space-4);">
+            <%= f.label :email, "Email", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "your@email.com", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
 
-        <div>
-          <%= f.label :password, class: "block text-sm font-medium mb-1" do %>
-            Password
-            <% if @minimum_password_length %>
-              <span class="text-xs text-gray-500">(<%= @minimum_password_length %> characters minimum)</span>
+          <!-- Password Field -->
+          <div style="margin-bottom: var(--space-4);">
+            <%= f.label :password, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" do %>
+              Password
             <% end %>
-          <% end %>
-          <%= f.password_field :password, autocomplete: "new-password",
-              class: "appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-base",
-              placeholder: "Password" %>
-        </div>
+            <% if @minimum_password_length %>
+              <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
+                <%= @minimum_password_length %> characters minimum
+              </div>
+            <% end %>
+            <%= f.password_field :password, autocomplete: "new-password", placeholder: "Create a secure password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
 
-        <div>
-          <%= f.label :password_confirmation, class: "block text-sm font-medium mb-1" %>
-          <%= f.password_field :password_confirmation, autocomplete: "new-password",
-              class: "appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-base",
-              placeholder: "Confirm password" %>
-        </div>
-      </div>
+          <!-- Password Confirmation Field -->
+          <div style="margin-bottom: var(--space-6);">
+            <%= f.label :password_confirmation, "Confirm Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Re-enter your password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+          </div>
 
-      <div>
-        <%= f.submit "Sign up", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-md text-sand bg-primary hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" %>
+          <!-- Submit Button -->
+          <%= f.submit "Create Account", class: "btn-primary", style: "width: 100%; background: var(--primary); color: white; border: none; padding: var(--space-3) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+        </div>
       </div>
     <% end %>
 
-    <div class="text-center">
+    <!-- Links -->
+    <div style="text-align: center;">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 </div>
+
+<style>
+  .form-input:focus {
+    outline: none;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
+    padding: calc(var(--space-3) - 1px);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+</style>

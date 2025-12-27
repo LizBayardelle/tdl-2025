@@ -1,21 +1,192 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ConceptFormModal from './ConceptFormModal';
 import ConnectionFormModal from './ConnectionFormModal';
 import NoteFormModal from './NoteFormModal';
+import PersonFormModal from './PersonFormModal';
+import SourceFormModal from './SourceFormModal';
+
+// Memoized Sidebar component to prevent re-renders
+const ConceptSidebar = React.memo(({
+  sidebarOpen,
+  allConcepts,
+  conceptsLoading,
+  currentConceptId,
+  searchQuery,
+  setSearchQuery,
+  sortBy,
+  setSortBy,
+  onConceptClick
+}) => {
+  const filteredConcepts = useMemo(() => {
+    return allConcepts
+      .filter(c => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return c.label?.toLowerCase().includes(query) ||
+               c.node_type?.toLowerCase().includes(query);
+      })
+      .sort((a, b) => {
+        if (sortBy === 'alphabetical') {
+          return (a.label || '').localeCompare(b.label || '');
+        } else if (sortBy === 'type') {
+          return (a.node_type || '').localeCompare(b.node_type || '');
+        } else {
+          return new Date(b.updated_at) - new Date(a.updated_at);
+        }
+      });
+  }, [allConcepts, searchQuery, sortBy]);
+
+  return (
+    <aside
+      style={{
+        width: sidebarOpen ? '280px' : '0',
+        background: 'var(--sidebar-bg)',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        transition: 'width 0.3s ease',
+        boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+        position: 'relative',
+        flexShrink: 0
+      }}
+    >
+      {sidebarOpen && (
+        <div style={{ width: '280px', padding: 'var(--space-4)' }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search concepts..."
+            className="form-input"
+            style={{
+              width: '100%',
+              marginBottom: 'var(--space-3)',
+              fontSize: 'var(--text-sm)'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-green)';
+              e.currentTarget.style.outline = 'none';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--neutral-300)';
+            }}
+          />
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="form-select"
+            style={{
+              width: '100%',
+              marginBottom: 'var(--space-4)',
+              fontSize: 'var(--text-xs)'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-green)';
+              e.currentTarget.style.outline = 'none';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'var(--neutral-300)';
+            }}
+          >
+            <option value="recent">Recently Updated</option>
+            <option value="alphabetical">Alphabetical</option>
+            <option value="type">By Type</option>
+          </select>
+
+          <div style={{
+            fontSize: 'var(--text-xs)',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            color: 'var(--neutral-500)',
+            marginBottom: 'var(--space-2)',
+            fontFamily: 'var(--font-body)'
+          }}>
+            All Concepts ({filteredConcepts.length})
+          </div>
+
+          {conceptsLoading ? (
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+              Loading...
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+              {filteredConcepts.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => onConceptClick(c.slug || c.id, c.id)}
+                  style={{
+                    padding: 'var(--space-2)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    lineHeight: 1.3,
+                    color: c.id === parseInt(currentConceptId) ? 'var(--accent-green)' : 'var(--neutral-700)',
+                    background: c.id === parseInt(currentConceptId) ? 'var(--accent-green-light)' : 'transparent',
+                    fontWeight: c.id === parseInt(currentConceptId) ? 600 : 400,
+                    transition: 'all 0.15s',
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (c.id !== parseInt(currentConceptId)) {
+                      e.currentTarget.style.background = 'var(--neutral-100)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (c.id !== parseInt(currentConceptId)) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {c.label}
+                  {c.node_type && (
+                    <div style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-500)',
+                      marginTop: 'var(--space-1)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      {c.node_type.replace(/_/g, ' ')}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </aside>
+  );
+});
 
 export default function ConceptShow({ conceptId }) {
+  const [currentConceptId, setCurrentConceptId] = useState(conceptId);
   const [concept, setConcept] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [showConnections, setShowConnections] = useState(true);
+  const [allConcepts, setAllConcepts] = useState([]);
+  const [conceptsLoading, setConceptsLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
+
+  useEffect(() => {
+    fetchAllConcepts();
+  }, []);
 
   useEffect(() => {
     fetchConcept();
-  }, []);
+  }, [currentConceptId]);
 
   const fetchConcept = async () => {
     try {
-      const response = await fetch(`/concepts/${conceptId}.json`);
+      const response = await fetch(`/concepts/${currentConceptId}.json`);
       const data = await response.json();
       setConcept(data);
       setLoading(false);
@@ -25,113 +196,297 @@ export default function ConceptShow({ conceptId }) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <p className="text-lg">Loading...</p>
-      </div>
-    );
-  }
+  const handleConceptClick = (conceptSlugOrId, conceptIdNum) => {
+    setCurrentConceptId(conceptIdNum);
+    // Update URL without page reload
+    window.history.pushState({}, '', `/concepts/${conceptSlugOrId}`);
+  };
 
-  if (!concept) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-lg">Concept not found</p>
-      </div>
-    );
-  }
+  const fetchAllConcepts = async () => {
+    try {
+      const response = await fetch('/concepts.json');
+      const data = await response.json();
+      setAllConcepts(data);
+      setConceptsLoading(false);
+    } catch (error) {
+      console.error('Error fetching concepts:', error);
+      setConceptsLoading(false);
+    }
+  };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <a href="/concepts" className="text-sm text-primary hover:text-accent-dark">
-          ← Back to Constructs
-        </a>
-      </div>
-
-      <ConceptFormModal
-        isOpen={editing}
-        onClose={() => setEditing(false)}
-        item={concept}
-        onSuccess={(updatedConcept) => {
-          setConcept(updatedConcept);
-          setEditing(false);
-        }}
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Left Sidebar - Concepts List */}
+      <ConceptSidebar
+        sidebarOpen={sidebarOpen}
+        allConcepts={allConcepts}
+        conceptsLoading={conceptsLoading}
+        currentConceptId={currentConceptId}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        onConceptClick={handleConceptClick}
       />
 
-      {!editing && (
-        <>
-          <ConceptDisplay concept={concept} onEdit={() => setEditing(true)} />
+      {/* Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        style={{
+          position: 'fixed',
+          left: sidebarOpen ? '280px' : '0',
+          top: '200px',
+          zIndex: 50,
+          background: 'var(--accent-green)',
+          color: 'white',
+          padding: 'var(--space-2)',
+          borderRadius: '0 4px 4px 0',
+          boxShadow: 'var(--shadow)',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'left 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        aria-label="Toggle concepts sidebar"
+      >
+        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`}></i>
+      </button>
 
-          <div className="mt-8">
-            <ConnectionManager conceptId={conceptId} />
+      {/* Main Content */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        {loading || !concept ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'var(--space-8) 0', flex: 1 }}>
+            <p style={{ fontSize: 'var(--text-lg)', fontFamily: 'var(--font-body)', color: 'var(--neutral-600)' }}>
+              {loading ? 'Loading...' : 'Concept not found'}
+            </p>
           </div>
+        ) : (
+          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 var(--space-6)', width: '100%' }}>
+            {/* Header with Back, Edit, and Delete */}
+            <div style={{ marginBottom: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 'var(--space-4)' }}>
+              <a
+                href="/concepts"
+                style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--accent-green)',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: 500,
+                  transition: 'color 0.15s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green-dark)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
+              >
+                ← Back to Concepts
+              </a>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="icon-btn"
+                  style={{ color: 'var(--accent-green)' }}
+                  title="Edit Concept"
+                >
+                  <i className="fas fa-pen"></i>
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!confirm(`Are you sure you want to delete "${concept.label}"? This action cannot be undone.`)) return;
 
-          <div className="mt-8">
-            <ConceptPeople conceptId={conceptId} />
-          </div>
+                    try {
+                      const response = await fetch(`/concepts/${conceptId}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+                        },
+                      });
 
-          <div className="mt-8">
-            <ConceptSources conceptId={conceptId} />
-          </div>
+                      if (response.ok) {
+                        window.location.href = '/concepts';
+                      } else {
+                        alert('Error deleting concept');
+                      }
+                    } catch (error) {
+                      console.error('Error deleting concept:', error);
+                      alert('Error deleting concept');
+                    }
+                  }}
+                  className="icon-btn"
+                  style={{ color: 'var(--accent-green)' }}
+                  title="Delete Concept"
+                >
+                  <i className="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
 
-          <div className="mt-8">
-            <ConceptNotes conceptId={conceptId} />
+            <ConceptFormModal
+              isOpen={editing}
+              onClose={() => setEditing(false)}
+              item={concept}
+              onSuccess={(updatedConcept) => {
+                setConcept(updatedConcept);
+                setEditing(false);
+                fetchAllConcepts(); // Refresh sidebar
+              }}
+            />
+
+            <div style={{ background: 'white', padding: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+              <ConceptDisplay concept={concept} />
+              <ConnectionManager conceptId={currentConceptId} allConcepts={allConcepts} onConceptClick={handleConceptClick} />
+              <ConceptPeople conceptId={currentConceptId} />
+              <ConceptSources conceptId={currentConceptId} />
+              <ConceptNotes conceptId={currentConceptId} />
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-function ConceptDisplay({ concept, onEdit }) {
+function ConceptDisplay({ concept }) {
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-xs uppercase tracking-wider text-primary bg-sand px-3 py-1 rounded">
-              {concept.node_type}
-            </span>
-            {concept.level_status && (
-              <span className="text-xs uppercase tracking-wider text-accent-dark bg-accent-light px-3 py-1 rounded">
-                {concept.level_status}
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 'var(--space-6)' }}>
+        {/* Tags in top right */}
+        {concept.tags && concept.tags.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)', justifyContent: 'flex-end', marginBottom: 'var(--space-4)' }}>
+            {concept.tags.map((tag, idx) => (
+              <span key={idx} style={{
+                fontSize: 'var(--text-xs)',
+                background: 'var(--accent-purple)',
+                color: 'white',
+                padding: 'var(--space-1) var(--space-3)',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500
+              }}>
+                {tag}
               </span>
-            )}
+            ))}
           </div>
-          <h1 className="text-4xl mb-2">{concept.label}</h1>
-          <p className="text-sm text-gray-600">
-            Last updated: {new Date(concept.updated_at).toLocaleDateString()}
-            {concept.last_reviewed_on && (
-              <span className="ml-4">
-                Last reviewed: {new Date(concept.last_reviewed_on).toLocaleDateString()}
-              </span>
-            )}
-          </p>
+        )}
+        <h1 style={{
+          fontSize: 'var(--text-3xl)',
+          fontWeight: 700,
+          fontFamily: 'var(--font-display)',
+          color: 'var(--neutral-900)',
+          lineHeight: 1.2,
+          marginBottom: 'var(--space-3)',
+          textAlign: 'center'
+        }}>
+          {concept.label}
+        </h1>
+        {/* Type and status badges centered below title */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {concept.node_type && (
+            <span style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: 'var(--accent-green-light)',
+              color: 'var(--accent-green)',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 600
+            }}>
+              {concept.node_type.replace(/_/g, ' ')}
+            </span>
+          )}
+          {concept.level_status && (
+            <span style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: 'var(--neutral-100)',
+              color: 'var(--neutral-700)',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500
+            }}>
+              {concept.level_status}
+            </span>
+          )}
         </div>
-        <button
-          onClick={onEdit}
-          className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          Edit
-        </button>
       </div>
 
       {/* Three-level mastery summaries */}
-      <div className="space-y-6 mb-8">
+      <div>
         {concept.summary_top && (
-          <Section title="Summary (Top-level)" content={concept.summary_top} />
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-green)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Summary (Top-level)
+            </h3>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              lineHeight: 1.6,
+              color: 'var(--neutral-700)',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {concept.summary_top}
+            </p>
+          </div>
         )}
         {concept.summary_mid && (
-          <Section title="Summary (Mid-level)" content={concept.summary_mid} />
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-green)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Summary (Mid-level)
+            </h3>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              lineHeight: 1.6,
+              color: 'var(--neutral-700)',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {concept.summary_mid}
+            </p>
+          </div>
         )}
         {concept.summary_deep && (
-          <Section title="Summary (Deep)" content={concept.summary_deep} />
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <h3 style={{
+              fontSize: 'var(--text-lg)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-green)',
+              marginBottom: 'var(--space-3)'
+            }}>
+              Summary (Deep)
+            </h3>
+            <p style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              lineHeight: 1.6,
+              color: 'var(--neutral-700)',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {concept.summary_deep}
+            </p>
+          </div>
         )}
       </div>
 
       {/* Array fields */}
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
         <ArraySection title="Mechanisms" items={concept.mechanisms} />
         <ArraySection title="Signature Techniques" items={concept.signature_techniques} />
         <ArraySection title="Strengths" items={concept.strengths} />
@@ -147,34 +502,50 @@ function ConceptDisplay({ concept, onEdit }) {
 
       {/* Evidence and reflection */}
       {concept.evidence_brief && (
-        <Section title="Evidence Brief" content={concept.evidence_brief} className="mb-6" />
-      )}
-      {concept.confidence_note && (
-        <Section title="Confidence Note" content={concept.confidence_note} className="mb-6" />
-      )}
-
-      {/* Tags */}
-      {concept.tags && concept.tags.length > 0 && (
-        <div className="pt-6 border-t border-gray-200">
-          <h3 className="text-lg mb-2">Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {concept.tags.map((tag, idx) => (
-              <span key={idx} className="text-xs bg-sand px-3 py-1 rounded">
-                {tag}
-              </span>
-            ))}
-          </div>
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <h3 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-green)',
+            marginBottom: 'var(--space-3)'
+          }}>
+            Evidence Brief
+          </h3>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-sm)',
+            lineHeight: 1.6,
+            color: 'var(--neutral-700)',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {concept.evidence_brief}
+          </p>
         </div>
       )}
-    </div>
-  );
-}
+      {concept.confidence_note && (
+        <div style={{ marginBottom: 'var(--space-6)' }}>
+          <h3 style={{
+            fontSize: 'var(--text-lg)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-green)',
+            marginBottom: 'var(--space-3)'
+          }}>
+            Confidence Note
+          </h3>
+          <p style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-sm)',
+            lineHeight: 1.6,
+            color: 'var(--neutral-700)',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {concept.confidence_note}
+          </p>
+        </div>
+      )}
 
-function Section({ title, content, className = '' }) {
-  return (
-    <div className={className}>
-      <h3 className="text-lg mb-2">{title}</h3>
-      <p className="leading-relaxed whitespace-pre-wrap">{content}</p>
     </div>
   );
 }
@@ -184,27 +555,45 @@ function ArraySection({ title, items }) {
 
   return (
     <div>
-      <h3 className="text-lg mb-2">{title}</h3>
-      <ul className="list-disc list-inside space-y-1">
+      <h3 style={{
+        fontSize: 'var(--text-base)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-display)',
+        color: 'var(--neutral-900)',
+        marginBottom: 'var(--space-2)'
+      }}>
+        {title}
+      </h3>
+      <ul style={{
+        listStyle: 'disc',
+        paddingLeft: 'var(--space-5)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-1)'
+      }}>
         {items.map((item, idx) => (
-          <li key={idx} className="text-sm">{item}</li>
+          <li key={idx} style={{
+            fontSize: 'var(--text-sm)',
+            fontFamily: 'var(--font-body)',
+            color: 'var(--neutral-700)',
+            lineHeight: 1.6
+          }}>
+            {item}
+          </li>
         ))}
       </ul>
     </div>
   );
 }
 
-function ConnectionManager({ conceptId }) {
+function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
   const [connections, setConnections] = useState([]);
-  const [concepts, setConcepts] = useState([]);
-  const [allConcepts, setAllConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingConnection, setCreatingConnection] = useState(false);
 
   useEffect(() => {
     fetchConnections();
-    fetchConcepts();
-  }, []);
+  }, [conceptId]);
 
   const fetchConnections = async () => {
     try {
@@ -215,17 +604,6 @@ function ConnectionManager({ conceptId }) {
     } catch (error) {
       console.error('Error fetching connections:', error);
       setLoading(false);
-    }
-  };
-
-  const fetchConcepts = async () => {
-    try {
-      const response = await fetch('/concepts.json');
-      const data = await response.json();
-      setAllConcepts(data); // Store all concepts for lookup
-      setConcepts(data.filter(n => n.id !== parseInt(conceptId))); // Filter for dropdown
-    } catch (error) {
-      console.error('Error fetching concepts:', error);
     }
   };
 
@@ -249,103 +627,182 @@ function ConnectionManager({ conceptId }) {
   };
 
   const relTypeLabels = {
-    // Hierarchical
     parent_of: 'Parent of',
     child_of: 'Child of',
-    // Sequential
     prerequisite_for: 'Prerequisite for',
     builds_on: 'Builds on',
     derived_from: 'Derived from',
-    // Semantic
     related_to: 'Related to',
     contrasts_with: 'Contrasts with',
     integrates_with: 'Integrates with',
     associated_with: 'Associated with',
-    // Influence
     influenced: 'Influenced',
     supports: 'Supports',
     critiques: 'Critiques',
-    // Other
     authored: 'Authored',
     applies_to: 'Applies to',
     treats: 'Treats'
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl">Relationships</h2>
-        <button
-          onClick={() => setCreatingConnection(!creatingConnection)}
-          className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          {creatingConnection ? 'Cancel' : '+ Add Relationship'}
-        </button>
-      </div>
-
+    <>
       <ConnectionFormModal
         isOpen={creatingConnection}
         onClose={() => setCreatingConnection(false)}
         conceptId={conceptId}
-        concepts={concepts}
+        concepts={allConcepts.filter(c => c.id !== parseInt(conceptId))}
         allConcepts={allConcepts}
         onSuccess={(newConnection) => {
-          setConnections([newConnection, ...connections]);
+          fetchConnections();
           setCreatingConnection(false);
         }}
       />
 
-      {loading ? (
-        <p className="text-sm">Loading relationships...</p>
-      ) : connections.length === 0 ? (
-        <p className="text-sm text-gray-600">No relationships yet</p>
-      ) : (
-        <div className="space-y-4">
-          {connections.map(connection => {
-            const isSource = connection.src_concept.id === parseInt(conceptId);
-            const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
-            const direction = isSource ? '→' : '←';
-
-            return (
-              <div key={connection.id} className="flex items-center justify-between border-b border-gray-200 pb-4">
-                <div className="flex items-center gap-3 flex-1 flex-wrap">
-                  <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded whitespace-nowrap">
-                    {connection.relationship_label || relTypeLabels[connection.rel_type]}
-                  </span>
-                  <span className="text-gray-400">{direction}</span>
-                  <a
-                    href={`/concepts/${otherConcept.id}`}
-                    className="text-lg hover:text-primary font-medium"
-                  >
-                    {otherConcept.label}
-                  </a>
-                  <span className="text-xs text-gray-500">({otherConcept.node_type})</span>
-                  {connection.description && (
-                    <p className="text-sm text-gray-600 w-full mt-2">{connection.description}</p>
-                  )}
-                </div>
-                <button
-                  onClick={() => handleDeleteConnection(connection.id)}
-                  className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50 ml-4 whitespace-nowrap"
-                >
-                  Delete
-                </button>
-              </div>
-            );
-          })}
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        {/* Relationships Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-green)',
+            margin: 0
+          }}>
+            Relationships ({connections.length})
+          </h2>
+          <button
+            onClick={() => setCreatingConnection(true)}
+            className="btn-secondary"
+            style={{
+              fontSize: 'var(--text-sm)',
+              background: 'var(--accent-green)',
+              color: 'white',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green-dark)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green)';
+            }}
+          >
+            + New Relationship
+          </button>
         </div>
-      )}
-    </div>
+
+        {loading ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            Loading relationships...
+          </p>
+        ) : connections.length === 0 ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            No relationships yet.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            {connections.map((connection, index) => {
+              const isSource = connection.src_concept.id === parseInt(conceptId);
+              const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
+              const direction = isSource ? '→' : '←';
+              const isLast = index === connections.length - 1;
+
+              return (
+                <div key={connection.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: isLast ? 'none' : '1px solid var(--neutral-200)',
+                  paddingBottom: isLast ? 0 : 'var(--space-3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap', flex: 1 }}>
+                    <span style={{
+                      fontSize: 'var(--text-xs)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      background: 'var(--accent-green-light)',
+                      color: 'var(--accent-green)',
+                      padding: 'var(--space-1) var(--space-2)',
+                      borderRadius: '4px',
+                      fontFamily: 'var(--font-body)',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {connection.relationship_label || relTypeLabels[connection.rel_type]}
+                    </span>
+                    <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-lg)' }}>{direction}</span>
+                    <button
+                      onClick={() => onConceptClick(otherConcept.slug || otherConcept.id, otherConcept.id)}
+                      style={{
+                        fontSize: 'var(--text-lg)',
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500,
+                        color: 'var(--neutral-900)',
+                        textDecoration: 'none',
+                        transition: 'color 0.15s',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+                    >
+                      {otherConcept.label}
+                    </button>
+                    <span style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-500)',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      ({otherConcept.node_type})
+                    </span>
+                    {connection.description && (
+                      <p style={{
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-600)',
+                        fontFamily: 'var(--font-body)',
+                        width: '100%',
+                        marginTop: 'var(--space-2)'
+                      }}>
+                        {connection.description}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteConnection(connection.id)}
+                    className="icon-btn"
+                    style={{
+                      color: 'var(--accent-green)',
+                      marginLeft: 'var(--space-4)',
+                      flexShrink: 0
+                    }}
+                    title="Delete Relationship"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
 function ConceptPeople({ conceptId }) {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creatingPerson, setCreatingPerson] = useState(false);
 
   useEffect(() => {
     fetchPeople();
-  }, []);
+  }, [conceptId]);
 
   const fetchPeople = async () => {
     try {
@@ -359,44 +816,97 @@ function ConceptPeople({ conceptId }) {
     }
   };
 
-  if (loading) return null;
-  if (people.length === 0) return null;
-
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 className="text-2xl mb-6">Related People</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {people.map(person => (
-          <a
-            key={person.id}
-            href={`/people/${person.id}`}
-            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
+    <>
+      <PersonFormModal
+        isOpen={creatingPerson}
+        onClose={() => setCreatingPerson(false)}
+        onSuccess={() => {
+          fetchPeople();
+          setCreatingPerson(false);
+        }}
+      />
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-gold)',
+            margin: 0
+          }}>
+            People ({people.length})
+          </h2>
+          <button
+            onClick={() => setCreatingPerson(true)}
+            className="btn-secondary"
+            style={{
+              fontSize: 'var(--text-sm)',
+              background: 'var(--accent-gold)',
+              color: 'white',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#8a6624';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-gold)';
+            }}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{person.full_name}</span>
-              {person.role && (
-                <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-1 rounded">
-                  {person.role}
-                </span>
-              )}
-            </div>
-            {person.summary && (
-              <p className="text-sm text-gray-600 line-clamp-2">{person.summary}</p>
-            )}
-          </a>
-        ))}
+            + New Person
+          </button>
+        </div>
+        {loading ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            Loading people...
+          </p>
+        ) : people.length === 0 ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            No related people yet.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            {people.map((person) => (
+              <a
+                key={person.id}
+                href={`/people/${person.id}`}
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  background: 'var(--accent-gold)',
+                  color: 'white',
+                  padding: 'var(--space-1) var(--space-3)',
+                  borderRadius: '4px',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: 500,
+                  transition: 'opacity 0.15s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              >
+                {person.full_name}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
 
 function ConceptSources({ conceptId }) {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creatingSource, setCreatingSource] = useState(false);
 
   useEffect(() => {
     fetchSources();
-  }, []);
+  }, [conceptId]);
 
   const fetchSources = async () => {
     try {
@@ -410,35 +920,88 @@ function ConceptSources({ conceptId }) {
     }
   };
 
-  if (loading) return null;
-  if (sources.length === 0) return null;
-
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <h2 className="text-2xl mb-6">Related Sources</h2>
-      <div className="space-y-3">
-        {sources.map(source => (
-          <a
-            key={source.id}
-            href={`/sources/${source.id}`}
-            className="border border-gray-200 rounded p-4 hover:bg-sand transition-colors block"
+    <>
+      <SourceFormModal
+        isOpen={creatingSource}
+        onClose={() => setCreatingSource(false)}
+        onSuccess={() => {
+          fetchSources();
+          setCreatingSource(false);
+        }}
+      />
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-blue)',
+            margin: 0
+          }}>
+            Related Sources ({sources.length})
+          </h2>
+          <button
+            onClick={() => setCreatingSource(true)}
+            className="btn-secondary"
+            style={{
+              fontSize: 'var(--text-sm)',
+              background: 'var(--accent-blue)',
+              color: 'white',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#244552';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-blue)';
+            }}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-medium">{source.title}</span>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                {source.kind && (
-                  <span className="uppercase">{source.kind.replace('_', ' ')}</span>
-                )}
-                {source.year && <span>{source.year}</span>}
-              </div>
-            </div>
-            {source.authors && (
-              <p className="text-sm text-gray-600">{source.authors}</p>
-            )}
-          </a>
-        ))}
+            + New Source
+          </button>
+        </div>
+        {loading ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            Loading sources...
+          </p>
+        ) : sources.length === 0 ? (
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            No related sources yet.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+            {sources.map((source) => (
+              <a
+                key={source.id}
+                href={`/sources/${source.id}`}
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  background: 'var(--accent-blue)',
+                  color: 'white',
+                  padding: 'var(--space-1) var(--space-3)',
+                  borderRadius: '4px',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: 500,
+                  transition: 'opacity 0.15s',
+                  display: 'inline-block'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
+                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+              >
+                {source.title}
+                {source.year && ` (${source.year})`}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -449,7 +1012,7 @@ function ConceptNotes({ conceptId }) {
 
   useEffect(() => {
     fetchNotes();
-  }, []);
+  }, [conceptId]);
 
   const fetchNotes = async () => {
     try {
@@ -463,112 +1026,211 @@ function ConceptNotes({ conceptId }) {
     }
   };
 
-  const handleDeleteNote = async (noteId) => {
-    if (!confirm('Delete this note?')) return;
+  if (loading) {
+    return (
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        <h2 style={{
+          fontSize: 'var(--text-2xl)',
+          fontWeight: 700,
+          fontFamily: 'var(--font-display)',
+          color: 'var(--accent-teal)',
+          margin: '0 0 var(--space-3) 0'
+        }}>
+          Notes (0)
+        </h2>
+        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+          Loading notes...
+        </p>
+      </div>
+    );
+  }
 
-    try {
-      const response = await fetch(`/notes/${noteId}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-      });
-
-      if (response.ok) {
-        setNotes(notes.filter(n => n.id !== noteId));
-      }
-    } catch (error) {
-      console.error('Error deleting note:', error);
-    }
-  };
-
-  const noteTypeLabels = {
-    reflection: 'Reflection',
-    question: 'Question',
-    insight: 'Insight',
-    critique: 'Critique',
-    application: 'Application',
-    synthesis: 'Synthesis'
-  };
-
-  const noteTypeColors = {
-    reflection: 'bg-blue-100 text-blue-800',
-    question: 'bg-purple-100 text-purple-800',
-    insight: 'bg-yellow-100 text-yellow-800',
-    critique: 'bg-red-100 text-red-800',
-    application: 'bg-green-100 text-green-800',
-    synthesis: 'bg-indigo-100 text-indigo-800'
-  };
+  if (notes.length === 0) {
+    return (
+      <>
+        <NoteFormModal
+          isOpen={creatingNote}
+          onClose={() => setCreatingNote(false)}
+          conceptId={conceptId}
+          onSuccess={(newNote) => {
+            fetchNotes();
+            setCreatingNote(false);
+          }}
+        />
+        <div style={{ marginTop: 'var(--space-8)' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 'var(--space-3)'
+          }}>
+            <h2 style={{
+              fontSize: 'var(--text-2xl)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-display)',
+              color: 'var(--accent-teal)',
+              margin: 0
+            }}>
+              Notes (0)
+            </h2>
+            <button
+              onClick={() => setCreatingNote(true)}
+              className="btn-secondary"
+              style={{
+                fontSize: 'var(--text-sm)',
+                background: 'var(--accent-teal)',
+                color: 'white',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#527d81';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--accent-teal)';
+              }}
+            >
+              + New Note
+            </button>
+          </div>
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+            No notes yet.
+          </p>
+        </div>
+      </>
+    );
+  }
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl">Notes</h2>
-        <button
-          onClick={() => setCreatingNote(!creatingNote)}
-          className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark"
-        >
-          {creatingNote ? 'Cancel' : '+ Add Note'}
-        </button>
-      </div>
-
+    <>
       <NoteFormModal
         isOpen={creatingNote}
         onClose={() => setCreatingNote(false)}
         conceptId={conceptId}
         onSuccess={(newNote) => {
-          setNotes([newNote, ...notes]);
+          fetchNotes();
           setCreatingNote(false);
         }}
       />
-
-      {loading ? (
-        <p className="text-sm">Loading notes...</p>
-      ) : notes.length === 0 ? (
-        <p className="text-sm text-gray-600">No notes yet</p>
-      ) : (
-        <div className="space-y-4">
-          {notes.map(note => (
-            <div key={note.id} className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-start justify-between mb-3">
-                <span className={`text-xs uppercase tracking-wider px-3 py-1 rounded ${noteTypeColors[note.note_type] || 'bg-gray-100'}`}>
-                  {noteTypeLabels[note.note_type] || note.note_type}
-                </span>
-                <button
-                  onClick={() => handleDeleteNote(note.id)}
-                  className="text-sm text-accent-dark hover:text-primary"
-                >
-                  Delete
-                </button>
-              </div>
-
-              <p className="mb-3 whitespace-pre-wrap">{note.body}</p>
-
-              {note.context && (
-                <div className="bg-sand rounded p-3 mb-3">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Context:</span> {note.context}
-                  </p>
-                </div>
-              )}
-
-              {note.tags && note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {note.tags.map((tag, idx) => (
-                    <span key={idx} className="text-xs bg-sand px-2 py-1 rounded">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <p className="text-xs text-gray-500">
-                {new Date(note.created_at).toLocaleDateString()}
-              </p>
-            </div>
-          ))}
+      <div style={{ marginTop: 'var(--space-8)' }}>
+        {/* Notes Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 'var(--space-3)'
+        }}>
+          <h2 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-teal)',
+            margin: 0
+          }}>
+            Notes ({notes.length})
+          </h2>
+          <button
+            onClick={() => setCreatingNote(true)}
+            className="btn-secondary"
+            style={{
+              fontSize: 'var(--text-sm)',
+              background: 'var(--accent-teal)',
+              color: 'white',
+              border: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#527d81';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-teal)';
+            }}
+          >
+            + New Note
+          </button>
         </div>
-      )}
-    </div>
+
+        {/* Notes Cards */}
+        <div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {notes.map(note => (
+              <div key={note.id} className="card" style={{ overflow: 'hidden' }}>
+                {note.title && (
+                  <div style={{
+                    background: 'var(--accent-teal)',
+                    padding: 'var(--space-3) var(--space-4)',
+                    borderBottom: '1px solid var(--neutral-200)'
+                  }}>
+                    <h3 style={{
+                      fontWeight: 600,
+                      fontSize: 'var(--text-base)',
+                      fontFamily: 'var(--font-display)',
+                      color: 'white',
+                      margin: 0
+                    }}>
+                      {note.title}
+                    </h3>
+                  </div>
+                )}
+                <div style={{ padding: 'var(--space-4)' }}>
+                  <div
+                    style={{
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--neutral-700)',
+                      fontFamily: 'var(--font-body)',
+                      lineHeight: 1.6,
+                      marginBottom: 'var(--space-3)',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: note.body }}
+                  />
+                  {(note.concepts?.length > 0 || note.tags?.length > 0) && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+                      {note.concepts?.map((concept) => (
+                        <span key={concept.id} style={{
+                          fontSize: 'var(--text-xs)',
+                          background: 'var(--accent-green)',
+                          color: 'white',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          {concept.label}
+                        </span>
+                      ))}
+                      {note.tags?.map((tag, idx) => (
+                        <span key={idx} style={{
+                          fontSize: 'var(--text-xs)',
+                          background: 'var(--accent-purple)',
+                          color: 'white',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  padding: 'var(--space-2) var(--space-4)',
+                  background: 'var(--card-footer)',
+                  borderTop: '1px solid var(--neutral-200)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end'
+                }}>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+                    {new Date(note.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

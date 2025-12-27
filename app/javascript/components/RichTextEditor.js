@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-export default function RichTextEditor({ value, onChange, placeholder, rows = 4 }) {
+export default function RichTextEditor({ value, onChange, placeholder, rows = 4, themeColor = 'var(--accent-blue)' }) {
   const editorRef = useRef(null);
 
   useEffect(() => {
@@ -24,13 +24,53 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 4 
   const minHeight = `${rows * 1.5}rem`;
 
   return (
-    <div className="border border-gray-300 rounded bg-white">
+    <div style={{
+      border: '1px solid var(--neutral-300)',
+      borderRadius: 'var(--radius)',
+      background: 'white',
+      fontFamily: 'var(--font-body)'
+    }}>
       {/* Toolbar */}
-      <div className="flex gap-1 p-2 border-b border-gray-200 bg-sand">
+      <div style={{
+        display: 'flex',
+        gap: 'var(--space-1)',
+        padding: 'var(--space-2)',
+        borderBottom: '1px solid var(--neutral-200)',
+        background: 'var(--neutral-50)',
+        flexWrap: 'wrap'
+      }}>
         <button
           type="button"
           onClick={() => applyFormat('bold')}
-          className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-white transition-colors"
+          style={{
+            padding: 'var(--space-1) var(--space-2)',
+            fontSize: 'var(--text-sm)',
+            border: `1px solid ${themeColor}`,
+            borderRadius: 'var(--radius)',
+            background: 'white',
+            color: themeColor,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontFamily: 'var(--font-body)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = themeColor;
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = themeColor;
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-1) - 1px) calc(var(--space-2) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = `1px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-1) var(--space-2)';
+          }}
           title="Bold"
         >
           <strong>B</strong>
@@ -38,16 +78,72 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 4 
         <button
           type="button"
           onClick={() => applyFormat('italic')}
-          className="px-2 py-1 text-sm border border-gray-300 rounded hover:bg-white transition-colors"
+          style={{
+            padding: 'var(--space-1) var(--space-2)',
+            fontSize: 'var(--text-sm)',
+            border: `1px solid ${themeColor}`,
+            borderRadius: 'var(--radius)',
+            background: 'white',
+            color: themeColor,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontFamily: 'var(--font-body)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = themeColor;
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = themeColor;
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-1) - 1px) calc(var(--space-2) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = `1px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-1) var(--space-2)';
+          }}
           title="Italic"
         >
           <em>I</em>
         </button>
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div style={{ width: '1px', background: 'var(--neutral-300)', margin: '0 var(--space-1)' }}></div>
         <button
           type="button"
           onClick={() => applyFormat('formatBlock', '<h3>')}
-          className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-white transition-colors"
+          style={{
+            padding: 'var(--space-1) var(--space-2)',
+            fontSize: 'var(--text-xs)',
+            border: `1px solid ${themeColor}`,
+            borderRadius: 'var(--radius)',
+            background: 'white',
+            color: themeColor,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontFamily: 'var(--font-body)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = themeColor;
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = themeColor;
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-1) - 1px) calc(var(--space-2) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = `1px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-1) var(--space-2)';
+          }}
           title="Heading"
         >
           H
@@ -55,16 +151,72 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 4 
         <button
           type="button"
           onClick={() => applyFormat('formatBlock', '<p>')}
-          className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-white transition-colors"
+          style={{
+            padding: 'var(--space-1) var(--space-2)',
+            fontSize: 'var(--text-xs)',
+            border: `1px solid ${themeColor}`,
+            borderRadius: 'var(--radius)',
+            background: 'white',
+            color: themeColor,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontFamily: 'var(--font-body)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = themeColor;
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = themeColor;
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-1) - 1px) calc(var(--space-2) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = `1px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-1) var(--space-2)';
+          }}
           title="Paragraph"
         >
           P
         </button>
-        <div className="w-px bg-gray-300 mx-1"></div>
+        <div style={{ width: '1px', background: 'var(--neutral-300)', margin: '0 var(--space-1)' }}></div>
         <button
           type="button"
           onClick={() => applyFormat('removeFormat')}
-          className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-white transition-colors"
+          style={{
+            padding: 'var(--space-1) var(--space-2)',
+            fontSize: 'var(--text-xs)',
+            border: `1px solid ${themeColor}`,
+            borderRadius: 'var(--radius)',
+            background: 'white',
+            color: themeColor,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            fontFamily: 'var(--font-body)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = themeColor;
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = themeColor;
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.border = `2px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+            e.currentTarget.style.padding = 'calc(var(--space-1) - 1px) calc(var(--space-2) - 1px)';
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.border = `1px solid ${themeColor}`;
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.padding = 'var(--space-1) var(--space-2)';
+          }}
           title="Clear formatting"
         >
           Clear
@@ -76,8 +228,24 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 4 
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="w-full px-4 py-2 focus:outline-none leading-snug rich-text-editor"
-        style={{ minHeight }}
+        className="rich-text-editor"
+        style={{
+          width: '100%',
+          padding: 'var(--space-4)',
+          minHeight,
+          outline: 'none',
+          lineHeight: 1.6,
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-base)'
+        }}
+        onFocus={(e) => {
+          e.currentTarget.parentElement.style.border = `2px solid ${themeColor}`;
+          e.currentTarget.parentElement.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+        }}
+        onBlur={(e) => {
+          e.currentTarget.parentElement.style.border = '1px solid var(--neutral-300)';
+          e.currentTarget.parentElement.style.boxShadow = 'none';
+        }}
         data-placeholder={placeholder}
       />
 
@@ -85,13 +253,14 @@ export default function RichTextEditor({ value, onChange, placeholder, rows = 4 
         __html: `
           .rich-text-editor:empty:before {
             content: attr(data-placeholder);
-            color: #9ca3af;
+            color: var(--neutral-400);
           }
           .rich-text-editor h3 {
             font-weight: 600;
             font-size: 0.95em;
             margin-top: 0.75em;
             margin-bottom: 0.5em;
+            font-family: var(--font-body);
           }
           .rich-text-editor p {
             margin-bottom: 0.5em;

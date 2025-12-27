@@ -266,72 +266,70 @@ export default function ConceptsIndex() {
       </button>
 
       {/* Main content */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          paddingTop: 'var(--space-6)',
-          paddingRight: 'var(--space-6)',
-          paddingBottom: 'var(--space-6)',
-          paddingLeft: 'calc(var(--space-6) + 24px)',
-          background: 'var(--background)',
-        }}
-      >
-        <div style={{ marginBottom: 'var(--space-6)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <h1
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'white'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-3xl)',
+                  fontWeight: 700,
+                  color: 'var(--neutral-900)',
+                  letterSpacing: '-0.02em',
+                  marginBottom: 'var(--space-1)',
+                }}
+              >
+                Constructs
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-500)',
+                  margin: 0,
+                }}
+              >
+                Theories, Concepts, Subjects, Fields, etc.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowForm(!showForm)}
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-3xl)',
-                fontWeight: 700,
-                color: 'var(--neutral-900)',
-                letterSpacing: '-0.02em',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'var(--primary)',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 'var(--text-xl)',
+                transition: 'all 0.15s',
+                boxShadow: 'var(--shadow-md)',
               }}
-            >
-              Constructs
-            </h1>
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-500)',
-                margin: 0,
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--primary-dark)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
               }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--primary)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+              }}
+              title="New Construct"
             >
-              Theories, Concepts, Subjects, Fields, etc.
-            </p>
+              <i className="fas fa-plus"></i>
+            </button>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              background: 'var(--primary)',
-              color: 'white',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 'var(--text-xl)',
-              transition: 'all 0.15s',
-              boxShadow: 'var(--shadow-md)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--primary-dark)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--primary)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-            }}
-            title="New Construct"
-          >
-            <i className="fas fa-plus"></i>
-          </button>
         </div>
 
         <ConceptFormModal
@@ -348,148 +346,157 @@ export default function ConceptsIndex() {
           item={editingConcept}
         />
 
-        {filteredConcepts.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '3rem 1.5rem',
-              background: 'white',
-              border: '1px solid var(--neutral-200)',
-              borderRadius: '4px',
-            }}
-          >
-            <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
-              No constructs yet.
-            </p>
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-              Create your first knowledge construct to begin building your framework.
-            </p>
-          </div>
-        ) : (
-          <div
-            className="card"
-            style={{
-              overflow: 'hidden',
-              transform: 'none !important',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = 'var(--shadow-card)';
-              e.currentTarget.style.transform = 'none';
-            }}
-          >
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ background: 'var(--card-footer)', borderBottom: '1px solid var(--neutral-200)' }}>
-                <tr>
-                  <th
-                    onClick={() => handleSort('label')}
-                    style={{
+        {/* Concepts Table */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-6)',
+          paddingLeft: 'calc(var(--space-6) + 24px)',
+          background: 'var(--background)'
+        }}>
+          {filteredConcepts.length === 0 ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem 1.5rem',
+                background: 'white',
+                border: '1px solid var(--neutral-200)',
+                borderRadius: '4px',
+              }}
+            >
+              <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
+                No constructs yet.
+              </p>
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+                Create your first knowledge construct to begin building your framework.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="card"
+              style={{
+                overflow: 'hidden',
+                transform: 'none !important',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--shadow-card)';
+                e.currentTarget.style.transform = 'none';
+              }}
+            >
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ background: 'var(--card-footer)', borderBottom: '1px solid var(--neutral-200)' }}>
+                  <tr>
+                    <th
+                      onClick={() => handleSort('label')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Concept {sortField === 'label' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('type')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Type {sortField === 'type' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('status')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Status {sortField === 'status' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('relationships')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Relationships {sortField === 'relationships' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th style={{
                       fontFamily: 'var(--font-display)',
-                      textAlign: 'left',
+                      textAlign: 'right',
                       padding: '0.75rem 1rem',
                       fontWeight: 600,
                       fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                  >
-                    Concept {sortField === 'label' && (
-                      <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                    )}
-                  </th>
-                  <th
-                    onClick={() => handleSort('type')}
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'left',
-                      padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                  >
-                    Type {sortField === 'type' && (
-                      <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                    )}
-                  </th>
-                  <th
-                    onClick={() => handleSort('status')}
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'left',
-                      padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                  >
-                    Status {sortField === 'status' && (
-                      <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                    )}
-                  </th>
-                  <th
-                    onClick={() => handleSort('relationships')}
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'left',
-                      padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      transition: 'color 0.15s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                  >
-                    Relationships {sortField === 'relationships' && (
-                      <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                    )}
-                  </th>
-                  <th style={{
-                    fontFamily: 'var(--font-display)',
-                    textAlign: 'right',
-                    padding: '0.75rem 1rem',
-                    fontWeight: 600,
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--neutral-700)'
-                  }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {flatConcepts.map(({ concept, depth }) => (
-                  <ConceptRow
-                    key={concept.id}
-                    concept={concept}
-                    depth={depth}
-                    onUpdate={fetchConcepts}
-                    onEdit={(concept) => {
-                      setEditingConcept(concept);
-                      setShowForm(true);
-                    }}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                      color: 'var(--neutral-700)'
+                    }}>
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {flatConcepts.map(({ concept, depth }) => (
+                    <ConceptRow
+                      key={concept.id}
+                      concept={concept}
+                      depth={depth}
+                      onUpdate={fetchConcepts}
+                      onEdit={(concept) => {
+                        setEditingConcept(concept);
+                        setShowForm(true);
+                      }}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import Modal from './Modal';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
 import SourceSelector from './SourceSelector';
+import RichTextEditor from './RichTextEditor';
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
@@ -82,288 +83,347 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     setFormData({ ...formData, aka: items });
   };
 
-  const tabs = [
-    { id: 'basic', label: 'Basic Info' },
-    { id: 'details', label: 'Details' },
-    { id: 'metadata', label: 'Metadata' }
-  ];
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={item ? 'Edit Person' : 'New Person'}
       size="large"
+      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxHeight: '70vh' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {error && (
-          <div style={{
-            background: 'var(--accent-gold-light)',
-            border: '1px solid var(--accent-gold)',
-            color: 'var(--error)',
-            padding: 'var(--space-3) var(--space-4)',
-            borderRadius: 'var(--radius)',
-            marginBottom: 'var(--space-4)',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)'
-          }}>
+          <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
+            <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
             {error}
           </div>
         )}
 
-        {/* Tab Navigation */}
-        <div style={{
-          display: 'flex',
-          gap: 'var(--space-1)',
-          marginBottom: 0,
-          borderBottom: '2px solid var(--neutral-200)'
-        }}>
-          {tabs.map(tab => (
+        {/* Sidebar + Content Layout */}
+        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden' }}>
+          {/* Left Sidebar Navigation */}
+          <div className="w-12 md:w-[200px]" style={{
+            background: 'var(--sidebar-bg)',
+            padding: 'var(--space-2)',
+            paddingTop: 'var(--space-6)',
+            flexShrink: 0,
+          }}>
+            <div className="hidden md:block" style={{
+              fontSize: 'var(--text-xs)',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              color: 'var(--neutral-500)',
+              marginBottom: 'var(--space-3)',
+              fontFamily: 'var(--font-body)',
+            }}>
+              Sections
+            </div>
+
             <button
-              key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setActiveTab('basic')}
+              className="justify-center md:justify-start"
               style={{
-                padding: 'var(--space-3) var(--space-6)',
-                fontWeight: 600,
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeTab === tab.id ? '2px solid var(--accent-gold)' : '2px solid transparent',
-                color: activeTab === tab.id ? 'var(--accent-gold)' : 'var(--neutral-600)',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
                 cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--accent-gold)',
+                background: activeTab === 'basic' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                textAlign: 'left',
                 transition: 'all 0.15s',
-                marginBottom: '-2px'
+                fontFamily: 'var(--font-body)',
+                fontWeight: activeTab === 'basic' ? 600 : 400,
+                marginBottom: 'var(--space-1)',
               }}
               onMouseEnter={(e) => {
-                if (activeTab !== tab.id) {
-                  e.currentTarget.style.color = 'var(--neutral-900)';
-                }
+                if (activeTab !== 'basic') e.currentTarget.style.background = 'var(--neutral-100)';
               }}
               onMouseLeave={(e) => {
-                if (activeTab !== tab.id) {
-                  e.currentTarget.style.color = 'var(--neutral-600)';
-                }
+                if (activeTab !== 'basic') e.currentTarget.style.background = 'transparent';
               }}
+              title="Basic Info"
             >
-              {tab.label}
+              <i className="fas fa-info-circle" style={{ width: '16px', color: 'var(--accent-gold)' }}></i>
+              <span className="hidden md:inline">Basic Info</span>
             </button>
-          ))}
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('details')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--accent-gold)',
+                background: activeTab === 'details' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                transition: 'all 0.15s',
+                fontFamily: 'var(--font-body)',
+                fontWeight: activeTab === 'details' ? 600 : 400,
+                marginBottom: 'var(--space-1)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'details') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'details') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Details"
+            >
+              <i className="fas fa-file-alt" style={{ width: '16px', color: 'var(--accent-gold)' }}></i>
+              <span className="hidden md:inline">Details</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('metadata')}
+              className="justify-center md:justify-start"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-2)',
+                borderRadius: 'var(--radius)',
+                cursor: 'pointer',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--accent-gold)',
+                background: activeTab === 'metadata' ? 'var(--neutral-200)' : 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                transition: 'all 0.15s',
+                fontFamily: 'var(--font-body)',
+                fontWeight: activeTab === 'metadata' ? 600 : 400,
+                marginBottom: 'var(--space-1)',
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== 'metadata') e.currentTarget.style.background = 'var(--neutral-100)';
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== 'metadata') e.currentTarget.style.background = 'transparent';
+              }}
+              title="Concepts & Tags"
+            >
+              <i className="fas fa-tags" style={{ width: '16px', color: 'var(--accent-gold)' }}></i>
+              <span className="hidden md:inline">Concepts & Tags</span>
+            </button>
+          </div>
+
+          {/* Main Content Area */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6)', background: 'white' }}>
+            {/* Basic Info Tab */}
+            {activeTab === 'basic' && (
+              <div>
+                <h2 style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-2xl)',
+                  fontWeight: 700,
+                  color: 'var(--accent-gold)',
+                  marginBottom: 'var(--space-4)',
+                }}>
+                  Basic Information
+                </h2>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                  <div>
+                    <label className="form-label">Full Name *</label>
+                    <input
+                      type="text"
+                      value={formData.full_name}
+                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                      className="form-input"
+                      style={{
+                        width: '100%',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'var(--text-base)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.padding = 'var(--space-3)';
+                      }}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Role</label>
+                    <select
+                      value={formData.role}
+                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                      className="form-select"
+                      style={{
+                        width: '100%',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'var(--text-base)'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.padding = 'var(--space-3)';
+                      }}
+                    >
+                      <option value="theorist">Theorist</option>
+                      <option value="clinician">Clinician</option>
+                      <option value="researcher">Researcher</option>
+                      <option value="peer">Peer</option>
+                      <option value="client">Client</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="form-label">Also Known As (one per line)</label>
+                    <textarea
+                      value={formData.aka.join('\n')}
+                      onChange={(e) => handleArrayInput(e.target.value)}
+                      rows="3"
+                      className="form-textarea"
+                      style={{
+                        width: '100%',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'var(--text-base)',
+                        resize: 'vertical'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.padding = 'var(--space-3)';
+                      }}
+                      placeholder="Aaron T. Beck&#10;A.T. Beck"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Details Tab */}
+            {activeTab === 'details' && (
+              <div>
+                <h2 style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-2xl)',
+                  fontWeight: 700,
+                  color: 'var(--accent-gold)',
+                  marginBottom: 'var(--space-4)',
+                }}>
+                  Details
+                </h2>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 'var(--space-4)',
+                  height: '100%'
+                }}>
+                  <div>
+                    <label className="form-label">Summary</label>
+                    <RichTextEditor
+                      value={formData.summary}
+                      onChange={(html) => setFormData({ ...formData, summary: html })}
+                      placeholder="Brief summary of this person and their work..."
+                      rows={15}
+                      themeColor="var(--accent-gold)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label">Sources</label>
+                    <div style={{ height: '370px' }}>
+                      <SourceSelector
+                        selectedSourceIds={formData.source_ids}
+                        onChange={(source_ids) => setFormData({ ...formData, source_ids })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Metadata Tab */}
+            {activeTab === 'metadata' && (
+              <div>
+                <h2 style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-2xl)',
+                  fontWeight: 700,
+                  color: 'var(--accent-gold)',
+                  marginBottom: 'var(--space-4)',
+                }}>
+                  Concepts & Tags
+                </h2>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 'var(--space-4)',
+                  height: '100%'
+                }}>
+                  <div>
+                    <label className="form-label">Concepts</label>
+                    <div style={{ height: '370px' }}>
+                      <ConceptSelector
+                        selectedConceptIds={formData.concept_ids}
+                        onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="form-label">Tags</label>
+                    <div style={{ height: '370px' }}>
+                      <TagSelector
+                        selectedTags={formData.tags}
+                        onChange={(tags) => setFormData({ ...formData, tags })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Tab Content */}
+        {/* Footer with Buttons */}
         <div style={{
-          padding: 'var(--space-6)',
-          flex: 1,
-          overflowY: 'auto'
-        }}>
-          {/* Basic Info Tab */}
-          {activeTab === 'basic' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                  className="form-input"
-                  style={{
-                    width: '100%',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-base)'
-                  }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Role
-                </label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="form-input"
-                  style={{
-                    width: '100%',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-base)'
-                  }}
-                >
-                  <option value="theorist">Theorist</option>
-                  <option value="clinician">Clinician</option>
-                  <option value="researcher">Researcher</option>
-                  <option value="peer">Peer</option>
-                  <option value="client">Client</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Also Known As (one per line)
-                </label>
-                <textarea
-                  value={formData.aka.join('\n')}
-                  onChange={(e) => handleArrayInput(e.target.value)}
-                  rows="3"
-                  className="form-input"
-                  style={{
-                    width: '100%',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-base)',
-                    resize: 'vertical'
-                  }}
-                  placeholder="Aaron T. Beck&#10;A.T. Beck"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Details Tab */}
-          {activeTab === 'details' && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 'var(--space-4)',
-              height: '100%'
-            }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Summary
-                </label>
-                <textarea
-                  value={formData.summary}
-                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-                  className="form-input"
-                  style={{
-                    width: '100%',
-                    height: '370px',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-base)',
-                    resize: 'none',
-                    overflowY: 'auto'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Sources
-                </label>
-                <div style={{ height: '370px' }}>
-                  <SourceSelector
-                    selectedSourceIds={formData.source_ids}
-                    onChange={(source_ids) => setFormData({ ...formData, source_ids })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Metadata Tab */}
-          {activeTab === 'metadata' && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 'var(--space-4)',
-              height: '100%'
-            }}>
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Concepts
-                </label>
-                <div style={{ height: '370px' }}>
-                  <ConceptSelector
-                    selectedConceptIds={formData.concept_ids}
-                    onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-700)',
-                  marginBottom: 'var(--space-2)'
-                }}>
-                  Tags
-                </label>
-                <div style={{ height: '370px' }}>
-                  <TagSelector
-                    selectedTags={formData.tags}
-                    onChange={(tags) => setFormData({ ...formData, tags })}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Form Actions */}
-        <div style={{
+          borderTop: '1px solid var(--neutral-200)',
+          padding: 'var(--space-4)',
           display: 'flex',
           justifyContent: 'center',
           gap: 'var(--space-3)',
-          paddingTop: 'var(--space-6)',
-          paddingBottom: 'var(--space-6)',
-          borderTop: '1px solid var(--neutral-200)'
         }}>
           <button
             type="submit"
             className="btn-primary"
-            style={{
-              background: 'var(--accent-gold)',
-              fontFamily: 'var(--font-body)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#8a6324'}
+            style={{ background: 'var(--accent-gold)' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#8a6624'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
           >
             {item ? 'Save Changes' : 'Create Person'}
@@ -372,7 +432,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
             type="button"
             onClick={onClose}
             className="btn-secondary"
-            style={{ fontFamily: 'var(--font-body)' }}
           >
             Cancel
           </button>

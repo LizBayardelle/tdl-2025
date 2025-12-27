@@ -31,11 +31,11 @@
           <!-- Desktop Navigation -->
           <div class="hidden md:flex" style="align-items: center; gap: 1.5rem;">
             <%= link_to "Dashboard", dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
-            <%= link_to "Concepts", concepts_path, class: "nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
-            <%= link_to "Sources", sources_path, class: "nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
-            <%= link_to "People", people_path, class: "nav-link #{current_page?(people_path) ? 'active' : ''}" %>
-            <%= link_to "Notes", notes_path, class: "nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
-            <%= link_to "Tags", tags_path, class: "nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
+            <%= link_to "Concepts", concepts_path, class: "nav-link #{request.path.start_with?('/concepts') ? 'active' : ''}" %>
+            <%= link_to "Sources", sources_path, class: "nav-link #{request.path.start_with?('/sources') ? 'active' : ''}" %>
+            <%= link_to "People", people_path, class: "nav-link #{request.path.start_with?('/people') ? 'active' : ''}" %>
+            <%= link_to "Notes", notes_path, class: "nav-link #{request.path.start_with?('/notes') ? 'active' : ''}" %>
+            <%= link_to "Tags", tags_path, class: "nav-link #{request.path.start_with?('/tags') ? 'active' : ''}" %>
           </div>
 
           <!-- Desktop User Dropdown -->
@@ -59,7 +59,7 @@
               <%= link_to edit_user_registration_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
                 <i class="fas fa-user" style="width: 1.25rem; margin-right: 0.5rem;"></i>Account
               <% end %>
-              <%= link_to destroy_user_session_path, data: { turbo_method: :delete }, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s;" do %>
+              <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); background: none; border: none; cursor: pointer; transition: background 0.15s;" do %>
                 <i class="fas fa-sign-out-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sign out
               <% end %>
             </div>
@@ -112,17 +112,19 @@
     <div style="padding: 0.5rem 1rem;">
       <% if user_signed_in? %>
         <%= link_to "Dashboard", dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
-        <%= link_to "Concepts", concepts_path, class: "mobile-nav-link #{current_page?(concepts_path) ? 'active' : ''}" %>
-        <%= link_to "Sources", sources_path, class: "mobile-nav-link #{current_page?(sources_path) ? 'active' : ''}" %>
-        <%= link_to "People", people_path, class: "mobile-nav-link #{current_page?(people_path) ? 'active' : ''}" %>
-        <%= link_to "Notes", notes_path, class: "mobile-nav-link #{current_page?(notes_path) ? 'active' : ''}" %>
-        <%= link_to "Tags", tags_path, class: "mobile-nav-link #{current_page?(tags_path) ? 'active' : ''}" %>
+        <%= link_to "Concepts", concepts_path, class: "mobile-nav-link #{request.path.start_with?('/concepts') ? 'active' : ''}" %>
+        <%= link_to "Sources", sources_path, class: "mobile-nav-link #{request.path.start_with?('/sources') ? 'active' : ''}" %>
+        <%= link_to "People", people_path, class: "mobile-nav-link #{request.path.start_with?('/people') ? 'active' : ''}" %>
+        <%= link_to "Notes", notes_path, class: "mobile-nav-link #{request.path.start_with?('/notes') ? 'active' : ''}" %>
+        <%= link_to "Tags", tags_path, class: "mobile-nav-link #{request.path.start_with?('/tags') ? 'active' : ''}" %>
 
         <!-- Mobile user menu -->
         <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;">
           <div style="padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: rgba(255, 255, 255, 0.7);"><%= current_user.email %></div>
           <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link" %>
-          <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "mobile-nav-link" %>
+          <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: rgba(255, 255, 255, 0.9); background: none; border: none; cursor: pointer; padding: 0.75rem 1rem; border-radius: var(--radius); transition: all 0.15s; margin-bottom: 0.25rem;" do %>
+            Sign out
+          <% end %>
         </div>
       <% else %>
         <%= link_to "Sign In", new_user_session_path, class: "mobile-nav-link" %>
@@ -180,8 +182,15 @@
     font-weight: 600;
   }
 
-  #user-menu-dropdown a:hover {
+  #user-menu-dropdown a:hover,
+  #user-menu-dropdown button:hover {
     background: var(--neutral-100);
+  }
+
+  /* Mobile sign out button hover */
+  button[style*="rgba(255, 255, 255, 0.9)"]:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
   }
 </style>
 

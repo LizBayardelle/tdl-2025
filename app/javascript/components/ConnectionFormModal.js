@@ -86,6 +86,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
         body: JSON.stringify({ connection: payload }),
@@ -109,114 +110,235 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={item ? 'Edit Relationship' : 'New Relationship'}
       size="medium"
+      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Header */}
+        <div style={{
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-6)',
+        }}>
+          <h3 style={{
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            color: 'var(--accent-green)',
+            margin: 0,
+            textAlign: 'center'
+          }}>
+            {item ? 'Edit Relationship' : 'New Relationship'}
+          </h3>
+        </div>
 
-        {/* Sentence-style relationship builder */}
-        <div className="bg-sand border border-gray-300 rounded-lg p-4">
-          <label className="block text-sm font-medium mb-3">Define Relationship</label>
-          <div className="flex flex-wrap items-center gap-2 text-lg">
-            <span className="font-medium text-primary">
-              {getSourceConceptName() || '[Source Concept]'}
-            </span>
-            <select
-              value={formData.rel_type}
-              onChange={(e) => setFormData({ ...formData, rel_type: e.target.value })}
-              className="px-3 py-1.5 border border-gray-300 rounded bg-white text-base"
-            >
-              <optgroup label="Hierarchical">
-                <option value="parent_of">is a parent of</option>
-                <option value="child_of">is a child of</option>
-              </optgroup>
-              <optgroup label="Sequential">
-                <option value="prerequisite_for">is a prerequisite for</option>
-                <option value="builds_on">builds on</option>
-                <option value="derived_from">is derived from</option>
-              </optgroup>
-              <optgroup label="Semantic">
-                <option value="related_to">is related to</option>
-                <option value="contrasts_with">contrasts with</option>
-                <option value="integrates_with">integrates with</option>
-                <option value="associated_with">is associated with</option>
-              </optgroup>
-              <optgroup label="Influence">
-                <option value="influenced">influenced</option>
-                <option value="supports">supports</option>
-                <option value="critiques">critiques</option>
-              </optgroup>
-              <optgroup label="Other">
-                <option value="authored">authored</option>
-                <option value="applies_to">applies to</option>
-                <option value="treats">treats</option>
-              </optgroup>
-            </select>
-            <HierarchicalConceptSelect
-              concepts={allConcepts || concepts}
-              value={formData.dst_concept_id}
-              onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
-              excludeId={formData.src_concept_id ? parseInt(formData.src_concept_id) : null}
-              placeholder="select a construct..."
-              required
+        {/* Body */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          background: 'var(--background)',
+          padding: 'var(--space-6)'
+        }}>
+          {error && (
+            <div style={{
+              background: 'var(--accent-green-light)',
+              border: '1px solid var(--accent-green)',
+              color: 'var(--error)',
+              padding: 'var(--space-3) var(--space-4)',
+              borderRadius: 'var(--radius)',
+              marginBottom: 'var(--space-4)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)'
+            }}>
+              {error}
+            </div>
+          )}
+
+          {/* Sentence-style relationship builder */}
+          <div style={{
+            background: 'var(--accent-green-light)',
+            border: '1px solid var(--accent-green)',
+            borderRadius: 'var(--radius)',
+            padding: 'var(--space-4)',
+            marginBottom: 'var(--space-4)'
+          }}>
+            <label className="form-label" style={{ marginBottom: 'var(--space-3)' }}>
+              Define Relationship
+            </label>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              fontSize: 'var(--text-lg)',
+              fontFamily: 'var(--font-body)'
+            }}>
+              <span style={{
+                fontWeight: 600,
+                color: 'var(--accent-green)',
+                fontFamily: 'var(--font-body)'
+              }}>
+                {getSourceConceptName() || '[Source Concept]'}
+              </span>
+              <select
+                value={formData.rel_type}
+                onChange={(e) => setFormData({ ...formData, rel_type: e.target.value })}
+                className="form-select"
+                style={{
+                  padding: 'var(--space-2) var(--space-3)',
+                  fontSize: 'var(--text-base)',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                <optgroup label="Hierarchical">
+                  <option value="parent_of">is a parent of</option>
+                  <option value="child_of">is a child of</option>
+                </optgroup>
+                <optgroup label="Sequential">
+                  <option value="prerequisite_for">is a prerequisite for</option>
+                  <option value="builds_on">builds on</option>
+                  <option value="derived_from">is derived from</option>
+                </optgroup>
+                <optgroup label="Semantic">
+                  <option value="related_to">is related to</option>
+                  <option value="contrasts_with">contrasts with</option>
+                  <option value="integrates_with">integrates with</option>
+                  <option value="associated_with">is associated with</option>
+                </optgroup>
+                <optgroup label="Influence">
+                  <option value="influenced">influenced</option>
+                  <option value="supports">supports</option>
+                  <option value="critiques">critiques</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="authored">authored</option>
+                  <option value="applies_to">applies to</option>
+                  <option value="treats">treats</option>
+                </optgroup>
+              </select>
+              <HierarchicalConceptSelect
+                concepts={allConcepts || concepts}
+                value={formData.dst_concept_id}
+                onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
+                excludeId={formData.src_concept_id ? parseInt(formData.src_concept_id) : null}
+                placeholder="select a construct..."
+                required
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label">
+              Custom Relationship Label
+              <span style={{
+                fontSize: 'var(--text-xs)',
+                color: 'var(--neutral-500)',
+                marginLeft: 'var(--space-2)',
+                fontWeight: 400
+              }}>
+                (optional)
+              </span>
+            </label>
+            <input
+              type="text"
+              value={formData.relationship_label}
+              onChange={(e) => setFormData({ ...formData, relationship_label: e.target.value })}
+              className="form-input"
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-base)'
+              }}
+              placeholder="e.g., 'is a specialized form of', 'requires understanding of'"
+            />
+            <p style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--neutral-600)',
+              marginTop: 'var(--space-1)',
+              fontFamily: 'var(--font-body)'
+            }}>
+              Override the default label for this relationship (e.g., "is a type of" instead of "Parent of")
+            </p>
+          </div>
+
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label">Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows="3"
+              className="form-textarea"
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-base)',
+                resize: 'vertical'
+              }}
+              placeholder="Why are these constructs related?"
+            />
+          </div>
+
+          <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label className="form-label">Tags (one per line)</label>
+            <textarea
+              value={formData.tags}
+              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+              rows="2"
+              className="form-textarea"
+              style={{
+                width: '100%',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-base)',
+                resize: 'vertical'
+              }}
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Custom Relationship Label
-            <span className="text-xs text-gray-500 ml-2">(optional)</span>
-          </label>
-          <input
-            type="text"
-            value={formData.relationship_label}
-            onChange={(e) => setFormData({ ...formData, relationship_label: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="e.g., 'is a specialized form of', 'requires understanding of'"
-          />
-          <p className="text-xs text-gray-600 mt-1">
-            Override the default label for this relationship (e.g., "is a type of" instead of "Parent of")
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="3"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-            placeholder="Why are these constructs related?"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Tags (one per line)</label>
-          <textarea
-            value={formData.tags}
-            onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-            rows="2"
-            className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-          />
-        </div>
-
-        <div className="flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200">
+        {/* Footer */}
+        <div style={{
+          borderTop: '1px solid var(--neutral-200)',
+          background: 'var(--background)',
+          padding: 'var(--space-4)',
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+        }}>
           <button
             type="submit"
             className="btn-primary"
+            style={{
+              background: 'var(--accent-green)',
+              fontFamily: 'var(--font-body)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--primary-dark)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-green)'}
           >
             {item ? 'Save Changes' : 'Create Relationship'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
+            style={{
+              padding: 'var(--space-2) var(--space-4)',
+              fontSize: 'var(--text-base)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-body)',
+              color: 'var(--accent-green)',
+              background: 'var(--accent-green-light)',
+              border: '1px solid var(--accent-green)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green)';
+              e.currentTarget.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green-light)';
+              e.currentTarget.style.color = 'var(--accent-green)';
+            }}
           >
             Cancel
           </button>

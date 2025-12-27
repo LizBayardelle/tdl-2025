@@ -80,7 +80,8 @@ class ConceptsController < ApplicationController
   private
 
   def set_concept
-    @concept = current_user.concepts.find(params[:id])
+    # Try to find by slug first, fall back to ID
+    @concept = current_user.concepts.find_by(slug: params[:id]) || current_user.concepts.find(params[:id])
   end
 
   def concept_params
