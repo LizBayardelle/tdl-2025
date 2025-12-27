@@ -1118,13 +1118,19 @@ export default function PersonShow({ personId: initialPersonId }) {
         title="Link Existing Tags"
         size="large"
       >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
           <TagSelector
             selectedTags={selectedTags}
             onChange={setSelectedTags}
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-3)',
+          padding: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             onClick={() => {
               setShowLinkTagModal(false);

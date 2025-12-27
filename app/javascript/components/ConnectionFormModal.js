@@ -111,26 +111,43 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
       isOpen={isOpen}
       onClose={onClose}
       size="medium"
-      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Header */}
-        <div style={{
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--background)',
-          padding: 'var(--space-6)',
-        }}>
-          <h3 style={{
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxHeight: '90vh', overflow: 'hidden', position: 'relative' }}>
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: 'var(--space-4)',
+            right: 'var(--space-4)',
+            zIndex: 10,
+            background: 'white',
+            border: 'none',
+            color: 'var(--neutral-500)',
             fontSize: 'var(--text-2xl)',
-            fontWeight: 700,
-            fontFamily: 'var(--font-display)',
-            color: 'var(--accent-green)',
-            margin: 0,
-            textAlign: 'center'
-          }}>
-            {item ? 'Edit Relationship' : 'New Relationship'}
-          </h3>
-        </div>
+            cursor: 'pointer',
+            padding: 0,
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '50%',
+            boxShadow: 'var(--shadow-md)',
+            transition: 'all 0.15s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--neutral-100)';
+            e.currentTarget.style.color = 'var(--neutral-900)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'white';
+            e.currentTarget.style.color = 'var(--neutral-500)';
+          }}
+        >
+          ×
+        </button>
 
         {/* Body */}
         <div style={{
@@ -299,7 +316,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
         <div style={{
           borderTop: '1px solid var(--neutral-200)',
           background: 'var(--background)',
-          padding: 'var(--space-4)',
+          padding: 'var(--space-6)',
           display: 'flex',
           justifyContent: 'center',
           gap: 'var(--space-3)',

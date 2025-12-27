@@ -220,37 +220,19 @@ class SourcesController < ApplicationController
           person = current_user.people.find_by(id: author_data['linkedPersonId'])
           source.people << person if person && !source.people.include?(person)
         else
-          # Create new person with enriched data
-          # Build full name: "Last, First Middle" format
-          last = author_data['lastName']&.strip
+          # Create new person with enriched data from disambiguation modal
           first = author_data['firstName']&.strip
           middle = author_data['middleName']&.strip
+          last = author_data['lastName']&.strip
 
-          # Build name parts
-          name_parts = []
-          if last.present?
-            name_parts << last
-          end
-
-          # Add first and middle initials/names
-          initials = []
-          if first.present?
-            # Use first letter with period if it's just an initial, otherwise use full name
-            initials << (first.length == 1 ? "#{first}." : first)
-          end
-          if middle.present?
-            initials << (middle.length == 1 ? "#{middle}." : middle)
-          end
-
-          name_parts << initials.join(' ') if initials.any?
-
-          full_name = name_parts.join(', ')
-
-          # Fallback to original if parsing failed
-          full_name = author_data['originalName'] if full_name.blank?
+          # Handle initials - add period if single letter
+          first = "#{first}." if first.present? && first.length == 1
+          middle = "#{middle}." if middle.present? && middle.length == 1
 
           person = current_user.people.create!(
-            full_name: full_name,
+            first_name: first,
+            middle_name: middle,
+            last_name: last,
             role: 'researcher'
           )
 
@@ -262,13 +244,22 @@ class SourcesController < ApplicationController
       authors = authors_string.split(/\.\s*,\s*(?=[A-Z])/)
 
       authors.each do |author_name|
-        full_name = author_name.strip
-        full_name += '.' unless full_name.end_with?('.')
+        original_name = author_name.strip
+        original_name += '.' unless original_name.end_with?('.')
 
-        last_name = full_name.split(',').first&.strip
-        next if last_name.blank?
+        # Convert "Last, First" to "First Last" format
+        if original_name.include?(',')
+          parts = original_name.split(',').map(&:strip)
+          full_name = "#{parts[1]} #{parts[0]}"
+        else
+          full_name = original_name
+        end
 
-        person = current_user.people.where("full_name ILIKE ?", "#{last_name},%").first
+        # Try to find existing person by searching both formats
+        last_name = parts ? parts[0] : original_name.split.last
+        person = current_user.people.where("full_name ILIKE ? OR full_name ILIKE ?",
+                                           "%#{last_name}%",
+                                           "#{last_name},%").first
 
         unless person
           person = current_user.people.create!(

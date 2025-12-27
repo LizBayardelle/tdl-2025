@@ -249,11 +249,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={item ? 'Edit Construct' : 'New Construct'}
       size="large"
-      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -262,7 +260,42 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         )}
 
         {/* Sidebar + Content Layout */}
-        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={handleClose}
+            style={{
+              position: 'absolute',
+              top: 'var(--space-4)',
+              right: 'var(--space-4)',
+              zIndex: 10,
+              background: 'white',
+              border: 'none',
+              color: 'var(--neutral-500)',
+              fontSize: 'var(--text-2xl)',
+              cursor: 'pointer',
+              padding: 0,
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              boxShadow: 'var(--shadow-md)',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--neutral-100)';
+              e.currentTarget.style.color = 'var(--neutral-900)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.color = 'var(--neutral-500)';
+            }}
+          >
+            ×
+          </button>
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
             background: 'var(--sidebar-bg)',
@@ -965,7 +998,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         <div style={{
           borderTop: '1px solid var(--neutral-200)',
           background: 'var(--background)',
-          padding: 'var(--space-4)',
+          padding: 'var(--space-6)',
           display: 'flex',
           justifyContent: 'center',
           gap: 'var(--space-3)',

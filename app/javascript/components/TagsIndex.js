@@ -124,7 +124,7 @@ export default function TagsIndex() {
             width: '24px',
             height: '48px'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.background = '#7c2bc9'}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-purple) 80%, black)'}
           onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
         >
           <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
@@ -178,7 +178,7 @@ export default function TagsIndex() {
                 marginBottom: 'var(--space-4)',
                 fontFamily: 'var(--font-body)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#7c2bc9'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-purple) 80%, black)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
             >
               <i className="fas fa-plus" style={{ marginRight: 'var(--space-2)' }}></i>
@@ -1374,14 +1374,20 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         titleColor="var(--accent-gold)"
         size="large"
       >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
           <PeopleSelector
             selectedPersonIds={selectedPersonIds}
             onChange={setSelectedPersonIds}
             themeColor="var(--accent-gold)"
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-2)',
+          padding: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             onClick={() => setShowLinkPeopleModal(false)}
             className="btn-secondary"
@@ -1410,14 +1416,20 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         titleColor="var(--accent-green)"
         size="large"
       >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
           <ConceptSelector
             selectedConceptIds={selectedConceptIds}
             onChange={setSelectedConceptIds}
             themeColor="var(--accent-green)"
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-2)',
+          padding: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             onClick={() => setShowLinkConceptsModal(false)}
             className="btn-secondary"
@@ -1446,14 +1458,20 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         titleColor="var(--accent-blue)"
         size="large"
       >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
           <SourceSelector
             selectedSourceIds={selectedSourceIds}
             onChange={setSelectedSourceIds}
             themeColor="var(--accent-blue)"
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-2)',
+          padding: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             onClick={() => setShowLinkSourcesModal(false)}
             className="btn-secondary"
@@ -1482,14 +1500,20 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         titleColor="var(--accent-teal)"
         size="large"
       >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
           <NoteSelector
             selectedNoteIds={selectedNoteIds}
             onChange={setSelectedNoteIds}
             themeColor="var(--accent-teal)"
           />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-2)',
+          padding: 'var(--space-6)',
+          borderTop: '1px solid var(--neutral-200)'
+        }}>
           <button
             onClick={() => setShowLinkNotesModal(false)}
             className="btn-secondary"

@@ -8,7 +8,9 @@ import RichTextEditor from './RichTextEditor';
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
-    full_name: '',
+    first_name: '',
+    middle_name: '',
+    last_name: '',
     role: 'theorist',
     email: '',
     url: '',
@@ -25,7 +27,9 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab('basic');
       if (item) {
         setFormData({
-          full_name: item.full_name || '',
+          first_name: item.first_name || '',
+          middle_name: item.middle_name || '',
+          last_name: item.last_name || '',
           role: item.role || 'theorist',
           email: item.email || '',
           url: item.url || '',
@@ -37,7 +41,9 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         });
       } else {
         setFormData({
-          full_name: '',
+          first_name: '',
+          middle_name: '',
+          last_name: '',
           role: 'theorist',
           email: '',
           url: '',
@@ -94,9 +100,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       isOpen={isOpen}
       onClose={onClose}
       size="large"
-      hideHeader={true}
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -105,13 +110,51 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         )}
 
         {/* Sidebar + Content Layout */}
-        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: 'var(--space-4)',
+              right: 'var(--space-4)',
+              zIndex: 10,
+              background: 'white',
+              border: 'none',
+              color: 'var(--neutral-500)',
+              fontSize: 'var(--text-2xl)',
+              cursor: 'pointer',
+              padding: 0,
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              boxShadow: 'var(--shadow-md)',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--neutral-100)';
+              e.currentTarget.style.color = 'var(--neutral-900)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.color = 'var(--neutral-500)';
+            }}
+          >
+            ×
+          </button>
+
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
             background: 'var(--sidebar-bg)',
             padding: 'var(--space-2)',
             paddingTop: 'var(--space-6)',
             flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column'
           }}>
             <div className="hidden md:block" style={{
               fontSize: 'var(--text-xs)',
@@ -244,30 +287,82 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                 </h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                  <div>
-                    <label className="form-label">Full Name *</label>
-                    <input
-                      type="text"
-                      value={formData.full_name}
-                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                      className="form-input"
-                      style={{
-                        width: '100%',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 'var(--text-base)'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.padding = 'var(--space-3)';
-                      }}
-                      required
-                    />
+                  {/* Name Fields */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: 'var(--space-3)' }}>
+                    <div>
+                      <label className="form-label">First Name *</label>
+                      <input
+                        type="text"
+                        value={formData.first_name}
+                        onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                        className="form-input"
+                        style={{
+                          width: '100%',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-base)'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.padding = 'var(--space-3)';
+                        }}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label">Middle</label>
+                      <input
+                        type="text"
+                        value={formData.middle_name}
+                        onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
+                        className="form-input"
+                        style={{
+                          width: '100%',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-base)'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.padding = 'var(--space-3)';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label className="form-label">Last Name *</label>
+                      <input
+                        type="text"
+                        value={formData.last_name}
+                        onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                        className="form-input"
+                        style={{
+                          width: '100%',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-base)'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.padding = 'var(--space-3)';
+                        }}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -474,7 +569,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         {/* Footer with Buttons */}
         <div style={{
           borderTop: '1px solid var(--neutral-200)',
-          padding: 'var(--space-4)',
+          padding: 'var(--space-6)',
           display: 'flex',
           justifyContent: 'center',
           gap: 'var(--space-3)',

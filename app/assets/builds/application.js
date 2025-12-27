@@ -23882,7 +23882,7 @@ var import_react3 = __toESM(require_react());
 
 // app/javascript/components/Modal.js
 var import_react = __toESM(require_react());
-function Modal({ isOpen, onClose, title, children: children2, size = "medium", titleColor = "var(--neutral-900)" }) {
+function Modal({ isOpen, onClose, children: children2, size = "medium" }) {
   if (!isOpen) return null;
   const maxWidths = {
     small: "400px",
@@ -23922,57 +23922,11 @@ function Modal({ isOpen, onClose, title, children: children2, size = "medium", t
         maxWidth: maxWidths[size],
         maxHeight: "90vh",
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        overflow: "hidden"
       }
     },
-    /* @__PURE__ */ import_react.default.createElement("div", { style: {
-      padding: "var(--space-6)",
-      borderBottom: "1px solid var(--neutral-200)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between"
-    } }, /* @__PURE__ */ import_react.default.createElement("h2", { style: {
-      fontFamily: "var(--font-display)",
-      fontSize: "var(--text-2xl)",
-      fontWeight: 700,
-      color: titleColor,
-      margin: 0
-    } }, title), /* @__PURE__ */ import_react.default.createElement(
-      "button",
-      {
-        onClick: onClose,
-        style: {
-          background: "none",
-          border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
-          cursor: "pointer",
-          padding: 0,
-          width: "32px",
-          height: "32px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: "4px",
-          transition: "all 0.15s"
-        },
-        onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
-        },
-        onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "none";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        },
-        type: "button"
-      },
-      "\xD7"
-    )),
-    /* @__PURE__ */ import_react.default.createElement("div", { style: {
-      padding: "var(--space-6)",
-      overflowY: "auto",
-      flex: 1
-    } }, children2)
+    children2
   ));
 }
 
@@ -24286,11 +24240,44 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     {
       isOpen,
       onClose: handleClose,
-      title: item ? "Edit Construct" : "New Construct",
-      size: "large",
-      hideHeader: true
+      size: "large"
     },
-    /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react3.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden" } }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+    /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "90vh" } }, error && /* @__PURE__ */ import_react3.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react3.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: handleClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
       paddingTop: "var(--space-6)",
@@ -24820,7 +24807,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     ))))), /* @__PURE__ */ import_react3.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -25514,21 +25501,44 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
     {
       isOpen,
       onClose,
-      size: "medium",
-      hideHeader: true
+      size: "medium"
     },
-    /* @__PURE__ */ import_react5.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react5.default.createElement("div", { style: {
-      borderBottom: "1px solid var(--neutral-200)",
-      background: "var(--background)",
-      padding: "var(--space-6)"
-    } }, /* @__PURE__ */ import_react5.default.createElement("h3", { style: {
-      fontSize: "var(--text-2xl)",
-      fontWeight: 700,
-      fontFamily: "var(--font-display)",
-      color: "var(--accent-green)",
-      margin: 0,
-      textAlign: "center"
-    } }, item ? "Edit Relationship" : "New Relationship")), /* @__PURE__ */ import_react5.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react5.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react5.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react5.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
       background: "var(--background)",
@@ -25642,7 +25652,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
     ))), /* @__PURE__ */ import_react5.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -52961,11 +52971,44 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
     {
       isOpen,
       onClose,
-      title: item ? "Edit Note" : "New Note",
-      size: "large",
-      hideHeader: true
+      size: "large"
     },
-    /* @__PURE__ */ import_react18.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react18.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react18.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react18.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden" } }, /* @__PURE__ */ import_react18.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+    /* @__PURE__ */ import_react18.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "90vh" } }, error && /* @__PURE__ */ import_react18.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react18.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react18.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react18.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react18.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react18.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
       paddingTop: "var(--space-6)",
@@ -53483,7 +53526,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
     )))))), /* @__PURE__ */ import_react18.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -53782,7 +53825,9 @@ function RichTextEditor({ value, onChange: onChange16, placeholder, rows = 4, th
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = (0, import_react21.useState)("basic");
   const [formData, setFormData] = (0, import_react21.useState)({
-    full_name: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
     role: "theorist",
     email: "",
     url: "",
@@ -53798,7 +53843,9 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab("basic");
       if (item) {
         setFormData({
-          full_name: item.full_name || "",
+          first_name: item.first_name || "",
+          middle_name: item.middle_name || "",
+          last_name: item.last_name || "",
           role: item.role || "theorist",
           email: item.email || "",
           url: item.url || "",
@@ -53810,7 +53857,9 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         });
       } else {
         setFormData({
-          full_name: "",
+          first_name: "",
+          middle_name: "",
+          last_name: "",
           role: "theorist",
           email: "",
           url: "",
@@ -53861,14 +53910,50 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     {
       isOpen,
       onClose,
-      size: "large",
-      hideHeader: true
+      size: "large"
     },
-    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react21.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden" } }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "90vh" } }, error && /* @__PURE__ */ import_react21.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react21.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react21.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react21.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react21.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
       paddingTop: "var(--space-6)",
-      flexShrink: 0
+      flexShrink: 0,
+      display: "flex",
+      flexDirection: "column"
     } }, /* @__PURE__ */ import_react21.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
       fontWeight: 700,
@@ -53985,12 +54070,12 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       fontWeight: 700,
       color: "var(--accent-gold)",
       marginBottom: "var(--space-4)"
-    } }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Full Name *"), /* @__PURE__ */ import_react21.default.createElement(
+    } }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr 2fr", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "First Name *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
-        value: formData.full_name,
-        onChange: (e3) => setFormData({ ...formData, full_name: e3.target.value }),
+        value: formData.first_name,
+        onChange: (e3) => setFormData({ ...formData, first_name: e3.target.value }),
         className: "form-input",
         style: {
           width: "100%",
@@ -54009,7 +54094,54 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         },
         required: true
       }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Role"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Middle"), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: formData.middle_name,
+        onChange: (e3) => setFormData({ ...formData, middle_name: e3.target.value }),
+        className: "form-input",
+        style: {
+          width: "100%",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-base)"
+        },
+        onFocus: (e3) => {
+          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
+          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)";
+          e3.currentTarget.style.padding = "calc(var(--space-3) - 1px)";
+        },
+        onBlur: (e3) => {
+          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+          e3.currentTarget.style.boxShadow = "none";
+          e3.currentTarget.style.padding = "var(--space-3)";
+        }
+      }
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Last Name *"), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: formData.last_name,
+        onChange: (e3) => setFormData({ ...formData, last_name: e3.target.value }),
+        className: "form-input",
+        style: {
+          width: "100%",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-base)"
+        },
+        onFocus: (e3) => {
+          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
+          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)";
+          e3.currentTarget.style.padding = "calc(var(--space-3) - 1px)";
+        },
+        onBlur: (e3) => {
+          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+          e3.currentTarget.style.boxShadow = "none";
+          e3.currentTarget.style.padding = "var(--space-3)";
+        },
+        required: true
+      }
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Role"), /* @__PURE__ */ import_react21.default.createElement(
       "select",
       {
         value: formData.role,
@@ -54160,7 +54292,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       }
     ))))))), /* @__PURE__ */ import_react21.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -54222,18 +54354,25 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16, themeCol
   const handleCreateFromFilter = async () => {
     if (filter2.trim() && !allPeople.some((p3) => p3.full_name.toLowerCase() === filter2.trim().toLowerCase())) {
       try {
+        const nameParts = filter2.trim().split(/\s+/);
+        let personData = { role: "researcher" };
+        if (nameParts.length === 1) {
+          personData.last_name = nameParts[0];
+        } else if (nameParts.length === 2) {
+          personData.first_name = nameParts[0];
+          personData.last_name = nameParts[1];
+        } else {
+          personData.first_name = nameParts[0];
+          personData.middle_name = nameParts.slice(1, -1).join(" ");
+          personData.last_name = nameParts[nameParts.length - 1];
+        }
         const response = await fetch("/people", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
           },
-          body: JSON.stringify({
-            person: {
-              full_name: filter2.trim(),
-              role: "researcher"
-            }
-          })
+          body: JSON.stringify({ person: personData })
         });
         if (response.ok) {
           const newPerson = await response.json();
@@ -55064,11 +55203,44 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     {
       isOpen,
       onClose,
-      title: item ? "Edit Source" : "New Source",
-      size: "large",
-      hideHeader: true
+      size: "large"
     },
-    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden" } }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "90vh" } }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react24.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
       paddingTop: "var(--space-6)",
@@ -55689,7 +55861,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       }
     ))))))), /* @__PURE__ */ import_react24.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -63100,21 +63272,44 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
     {
       isOpen,
       onClose,
-      size: "medium",
-      hideHeader: true
+      size: "medium"
     },
-    /* @__PURE__ */ import_react30.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react30.default.createElement("div", { style: {
-      borderBottom: "1px solid var(--neutral-200)",
-      background: "var(--background)",
-      padding: "var(--space-6)"
-    } }, /* @__PURE__ */ import_react30.default.createElement("h3", { style: {
-      fontSize: "var(--text-2xl)",
-      fontWeight: 700,
-      fontFamily: "var(--font-display)",
-      color: "var(--accent-purple)",
-      margin: 0,
-      textAlign: "center"
-    } }, item ? "Edit Tag" : "New Tag")), /* @__PURE__ */ import_react30.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react30.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react30.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        style: {
+          position: "absolute",
+          top: "var(--space-4)",
+          right: "var(--space-4)",
+          zIndex: 10,
+          background: "white",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          boxShadow: "var(--shadow-md)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "white";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        }
+      },
+      "\xD7"
+    ), /* @__PURE__ */ import_react30.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
       background: "var(--background)",
@@ -63188,7 +63383,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
     )))), /* @__PURE__ */ import_react30.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
-      padding: "var(--space-4)",
+      padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
       gap: "var(--space-3)"
@@ -63201,7 +63396,7 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
           background: "var(--accent-purple)",
           fontFamily: "var(--font-body)"
         },
-        onMouseEnter: (e3) => e3.currentTarget.style.background = "#7c2bc9",
+        onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-purple) 80%, black)",
         onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
       },
       item ? "Save Changes" : "Create Tag"
@@ -64165,14 +64360,20 @@ function PersonShow({ personId: initialPersonId }) {
       title: "Link Existing Tags",
       size: "large"
     },
-    /* @__PURE__ */ import_react31.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { height: "400px", padding: "var(--space-6)", paddingBottom: 0 } }, /* @__PURE__ */ import_react31.default.createElement(
       TagSelector,
       {
         selectedTags,
         onChange: setSelectedTags
       }
     )),
-    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "var(--space-3)",
+      padding: "var(--space-6)",
+      borderTop: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react31.default.createElement(
       "button",
       {
         onClick: () => {
@@ -65750,7 +65951,7 @@ function TagsIndex() {
         width: "24px",
         height: "48px"
       },
-      onMouseEnter: (e3) => e3.currentTarget.style.background = "#7c2bc9",
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-purple) 80%, black)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
     },
     /* @__PURE__ */ import_react37.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
@@ -65795,7 +65996,7 @@ function TagsIndex() {
         marginBottom: "var(--space-4)",
         fontFamily: "var(--font-body)"
       },
-      onMouseEnter: (e3) => e3.currentTarget.style.background = "#7c2bc9",
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-purple) 80%, black)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
     },
     /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-2)" } }),
@@ -66761,7 +66962,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       titleColor: "var(--accent-gold)",
       size: "large"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", padding: "var(--space-6)", paddingBottom: 0 } }, /* @__PURE__ */ import_react37.default.createElement(
       PeopleSelector,
       {
         selectedPersonIds,
@@ -66769,7 +66970,13 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         themeColor: "var(--accent-gold)"
       }
     )),
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "var(--space-2)",
+      padding: "var(--space-6)",
+      borderTop: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react37.default.createElement(
       "button",
       {
         onClick: () => setShowLinkPeopleModal(false),
@@ -66801,7 +67008,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       titleColor: "var(--accent-green)",
       size: "large"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", padding: "var(--space-6)", paddingBottom: 0 } }, /* @__PURE__ */ import_react37.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds,
@@ -66809,7 +67016,13 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         themeColor: "var(--accent-green)"
       }
     )),
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "var(--space-2)",
+      padding: "var(--space-6)",
+      borderTop: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react37.default.createElement(
       "button",
       {
         onClick: () => setShowLinkConceptsModal(false),
@@ -66841,7 +67054,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       titleColor: "var(--accent-blue)",
       size: "large"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", padding: "var(--space-6)", paddingBottom: 0 } }, /* @__PURE__ */ import_react37.default.createElement(
       SourceSelector,
       {
         selectedSourceIds,
@@ -66849,7 +67062,13 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         themeColor: "var(--accent-blue)"
       }
     )),
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "var(--space-2)",
+      padding: "var(--space-6)",
+      borderTop: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react37.default.createElement(
       "button",
       {
         onClick: () => setShowLinkSourcesModal(false),
@@ -66881,7 +67100,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       titleColor: "var(--accent-teal)",
       size: "large"
     },
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", padding: "var(--space-6)", paddingBottom: 0 } }, /* @__PURE__ */ import_react37.default.createElement(
       NoteSelector,
       {
         selectedNoteIds,
@@ -66889,7 +67108,13 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         themeColor: "var(--accent-teal)"
       }
     )),
-    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "var(--space-2)",
+      padding: "var(--space-6)",
+      borderTop: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react37.default.createElement(
       "button",
       {
         onClick: () => setShowLinkNotesModal(false),

@@ -38,18 +38,31 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
   const handleCreateFromFilter = async () => {
     if (filter.trim() && !allPeople.some(p => p.full_name.toLowerCase() === filter.trim().toLowerCase())) {
       try {
+        // Parse the filter into name components
+        const nameParts = filter.trim().split(/\s+/);
+        let personData = { role: 'researcher' };
+
+        if (nameParts.length === 1) {
+          // Just one name - treat as last name
+          personData.last_name = nameParts[0];
+        } else if (nameParts.length === 2) {
+          // First Last
+          personData.first_name = nameParts[0];
+          personData.last_name = nameParts[1];
+        } else {
+          // First Middle(s) Last
+          personData.first_name = nameParts[0];
+          personData.middle_name = nameParts.slice(1, -1).join(' ');
+          personData.last_name = nameParts[nameParts.length - 1];
+        }
+
         const response = await fetch('/people', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
           },
-          body: JSON.stringify({
-            person: {
-              full_name: filter.trim(),
-              role: 'researcher'
-            }
-          }),
+          body: JSON.stringify({ person: personData }),
         });
 
         if (response.ok) {

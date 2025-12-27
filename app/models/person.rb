@@ -18,14 +18,35 @@ class Person < ApplicationRecord
     client: "client"
   }, prefix: true
 
+  # Callbacks
+  before_validation :build_full_name
+
   # Validations
-  validates :full_name, presence: true
   validates :user_id, presence: true
+  validate :name_presence
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
   scope :by_role, ->(role) { where(role: role) }
   scope :alphabetical, -> { order(:full_name) }
+
+  private
+
+  def build_full_name
+    # If we have component name fields, construct full_name from them
+    if first_name.present? || last_name.present?
+      parts = [first_name, middle_name, last_name].compact.reject(&:blank?)
+      self.full_name = parts.join(' ') if parts.any?
+    end
+  end
+
+  def name_presence
+    if full_name.blank? && first_name.blank? && last_name.blank?
+      errors.add(:base, "Must provide either full name or first/last name")
+    end
+  end
+
+  public
 
   # Get all connections involving this person's concepts
   def related_connections
