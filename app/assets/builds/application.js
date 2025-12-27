@@ -53826,7 +53826,6 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = (0, import_react21.useState)("basic");
   const [formData, setFormData] = (0, import_react21.useState)({
     first_name: "",
-    middle_name: "",
     last_name: "",
     role: "theorist",
     email: "",
@@ -53842,9 +53841,9 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     if (isOpen) {
       setActiveTab("basic");
       if (item) {
+        const combinedFirstName = [item.first_name, item.middle_name].filter(Boolean).join(" ") || "";
         setFormData({
-          first_name: item.first_name || "",
-          middle_name: item.middle_name || "",
+          first_name: combinedFirstName,
           last_name: item.last_name || "",
           role: item.role || "theorist",
           email: item.email || "",
@@ -53858,7 +53857,6 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       } else {
         setFormData({
           first_name: "",
-          middle_name: "",
           last_name: "",
           role: "theorist",
           email: "",
@@ -54070,7 +54068,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       fontWeight: 700,
       color: "var(--accent-gold)",
       marginBottom: "var(--space-4)"
-    } }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr 2fr", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "First Name *"), /* @__PURE__ */ import_react21.default.createElement(
+    } }, "Basic Information"), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "First/Given Name(s) *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
       {
         type: "text",
@@ -54092,30 +54090,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           e3.currentTarget.style.boxShadow = "none";
           e3.currentTarget.style.padding = "var(--space-3)";
         },
+        placeholder: "e.g., Aaron T.",
         required: true
-      }
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Middle"), /* @__PURE__ */ import_react21.default.createElement(
-      "input",
-      {
-        type: "text",
-        value: formData.middle_name,
-        onChange: (e3) => setFormData({ ...formData, middle_name: e3.target.value }),
-        className: "form-input",
-        style: {
-          width: "100%",
-          fontFamily: "var(--font-body)",
-          fontSize: "var(--text-base)"
-        },
-        onFocus: (e3) => {
-          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
-          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)";
-          e3.currentTarget.style.padding = "calc(var(--space-3) - 1px)";
-        },
-        onBlur: (e3) => {
-          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
-          e3.currentTarget.style.boxShadow = "none";
-          e3.currentTarget.style.padding = "var(--space-3)";
-        }
       }
     )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Last Name *"), /* @__PURE__ */ import_react21.default.createElement(
       "input",
@@ -54139,6 +54115,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           e3.currentTarget.style.boxShadow = "none";
           e3.currentTarget.style.padding = "var(--space-3)";
         },
+        placeholder: "e.g., Beck",
         required: true
       }
     ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Role"), /* @__PURE__ */ import_react21.default.createElement(
@@ -54358,12 +54335,8 @@ function PeopleSelector({ selectedPersonIds = [], onChange: onChange16, themeCol
         let personData = { role: "researcher" };
         if (nameParts.length === 1) {
           personData.last_name = nameParts[0];
-        } else if (nameParts.length === 2) {
-          personData.first_name = nameParts[0];
-          personData.last_name = nameParts[1];
         } else {
-          personData.first_name = nameParts[0];
-          personData.middle_name = nameParts.slice(1, -1).join(" ");
+          personData.first_name = nameParts.slice(0, -1).join(" ");
           personData.last_name = nameParts[nameParts.length - 1];
         }
         const response = await fetch("/people", {

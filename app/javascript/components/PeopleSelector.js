@@ -45,14 +45,9 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
         if (nameParts.length === 1) {
           // Just one name - treat as last name
           personData.last_name = nameParts[0];
-        } else if (nameParts.length === 2) {
-          // First Last
-          personData.first_name = nameParts[0];
-          personData.last_name = nameParts[1];
         } else {
-          // First Middle(s) Last
-          personData.first_name = nameParts[0];
-          personData.middle_name = nameParts.slice(1, -1).join(' ');
+          // Everything except last word goes to first name, last word is last name
+          personData.first_name = nameParts.slice(0, -1).join(' ');
           personData.last_name = nameParts[nameParts.length - 1];
         }
 

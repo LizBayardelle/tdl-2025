@@ -225,13 +225,15 @@ class SourcesController < ApplicationController
           middle = author_data['middleName']&.strip
           last = author_data['lastName']&.strip
 
+          # Combine first and middle into first_name field
           # Handle initials - add period if single letter
           first = "#{first}." if first.present? && first.length == 1
           middle = "#{middle}." if middle.present? && middle.length == 1
 
+          first_name_combined = [first, middle].compact.reject(&:blank?).join(' ')
+
           person = current_user.people.create!(
-            first_name: first,
-            middle_name: middle,
+            first_name: first_name_combined.presence,
             last_name: last,
             role: 'researcher'
           )

@@ -9,7 +9,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState({
     first_name: '',
-    middle_name: '',
     last_name: '',
     role: 'theorist',
     email: '',
@@ -26,9 +25,13 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     if (isOpen) {
       setActiveTab('basic');
       if (item) {
+        // Combine first_name and middle_name if middle_name exists (for legacy data)
+        const combinedFirstName = [item.first_name, item.middle_name]
+          .filter(Boolean)
+          .join(' ') || '';
+
         setFormData({
-          first_name: item.first_name || '',
-          middle_name: item.middle_name || '',
+          first_name: combinedFirstName,
           last_name: item.last_name || '',
           role: item.role || 'theorist',
           email: item.email || '',
@@ -42,7 +45,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       } else {
         setFormData({
           first_name: '',
-          middle_name: '',
           last_name: '',
           role: 'theorist',
           email: '',
@@ -288,9 +290,9 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                   {/* Name Fields */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: 'var(--space-3)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
                     <div>
-                      <label className="form-label">First Name *</label>
+                      <label className="form-label">First/Given Name(s) *</label>
                       <input
                         type="text"
                         value={formData.first_name}
@@ -311,31 +313,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                           e.currentTarget.style.boxShadow = 'none';
                           e.currentTarget.style.padding = 'var(--space-3)';
                         }}
+                        placeholder="e.g., Aaron T."
                         required
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label">Middle</label>
-                      <input
-                        type="text"
-                        value={formData.middle_name}
-                        onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
-                        className="form-input"
-                        style={{
-                          width: '100%',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 'var(--text-base)'
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.padding = 'var(--space-3)';
-                        }}
                       />
                     </div>
                     <div>
@@ -360,6 +339,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                           e.currentTarget.style.boxShadow = 'none';
                           e.currentTarget.style.padding = 'var(--space-3)';
                         }}
+                        placeholder="e.g., Beck"
                         required
                       />
                     </div>
