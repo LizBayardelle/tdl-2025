@@ -3,6 +3,10 @@ import PersonFormModal from './PersonFormModal';
 import ConceptFormModal from './ConceptFormModal';
 import SourceFormModal from './SourceFormModal';
 import TagFormModal from './TagFormModal';
+import ConceptSelector from './ConceptSelector';
+import SourceSelector from './SourceSelector';
+import TagSelector from './TagSelector';
+import Modal from './Modal';
 
 const PersonSidebar = React.memo(({
   sidebarOpen,
@@ -141,6 +145,12 @@ export default function PersonShow({ personId: initialPersonId }) {
   const [showConceptModal, setShowConceptModal] = useState(false);
   const [showSourceModal, setShowSourceModal] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
+  const [showLinkConceptModal, setShowLinkConceptModal] = useState(false);
+  const [showLinkSourceModal, setShowLinkSourceModal] = useState(false);
+  const [showLinkTagModal, setShowLinkTagModal] = useState(false);
+  const [selectedConceptIds, setSelectedConceptIds] = useState([]);
+  const [selectedSourceIds, setSelectedSourceIds] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [allPeople, setAllPeople] = useState([]);
   const [peopleLoading, setPeopleLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,6 +231,90 @@ export default function PersonShow({ personId: initialPersonId }) {
     } catch (error) {
       console.error('Error deleting person:', error);
       alert('Error deleting person');
+    }
+  };
+
+  const handleLinkConcepts = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          person: {
+            concept_ids: selectedConceptIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkConceptModal(false);
+        setSelectedConceptIds([]);
+      } else {
+        alert('Error linking concepts');
+      }
+    } catch (error) {
+      console.error('Error linking concepts:', error);
+      alert('Error linking concepts');
+    }
+  };
+
+  const handleLinkSources = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          person: {
+            source_ids: selectedSourceIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkSourceModal(false);
+        setSelectedSourceIds([]);
+      } else {
+        alert('Error linking sources');
+      }
+    } catch (error) {
+      console.error('Error linking sources:', error);
+      alert('Error linking sources');
+    }
+  };
+
+  const handleLinkTags = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          person: {
+            tags: selectedTags
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkTagModal(false);
+        setSelectedTags([]);
+      } else {
+        alert('Error linking tags');
+      }
+    } catch (error) {
+      console.error('Error linking tags:', error);
+      alert('Error linking tags');
     }
   };
 
@@ -351,6 +445,59 @@ export default function PersonShow({ personId: initialPersonId }) {
                     </span>
                   )}
                 </div>
+
+                {/* Contact Info */}
+                {(person.email || person.url) && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-4)',
+                    justifyContent: 'center',
+                    marginTop: 'var(--space-3)',
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-600)'
+                  }}>
+                    {person.email && (
+                      <a
+                        href={`mailto:${person.email}`}
+                        style={{
+                          color: 'var(--accent-gold)',
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-1)',
+                          transition: 'color 0.15s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      >
+                        <i className="fas fa-envelope"></i>
+                        <span>{person.email}</span>
+                      </a>
+                    )}
+                    {person.url && (
+                      <a
+                        href={person.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: 'var(--accent-gold)',
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-1)',
+                          transition: 'color 0.15s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      >
+                        <i className="fas fa-link"></i>
+                        <span>Website</span>
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -425,73 +572,115 @@ export default function PersonShow({ personId: initialPersonId }) {
                 }}>
                   Related Concepts ({person.concepts?.length || 0})
                 </h2>
-                <button
-                  onClick={() => setShowConceptModal(true)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'var(--accent-green)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 'var(--text-sm)',
-                    transition: 'all 0.15s',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                  }}
-                  title="New Concept"
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <button
+                    onClick={() => {
+                      setSelectedConceptIds(person.concepts?.map(c => c.id) || []);
+                      setShowLinkConceptModal(true);
+                    }}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'white',
+                      color: 'var(--accent-green)',
+                      border: '2px solid var(--accent-green)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                      e.currentTarget.style.background = 'var(--accent-green)';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = 'var(--accent-green)';
+                    }}
+                    title="Link Existing Concept"
+                  >
+                    <i className="fas fa-link"></i>
+                  </button>
+                  <button
+                    onClick={() => setShowConceptModal(true)}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'var(--accent-green)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    }}
+                    title="New Concept"
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                </div>
               </div>
               {person.concepts && person.concepts.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                  gap: 'var(--space-3)'
+                }}>
                   {person.concepts.map(concept => (
-                    <div
+                    <a
                       key={concept.id}
+                      href={`/concepts/${concept.id}`}
                       className="card"
                       style={{
-                        padding: 'var(--space-4)',
+                        padding: 'var(--space-3)',
+                        textDecoration: 'none',
+                        borderLeft: '3px solid var(--accent-green)',
                         transition: 'all 0.15s',
                         cursor: 'pointer',
                       }}
-                      onClick={() => window.location.href = `/concepts/${concept.id}`}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--accent-green-light)';
-                        e.currentTarget.style.borderColor = 'var(--accent-green)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'white';
-                        e.currentTarget.style.borderColor = 'var(--neutral-200)';
-                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{
-                          fontSize: 'var(--text-sm)',
-                          fontWeight: 600,
-                          color: 'var(--neutral-900)',
+                      <div style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        color: 'var(--neutral-900)',
+                        fontFamily: 'var(--font-body)',
+                        marginBottom: concept.node_type ? 'var(--space-1)' : '0'
+                      }}>
+                        {concept.label}
+                      </div>
+                      {concept.node_type && (
+                        <div style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--neutral-600)',
+                          textTransform: 'capitalize',
                           fontFamily: 'var(--font-body)',
                         }}>
-                          {concept.label}
-                        </span>
-                        {concept.node_type && (
-                          <span className="tag" style={{ background: 'var(--accent-green-light)', color: 'var(--accent-green)', textTransform: 'capitalize' }}>
-                            {concept.node_type}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                          {concept.node_type}
+                        </div>
+                      )}
+                    </a>
                   ))}
                 </div>
               ) : (
@@ -518,71 +707,115 @@ export default function PersonShow({ personId: initialPersonId }) {
                 }}>
                   Related Sources ({person.sources?.length || 0})
                 </h2>
-                <button
-                  onClick={() => setShowSourceModal(true)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'var(--accent-blue)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 'var(--text-sm)',
-                    transition: 'all 0.15s',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                  }}
-                  title="New Source"
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <button
+                    onClick={() => {
+                      setSelectedSourceIds(person.sources?.map(s => s.id) || []);
+                      setShowLinkSourceModal(true);
+                    }}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'white',
+                      color: 'var(--accent-blue)',
+                      border: '2px solid var(--accent-blue)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                      e.currentTarget.style.background = 'var(--accent-blue)';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = 'var(--accent-blue)';
+                    }}
+                    title="Link Existing Source"
+                  >
+                    <i className="fas fa-link"></i>
+                  </button>
+                  <button
+                    onClick={() => setShowSourceModal(true)}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'var(--accent-blue)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    }}
+                    title="New Source"
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                </div>
               </div>
               {person.sources && person.sources.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+                  gap: 'var(--space-3)'
+                }}>
                   {person.sources.map(source => (
-                    <div
+                    <a
                       key={source.id}
+                      href={`/sources/${source.id}`}
                       className="card"
                       style={{
-                        padding: 'var(--space-4)',
+                        padding: 'var(--space-3)',
+                        textDecoration: 'none',
+                        borderLeft: '3px solid var(--accent-blue)',
                         transition: 'all 0.15s',
                         cursor: 'pointer',
                       }}
-                      onClick={() => window.location.href = `/sources/${source.id}`}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--accent-blue-light)';
-                        e.currentTarget.style.borderColor = 'var(--accent-blue)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'white';
-                        e.currentTarget.style.borderColor = 'var(--neutral-200)';
-                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
                     >
                       <div style={{
                         fontSize: 'var(--text-sm)',
                         fontWeight: 600,
                         color: 'var(--neutral-900)',
-                        marginBottom: 'var(--space-1)',
                         fontFamily: 'var(--font-body)',
+                        marginBottom: (source.authors || source.year) ? 'var(--space-1)' : '0'
                       }}>
                         {source.title}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-xs)', color: 'var(--neutral-600)' }}>
-                        {source.authors && <span>{source.authors}</span>}
-                        {source.year && <span>({source.year})</span>}
-                      </div>
-                    </div>
+                      {(source.authors || source.year) && (
+                        <div style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--neutral-600)',
+                          fontFamily: 'var(--font-body)',
+                        }}>
+                          {source.authors && <span>{source.authors}</span>}
+                          {source.year && <span>{source.authors ? ` (${source.year})` : `${source.year}`}</span>}
+                        </div>
+                      )}
+                    </a>
                   ))}
                 </div>
               ) : (
@@ -609,42 +842,101 @@ export default function PersonShow({ personId: initialPersonId }) {
                 }}>
                   Tags ({person.tags?.length || 0})
                 </h2>
-                <button
-                  onClick={() => setShowTagModal(true)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'var(--accent-purple)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 'var(--text-sm)',
-                    transition: 'all 0.15s',
-                    boxShadow: 'var(--shadow-sm)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                  }}
-                  title="New Tag"
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <button
+                    onClick={() => {
+                      setSelectedTags(person.tags || []);
+                      setShowLinkTagModal(true);
+                    }}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'white',
+                      color: 'var(--accent-purple)',
+                      border: '2px solid var(--accent-purple)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                      e.currentTarget.style.background = 'var(--accent-purple)';
+                      e.currentTarget.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      e.currentTarget.style.background = 'white';
+                      e.currentTarget.style.color = 'var(--accent-purple)';
+                    }}
+                    title="Link Existing Tag"
+                  >
+                    <i className="fas fa-link"></i>
+                  </button>
+                  <button
+                    onClick={() => setShowTagModal(true)}
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '50%',
+                      background: 'var(--accent-purple)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 'var(--text-sm)',
+                      transition: 'all 0.15s',
+                      boxShadow: 'var(--shadow-sm)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    }}
+                    title="New Tag"
+                  >
+                    <i className="fas fa-plus"></i>
+                  </button>
+                </div>
               </div>
               {person.tags && person.tags.length > 0 ? (
-                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: 'var(--space-3)'
+                }}>
                   {person.tags.map((tag, idx) => (
-                    <span key={idx} className="tag tag-purple">
-                      {tag}
-                    </span>
+                    <div
+                      key={idx}
+                      className="card"
+                      style={{
+                        padding: 'var(--space-3)',
+                        borderLeft: '3px solid var(--accent-purple)',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
+                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
+                    >
+                      <div style={{
+                        fontSize: 'var(--text-sm)',
+                        fontWeight: 600,
+                        color: 'var(--neutral-900)',
+                        fontFamily: 'var(--font-body)',
+                      }}>
+                        {tag}
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -668,6 +960,8 @@ export default function PersonShow({ personId: initialPersonId }) {
           id: person.id,
           full_name: person.full_name,
           role: person.role,
+          email: person.email,
+          url: person.url,
           summary: person.summary,
           aka: person.aka || [],
           concept_ids: person.concepts ? person.concepts.map(c => c.id) : [],
@@ -705,6 +999,168 @@ export default function PersonShow({ personId: initialPersonId }) {
         }}
         item={null}
       />
+
+      {/* Link Existing Concept Modal */}
+      <Modal
+        isOpen={showLinkConceptModal}
+        onClose={() => {
+          setShowLinkConceptModal(false);
+          setSelectedConceptIds([]);
+        }}
+        title="Link Existing Concepts"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <ConceptSelector
+            selectedConceptIds={selectedConceptIds}
+            onChange={setSelectedConceptIds}
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
+          <button
+            onClick={() => {
+              setShowLinkConceptModal(false);
+              setSelectedConceptIds([]);
+            }}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'white',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkConcepts}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'var(--accent-green)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 600,
+            }}
+          >
+            Save ({selectedConceptIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      {/* Link Existing Source Modal */}
+      <Modal
+        isOpen={showLinkSourceModal}
+        onClose={() => {
+          setShowLinkSourceModal(false);
+          setSelectedSourceIds([]);
+        }}
+        title="Link Existing Sources"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <SourceSelector
+            selectedSourceIds={selectedSourceIds}
+            onChange={setSelectedSourceIds}
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
+          <button
+            onClick={() => {
+              setShowLinkSourceModal(false);
+              setSelectedSourceIds([]);
+            }}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'white',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkSources}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'var(--accent-blue)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 600,
+            }}
+          >
+            Save ({selectedSourceIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      {/* Link Existing Tag Modal */}
+      <Modal
+        isOpen={showLinkTagModal}
+        onClose={() => {
+          setShowLinkTagModal(false);
+          setSelectedTags([]);
+        }}
+        title="Link Existing Tags"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <TagSelector
+            selectedTags={selectedTags}
+            onChange={setSelectedTags}
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
+          <button
+            onClick={() => {
+              setShowLinkTagModal(false);
+              setSelectedTags([]);
+            }}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'white',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkTags}
+            style={{
+              padding: 'var(--space-3) var(--space-4)',
+              background: 'var(--accent-purple)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              fontWeight: 600,
+            }}
+          >
+            Save ({selectedTags.length})
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

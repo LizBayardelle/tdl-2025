@@ -108,6 +108,8 @@ class PeopleController < ApplicationController
       :full_name,
       :role,
       :summary,
+      :email,
+      :url,
       :attrs,
       aka: [],
       concept_ids: [],

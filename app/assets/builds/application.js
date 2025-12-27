@@ -1335,7 +1335,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React36 = require_react(), Internals = {
+      var React37 = require_react(), Internals = {
         d: {
           f: noop7,
           r: function() {
@@ -1353,7 +1353,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React36.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React37.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -2888,7 +2888,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React36.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React37.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -18520,14 +18520,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React36 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React37 = require_react(), ReactDOM2 = require_react_dom(), assign2 = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React36.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React37.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -21315,7 +21315,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React36.version;
+        var isomorphicReactPackageVersion = React37.version;
         if ("19.2.1" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.1\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21464,7 +21464,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React36.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React37.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState31({
+        cachedValue = useState32({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect38(
+        useEffect39(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,8 +21512,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React36 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState31 = React36.useState, useEffect38 = React36.useEffect, useLayoutEffect4 = React36.useLayoutEffect, useDebugValue3 = React36.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React36.useSyncExternalStore ? React36.useSyncExternalStore : shim;
+      var React37 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState32 = React37.useState, useEffect39 = React37.useEffect, useLayoutEffect4 = React37.useLayoutEffect, useDebugValue3 = React37.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React37.useSyncExternalStore ? React37.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21745,18 +21745,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React36 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React36.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React37 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React37.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React36 = {
+      React37 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React36.react_stack_bottom_frame.bind(
-        React36,
+      var unknownOwnerDebugStack = React37.react_stack_bottom_frame.bind(
+        React37,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21809,7 +21809,7 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React36 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef13 = React36.useRef, useEffect38 = React36.useEffect, useMemo13 = React36.useMemo, useDebugValue3 = React36.useDebugValue;
+      var React37 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef13 = React37.useRef, useEffect39 = React37.useEffect, useMemo13 = React37.useMemo, useDebugValue3 = React37.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef13(null);
         if (null === instRef.current) {
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect38(
+        useEffect39(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -23871,7 +23871,7 @@ var require_warning = __commonJS({
 });
 
 // app/javascript/application.js
-var import_react56 = __toESM(require_react());
+var import_react57 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -23882,39 +23882,98 @@ var import_react3 = __toESM(require_react());
 
 // app/javascript/components/Modal.js
 var import_react = __toESM(require_react());
-function Modal({ isOpen, onClose, title, children: children2, size = "medium", hideHeader = false }) {
+function Modal({ isOpen, onClose, title, children: children2, size = "medium", titleColor = "var(--neutral-900)" }) {
   if (!isOpen) return null;
-  const sizeClasses = {
-    small: "max-w-md",
-    medium: "max-w-2xl",
-    large: "max-w-4xl",
-    xlarge: "max-w-6xl"
+  const maxWidths = {
+    small: "400px",
+    medium: "600px",
+    large: "800px",
+    xlarge: "1000px"
   };
-  return /* @__PURE__ */ import_react.default.createElement("div", { className: "fixed inset-0 z-50 overflow-y-auto", style: { zIndex: 9999 } }, /* @__PURE__ */ import_react.default.createElement("div", { className: "flex items-center justify-center min-h-screen px-4 pt-4 pb-20" }, /* @__PURE__ */ import_react.default.createElement(
+  return /* @__PURE__ */ import_react.default.createElement("div", { style: {
+    position: "fixed",
+    inset: 0,
+    zIndex: 9999,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "1rem"
+  } }, /* @__PURE__ */ import_react.default.createElement(
     "div",
     {
-      className: "fixed inset-0 transition-opacity",
       onClick: onClose,
-      style: { zIndex: 9998, backgroundColor: "rgba(0, 0, 0, 0.5)" }
+      style: {
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: 9998
+      }
     }
   ), /* @__PURE__ */ import_react.default.createElement(
     "div",
     {
-      className: "relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full mx-auto",
-      style: { zIndex: 9999, maxWidth: "95vw" }
+      style: {
+        position: "relative",
+        background: "white",
+        borderRadius: "8px",
+        boxShadow: "var(--shadow-xl)",
+        zIndex: 9999,
+        width: "100%",
+        maxWidth: maxWidths[size],
+        maxHeight: "90vh",
+        display: "flex",
+        flexDirection: "column"
+      }
     },
-    /* @__PURE__ */ import_react.default.createElement(
+    /* @__PURE__ */ import_react.default.createElement("div", { style: {
+      padding: "var(--space-6)",
+      borderBottom: "1px solid var(--neutral-200)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between"
+    } }, /* @__PURE__ */ import_react.default.createElement("h2", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-2xl)",
+      fontWeight: 700,
+      color: titleColor,
+      margin: 0
+    } }, title), /* @__PURE__ */ import_react.default.createElement(
       "button",
       {
         onClick: onClose,
-        className: "absolute top-2 right-4 text-olive text-3xl leading-none bg-transparent hover:opacity-80 z-10",
+        style: {
+          background: "none",
+          border: "none",
+          color: "var(--neutral-500)",
+          fontSize: "var(--text-2xl)",
+          cursor: "pointer",
+          padding: 0,
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "4px",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+          e3.currentTarget.style.color = "var(--neutral-900)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "none";
+          e3.currentTarget.style.color = "var(--neutral-500)";
+        },
         type: "button"
       },
       "\xD7"
-    ),
-    !hideHeader && /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-sand border-b border-gray-300" }, /* @__PURE__ */ import_react.default.createElement("div", { className: `${sizeClasses[size]} mx-auto px-6 py-6` }, /* @__PURE__ */ import_react.default.createElement("h3", { className: "text-3xl font-medium text-center" }, title))), /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-white" }, /* @__PURE__ */ import_react.default.createElement("div", { className: `${sizeClasses[size]} mx-auto px-6 pt-6 pb-4 max-h-[70vh] overflow-y-auto` }, children2))),
-    hideHeader && /* @__PURE__ */ import_react.default.createElement("div", { className: "bg-white", style: { height: "80vh", maxHeight: "80vh", display: "flex", flexDirection: "column" } }, children2)
-  )));
+    )),
+    /* @__PURE__ */ import_react.default.createElement("div", { style: {
+      padding: "var(--space-6)",
+      overflowY: "auto",
+      flex: 1
+    } }, children2)
+  ));
 }
 
 // app/javascript/components/HierarchicalConceptSelect.js
@@ -53725,6 +53784,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [formData, setFormData] = (0, import_react21.useState)({
     full_name: "",
     role: "theorist",
+    email: "",
+    url: "",
     summary: "",
     aka: [],
     concept_ids: [],
@@ -53739,6 +53800,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData({
           full_name: item.full_name || "",
           role: item.role || "theorist",
+          email: item.email || "",
+          url: item.url || "",
           summary: item.summary || "",
           aka: item.aka || [],
           concept_ids: item.concept_ids || [],
@@ -53749,6 +53812,8 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData({
           full_name: "",
           role: "theorist",
+          email: "",
+          url: "",
           summary: "",
           aka: [],
           concept_ids: [],
@@ -53971,7 +54036,55 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "researcher" }, "Researcher"),
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "peer" }, "Peer"),
       /* @__PURE__ */ import_react21.default.createElement("option", { value: "client" }, "Client")
-    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react21.default.createElement(
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Email"), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "email",
+        value: formData.email,
+        onChange: (e3) => setFormData({ ...formData, email: e3.target.value }),
+        className: "form-input",
+        style: {
+          width: "100%",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-base)"
+        },
+        onFocus: (e3) => {
+          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
+          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)";
+          e3.currentTarget.style.padding = "calc(var(--space-3) - 1px)";
+        },
+        onBlur: (e3) => {
+          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+          e3.currentTarget.style.boxShadow = "none";
+          e3.currentTarget.style.padding = "var(--space-3)";
+        },
+        placeholder: "email@example.com"
+      }
+    )), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "URL"), /* @__PURE__ */ import_react21.default.createElement(
+      "input",
+      {
+        type: "url",
+        value: formData.url,
+        onChange: (e3) => setFormData({ ...formData, url: e3.target.value }),
+        className: "form-input",
+        style: {
+          width: "100%",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-base)"
+        },
+        onFocus: (e3) => {
+          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
+          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)";
+          e3.currentTarget.style.padding = "calc(var(--space-3) - 1px)";
+        },
+        onBlur: (e3) => {
+          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+          e3.currentTarget.style.boxShadow = "none";
+          e3.currentTarget.style.padding = "var(--space-3)";
+        },
+        placeholder: "https://..."
+      }
+    ))), /* @__PURE__ */ import_react21.default.createElement("div", null, /* @__PURE__ */ import_react21.default.createElement("label", { className: "form-label" }, "Also Known As (one per line)"), /* @__PURE__ */ import_react21.default.createElement(
       "textarea",
       {
         value: formData.aka.join("\n"),
@@ -54384,76 +54497,262 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
     }
     return null;
   };
-  return /* @__PURE__ */ import_react23.default.createElement(Modal, { isOpen, onClose, title: "Review Authors", size: "large" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-4 max-h-[70vh] overflow-y-auto px-1" }, /* @__PURE__ */ import_react23.default.createElement("p", { className: "text-sm text-gray-600 mb-4" }, "We detected ", authors.length, " author", authors.length !== 1 ? "s" : "", ". You can link to existing people in your database or add more details before creating new records."), authorData.map((author, index8) => {
+  return /* @__PURE__ */ import_react23.default.createElement(Modal, { isOpen, onClose, title: "Review Authors", size: "large" }, /* @__PURE__ */ import_react23.default.createElement("div", { style: { maxHeight: "70vh", overflowY: "auto", padding: "var(--space-4)" } }, /* @__PURE__ */ import_react23.default.createElement("p", { style: {
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-4)",
+    fontFamily: "var(--font-body)"
+  } }, "We detected ", authors.length, " author", authors.length !== 1 ? "s" : "", ". You can link to existing people in your database or add more details before creating new records."), /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, authorData.map((author, index8) => {
     const linkedPerson = getLinkedPerson(author);
     const hasPotentialMatches = author.potentialMatches && author.potentialMatches.length > 0;
-    return /* @__PURE__ */ import_react23.default.createElement("div", { key: index8, className: "border border-gray-300 rounded p-4 bg-white" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "mb-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs text-gray-500 mb-1" }, "From citation:"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "font-medium text-gray-900" }, author.originalName)), author.action === "link" && linkedPerson ? (
+    return /* @__PURE__ */ import_react23.default.createElement("div", { key: index8, style: {
+      border: "1px solid var(--neutral-300)",
+      borderRadius: "4px",
+      padding: "var(--space-4)",
+      background: "white"
+    } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: { marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-1)",
+      fontFamily: "var(--font-body)"
+    } }, "From citation:"), /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+      fontWeight: 500,
+      color: "var(--neutral-900)",
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)"
+    } }, author.originalName)), author.action === "link" && linkedPerson ? (
       /* Linked State */
-      /* @__PURE__ */ import_react23.default.createElement("div", { className: "bg-primary-light bg-opacity-20 border border-primary-light rounded p-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-sm font-medium text-primary" }, "\u2713 Linked to existing person"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-sm mt-1" }, linkedPerson.full_name), linkedPerson.role && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs text-gray-600" }, linkedPerson.role)), /* @__PURE__ */ import_react23.default.createElement(
+      /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        background: "var(--accent-gold-light)",
+        border: "1px solid var(--accent-gold)",
+        borderRadius: "4px",
+        padding: "var(--space-3)"
+      } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        color: "var(--accent-gold)",
+        fontFamily: "var(--font-body)"
+      } }, "\u2713 Linked to existing person"), /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        fontSize: "var(--text-sm)",
+        marginTop: "var(--space-1)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-900)"
+      } }, linkedPerson.full_name), linkedPerson.role && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-600)",
+        fontFamily: "var(--font-body)"
+      } }, linkedPerson.role)), /* @__PURE__ */ import_react23.default.createElement(
         "button",
         {
           type: "button",
           onClick: () => handleUnlink(index8),
-          className: "text-xs text-accent hover:text-accent-dark px-3 py-1 border border-gray-300 rounded bg-white"
+          style: {
+            fontSize: "var(--text-xs)",
+            color: "var(--accent-gold)",
+            padding: "var(--space-1) var(--space-3)",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            background: "white",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            fontWeight: 500,
+            transition: "all 0.15s"
+          },
+          onMouseEnter: (e3) => {
+            e3.currentTarget.style.background = "var(--neutral-100)";
+          },
+          onMouseLeave: (e3) => {
+            e3.currentTarget.style.background = "white";
+          }
         },
         "Unlink"
       )))
     ) : (
       /* Create New Person State */
-      /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "First Name(s)"), /* @__PURE__ */ import_react23.default.createElement(
+      /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label", style: {
+        display: "block",
+        fontSize: "var(--text-xs)",
+        fontWeight: 500,
+        marginBottom: "var(--space-1)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-700)"
+      } }, "First Name(s)"), /* @__PURE__ */ import_react23.default.createElement(
         "input",
         {
           type: "text",
           value: author.firstName,
           onChange: (e3) => handleFieldChange(index8, "firstName", e3.target.value),
-          className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
-          placeholder: "e.g., Peter or P"
+          className: "form-input",
+          placeholder: "e.g., Peter or P",
+          style: {
+            width: "100%",
+            padding: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            fontFamily: "var(--font-body)"
+          }
         }
-      )), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Middle Name(s)"), /* @__PURE__ */ import_react23.default.createElement(
+      )), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label", style: {
+        display: "block",
+        fontSize: "var(--text-xs)",
+        fontWeight: 500,
+        marginBottom: "var(--space-1)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-700)"
+      } }, "Middle Name(s)"), /* @__PURE__ */ import_react23.default.createElement(
         "input",
         {
           type: "text",
           value: author.middleName,
           onChange: (e3) => handleFieldChange(index8, "middleName", e3.target.value),
-          className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
-          placeholder: "e.g., Michael or M"
+          className: "form-input",
+          placeholder: "e.g., Michael or M",
+          style: {
+            width: "100%",
+            padding: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            fontFamily: "var(--font-body)"
+          }
         }
-      ))), /* @__PURE__ */ import_react23.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "Last Name *"), /* @__PURE__ */ import_react23.default.createElement(
+      ))), /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label", style: {
+        display: "block",
+        fontSize: "var(--text-xs)",
+        fontWeight: 500,
+        marginBottom: "var(--space-1)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-700)"
+      } }, "Last Name *"), /* @__PURE__ */ import_react23.default.createElement(
         "input",
         {
           type: "text",
           value: author.lastName,
           onChange: (e3) => handleFieldChange(index8, "lastName", e3.target.value),
-          className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
-          placeholder: "e.g., Gollwitzer"
+          className: "form-input",
+          placeholder: "e.g., Gollwitzer",
+          style: {
+            width: "100%",
+            padding: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            fontFamily: "var(--font-body)"
+          }
         }
-      )), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "block text-xs font-medium mb-1" }, "ORCID (optional)"), /* @__PURE__ */ import_react23.default.createElement(
+      )), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label", style: {
+        display: "block",
+        fontSize: "var(--text-xs)",
+        fontWeight: 500,
+        marginBottom: "var(--space-1)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-700)"
+      } }, "ORCID (optional)"), /* @__PURE__ */ import_react23.default.createElement(
         "input",
         {
           type: "text",
           value: author.orcid,
           onChange: (e3) => handleFieldChange(index8, "orcid", e3.target.value),
-          className: "w-full px-3 py-2 text-sm border border-gray-300 rounded",
-          placeholder: "0000-0000-0000-0000"
+          className: "form-input",
+          placeholder: "0000-0000-0000-0000",
+          style: {
+            width: "100%",
+            padding: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            fontFamily: "var(--font-body)"
+          }
         }
-      )))), author.loadingMatches && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mt-3 text-xs text-gray-500" }, "Searching for existing people..."), !author.loadingMatches && hasPotentialMatches && /* @__PURE__ */ import_react23.default.createElement("div", { className: "mt-4 pt-3 border-t border-gray-200" }, /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs font-medium text-gray-700 mb-2" }, "Could this be one of these existing people?"), /* @__PURE__ */ import_react23.default.createElement("div", { className: "space-y-2" }, author.potentialMatches.map((person) => /* @__PURE__ */ import_react23.default.createElement(
+      )))), author.loadingMatches && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        marginTop: "var(--space-3)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        fontFamily: "var(--font-body)"
+      } }, "Searching for existing people..."), !author.loadingMatches && hasPotentialMatches && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        marginTop: "var(--space-4)",
+        paddingTop: "var(--space-3)",
+        borderTop: "1px solid var(--neutral-200)"
+      } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        fontSize: "var(--text-xs)",
+        fontWeight: 500,
+        color: "var(--neutral-700)",
+        marginBottom: "var(--space-2)",
+        fontFamily: "var(--font-body)"
+      } }, "Could this be one of these existing people?"), /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, author.potentialMatches.map((person) => /* @__PURE__ */ import_react23.default.createElement(
         "button",
         {
           key: person.id,
           type: "button",
           onClick: () => handleLinkToPerson(index8, person),
-          className: "w-full text-left px-3 py-2 text-sm bg-sand hover:bg-primary-light rounded border border-gray-200"
+          style: {
+            width: "100%",
+            textAlign: "left",
+            padding: "var(--space-2) var(--space-3)",
+            fontSize: "var(--text-sm)",
+            background: "var(--neutral-100)",
+            borderRadius: "4px",
+            border: "1px solid var(--neutral-200)",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            transition: "all 0.15s"
+          },
+          onMouseEnter: (e3) => {
+            e3.currentTarget.style.background = "var(--accent-gold-light)";
+            e3.currentTarget.style.borderColor = "var(--accent-gold)";
+          },
+          onMouseLeave: (e3) => {
+            e3.currentTarget.style.background = "var(--neutral-100)";
+            e3.currentTarget.style.borderColor = "var(--neutral-200)";
+          }
         },
-        /* @__PURE__ */ import_react23.default.createElement("div", { className: "font-medium" }, person.full_name),
-        person.role && /* @__PURE__ */ import_react23.default.createElement("div", { className: "text-xs text-gray-600" }, person.role)
+        /* @__PURE__ */ import_react23.default.createElement("div", { style: { fontWeight: 500 } }, person.full_name),
+        person.role && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-600)"
+        } }, person.role)
       )))))
     ));
-  }), /* @__PURE__ */ import_react23.default.createElement("div", { className: "flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200 sticky bottom-0 bg-white" }, /* @__PURE__ */ import_react23.default.createElement(
+  })), /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "var(--space-3)",
+    paddingTop: "var(--space-4)",
+    paddingBottom: "var(--space-4)",
+    borderTop: "1px solid var(--neutral-200)",
+    position: "sticky",
+    bottom: 0,
+    background: "white",
+    marginTop: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react23.default.createElement(
     "button",
     {
       type: "button",
       onClick: handleConfirm,
-      className: "btn-primary"
+      className: "btn-primary",
+      style: {
+        background: "var(--accent-gold)",
+        color: "white",
+        border: "none",
+        padding: "var(--space-3) var(--space-4)",
+        borderRadius: "4px",
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-base)",
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "#8a6624";
+        e3.currentTarget.style.transform = "translateY(-1px)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-gold)";
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "none";
+      }
     },
     "Confirm & Save"
   ), /* @__PURE__ */ import_react23.default.createElement(
@@ -54461,7 +54760,25 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
     {
       type: "button",
       onClick: onClose,
-      className: "btn-secondary"
+      className: "btn-secondary",
+      style: {
+        background: "white",
+        color: "var(--neutral-700)",
+        border: "1px solid var(--neutral-300)",
+        padding: "var(--space-3) var(--space-4)",
+        borderRadius: "4px",
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-base)",
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "var(--neutral-100)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "white";
+      }
     },
     "Cancel"
   ))));
@@ -54981,7 +55298,8 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       {
         value: formData.kind,
         onChange: (e3) => setFormData({ ...formData, kind: e3.target.value }),
-        className: "form-select"
+        className: "form-select",
+        style: { height: "42px" }
       },
       /* @__PURE__ */ import_react24.default.createElement("option", { value: "article" }, "Article"),
       /* @__PURE__ */ import_react24.default.createElement("option", { value: "book" }, "Book"),
@@ -55001,7 +55319,8 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         value: formData.year,
         onChange: (e3) => setFormData({ ...formData, year: e3.target.value }),
         className: "form-input",
-        placeholder: "2024"
+        placeholder: "2024",
+        style: { height: "42px" }
       }
     ))), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label" }, "URL"), /* @__PURE__ */ import_react24.default.createElement(
       "input",
@@ -55356,13 +55675,13 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       fontWeight: 700,
       color: "var(--accent-blue)",
       marginBottom: "var(--space-4)"
-    } }, "Concepts & Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)", height: "100%" } }, /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flexDirection: "column" } }, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label" }, "Concepts"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react24.default.createElement(
+    } }, "Concepts & Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label", style: { marginBottom: "var(--space-2)", display: "block" } }, "Concepts"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { height: "400px", overflowY: "auto" } }, /* @__PURE__ */ import_react24.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
         onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
       }
-    ))), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flexDirection: "column" } }, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label" }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react24.default.createElement(
+    ))), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label", style: { marginBottom: "var(--space-2)", display: "block" } }, "Tags"), /* @__PURE__ */ import_react24.default.createElement("div", { style: { height: "400px", overflowY: "auto" } }, /* @__PURE__ */ import_react24.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
@@ -55529,14 +55848,7 @@ var ConceptSidebar = import_react25.default.memo(({
           }
         }
       },
-      c5.label,
-      c5.node_type && /* @__PURE__ */ import_react25.default.createElement("div", { style: {
-        fontSize: "var(--text-xs)",
-        color: "var(--neutral-500)",
-        marginTop: "var(--space-1)",
-        textTransform: "uppercase",
-        letterSpacing: "0.05em"
-      } }, c5.node_type.replace(/_/g, " "))
+      c5.label
     ))))
   );
 });
@@ -61912,11 +62224,14 @@ function PeopleIndex() {
   const [people, setPeople] = (0, import_react29.useState)([]);
   const [loading, setLoading] = (0, import_react29.useState)(true);
   const [showForm, setShowForm] = (0, import_react29.useState)(false);
+  const [editingPerson, setEditingPerson] = (0, import_react29.useState)(null);
   const [selectedRoles, setSelectedRoles] = (0, import_react29.useState)([]);
   const [selectedConcepts, setSelectedConcepts] = (0, import_react29.useState)([]);
   const [selectedTags, setSelectedTags] = (0, import_react29.useState)([]);
   const [searchQuery, setSearchQuery] = (0, import_react29.useState)("");
   const [sidebarOpen, setSidebarOpen] = (0, import_react29.useState)(true);
+  const [sortField, setSortField] = (0, import_react29.useState)("name");
+  const [sortDirection, setSortDirection] = (0, import_react29.useState)("asc");
   (0, import_react29.useEffect)(() => {
     fetchPeople();
   }, []);
@@ -61997,6 +62312,48 @@ function PeopleIndex() {
     setSearchQuery("");
   };
   const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 || selectedTags.length > 0 || searchQuery;
+  const sortedPeople = [...filteredPeople].sort((a5, b2) => {
+    let aVal, bVal;
+    switch (sortField) {
+      case "name":
+        aVal = a5.full_name || "";
+        bVal = b2.full_name || "";
+        break;
+      case "role":
+        aVal = a5.role || "";
+        bVal = b2.role || "";
+        break;
+      case "sources":
+        aVal = a5.sources_count || 0;
+        bVal = b2.sources_count || 0;
+        break;
+      case "notes":
+        aVal = a5.notes_count || 0;
+        bVal = b2.notes_count || 0;
+        break;
+      case "tags":
+        aVal = (a5.tags || []).length;
+        bVal = (b2.tags || []).length;
+        break;
+      default:
+        aVal = a5.full_name || "";
+        bVal = b2.full_name || "";
+    }
+    if (typeof aVal === "string") {
+      const comparison = aVal.localeCompare(bVal);
+      return sortDirection === "asc" ? comparison : -comparison;
+    } else {
+      return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+    }
+  });
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-lg" }, "Loading people..."));
   }
@@ -62363,11 +62720,16 @@ function PeopleIndex() {
     PersonFormModal,
     {
       isOpen: showForm,
-      onClose: () => setShowForm(false),
+      onClose: () => {
+        setShowForm(false);
+        setEditingPerson(null);
+      },
       onSuccess: () => {
         fetchPeople();
         setShowForm(false);
-      }
+        setEditingPerson(null);
+      },
+      item: editingPerson
     }
   ), /* @__PURE__ */ import_react29.default.createElement("div", { style: {
     flex: 1,
@@ -62375,7 +62737,7 @@ function PeopleIndex() {
     padding: "var(--space-6)",
     paddingLeft: "calc(var(--space-6) + 24px)",
     background: "var(--background)"
-  } }, filteredPeople.length === 0 ? /* @__PURE__ */ import_react29.default.createElement(
+  } }, sortedPeople.length === 0 ? /* @__PURE__ */ import_react29.default.createElement(
     "div",
     {
       style: {
@@ -62388,10 +62750,139 @@ function PeopleIndex() {
     },
     /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-lg)", marginBottom: "1rem", color: "var(--neutral-700)" } }, "No people found."),
     /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, hasActiveFilters ? "Try adjusting your filters." : "Add your first person to track intellectual lineage and influence.")
-  ) : /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, filteredPeople.map((person) => /* @__PURE__ */ import_react29.default.createElement(PersonCard, { key: person.id, person, onUpdate: fetchPeople }))))));
+  ) : /* @__PURE__ */ import_react29.default.createElement("div", { style: { background: "white", borderRadius: "4px", border: "1px solid var(--neutral-200)", overflow: "hidden" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { overflowX: "auto" } }, /* @__PURE__ */ import_react29.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse", minWidth: "800px" } }, /* @__PURE__ */ import_react29.default.createElement("thead", { style: { background: "var(--neutral-50)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react29.default.createElement("tr", null, /* @__PURE__ */ import_react29.default.createElement(
+    "th",
+    {
+      onClick: () => handleSort("name"),
+      style: {
+        fontFamily: "var(--font-display)",
+        textAlign: "left",
+        padding: "0.75rem 1rem",
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "color 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
+    },
+    "Name ",
+    sortField === "name" && /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
+  ), /* @__PURE__ */ import_react29.default.createElement(
+    "th",
+    {
+      onClick: () => handleSort("role"),
+      style: {
+        fontFamily: "var(--font-display)",
+        textAlign: "left",
+        padding: "0.75rem 1rem",
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "color 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
+    },
+    "Role ",
+    sortField === "role" && /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
+  ), /* @__PURE__ */ import_react29.default.createElement("th", { style: {
+    fontFamily: "var(--font-display)",
+    textAlign: "center",
+    padding: "0.75rem 1rem",
+    fontWeight: 600,
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-700)",
+    width: "80px"
+  } }, "Contact"), /* @__PURE__ */ import_react29.default.createElement(
+    "th",
+    {
+      onClick: () => handleSort("sources"),
+      style: {
+        fontFamily: "var(--font-display)",
+        textAlign: "center",
+        padding: "0.75rem 1rem",
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "color 0.15s",
+        width: "100px"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
+    },
+    "Sources ",
+    sortField === "sources" && /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
+  ), /* @__PURE__ */ import_react29.default.createElement(
+    "th",
+    {
+      onClick: () => handleSort("notes"),
+      style: {
+        fontFamily: "var(--font-display)",
+        textAlign: "center",
+        padding: "0.75rem 1rem",
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "color 0.15s",
+        width: "100px"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
+    },
+    "Notes ",
+    sortField === "notes" && /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
+  ), /* @__PURE__ */ import_react29.default.createElement(
+    "th",
+    {
+      onClick: () => handleSort("tags"),
+      style: {
+        fontFamily: "var(--font-display)",
+        textAlign: "center",
+        padding: "0.75rem 1rem",
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "color 0.15s",
+        width: "100px"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
+    },
+    "Tags ",
+    sortField === "tags" && /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
+  ), /* @__PURE__ */ import_react29.default.createElement("th", { style: {
+    fontFamily: "var(--font-display)",
+    textAlign: "right",
+    padding: "0.75rem 1rem",
+    fontWeight: 600,
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-700)",
+    width: "100px"
+  } }, "Actions"))), /* @__PURE__ */ import_react29.default.createElement("tbody", null, sortedPeople.map((person) => /* @__PURE__ */ import_react29.default.createElement(
+    PersonRow,
+    {
+      key: person.id,
+      person,
+      onUpdate: fetchPeople,
+      onEdit: (person2) => {
+        setEditingPerson(person2);
+        setShowForm(true);
+      }
+    }
+  )))))))));
 }
-function PersonCard({ person, onUpdate }) {
-  const [showEdit, setShowEdit] = (0, import_react29.useState)(false);
+function PersonRow({ person, onUpdate, onEdit }) {
   const handleDelete2 = async () => {
     if (!confirm(`Are you sure you want to delete "${person.full_name}"?`)) return;
     try {
@@ -62411,54 +62902,114 @@ function PersonCard({ person, onUpdate }) {
       console.error("Error deleting person:", error);
     }
   };
-  return /* @__PURE__ */ import_react29.default.createElement(import_react29.default.Fragment, null, /* @__PURE__ */ import_react29.default.createElement(
-    "div",
+  return /* @__PURE__ */ import_react29.default.createElement(
+    "tr",
     {
-      className: "card",
       style: {
-        overflow: "hidden",
-        transition: "all 0.2s",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)"
+        borderBottom: "1px solid var(--neutral-200)",
+        transition: "background 0.15s"
       },
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.boxShadow = "0 8px 16px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)";
-        e3.currentTarget.style.transform = "translateY(-2px)";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)";
-        e3.currentTarget.style.transform = "translateY(0)";
-      }
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-50)",
+      onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
-    /* @__PURE__ */ import_react29.default.createElement("div", { style: {
-      background: "var(--card-header)",
-      padding: "var(--space-3) var(--space-4)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottom: "1px solid var(--neutral-200)"
-    } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", flex: 1 } }, /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-user", style: { color: "var(--accent-gold)", fontSize: "var(--text-lg)" } }), /* @__PURE__ */ import_react29.default.createElement(
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, /* @__PURE__ */ import_react29.default.createElement(
       "a",
       {
         href: `/people/${person.id}`,
         style: {
           fontSize: "var(--text-sm)",
-          fontWeight: 600,
+          fontWeight: 500,
           color: "var(--neutral-900)",
           textDecoration: "none",
-          lineHeight: 1.4,
+          fontFamily: "var(--font-body)",
           transition: "color 0.15s"
         },
         onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
       },
       person.full_name
-    )), /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", marginLeft: "var(--space-4)" } }, /* @__PURE__ */ import_react29.default.createElement(
+    )),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, person.role && /* @__PURE__ */ import_react29.default.createElement(
+      "span",
+      {
+        className: "tag",
+        style: {
+          textTransform: "uppercase",
+          background: "var(--accent-gold-light)",
+          color: "var(--accent-gold)",
+          fontSize: "var(--text-xs)",
+          padding: "0.25rem 0.5rem"
+        }
+      },
+      person.role.replace(/_/g, " ")
+    )),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "center" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--space-2)" } }, person.email && /* @__PURE__ */ import_react29.default.createElement(
+      "a",
+      {
+        href: `mailto:${person.email}`,
+        style: {
+          color: "var(--accent-gold)",
+          fontSize: "var(--text-sm)",
+          transition: "color 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
+        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+        title: person.email
+      },
+      /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-envelope" })
+    ), person.url && /* @__PURE__ */ import_react29.default.createElement(
+      "a",
+      {
+        href: person.url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          color: "var(--accent-gold)",
+          fontSize: "var(--text-sm)",
+          transition: "color 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
+        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)",
+        title: person.url
+      },
+      /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-link" })
+    ))),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: {
+      padding: "0.75rem 1rem",
+      textAlign: "center",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-600)",
+      fontFamily: "var(--font-body)"
+    } }, person.sources_count || 0),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: {
+      padding: "0.75rem 1rem",
+      textAlign: "center",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-600)",
+      fontFamily: "var(--font-body)"
+    } }, person.notes_count || 0),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: {
+      padding: "0.75rem 1rem",
+      textAlign: "center",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-600)",
+      fontFamily: "var(--font-body)"
+    } }, (person.tags || []).length),
+    /* @__PURE__ */ import_react29.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "right" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react29.default.createElement(
       "button",
       {
-        onClick: () => setShowEdit(true),
+        onClick: () => onEdit(person),
         className: "icon-btn",
         title: "Edit",
-        style: { color: "var(--accent-gold)" },
+        style: {
+          color: "var(--accent-gold)",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "0.25rem",
+          fontSize: "var(--text-sm)",
+          transition: "color 0.15s"
+        },
         onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
       },
@@ -62469,58 +63020,21 @@ function PersonCard({ person, onUpdate }) {
         onClick: handleDelete2,
         className: "icon-btn",
         title: "Delete",
-        style: { color: "var(--accent-gold)" },
+        style: {
+          color: "var(--accent-gold)",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer",
+          padding: "0.25rem",
+          fontSize: "var(--text-sm)",
+          transition: "color 0.15s"
+        },
         onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
       },
       /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-trash" })
-    ))),
-    /* @__PURE__ */ import_react29.default.createElement("div", { style: { padding: "var(--space-4)" } }, (person.role || person.aka?.length > 0) && /* @__PURE__ */ import_react29.default.createElement("div", { style: { marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap", fontSize: "var(--text-xs)" } }, person.role && /* @__PURE__ */ import_react29.default.createElement("span", { className: "tag", style: { textTransform: "uppercase", background: "var(--accent-gold-light)", color: "var(--accent-gold)" } }, person.role.replace(/_/g, " ")), person.aka && person.aka.length > 0 && /* @__PURE__ */ import_react29.default.createElement("span", { style: { color: "var(--neutral-600)", fontSize: "var(--text-xs)" } }, "Also known as: ", person.aka.join(", ")))), person.summary && /* @__PURE__ */ import_react29.default.createElement("div", { style: { marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react29.default.createElement(
-      "div",
-      {
-        style: {
-          fontSize: "var(--text-xs)",
-          lineHeight: 1.6,
-          color: "var(--neutral-700)",
-          display: "-webkit-box",
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden"
-        },
-        dangerouslySetInnerHTML: { __html: person.summary }
-      }
-    )), (person.concepts?.length > 0 || person.tags?.length > 0) && /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, person.concepts?.map((concept) => /* @__PURE__ */ import_react29.default.createElement(
-      "a",
-      {
-        key: concept.id,
-        href: `/concepts/${concept.id}`,
-        className: "tag concept",
-        style: { textDecoration: "none" }
-      },
-      concept.label
-    )), person.tags?.map((tag, idx) => /* @__PURE__ */ import_react29.default.createElement("span", { key: idx, className: "tag tag-purple" }, tag)))),
-    /* @__PURE__ */ import_react29.default.createElement("div", { style: {
-      padding: "var(--space-2) var(--space-4)",
-      background: "var(--card-footer)",
-      borderTop: "1px solid var(--neutral-200)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-500)"
-    } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react29.default.createElement("span", null, person.sources_count || 0, " source", person.sources_count !== 1 ? "s" : ""), /* @__PURE__ */ import_react29.default.createElement("span", null, "\u2022"), /* @__PURE__ */ import_react29.default.createElement("span", null, person.notes_count || 0, " note", person.notes_count !== 1 ? "s" : "")), /* @__PURE__ */ import_react29.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Updated ", new Date(person.updated_at).toLocaleDateString()))
-  ), /* @__PURE__ */ import_react29.default.createElement(
-    PersonFormModal,
-    {
-      isOpen: showEdit,
-      onClose: () => setShowEdit(false),
-      onSuccess: () => {
-        onUpdate();
-        setShowEdit(false);
-      },
-      item: person
-    }
-  ));
+    )))
+  );
 }
 
 // app/javascript/components/PersonShow.js
@@ -62832,6 +63346,12 @@ function PersonShow({ personId: initialPersonId }) {
   const [showConceptModal, setShowConceptModal] = (0, import_react31.useState)(false);
   const [showSourceModal, setShowSourceModal] = (0, import_react31.useState)(false);
   const [showTagModal, setShowTagModal] = (0, import_react31.useState)(false);
+  const [showLinkConceptModal, setShowLinkConceptModal] = (0, import_react31.useState)(false);
+  const [showLinkSourceModal, setShowLinkSourceModal] = (0, import_react31.useState)(false);
+  const [showLinkTagModal, setShowLinkTagModal] = (0, import_react31.useState)(false);
+  const [selectedConceptIds, setSelectedConceptIds] = (0, import_react31.useState)([]);
+  const [selectedSourceIds, setSelectedSourceIds] = (0, import_react31.useState)([]);
+  const [selectedTags, setSelectedTags] = (0, import_react31.useState)([]);
   const [allPeople, setAllPeople] = (0, import_react31.useState)([]);
   const [peopleLoading, setPeopleLoading] = (0, import_react31.useState)(true);
   const [searchQuery, setSearchQuery] = (0, import_react31.useState)("");
@@ -62901,6 +63421,84 @@ function PersonShow({ personId: initialPersonId }) {
     } catch (error) {
       console.error("Error deleting person:", error);
       alert("Error deleting person");
+    }
+  };
+  const handleLinkConcepts = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          person: {
+            concept_ids: selectedConceptIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkConceptModal(false);
+        setSelectedConceptIds([]);
+      } else {
+        alert("Error linking concepts");
+      }
+    } catch (error) {
+      console.error("Error linking concepts:", error);
+      alert("Error linking concepts");
+    }
+  };
+  const handleLinkSources = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          person: {
+            source_ids: selectedSourceIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkSourceModal(false);
+        setSelectedSourceIds([]);
+      } else {
+        alert("Error linking sources");
+      }
+    } catch (error) {
+      console.error("Error linking sources:", error);
+      alert("Error linking sources");
+    }
+  };
+  const handleLinkTags = async () => {
+    try {
+      const response = await fetch(`/people/${currentPersonId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          person: {
+            tags: selectedTags
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchPerson();
+        setShowLinkTagModal(false);
+        setSelectedTags([]);
+      } else {
+        alert("Error linking tags");
+      }
+    } catch (error) {
+      console.error("Error linking tags:", error);
+      alert("Error linking tags");
     }
   };
   return /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react31.default.createElement(
@@ -62997,7 +63595,52 @@ function PersonShow({ personId: initialPersonId }) {
     lineHeight: 1.2,
     marginBottom: "var(--space-3)",
     textAlign: "center"
-  } }, person.full_name), /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap", justifyContent: "center" } }, person.role && /* @__PURE__ */ import_react31.default.createElement("span", { className: "tag", style: { background: "var(--accent-gold-light)", color: "var(--accent-gold)", textTransform: "uppercase" } }, person.role)))), /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react31.default.createElement("h2", { style: {
+  } }, person.full_name), /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap", justifyContent: "center" } }, person.role && /* @__PURE__ */ import_react31.default.createElement("span", { className: "tag", style: { background: "var(--accent-gold-light)", color: "var(--accent-gold)", textTransform: "uppercase" } }, person.role)), (person.email || person.url) && /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-4)",
+    justifyContent: "center",
+    marginTop: "var(--space-3)",
+    fontSize: "var(--text-sm)",
+    fontFamily: "var(--font-body)",
+    color: "var(--neutral-600)"
+  } }, person.email && /* @__PURE__ */ import_react31.default.createElement(
+    "a",
+    {
+      href: `mailto:${person.email}`,
+      style: {
+        color: "var(--accent-gold)",
+        textDecoration: "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        transition: "color 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-envelope" }),
+    /* @__PURE__ */ import_react31.default.createElement("span", null, person.email)
+  ), person.url && /* @__PURE__ */ import_react31.default.createElement(
+    "a",
+    {
+      href: person.url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        color: "var(--accent-gold)",
+        textDecoration: "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        transition: "color 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-link" }),
+    /* @__PURE__ */ import_react31.default.createElement("span", null, "Website")
+  )))), /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react31.default.createElement("h2", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
@@ -63031,7 +63674,44 @@ function PersonShow({ personId: initialPersonId }) {
     fontFamily: "var(--font-display)",
     color: "var(--accent-green)",
     margin: 0
-  } }, "Related Concepts (", person.concepts?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement(
+  } }, "Related Concepts (", person.concepts?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedConceptIds(person.concepts?.map((c5) => c5.id) || []);
+        setShowLinkConceptModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-green)",
+        border: "2px solid var(--accent-green)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-green)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-green)";
+      },
+      title: "Link Existing Concept"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       onClick: () => setShowConceptModal(true),
@@ -63061,32 +63741,39 @@ function PersonShow({ personId: initialPersonId }) {
       title: "New Concept"
     },
     /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-plus" })
-  )), person.concepts && person.concepts.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, person.concepts.map((concept) => /* @__PURE__ */ import_react31.default.createElement(
-    "div",
+  ))), person.concepts && person.concepts.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+    gap: "var(--space-3)"
+  } }, person.concepts.map((concept) => /* @__PURE__ */ import_react31.default.createElement(
+    "a",
     {
       key: concept.id,
+      href: `/concepts/${concept.id}`,
       className: "card",
       style: {
-        padding: "var(--space-4)",
+        padding: "var(--space-3)",
+        textDecoration: "none",
+        borderLeft: "3px solid var(--accent-green)",
         transition: "all 0.15s",
         cursor: "pointer"
       },
-      onClick: () => window.location.href = `/concepts/${concept.id}`,
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-green-light)";
-        e3.currentTarget.style.borderColor = "var(--accent-green)";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.background = "white";
-        e3.currentTarget.style.borderColor = "var(--neutral-200)";
-      }
+      onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
+      onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
-    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ import_react31.default.createElement("span", { style: {
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       color: "var(--neutral-900)",
+      fontFamily: "var(--font-body)",
+      marginBottom: concept.node_type ? "var(--space-1)" : "0"
+    } }, concept.label),
+    concept.node_type && /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-600)",
+      textTransform: "capitalize",
       fontFamily: "var(--font-body)"
-    } }, concept.label), concept.node_type && /* @__PURE__ */ import_react31.default.createElement("span", { className: "tag", style: { background: "var(--accent-green-light)", color: "var(--accent-green)", textTransform: "capitalize" } }, concept.node_type))
+    } }, concept.node_type)
   ))) : /* @__PURE__ */ import_react31.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No related concepts")), /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: {
     display: "flex",
     justifyContent: "space-between",
@@ -63098,7 +63785,44 @@ function PersonShow({ personId: initialPersonId }) {
     fontFamily: "var(--font-display)",
     color: "var(--accent-blue)",
     margin: 0
-  } }, "Related Sources (", person.sources?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement(
+  } }, "Related Sources (", person.sources?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedSourceIds(person.sources?.map((s3) => s3.id) || []);
+        setShowLinkSourceModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-blue)",
+        border: "2px solid var(--accent-blue)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-blue)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-blue)";
+      },
+      title: "Link Existing Source"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       onClick: () => setShowSourceModal(true),
@@ -63128,34 +63852,38 @@ function PersonShow({ personId: initialPersonId }) {
       title: "New Source"
     },
     /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-plus" })
-  )), person.sources && person.sources.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, person.sources.map((source) => /* @__PURE__ */ import_react31.default.createElement(
-    "div",
+  ))), person.sources && person.sources.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+    gap: "var(--space-3)"
+  } }, person.sources.map((source) => /* @__PURE__ */ import_react31.default.createElement(
+    "a",
     {
       key: source.id,
+      href: `/sources/${source.id}`,
       className: "card",
       style: {
-        padding: "var(--space-4)",
+        padding: "var(--space-3)",
+        textDecoration: "none",
+        borderLeft: "3px solid var(--accent-blue)",
         transition: "all 0.15s",
         cursor: "pointer"
       },
-      onClick: () => window.location.href = `/sources/${source.id}`,
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-blue-light)";
-        e3.currentTarget.style.borderColor = "var(--accent-blue)";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.background = "white";
-        e3.currentTarget.style.borderColor = "var(--neutral-200)";
-      }
+      onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
+      onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
     /* @__PURE__ */ import_react31.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       color: "var(--neutral-900)",
-      marginBottom: "var(--space-1)",
-      fontFamily: "var(--font-body)"
+      fontFamily: "var(--font-body)",
+      marginBottom: source.authors || source.year ? "var(--space-1)" : "0"
     } }, source.title),
-    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)", color: "var(--neutral-600)" } }, source.authors && /* @__PURE__ */ import_react31.default.createElement("span", null, source.authors), source.year && /* @__PURE__ */ import_react31.default.createElement("span", null, "(", source.year, ")"))
+    (source.authors || source.year) && /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-600)",
+      fontFamily: "var(--font-body)"
+    } }, source.authors && /* @__PURE__ */ import_react31.default.createElement("span", null, source.authors), source.year && /* @__PURE__ */ import_react31.default.createElement("span", null, source.authors ? ` (${source.year})` : `${source.year}`))
   ))) : /* @__PURE__ */ import_react31.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No related sources")), /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: {
     display: "flex",
     justifyContent: "space-between",
@@ -63167,7 +63895,44 @@ function PersonShow({ personId: initialPersonId }) {
     fontFamily: "var(--font-display)",
     color: "var(--accent-purple)",
     margin: 0
-  } }, "Tags (", person.tags?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement(
+  } }, "Tags (", person.tags?.length || 0, ")"), /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedTags(person.tags || []);
+        setShowLinkTagModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-purple)",
+        border: "2px solid var(--accent-purple)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-purple)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-purple)";
+      },
+      title: "Link Existing Tag"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
       onClick: () => setShowTagModal(true),
@@ -63197,7 +63962,30 @@ function PersonShow({ personId: initialPersonId }) {
       title: "New Tag"
     },
     /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-plus" })
-  )), person.tags && person.tags.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", flexWrap: "wrap" } }, person.tags.map((tag, idx) => /* @__PURE__ */ import_react31.default.createElement("span", { key: idx, className: "tag tag-purple" }, tag))) : /* @__PURE__ */ import_react31.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No tags")))), /* @__PURE__ */ import_react31.default.createElement(
+  ))), person.tags && person.tags.length > 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+    gap: "var(--space-3)"
+  } }, person.tags.map((tag, idx) => /* @__PURE__ */ import_react31.default.createElement(
+    "div",
+    {
+      key: idx,
+      className: "card",
+      style: {
+        padding: "var(--space-3)",
+        borderLeft: "3px solid var(--accent-purple)",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
+      onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      fontSize: "var(--text-sm)",
+      fontWeight: 600,
+      color: "var(--neutral-900)",
+      fontFamily: "var(--font-body)"
+    } }, tag)
+  ))) : /* @__PURE__ */ import_react31.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No tags")))), /* @__PURE__ */ import_react31.default.createElement(
     PersonFormModal,
     {
       isOpen: showEditModal,
@@ -63210,6 +63998,8 @@ function PersonShow({ personId: initialPersonId }) {
         id: person.id,
         full_name: person.full_name,
         role: person.role,
+        email: person.email,
+        url: person.url,
         summary: person.summary,
         aka: person.aka || [],
         concept_ids: person.concepts ? person.concepts.map((c5) => c5.id) : [],
@@ -63250,6 +64040,177 @@ function PersonShow({ personId: initialPersonId }) {
       },
       item: null
     }
+  ), /* @__PURE__ */ import_react31.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkConceptModal,
+      onClose: () => {
+        setShowLinkConceptModal(false);
+        setSelectedConceptIds([]);
+      },
+      title: "Link Existing Concepts",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      ConceptSelector,
+      {
+        selectedConceptIds,
+        onChange: setSelectedConceptIds
+      }
+    )),
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          setShowLinkConceptModal(false);
+          setSelectedConceptIds([]);
+        },
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "white",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 500
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: handleLinkConcepts,
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "var(--accent-green)",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600
+        }
+      },
+      "Save (",
+      selectedConceptIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react31.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkSourceModal,
+      onClose: () => {
+        setShowLinkSourceModal(false);
+        setSelectedSourceIds([]);
+      },
+      title: "Link Existing Sources",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      SourceSelector,
+      {
+        selectedSourceIds,
+        onChange: setSelectedSourceIds
+      }
+    )),
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          setShowLinkSourceModal(false);
+          setSelectedSourceIds([]);
+        },
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "white",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 500
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: handleLinkSources,
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "var(--accent-blue)",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600
+        }
+      },
+      "Save (",
+      selectedSourceIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react31.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkTagModal,
+      onClose: () => {
+        setShowLinkTagModal(false);
+        setSelectedTags([]);
+      },
+      title: "Link Existing Tags",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      TagSelector,
+      {
+        selectedTags,
+        onChange: setSelectedTags
+      }
+    )),
+    /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          setShowLinkTagModal(false);
+          setSelectedTags([]);
+        },
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "white",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 500
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: handleLinkTags,
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          background: "var(--accent-purple)",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600
+        }
+      },
+      "Save (",
+      selectedTags.length,
+      ")"
+    ))
   ));
 }
 
@@ -64516,23 +65477,200 @@ function NotesForm() {
 }
 
 // app/javascript/components/TagsIndex.js
+var import_react37 = __toESM(require_react());
+
+// app/javascript/components/NoteSelector.js
 var import_react36 = __toESM(require_react());
-function TagsIndex() {
-  const [tags, setTags] = (0, import_react36.useState)([]);
-  const [selectedTag, setSelectedTag] = (0, import_react36.useState)(null);
+function NoteSelector({ selectedNoteIds = [], onChange: onChange16, themeColor = "var(--accent-teal)" }) {
+  const [allNotes, setAllNotes] = (0, import_react36.useState)([]);
+  const [filter2, setFilter] = (0, import_react36.useState)("");
   const [loading, setLoading] = (0, import_react36.useState)(true);
-  const [sortBy, setSortBy] = (0, import_react36.useState)("popularity");
-  const [creatingTag, setCreatingTag] = (0, import_react36.useState)(false);
-  const [sidebarOpen, setSidebarOpen] = (0, import_react36.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
   (0, import_react36.useEffect)(() => {
+    fetchNotes();
+  }, []);
+  const fetchNotes = async () => {
+    try {
+      const response = await fetch("/notes.json");
+      const data = await response.json();
+      setAllNotes(data.sort((a5, b2) => new Date(b2.created_at) - new Date(a5.created_at)));
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+      setLoading(false);
+    }
+  };
+  const filteredNotes = filter2 ? allNotes.filter(
+    (note) => note.title && note.title.toLowerCase().includes(filter2.toLowerCase()) || note.body && note.body.toLowerCase().includes(filter2.toLowerCase())
+  ) : allNotes;
+  const handleToggle = (noteId) => {
+    if (selectedNoteIds.includes(noteId)) {
+      onChange16(selectedNoteIds.filter((id2) => id2 !== noteId));
+    } else {
+      onChange16([...selectedNoteIds, noteId]);
+    }
+  };
+  const selectedNotes = allNotes.filter((n3) => selectedNoteIds.includes(n3.id));
+  if (loading) {
+    return /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-500)",
+      fontFamily: "var(--font-body)"
+    } }, "Loading notes...");
+  }
+  return /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    border: "1px solid var(--neutral-300)",
+    borderRadius: "4px",
+    background: "white",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column"
+  } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { padding: "var(--space-3)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react36.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: filter2,
+      onChange: (e3) => setFilter(e3.target.value),
+      placeholder: "Type to filter notes...",
+      className: "form-input",
+      style: { width: "100%", fontSize: "var(--text-sm)" }
+    }
+  )), selectedNotes.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    borderBottom: "1px solid var(--neutral-200)",
+    background: "var(--neutral-50)"
+  } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    fontSize: "var(--text-xs)",
+    fontWeight: 500,
+    marginBottom: "var(--space-2)",
+    color: "var(--neutral-600)",
+    fontFamily: "var(--font-body)"
+  } }, "Selected:"), /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, selectedNotes.map((note) => /* @__PURE__ */ import_react36.default.createElement(
+    "span",
+    {
+      key: note.id,
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        padding: "var(--space-1) var(--space-2)",
+        background: themeColor,
+        color: "white",
+        fontSize: "var(--text-xs)",
+        borderRadius: "4px",
+        fontFamily: "var(--font-body)"
+      }
+    },
+    note.title || `Note ${note.id}`,
+    /* @__PURE__ */ import_react36.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => handleToggle(note.id),
+        style: {
+          background: "none",
+          padding: 0,
+          fontSize: "14px",
+          color: "white",
+          border: "none",
+          cursor: "pointer",
+          opacity: 0.8
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.opacity = "1",
+        onMouseLeave: (e3) => e3.currentTarget.style.opacity = "0.8"
+      },
+      "\xD7"
+    )
+  )))), /* @__PURE__ */ import_react36.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-3)" } }, filteredNotes.length === 0 ? /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)",
+    textAlign: "center",
+    padding: "var(--space-4) 0",
+    fontFamily: "var(--font-body)"
+  } }, filter2 ? "No matching notes." : "No notes yet.") : /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, filteredNotes.map((note) => /* @__PURE__ */ import_react36.default.createElement(
+    "label",
+    {
+      key: note.id,
+      style: {
+        display: "flex",
+        alignItems: "start",
+        gap: "var(--space-2)",
+        cursor: "pointer",
+        padding: "var(--space-2)",
+        borderRadius: "4px",
+        transition: "background 0.15s",
+        fontFamily: "var(--font-body)",
+        border: "1px solid var(--neutral-200)"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-50)",
+      onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+    },
+    /* @__PURE__ */ import_react36.default.createElement(
+      "input",
+      {
+        type: "checkbox",
+        checked: selectedNoteIds.includes(note.id),
+        onChange: () => handleToggle(note.id),
+        style: {
+          marginTop: "2px",
+          borderRadius: "4px",
+          border: "1px solid var(--neutral-300)",
+          accentColor: themeColor,
+          flexShrink: 0
+        }
+      }
+    ),
+    /* @__PURE__ */ import_react36.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-1)" } }, /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      color: "white",
+      background: themeColor,
+      padding: "2px var(--space-1)",
+      borderRadius: "3px",
+      fontWeight: 600
+    } }, note.note_type), note.created_at && /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)"
+    } }, new Date(note.created_at).toLocaleDateString())), note.title && /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+      fontSize: "var(--text-sm)",
+      fontWeight: 600,
+      color: "var(--neutral-900)",
+      marginBottom: "var(--space-1)"
+    } }, note.title), note.body && /* @__PURE__ */ import_react36.default.createElement(
+      "div",
+      {
+        style: {
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-600)",
+          lineHeight: 1.4,
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden"
+        },
+        dangerouslySetInnerHTML: { __html: note.body }
+      }
+    ))
+  )))));
+}
+
+// app/javascript/components/TagsIndex.js
+function TagsIndex() {
+  const [tags, setTags] = (0, import_react37.useState)([]);
+  const [selectedTag, setSelectedTag] = (0, import_react37.useState)(null);
+  const [loading, setLoading] = (0, import_react37.useState)(true);
+  const [sortBy, setSortBy] = (0, import_react37.useState)("popularity");
+  const [creatingTag, setCreatingTag] = (0, import_react37.useState)(false);
+  const [sidebarOpen, setSidebarOpen] = (0, import_react37.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
+  (0, import_react37.useEffect)(() => {
     fetchTags();
   }, [sortBy]);
-  (0, import_react36.useEffect)(() => {
+  (0, import_react37.useEffect)(() => {
     if (tags.length > 0 && !selectedTag) {
       handleTagClick(tags[0]);
     }
   }, [tags]);
-  (0, import_react36.useEffect)(() => {
+  (0, import_react37.useEffect)(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setSidebarOpen(false);
@@ -64587,9 +65725,9 @@ function TagsIndex() {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react36.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react36.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading tags..."));
+    return /* @__PURE__ */ import_react37.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react37.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading tags..."));
   }
-  return /* @__PURE__ */ import_react36.default.createElement(import_react36.default.Fragment, null, /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react36.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement(import_react37.default.Fragment, null, /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setSidebarOpen(!sidebarOpen),
@@ -64615,15 +65753,15 @@ function TagsIndex() {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "#7c2bc9",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
-  ), sidebarOpen && /* @__PURE__ */ import_react36.default.createElement("aside", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
+  ), sidebarOpen && /* @__PURE__ */ import_react37.default.createElement("aside", { style: {
     width: "280px",
     background: "var(--sidebar-bg)",
     overflowY: "auto",
     padding: "var(--space-4)",
     boxShadow: "var(--shadow-sidebar)",
     flexShrink: 0
-  } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react36.default.createElement("label", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement("label", { style: {
     display: "block",
     fontSize: "var(--text-xs)",
     fontWeight: 600,
@@ -64632,7 +65770,7 @@ function TagsIndex() {
     letterSpacing: "0.05em",
     color: "var(--neutral-500)",
     marginBottom: "var(--space-2)"
-  } }, "Sort by"), /* @__PURE__ */ import_react36.default.createElement(
+  } }, "Sort by"), /* @__PURE__ */ import_react37.default.createElement(
     "select",
     {
       value: sortBy,
@@ -64644,9 +65782,9 @@ function TagsIndex() {
         fontFamily: "var(--font-body)"
       }
     },
-    /* @__PURE__ */ import_react36.default.createElement("option", { value: "popularity" }, "Popularity"),
-    /* @__PURE__ */ import_react36.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
-  )), /* @__PURE__ */ import_react36.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("option", { value: "popularity" }, "Popularity"),
+    /* @__PURE__ */ import_react37.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
+  )), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setCreatingTag(true),
@@ -64660,12 +65798,12 @@ function TagsIndex() {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "#7c2bc9",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-2)" } }),
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-2)" } }),
     "New Tag"
-  ), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  ), /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     borderTop: "1px solid var(--neutral-200)",
     paddingTop: "var(--space-3)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("h2", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("h2", { style: {
     fontSize: "var(--text-xs)",
     fontWeight: 700,
     fontFamily: "var(--font-body)",
@@ -64673,13 +65811,13 @@ function TagsIndex() {
     letterSpacing: "0.05em",
     color: "var(--neutral-500)",
     marginBottom: "var(--space-3)"
-  } }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+  } }, "All Tags (", tags.length, ")"), tags.length === 0 ? /* @__PURE__ */ import_react37.default.createElement("p", { style: {
     fontSize: "var(--text-sm)",
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)",
     textAlign: "center",
     padding: "var(--space-4)"
-  } }, "No tags yet") : /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, tags.map((tag) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, "No tags yet") : /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, tags.map((tag) => /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       key: tag.id,
@@ -64704,17 +65842,17 @@ function TagsIndex() {
         }
       }
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between"
-    } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)",
       fontSize: "var(--text-sm)",
       fontWeight: 500
-    } }, tag.color && /* @__PURE__ */ import_react36.default.createElement(
+    } }, tag.color && /* @__PURE__ */ import_react37.default.createElement(
       "div",
       {
         style: {
@@ -64725,45 +65863,45 @@ function TagsIndex() {
           flexShrink: 0
         }
       }
-    ), /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    ), /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap"
-    } }, tag.name)), tag.description && /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+    } }, tag.name)), tag.description && /* @__PURE__ */ import_react37.default.createElement("p", { style: {
       fontSize: "var(--text-xs)",
       marginTop: "var(--space-1)",
       opacity: 0.8,
       overflow: "hidden",
       textOverflow: "ellipsis",
       whiteSpace: "nowrap"
-    } }, tag.description)), /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    } }, tag.description)), /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       marginLeft: "var(--space-2)",
       flexShrink: 0,
       opacity: 0.7
     } }, tag.taggings_count || 0))
-  ))))), /* @__PURE__ */ import_react36.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  ))))), /* @__PURE__ */ import_react37.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     padding: "var(--space-6)",
     borderBottom: "1px solid var(--neutral-200)",
     background: "white"
-  } }, /* @__PURE__ */ import_react36.default.createElement("h1", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("h1", { style: {
     fontSize: "var(--text-4xl)",
     fontWeight: 700,
     fontFamily: "var(--font-display)",
     color: "var(--accent-purple)",
     margin: 0
-  } }, "Tags"), /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+  } }, "Tags"), /* @__PURE__ */ import_react37.default.createElement("p", { style: {
     fontSize: "var(--text-base)",
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)",
     marginTop: "var(--space-2)",
     marginBottom: 0
-  } }, "Browse and organize your knowledge by tags")), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, "Browse and organize your knowledge by tags")), /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     flex: 1,
     overflowY: "auto",
     padding: "var(--space-6)",
     background: "var(--background)"
-  } }, selectedTag ? /* @__PURE__ */ import_react36.default.createElement(
+  } }, selectedTag ? /* @__PURE__ */ import_react37.default.createElement(
     TagDetail,
     {
       tag: selectedTag,
@@ -64773,7 +65911,7 @@ function TagsIndex() {
         setTags(tags.map((t4) => t4.id === updatedTag.id ? updatedTag : t4));
       }
     }
-  ) : null))), /* @__PURE__ */ import_react36.default.createElement(
+  ) : null))), /* @__PURE__ */ import_react37.default.createElement(
     TagFormModal,
     {
       isOpen: creatingTag,
@@ -64786,7 +65924,19 @@ function TagsIndex() {
   ));
 }
 function TagDetail({ tag, onDelete, onUpdate }) {
-  const [editing, setEditing] = (0, import_react36.useState)(false);
+  const [editing, setEditing] = (0, import_react37.useState)(false);
+  const [showLinkPeopleModal, setShowLinkPeopleModal] = (0, import_react37.useState)(false);
+  const [showLinkConceptsModal, setShowLinkConceptsModal] = (0, import_react37.useState)(false);
+  const [showLinkSourcesModal, setShowLinkSourcesModal] = (0, import_react37.useState)(false);
+  const [showLinkNotesModal, setShowLinkNotesModal] = (0, import_react37.useState)(false);
+  const [showNewPersonModal, setShowNewPersonModal] = (0, import_react37.useState)(false);
+  const [showNewConceptModal, setShowNewConceptModal] = (0, import_react37.useState)(false);
+  const [showNewSourceModal, setShowNewSourceModal] = (0, import_react37.useState)(false);
+  const [showNewNoteModal, setShowNewNoteModal] = (0, import_react37.useState)(false);
+  const [selectedPersonIds, setSelectedPersonIds] = (0, import_react37.useState)([]);
+  const [selectedConceptIds, setSelectedConceptIds] = (0, import_react37.useState)([]);
+  const [selectedSourceIds, setSelectedSourceIds] = (0, import_react37.useState)([]);
+  const [selectedNoteIds, setSelectedNoteIds] = (0, import_react37.useState)([]);
   const typeLabels = {
     Concept: "Concepts",
     Source: "Sources",
@@ -64794,7 +65944,120 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     Connection: "Relationships",
     Note: "Notes"
   };
-  return /* @__PURE__ */ import_react36.default.createElement(import_react36.default.Fragment, null, /* @__PURE__ */ import_react36.default.createElement(
+  const fetchTagDetails = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}.json`);
+      const data = await response.json();
+      onUpdate(data);
+    } catch (error) {
+      console.error("Error fetching tag details:", error);
+    }
+  };
+  const handleLinkPeople = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          tag: {
+            person_ids: selectedPersonIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkPeopleModal(false);
+        setSelectedPersonIds([]);
+      } else {
+        alert("Error linking people");
+      }
+    } catch (error) {
+      console.error("Error linking people:", error);
+      alert("Error linking people");
+    }
+  };
+  const handleLinkConcepts = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          tag: {
+            concept_ids: selectedConceptIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkConceptsModal(false);
+        setSelectedConceptIds([]);
+      } else {
+        alert("Error linking concepts");
+      }
+    } catch (error) {
+      console.error("Error linking concepts:", error);
+      alert("Error linking concepts");
+    }
+  };
+  const handleLinkSources = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          tag: {
+            source_ids: selectedSourceIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkSourcesModal(false);
+        setSelectedSourceIds([]);
+      } else {
+        alert("Error linking sources");
+      }
+    } catch (error) {
+      console.error("Error linking sources:", error);
+      alert("Error linking sources");
+    }
+  };
+  const handleLinkNotes = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          tag: {
+            note_ids: selectedNoteIds
+          }
+        })
+      });
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkNotesModal(false);
+        setSelectedNoteIds([]);
+      } else {
+        alert("Error linking notes");
+      }
+    } catch (error) {
+      console.error("Error linking notes:", error);
+      alert("Error linking notes");
+    }
+  };
+  return /* @__PURE__ */ import_react37.default.createElement(import_react37.default.Fragment, null, /* @__PURE__ */ import_react37.default.createElement(
     TagFormModal,
     {
       isOpen: editing,
@@ -64805,7 +66068,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         setEditing(false);
       }
     }
-  ), /* @__PURE__ */ import_react36.default.createElement("div", { style: { overflow: "visible" } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  ), /* @__PURE__ */ import_react37.default.createElement("div", { style: { overflow: "visible" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     padding: "var(--space-6)",
     borderBottom: "1px solid var(--neutral-200)",
     display: "flex",
@@ -64813,7 +66076,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     justifyContent: "space-between",
     gap: "var(--space-4)",
     background: "white"
-  } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" } }, tag.color && /* @__PURE__ */ import_react36.default.createElement(
+  } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" } }, tag.color && /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       style: {
@@ -64824,18 +66087,18 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         flexShrink: 0
       }
     }
-  ), /* @__PURE__ */ import_react36.default.createElement("h2", { style: {
+  ), /* @__PURE__ */ import_react37.default.createElement("h2", { style: {
     fontSize: "var(--text-3xl)",
     fontWeight: 700,
     fontFamily: "var(--font-display)",
     color: "var(--accent-purple)",
     margin: 0
-  } }, tag.name)), tag.description && /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+  } }, tag.name)), tag.description && /* @__PURE__ */ import_react37.default.createElement("p", { style: {
     fontSize: "var(--text-base)",
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)",
     margin: 0
-  } }, tag.description)), /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.description)), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: () => setEditing(true),
@@ -64855,8 +66118,8 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-purple)",
       title: "Edit"
     },
-    /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-edit" })
-  ), /* @__PURE__ */ import_react36.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-edit" })
+  ), /* @__PURE__ */ import_react37.default.createElement(
     "button",
     {
       onClick: onDelete,
@@ -64876,18 +66139,18 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-purple)",
       title: "Delete"
     },
-    /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-trash" })
-  ))), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-trash" })
+  ))), /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     padding: "var(--space-6)",
     borderBottom: "1px solid var(--neutral-200)",
     background: "white"
-  } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--neutral-900)",
     marginBottom: "var(--space-3)"
-  } }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react36.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, "Tagged Items (", tag.taggings_count, ")"), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, Object.entries(tag.taggings_by_type || {}).map(([type, count]) => /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       key: type,
@@ -64901,22 +66164,94 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         fontWeight: 500
       }
     },
-    /* @__PURE__ */ import_react36.default.createElement("span", null, typeLabels[type] || type),
-    /* @__PURE__ */ import_react36.default.createElement("span", { style: { marginLeft: "var(--space-2)", opacity: 0.8 } }, "(", count, ")")
-  )))), /* @__PURE__ */ import_react36.default.createElement("div", { style: { padding: "var(--space-6)", background: "white" } }, tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("span", null, typeLabels[type] || type),
+    /* @__PURE__ */ import_react37.default.createElement("span", { style: { marginLeft: "var(--space-2)", opacity: 0.8 } }, "(", count, ")")
+  )))), /* @__PURE__ */ import_react37.default.createElement("div", { style: { padding: "var(--space-6)", background: "white" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--accent-gold)",
-    marginBottom: "var(--space-3)",
+    margin: 0,
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-user", style: { fontSize: "var(--text-sm)" } }), "People"), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-user", style: { fontSize: "var(--text-sm)" } }), "People (", tag.people?.length || 0, ")"), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedPersonIds(tag.people?.map((p3) => p3.id) || []);
+        setShowLinkPeopleModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-gold)",
+        border: "2px solid var(--accent-gold)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-gold)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-gold)";
+      },
+      title: "Link Existing People"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewPersonModal(true),
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "var(--accent-gold)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Person"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus" })
+  ))), tag.people && tag.people.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "var(--space-3)"
-  } }, tag.people.map((person) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.people.map((person) => /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       key: person.id,
@@ -64931,32 +66266,104 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
       onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)",
       marginBottom: "var(--space-1)"
     } }, person.full_name),
-    person.role && /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    person.role && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
     } }, person.role)
-  )))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+  ))), !tag.people || tag.people.length === 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No people tagged")), /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--accent-green)",
-    marginBottom: "var(--space-3)",
+    margin: 0,
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-lightbulb", style: { fontSize: "var(--text-sm)" } }), "Concepts"), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-lightbulb", style: { fontSize: "var(--text-sm)" } }), "Concepts (", tag.concepts?.length || 0, ")"), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedConceptIds(tag.concepts?.map((c5) => c5.id) || []);
+        setShowLinkConceptsModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-green)",
+        border: "2px solid var(--accent-green)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-green)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-green)";
+      },
+      title: "Link Existing Concepts"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewConceptModal(true),
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "var(--accent-green)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Concept"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus" })
+  ))), tag.concepts && tag.concepts.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "var(--space-3)"
-  } }, tag.concepts.map((concept) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.concepts.map((concept) => /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       key: concept.id,
@@ -64971,42 +66378,114 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
       onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       marginBottom: "var(--space-1)"
-    } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)"
-    } }, concept.label), concept.node_type && /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    } }, concept.label), concept.node_type && /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
     } }, concept.node_type)),
-    concept.summary_top && /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+    concept.summary_top && /* @__PURE__ */ import_react37.default.createElement("p", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)",
       margin: 0,
       lineHeight: 1.4
     } }, concept.summary_top)
-  )))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+  ))), !tag.concepts || tag.concepts.length === 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No concepts tagged")), /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--accent-blue)",
-    marginBottom: "var(--space-3)",
+    margin: 0,
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-book", style: { fontSize: "var(--text-sm)" } }), "Sources"), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-book", style: { fontSize: "var(--text-sm)" } }), "Sources (", tag.sources?.length || 0, ")"), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedSourceIds(tag.sources?.map((s3) => s3.id) || []);
+        setShowLinkSourcesModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-blue)",
+        border: "2px solid var(--accent-blue)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-blue)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-blue)";
+      },
+      title: "Link Existing Sources"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewSourceModal(true),
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "var(--accent-blue)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Source"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus" })
+  ))), tag.sources && tag.sources.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "var(--space-3)"
-  } }, tag.sources.map((source) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.sources.map((source) => /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       key: source.id,
@@ -65021,45 +66500,117 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
       onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "start",
       justifyContent: "space-between",
       gap: "var(--space-2)",
       marginBottom: "var(--space-1)"
-    } }, /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)",
       flex: 1,
       lineHeight: 1.4
-    } }, source.title), source.kind && /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    } }, source.title), source.kind && /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)",
       flexShrink: 0
     } }, source.kind)),
-    source.authors && /* @__PURE__ */ import_react36.default.createElement("p", { style: {
+    source.authors && /* @__PURE__ */ import_react37.default.createElement("p", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)",
       margin: 0
     } }, source.authors)
-  )))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+  ))), !tag.sources || tag.sources.length === 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No sources tagged")), /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--accent-teal)",
-    marginBottom: "var(--space-3)",
+    margin: 0,
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "var(--text-sm)" } }), "Notes"), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "var(--text-sm)" } }), "Notes (", tag.notes?.length || 0, ")"), /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setSelectedNoteIds(tag.notes?.map((n3) => n3.id) || []);
+        setShowLinkNotesModal(true);
+      },
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-teal)",
+        border: "2px solid var(--accent-teal)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.background = "var(--accent-teal)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-teal)";
+      },
+      title: "Link Existing Notes"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-link" })
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewNoteModal(true),
+      style: {
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        background: "var(--accent-teal)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-sm)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "scale(1.1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "scale(1)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Note"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-plus" })
+  ))), tag.notes && tag.notes.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "var(--space-3)"
-  } }, tag.notes.map((note) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.notes.map((note) => /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       key: note.id,
@@ -65076,12 +66627,12 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-md)",
       onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-card)"
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       marginBottom: "var(--space-2)"
-    } }, /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    } }, /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       textTransform: "uppercase",
       letterSpacing: "0.05em",
@@ -65091,19 +66642,19 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       borderRadius: "4px",
       fontFamily: "var(--font-body)",
       fontWeight: 600
-    } }, note.note_type), /* @__PURE__ */ import_react36.default.createElement("span", { style: {
+    } }, note.note_type), /* @__PURE__ */ import_react37.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
     } }, new Date(note.created_at).toLocaleDateString())),
-    note.title && /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    note.title && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-sm)",
       fontWeight: 600,
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)",
       marginBottom: "var(--space-1)"
     } }, note.title),
-    /* @__PURE__ */ import_react36.default.createElement(
+    /* @__PURE__ */ import_react37.default.createElement(
       "div",
       {
         style: {
@@ -65119,12 +66670,12 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         dangerouslySetInnerHTML: { __html: note.body }
       }
     ),
-    note.concepts?.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    note.concepts?.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       flexWrap: "wrap",
       gap: "var(--space-1)",
       marginTop: "var(--space-2)"
-    } }, note.concepts.map((concept) => /* @__PURE__ */ import_react36.default.createElement(
+    } }, note.concepts.map((concept) => /* @__PURE__ */ import_react37.default.createElement(
       "span",
       {
         key: concept.id,
@@ -65139,7 +66690,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       },
       concept.label
     )))
-  )))), tag.connections && tag.connections.length > 0 && /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement("h3", { style: {
+  ))), !tag.notes || tag.notes.length === 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No notes tagged")), tag.connections && tag.connections.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
@@ -65148,11 +66699,11 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-link", style: { fontSize: "var(--text-sm)" } }), "Relationships"), /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-link", style: { fontSize: "var(--text-sm)" } }), "Relationships"), /* @__PURE__ */ import_react37.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
     gap: "var(--space-3)"
-  } }, tag.connections.map((connection) => /* @__PURE__ */ import_react36.default.createElement(
+  } }, tag.connections.map((connection) => /* @__PURE__ */ import_react37.default.createElement(
     "div",
     {
       key: connection.id,
@@ -65162,14 +66713,14 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         borderLeft: "3px solid var(--accent-purple)"
       }
     },
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)",
       marginBottom: "var(--space-1)",
       fontSize: "var(--text-sm)",
       fontFamily: "var(--font-body)"
-    } }, /* @__PURE__ */ import_react36.default.createElement(
+    } }, /* @__PURE__ */ import_react37.default.createElement(
       "a",
       {
         href: `/concepts/${connection.src.id}`,
@@ -65182,7 +66733,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
         onMouseLeave: (e3) => e3.currentTarget.style.textDecoration = "none"
       },
       connection.src.label
-    ), /* @__PURE__ */ import_react36.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "\u2192"), /* @__PURE__ */ import_react36.default.createElement(
+    ), /* @__PURE__ */ import_react37.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "\u2192"), /* @__PURE__ */ import_react37.default.createElement(
       "a",
       {
         href: `/concepts/${connection.dst.id}`,
@@ -65196,22 +66747,226 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       },
       connection.dst.label
     )),
-    /* @__PURE__ */ import_react36.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
     } }, connection.rel_type, connection.description && `: ${connection.description}`)
-  )))))));
+  )))))), /* @__PURE__ */ import_react37.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkPeopleModal,
+      onClose: () => setShowLinkPeopleModal(false),
+      title: "Apply Tag to People",
+      titleColor: "var(--accent-gold)",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      PeopleSelector,
+      {
+        selectedPersonIds,
+        onChange: setSelectedPersonIds,
+        themeColor: "var(--accent-gold)"
+      }
+    )),
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: () => setShowLinkPeopleModal(false),
+        className: "btn-secondary",
+        style: {
+          background: "color-mix(in srgb, var(--accent-gold) 10%, white)",
+          color: "var(--accent-gold)",
+          border: "1px solid color-mix(in srgb, var(--accent-gold) 30%, white)"
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: handleLinkPeople,
+        className: "btn-primary",
+        style: { background: "var(--accent-gold)" }
+      },
+      "Save (",
+      selectedPersonIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkConceptsModal,
+      onClose: () => setShowLinkConceptsModal(false),
+      title: "Apply Tag to Concepts",
+      titleColor: "var(--accent-green)",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      ConceptSelector,
+      {
+        selectedConceptIds,
+        onChange: setSelectedConceptIds,
+        themeColor: "var(--accent-green)"
+      }
+    )),
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: () => setShowLinkConceptsModal(false),
+        className: "btn-secondary",
+        style: {
+          background: "color-mix(in srgb, var(--accent-green) 10%, white)",
+          color: "var(--accent-green)",
+          border: "1px solid color-mix(in srgb, var(--accent-green) 30%, white)"
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: handleLinkConcepts,
+        className: "btn-primary",
+        style: { background: "var(--accent-green)" }
+      },
+      "Save (",
+      selectedConceptIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkSourcesModal,
+      onClose: () => setShowLinkSourcesModal(false),
+      title: "Apply Tag to Sources",
+      titleColor: "var(--accent-blue)",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      SourceSelector,
+      {
+        selectedSourceIds,
+        onChange: setSelectedSourceIds,
+        themeColor: "var(--accent-blue)"
+      }
+    )),
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: () => setShowLinkSourcesModal(false),
+        className: "btn-secondary",
+        style: {
+          background: "color-mix(in srgb, var(--accent-blue) 10%, white)",
+          color: "var(--accent-blue)",
+          border: "1px solid color-mix(in srgb, var(--accent-blue) 30%, white)"
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: handleLinkSources,
+        className: "btn-primary",
+        style: { background: "var(--accent-blue)" }
+      },
+      "Save (",
+      selectedSourceIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    Modal,
+    {
+      isOpen: showLinkNotesModal,
+      onClose: () => setShowLinkNotesModal(false),
+      title: "Apply Tag to Notes",
+      titleColor: "var(--accent-teal)",
+      size: "large"
+    },
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { height: "400px", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      NoteSelector,
+      {
+        selectedNoteIds,
+        onChange: setSelectedNoteIds,
+        themeColor: "var(--accent-teal)"
+      }
+    )),
+    /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: () => setShowLinkNotesModal(false),
+        className: "btn-secondary",
+        style: {
+          background: "color-mix(in srgb, var(--accent-teal) 10%, white)",
+          color: "var(--accent-teal)",
+          border: "1px solid color-mix(in srgb, var(--accent-teal) 30%, white)"
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react37.default.createElement(
+      "button",
+      {
+        onClick: handleLinkNotes,
+        className: "btn-primary",
+        style: { background: "var(--accent-teal)" }
+      },
+      "Save (",
+      selectedNoteIds.length,
+      ")"
+    ))
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    PersonFormModal,
+    {
+      isOpen: showNewPersonModal,
+      onClose: () => setShowNewPersonModal(false),
+      defaultTags: [tag.name],
+      onSuccess: async (newPerson) => {
+        setShowNewPersonModal(false);
+        await fetchTagDetails();
+      }
+    }
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    ConceptFormModal,
+    {
+      isOpen: showNewConceptModal,
+      onClose: () => setShowNewConceptModal(false),
+      defaultTags: [tag.name],
+      onSuccess: async (newConcept) => {
+        setShowNewConceptModal(false);
+        await fetchTagDetails();
+      }
+    }
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    SourceFormModal,
+    {
+      isOpen: showNewSourceModal,
+      onClose: () => setShowNewSourceModal(false),
+      defaultTags: [tag.name],
+      onSuccess: async (newSource) => {
+        setShowNewSourceModal(false);
+        await fetchTagDetails();
+      }
+    }
+  ), /* @__PURE__ */ import_react37.default.createElement(
+    NoteFormModal,
+    {
+      isOpen: showNewNoteModal,
+      onClose: () => setShowNewNoteModal(false),
+      defaultTags: [tag.name],
+      onSuccess: async (newNote) => {
+        setShowNewNoteModal(false);
+        await fetchTagDetails();
+      }
+    }
+  ));
 }
 
 // app/javascript/components/Dashboard.js
-var import_react39 = __toESM(require_react());
+var import_react40 = __toESM(require_react());
 
 // app/javascript/components/ConceptRelationshipMap.js
-var import_react38 = __toESM(require_react());
+var import_react39 = __toESM(require_react());
 
 // node_modules/react-kapsule/dist/react-kapsule.mjs
-var import_react37 = __toESM(require_react(), 1);
+var import_react38 = __toESM(require_react(), 1);
 
 // node_modules/jerrypick/dist/jerrypick.mjs
 function _iterableToArrayLimit2(arr, i3) {
@@ -65365,9 +67120,9 @@ function index(kapsuleComponent) {
   var _ref2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {}, _ref$wrapperElementTy = _ref2.wrapperElementType, wrapperElementType = _ref$wrapperElementTy === void 0 ? "div" : _ref$wrapperElementTy, _ref$nodeMapper = _ref2.nodeMapper, nodeMapper = _ref$nodeMapper === void 0 ? function(node) {
     return node;
   } : _ref$nodeMapper, _ref$methodNames = _ref2.methodNames, methodNames = _ref$methodNames === void 0 ? [] : _ref$methodNames, _ref$initPropNames = _ref2.initPropNames, initPropNames = _ref$initPropNames === void 0 ? [] : _ref$initPropNames;
-  return /* @__PURE__ */ (0, import_react37.forwardRef)(function(props, ref) {
-    var domEl = (0, import_react37.useRef)();
-    var comp = (0, import_react37.useMemo)(function() {
+  return /* @__PURE__ */ (0, import_react38.forwardRef)(function(props, ref) {
+    var domEl = (0, import_react38.useRef)();
+    var comp = (0, import_react38.useMemo)(function() {
       var configOptions = Object.fromEntries(initPropNames.filter(function(p3) {
         return props.hasOwnProperty(p3);
       }).map(function(prop) {
@@ -65377,11 +67132,11 @@ function index(kapsuleComponent) {
     }, []);
     useEffectOnce(function() {
       comp(nodeMapper(domEl.current));
-    }, import_react37.useLayoutEffect);
+    }, import_react38.useLayoutEffect);
     useEffectOnce(function() {
       return comp._destructor instanceof Function ? comp._destructor : void 0;
     });
-    var _call = (0, import_react37.useCallback)(
+    var _call = (0, import_react38.useCallback)(
       function(method) {
         for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
@@ -65390,14 +67145,14 @@ function index(kapsuleComponent) {
       },
       [comp]
     );
-    var prevPropsRef = (0, import_react37.useRef)({});
+    var prevPropsRef = (0, import_react38.useRef)({});
     Object.keys(omit(props, [].concat(_toConsumableArray3(methodNames), _toConsumableArray3(initPropNames)))).filter(function(p3) {
       return prevPropsRef.current[p3] !== props[p3];
     }).forEach(function(p3) {
       return _call(p3, props[p3]);
     });
     prevPropsRef.current = props;
-    (0, import_react37.useImperativeHandle)(ref, function() {
+    (0, import_react38.useImperativeHandle)(ref, function() {
       return Object.fromEntries(methodNames.map(function(method) {
         return [method, function() {
           for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -65407,17 +67162,17 @@ function index(kapsuleComponent) {
         }];
       }));
     }, [_call]);
-    return /* @__PURE__ */ import_react37.default.createElement(wrapperElementType, {
+    return /* @__PURE__ */ import_react38.default.createElement(wrapperElementType, {
       ref: domEl
     });
   });
 }
 function useEffectOnce(effect) {
-  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react37.useEffect;
-  var destroyFunc = (0, import_react37.useRef)();
-  var effectCalled = (0, import_react37.useRef)(false);
-  var renderAfterCalled = (0, import_react37.useRef)(false);
-  var _useState = (0, import_react37.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
+  var useEffectFn = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : import_react38.useEffect;
+  var destroyFunc = (0, import_react38.useRef)();
+  var effectCalled = (0, import_react38.useRef)(false);
+  var renderAfterCalled = (0, import_react38.useRef)(false);
+  var _useState = (0, import_react38.useState)(0), _useState2 = _slicedToArray3(_useState, 2);
   _useState2[0];
   var setVal = _useState2[1];
   if (effectCalled.current) {
@@ -75387,20 +77142,20 @@ ForceGraph2D.propTypes = ForceGraph2DPropTypes;
 
 // app/javascript/components/ConceptRelationshipMap.js
 function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = (0, import_react38.useState)({ nodes: [], links: [] });
-  const [loading, setLoading] = (0, import_react38.useState)(true);
-  const [filterType, setFilterType] = (0, import_react38.useState)("all");
-  const [highlightNodes, setHighlightNodes] = (0, import_react38.useState)(/* @__PURE__ */ new Set());
-  const [highlightLinks, setHighlightLinks] = (0, import_react38.useState)(/* @__PURE__ */ new Set());
-  const [hoverNode, setHoverNode] = (0, import_react38.useState)(null);
-  const fgRef = (0, import_react38.useRef)();
-  const labelBounds = (0, import_react38.useRef)(/* @__PURE__ */ new Map());
-  const currentFrame = (0, import_react38.useRef)(0);
-  const nodesPainted = (0, import_react38.useRef)(0);
-  (0, import_react38.useEffect)(() => {
+  const [graphData, setGraphData] = (0, import_react39.useState)({ nodes: [], links: [] });
+  const [loading, setLoading] = (0, import_react39.useState)(true);
+  const [filterType, setFilterType] = (0, import_react39.useState)("all");
+  const [highlightNodes, setHighlightNodes] = (0, import_react39.useState)(/* @__PURE__ */ new Set());
+  const [highlightLinks, setHighlightLinks] = (0, import_react39.useState)(/* @__PURE__ */ new Set());
+  const [hoverNode, setHoverNode] = (0, import_react39.useState)(null);
+  const fgRef = (0, import_react39.useRef)();
+  const labelBounds = (0, import_react39.useRef)(/* @__PURE__ */ new Map());
+  const currentFrame = (0, import_react39.useRef)(0);
+  const nodesPainted = (0, import_react39.useRef)(0);
+  (0, import_react39.useEffect)(() => {
     fetchGraphData();
   }, []);
-  (0, import_react38.useEffect)(() => {
+  (0, import_react39.useEffect)(() => {
     if (fgRef.current && graphData.nodes.length > 0) {
       const fg = fgRef.current;
       Promise.resolve().then(() => (init_src4(), src_exports)).then((d3) => {
@@ -75685,22 +77440,22 @@ function ConceptRelationshipMap() {
     ctx.setLineDash([]);
   };
   if (loading) {
-    return /* @__PURE__ */ import_react38.default.createElement("div", { className: "card", style: { padding: "var(--space-6)" } }, /* @__PURE__ */ import_react38.default.createElement("p", { style: {
+    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "card", style: { padding: "var(--space-6)" } }, /* @__PURE__ */ import_react39.default.createElement("p", { style: {
       fontFamily: "var(--font-body)",
       color: "var(--neutral-600)"
     } }, "Loading relationship map..."));
   }
   const filteredData = getFilteredData();
-  return /* @__PURE__ */ import_react38.default.createElement("div", { className: "card", style: { padding: "var(--space-6)" } }, /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  return /* @__PURE__ */ import_react39.default.createElement("div", { className: "card", style: { padding: "var(--space-6)" } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     display: "flex",
     flexDirection: "column",
     gap: "var(--space-4)",
     marginBottom: "var(--space-4)"
-  } }, /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     display: "flex",
     flexDirection: "column",
     gap: "var(--space-3)"
-  } }, /* @__PURE__ */ import_react38.default.createElement("h2", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("h2", { style: {
     fontSize: "var(--text-2xl)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
@@ -75709,11 +77464,11 @@ function ConceptRelationshipMap() {
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react38.default.createElement("i", { className: "fas fa-project-diagram", style: { fontSize: "var(--text-lg)" } }), "Concept Relationship Map"), /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-project-diagram", style: { fontSize: "var(--text-lg)" } }), "Concept Relationship Map"), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     display: "flex",
     flexWrap: "wrap",
     gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react38.default.createElement(
+  } }, /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setFilterType("all"),
@@ -75741,7 +77496,7 @@ function ConceptRelationshipMap() {
       }
     },
     "All"
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setFilterType("hierarchical"),
@@ -75769,7 +77524,7 @@ function ConceptRelationshipMap() {
       }
     },
     "Hierarchical"
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setFilterType("semantic"),
@@ -75797,7 +77552,7 @@ function ConceptRelationshipMap() {
       }
     },
     "Semantic"
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setFilterType("sequential"),
@@ -75825,7 +77580,7 @@ function ConceptRelationshipMap() {
       }
     },
     "Sequential"
-  ), /* @__PURE__ */ import_react38.default.createElement(
+  ), /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
       onClick: () => setFilterType("influence"),
@@ -75853,20 +77608,20 @@ function ConceptRelationshipMap() {
       }
     },
     "Influence"
-  ))), /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  ))), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     display: "flex",
     flexWrap: "wrap",
     gap: "var(--space-4)",
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-700)"
-  } }, /* @__PURE__ */ import_react38.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react38.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react38.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2.5" })), /* @__PURE__ */ import_react38.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react38.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react38.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react38.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "8,4" })), /* @__PURE__ */ import_react38.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react38.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react38.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react38.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2" })), /* @__PURE__ */ import_react38.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react38.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react38.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react38.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "2,3" })), /* @__PURE__ */ import_react38.default.createElement("span", null, "Influence")))), /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react39.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react39.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2.5" })), /* @__PURE__ */ import_react39.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react39.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react39.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "8,4" })), /* @__PURE__ */ import_react39.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react39.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react39.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2" })), /* @__PURE__ */ import_react39.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react39.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react39.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "2,3" })), /* @__PURE__ */ import_react39.default.createElement("span", null, "Influence")))), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     border: "1px solid var(--neutral-200)",
     borderRadius: "var(--radius)",
     overflow: "hidden",
     height: "500px",
     minHeight: "400px"
-  } }, /* @__PURE__ */ import_react38.default.createElement(
+  } }, /* @__PURE__ */ import_react39.default.createElement(
     ForceGraph2D,
     {
       ref: fgRef,
@@ -75887,32 +77642,32 @@ function ConceptRelationshipMap() {
       width: void 0,
       height: 500
     }
-  )), hoverNode && /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  )), hoverNode && /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     marginTop: "var(--space-4)",
     padding: "var(--space-4)",
     background: "var(--accent-green-light)",
     border: "1px solid var(--accent-green)",
     borderRadius: "var(--radius)"
-  } }, /* @__PURE__ */ import_react38.default.createElement("h3", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-body)",
     color: "var(--neutral-900)",
     marginBottom: "var(--space-2)"
-  } }, hoverNode.label), /* @__PURE__ */ import_react38.default.createElement("div", { style: {
+  } }, hoverNode.label), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-700)",
     display: "flex",
     gap: "var(--space-2)",
     flexWrap: "wrap"
-  } }, /* @__PURE__ */ import_react38.default.createElement("span", { style: {
+  } }, /* @__PURE__ */ import_react39.default.createElement("span", { style: {
     display: "inline-block",
     background: "white",
     padding: "var(--space-1) var(--space-2)",
     borderRadius: "var(--radius)",
     textTransform: "capitalize"
-  } }, hoverNode.type.replace(/_/g, " ")), /* @__PURE__ */ import_react38.default.createElement("span", { style: {
+  } }, hoverNode.type.replace(/_/g, " ")), /* @__PURE__ */ import_react39.default.createElement("span", { style: {
     display: "inline-block",
     background: "white",
     padding: "var(--space-1) var(--space-2)",
@@ -75922,15 +77677,15 @@ function ConceptRelationshipMap() {
 
 // app/javascript/components/Dashboard.js
 function Dashboard() {
-  const [stats, setStats] = (0, import_react39.useState)(null);
-  const [recentActivity, setRecentActivity] = (0, import_react39.useState)([]);
-  const [loading, setLoading] = (0, import_react39.useState)(true);
-  const [showConceptModal, setShowConceptModal] = (0, import_react39.useState)(false);
-  const [showSourceModal, setShowSourceModal] = (0, import_react39.useState)(false);
-  const [showPersonModal, setShowPersonModal] = (0, import_react39.useState)(false);
-  const [showNoteModal, setShowNoteModal] = (0, import_react39.useState)(false);
-  const [showTagModal, setShowTagModal] = (0, import_react39.useState)(false);
-  (0, import_react39.useEffect)(() => {
+  const [stats, setStats] = (0, import_react40.useState)(null);
+  const [recentActivity, setRecentActivity] = (0, import_react40.useState)([]);
+  const [loading, setLoading] = (0, import_react40.useState)(true);
+  const [showConceptModal, setShowConceptModal] = (0, import_react40.useState)(false);
+  const [showSourceModal, setShowSourceModal] = (0, import_react40.useState)(false);
+  const [showPersonModal, setShowPersonModal] = (0, import_react40.useState)(false);
+  const [showNoteModal, setShowNoteModal] = (0, import_react40.useState)(false);
+  const [showTagModal, setShowTagModal] = (0, import_react40.useState)(false);
+  (0, import_react40.useEffect)(() => {
     fetchDashboardData();
   }, []);
   const fetchDashboardData = async () => {
@@ -75991,7 +77746,7 @@ function Dashboard() {
     }
   };
   if (loading) {
-    return /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+    return /* @__PURE__ */ import_react40.default.createElement("div", { style: {
       maxWidth: "1280px",
       margin: "0 auto",
       padding: "var(--space-8)",
@@ -75999,24 +77754,24 @@ function Dashboard() {
       color: "var(--neutral-600)"
     } }, "Loading dashboard...");
   }
-  return /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  return /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     maxWidth: "1280px",
     margin: "0 auto",
     padding: "var(--space-6)",
     paddingTop: "var(--space-8)",
     paddingBottom: "var(--space-8)"
-  } }, /* @__PURE__ */ import_react39.default.createElement("h1", { style: {
+  } }, /* @__PURE__ */ import_react40.default.createElement("h1", { style: {
     fontSize: "var(--text-4xl)",
     fontWeight: 700,
     fontFamily: "var(--font-display)",
     color: "var(--neutral-900)",
     marginBottom: "var(--space-8)"
-  } }, "Dashboard"), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, "Dashboard"), /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "var(--space-4)",
     marginBottom: "var(--space-8)"
-  } }, /* @__PURE__ */ import_react39.default.createElement(
+  } }, /* @__PURE__ */ import_react40.default.createElement(
     StatActionCard,
     {
       label: "Concepts",
@@ -76027,7 +77782,7 @@ function Dashboard() {
       color: "var(--accent-green)",
       icon: "fa-lightbulb"
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     StatActionCard,
     {
       label: "Sources",
@@ -76038,7 +77793,7 @@ function Dashboard() {
       color: "var(--accent-blue)",
       icon: "fa-book"
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     StatActionCard,
     {
       label: "People",
@@ -76049,7 +77804,7 @@ function Dashboard() {
       color: "var(--accent-gold)",
       icon: "fa-user"
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     StatActionCard,
     {
       label: "Notes",
@@ -76060,7 +77815,7 @@ function Dashboard() {
       color: "var(--accent-teal)",
       icon: "fa-sticky-note"
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     StatActionCard,
     {
       label: "Tags",
@@ -76071,7 +77826,7 @@ function Dashboard() {
       color: "var(--accent-purple)",
       icon: "fa-tag"
     }
-  )), /* @__PURE__ */ import_react39.default.createElement(
+  )), /* @__PURE__ */ import_react40.default.createElement(
     ConceptFormModal,
     {
       isOpen: showConceptModal,
@@ -76081,7 +77836,7 @@ function Dashboard() {
         setShowConceptModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     SourceFormModal,
     {
       isOpen: showSourceModal,
@@ -76091,7 +77846,7 @@ function Dashboard() {
         setShowSourceModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     PersonFormModal,
     {
       isOpen: showPersonModal,
@@ -76101,7 +77856,7 @@ function Dashboard() {
         setShowPersonModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     NoteFormModal,
     {
       isOpen: showNoteModal,
@@ -76111,7 +77866,7 @@ function Dashboard() {
         setShowNoteModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(
+  ), /* @__PURE__ */ import_react40.default.createElement(
     TagFormModal,
     {
       isOpen: showTagModal,
@@ -76121,28 +77876,28 @@ function Dashboard() {
         setShowTagModal(false);
       }
     }
-  ), /* @__PURE__ */ import_react39.default.createElement(ConceptRelationshipMap, null));
+  ), /* @__PURE__ */ import_react40.default.createElement(ConceptRelationshipMap, null));
 }
 function StatActionCard({ label, subtitle, value, link, onAdd: onAdd2, color: color2, icon: icon3 }) {
-  return /* @__PURE__ */ import_react39.default.createElement("div", { className: "card", style: {
+  return /* @__PURE__ */ import_react40.default.createElement("div", { className: "card", style: {
     padding: "var(--space-4)",
     position: "relative",
     transition: "all 0.15s",
     borderLeft: `5px solid ${color2}`,
     cursor: "pointer"
-  } }, /* @__PURE__ */ import_react39.default.createElement("a", { href: link, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react40.default.createElement("a", { href: link, style: { textDecoration: "none", display: "block" } }, /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     fontSize: "var(--text-4xl)",
     fontWeight: 300,
     fontFamily: "var(--font-display)",
     color: "var(--neutral-900)",
     marginBottom: "var(--space-3)",
     lineHeight: 1
-  } }, value), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, value), /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)",
     marginBottom: "var(--space-1)"
-  } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     width: "24px",
     height: "24px",
     borderRadius: "50%",
@@ -76153,18 +77908,18 @@ function StatActionCard({ label, subtitle, value, link, onAdd: onAdd2, color: co
     color: "white",
     fontSize: "var(--text-xs)",
     flexShrink: 0
-  } }, /* @__PURE__ */ import_react39.default.createElement("i", { className: `fas ${icon3}` })), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react40.default.createElement("i", { className: `fas ${icon3}` })), /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     fontSize: "var(--text-base)",
     fontWeight: 600,
     fontFamily: "var(--font-body)",
     color: "var(--neutral-900)"
-  } }, label)), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  } }, label)), /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     fontSize: "var(--text-xs)",
     color: "var(--neutral-500)",
     fontFamily: "var(--font-body)",
     paddingLeft: "calc(24px + var(--space-2))",
     lineHeight: 1.2
-  } }, subtitle)), onAdd2 && /* @__PURE__ */ import_react39.default.createElement(
+  } }, subtitle)), onAdd2 && /* @__PURE__ */ import_react40.default.createElement(
     "button",
     {
       onClick: (e3) => {
@@ -76200,20 +77955,20 @@ function StatActionCard({ label, subtitle, value, link, onAdd: onAdd2, color: co
       },
       title: `Add ${label.slice(0, -1)}`
     },
-    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" })
+    /* @__PURE__ */ import_react40.default.createElement("i", { className: "fas fa-plus" })
   ));
 }
 
 // app/javascript/components/GlobalSearch.js
-var import_react40 = __toESM(require_react());
+var import_react41 = __toESM(require_react());
 function GlobalSearch() {
-  const [query, setQuery] = (0, import_react40.useState)("");
-  const [results, setResults] = (0, import_react40.useState)(null);
-  const [loading, setLoading] = (0, import_react40.useState)(false);
-  const [showResults, setShowResults] = (0, import_react40.useState)(false);
-  const searchRef = (0, import_react40.useRef)(null);
-  const timeoutRef = (0, import_react40.useRef)(null);
-  (0, import_react40.useEffect)(() => {
+  const [query, setQuery] = (0, import_react41.useState)("");
+  const [results, setResults] = (0, import_react41.useState)(null);
+  const [loading, setLoading] = (0, import_react41.useState)(false);
+  const [showResults, setShowResults] = (0, import_react41.useState)(false);
+  const searchRef = (0, import_react41.useRef)(null);
+  const timeoutRef = (0, import_react41.useRef)(null);
+  (0, import_react41.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
@@ -76222,7 +77977,7 @@ function GlobalSearch() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-  (0, import_react40.useEffect)(() => {
+  (0, import_react41.useEffect)(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -76254,7 +78009,7 @@ function GlobalSearch() {
     }
   };
   const totalResults = results ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length : 0;
-  return /* @__PURE__ */ import_react40.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react40.default.createElement(
+  return /* @__PURE__ */ import_react41.default.createElement("div", { ref: searchRef, className: "relative w-full max-w-2xl" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react41.default.createElement(
     "input",
     {
       type: "text",
@@ -76264,10 +78019,10 @@ function GlobalSearch() {
       placeholder: "Search across everything...",
       className: "w-full px-4 py-2 pl-10 border border-gray-300 rounded bg-white"
     }
-  ), /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react40.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react40.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react40.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react40.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react40.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react40.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
+  ), /* @__PURE__ */ import_react41.default.createElement("div", { className: "absolute left-3 top-2.5 text-gray-400" }, "\u{1F50D}"), loading && /* @__PURE__ */ import_react41.default.createElement("div", { className: "absolute right-3 top-2.5 text-gray-400" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" }))), showResults && results && totalResults > 0 && /* @__PURE__ */ import_react41.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "p-3 border-b border-gray-200" }, /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-sm text-gray-600" }, "Found ", totalResults, " result", totalResults === 1 ? "" : "s", ' for "', results.query, '"')), results.concepts.length > 0 && /* @__PURE__ */ import_react41.default.createElement(SearchSection, { title: "Constructs", items: results.concepts, type: "concept" }), results.sources.length > 0 && /* @__PURE__ */ import_react41.default.createElement(SearchSection, { title: "Sources", items: results.sources, type: "source" }), results.people.length > 0 && /* @__PURE__ */ import_react41.default.createElement(SearchSection, { title: "People", items: results.people, type: "person" }), results.notes.length > 0 && /* @__PURE__ */ import_react41.default.createElement(SearchSection, { title: "Notes", items: results.notes, type: "note" }), results.tags.length > 0 && /* @__PURE__ */ import_react41.default.createElement(SearchSection, { title: "Tags", items: results.tags, type: "tag" })), showResults && results && totalResults === 0 && query.trim().length >= 2 && /* @__PURE__ */ import_react41.default.createElement("div", { className: "absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center" }, /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-gray-600" }, 'No results found for "', results.query, '"')));
 }
 function SearchSection({ title, items, type }) {
-  return /* @__PURE__ */ import_react40.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react40.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react40.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react40.default.createElement(SearchResultItem, { key: item.id, item, type }))));
+  return /* @__PURE__ */ import_react41.default.createElement("div", { className: "border-b border-gray-200 last:border-b-0" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "px-3 py-2 bg-sand" }, /* @__PURE__ */ import_react41.default.createElement("h3", { className: "text-xs uppercase tracking-wider font-medium" }, title)), /* @__PURE__ */ import_react41.default.createElement("div", { className: "divide-y divide-gray-200" }, items.map((item) => /* @__PURE__ */ import_react41.default.createElement(SearchResultItem, { key: item.id, item, type }))));
 }
 function SearchResultItem({ item, type }) {
   const stripHtml = (html) => {
@@ -76309,29 +78064,29 @@ function SearchResultItem({ item, type }) {
     if (type === "note") return item.note_type;
     return null;
   };
-  return /* @__PURE__ */ import_react40.default.createElement(
+  return /* @__PURE__ */ import_react41.default.createElement(
     "a",
     {
       href: getLink(),
       className: "block px-4 py-3 hover:bg-sand transition-colors",
       onClick: () => window.location.href = getLink()
     },
-    /* @__PURE__ */ import_react40.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react40.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react40.default.createElement(
+    /* @__PURE__ */ import_react41.default.createElement("div", { className: "flex items-start justify-between" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "flex items-center gap-2 mb-1" }, getBadge() && /* @__PURE__ */ import_react41.default.createElement("span", { className: "text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded" }, getBadge()), type === "tag" && item.color && /* @__PURE__ */ import_react41.default.createElement(
       "div",
       {
         className: "w-3 h-3 rounded-full",
         style: { backgroundColor: item.color }
       }
-    )), /* @__PURE__ */ import_react40.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react40.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
+    )), /* @__PURE__ */ import_react41.default.createElement("p", { className: "font-medium text-sm mb-1 truncate" }, getTitle()), getSubtitle() && /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-xs text-gray-600 truncate" }, getSubtitle())))
   );
 }
 
 // app/javascript/components/UserDropdown.js
-var import_react41 = __toESM(require_react());
+var import_react42 = __toESM(require_react());
 function UserDropdown({ userEmail }) {
-  const [isOpen, setIsOpen] = (0, import_react41.useState)(false);
-  const dropdownRef = (0, import_react41.useRef)(null);
-  (0, import_react41.useEffect)(() => {
+  const [isOpen, setIsOpen] = (0, import_react42.useState)(false);
+  const dropdownRef = (0, import_react42.useRef)(null);
+  (0, import_react42.useEffect)(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -76358,21 +78113,21 @@ function UserDropdown({ userEmail }) {
     document.body.appendChild(form);
     form.submit();
   };
-  return /* @__PURE__ */ import_react41.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react41.default.createElement(
+  return /* @__PURE__ */ import_react42.default.createElement("div", { ref: dropdownRef, className: "relative" }, /* @__PURE__ */ import_react42.default.createElement(
     "button",
     {
       onClick: () => setIsOpen(!isOpen),
       className: "flex items-center gap-2 px-3 py-2 rounded hover:bg-khaki transition-colors text-sand"
     },
-    /* @__PURE__ */ import_react41.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react41.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
-  ), isOpen && /* @__PURE__ */ import_react41.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-primary text-sand border border-khaki rounded-lg shadow-lg z-50", style: { fontFamily: "Cormorant Garamond, Georgia, serif" } }, /* @__PURE__ */ import_react41.default.createElement("div", { className: "p-4 border-b border-khaki" }, /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react41.default.createElement("p", { className: "user-email text-sm truncate" }, userEmail)), /* @__PURE__ */ import_react41.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react41.default.createElement(
+    /* @__PURE__ */ import_react42.default.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", fill: "none", viewBox: "0 0 24 24", strokeWidth: "1.5", stroke: "currentColor", className: "w-6 h-6" }, /* @__PURE__ */ import_react42.default.createElement("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" }))
+  ), isOpen && /* @__PURE__ */ import_react42.default.createElement("div", { className: "absolute right-0 mt-2 w-64 bg-primary text-sand border border-khaki rounded-lg shadow-lg z-50", style: { fontFamily: "Cormorant Garamond, Georgia, serif" } }, /* @__PURE__ */ import_react42.default.createElement("div", { className: "p-4 border-b border-khaki" }, /* @__PURE__ */ import_react42.default.createElement("p", { className: "text-sm font-medium" }, "Signed in as"), /* @__PURE__ */ import_react42.default.createElement("p", { className: "user-email text-sm truncate" }, userEmail)), /* @__PURE__ */ import_react42.default.createElement("div", { className: "py-2" }, /* @__PURE__ */ import_react42.default.createElement(
     "a",
     {
       href: "/users/edit",
       className: "block px-4 py-2 text-sm hover:bg-khaki transition-colors"
     },
     "Edit My Information"
-  )), /* @__PURE__ */ import_react41.default.createElement("div", { className: "border-t border-khaki py-2" }, /* @__PURE__ */ import_react41.default.createElement(
+  )), /* @__PURE__ */ import_react42.default.createElement("div", { className: "border-t border-khaki py-2" }, /* @__PURE__ */ import_react42.default.createElement(
     "button",
     {
       onClick: handleSignOut,
@@ -76383,7 +78138,7 @@ function UserDropdown({ userEmail }) {
 }
 
 // app/javascript/components/PdfStudyMode.js
-var import_react55 = __toESM(require_react());
+var import_react56 = __toESM(require_react());
 
 // node_modules/react-pdf/node_modules/pdfjs-dist/build/pdf.mjs
 var pdf_exports = {};
@@ -101792,7 +103547,7 @@ globalThis.pdfjsLib = {
 
 // node_modules/react-pdf/dist/Document.js
 var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
-var import_react44 = __toESM(require_react(), 1);
+var import_react45 = __toESM(require_react(), 1);
 
 // node_modules/clsx/dist/clsx.mjs
 function r3(e3) {
@@ -102037,8 +103792,8 @@ function invariant(condition, message) {
 var import_warning2 = __toESM(require_warning(), 1);
 
 // node_modules/react-pdf/dist/DocumentContext.js
-var import_react42 = __toESM(require_react(), 1);
-var documentContext = (0, import_react42.createContext)(null);
+var import_react43 = __toESM(require_react(), 1);
+var documentContext = (0, import_react43.createContext)(null);
 var DocumentContext_default = documentContext;
 
 // node_modules/react-pdf/dist/LinkService.js
@@ -102176,7 +103931,7 @@ var PasswordResponses2 = {
 var PasswordResponses_default = PasswordResponses2;
 
 // node_modules/react-pdf/dist/shared/hooks/useResolver.js
-var import_react43 = __toESM(require_react(), 1);
+var import_react44 = __toESM(require_react(), 1);
 function reducer(state, action) {
   switch (action.type) {
     case "RESOLVE":
@@ -102190,7 +103945,7 @@ function reducer(state, action) {
   }
 }
 function useResolver() {
-  return (0, import_react43.useReducer)(reducer, { value: void 0, error: void 0 });
+  return (0, import_react44.useReducer)(reducer, { value: void 0, error: void 0 });
 }
 
 // node_modules/react-pdf/dist/shared/utils.js
@@ -102321,15 +104076,15 @@ var defaultOnPassword = (callback, reason) => {
 function isParameterObject(file) {
   return typeof file === "object" && file !== null && ("data" in file || "range" in file || "url" in file);
 }
-var Document2 = (0, import_react44.forwardRef)(function Document3({ children: children2, className, error = "Failed to load PDF file.", externalLinkRel, externalLinkTarget, file, inputRef, imageResourcesPath, loading = "Loading PDF\u2026", noData = "No PDF file specified.", onItemClick, onLoadError: onLoadErrorProps, onLoadProgress, onLoadSuccess: onLoadSuccessProps, onPassword = defaultOnPassword, onSourceError: onSourceErrorProps, onSourceSuccess: onSourceSuccessProps, options, renderMode, rotate, scale, ...otherProps }, ref) {
+var Document2 = (0, import_react45.forwardRef)(function Document3({ children: children2, className, error = "Failed to load PDF file.", externalLinkRel, externalLinkTarget, file, inputRef, imageResourcesPath, loading = "Loading PDF\u2026", noData = "No PDF file specified.", onItemClick, onLoadError: onLoadErrorProps, onLoadProgress, onLoadSuccess: onLoadSuccessProps, onPassword = defaultOnPassword, onSourceError: onSourceErrorProps, onSourceSuccess: onSourceSuccessProps, options, renderMode, rotate, scale, ...otherProps }, ref) {
   const [sourceState, sourceDispatch] = useResolver();
   const { value: source, error: sourceError } = sourceState;
   const [pdfState, pdfDispatch] = useResolver();
   const { value: pdf, error: pdfError } = pdfState;
-  const linkService = (0, import_react44.useRef)(new LinkService());
-  const pages = (0, import_react44.useRef)([]);
-  const prevFile = (0, import_react44.useRef)(void 0);
-  const prevOptions = (0, import_react44.useRef)(void 0);
+  const linkService = (0, import_react45.useRef)(new LinkService());
+  const pages = (0, import_react45.useRef)([]);
+  const prevFile = (0, import_react45.useRef)(void 0);
+  const prevOptions = (0, import_react45.useRef)(void 0);
   if (file && file !== prevFile.current && isParameterObject(file)) {
     (0, import_warning2.default)(!dequal(file, prevFile.current), `File prop passed to <Document /> changed, but it's equal to previous one. This might result in unnecessary reloads. Consider memoizing the value passed to "file" prop.`);
     prevFile.current = file;
@@ -102338,7 +104093,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
     (0, import_warning2.default)(!dequal(options, prevOptions.current), `Options prop passed to <Document /> changed, but it's equal to previous one. This might result in unnecessary reloads. Consider memoizing the value passed to "options" prop.`);
     prevOptions.current = options;
   }
-  const viewer = (0, import_react44.useRef)({
+  const viewer = (0, import_react45.useRef)({
     // Handling jumping to internal links target
     scrollPageIntoView: (args) => {
       const { dest, pageNumber, pageIndex = pageNumber - 1 } = args;
@@ -102354,7 +104109,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
       (0, import_warning2.default)(false, `An internal link leading to page ${pageNumber} was clicked, but neither <Document> was provided with onItemClick nor it was able to find the page within itself. Either provide onItemClick to <Document> and handle navigating by yourself or ensure that all pages are rendered within <Document>.`);
     }
   });
-  (0, import_react44.useImperativeHandle)(ref, () => ({
+  (0, import_react45.useImperativeHandle)(ref, () => ({
     linkService,
     pages,
     viewer
@@ -102376,8 +104131,8 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
   function resetSource() {
     sourceDispatch({ type: "RESET" });
   }
-  (0, import_react44.useEffect)(resetSource, [file, sourceDispatch]);
-  const findDocumentSource = (0, import_react44.useCallback)(async () => {
+  (0, import_react45.useEffect)(resetSource, [file, sourceDispatch]);
+  const findDocumentSource = (0, import_react45.useCallback)(async () => {
     if (!file) {
       return null;
     }
@@ -102413,7 +104168,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
     }
     return file;
   }, [file]);
-  (0, import_react44.useEffect)(() => {
+  (0, import_react45.useEffect)(() => {
     const cancellable = makeCancellablePromise(findDocumentSource());
     cancellable.promise.then((nextSource) => {
       sourceDispatch({ type: "RESOLVE", value: nextSource });
@@ -102424,7 +104179,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
       cancelRunningTask(cancellable);
     };
   }, [findDocumentSource, sourceDispatch]);
-  (0, import_react44.useEffect)(() => {
+  (0, import_react45.useEffect)(() => {
     if (typeof source === "undefined") {
       return;
     }
@@ -102453,10 +104208,10 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
       onLoadErrorProps(pdfError);
     }
   }
-  (0, import_react44.useEffect)(function resetDocument() {
+  (0, import_react45.useEffect)(function resetDocument() {
     pdfDispatch({ type: "RESET" });
   }, [pdfDispatch, source]);
-  (0, import_react44.useEffect)(function loadDocument() {
+  (0, import_react45.useEffect)(function loadDocument() {
     if (!source) {
       return;
     }
@@ -102481,7 +104236,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
       loadingPromise.finally(() => loadingTask.destroy());
     };
   }, [options, pdfDispatch, source]);
-  (0, import_react44.useEffect)(() => {
+  (0, import_react45.useEffect)(() => {
     if (typeof pdf === "undefined") {
       return;
     }
@@ -102491,18 +104246,18 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
     }
     onLoadSuccess();
   }, [pdf]);
-  (0, import_react44.useEffect)(function setupLinkService() {
+  (0, import_react45.useEffect)(function setupLinkService() {
     linkService.current.setViewer(viewer.current);
     linkService.current.setExternalLinkRel(externalLinkRel);
     linkService.current.setExternalLinkTarget(externalLinkTarget);
   }, [externalLinkRel, externalLinkTarget]);
-  const registerPage = (0, import_react44.useCallback)((pageIndex, ref2) => {
+  const registerPage = (0, import_react45.useCallback)((pageIndex, ref2) => {
     pages.current[pageIndex] = ref2;
   }, []);
-  const unregisterPage = (0, import_react44.useCallback)((pageIndex) => {
+  const unregisterPage = (0, import_react45.useCallback)((pageIndex) => {
     delete pages.current[pageIndex];
   }, []);
-  const childContext = (0, import_react44.useMemo)(() => ({
+  const childContext = (0, import_react45.useMemo)(() => ({
     imageResourcesPath,
     linkService: linkService.current,
     onItemClick,
@@ -102513,7 +104268,7 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
     scale,
     unregisterPage
   }), [imageResourcesPath, onItemClick, pdf, registerPage, renderMode, rotate, scale, unregisterPage]);
-  const eventProps = (0, import_react44.useMemo)(
+  const eventProps = (0, import_react45.useMemo)(
     () => makeEventProps(otherProps, () => pdf),
     // biome-ignore lint/correctness/useExhaustiveDependencies: FIXME
     [otherProps, pdf]
@@ -102551,14 +104306,14 @@ var Document2 = (0, import_react44.forwardRef)(function Document3({ children: ch
 var Document_default = Document2;
 
 // node_modules/react-pdf/dist/shared/hooks/useDocumentContext.js
-var import_react45 = __toESM(require_react(), 1);
+var import_react46 = __toESM(require_react(), 1);
 function useDocumentContext() {
-  return (0, import_react45.useContext)(DocumentContext_default);
+  return (0, import_react46.useContext)(DocumentContext_default);
 }
 
 // node_modules/react-pdf/dist/Page.js
 var import_jsx_runtime18 = __toESM(require_jsx_runtime(), 1);
-var import_react53 = __toESM(require_react(), 1);
+var import_react54 = __toESM(require_react(), 1);
 
 // node_modules/merge-refs/dist/index.js
 function mergeRefs2() {
@@ -102588,20 +104343,20 @@ var import_warning7 = __toESM(require_warning(), 1);
 
 // node_modules/react-pdf/dist/Page/AnnotationLayer.js
 var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
-var import_react48 = __toESM(require_react(), 1);
+var import_react49 = __toESM(require_react(), 1);
 var import_warning3 = __toESM(require_warning(), 1);
 
 // node_modules/react-pdf/dist/shared/hooks/usePageContext.js
-var import_react47 = __toESM(require_react(), 1);
+var import_react48 = __toESM(require_react(), 1);
 
 // node_modules/react-pdf/dist/PageContext.js
-var import_react46 = __toESM(require_react(), 1);
-var pageContext = (0, import_react46.createContext)(null);
+var import_react47 = __toESM(require_react(), 1);
+var pageContext = (0, import_react47.createContext)(null);
 var PageContext_default = pageContext;
 
 // node_modules/react-pdf/dist/shared/hooks/usePageContext.js
 function usePageContext() {
-  return (0, import_react47.useContext)(PageContext_default);
+  return (0, import_react48.useContext)(PageContext_default);
 }
 
 // node_modules/react-pdf/dist/Page/AnnotationLayer.js
@@ -102616,7 +104371,7 @@ function AnnotationLayer2() {
   invariant(linkService, "Attempted to load page annotations, but no linkService was specified.");
   const [annotationsState, annotationsDispatch] = useResolver();
   const { value: annotations, error: annotationsError } = annotationsState;
-  const layerElement = (0, import_react48.useRef)(null);
+  const layerElement = (0, import_react49.useRef)(null);
   (0, import_warning3.default)(Number.parseInt(window.getComputedStyle(document.body).getPropertyValue("--react-pdf-annotation-layer"), 10) === 1, "AnnotationLayer styles not found. Read more: https://github.com/wojtekmaj/react-pdf#support-for-annotations");
   function onLoadSuccess() {
     if (!annotations) {
@@ -102635,10 +104390,10 @@ function AnnotationLayer2() {
       onGetAnnotationsErrorProps(annotationsError);
     }
   }
-  (0, import_react48.useEffect)(function resetAnnotations() {
+  (0, import_react49.useEffect)(function resetAnnotations() {
     annotationsDispatch({ type: "RESET" });
   }, [annotationsDispatch, page]);
-  (0, import_react48.useEffect)(function loadAnnotations() {
+  (0, import_react49.useEffect)(function loadAnnotations() {
     if (!page) {
       return;
     }
@@ -102653,7 +104408,7 @@ function AnnotationLayer2() {
       cancelRunningTask(runningTask);
     };
   }, [annotationsDispatch, page]);
-  (0, import_react48.useEffect)(() => {
+  (0, import_react49.useEffect)(() => {
     if (annotations === void 0) {
       return;
     }
@@ -102674,8 +104429,8 @@ function AnnotationLayer2() {
       onRenderAnnotationLayerErrorProps(error);
     }
   }
-  const viewport = (0, import_react48.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
-  (0, import_react48.useEffect)(function renderAnnotationLayer() {
+  const viewport = (0, import_react49.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
+  (0, import_react49.useEffect)(function renderAnnotationLayer() {
     if (!pdf || !page || !linkService || !annotations) {
       return;
     }
@@ -102728,17 +104483,17 @@ function AnnotationLayer2() {
 
 // node_modules/react-pdf/dist/Page/Canvas.js
 var import_jsx_runtime16 = __toESM(require_jsx_runtime(), 1);
-var import_react51 = __toESM(require_react(), 1);
+var import_react52 = __toESM(require_react(), 1);
 var import_warning5 = __toESM(require_warning(), 1);
 
 // node_modules/react-pdf/dist/StructTree.js
 var import_jsx_runtime15 = __toESM(require_jsx_runtime(), 1);
-var import_react50 = __toESM(require_react(), 1);
+var import_react51 = __toESM(require_react(), 1);
 var import_warning4 = __toESM(require_warning(), 1);
 
 // node_modules/react-pdf/dist/StructTreeItem.js
 var import_jsx_runtime14 = __toESM(require_jsx_runtime(), 1);
-var import_react49 = __toESM(require_react(), 1);
+var import_react50 = __toESM(require_react(), 1);
 
 // node_modules/react-pdf/dist/shared/constants.js
 var PDF_ROLE_TO_HTML_ROLE = {
@@ -102866,8 +104621,8 @@ function getAttributes2(node) {
 
 // node_modules/react-pdf/dist/StructTreeItem.js
 function StructTreeItem({ className, node }) {
-  const attributes = (0, import_react49.useMemo)(() => getAttributes2(node), [node]);
-  const children2 = (0, import_react49.useMemo)(() => {
+  const attributes = (0, import_react50.useMemo)(() => getAttributes2(node), [node]);
+  const children2 = (0, import_react50.useMemo)(() => {
     if (!isStructTreeNode(node)) {
       return null;
     }
@@ -102909,10 +104664,10 @@ function StructTree() {
       onGetStructTreeErrorProps(structTreeError);
     }
   }
-  (0, import_react50.useEffect)(function resetStructTree() {
+  (0, import_react51.useEffect)(function resetStructTree() {
     structTreeDispatch({ type: "RESET" });
   }, [structTreeDispatch, page]);
-  (0, import_react50.useEffect)(function loadStructTree() {
+  (0, import_react51.useEffect)(function loadStructTree() {
     if (customTextRenderer) {
       return;
     }
@@ -102928,7 +104683,7 @@ function StructTree() {
     });
     return () => cancelRunningTask(runningTask);
   }, [customTextRenderer, page, structTreeDispatch]);
-  (0, import_react50.useEffect)(() => {
+  (0, import_react51.useEffect)(() => {
     if (structTree === void 0) {
       return;
     }
@@ -102953,7 +104708,7 @@ function Canvas(props) {
   const { _className, canvasBackground, devicePixelRatio = getDevicePixelRatio(), onRenderError: onRenderErrorProps, onRenderSuccess: onRenderSuccessProps, page, renderForms, renderTextLayer, rotate, scale } = mergedProps;
   const { canvasRef } = props;
   invariant(page, "Attempted to render page canvas, but no page was specified.");
-  const canvasElement = (0, import_react51.useRef)(null);
+  const canvasElement = (0, import_react52.useRef)(null);
   function onRenderSuccess() {
     if (!page) {
       return;
@@ -102971,9 +104726,9 @@ function Canvas(props) {
       onRenderErrorProps(error);
     }
   }
-  const renderViewport = (0, import_react51.useMemo)(() => page.getViewport({ scale: scale * devicePixelRatio, rotation: rotate }), [devicePixelRatio, page, rotate, scale]);
-  const viewport = (0, import_react51.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
-  (0, import_react51.useEffect)(function drawPageOnCanvas() {
+  const renderViewport = (0, import_react52.useMemo)(() => page.getViewport({ scale: scale * devicePixelRatio, rotation: rotate }), [devicePixelRatio, page, rotate, scale]);
+  const viewport = (0, import_react52.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
+  (0, import_react52.useEffect)(function drawPageOnCanvas() {
     if (!page) {
       return;
     }
@@ -103004,14 +104759,14 @@ function Canvas(props) {
     }).catch(onRenderError);
     return () => cancelRunningTask(runningTask);
   }, [canvasBackground, page, renderForms, renderViewport, viewport]);
-  const cleanup = (0, import_react51.useCallback)(() => {
+  const cleanup = (0, import_react52.useCallback)(() => {
     const { current: canvas } = canvasElement;
     if (canvas) {
       canvas.width = 0;
       canvas.height = 0;
     }
   }, []);
-  (0, import_react51.useEffect)(() => cleanup, [cleanup]);
+  (0, import_react52.useEffect)(() => cleanup, [cleanup]);
   return (0, import_jsx_runtime16.jsx)("canvas", { className: `${_className}__canvas`, dir: "ltr", ref: mergeRefs2(canvasRef, canvasElement), style: {
     display: "block",
     userSelect: "none"
@@ -103020,7 +104775,7 @@ function Canvas(props) {
 
 // node_modules/react-pdf/dist/Page/TextLayer.js
 var import_jsx_runtime17 = __toESM(require_jsx_runtime(), 1);
-var import_react52 = __toESM(require_react(), 1);
+var import_react53 = __toESM(require_react(), 1);
 var import_warning6 = __toESM(require_warning(), 1);
 function isTextItem(item) {
   return "str" in item;
@@ -103032,7 +104787,7 @@ function TextLayer2() {
   invariant(page, "Attempted to load page text content, but no page was specified.");
   const [textContentState, textContentDispatch] = useResolver();
   const { value: textContent, error: textContentError } = textContentState;
-  const layerElement = (0, import_react52.useRef)(null);
+  const layerElement = (0, import_react53.useRef)(null);
   (0, import_warning6.default)(Number.parseInt(window.getComputedStyle(document.body).getPropertyValue("--react-pdf-text-layer"), 10) === 1, "TextLayer styles not found. Read more: https://github.com/wojtekmaj/react-pdf#support-for-text-layer");
   function onLoadSuccess() {
     if (!textContent) {
@@ -103051,10 +104806,10 @@ function TextLayer2() {
       onGetTextError(textContentError);
     }
   }
-  (0, import_react52.useEffect)(function resetTextContent() {
+  (0, import_react53.useEffect)(function resetTextContent() {
     textContentDispatch({ type: "RESET" });
   }, [page, textContentDispatch]);
-  (0, import_react52.useEffect)(function loadTextContent() {
+  (0, import_react53.useEffect)(function loadTextContent() {
     if (!page) {
       return;
     }
@@ -103067,7 +104822,7 @@ function TextLayer2() {
     });
     return () => cancelRunningTask(runningTask);
   }, [page, textContentDispatch]);
-  (0, import_react52.useEffect)(() => {
+  (0, import_react53.useEffect)(() => {
     if (textContent === void 0) {
       return;
     }
@@ -103077,12 +104832,12 @@ function TextLayer2() {
     }
     onLoadSuccess();
   }, [textContent]);
-  const onRenderSuccess = (0, import_react52.useCallback)(() => {
+  const onRenderSuccess = (0, import_react53.useCallback)(() => {
     if (onRenderTextLayerSuccess) {
       onRenderTextLayerSuccess();
     }
   }, [onRenderTextLayerSuccess]);
-  const onRenderError = (0, import_react52.useCallback)((error) => {
+  const onRenderError = (0, import_react53.useCallback)((error) => {
     (0, import_warning6.default)(false, error.toString());
     if (onRenderTextLayerError) {
       onRenderTextLayerError(error);
@@ -103102,8 +104857,8 @@ function TextLayer2() {
     }
     layer2.classList.remove("selecting");
   }
-  const viewport = (0, import_react52.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
-  (0, import_react52.useLayoutEffect)(function renderTextLayer() {
+  const viewport = (0, import_react53.useMemo)(() => page.getViewport({ scale, rotation: rotate }), [page, rotate, scale]);
+  (0, import_react53.useLayoutEffect)(function renderTextLayer() {
     if (!page || !textContent) {
       return;
     }
@@ -103172,12 +104927,12 @@ function Page(props) {
   const { _className = "react-pdf__Page", _enableRegisterUnregisterPage = true, canvasBackground, canvasRef, children: children2, className, customRenderer: CustomRenderer, customTextRenderer, devicePixelRatio, error = "Failed to load the page.", height, inputRef, loading = "Loading page\u2026", noData = "No page specified.", onGetAnnotationsError: onGetAnnotationsErrorProps, onGetAnnotationsSuccess: onGetAnnotationsSuccessProps, onGetStructTreeError: onGetStructTreeErrorProps, onGetStructTreeSuccess: onGetStructTreeSuccessProps, onGetTextError: onGetTextErrorProps, onGetTextSuccess: onGetTextSuccessProps, onLoadError: onLoadErrorProps, onLoadSuccess: onLoadSuccessProps, onRenderAnnotationLayerError: onRenderAnnotationLayerErrorProps, onRenderAnnotationLayerSuccess: onRenderAnnotationLayerSuccessProps, onRenderError: onRenderErrorProps, onRenderSuccess: onRenderSuccessProps, onRenderTextLayerError: onRenderTextLayerErrorProps, onRenderTextLayerSuccess: onRenderTextLayerSuccessProps, pageIndex: pageIndexProps, pageNumber: pageNumberProps, pdf, registerPage, renderAnnotationLayer: renderAnnotationLayerProps = true, renderForms = false, renderMode = "canvas", renderTextLayer: renderTextLayerProps = true, rotate: rotateProps, scale: scaleProps = defaultScale, unregisterPage, width, ...otherProps } = mergedProps;
   const [pageState, pageDispatch] = useResolver();
   const { value: page, error: pageError } = pageState;
-  const pageElement = (0, import_react53.useRef)(null);
+  const pageElement = (0, import_react54.useRef)(null);
   invariant(pdf, "Attempted to load a page, but no document was specified. Wrap <Page /> in a <Document /> or pass explicit `pdf` prop.");
   const pageIndex = isProvided(pageNumberProps) ? pageNumberProps - 1 : pageIndexProps !== null && pageIndexProps !== void 0 ? pageIndexProps : null;
   const pageNumber = pageNumberProps !== null && pageNumberProps !== void 0 ? pageNumberProps : isProvided(pageIndexProps) ? pageIndexProps + 1 : null;
   const rotate = rotateProps !== null && rotateProps !== void 0 ? rotateProps : page ? page.rotate : null;
-  const scale = (0, import_react53.useMemo)(() => {
+  const scale = (0, import_react54.useMemo)(() => {
     if (!page) {
       return null;
     }
@@ -103193,7 +104948,7 @@ function Page(props) {
     }
     return scaleWithDefault * pageScale;
   }, [height, page, rotate, scaleProps, width]);
-  (0, import_react53.useEffect)(function hook() {
+  (0, import_react54.useEffect)(function hook() {
     return () => {
       if (!isProvided(pageIndex)) {
         return;
@@ -103226,10 +104981,10 @@ function Page(props) {
       onLoadErrorProps(pageError);
     }
   }
-  (0, import_react53.useEffect)(function resetPage() {
+  (0, import_react54.useEffect)(function resetPage() {
     pageDispatch({ type: "RESET" });
   }, [pageDispatch, pdf, pageIndex]);
-  (0, import_react53.useEffect)(function loadPage() {
+  (0, import_react54.useEffect)(function loadPage() {
     if (!pdf || !pageNumber) {
       return;
     }
@@ -103242,7 +104997,7 @@ function Page(props) {
     });
     return () => cancelRunningTask(runningTask);
   }, [pageDispatch, pdf, pageNumber]);
-  (0, import_react53.useEffect)(() => {
+  (0, import_react54.useEffect)(() => {
     if (page === void 0) {
       return;
     }
@@ -103252,7 +105007,7 @@ function Page(props) {
     }
     onLoadSuccess();
   }, [page, scale]);
-  const childContext = (0, import_react53.useMemo)(() => (
+  const childContext = (0, import_react54.useMemo)(() => (
     // Technically there cannot be page without pageIndex, pageNumber, rotate and scale, but TypeScript doesn't know that
     isProvided(pageIndex) && pageNumber && isProvided(rotate) && isProvided(scale) ? {
       _className,
@@ -103304,7 +105059,7 @@ function Page(props) {
     rotate,
     scale
   ]);
-  const eventProps = (0, import_react53.useMemo)(
+  const eventProps = (0, import_react54.useMemo)(
     () => makeEventProps(otherProps, () => page ? scale ? makePageCallback(page, scale) : void 0 : page),
     // biome-ignore lint/correctness/useExhaustiveDependencies: FIXME
     [otherProps, page, scale]
@@ -103383,32 +105138,32 @@ displayWorkerWarning();
 GlobalWorkerOptions.workerSrc = "pdf.worker.mjs";
 
 // app/javascript/components/ColorSchemeManager.js
-var import_react54 = __toESM(require_react());
+var import_react55 = __toESM(require_react());
 
 // app/javascript/components/PdfStudyMode.js
 pdf_exports.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdf_exports.version}/build/pdf.worker.min.mjs`;
 function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
-  const [numPages, setNumPages] = (0, import_react55.useState)(null);
-  const [scale, setScale] = (0, import_react55.useState)(1);
-  const [notes, setNotes] = (0, import_react55.useState)([]);
-  const [sidebarOpen, setSidebarOpen] = (0, import_react55.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
-  const [currentPage, setCurrentPage] = (0, import_react55.useState)(1);
-  const [formData, setFormData] = (0, import_react55.useState)({
+  const [numPages, setNumPages] = (0, import_react56.useState)(null);
+  const [scale, setScale] = (0, import_react56.useState)(1);
+  const [notes, setNotes] = (0, import_react56.useState)([]);
+  const [sidebarOpen, setSidebarOpen] = (0, import_react56.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
+  const [currentPage, setCurrentPage] = (0, import_react56.useState)(1);
+  const [formData, setFormData] = (0, import_react56.useState)({
     title: "",
     body: "",
     note_type: "note",
     page_number: 1
   });
-  const [editingNote, setEditingNote] = (0, import_react55.useState)(null);
-  const [showNoteModal, setShowNoteModal] = (0, import_react55.useState)(false);
-  const mainContentRef = (0, import_react55.useRef)(null);
-  (0, import_react55.useEffect)(() => {
+  const [editingNote, setEditingNote] = (0, import_react56.useState)(null);
+  const [showNoteModal, setShowNoteModal] = (0, import_react56.useState)(false);
+  const mainContentRef = (0, import_react56.useRef)(null);
+  (0, import_react56.useEffect)(() => {
     fetchNotes();
   }, [sourceId]);
-  (0, import_react55.useEffect)(() => {
+  (0, import_react56.useEffect)(() => {
     setFormData((prev) => ({ ...prev, page_number: currentPage }));
   }, [currentPage]);
-  (0, import_react55.useEffect)(() => {
+  (0, import_react56.useEffect)(() => {
     const mainContent = mainContentRef.current;
     if (!mainContent) return;
     const handleScroll = () => {
@@ -103479,20 +105234,20 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     setNumPages(numPages2);
   };
   if (!pdfUrl) {
-    return /* @__PURE__ */ import_react55.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ import_react55.default.createElement("p", { style: { fontSize: "var(--text-xl)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No PDF available for this source"), /* @__PURE__ */ import_react55.default.createElement("a", { href: `/sources/${sourceId}`, className: "btn-secondary", style: {
+    return /* @__PURE__ */ import_react56.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ import_react56.default.createElement("p", { style: { fontSize: "var(--text-xl)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No PDF available for this source"), /* @__PURE__ */ import_react56.default.createElement("a", { href: `/sources/${sourceId}`, className: "btn-secondary", style: {
       display: "inline-block",
       marginTop: "var(--space-4)",
       textDecoration: "none"
     } }, "Back to Source")));
   }
-  return /* @__PURE__ */ import_react55.default.createElement(import_react55.default.Fragment, null, /* @__PURE__ */ import_react55.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, sidebarOpen && /* @__PURE__ */ import_react55.default.createElement("aside", { style: {
+  return /* @__PURE__ */ import_react56.default.createElement(import_react56.default.Fragment, null, /* @__PURE__ */ import_react56.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, sidebarOpen && /* @__PURE__ */ import_react56.default.createElement("aside", { style: {
     width: "280px",
     background: "var(--sidebar-bg)",
     overflowY: "auto",
     padding: "var(--space-4)",
     boxShadow: "var(--shadow-sidebar)",
     flexShrink: 0
-  } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     fontSize: "var(--text-xs)",
     fontWeight: 700,
     textTransform: "uppercase",
@@ -103500,7 +105255,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     color: "var(--neutral-500)",
     marginBottom: "var(--space-3)",
     fontFamily: "var(--font-body)"
-  } }, "Create Note (Page ", currentPage, ")"), /* @__PURE__ */ import_react55.default.createElement("form", { onSubmit: handleSubmitNote, style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react55.default.createElement("style", null, `
+  } }, "Create Note (Page ", currentPage, ")"), /* @__PURE__ */ import_react56.default.createElement("form", { onSubmit: handleSubmitNote, style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react56.default.createElement("style", null, `
                   .study-form-input:focus,
                   .study-form-select:focus,
                   .study-form-textarea:focus {
@@ -103508,7 +105263,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                     border-color: var(--accent-teal);
                     box-shadow: 0 0 0 3px rgba(99, 156, 161, 0.1);
                   }
-                `), /* @__PURE__ */ import_react55.default.createElement("div", null, /* @__PURE__ */ import_react55.default.createElement("label", { className: "form-label", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Type"), /* @__PURE__ */ import_react55.default.createElement(
+                `), /* @__PURE__ */ import_react56.default.createElement("div", null, /* @__PURE__ */ import_react56.default.createElement("label", { className: "form-label", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Type"), /* @__PURE__ */ import_react56.default.createElement(
     "select",
     {
       value: formData.note_type,
@@ -103516,12 +105271,12 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       className: "form-select study-form-select",
       style: { fontSize: "var(--text-sm)", padding: "var(--space-2)" }
     },
-    /* @__PURE__ */ import_react55.default.createElement("option", { value: "note" }, "Note"),
-    /* @__PURE__ */ import_react55.default.createElement("option", { value: "question" }, "Question"),
-    /* @__PURE__ */ import_react55.default.createElement("option", { value: "synthesis" }, "Synthesis"),
-    /* @__PURE__ */ import_react55.default.createElement("option", { value: "connection" }, "Connection"),
-    /* @__PURE__ */ import_react55.default.createElement("option", { value: "todo" }, "To Do")
-  )), /* @__PURE__ */ import_react55.default.createElement("div", null, /* @__PURE__ */ import_react55.default.createElement("label", { className: "form-label", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Title"), /* @__PURE__ */ import_react55.default.createElement(
+    /* @__PURE__ */ import_react56.default.createElement("option", { value: "note" }, "Note"),
+    /* @__PURE__ */ import_react56.default.createElement("option", { value: "question" }, "Question"),
+    /* @__PURE__ */ import_react56.default.createElement("option", { value: "synthesis" }, "Synthesis"),
+    /* @__PURE__ */ import_react56.default.createElement("option", { value: "connection" }, "Connection"),
+    /* @__PURE__ */ import_react56.default.createElement("option", { value: "todo" }, "To Do")
+  )), /* @__PURE__ */ import_react56.default.createElement("div", null, /* @__PURE__ */ import_react56.default.createElement("label", { className: "form-label", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Title"), /* @__PURE__ */ import_react56.default.createElement(
     "input",
     {
       type: "text",
@@ -103531,7 +105286,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       style: { fontSize: "var(--text-sm)", padding: "var(--space-2)" },
       placeholder: "Optional..."
     }
-  )), /* @__PURE__ */ import_react55.default.createElement("div", null, /* @__PURE__ */ import_react55.default.createElement("label", { className: "form-label required teal", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Note"), /* @__PURE__ */ import_react55.default.createElement(
+  )), /* @__PURE__ */ import_react56.default.createElement("div", null, /* @__PURE__ */ import_react56.default.createElement("label", { className: "form-label required teal", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Note"), /* @__PURE__ */ import_react56.default.createElement(
     "textarea",
     {
       value: formData.body,
@@ -103542,7 +105297,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       placeholder: "Write your note...",
       required: true
     }
-  )), /* @__PURE__ */ import_react55.default.createElement(
+  )), /* @__PURE__ */ import_react56.default.createElement(
     "button",
     {
       type: "submit",
@@ -103557,7 +105312,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-teal)"
     },
     "Create Note"
-  ))), /* @__PURE__ */ import_react55.default.createElement("div", null, /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  ))), /* @__PURE__ */ import_react56.default.createElement("div", null, /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     fontSize: "var(--text-xs)",
     fontWeight: 700,
     textTransform: "uppercase",
@@ -103565,17 +105320,17 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     color: "var(--neutral-500)",
     marginBottom: "var(--space-3)",
     fontFamily: "var(--font-body)"
-  } }, "Notes (", notes.length, ")"), notes.length === 0 ? /* @__PURE__ */ import_react55.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)", margin: 0 } }, "No notes yet for this source") : /* @__PURE__ */ import_react55.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, notes.map((note) => /* @__PURE__ */ import_react55.default.createElement("div", { key: note.id, className: "card", style: { overflow: "hidden" } }, note.title && /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  } }, "Notes (", notes.length, ")"), notes.length === 0 ? /* @__PURE__ */ import_react56.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)", margin: 0 } }, "No notes yet for this source") : /* @__PURE__ */ import_react56.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, notes.map((note) => /* @__PURE__ */ import_react56.default.createElement("div", { key: note.id, className: "card", style: { overflow: "hidden" } }, note.title && /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     background: "var(--accent-teal)",
     padding: "var(--space-2) var(--space-3)",
     borderBottom: "1px solid var(--neutral-200)"
-  } }, /* @__PURE__ */ import_react55.default.createElement("h3", { style: {
+  } }, /* @__PURE__ */ import_react56.default.createElement("h3", { style: {
     fontWeight: 600,
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-display)",
     color: "white",
     margin: 0
-  } }, note.title)), /* @__PURE__ */ import_react55.default.createElement("div", { style: { padding: "var(--space-3)" } }, /* @__PURE__ */ import_react55.default.createElement(
+  } }, note.title)), /* @__PURE__ */ import_react56.default.createElement("div", { style: { padding: "var(--space-3)" } }, /* @__PURE__ */ import_react56.default.createElement(
     "div",
     {
       style: {
@@ -103591,28 +105346,28 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       },
       dangerouslySetInnerHTML: { __html: note.body }
     }
-  ), (note.concepts?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react55.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-1)" } }, note.concepts?.map((concept) => /* @__PURE__ */ import_react55.default.createElement("span", { key: concept.id, style: {
+  ), (note.concepts?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react56.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-1)" } }, note.concepts?.map((concept) => /* @__PURE__ */ import_react56.default.createElement("span", { key: concept.id, style: {
     fontSize: "var(--text-xs)",
     background: "var(--accent-green)",
     color: "white",
     padding: "var(--space-1) var(--space-2)",
     borderRadius: "4px",
     fontFamily: "var(--font-body)"
-  } }, concept.label)), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react55.default.createElement("span", { key: idx, style: {
+  } }, concept.label)), note.tags?.map((tag, idx) => /* @__PURE__ */ import_react56.default.createElement("span", { key: idx, style: {
     fontSize: "var(--text-xs)",
     background: "var(--accent-purple)",
     color: "white",
     padding: "var(--space-1) var(--space-2)",
     borderRadius: "4px",
     fontFamily: "var(--font-body)"
-  } }, typeof tag === "string" ? tag : tag.name)))), /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  } }, typeof tag === "string" ? tag : tag.name)))), /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     padding: "var(--space-1) var(--space-3)",
     background: "var(--card-footer)",
     borderTop: "1px solid var(--neutral-200)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between"
-  } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     display: "flex",
     alignItems: "center",
     gap: "var(--space-2)",
@@ -103620,7 +105375,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     color: "var(--accent-teal)",
     fontFamily: "var(--font-body)",
     fontWeight: 600
-  } }, note.page_number && /* @__PURE__ */ import_react55.default.createElement("span", null, "Page ", note.page_number), note.page_number && /* @__PURE__ */ import_react55.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "\u2022"), /* @__PURE__ */ import_react55.default.createElement("span", { style: { color: "var(--neutral-600)", fontWeight: 400 } }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react55.default.createElement(
+  } }, note.page_number && /* @__PURE__ */ import_react56.default.createElement("span", null, "Page ", note.page_number), note.page_number && /* @__PURE__ */ import_react56.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "\u2022"), /* @__PURE__ */ import_react56.default.createElement("span", { style: { color: "var(--neutral-600)", fontWeight: 400 } }, new Date(note.created_at).toLocaleDateString())), /* @__PURE__ */ import_react56.default.createElement(
     "button",
     {
       onClick: () => {
@@ -103641,8 +105396,8 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseEnter: (e3) => e3.currentTarget.style.opacity = "0.7",
       onMouseLeave: (e3) => e3.currentTarget.style.opacity = "1"
     },
-    /* @__PURE__ */ import_react55.default.createElement("i", { className: "fas fa-edit" })
-  ))))))), /* @__PURE__ */ import_react55.default.createElement(
+    /* @__PURE__ */ import_react56.default.createElement("i", { className: "fas fa-edit" })
+  ))))))), /* @__PURE__ */ import_react56.default.createElement(
     "button",
     {
       onClick: () => setSidebarOpen(!sidebarOpen),
@@ -103668,8 +105423,8 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--accent-blue-dark)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-blue)"
     },
-    /* @__PURE__ */ import_react55.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
-  ), /* @__PURE__ */ import_react55.default.createElement("main", { ref: mainContentRef, style: { flex: 1, overflowY: "auto", background: "white" } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: { padding: "var(--space-4) var(--space-6)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react56.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
+  ), /* @__PURE__ */ import_react56.default.createElement("main", { ref: mainContentRef, style: { flex: 1, overflowY: "auto", background: "white" } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: { padding: "var(--space-4) var(--space-6)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     display: "grid",
     gridTemplateColumns: "auto auto 1fr",
     gap: "var(--space-2)",
@@ -103677,7 +105432,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     fontSize: "var(--text-sm)",
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)"
-  } }, /* @__PURE__ */ import_react55.default.createElement("a", { href: "/sources", style: { color: "var(--neutral-600)", textDecoration: "none", fontWeight: 600 } }, "Sources"), /* @__PURE__ */ import_react55.default.createElement("span", { style: { padding: "0 var(--space-2)" } }, /* @__PURE__ */ import_react55.default.createElement("i", { className: "fas fa-chevron-right" })), /* @__PURE__ */ import_react55.default.createElement("a", { href: `/sources/${sourceId}`, style: { color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600, lineHeight: 1.1 } }, sourceTitle))), /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react56.default.createElement("a", { href: "/sources", style: { color: "var(--neutral-600)", textDecoration: "none", fontWeight: 600 } }, "Sources"), /* @__PURE__ */ import_react56.default.createElement("span", { style: { padding: "0 var(--space-2)" } }, /* @__PURE__ */ import_react56.default.createElement("i", { className: "fas fa-chevron-right" })), /* @__PURE__ */ import_react56.default.createElement("a", { href: `/sources/${sourceId}`, style: { color: "var(--accent-blue)", textDecoration: "none", fontWeight: 600, lineHeight: 1.1 } }, sourceTitle))), /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     padding: "var(--space-6)",
     background: "white",
     borderBottom: "1px solid var(--neutral-200)",
@@ -103686,19 +105441,19 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     justifyContent: "space-between",
     flexWrap: "wrap",
     gap: "var(--space-4)"
-  } }, /* @__PURE__ */ import_react55.default.createElement("h1", { style: {
+  } }, /* @__PURE__ */ import_react56.default.createElement("h1", { style: {
     fontSize: "var(--text-3xl)",
     fontWeight: 700,
     color: "var(--neutral-900)",
     fontFamily: "var(--font-display)",
     letterSpacing: "-0.02em",
     margin: 0
-  } }, sourceTitle), /* @__PURE__ */ import_react55.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react55.default.createElement("span", { style: {
+  } }, sourceTitle), /* @__PURE__ */ import_react56.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react56.default.createElement("span", { style: {
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-600)",
     fontWeight: 600
-  } }, "Page ", currentPage, " of ", numPages || "..."), /* @__PURE__ */ import_react55.default.createElement(
+  } }, "Page ", currentPage, " of ", numPages || "..."), /* @__PURE__ */ import_react56.default.createElement(
     "button",
     {
       onClick: () => setScale((s3) => Math.max(0.5, s3 - 0.1)),
@@ -103714,8 +105469,8 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
-    /* @__PURE__ */ import_react55.default.createElement("i", { className: "fas fa-minus" })
-  ), /* @__PURE__ */ import_react55.default.createElement("span", { style: { fontSize: "var(--text-sm)", width: "4rem", textAlign: "center", fontFamily: "var(--font-body)" } }, Math.round(scale * 100), "%"), /* @__PURE__ */ import_react55.default.createElement(
+    /* @__PURE__ */ import_react56.default.createElement("i", { className: "fas fa-minus" })
+  ), /* @__PURE__ */ import_react56.default.createElement("span", { style: { fontSize: "var(--text-sm)", width: "4rem", textAlign: "center", fontFamily: "var(--font-body)" } }, Math.round(scale * 100), "%"), /* @__PURE__ */ import_react56.default.createElement(
     "button",
     {
       onClick: () => setScale((s3) => Math.min(2, s3 + 0.1)),
@@ -103731,21 +105486,21 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
-    /* @__PURE__ */ import_react55.default.createElement("i", { className: "fas fa-plus" })
-  ))), /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react56.default.createElement("i", { className: "fas fa-plus" })
+  ))), /* @__PURE__ */ import_react56.default.createElement("div", { style: {
     padding: "var(--space-6)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     gap: "var(--space-4)",
     background: "var(--neutral-100)"
-  } }, /* @__PURE__ */ import_react55.default.createElement(
+  } }, /* @__PURE__ */ import_react56.default.createElement(
     Document_default,
     {
       file: pdfUrl,
       onLoadSuccess: onDocumentLoadSuccess
     },
-    Array.from(new Array(numPages), (el, index8) => /* @__PURE__ */ import_react55.default.createElement(
+    Array.from(new Array(numPages), (el, index8) => /* @__PURE__ */ import_react56.default.createElement(
       "div",
       {
         key: `page_${index8 + 1}`,
@@ -103756,7 +105511,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           position: "relative"
         }
       },
-      /* @__PURE__ */ import_react55.default.createElement("div", { style: {
+      /* @__PURE__ */ import_react56.default.createElement("div", { style: {
         position: "absolute",
         top: "-24px",
         left: "0",
@@ -103765,7 +105520,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         fontFamily: "var(--font-body)",
         fontWeight: 600
       } }, "Page ", index8 + 1),
-      /* @__PURE__ */ import_react55.default.createElement(
+      /* @__PURE__ */ import_react56.default.createElement(
         Page,
         {
           pageNumber: index8 + 1,
@@ -103775,7 +105530,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         }
       )
     ))
-  )))), /* @__PURE__ */ import_react55.default.createElement(
+  )))), /* @__PURE__ */ import_react56.default.createElement(
     NoteFormModal,
     {
       isOpen: showNoteModal,
@@ -103798,59 +105553,59 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react56.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react57.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react56.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react57.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react56.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react57.default.createElement(SourcesIndex, null));
   }
   const sourceShowRoot = document.getElementById("source-show-root");
   if (sourceShowRoot) {
     const sourceId = sourceShowRoot.dataset.sourceId;
-    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react56.default.createElement(SourceShow, { sourceId }));
+    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react57.default.createElement(SourceShow, { sourceId }));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react56.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react57.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
     const personId = personShowRoot.dataset.personId;
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react56.default.createElement(PersonShow, { personId }));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react57.default.createElement(PersonShow, { personId }));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react56.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react57.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react56.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react57.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react56.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react57.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react56.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react57.default.createElement(TagsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react56.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react57.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react56.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react57.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react56.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react57.default.createElement(UserDropdown, { userEmail }));
   }
   const pdfStudyRoot = document.getElementById("pdf-study-root");
   if (pdfStudyRoot) {
@@ -103858,7 +105613,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
     const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
     (0, import_client.createRoot)(pdfStudyRoot).render(
-      /* @__PURE__ */ import_react56.default.createElement(
+      /* @__PURE__ */ import_react57.default.createElement(
         PdfStudyMode,
         {
           sourceId,

@@ -130,138 +130,344 @@ export default function AuthorDisambiguationModal({ isOpen, onClose, authors, on
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Review Authors" size="large">
-      <div className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-        <p className="text-sm text-gray-600 mb-4">
+      <div style={{ maxHeight: '70vh', overflowY: 'auto', padding: 'var(--space-4)' }}>
+        <p style={{
+          fontSize: 'var(--text-sm)',
+          color: 'var(--neutral-600)',
+          marginBottom: 'var(--space-4)',
+          fontFamily: 'var(--font-body)'
+        }}>
           We detected {authors.length} author{authors.length !== 1 ? 's' : ''}.
           You can link to existing people in your database or add more details before creating new records.
         </p>
 
-        {authorData.map((author, index) => {
-          const linkedPerson = getLinkedPerson(author);
-          const hasPotentialMatches = author.potentialMatches && author.potentialMatches.length > 0;
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          {authorData.map((author, index) => {
+            const linkedPerson = getLinkedPerson(author);
+            const hasPotentialMatches = author.potentialMatches && author.potentialMatches.length > 0;
 
-          return (
-            <div key={index} className="border border-gray-300 rounded p-4 bg-white">
-              {/* Header */}
-              <div className="mb-3">
-                <div className="text-xs text-gray-500 mb-1">From citation:</div>
-                <div className="font-medium text-gray-900">{author.originalName}</div>
-              </div>
-
-              {author.action === 'link' && linkedPerson ? (
-                /* Linked State */
-                <div className="bg-primary-light bg-opacity-20 border border-primary-light rounded p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-primary">
-                        ✓ Linked to existing person
-                      </div>
-                      <div className="text-sm mt-1">{linkedPerson.full_name}</div>
-                      {linkedPerson.role && (
-                        <div className="text-xs text-gray-600">{linkedPerson.role}</div>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleUnlink(index)}
-                      className="text-xs text-accent hover:text-accent-dark px-3 py-1 border border-gray-300 rounded bg-white"
-                    >
-                      Unlink
-                    </button>
+            return (
+              <div key={index} style={{
+                border: '1px solid var(--neutral-300)',
+                borderRadius: '4px',
+                padding: 'var(--space-4)',
+                background: 'white'
+              }}>
+                {/* Header */}
+                <div style={{ marginBottom: 'var(--space-3)' }}>
+                  <div style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-1)',
+                    fontFamily: 'var(--font-body)'
+                  }}>
+                    From citation:
+                  </div>
+                  <div style={{
+                    fontWeight: 500,
+                    color: 'var(--neutral-900)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-sm)'
+                  }}>
+                    {author.originalName}
                   </div>
                 </div>
-              ) : (
-                /* Create New Person State */
-                <>
-                  {/* Name Fields */}
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium mb-1">First Name(s)</label>
-                        <input
-                          type="text"
-                          value={author.firstName}
-                          onChange={(e) => handleFieldChange(index, 'firstName', e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
-                          placeholder="e.g., Peter or P"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium mb-1">Middle Name(s)</label>
-                        <input
-                          type="text"
-                          value={author.middleName}
-                          onChange={(e) => handleFieldChange(index, 'middleName', e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
-                          placeholder="e.g., Michael or M"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                {author.action === 'link' && linkedPerson ? (
+                  /* Linked State */
+                  <div style={{
+                    background: 'var(--accent-gold-light)',
+                    border: '1px solid var(--accent-gold)',
+                    borderRadius: '4px',
+                    padding: 'var(--space-3)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div>
-                        <label className="block text-xs font-medium mb-1">Last Name *</label>
-                        <input
-                          type="text"
-                          value={author.lastName}
-                          onChange={(e) => handleFieldChange(index, 'lastName', e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
-                          placeholder="e.g., Gollwitzer"
-                        />
+                        <div style={{
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 500,
+                          color: 'var(--accent-gold)',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          ✓ Linked to existing person
+                        </div>
+                        <div style={{
+                          fontSize: 'var(--text-sm)',
+                          marginTop: 'var(--space-1)',
+                          fontFamily: 'var(--font-body)',
+                          color: 'var(--neutral-900)'
+                        }}>
+                          {linkedPerson.full_name}
+                        </div>
+                        {linkedPerson.role && (
+                          <div style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-600)',
+                            fontFamily: 'var(--font-body)'
+                          }}>
+                            {linkedPerson.role}
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <label className="block text-xs font-medium mb-1">ORCID (optional)</label>
-                        <input
-                          type="text"
-                          value={author.orcid}
-                          onChange={(e) => handleFieldChange(index, 'orcid', e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded"
-                          placeholder="0000-0000-0000-0000"
-                        />
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleUnlink(index)}
+                        style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--accent-gold)',
+                          padding: 'var(--space-1) var(--space-3)',
+                          border: '1px solid var(--neutral-300)',
+                          borderRadius: '4px',
+                          background: 'white',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-body)',
+                          fontWeight: 500,
+                          transition: 'all 0.15s'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--neutral-100)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'white';
+                        }}
+                      >
+                        Unlink
+                      </button>
                     </div>
                   </div>
-
-                  {/* Potential Duplicates Section */}
-                  {author.loadingMatches && (
-                    <div className="mt-3 text-xs text-gray-500">
-                      Searching for existing people...
-                    </div>
-                  )}
-
-                  {!author.loadingMatches && hasPotentialMatches && (
-                    <div className="mt-4 pt-3 border-t border-gray-200">
-                      <div className="text-xs font-medium text-gray-700 mb-2">
-                        Could this be one of these existing people?
+                ) : (
+                  /* Create New Person State */
+                  <>
+                    {/* Name Fields */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                        <div>
+                          <label className="form-label" style={{
+                            display: 'block',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 500,
+                            marginBottom: 'var(--space-1)',
+                            fontFamily: 'var(--font-body)',
+                            color: 'var(--neutral-700)'
+                          }}>
+                            First Name(s)
+                          </label>
+                          <input
+                            type="text"
+                            value={author.firstName}
+                            onChange={(e) => handleFieldChange(index, 'firstName', e.target.value)}
+                            className="form-input"
+                            placeholder="e.g., Peter or P"
+                            style={{
+                              width: '100%',
+                              padding: 'var(--space-2)',
+                              fontSize: 'var(--text-sm)',
+                              border: '1px solid var(--neutral-300)',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--font-body)'
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label className="form-label" style={{
+                            display: 'block',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 500,
+                            marginBottom: 'var(--space-1)',
+                            fontFamily: 'var(--font-body)',
+                            color: 'var(--neutral-700)'
+                          }}>
+                            Middle Name(s)
+                          </label>
+                          <input
+                            type="text"
+                            value={author.middleName}
+                            onChange={(e) => handleFieldChange(index, 'middleName', e.target.value)}
+                            className="form-input"
+                            placeholder="e.g., Michael or M"
+                            style={{
+                              width: '100%',
+                              padding: 'var(--space-2)',
+                              fontSize: 'var(--text-sm)',
+                              border: '1px solid var(--neutral-300)',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--font-body)'
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        {author.potentialMatches.map(person => (
-                          <button
-                            key={person.id}
-                            type="button"
-                            onClick={() => handleLinkToPerson(index, person)}
-                            className="w-full text-left px-3 py-2 text-sm bg-sand hover:bg-primary-light rounded border border-gray-200"
-                          >
-                            <div className="font-medium">{person.full_name}</div>
-                            {person.role && (
-                              <div className="text-xs text-gray-600">{person.role}</div>
-                            )}
-                          </button>
-                        ))}
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
+                        <div>
+                          <label className="form-label" style={{
+                            display: 'block',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 500,
+                            marginBottom: 'var(--space-1)',
+                            fontFamily: 'var(--font-body)',
+                            color: 'var(--neutral-700)'
+                          }}>
+                            Last Name *
+                          </label>
+                          <input
+                            type="text"
+                            value={author.lastName}
+                            onChange={(e) => handleFieldChange(index, 'lastName', e.target.value)}
+                            className="form-input"
+                            placeholder="e.g., Gollwitzer"
+                            style={{
+                              width: '100%',
+                              padding: 'var(--space-2)',
+                              fontSize: 'var(--text-sm)',
+                              border: '1px solid var(--neutral-300)',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--font-body)'
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label className="form-label" style={{
+                            display: 'block',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 500,
+                            marginBottom: 'var(--space-1)',
+                            fontFamily: 'var(--font-body)',
+                            color: 'var(--neutral-700)'
+                          }}>
+                            ORCID (optional)
+                          </label>
+                          <input
+                            type="text"
+                            value={author.orcid}
+                            onChange={(e) => handleFieldChange(index, 'orcid', e.target.value)}
+                            className="form-input"
+                            placeholder="0000-0000-0000-0000"
+                            style={{
+                              width: '100%',
+                              padding: 'var(--space-2)',
+                              fontSize: 'var(--text-sm)',
+                              border: '1px solid var(--neutral-300)',
+                              borderRadius: '4px',
+                              fontFamily: 'var(--font-body)'
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          );
-        })}
 
-        <div className="flex justify-center gap-3 pt-4 pb-4 border-t border-gray-200 sticky bottom-0 bg-white">
+                    {/* Potential Duplicates Section */}
+                    {author.loadingMatches && (
+                      <div style={{
+                        marginTop: 'var(--space-3)',
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        Searching for existing people...
+                      </div>
+                    )}
+
+                    {!author.loadingMatches && hasPotentialMatches && (
+                      <div style={{
+                        marginTop: 'var(--space-4)',
+                        paddingTop: 'var(--space-3)',
+                        borderTop: '1px solid var(--neutral-200)'
+                      }}>
+                        <div style={{
+                          fontSize: 'var(--text-xs)',
+                          fontWeight: 500,
+                          color: 'var(--neutral-700)',
+                          marginBottom: 'var(--space-2)',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          Could this be one of these existing people?
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                          {author.potentialMatches.map(person => (
+                            <button
+                              key={person.id}
+                              type="button"
+                              onClick={() => handleLinkToPerson(index, person)}
+                              style={{
+                                width: '100%',
+                                textAlign: 'left',
+                                padding: 'var(--space-2) var(--space-3)',
+                                fontSize: 'var(--text-sm)',
+                                background: 'var(--neutral-100)',
+                                borderRadius: '4px',
+                                border: '1px solid var(--neutral-200)',
+                                cursor: 'pointer',
+                                fontFamily: 'var(--font-body)',
+                                transition: 'all 0.15s'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'var(--accent-gold-light)';
+                                e.currentTarget.style.borderColor = 'var(--accent-gold)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'var(--neutral-100)';
+                                e.currentTarget.style.borderColor = 'var(--neutral-200)';
+                              }}
+                            >
+                              <div style={{ fontWeight: 500 }}>{person.full_name}</div>
+                              {person.role && (
+                                <div style={{
+                                  fontSize: 'var(--text-xs)',
+                                  color: 'var(--neutral-600)'
+                                }}>
+                                  {person.role}
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 'var(--space-3)',
+          paddingTop: 'var(--space-4)',
+          paddingBottom: 'var(--space-4)',
+          borderTop: '1px solid var(--neutral-200)',
+          position: 'sticky',
+          bottom: 0,
+          background: 'white',
+          marginTop: 'var(--space-4)'
+        }}>
           <button
             type="button"
             onClick={handleConfirm}
             className="btn-primary"
+            style={{
+              background: 'var(--accent-gold)',
+              color: 'white',
+              border: 'none',
+              padding: 'var(--space-3) var(--space-4)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-base)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#8a6624';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-gold)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
             Confirm & Save
           </button>
@@ -269,6 +475,24 @@ export default function AuthorDisambiguationModal({ isOpen, onClose, authors, on
             type="button"
             onClick={onClose}
             className="btn-secondary"
+            style={{
+              background: 'white',
+              color: 'var(--neutral-700)',
+              border: '1px solid var(--neutral-300)',
+              padding: 'var(--space-3) var(--space-4)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-base)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--neutral-100)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+            }}
           >
             Cancel
           </button>

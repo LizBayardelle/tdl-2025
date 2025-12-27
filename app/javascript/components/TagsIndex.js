@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import TagFormModal from './TagFormModal';
+import PersonFormModal from './PersonFormModal';
+import ConceptFormModal from './ConceptFormModal';
+import SourceFormModal from './SourceFormModal';
+import NoteFormModal from './NoteFormModal';
+import PeopleSelector from './PeopleSelector';
+import ConceptSelector from './ConceptSelector';
+import SourceSelector from './SourceSelector';
+import NoteSelector from './NoteSelector';
+import Modal from './Modal';
 
 export default function TagsIndex() {
   const [tags, setTags] = useState([]);
@@ -350,12 +359,150 @@ export default function TagsIndex() {
 function TagDetail({ tag, onDelete, onUpdate }) {
   const [editing, setEditing] = useState(false);
 
+  // Modal states
+  const [showLinkPeopleModal, setShowLinkPeopleModal] = useState(false);
+  const [showLinkConceptsModal, setShowLinkConceptsModal] = useState(false);
+  const [showLinkSourcesModal, setShowLinkSourcesModal] = useState(false);
+  const [showLinkNotesModal, setShowLinkNotesModal] = useState(false);
+  const [showNewPersonModal, setShowNewPersonModal] = useState(false);
+  const [showNewConceptModal, setShowNewConceptModal] = useState(false);
+  const [showNewSourceModal, setShowNewSourceModal] = useState(false);
+  const [showNewNoteModal, setShowNewNoteModal] = useState(false);
+
+  // Selection states
+  const [selectedPersonIds, setSelectedPersonIds] = useState([]);
+  const [selectedConceptIds, setSelectedConceptIds] = useState([]);
+  const [selectedSourceIds, setSelectedSourceIds] = useState([]);
+  const [selectedNoteIds, setSelectedNoteIds] = useState([]);
+
   const typeLabels = {
     Concept: 'Concepts',
     Source: 'Sources',
     Person: 'People',
     Connection: 'Relationships',
     Note: 'Notes'
+  };
+
+  const fetchTagDetails = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}.json`);
+      const data = await response.json();
+      onUpdate(data);
+    } catch (error) {
+      console.error('Error fetching tag details:', error);
+    }
+  };
+
+  const handleLinkPeople = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          tag: {
+            person_ids: selectedPersonIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkPeopleModal(false);
+        setSelectedPersonIds([]);
+      } else {
+        alert('Error linking people');
+      }
+    } catch (error) {
+      console.error('Error linking people:', error);
+      alert('Error linking people');
+    }
+  };
+
+  const handleLinkConcepts = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          tag: {
+            concept_ids: selectedConceptIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkConceptsModal(false);
+        setSelectedConceptIds([]);
+      } else {
+        alert('Error linking concepts');
+      }
+    } catch (error) {
+      console.error('Error linking concepts:', error);
+      alert('Error linking concepts');
+    }
+  };
+
+  const handleLinkSources = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          tag: {
+            source_ids: selectedSourceIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkSourcesModal(false);
+        setSelectedSourceIds([]);
+      } else {
+        alert('Error linking sources');
+      }
+    } catch (error) {
+      console.error('Error linking sources:', error);
+      alert('Error linking sources');
+    }
+  };
+
+  const handleLinkNotes = async () => {
+    try {
+      const response = await fetch(`/tags/${tag.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          tag: {
+            note_ids: selectedNoteIds
+          }
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTagDetails();
+        setShowLinkNotesModal(false);
+        setSelectedNoteIds([]);
+      } else {
+        alert('Error linking notes');
+      }
+    } catch (error) {
+      console.error('Error linking notes:', error);
+      alert('Error linking notes');
+    }
   };
 
   return (
@@ -496,21 +643,95 @@ function TagDetail({ tag, onDelete, onUpdate }) {
 
         {/* Body with color-coded sections */}
         <div style={{ padding: 'var(--space-6)', background: 'white' }}>
-          {tag.people && tag.people.length > 0 && (
-            <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 'var(--space-3)',
+            }}>
               <h3 style={{
                 fontSize: 'var(--text-lg)',
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
                 color: 'var(--accent-gold)',
-                marginBottom: 'var(--space-3)',
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)'
               }}>
                 <i className="fas fa-user" style={{ fontSize: 'var(--text-sm)' }}></i>
-                People
+                People ({tag.people?.length || 0})
               </h3>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  onClick={() => {
+                    setSelectedPersonIds(tag.people?.map(p => p.id) || []);
+                    setShowLinkPeopleModal(true);
+                  }}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    color: 'var(--accent-gold)',
+                    border: '2px solid var(--accent-gold)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.background = 'var(--accent-gold)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'var(--accent-gold)';
+                  }}
+                  title="Link Existing People"
+                >
+                  <i className="fas fa-link"></i>
+                </button>
+                <button
+                  onClick={() => setShowNewPersonModal(true)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'var(--accent-gold)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  }}
+                  title="New Person"
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            {tag.people && tag.people.length > 0 && (
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -551,24 +772,103 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            {!tag.people || tag.people.length === 0 && (
+              <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
+                No people tagged
+              </div>
+            )}
+          </div>
 
-          {tag.concepts && tag.concepts.length > 0 && (
-            <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 'var(--space-3)',
+            }}>
               <h3 style={{
                 fontSize: 'var(--text-lg)',
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
                 color: 'var(--accent-green)',
-                marginBottom: 'var(--space-3)',
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)'
               }}>
                 <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
-                Concepts
+                Concepts ({tag.concepts?.length || 0})
               </h3>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  onClick={() => {
+                    setSelectedConceptIds(tag.concepts?.map(c => c.id) || []);
+                    setShowLinkConceptsModal(true);
+                  }}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    color: 'var(--accent-green)',
+                    border: '2px solid var(--accent-green)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.background = 'var(--accent-green)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'var(--accent-green)';
+                  }}
+                  title="Link Existing Concepts"
+                >
+                  <i className="fas fa-link"></i>
+                </button>
+                <button
+                  onClick={() => setShowNewConceptModal(true)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'var(--accent-green)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  }}
+                  title="New Concept"
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            {tag.concepts && tag.concepts.length > 0 && (
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -626,24 +926,103 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            {!tag.concepts || tag.concepts.length === 0 && (
+              <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
+                No concepts tagged
+              </div>
+            )}
+          </div>
 
-          {tag.sources && tag.sources.length > 0 && (
-            <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 'var(--space-3)',
+            }}>
               <h3 style={{
                 fontSize: 'var(--text-lg)',
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
                 color: 'var(--accent-blue)',
-                marginBottom: 'var(--space-3)',
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)'
               }}>
                 <i className="fas fa-book" style={{ fontSize: 'var(--text-sm)' }}></i>
-                Sources
+                Sources ({tag.sources?.length || 0})
               </h3>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  onClick={() => {
+                    setSelectedSourceIds(tag.sources?.map(s => s.id) || []);
+                    setShowLinkSourcesModal(true);
+                  }}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    color: 'var(--accent-blue)',
+                    border: '2px solid var(--accent-blue)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.background = 'var(--accent-blue)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'var(--accent-blue)';
+                  }}
+                  title="Link Existing Sources"
+                >
+                  <i className="fas fa-link"></i>
+                </button>
+                <button
+                  onClick={() => setShowNewSourceModal(true)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'var(--accent-blue)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  }}
+                  title="New Source"
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            {tag.sources && tag.sources.length > 0 && (
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -704,24 +1083,103 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            {!tag.sources || tag.sources.length === 0 && (
+              <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
+                No sources tagged
+              </div>
+            )}
+          </div>
 
-          {tag.notes && tag.notes.length > 0 && (
-            <div style={{ marginBottom: 'var(--space-6)' }}>
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 'var(--space-3)',
+            }}>
               <h3 style={{
                 fontSize: 'var(--text-lg)',
                 fontWeight: 600,
                 fontFamily: 'var(--font-display)',
                 color: 'var(--accent-teal)',
-                marginBottom: 'var(--space-3)',
+                margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)'
               }}>
                 <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-sm)' }}></i>
-                Notes
+                Notes ({tag.notes?.length || 0})
               </h3>
+              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <button
+                  onClick={() => {
+                    setSelectedNoteIds(tag.notes?.map(n => n.id) || []);
+                    setShowLinkNotesModal(true);
+                  }}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    color: 'var(--accent-teal)',
+                    border: '2px solid var(--accent-teal)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                    e.currentTarget.style.background = 'var(--accent-teal)';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'var(--accent-teal)';
+                  }}
+                  title="Link Existing Notes"
+                >
+                  <i className="fas fa-link"></i>
+                </button>
+                <button
+                  onClick={() => setShowNewNoteModal(true)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'var(--accent-teal)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 'var(--text-sm)',
+                    transition: 'all 0.15s',
+                    boxShadow: 'var(--shadow-sm)',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  }}
+                  title="New Note"
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            {tag.notes && tag.notes.length > 0 && (
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
@@ -821,8 +1279,13 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   </a>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+            {!tag.notes || tag.notes.length === 0 && (
+              <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
+                No notes tagged
+              </div>
+            )}
+          </div>
 
           {tag.connections && tag.connections.length > 0 && (
             <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -902,6 +1365,192 @@ function TagDetail({ tag, onDelete, onUpdate }) {
           )}
         </div>
       </div>
+
+      {/* Link Existing Modals */}
+      <Modal
+        isOpen={showLinkPeopleModal}
+        onClose={() => setShowLinkPeopleModal(false)}
+        title="Apply Tag to People"
+        titleColor="var(--accent-gold)"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <PeopleSelector
+            selectedPersonIds={selectedPersonIds}
+            onChange={setSelectedPersonIds}
+            themeColor="var(--accent-gold)"
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+          <button
+            onClick={() => setShowLinkPeopleModal(false)}
+            className="btn-secondary"
+            style={{
+              background: 'color-mix(in srgb, var(--accent-gold) 10%, white)',
+              color: 'var(--accent-gold)',
+              border: '1px solid color-mix(in srgb, var(--accent-gold) 30%, white)'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkPeople}
+            className="btn-primary"
+            style={{ background: 'var(--accent-gold)' }}
+          >
+            Save ({selectedPersonIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showLinkConceptsModal}
+        onClose={() => setShowLinkConceptsModal(false)}
+        title="Apply Tag to Concepts"
+        titleColor="var(--accent-green)"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <ConceptSelector
+            selectedConceptIds={selectedConceptIds}
+            onChange={setSelectedConceptIds}
+            themeColor="var(--accent-green)"
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+          <button
+            onClick={() => setShowLinkConceptsModal(false)}
+            className="btn-secondary"
+            style={{
+              background: 'color-mix(in srgb, var(--accent-green) 10%, white)',
+              color: 'var(--accent-green)',
+              border: '1px solid color-mix(in srgb, var(--accent-green) 30%, white)'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkConcepts}
+            className="btn-primary"
+            style={{ background: 'var(--accent-green)' }}
+          >
+            Save ({selectedConceptIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showLinkSourcesModal}
+        onClose={() => setShowLinkSourcesModal(false)}
+        title="Apply Tag to Sources"
+        titleColor="var(--accent-blue)"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <SourceSelector
+            selectedSourceIds={selectedSourceIds}
+            onChange={setSelectedSourceIds}
+            themeColor="var(--accent-blue)"
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+          <button
+            onClick={() => setShowLinkSourcesModal(false)}
+            className="btn-secondary"
+            style={{
+              background: 'color-mix(in srgb, var(--accent-blue) 10%, white)',
+              color: 'var(--accent-blue)',
+              border: '1px solid color-mix(in srgb, var(--accent-blue) 30%, white)'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkSources}
+            className="btn-primary"
+            style={{ background: 'var(--accent-blue)' }}
+          >
+            Save ({selectedSourceIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showLinkNotesModal}
+        onClose={() => setShowLinkNotesModal(false)}
+        title="Apply Tag to Notes"
+        titleColor="var(--accent-teal)"
+        size="large"
+      >
+        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
+          <NoteSelector
+            selectedNoteIds={selectedNoteIds}
+            onChange={setSelectedNoteIds}
+            themeColor="var(--accent-teal)"
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+          <button
+            onClick={() => setShowLinkNotesModal(false)}
+            className="btn-secondary"
+            style={{
+              background: 'color-mix(in srgb, var(--accent-teal) 10%, white)',
+              color: 'var(--accent-teal)',
+              border: '1px solid color-mix(in srgb, var(--accent-teal) 30%, white)'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleLinkNotes}
+            className="btn-primary"
+            style={{ background: 'var(--accent-teal)' }}
+          >
+            Save ({selectedNoteIds.length})
+          </button>
+        </div>
+      </Modal>
+
+      {/* Create New Modals - pre-populated with current tag */}
+      <PersonFormModal
+        isOpen={showNewPersonModal}
+        onClose={() => setShowNewPersonModal(false)}
+        defaultTags={[tag.name]}
+        onSuccess={async (newPerson) => {
+          setShowNewPersonModal(false);
+          await fetchTagDetails();
+        }}
+      />
+
+      <ConceptFormModal
+        isOpen={showNewConceptModal}
+        onClose={() => setShowNewConceptModal(false)}
+        defaultTags={[tag.name]}
+        onSuccess={async (newConcept) => {
+          setShowNewConceptModal(false);
+          await fetchTagDetails();
+        }}
+      />
+
+      <SourceFormModal
+        isOpen={showNewSourceModal}
+        onClose={() => setShowNewSourceModal(false)}
+        defaultTags={[tag.name]}
+        onSuccess={async (newSource) => {
+          setShowNewSourceModal(false);
+          await fetchTagDetails();
+        }}
+      />
+
+      <NoteFormModal
+        isOpen={showNewNoteModal}
+        onClose={() => setShowNewNoteModal(false)}
+        defaultTags={[tag.name]}
+        onSuccess={async (newNote) => {
+          setShowNewNoteModal(false);
+          await fetchTagDetails();
+        }}
+      />
     </>
   );
 }

@@ -91,6 +91,6 @@ class TagsController < ApplicationController
   end
 
   def tag_params
-    params.require(:tag).permit(:name, :description, :color)
+    params.require(:tag).permit(:name, :description, :color, person_ids: [], concept_ids: [], source_ids: [], note_ids: [])
   end
 end

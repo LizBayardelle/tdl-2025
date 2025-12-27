@@ -144,17 +144,6 @@ const ConceptSidebar = React.memo(({
                   }}
                 >
                   {c.label}
-                  {c.node_type && (
-                    <div style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--neutral-500)',
-                      marginTop: 'var(--space-1)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em'
-                    }}>
-                      {c.node_type.replace(/_/g, ' ')}
-                    </div>
-                  )}
                 </button>
               ))}
             </div>

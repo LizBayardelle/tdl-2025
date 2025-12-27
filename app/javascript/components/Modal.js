@@ -1,62 +1,106 @@
 import React from 'react';
 
-export default function Modal({ isOpen, onClose, title, children, size = 'medium', hideHeader = false }) {
+export default function Modal({ isOpen, onClose, title, children, size = 'medium', titleColor = 'var(--neutral-900)' }) {
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    small: 'max-w-md',
-    medium: 'max-w-2xl',
-    large: 'max-w-4xl',
-    xlarge: 'max-w-6xl'
+  const maxWidths = {
+    small: '400px',
+    medium: '600px',
+    large: '800px',
+    xlarge: '1000px'
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" style={{ zIndex: 9999 }}>
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20">
-        {/* Background overlay */}
-        <div
-          className="fixed inset-0 transition-opacity"
-          onClick={onClose}
-          style={{ zIndex: 9998, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
-        ></div>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      {/* Background overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 9998
+        }}
+      ></div>
 
-        {/* Modal panel */}
-        <div
-          className="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all w-full mx-auto"
-          style={{ zIndex: 9999, maxWidth: '95vw' }}
-        >
-          {/* Close button in absolute top right corner */}
+      {/* Modal panel */}
+      <div
+        style={{
+          position: 'relative',
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: 'var(--shadow-xl)',
+          zIndex: 9999,
+          width: '100%',
+          maxWidth: maxWidths[size],
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: 'var(--space-6)',
+          borderBottom: '1px solid var(--neutral-200)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <h2 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            color: titleColor,
+            margin: 0
+          }}>
+            {title}
+          </h2>
           <button
             onClick={onClose}
-            className="absolute top-2 right-4 text-olive text-3xl leading-none bg-transparent hover:opacity-80 z-10"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--neutral-500)',
+              fontSize: 'var(--text-2xl)',
+              cursor: 'pointer',
+              padding: 0,
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--neutral-100)';
+              e.currentTarget.style.color = 'var(--neutral-900)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = 'var(--neutral-500)';
+            }}
             type="button"
           >
             ×
           </button>
+        </div>
 
-          {!hideHeader && (
-            <>
-              {/* Header */}
-              <div className="bg-sand border-b border-gray-300">
-                <div className={`${sizeClasses[size]} mx-auto px-6 py-6`}>
-                  <h3 className="text-3xl font-medium text-center">{title}</h3>
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="bg-white">
-                <div className={`${sizeClasses[size]} mx-auto px-6 pt-6 pb-4 max-h-[70vh] overflow-y-auto`}>
-                  {children}
-                </div>
-              </div>
-            </>
-          )}
-
-          {hideHeader && (
-            <div className="bg-white" style={{ height: '80vh', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-              {children}
-            </div>
-          )}
+        {/* Body */}
+        <div style={{
+          padding: 'var(--space-6)',
+          overflowY: 'auto',
+          flex: 1
+        }}>
+          {children}
         </div>
       </div>
     </div>

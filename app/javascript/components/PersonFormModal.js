@@ -10,6 +10,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [formData, setFormData] = useState({
     full_name: '',
     role: 'theorist',
+    email: '',
+    url: '',
     summary: '',
     aka: [],
     concept_ids: [],
@@ -25,6 +27,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData({
           full_name: item.full_name || '',
           role: item.role || 'theorist',
+          email: item.email || '',
+          url: item.url || '',
           summary: item.summary || '',
           aka: item.aka || [],
           concept_ids: item.concept_ids || [],
@@ -35,6 +39,8 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData({
           full_name: '',
           role: 'theorist',
+          email: '',
+          url: '',
           summary: '',
           aka: [],
           concept_ids: [],
@@ -292,6 +298,60 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                       <option value="peer">Peer</option>
                       <option value="client">Client</option>
                     </select>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                    <div>
+                      <label className="form-label">Email</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="form-input"
+                        style={{
+                          width: '100%',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-base)'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.padding = 'var(--space-3)';
+                        }}
+                        placeholder="email@example.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">URL</label>
+                      <input
+                        type="url"
+                        value={formData.url}
+                        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                        className="form-input"
+                        style={{
+                          width: '100%',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-base)'
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
+                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.padding = 'var(--space-3)';
+                        }}
+                        placeholder="https://..."
+                      />
+                    </div>
                   </div>
 
                   <div>

@@ -5,11 +5,14 @@ export default function PeopleIndex() {
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingPerson, setEditingPerson] = useState(null);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedConcepts, setSelectedConcepts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sortField, setSortField] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   useEffect(() => {
     fetchPeople();
@@ -118,6 +121,53 @@ export default function PeopleIndex() {
 
   const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 ||
                           selectedTags.length > 0 || searchQuery;
+
+  // Sort people
+  const sortedPeople = [...filteredPeople].sort((a, b) => {
+    let aVal, bVal;
+
+    switch (sortField) {
+      case 'name':
+        aVal = a.full_name || '';
+        bVal = b.full_name || '';
+        break;
+      case 'role':
+        aVal = a.role || '';
+        bVal = b.role || '';
+        break;
+      case 'sources':
+        aVal = a.sources_count || 0;
+        bVal = b.sources_count || 0;
+        break;
+      case 'notes':
+        aVal = a.notes_count || 0;
+        bVal = b.notes_count || 0;
+        break;
+      case 'tags':
+        aVal = (a.tags || []).length;
+        bVal = (b.tags || []).length;
+        break;
+      default:
+        aVal = a.full_name || '';
+        bVal = b.full_name || '';
+    }
+
+    if (typeof aVal === 'string') {
+      const comparison = aVal.localeCompare(bVal);
+      return sortDirection === 'asc' ? comparison : -comparison;
+    } else {
+      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+    }
+  });
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
 
   if (loading) {
     return (
@@ -512,14 +562,19 @@ export default function PeopleIndex() {
 
         <PersonFormModal
           isOpen={showForm}
-          onClose={() => setShowForm(false)}
+          onClose={() => {
+            setShowForm(false);
+            setEditingPerson(null);
+          }}
           onSuccess={() => {
             fetchPeople();
             setShowForm(false);
+            setEditingPerson(null);
           }}
+          item={editingPerson}
         />
 
-        {/* People Cards */}
+        {/* People Table */}
         <div style={{
           flex: 1,
           overflowY: 'auto',
@@ -527,7 +582,7 @@ export default function PeopleIndex() {
           paddingLeft: 'calc(var(--space-6) + 24px)',
           background: 'var(--background)'
         }}>
-          {filteredPeople.length === 0 ? (
+          {sortedPeople.length === 0 ? (
             <div
               style={{
                 textAlign: 'center',
@@ -545,10 +600,153 @@ export default function PeopleIndex() {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              {filteredPeople.map(person => (
-                <PersonCard key={person.id} person={person} onUpdate={fetchPeople} />
-              ))}
+            <div style={{ background: 'white', borderRadius: '4px', border: '1px solid var(--neutral-200)', overflow: 'hidden' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+                <thead style={{ background: 'var(--neutral-50)', borderBottom: '1px solid var(--neutral-200)' }}>
+                  <tr>
+                    <th
+                      onClick={() => handleSort('name')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Name {sortField === 'name' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('role')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'left',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Role {sortField === 'role' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th style={{
+                      fontFamily: 'var(--font-display)',
+                      textAlign: 'center',
+                      padding: '0.75rem 1rem',
+                      fontWeight: 600,
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--neutral-700)',
+                      width: '80px'
+                    }}>
+                      Contact
+                    </th>
+                    <th
+                      onClick={() => handleSort('sources')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'center',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                        width: '100px'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Sources {sortField === 'sources' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('notes')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'center',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                        width: '100px'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Notes {sortField === 'notes' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th
+                      onClick={() => handleSort('tags')}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'center',
+                        padding: '0.75rem 1rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-700)',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        transition: 'color 0.15s',
+                        width: '100px'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                    >
+                      Tags {sortField === 'tags' && (
+                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
+                      )}
+                    </th>
+                    <th style={{
+                      fontFamily: 'var(--font-display)',
+                      textAlign: 'right',
+                      padding: '0.75rem 1rem',
+                      fontWeight: 600,
+                      fontSize: 'var(--text-sm)',
+                      color: 'var(--neutral-700)',
+                      width: '100px'
+                    }}>
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedPeople.map(person => (
+                    <PersonRow
+                      key={person.id}
+                      person={person}
+                      onUpdate={fetchPeople}
+                      onEdit={(person) => {
+                        setEditingPerson(person);
+                        setShowForm(true);
+                      }}
+                    />
+                  ))}
+                </tbody>
+              </table>
+              </div>
             </div>
           )}
         </div>
@@ -557,9 +755,7 @@ export default function PeopleIndex() {
   );
 }
 
-function PersonCard({ person, onUpdate }) {
-  const [showEdit, setShowEdit] = useState(false);
-
+function PersonRow({ person, onUpdate, onEdit }) {
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to delete "${person.full_name}"?`)) return;
 
@@ -583,167 +779,163 @@ function PersonCard({ person, onUpdate }) {
   };
 
   return (
-    <>
-      <div
-        className="card"
-        style={{
-          overflow: 'hidden',
-          transition: 'all 0.2s',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.12)';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }}
-      >
-        {/* Card Header */}
-        <div style={{
-          background: 'var(--card-header)',
-          padding: 'var(--space-3) var(--space-4)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '1px solid var(--neutral-200)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flex: 1 }}>
-            <i className="fas fa-user" style={{ color: 'var(--accent-gold)', fontSize: 'var(--text-lg)' }}></i>
+    <tr
+      style={{
+        borderBottom: '1px solid var(--neutral-200)',
+        transition: 'background 0.15s',
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-50)'}
+      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+    >
+      {/* Name */}
+      <td style={{ padding: '0.75rem 1rem' }}>
+        <a
+          href={`/people/${person.id}`}
+          style={{
+            fontSize: 'var(--text-sm)',
+            fontWeight: 500,
+            color: 'var(--neutral-900)',
+            textDecoration: 'none',
+            fontFamily: 'var(--font-body)',
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+        >
+          {person.full_name}
+        </a>
+      </td>
+
+      {/* Role */}
+      <td style={{ padding: '0.75rem 1rem' }}>
+        {person.role && (
+          <span
+            className="tag"
+            style={{
+              textTransform: 'uppercase',
+              background: 'var(--accent-gold-light)',
+              color: 'var(--accent-gold)',
+              fontSize: 'var(--text-xs)',
+              padding: '0.25rem 0.5rem',
+            }}
+          >
+            {person.role.replace(/_/g, ' ')}
+          </span>
+        )}
+      </td>
+
+      {/* Contact */}
+      <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
+          {person.email && (
             <a
-              href={`/people/${person.id}`}
+              href={`mailto:${person.email}`}
               style={{
+                color: 'var(--accent-gold)',
                 fontSize: 'var(--text-sm)',
-                fontWeight: 600,
-                color: 'var(--neutral-900)',
-                textDecoration: 'none',
-                lineHeight: 1.4,
                 transition: 'color 0.15s',
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+              title={person.email}
             >
-              {person.full_name}
+              <i className="fas fa-envelope"></i>
             </a>
-          </div>
-
-          <div style={{ display: 'flex', gap: 'var(--space-2)', marginLeft: 'var(--space-4)' }}>
-            <button
-              onClick={() => setShowEdit(true)}
-              className="icon-btn"
-              title="Edit"
-              style={{ color: 'var(--accent-gold)' }}
+          )}
+          {person.url && (
+            <a
+              href={person.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: 'var(--accent-gold)',
+                fontSize: 'var(--text-sm)',
+                transition: 'color 0.15s',
+              }}
               onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
               onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+              title={person.url}
             >
-              <i className="fas fa-pen"></i>
-            </button>
-            <button
-              onClick={handleDelete}
-              className="icon-btn"
-              title="Delete"
-              style={{ color: 'var(--accent-gold)' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-            >
-              <i className="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-
-        {/* Card Body */}
-        <div style={{ padding: 'var(--space-4)' }}>
-          {/* Role and AKA */}
-          {(person.role || person.aka?.length > 0) && (
-            <div style={{ marginBottom: 'var(--space-3)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', fontSize: 'var(--text-xs)' }}>
-                {person.role && (
-                  <span className="tag" style={{ textTransform: 'uppercase', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)' }}>
-                    {person.role.replace(/_/g, ' ')}
-                  </span>
-                )}
-                {person.aka && person.aka.length > 0 && (
-                  <span style={{ color: 'var(--neutral-600)', fontSize: 'var(--text-xs)' }}>
-                    Also known as: {person.aka.join(', ')}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Summary */}
-          {person.summary && (
-            <div style={{ marginBottom: 'var(--space-3)' }}>
-              <div
-                style={{
-                  fontSize: 'var(--text-xs)',
-                  lineHeight: 1.6,
-                  color: 'var(--neutral-700)',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                }}
-                dangerouslySetInnerHTML={{ __html: person.summary }}
-              />
-            </div>
-          )}
-
-          {/* Tags */}
-          {(person.concepts?.length > 0 || person.tags?.length > 0) && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-              {person.concepts?.map((concept) => (
-                <a
-                  key={concept.id}
-                  href={`/concepts/${concept.id}`}
-                  className="tag concept"
-                  style={{ textDecoration: 'none' }}
-                >
-                  {concept.label}
-                </a>
-              ))}
-              {person.tags?.map((tag, idx) => (
-                <span key={idx} className="tag tag-purple">
-                  {tag}
-                </span>
-              ))}
-            </div>
+              <i className="fas fa-link"></i>
+            </a>
           )}
         </div>
+      </td>
 
-        {/* Card Footer */}
-        <div style={{
-          padding: 'var(--space-2) var(--space-4)',
-          background: 'var(--card-footer)',
-          borderTop: '1px solid var(--neutral-200)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: 'var(--text-xs)',
-          color: 'var(--neutral-500)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <span>{person.sources_count || 0} source{person.sources_count !== 1 ? 's' : ''}</span>
-            <span>•</span>
-            <span>{person.notes_count || 0} note{person.notes_count !== 1 ? 's' : ''}</span>
-          </div>
+      {/* Sources */}
+      <td style={{
+        padding: '0.75rem 1rem',
+        textAlign: 'center',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-600)',
+        fontFamily: 'var(--font-body)',
+      }}>
+        {person.sources_count || 0}
+      </td>
 
-          <span style={{ color: 'var(--neutral-500)' }}>
-            Updated {new Date(person.updated_at).toLocaleDateString()}
-          </span>
+      {/* Notes */}
+      <td style={{
+        padding: '0.75rem 1rem',
+        textAlign: 'center',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-600)',
+        fontFamily: 'var(--font-body)',
+      }}>
+        {person.notes_count || 0}
+      </td>
+
+      {/* Tags */}
+      <td style={{
+        padding: '0.75rem 1rem',
+        textAlign: 'center',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--neutral-600)',
+        fontFamily: 'var(--font-body)',
+      }}>
+        {(person.tags || []).length}
+      </td>
+
+      {/* Actions */}
+      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
+          <button
+            onClick={() => onEdit(person)}
+            className="icon-btn"
+            title="Edit"
+            style={{
+              color: 'var(--accent-gold)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              fontSize: 'var(--text-sm)',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+          >
+            <i className="fas fa-pen"></i>
+          </button>
+          <button
+            onClick={handleDelete}
+            className="icon-btn"
+            title="Delete"
+            style={{
+              color: 'var(--accent-gold)',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              fontSize: 'var(--text-sm)',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+          >
+            <i className="fas fa-trash"></i>
+          </button>
         </div>
-      </div>
-
-      <PersonFormModal
-        isOpen={showEdit}
-        onClose={() => setShowEdit(false)}
-        onSuccess={() => {
-          onUpdate();
-          setShowEdit(false);
-        }}
-        item={person}
-      />
-    </>
+      </td>
+    </tr>
   );
 }

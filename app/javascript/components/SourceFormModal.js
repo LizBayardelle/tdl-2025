@@ -600,6 +600,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                           value={formData.kind}
                           onChange={(e) => setFormData({ ...formData, kind: e.target.value })}
                           className="form-select"
+                          style={{ height: '42px' }}
                         >
                           <option value="article">Article</option>
                           <option value="book">Book</option>
@@ -623,6 +624,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                           onChange={(e) => setFormData({ ...formData, year: e.target.value })}
                           className="form-input"
                           placeholder="2024"
+                          style={{ height: '42px' }}
                         />
                       </div>
                     </div>
@@ -1126,10 +1128,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   }}>
                     Concepts & Tags
                   </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', height: '100%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <label className="form-label">Concepts</label>
-                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                    <div>
+                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Concepts</label>
+                      <div style={{ height: '400px', overflowY: 'auto' }}>
                         <ConceptSelector
                           selectedConceptIds={formData.concept_ids}
                           onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
@@ -1137,9 +1139,9 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <label className="form-label">Tags</label>
-                      <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <div>
+                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Tags</label>
+                      <div style={{ height: '400px', overflowY: 'auto' }}>
                         <TagSelector
                           selectedTags={formData.tags}
                           onChange={(tags) => setFormData({ ...formData, tags })}
