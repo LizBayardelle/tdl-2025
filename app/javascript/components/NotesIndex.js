@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NoteFormModal from './NoteFormModal';
+import NoteShowModal from './NoteShowModal';
 
 export default function NotesIndex() {
   const [notes, setNotes] = useState([]);
@@ -9,6 +10,8 @@ export default function NotesIndex() {
   const [loading, setLoading] = useState(true);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
+  const [viewingNote, setViewingNote] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
 
   // Sidebar state - closed on mobile by default
   const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
@@ -647,7 +650,14 @@ export default function NotesIndex() {
                 gap: 'var(--space-4)'
               }}>
                 {filteredNotes.map(note => (
-                  <div key={note.id} className="card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                  <div
+                    key={note.id}
+                    className="card"
+                    style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', cursor: 'pointer', transition: 'box-shadow 0.15s, transform 0.15s' }}
+                    onClick={() => { setViewingNote(note); setShowViewModal(true); }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-lg)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = 'translateY(0)'; }}
+                  >
                     {note.title && (
                       <div style={{
                         background: 'var(--accent-teal)',
@@ -672,7 +682,7 @@ export default function NotesIndex() {
                           {note.title}
                         </h3>
                         <button
-                          onClick={() => handleTogglePin(note)}
+                          onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
                           style={{
                             background: 'none',
                             border: 'none',
@@ -691,7 +701,7 @@ export default function NotesIndex() {
                     <div style={{ padding: 'var(--space-4)', flex: 1 }}>
                       {!note.title && (
                         <button
-                          onClick={() => handleTogglePin(note)}
+                          onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
                           style={{
                             position: 'absolute',
                             top: 'var(--space-3)',
@@ -709,6 +719,7 @@ export default function NotesIndex() {
                         </button>
                       )}
                       <div
+                        className="prose prose-sm max-w-none [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-1 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-1 [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-2 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-1 [&_td]:text-xs [&_th]:border [&_th]:border-gray-300 [&_th]:p-1 [&_th]:text-xs [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto"
                         style={{
                           fontSize: 'var(--text-sm)',
                           color: 'var(--neutral-700)',
@@ -728,6 +739,7 @@ export default function NotesIndex() {
                             <a
                               key={concept.id}
                               href={`/concepts/${concept.id}`}
+                              onClick={(e) => e.stopPropagation()}
                               style={{
                                 fontSize: 'var(--text-xs)',
                                 background: 'var(--accent-green-light)',
@@ -782,7 +794,7 @@ export default function NotesIndex() {
                         lineHeight: 1
                       }}>
                         {note.source && (
-                          <a href={`/sources/${note.source.id}`} style={{
+                          <a href={`/sources/${note.source.id}`} onClick={(e) => e.stopPropagation()} style={{
                             color: 'var(--accent-blue)',
                             textDecoration: 'none',
                             fontWeight: 600,
@@ -798,7 +810,8 @@ export default function NotesIndex() {
                       </div>
                       <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setEditingNote(note);
                             setShowFormModal(true);
                           }}
@@ -818,7 +831,7 @@ export default function NotesIndex() {
                           <i className="fas fa-edit"></i>
                         </button>
                         <button
-                          onClick={() => handleDeleteNote(note.id)}
+                          onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id); }}
                           style={{
                             background: 'none',
                             border: 'none',
@@ -843,6 +856,27 @@ export default function NotesIndex() {
           </div>
         </main>
       </div>
+
+      <NoteShowModal
+        isOpen={showViewModal}
+        onClose={() => { setShowViewModal(false); setViewingNote(null); }}
+        note={viewingNote}
+        onEdit={(note) => {
+          setShowViewModal(false);
+          setViewingNote(null);
+          setEditingNote(note);
+          setShowFormModal(true);
+        }}
+        onDelete={(noteId) => {
+          setShowViewModal(false);
+          setViewingNote(null);
+          handleDeleteNote(noteId);
+        }}
+        onTogglePin={(note) => {
+          handleTogglePin(note);
+          setViewingNote({ ...note, pinned: !note.pinned });
+        }}
+      />
 
       <NoteFormModal
         isOpen={showFormModal}

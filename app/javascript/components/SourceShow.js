@@ -585,6 +585,7 @@ function SourceNotes({ sourceId }) {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creatingNote, setCreatingNote] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
 
   useEffect(() => {
     fetchNotes();
@@ -676,6 +677,16 @@ function SourceNotes({ sourceId }) {
         onSuccess={(newNote) => {
           fetchNotes();
           setCreatingNote(false);
+        }}
+      />
+      <NoteFormModal
+        isOpen={!!editingNote}
+        onClose={() => setEditingNote(null)}
+        item={editingNote}
+        sourceId={sourceId}
+        onSuccess={(updatedNote) => {
+          fetchNotes();
+          setEditingNote(null);
         }}
       />
       <div style={{ marginTop: 'var(--space-8)' }}>
@@ -794,8 +805,22 @@ function SourceNotes({ sourceId }) {
                 <div style={{ fontSize: 'var(--text-xs)', color: '#639CA1', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
                   {note.page_number && <span>Page {note.page_number}</span>}
                 </div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
-                  {new Date(note.created_at).toLocaleDateString()}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                  <button
+                    onClick={() => setEditingNote(note)}
+                    className="icon-btn"
+                    style={{
+                      color: '#639CA1',
+                      fontSize: 'var(--text-sm)',
+                      padding: 'var(--space-1)'
+                    }}
+                    title="Edit Note"
+                  >
+                    <i className="fas fa-pen"></i>
+                  </button>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>
+                    {new Date(note.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             </div>

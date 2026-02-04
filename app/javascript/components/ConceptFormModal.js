@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Modal from './Modal';
-import HierarchicalConceptSelect from './HierarchicalConceptSelect';
+import SlidePanel from './SlidePanel';
+import ConceptSearchSelect from './ConceptSearchSelect';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
@@ -237,6 +237,28 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     }
   };
 
+  const handleCreateConcept = async (label) => {
+    try {
+      const response = await fetch('/concepts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ concept: { label, node_type: 'construct' } }),
+      });
+
+      if (response.ok) {
+        const newConcept = await response.json();
+        setConcepts(prev => [...prev, newConcept]);
+        return newConcept;
+      }
+    } catch (error) {
+      console.error('Error creating concept:', error);
+    }
+    return null;
+  };
+
   const handleClose = () => {
     // If we added or deleted relationships, refresh the parent
     if (newRelationships.length > 0 || deletedRelationshipIds.length > 0) {
@@ -246,12 +268,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   };
 
   return (
-    <Modal
+    <SlidePanel
       isOpen={isOpen}
       onClose={handleClose}
-      size="large"
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -755,13 +776,13 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                       <option value="treats">treats</option>
                     </optgroup>
                   </select>
-                  <HierarchicalConceptSelect
+                  <ConceptSearchSelect
                     concepts={concepts}
                     value={formData.new_relationship_dst_concept_id}
                     onChange={(e) => setFormData({ ...formData, new_relationship_dst_concept_id: e.target.value })}
                     excludeId={item?.id}
-                    placeholder="select a construct..."
-                    className="form-select"
+                    placeholder="Type to search constructs..."
+                    onCreateConcept={handleCreateConcept}
                   />
                   <button
                     type="button"
@@ -1018,6 +1039,6 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           </button>
         </div>
       </form>
-    </Modal>
+    </SlidePanel>
   );
 }

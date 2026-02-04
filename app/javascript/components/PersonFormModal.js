@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Modal from './Modal';
+import SlidePanel from './SlidePanel';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
 import SourceSelector from './SourceSelector';
@@ -98,12 +98,11 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   };
 
   return (
-    <Modal
+    <SlidePanel
       isOpen={isOpen}
       onClose={onClose}
-      size="large"
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '90vh' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -572,6 +571,6 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           </button>
         </div>
       </form>
-    </Modal>
+    </SlidePanel>
   );
 }

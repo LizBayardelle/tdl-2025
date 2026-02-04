@@ -42,53 +42,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "article_authors", force: :cascade do |t|
-    t.bigint "article_id", null: false
-    t.bigint "author_id", null: false
-    t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["article_id", "author_id"], name: "index_article_authors_on_article_id_and_author_id", unique: true
-    t.index ["article_id", "position"], name: "index_article_authors_on_article_id_and_position"
-    t.index ["article_id"], name: "index_article_authors_on_article_id"
-    t.index ["author_id"], name: "index_article_authors_on_author_id"
-  end
-
-  create_table "article_concepts", force: :cascade do |t|
-    t.bigint "article_id", null: false
-    t.bigint "concept_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["article_id", "concept_id"], name: "index_article_concepts_on_article_id_and_concept_id", unique: true
-    t.index ["article_id"], name: "index_article_concepts_on_article_id"
-    t.index ["concept_id"], name: "index_article_concepts_on_concept_id"
-  end
-
-  create_table "articles", force: :cascade do |t|
-    t.string "title", null: false
-    t.text "abstract"
-    t.string "url"
-    t.string "doi"
-    t.string "journal_name"
-    t.string "publisher"
-    t.date "publication_date"
-    t.integer "publication_year"
-    t.string "volume"
-    t.string "issue"
-    t.string "pages"
-    t.string "article_type"
-    t.json "keywords", default: []
-    t.json "raw_metadata"
-    t.text "formatted_citation"
-    t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["doi"], name: "index_articles_on_doi", unique: true, where: "(doi IS NOT NULL)"
-    t.index ["publication_year"], name: "index_articles_on_publication_year"
-    t.index ["title"], name: "index_articles_on_title"
-    t.index ["user_id"], name: "index_articles_on_user_id"
-  end
-
   create_table "authors", force: :cascade do |t|
     t.string "last_name"
     t.string "first_name"
@@ -226,10 +179,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"
-    t.bigint "article_id"
     t.bigint "source_id"
     t.integer "page_number"
-    t.index ["article_id"], name: "index_notes_on_article_id"
     t.index ["concept_id"], name: "index_notes_on_concept_id"
     t.index ["note_type"], name: "index_notes_on_note_type"
     t.index ["noted_on"], name: "index_notes_on_noted_on"
@@ -389,11 +340,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "article_authors", "articles"
-  add_foreign_key "article_authors", "authors"
-  add_foreign_key "article_concepts", "articles"
-  add_foreign_key "article_concepts", "concepts"
-  add_foreign_key "articles", "users"
   add_foreign_key "authors", "users"
   add_foreign_key "concept_notes", "concepts"
   add_foreign_key "concept_notes", "notes"
@@ -407,7 +353,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
   add_foreign_key "highlights", "sources"
   add_foreign_key "highlights", "users"
   add_foreign_key "note_links", "notes"
-  add_foreign_key "notes", "articles"
   add_foreign_key "notes", "concepts"
   add_foreign_key "notes", "sources"
   add_foreign_key "notes", "users"
