@@ -163,7 +163,7 @@ class ArticleMetadataExtractor
     http.read_timeout = 10
 
     request = Net::HTTP::Get.new(uri.path)
-    request['User-Agent'] = 'Mozilla/5.0 (TDL Research App; mailto:research@example.com)'
+    request['User-Agent'] = 'Mozilla/5.0 (Map My Research App; mailto:research@example.com)'
 
     response = http.request(request)
 

@@ -27,6 +27,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
     const textMap = {
       parent_of: 'is a parent of',
       child_of: 'is a child of',
+      is_a: 'is a',
       prerequisite_for: 'is a prerequisite for',
       builds_on: 'builds on',
       derived_from: 'is derived from',
@@ -210,6 +211,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
                 <optgroup label="Hierarchical">
                   <option value="parent_of">is a parent of</option>
                   <option value="child_of">is a child of</option>
+                  <option value="is_a">is a (categorization)</option>
                 </optgroup>
                 <optgroup label="Sequential">
                   <option value="prerequisite_for">is a prerequisite for</option>

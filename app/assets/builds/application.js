@@ -24691,11 +24691,17 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, node_type: e3.target.value }),
         className: "form-select"
       },
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "school_of_thought" }, "School of Thought"),
       /* @__PURE__ */ import_react3.default.createElement("option", { value: "construct" }, "Construct"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "subject" }, "Subject"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "theory" }, "Theory"),
       /* @__PURE__ */ import_react3.default.createElement("option", { value: "model" }, "Model"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "theory" }, "Theory"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "technique" }, "Technique"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "measure" }, "Measure"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "structure" }, "Structure"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "school_of_thought" }, "School of Thought"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "subject" }, "Subject"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "population" }, "Population"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "category" }, "Category"),
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "discipline" }, "Discipline"),
       /* @__PURE__ */ import_react3.default.createElement("option", { value: "other" }, "Other")
     )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label" }, "Status"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
@@ -24862,7 +24868,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         onChange: (e3) => setFormData({ ...formData, new_relationship_rel_type: e3.target.value }),
         className: "form-select"
       },
-      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "child_of" }, "is a child of")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "child_of" }, "is a child of"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "is_a" }, "is a (categorization)")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "derived_from" }, "is derived from")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "associated_with" }, "is associated with")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "critiques" }, "critiques")),
@@ -25509,7 +25515,42 @@ function ConceptsIndex() {
     ))))
   ))));
 }
+var NODE_TYPE_OPTIONS = [
+  { value: "construct", label: "Construct" },
+  { value: "model", label: "Model" },
+  { value: "theory", label: "Theory" },
+  { value: "technique", label: "Technique" },
+  { value: "measure", label: "Measure" },
+  { value: "structure", label: "Structure" },
+  { value: "school_of_thought", label: "School of Thought" },
+  { value: "subject", label: "Subject" },
+  { value: "population", label: "Population" },
+  { value: "category", label: "Category" },
+  { value: "discipline", label: "Discipline" },
+  { value: "other", label: "Other" }
+];
 function ConceptRow({ concept, depth, onUpdate, onEdit }) {
+  const [editingType, setEditingType] = (0, import_react4.useState)(false);
+  const handleTypeChange = async (newType) => {
+    setEditingType(false);
+    if (newType === concept.node_type) return;
+    try {
+      const response = await fetch(`/concepts/${concept.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ concept: { node_type: newType } })
+      });
+      if (response.ok) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error("Error updating type:", error);
+    }
+  };
   const handleDelete2 = async () => {
     if (!confirm("Are you sure you want to delete this concept?")) return;
     try {
@@ -25598,18 +25639,55 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
       },
       concept.label
     ))),
-    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", position: "relative" } }, editingType ? /* @__PURE__ */ import_react4.default.createElement(
+      "select",
+      {
+        autoFocus: true,
+        value: concept.node_type,
+        onChange: (e3) => handleTypeChange(e3.target.value),
+        onBlur: () => setEditingType(false),
+        style: {
+          fontSize: "var(--text-xs)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          padding: "var(--space-1) var(--space-2)",
+          borderRadius: "4px",
+          border: "1px solid var(--primary)",
+          background: "white",
+          color: "var(--primary)",
+          fontFamily: "var(--font-body)",
+          fontWeight: 500,
+          cursor: "pointer",
+          outline: "none"
+        }
+      },
+      NODE_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react4.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
+    ) : /* @__PURE__ */ import_react4.default.createElement(
       "span",
       {
         className: "tag concept",
+        onClick: (e3) => {
+          e3.stopPropagation();
+          setEditingType(true);
+        },
         style: {
           display: "inline-block",
           fontSize: "var(--text-xs)",
           textTransform: "uppercase",
-          letterSpacing: "0.05em"
-        }
+          letterSpacing: "0.05em",
+          cursor: "pointer",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.outline = "2px solid var(--primary)";
+          e3.currentTarget.style.outlineOffset = "2px";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.outline = "none";
+        },
+        title: "Click to change type"
       },
-      concept.node_type
+      concept.node_type?.replace(/_/g, " ")
     )),
     /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, concept.level_status && /* @__PURE__ */ import_react4.default.createElement(
       "span",
@@ -25754,6 +25832,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
     const textMap = {
       parent_of: "is a parent of",
       child_of: "is a child of",
+      is_a: "is a",
       prerequisite_for: "is a prerequisite for",
       builds_on: "builds on",
       derived_from: "is derived from",
@@ -25911,7 +25990,7 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
           fontFamily: "var(--font-body)"
         }
       },
-      /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "child_of" }, "is a child of")),
+      /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "child_of" }, "is a child of"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "is_a" }, "is a (categorization)")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "derived_from" }, "is derived from")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "associated_with" }, "is associated with")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "critiques" }, "critiques")),
@@ -61035,6 +61114,7 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
   const relTypeLabels = {
     parent_of: "Parent of",
     child_of: "Child of",
+    is_a: "Is a",
     prerequisite_for: "Prerequisite for",
     builds_on: "Builds on",
     derived_from: "Derived from",
@@ -64949,7 +65029,8 @@ function ConnectionVisualization() {
     associated_with: "Associated with",
     critiques: "Critiques",
     supports: "Supports",
-    related_to: "Related to"
+    related_to: "Related to",
+    is_a: "Is a"
   };
   const relTypeColors = {
     authored: "bg-purple-100 border-purple-300",
@@ -64962,7 +65043,8 @@ function ConnectionVisualization() {
     associated_with: "bg-gray-100 border-gray-300",
     critiques: "bg-orange-100 border-orange-300",
     supports: "bg-emerald-100 border-emerald-300",
-    related_to: "bg-slate-100 border-slate-300"
+    related_to: "bg-slate-100 border-slate-300",
+    is_a: "bg-teal-100 border-teal-300"
   };
   if (loading) {
     return /* @__PURE__ */ import_react35.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react35.default.createElement("p", null, "Loading visualization..."));

@@ -618,6 +618,7 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
   const relTypeLabels = {
     parent_of: 'Parent of',
     child_of: 'Child of',
+    is_a: 'Is a',
     prerequisite_for: 'Prerequisite for',
     builds_on: 'Builds on',
     derived_from: 'Derived from',

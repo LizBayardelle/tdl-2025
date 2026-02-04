@@ -20,7 +20,12 @@ class Concept < ApplicationRecord
     measure: "measure",
     population: "population",
     category: "category",
-    discipline: "discipline"
+    discipline: "discipline",
+    school_of_thought: "school_of_thought",
+    subject: "subject",
+    theory: "theory",
+    structure: "structure",
+    other: "other"
   }, prefix: true
 
   enum :level_status, {

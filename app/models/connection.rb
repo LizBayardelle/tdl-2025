@@ -7,7 +7,7 @@ class Connection < ApplicationRecord
 
   # Enums for relationship types
   # Core relationship types for visualization
-  HIERARCHICAL_TYPES = ['parent_of', 'child_of'].freeze
+  HIERARCHICAL_TYPES = ['parent_of', 'child_of', 'is_a'].freeze
   SEMANTIC_TYPES = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'].freeze
   SEQUENTIAL_TYPES = ['prerequisite_for', 'builds_on', 'derived_from'].freeze
   INFLUENCE_TYPES = ['influenced', 'supports', 'critiques'].freeze
@@ -30,6 +30,7 @@ class Connection < ApplicationRecord
     # Hierarchical (parent-child)
     parent_of: "parent_of",
     child_of: "child_of",
+    is_a: "is_a",
 
     # Sequential (learning path)
     prerequisite_for: "prerequisite_for",

@@ -497,11 +497,17 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                     onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
                     className="form-select"
                   >
-                    <option value="school_of_thought">School of Thought</option>
                     <option value="construct">Construct</option>
-                    <option value="subject">Subject</option>
-                    <option value="theory">Theory</option>
                     <option value="model">Model</option>
+                    <option value="theory">Theory</option>
+                    <option value="technique">Technique</option>
+                    <option value="measure">Measure</option>
+                    <option value="structure">Structure</option>
+                    <option value="school_of_thought">School of Thought</option>
+                    <option value="subject">Subject</option>
+                    <option value="population">Population</option>
+                    <option value="category">Category</option>
+                    <option value="discipline">Discipline</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
@@ -753,6 +759,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                     <optgroup label="Hierarchical">
                       <option value="parent_of">is a parent of</option>
                       <option value="child_of">is a child of</option>
+                      <option value="is_a">is a (categorization)</option>
                     </optgroup>
                     <optgroup label="Sequential">
                       <option value="prerequisite_for">is a prerequisite for</option>

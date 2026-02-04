@@ -501,7 +501,47 @@ export default function ConceptsIndex() {
   );
 }
 
+const NODE_TYPE_OPTIONS = [
+  { value: 'construct', label: 'Construct' },
+  { value: 'model', label: 'Model' },
+  { value: 'theory', label: 'Theory' },
+  { value: 'technique', label: 'Technique' },
+  { value: 'measure', label: 'Measure' },
+  { value: 'structure', label: 'Structure' },
+  { value: 'school_of_thought', label: 'School of Thought' },
+  { value: 'subject', label: 'Subject' },
+  { value: 'population', label: 'Population' },
+  { value: 'category', label: 'Category' },
+  { value: 'discipline', label: 'Discipline' },
+  { value: 'other', label: 'Other' },
+];
+
 function ConceptRow({ concept, depth, onUpdate, onEdit }) {
+  const [editingType, setEditingType] = useState(false);
+
+  const handleTypeChange = async (newType) => {
+    setEditingType(false);
+    if (newType === concept.node_type) return;
+
+    try {
+      const response = await fetch(`/concepts/${concept.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ concept: { node_type: newType } }),
+      });
+
+      if (response.ok) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Error updating type:', error);
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('Are you sure you want to delete this concept?')) return;
 
@@ -612,18 +652,51 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
           </a>
         </div>
       </td>
-      <td style={{ padding: '0.75rem 1rem' }}>
-        <span
-          className="tag concept"
-          style={{
-            display: 'inline-block',
-            fontSize: 'var(--text-xs)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {concept.node_type}
-        </span>
+      <td style={{ padding: '0.75rem 1rem', position: 'relative' }}>
+        {editingType ? (
+          <select
+            autoFocus
+            value={concept.node_type}
+            onChange={(e) => handleTypeChange(e.target.value)}
+            onBlur={() => setEditingType(false)}
+            style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              border: '1px solid var(--primary)',
+              background: 'white',
+              color: 'var(--primary)',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500,
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            {NODE_TYPE_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        ) : (
+          <span
+            className="tag concept"
+            onClick={(e) => { e.stopPropagation(); setEditingType(true); }}
+            style={{
+              display: 'inline-block',
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.outline = '2px solid var(--primary)'; e.currentTarget.style.outlineOffset = '2px'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.outline = 'none'; }}
+            title="Click to change type"
+          >
+            {concept.node_type?.replace(/_/g, ' ')}
+          </span>
+        )}
       </td>
       <td style={{ padding: '0.75rem 1rem' }}>
         {concept.level_status && (

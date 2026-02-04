@@ -56,7 +56,8 @@ export default function ConnectionVisualization() {
     associated_with: 'Associated with',
     critiques: 'Critiques',
     supports: 'Supports',
-    related_to: 'Related to'
+    related_to: 'Related to',
+    is_a: 'Is a'
   };
 
   const relTypeColors = {
@@ -70,7 +71,8 @@ export default function ConnectionVisualization() {
     associated_with: 'bg-gray-100 border-gray-300',
     critiques: 'bg-orange-100 border-orange-300',
     supports: 'bg-emerald-100 border-emerald-300',
-    related_to: 'bg-slate-100 border-slate-300'
+    related_to: 'bg-slate-100 border-slate-300',
+    is_a: 'bg-teal-100 border-teal-300'
   };
 
   if (loading) {
