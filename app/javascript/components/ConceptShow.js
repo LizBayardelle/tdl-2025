@@ -271,6 +271,16 @@ export default function ConceptShow({ conceptId }) {
                 ← Back to Concepts
               </a>
               <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <a
+                  href={`https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, '_')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="icon-btn"
+                  style={{ color: 'var(--accent-green)', textDecoration: 'none' }}
+                  title="View on Wikipedia"
+                >
+                  <i className="fab fa-wikipedia-w"></i>
+                </a>
                 <button
                   onClick={() => setEditing(true)}
                   className="icon-btn"
@@ -694,90 +704,116 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
             No relationships yet.
           </p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-            {connections.map((connection, index) => {
-              const isSource = connection.src_concept.id === parseInt(conceptId);
-              const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
-              const direction = isSource ? '→' : '←';
-              const isLast = index === connections.length - 1;
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
+            {(() => {
+              // Group connections by their effective rel_type
+              const grouped = {};
+              connections.forEach(connection => {
+                const relType = connection.relationship_label || relTypeLabels[connection.rel_type] || connection.rel_type;
+                if (!grouped[relType]) {
+                  grouped[relType] = { label: relType, rawType: connection.rel_type, items: [] };
+                }
+                grouped[relType].items.push(connection);
+              });
 
-              return (
-                <div key={connection.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderBottom: isLast ? 'none' : '1px solid var(--neutral-200)',
-                  paddingBottom: isLast ? 0 : 'var(--space-3)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap', flex: 1 }}>
-                    <span style={{
-                      fontSize: 'var(--text-xs)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      background: 'var(--accent-green-light)',
-                      color: 'var(--accent-green)',
-                      padding: 'var(--space-1) var(--space-2)',
-                      borderRadius: '4px',
-                      fontFamily: 'var(--font-body)',
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {connection.relationship_label || relTypeLabels[connection.rel_type]}
-                    </span>
-                    <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-lg)' }}>{direction}</span>
-                    <button
-                      onClick={() => onConceptClick(otherConcept.slug || otherConcept.id, otherConcept.id)}
-                      style={{
-                        fontSize: 'var(--text-lg)',
-                        fontFamily: 'var(--font-body)',
-                        fontWeight: 500,
-                        color: 'var(--neutral-900)',
-                        textDecoration: 'none',
-                        transition: 'color 0.15s',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-                    >
-                      {otherConcept.label}
-                    </button>
-                    <span style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--neutral-500)',
-                      fontFamily: 'var(--font-body)'
-                    }}>
-                      ({otherConcept.node_type})
-                    </span>
-                    {connection.description && (
-                      <p style={{
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-600)',
-                        fontFamily: 'var(--font-body)',
-                        width: '100%',
-                        marginTop: 'var(--space-2)'
-                      }}>
-                        {connection.description}
-                      </p>
-                    )}
+              return Object.values(grouped).map(group => (
+                <div key={group.label}>
+                  <div style={{
+                    display: 'inline-block',
+                    fontSize: 'var(--text-xs)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    background: 'var(--accent-green-light)',
+                    color: 'var(--accent-green)',
+                    padding: 'var(--space-1) var(--space-2)',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    marginBottom: 'var(--space-2)',
+                  }}>
+                    {group.label}
                   </div>
-                  <button
-                    onClick={() => handleDeleteConnection(connection.id)}
-                    className="icon-btn"
-                    style={{
-                      color: 'var(--accent-green)',
-                      marginLeft: 'var(--space-4)',
-                      flexShrink: 0
-                    }}
-                    title="Delete Relationship"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
+                  <ul style={{
+                    listStyle: 'disc',
+                    marginLeft: 'var(--space-6)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 'var(--space-2)',
+                  }}>
+                    {group.items.map(connection => {
+                      const isSource = connection.src_concept.id === parseInt(conceptId);
+                      const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
+
+                      return (
+                        <li key={connection.id} style={{
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                            <button
+                              onClick={() => onConceptClick(otherConcept.slug || otherConcept.id, otherConcept.id)}
+                              style={{
+                                fontSize: 'var(--text-sm)',
+                                fontFamily: 'var(--font-body)',
+                                fontWeight: 500,
+                                color: 'var(--neutral-900)',
+                                textDecoration: 'none',
+                                transition: 'color 0.15s',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: 0,
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
+                              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+                            >
+                              {otherConcept.label}
+                            </button>
+                            <span style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-400)',
+                              fontFamily: 'var(--font-body)',
+                            }}>
+                              {otherConcept.node_type?.replace(/_/g, ' ')}
+                            </span>
+                            <button
+                              onClick={() => handleDeleteConnection(connection.id)}
+                              className="icon-btn"
+                              style={{
+                                color: 'var(--neutral-400)',
+                                fontSize: '11px',
+                                padding: '2px',
+                                marginLeft: 'auto',
+                                flexShrink: 0,
+                                opacity: 0.5,
+                                transition: 'opacity 0.15s',
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--error)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.5'; e.currentTarget.style.color = 'var(--neutral-400)'; }}
+                              title="Delete Relationship"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </div>
+                          {connection.description && (
+                            <p style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-500)',
+                              fontFamily: 'var(--font-body)',
+                              marginTop: '2px',
+                              marginBottom: 0,
+                            }}>
+                              {connection.description}
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
         )}
       </div>

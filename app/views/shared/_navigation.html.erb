@@ -2,25 +2,27 @@
   # Determine nav color based on current path
   nav_color = case request.path
   when %r{^/concepts}
-    '#556B2F'  # Green - Concepts
+    'var(--accent-green)'
   when %r{^/sources}
-    '#2d5466'  # Slate blue - Sources
+    'var(--accent-blue)'
   when %r{^/notes}
-    '#639CA1'  # Teal - Notes
+    'var(--accent-teal)'
   when %r{^/people}
-    '#a67c2e'  # Brass - People
+    'var(--accent-gold)'
   when %r{^/tags}
-    '#674675'  # Plum - Tags
+    'var(--accent-purple)'
   else
-    '#494949'  # Dark gray - Default
+    '#8e897b'
   end
+
+  is_themed = true  # Always use white text — all nav backgrounds are dark enough
 %>
 <nav style="background: <%= nav_color %>; box-shadow: var(--shadow-nav); position: relative; z-index: 10;">
   <div style="max-width: 1280px; margin: 0 auto; padding: 0 1.5rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
       <!-- Logo/Brand -->
       <div style="display: flex; align-items: center;">
-        <%= link_to root_path, style: "font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: white; text-decoration: none; letter-spacing: -0.02em;" do %>
+        <%= link_to root_path, style: "font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: #{is_themed ? 'white' : 'var(--neutral-800)'}; text-decoration: none; letter-spacing: -0.02em;" do %>
           <span>Map My Research</span>
         <% end %>
       </div>
@@ -29,13 +31,25 @@
       <div style="display: flex; align-items: center; gap: 1.5rem;">
         <% if user_signed_in? %>
           <!-- Desktop Navigation -->
-          <div class="hidden md:flex" style="align-items: center; gap: 1.5rem;">
-            <%= link_to "Dashboard", dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
-            <%= link_to "Concepts", concepts_path, class: "nav-link #{request.path.start_with?('/concepts') ? 'active' : ''}" %>
-            <%= link_to "Sources", sources_path, class: "nav-link #{request.path.start_with?('/sources') ? 'active' : ''}" %>
-            <%= link_to "People", people_path, class: "nav-link #{request.path.start_with?('/people') ? 'active' : ''}" %>
-            <%= link_to "Notes", notes_path, class: "nav-link #{request.path.start_with?('/notes') ? 'active' : ''}" %>
-            <%= link_to "Tags", tags_path, class: "nav-link #{request.path.start_with?('/tags') ? 'active' : ''}" %>
+          <div class="hidden md:flex" style="align-items: center; gap: 0.5rem;">
+            <%= link_to dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-gauge"></i> Dashboard
+            <% end %>
+            <%= link_to concepts_path, class: "nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-lightbulb"></i> Concepts
+            <% end %>
+            <%= link_to sources_path, class: "nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-book"></i> Sources
+            <% end %>
+            <%= link_to people_path, class: "nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-user"></i> People
+            <% end %>
+            <%= link_to notes_path, class: "nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-sticky-note"></i> Notes
+            <% end %>
+            <%= link_to tags_path, class: "nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
+              <i class="fas fa-tag"></i> Tags
+            <% end %>
           </div>
 
           <!-- Desktop User Dropdown -->
@@ -43,8 +57,8 @@
             <button
               type="button"
               id="user-menu-button"
-              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
-              onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';"
+              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
+              onmouseover="this.style.background='<%= is_themed ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' %>';"
               onmouseout="this.style.background='transparent';"
             >
               <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
@@ -66,7 +80,7 @@
           </div>
 
           <!-- Mobile menu button -->
-          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
+          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='<%= is_themed ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' %>';" onmouseout="this.style.background='transparent';">
             <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -77,8 +91,8 @@
             <button
               type="button"
               id="user-menu-button"
-              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
-              onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';"
+              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
+              onmouseover="this.style.background='<%= is_themed ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' %>';"
               onmouseout="this.style.background='transparent';"
             >
               <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
@@ -97,7 +111,7 @@
           </div>
 
           <!-- Mobile menu button -->
-          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: white; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='rgba(255, 255, 255, 0.15)';" onmouseout="this.style.background='transparent';">
+          <button type="button" style="padding: 0.5rem; border-radius: 4px; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s;" class="md:hidden" id="mobile-menu-button" onmouseover="this.style.background='<%= is_themed ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' %>';" onmouseout="this.style.background='transparent';">
             <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
@@ -111,12 +125,24 @@
   <div id="mobile-menu" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.2);" class="md:hidden">
     <div style="padding: 0.5rem 1rem;">
       <% if user_signed_in? %>
-        <%= link_to "Dashboard", dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''}" %>
-        <%= link_to "Concepts", concepts_path, class: "mobile-nav-link #{request.path.start_with?('/concepts') ? 'active' : ''}" %>
-        <%= link_to "Sources", sources_path, class: "mobile-nav-link #{request.path.start_with?('/sources') ? 'active' : ''}" %>
-        <%= link_to "People", people_path, class: "mobile-nav-link #{request.path.start_with?('/people') ? 'active' : ''}" %>
-        <%= link_to "Notes", notes_path, class: "mobile-nav-link #{request.path.start_with?('/notes') ? 'active' : ''}" %>
-        <%= link_to "Tags", tags_path, class: "mobile-nav-link #{request.path.start_with?('/tags') ? 'active' : ''}" %>
+        <%= link_to dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-gauge"></i> Dashboard
+        <% end %>
+        <%= link_to concepts_path, class: "mobile-nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-lightbulb"></i> Concepts
+        <% end %>
+        <%= link_to sources_path, class: "mobile-nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-book"></i> Sources
+        <% end %>
+        <%= link_to people_path, class: "mobile-nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-user"></i> People
+        <% end %>
+        <%= link_to notes_path, class: "mobile-nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-sticky-note"></i> Notes
+        <% end %>
+        <%= link_to tags_path, class: "mobile-nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
+          <i class="fas fa-tag"></i> Tags
+        <% end %>
 
         <!-- Mobile user menu -->
         <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;">
@@ -135,31 +161,41 @@
 </nav>
 
 <style>
+  /* --- Desktop nav links --- */
   .nav-link {
     font-family: var(--font-body);
     font-size: var(--text-sm);
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.75rem;
     border-radius: var(--radius);
     transition: all 0.15s;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .nav-link:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.2);
     color: white;
   }
 
   .nav-link.active {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     color: white;
     font-weight: 600;
   }
 
+  .nav-link.active:hover {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  /* --- Mobile nav links --- */
   .mobile-nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-family: var(--font-body);
     font-size: var(--text-sm);
     font-weight: 500;
@@ -172,25 +208,23 @@
   }
 
   .mobile-nav-link:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.2);
     color: white;
   }
 
   .mobile-nav-link.active {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     color: white;
     font-weight: 600;
+  }
+
+  .mobile-nav-link.active:hover {
+    background: rgba(255, 255, 255, 0.35);
   }
 
   #user-menu-dropdown a:hover,
   #user-menu-dropdown button:hover {
     background: var(--neutral-100);
-  }
-
-  /* Mobile sign out button hover */
-  button[style*="rgba(255, 255, 255, 0.9)"]:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    color: white !important;
   }
 </style>
 

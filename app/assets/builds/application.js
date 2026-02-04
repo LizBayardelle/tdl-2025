@@ -24872,6 +24872,8 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "derived_from" }, "is derived from")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "associated_with" }, "is associated with")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "critiques" }, "critiques")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Positional" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "is_above" }, "is above"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "is_below" }, "is below"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "contains" }, "contains"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "is_inside" }, "is inside"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "faces" }, "faces"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "faces_away_from" }, "faces away from"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "is_near" }, "is near")),
+      /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Positional \u2014 Anatomical" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "superior_to" }, "is superior to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "inferior_to" }, "is inferior to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "anterior_to" }, "is anterior to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "posterior_to" }, "is posterior to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "medial_to" }, "is medial to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "lateral_to" }, "is lateral to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "dorsal_to" }, "is dorsal to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "ventral_to" }, "is ventral to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "rostral_to" }, "is rostral to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "caudal_to" }, "is caudal to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "proximal_to" }, "is proximal to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "distal_to" }, "is distal to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "ipsilateral_to" }, "is ipsilateral to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "contralateral_to" }, "is contralateral to")),
       /* @__PURE__ */ import_react3.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react3.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react3.default.createElement("option", { value: "treats" }, "treats"))
     ), /* @__PURE__ */ import_react3.default.createElement(
       ConceptSearchSelect,
@@ -24896,145 +24898,125 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         disabled: !item?.id || !formData.new_relationship_dst_concept_id
       },
       "Add"
-    )), !item?.id && /* @__PURE__ */ import_react3.default.createElement("p", { className: "form-helper", style: { marginTop: "var(--space-2)", color: "var(--neutral-500)" } }, "Save the construct first before adding relationships."), item && (item.outgoing_connections?.length > 0 || item.incoming_connections?.length > 0 || newRelationships.length > 0) && /* @__PURE__ */ import_react3.default.createElement("div", { style: { marginTop: "var(--space-4)" } }, /* @__PURE__ */ import_react3.default.createElement("div", { style: {
-      background: "white",
-      border: "1px solid var(--neutral-300)",
-      borderRadius: "var(--radius)",
-      overflow: "hidden"
-    } }, item.outgoing_connections?.filter((conn) => !deletedRelationshipIds.includes(conn.id)).map((conn) => /* @__PURE__ */ import_react3.default.createElement(
-      "div",
-      {
-        key: `out-${conn.id}`,
-        style: {
-          padding: "var(--space-3)",
-          borderBottom: "1px solid var(--neutral-200)",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-sm)"
-        }
-      },
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-500)" } }, conn.rel_type.replace(/_/g, " ")),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.dst_concept?.label || "Unknown"),
-      conn.relationship_label && /* @__PURE__ */ import_react3.default.createElement("span", { style: {
+    )), !item?.id && /* @__PURE__ */ import_react3.default.createElement("p", { className: "form-helper", style: { marginTop: "var(--space-2)", color: "var(--neutral-500)" } }, "Save the construct first before adding relationships."), item && (() => {
+      const categoryFor = (relType) => {
+        const hierarchical = ["parent_of", "child_of", "is_a"];
+        const semantic = ["related_to", "contrasts_with", "integrates_with", "associated_with"];
+        const sequential = ["prerequisite_for", "builds_on", "derived_from"];
+        const influence = ["influenced", "supports", "critiques"];
+        const positional = [
+          "is_above",
+          "is_below",
+          "contains",
+          "is_inside",
+          "faces",
+          "faces_away_from",
+          "is_near",
+          "superior_to",
+          "inferior_to",
+          "anterior_to",
+          "posterior_to",
+          "medial_to",
+          "lateral_to",
+          "dorsal_to",
+          "ventral_to",
+          "rostral_to",
+          "caudal_to",
+          "proximal_to",
+          "distal_to",
+          "ipsilateral_to",
+          "contralateral_to"
+        ];
+        if (hierarchical.includes(relType)) return "Hierarchical";
+        if (semantic.includes(relType)) return "Semantic";
+        if (sequential.includes(relType)) return "Sequential";
+        if (influence.includes(relType)) return "Influence";
+        if (positional.includes(relType)) return "Positional";
+        return "Other";
+      };
+      const categoryOrder = ["Hierarchical", "Sequential", "Semantic", "Influence", "Positional", "Other"];
+      const allConns = [];
+      (item.outgoing_connections || []).filter((c5) => !deletedRelationshipIds.includes(c5.id)).forEach((c5) => allConns.push({ ...c5, direction: "out", key: `out-${c5.id}` }));
+      newRelationships.forEach((c5) => allConns.push({ ...c5, direction: "new", key: `new-${c5.id}` }));
+      (item.incoming_connections || []).filter((c5) => !deletedRelationshipIds.includes(c5.id)).forEach((c5) => allConns.push({ ...c5, direction: "in", key: `in-${c5.id}` }));
+      if (allConns.length === 0) return null;
+      const grouped = {};
+      allConns.forEach((c5) => {
+        const cat = categoryFor(c5.rel_type);
+        if (!grouped[cat]) grouped[cat] = {};
+        if (!grouped[cat][c5.rel_type]) grouped[cat][c5.rel_type] = [];
+        grouped[cat][c5.rel_type].push(c5);
+      });
+      return /* @__PURE__ */ import_react3.default.createElement("div", { style: { marginTop: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, categoryOrder.filter((cat) => grouped[cat]).map((cat) => /* @__PURE__ */ import_react3.default.createElement("div", { key: cat, style: {
+        background: "white",
+        border: "1px solid var(--neutral-300)",
+        borderRadius: "var(--radius)",
+        overflow: "hidden"
+      } }, /* @__PURE__ */ import_react3.default.createElement("div", { style: {
+        padding: "var(--space-2) var(--space-3)",
+        background: "var(--neutral-100)",
+        borderBottom: "1px solid var(--neutral-300)",
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 700,
+        color: "var(--primary)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em"
+      } }, cat), Object.entries(grouped[cat]).map(([relType, conns]) => /* @__PURE__ */ import_react3.default.createElement("div", { key: relType }, /* @__PURE__ */ import_react3.default.createElement("div", { style: {
+        padding: "var(--space-2) var(--space-3)",
+        borderBottom: "1px solid var(--neutral-200)",
+        fontFamily: "var(--font-body)",
         fontSize: "var(--text-xs)",
+        fontWeight: 600,
         color: "var(--neutral-500)",
-        fontStyle: "italic"
-      } }, '"', conn.relationship_label, '"'),
-      /* @__PURE__ */ import_react3.default.createElement(
-        "button",
+        textTransform: "capitalize"
+      } }, relType.replace(/_/g, " ")), /* @__PURE__ */ import_react3.default.createElement("ul", { style: { margin: 0, padding: 0, listStyle: "none" } }, conns.map((conn) => /* @__PURE__ */ import_react3.default.createElement(
+        "li",
         {
-          type: "button",
-          onClick: () => handleDeleteRelationship(conn.id),
+          key: conn.key,
           style: {
-            marginLeft: "auto",
-            background: "transparent",
-            border: "none",
-            color: "var(--error)",
-            cursor: "pointer",
-            padding: "var(--space-1)",
-            borderRadius: "4px",
+            padding: "var(--space-2) var(--space-3) var(--space-2) var(--space-6)",
+            borderBottom: "1px solid var(--neutral-100)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            transition: "background 0.15s"
-          },
-          onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--error) 15%, transparent)",
-          onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+            gap: "var(--space-2)",
+            fontSize: "var(--text-sm)",
+            ...conn.direction === "new" ? { background: "var(--accent-green-light)" } : {}
+          }
         },
-        /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times", style: { fontSize: "14px" } })
-      )
-    )), newRelationships.map((conn) => /* @__PURE__ */ import_react3.default.createElement(
-      "div",
-      {
-        key: `new-${conn.id}`,
-        style: {
-          padding: "var(--space-3)",
-          borderBottom: "1px solid var(--neutral-200)",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-sm)",
-          background: "var(--accent-green-light)"
-        }
-      },
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-500)" } }, conn.rel_type.replace(/_/g, " ")),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.dst_concept?.label || "Unknown"),
-      conn.relationship_label && /* @__PURE__ */ import_react3.default.createElement("span", { style: {
-        fontSize: "var(--text-xs)",
-        color: "var(--neutral-500)",
-        fontStyle: "italic"
-      } }, '"', conn.relationship_label, '"'),
-      /* @__PURE__ */ import_react3.default.createElement(
-        "button",
-        {
-          type: "button",
-          onClick: () => handleDeleteRelationship(conn.id),
-          style: {
-            marginLeft: "auto",
-            background: "transparent",
-            border: "none",
-            color: "var(--error)",
-            cursor: "pointer",
-            padding: "var(--space-1)",
-            borderRadius: "4px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "background 0.15s"
+        /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-400)", fontSize: "var(--text-xs)", flexShrink: 0 } }, conn.direction === "in" ? "\u2190" : "\u2192"),
+        conn.direction === "in" ? /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.src_concept?.label || "Unknown"), /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-400)", fontSize: "var(--text-xs)" } }, conn.rel_type.replace(/_/g, " ")), /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label)) : /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label), /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-400)", fontSize: "var(--text-xs)" } }, conn.rel_type.replace(/_/g, " ")), /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.dst_concept?.label || "Unknown")),
+        conn.relationship_label && /* @__PURE__ */ import_react3.default.createElement("span", { style: {
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-500)",
+          fontStyle: "italic"
+        } }, '"', conn.relationship_label, '"'),
+        /* @__PURE__ */ import_react3.default.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: () => handleDeleteRelationship(conn.id),
+            style: {
+              marginLeft: "auto",
+              background: "transparent",
+              border: "none",
+              color: "var(--error)",
+              cursor: "pointer",
+              padding: "var(--space-1)",
+              borderRadius: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.15s",
+              flexShrink: 0
+            },
+            onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--error) 15%, transparent)",
+            onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
           },
-          onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--error) 15%, transparent)",
-          onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
-        },
-        /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times", style: { fontSize: "14px" } })
-      )
-    )), item.incoming_connections?.filter((conn) => !deletedRelationshipIds.includes(conn.id)).map((conn) => /* @__PURE__ */ import_react3.default.createElement(
-      "div",
-      {
-        key: `in-${conn.id}`,
-        style: {
-          padding: "var(--space-3)",
-          borderBottom: "1px solid var(--neutral-200)",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-sm)"
-        }
-      },
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.src_concept?.label || "Unknown"),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "var(--neutral-500)" } }, conn.rel_type.replace(/_/g, " ")),
-      /* @__PURE__ */ import_react3.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label),
-      conn.relationship_label && /* @__PURE__ */ import_react3.default.createElement("span", { style: {
-        fontSize: "var(--text-xs)",
-        color: "var(--neutral-500)",
-        fontStyle: "italic"
-      } }, '"', conn.relationship_label, '"'),
-      /* @__PURE__ */ import_react3.default.createElement(
-        "button",
-        {
-          type: "button",
-          onClick: () => handleDeleteRelationship(conn.id),
-          style: {
-            marginLeft: "auto",
-            background: "transparent",
-            border: "none",
-            color: "var(--error)",
-            cursor: "pointer",
-            padding: "var(--space-1)",
-            borderRadius: "4px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "background 0.15s"
-          },
-          onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--error) 15%, transparent)",
-          onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
-        },
-        /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times", style: { fontSize: "14px" } })
-      )
-    ))))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label" }, "Adjacent Models"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "form-helper" }, "One per line"), /* @__PURE__ */ import_react3.default.createElement(
+          /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-times", style: { fontSize: "14px" } })
+        )
+      ))))))));
+    })()), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label" }, "Adjacent Models"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "form-helper" }, "One per line"), /* @__PURE__ */ import_react3.default.createElement(
       "textarea",
       {
         value: formData.adjacent_models.join("\n"),
@@ -25413,7 +25395,7 @@ function ConceptsIndex() {
         e3.currentTarget.style.transform = "none";
       }
     },
-    /* @__PURE__ */ import_react4.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse" } }, /* @__PURE__ */ import_react4.default.createElement("thead", { style: { background: "var(--card-footer)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react4.default.createElement("tr", null, /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse" } }, /* @__PURE__ */ import_react4.default.createElement("thead", { style: { background: "var(--card-footer)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react4.default.createElement("tr", null, /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.75rem 0.5rem" } }), /* @__PURE__ */ import_react4.default.createElement(
       "th",
       {
         onClick: () => handleSort("label"),
@@ -25703,6 +25685,17 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
     )),
     /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, totalConnections > 0 ? totalConnections : "\u2014"),
     /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "right" } }, /* @__PURE__ */ import_react4.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react4.default.createElement(
+      "a",
+      {
+        href: `https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, "_")}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "icon-btn",
+        title: "Wikipedia",
+        style: { textDecoration: "none" }
+      },
+      /* @__PURE__ */ import_react4.default.createElement("i", { className: "fab fa-wikipedia-w", style: { fontSize: "12px" } })
+    ), /* @__PURE__ */ import_react4.default.createElement(
       "button",
       {
         onClick: () => onEdit(concept),
@@ -25845,7 +25838,30 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
       critiques: "critiques",
       authored: "authored",
       applies_to: "applies to",
-      treats: "treats"
+      treats: "treats",
+      // Positional (general)
+      is_above: "is above",
+      is_below: "is below",
+      contains: "contains",
+      is_inside: "is inside",
+      faces: "faces",
+      faces_away_from: "faces away from",
+      is_near: "is near",
+      // Positional (anatomical)
+      superior_to: "is superior to",
+      inferior_to: "is inferior to",
+      anterior_to: "is anterior to",
+      posterior_to: "is posterior to",
+      medial_to: "is medial to",
+      lateral_to: "is lateral to",
+      dorsal_to: "is dorsal to",
+      ventral_to: "is ventral to",
+      rostral_to: "is rostral to",
+      caudal_to: "is caudal to",
+      proximal_to: "is proximal to",
+      distal_to: "is distal to",
+      ipsilateral_to: "is ipsilateral to",
+      contralateral_to: "is contralateral to"
     };
     return textMap[relType] || relType;
   };
@@ -25994,6 +26010,8 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "derived_from" }, "is derived from")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "associated_with" }, "is associated with")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "critiques" }, "critiques")),
+      /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Positional" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "is_above" }, "is above"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "is_below" }, "is below"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "contains" }, "contains"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "is_inside" }, "is inside"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "faces" }, "faces"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "faces_away_from" }, "faces away from"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "is_near" }, "is near")),
+      /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Positional \u2014 Anatomical" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "superior_to" }, "is superior to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "inferior_to" }, "is inferior to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "anterior_to" }, "is anterior to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "posterior_to" }, "is posterior to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "medial_to" }, "is medial to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "lateral_to" }, "is lateral to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "dorsal_to" }, "is dorsal to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "ventral_to" }, "is ventral to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "rostral_to" }, "is rostral to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "caudal_to" }, "is caudal to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "proximal_to" }, "is proximal to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "distal_to" }, "is distal to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "ipsilateral_to" }, "is ipsilateral to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "contralateral_to" }, "is contralateral to")),
       /* @__PURE__ */ import_react7.default.createElement("optgroup", { label: "Other" }, /* @__PURE__ */ import_react7.default.createElement("option", { value: "authored" }, "authored"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "applies_to" }, "applies to"), /* @__PURE__ */ import_react7.default.createElement("option", { value: "treats" }, "treats"))
     ), /* @__PURE__ */ import_react7.default.createElement(
       HierarchicalConceptSelect,
@@ -60908,6 +60926,17 @@ function ConceptShow({ conceptId }) {
     },
     "\u2190 Back to Concepts"
   ), /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react29.default.createElement(
+    "a",
+    {
+      href: `https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, "_")}`,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "icon-btn",
+      style: { color: "var(--accent-green)", textDecoration: "none" },
+      title: "View on Wikipedia"
+    },
+    /* @__PURE__ */ import_react29.default.createElement("i", { className: "fab fa-wikipedia-w" })
+  ), /* @__PURE__ */ import_react29.default.createElement(
     "button",
     {
       onClick: () => setEditing(true),
@@ -61172,18 +61201,17 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
       }
     },
     "+ New Relationship"
-  )), loading ? /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No relationships yet.") : /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, connections.map((connection, index8) => {
-    const isSource = connection.src_concept.id === parseInt(conceptId);
-    const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
-    const direction = isSource ? "\u2192" : "\u2190";
-    const isLast = index8 === connections.length - 1;
-    return /* @__PURE__ */ import_react29.default.createElement("div", { key: connection.id, style: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottom: isLast ? "none" : "1px solid var(--neutral-200)",
-      paddingBottom: isLast ? 0 : "var(--space-3)"
-    } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", flexWrap: "wrap", flex: 1 } }, /* @__PURE__ */ import_react29.default.createElement("span", { style: {
+  )), loading ? /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No relationships yet.") : /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-5)" } }, (() => {
+    const grouped = {};
+    connections.forEach((connection) => {
+      const relType = connection.relationship_label || relTypeLabels[connection.rel_type] || connection.rel_type;
+      if (!grouped[relType]) {
+        grouped[relType] = { label: relType, rawType: connection.rel_type, items: [] };
+      }
+      grouped[relType].items.push(connection);
+    });
+    return Object.values(grouped).map((group) => /* @__PURE__ */ import_react29.default.createElement("div", { key: group.label }, /* @__PURE__ */ import_react29.default.createElement("div", { style: {
+      display: "inline-block",
       fontSize: "var(--text-xs)",
       textTransform: "uppercase",
       letterSpacing: "0.05em",
@@ -61193,52 +61221,78 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
       borderRadius: "4px",
       fontFamily: "var(--font-body)",
       fontWeight: 600,
-      whiteSpace: "nowrap"
-    } }, connection.relationship_label || relTypeLabels[connection.rel_type]), /* @__PURE__ */ import_react29.default.createElement("span", { style: { color: "var(--neutral-400)", fontSize: "var(--text-lg)" } }, direction), /* @__PURE__ */ import_react29.default.createElement(
-      "button",
-      {
-        onClick: () => onConceptClick(otherConcept.slug || otherConcept.id, otherConcept.id),
-        style: {
-          fontSize: "var(--text-lg)",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500,
-          color: "var(--neutral-900)",
-          textDecoration: "none",
-          transition: "color 0.15s",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          padding: 0
+      marginBottom: "var(--space-2)"
+    } }, group.label), /* @__PURE__ */ import_react29.default.createElement("ul", { style: {
+      listStyle: "disc",
+      marginLeft: "var(--space-6)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "var(--space-2)"
+    } }, group.items.map((connection) => {
+      const isSource = connection.src_concept.id === parseInt(conceptId);
+      const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
+      return /* @__PURE__ */ import_react29.default.createElement("li", { key: connection.id, style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)"
+      } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react29.default.createElement(
+        "button",
+        {
+          onClick: () => onConceptClick(otherConcept.slug || otherConcept.id, otherConcept.id),
+          style: {
+            fontSize: "var(--text-sm)",
+            fontFamily: "var(--font-body)",
+            fontWeight: 500,
+            color: "var(--neutral-900)",
+            textDecoration: "none",
+            transition: "color 0.15s",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: 0
+          },
+          onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-green)",
+          onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
         },
-        onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-green)",
-        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
-      },
-      otherConcept.label
-    ), /* @__PURE__ */ import_react29.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-500)",
-      fontFamily: "var(--font-body)"
-    } }, "(", otherConcept.node_type, ")"), connection.description && /* @__PURE__ */ import_react29.default.createElement("p", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-600)",
-      fontFamily: "var(--font-body)",
-      width: "100%",
-      marginTop: "var(--space-2)"
-    } }, connection.description)), /* @__PURE__ */ import_react29.default.createElement(
-      "button",
-      {
-        onClick: () => handleDeleteConnection(connection.id),
-        className: "icon-btn",
-        style: {
-          color: "var(--accent-green)",
-          marginLeft: "var(--space-4)",
-          flexShrink: 0
+        otherConcept.label
+      ), /* @__PURE__ */ import_react29.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-400)",
+        fontFamily: "var(--font-body)"
+      } }, otherConcept.node_type?.replace(/_/g, " ")), /* @__PURE__ */ import_react29.default.createElement(
+        "button",
+        {
+          onClick: () => handleDeleteConnection(connection.id),
+          className: "icon-btn",
+          style: {
+            color: "var(--neutral-400)",
+            fontSize: "11px",
+            padding: "2px",
+            marginLeft: "auto",
+            flexShrink: 0,
+            opacity: 0.5,
+            transition: "opacity 0.15s"
+          },
+          onMouseEnter: (e3) => {
+            e3.currentTarget.style.opacity = "1";
+            e3.currentTarget.style.color = "var(--error)";
+          },
+          onMouseLeave: (e3) => {
+            e3.currentTarget.style.opacity = "0.5";
+            e3.currentTarget.style.color = "var(--neutral-400)";
+          },
+          title: "Delete Relationship"
         },
-        title: "Delete Relationship"
-      },
-      /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-trash" })
-    ));
-  }))));
+        /* @__PURE__ */ import_react29.default.createElement("i", { className: "fas fa-trash" })
+      )), connection.description && /* @__PURE__ */ import_react29.default.createElement("p", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        fontFamily: "var(--font-body)",
+        marginTop: "2px",
+        marginBottom: 0
+      } }, connection.description));
+    }))));
+  })())));
 }
 function ConceptPeople({ conceptId }) {
   const [people, setPeople] = (0, import_react29.useState)([]);
@@ -65030,7 +65084,30 @@ function ConnectionVisualization() {
     critiques: "Critiques",
     supports: "Supports",
     related_to: "Related to",
-    is_a: "Is a"
+    is_a: "Is a",
+    // Positional (general)
+    is_above: "Is above",
+    is_below: "Is below",
+    contains: "Contains",
+    is_inside: "Is inside",
+    faces: "Faces",
+    faces_away_from: "Faces away from",
+    is_near: "Is near",
+    // Positional (anatomical)
+    superior_to: "Superior to",
+    inferior_to: "Inferior to",
+    anterior_to: "Anterior to",
+    posterior_to: "Posterior to",
+    medial_to: "Medial to",
+    lateral_to: "Lateral to",
+    dorsal_to: "Dorsal to",
+    ventral_to: "Ventral to",
+    rostral_to: "Rostral to",
+    caudal_to: "Caudal to",
+    proximal_to: "Proximal to",
+    distal_to: "Distal to",
+    ipsilateral_to: "Ipsilateral to",
+    contralateral_to: "Contralateral to"
   };
   const relTypeColors = {
     authored: "bg-purple-100 border-purple-300",
@@ -65044,7 +65121,30 @@ function ConnectionVisualization() {
     critiques: "bg-orange-100 border-orange-300",
     supports: "bg-emerald-100 border-emerald-300",
     related_to: "bg-slate-100 border-slate-300",
-    is_a: "bg-teal-100 border-teal-300"
+    is_a: "bg-teal-100 border-teal-300",
+    // Positional (general)
+    is_above: "bg-amber-100 border-amber-300",
+    is_below: "bg-amber-100 border-amber-300",
+    contains: "bg-amber-100 border-amber-300",
+    is_inside: "bg-amber-100 border-amber-300",
+    faces: "bg-amber-100 border-amber-300",
+    faces_away_from: "bg-amber-100 border-amber-300",
+    is_near: "bg-amber-100 border-amber-300",
+    // Positional (anatomical)
+    superior_to: "bg-yellow-100 border-yellow-300",
+    inferior_to: "bg-yellow-100 border-yellow-300",
+    anterior_to: "bg-yellow-100 border-yellow-300",
+    posterior_to: "bg-yellow-100 border-yellow-300",
+    medial_to: "bg-yellow-100 border-yellow-300",
+    lateral_to: "bg-yellow-100 border-yellow-300",
+    dorsal_to: "bg-yellow-100 border-yellow-300",
+    ventral_to: "bg-yellow-100 border-yellow-300",
+    rostral_to: "bg-yellow-100 border-yellow-300",
+    caudal_to: "bg-yellow-100 border-yellow-300",
+    proximal_to: "bg-yellow-100 border-yellow-300",
+    distal_to: "bg-yellow-100 border-yellow-300",
+    ipsilateral_to: "bg-yellow-100 border-yellow-300",
+    contralateral_to: "bg-yellow-100 border-yellow-300"
   };
   if (loading) {
     return /* @__PURE__ */ import_react35.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ import_react35.default.createElement("p", null, "Loading visualization..."));
@@ -78344,10 +78444,34 @@ function ConceptRelationshipMap() {
     const semantic = ["related_to", "contrasts_with", "integrates_with", "associated_with"];
     const sequential = ["prerequisite_for", "builds_on", "derived_from"];
     const influence = ["influenced", "supports", "critiques"];
+    const positional = [
+      "is_above",
+      "is_below",
+      "contains",
+      "is_inside",
+      "faces",
+      "faces_away_from",
+      "is_near",
+      "superior_to",
+      "inferior_to",
+      "anterior_to",
+      "posterior_to",
+      "medial_to",
+      "lateral_to",
+      "dorsal_to",
+      "ventral_to",
+      "rostral_to",
+      "caudal_to",
+      "proximal_to",
+      "distal_to",
+      "ipsilateral_to",
+      "contralateral_to"
+    ];
     if (hierarchical.includes(relType)) return "hierarchical";
     if (semantic.includes(relType)) return "semantic";
     if (sequential.includes(relType)) return "sequential";
     if (influence.includes(relType)) return "influence";
+    if (positional.includes(relType)) return "positional";
     return "other";
   };
   const getFilteredData = () => {
@@ -78528,6 +78652,10 @@ function ConceptRelationshipMap() {
           linkWidth = 1.5;
           dashPattern = [2, 3];
           break;
+        case "positional":
+          linkWidth = 1.5;
+          dashPattern = [8, 3, 2, 3];
+          break;
         default:
           linkWidth = 1;
           dashPattern = [];
@@ -78547,7 +78675,7 @@ function ConceptRelationshipMap() {
       ctx.setLineDash([]);
     }
     ctx.stroke();
-    if (link.category === "hierarchical" || link.category === "sequential") {
+    if (link.category === "hierarchical" || link.category === "sequential" || link.category === "positional") {
       const arrowLength = 12 / globalScale;
       const arrowWidth = 6 / globalScale;
       const dx = end3.x - start2.x;
@@ -78742,6 +78870,34 @@ function ConceptRelationshipMap() {
       }
     },
     "Influence"
+  ), /* @__PURE__ */ import_react43.default.createElement(
+    "button",
+    {
+      onClick: () => setFilterType("positional"),
+      style: {
+        padding: "var(--space-2) var(--space-3)",
+        borderRadius: "var(--radius)",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)",
+        fontWeight: 500,
+        border: "none",
+        cursor: "pointer",
+        transition: "all 0.15s",
+        background: filterType === "positional" ? "var(--accent-green)" : "var(--neutral-100)",
+        color: filterType === "positional" ? "white" : "var(--neutral-700)"
+      },
+      onMouseEnter: (e3) => {
+        if (filterType !== "positional") {
+          e3.currentTarget.style.background = "var(--neutral-200)";
+        }
+      },
+      onMouseLeave: (e3) => {
+        if (filterType !== "positional") {
+          e3.currentTarget.style.background = "var(--neutral-100)";
+        }
+      }
+    },
+    "Positional"
   ))), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
     display: "flex",
     flexWrap: "wrap",
@@ -78749,7 +78905,7 @@ function ConceptRelationshipMap() {
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-700)"
-  } }, /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2.5" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "8,4" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "2,3" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Influence")))), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2.5" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Hierarchical")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "8,4" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Semantic")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "2" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Sequential")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "2,3" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Influence")), /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react43.default.createElement("svg", { width: "32", height: "3", style: { flexShrink: 0 } }, /* @__PURE__ */ import_react43.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#6b7280", strokeWidth: "1.5", strokeDasharray: "8,3,2,3" })), /* @__PURE__ */ import_react43.default.createElement("span", null, "Positional")))), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
     border: "1px solid var(--neutral-200)",
     borderRadius: "var(--radius)",
     overflow: "hidden",

@@ -40,7 +40,30 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
       critiques: 'critiques',
       authored: 'authored',
       applies_to: 'applies to',
-      treats: 'treats'
+      treats: 'treats',
+      // Positional (general)
+      is_above: 'is above',
+      is_below: 'is below',
+      contains: 'contains',
+      is_inside: 'is inside',
+      faces: 'faces',
+      faces_away_from: 'faces away from',
+      is_near: 'is near',
+      // Positional (anatomical)
+      superior_to: 'is superior to',
+      inferior_to: 'is inferior to',
+      anterior_to: 'is anterior to',
+      posterior_to: 'is posterior to',
+      medial_to: 'is medial to',
+      lateral_to: 'is lateral to',
+      dorsal_to: 'is dorsal to',
+      ventral_to: 'is ventral to',
+      rostral_to: 'is rostral to',
+      caudal_to: 'is caudal to',
+      proximal_to: 'is proximal to',
+      distal_to: 'is distal to',
+      ipsilateral_to: 'is ipsilateral to',
+      contralateral_to: 'is contralateral to'
     };
     return textMap[relType] || relType;
   };
@@ -228,6 +251,31 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
                   <option value="influenced">influenced</option>
                   <option value="supports">supports</option>
                   <option value="critiques">critiques</option>
+                </optgroup>
+                <optgroup label="Positional">
+                  <option value="is_above">is above</option>
+                  <option value="is_below">is below</option>
+                  <option value="contains">contains</option>
+                  <option value="is_inside">is inside</option>
+                  <option value="faces">faces</option>
+                  <option value="faces_away_from">faces away from</option>
+                  <option value="is_near">is near</option>
+                </optgroup>
+                <optgroup label="Positional — Anatomical">
+                  <option value="superior_to">is superior to</option>
+                  <option value="inferior_to">is inferior to</option>
+                  <option value="anterior_to">is anterior to</option>
+                  <option value="posterior_to">is posterior to</option>
+                  <option value="medial_to">is medial to</option>
+                  <option value="lateral_to">is lateral to</option>
+                  <option value="dorsal_to">is dorsal to</option>
+                  <option value="ventral_to">is ventral to</option>
+                  <option value="rostral_to">is rostral to</option>
+                  <option value="caudal_to">is caudal to</option>
+                  <option value="proximal_to">is proximal to</option>
+                  <option value="distal_to">is distal to</option>
+                  <option value="ipsilateral_to">is ipsilateral to</option>
+                  <option value="contralateral_to">is contralateral to</option>
                 </optgroup>
                 <optgroup label="Other">
                   <option value="authored">authored</option>

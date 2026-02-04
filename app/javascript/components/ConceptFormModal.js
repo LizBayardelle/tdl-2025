@@ -777,6 +777,31 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                       <option value="supports">supports</option>
                       <option value="critiques">critiques</option>
                     </optgroup>
+                    <optgroup label="Positional">
+                      <option value="is_above">is above</option>
+                      <option value="is_below">is below</option>
+                      <option value="contains">contains</option>
+                      <option value="is_inside">is inside</option>
+                      <option value="faces">faces</option>
+                      <option value="faces_away_from">faces away from</option>
+                      <option value="is_near">is near</option>
+                    </optgroup>
+                    <optgroup label="Positional — Anatomical">
+                      <option value="superior_to">is superior to</option>
+                      <option value="inferior_to">is inferior to</option>
+                      <option value="anterior_to">is anterior to</option>
+                      <option value="posterior_to">is posterior to</option>
+                      <option value="medial_to">is medial to</option>
+                      <option value="lateral_to">is lateral to</option>
+                      <option value="dorsal_to">is dorsal to</option>
+                      <option value="ventral_to">is ventral to</option>
+                      <option value="rostral_to">is rostral to</option>
+                      <option value="caudal_to">is caudal to</option>
+                      <option value="proximal_to">is proximal to</option>
+                      <option value="distal_to">is distal to</option>
+                      <option value="ipsilateral_to">is ipsilateral to</option>
+                      <option value="contralateral_to">is contralateral to</option>
+                    </optgroup>
                     <optgroup label="Other">
                       <option value="authored">authored</option>
                       <option value="applies_to">applies to</option>
@@ -811,178 +836,169 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                   </p>
                 )}
 
-                {/* Existing Relationships */}
-                {item && (item.outgoing_connections?.length > 0 || item.incoming_connections?.length > 0 || newRelationships.length > 0) && (
-                  <div style={{ marginTop: 'var(--space-4)' }}>
-                    <div style={{
-                      background: 'white',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: 'var(--radius)',
-                      overflow: 'hidden',
-                    }}>
-                      {item.outgoing_connections?.filter(conn => !deletedRelationshipIds.includes(conn.id)).map((conn) => (
-                        <div
-                          key={`out-${conn.id}`}
-                          style={{
-                            padding: 'var(--space-3)',
-                            borderBottom: '1px solid var(--neutral-200)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-2)',
+                {/* Existing Relationships — grouped by category then rel_type */}
+                {item && (() => {
+                  const categoryFor = (relType) => {
+                    const hierarchical = ['parent_of', 'child_of', 'is_a'];
+                    const semantic = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'];
+                    const sequential = ['prerequisite_for', 'builds_on', 'derived_from'];
+                    const influence = ['influenced', 'supports', 'critiques'];
+                    const positional = [
+                      'is_above', 'is_below', 'contains', 'is_inside', 'faces', 'faces_away_from', 'is_near',
+                      'superior_to', 'inferior_to', 'anterior_to', 'posterior_to',
+                      'medial_to', 'lateral_to', 'dorsal_to', 'ventral_to',
+                      'rostral_to', 'caudal_to', 'proximal_to', 'distal_to',
+                      'ipsilateral_to', 'contralateral_to'
+                    ];
+                    if (hierarchical.includes(relType)) return 'Hierarchical';
+                    if (semantic.includes(relType)) return 'Semantic';
+                    if (sequential.includes(relType)) return 'Sequential';
+                    if (influence.includes(relType)) return 'Influence';
+                    if (positional.includes(relType)) return 'Positional';
+                    return 'Other';
+                  };
+
+                  const categoryOrder = ['Hierarchical', 'Sequential', 'Semantic', 'Influence', 'Positional', 'Other'];
+
+                  // Normalize all connections into a flat list
+                  const allConns = [];
+                  (item.outgoing_connections || [])
+                    .filter(c => !deletedRelationshipIds.includes(c.id))
+                    .forEach(c => allConns.push({ ...c, direction: 'out', key: `out-${c.id}` }));
+                  newRelationships.forEach(c => allConns.push({ ...c, direction: 'new', key: `new-${c.id}` }));
+                  (item.incoming_connections || [])
+                    .filter(c => !deletedRelationshipIds.includes(c.id))
+                    .forEach(c => allConns.push({ ...c, direction: 'in', key: `in-${c.id}` }));
+
+                  if (allConns.length === 0) return null;
+
+                  // Group: category → rel_type → connections[]
+                  const grouped = {};
+                  allConns.forEach(c => {
+                    const cat = categoryFor(c.rel_type);
+                    if (!grouped[cat]) grouped[cat] = {};
+                    if (!grouped[cat][c.rel_type]) grouped[cat][c.rel_type] = [];
+                    grouped[cat][c.rel_type].push(c);
+                  });
+
+                  return (
+                    <div style={{ marginTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                      {categoryOrder.filter(cat => grouped[cat]).map(cat => (
+                        <div key={cat} style={{
+                          background: 'white',
+                          border: '1px solid var(--neutral-300)',
+                          borderRadius: 'var(--radius)',
+                          overflow: 'hidden',
+                        }}>
+                          <div style={{
+                            padding: 'var(--space-2) var(--space-3)',
+                            background: 'var(--neutral-100)',
+                            borderBottom: '1px solid var(--neutral-300)',
+                            fontFamily: 'var(--font-display)',
                             fontSize: 'var(--text-sm)',
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                            {item.label}
-                          </span>
-                          <span style={{ color: 'var(--neutral-500)' }}>
-                            {conn.rel_type.replace(/_/g, ' ')}
-                          </span>
-                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                            {conn.dst_concept?.label || 'Unknown'}
-                          </span>
-                          {conn.relationship_label && (
-                            <span style={{
-                              fontSize: 'var(--text-xs)',
-                              color: 'var(--neutral-500)',
-                              fontStyle: 'italic',
-                            }}>
-                              "{conn.relationship_label}"
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRelationship(conn.id)}
-                            style={{
-                              marginLeft: 'auto',
-                              background: 'transparent',
-                              border: 'none',
-                              color: 'var(--error)',
-                              cursor: 'pointer',
-                              padding: 'var(--space-1)',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
-                          </button>
-                        </div>
-                      ))}
-                      {newRelationships.map((conn) => (
-                        <div
-                          key={`new-${conn.id}`}
-                          style={{
-                            padding: 'var(--space-3)',
-                            borderBottom: '1px solid var(--neutral-200)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-2)',
-                            fontSize: 'var(--text-sm)',
-                            background: 'var(--accent-green-light)',
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                            {item.label}
-                          </span>
-                          <span style={{ color: 'var(--neutral-500)' }}>
-                            {conn.rel_type.replace(/_/g, ' ')}
-                          </span>
-                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                            {conn.dst_concept?.label || 'Unknown'}
-                          </span>
-                          {conn.relationship_label && (
-                            <span style={{
-                              fontSize: 'var(--text-xs)',
-                              color: 'var(--neutral-500)',
-                              fontStyle: 'italic',
-                            }}>
-                              "{conn.relationship_label}"
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRelationship(conn.id)}
-                            style={{
-                              marginLeft: 'auto',
-                              background: 'transparent',
-                              border: 'none',
-                              color: 'var(--error)',
-                              cursor: 'pointer',
-                              padding: 'var(--space-1)',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
-                          </button>
-                        </div>
-                      ))}
-                      {item.incoming_connections?.filter(conn => !deletedRelationshipIds.includes(conn.id)).map((conn) => (
-                        <div
-                          key={`in-${conn.id}`}
-                          style={{
-                            padding: 'var(--space-3)',
-                            borderBottom: '1px solid var(--neutral-200)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 'var(--space-2)',
-                            fontSize: 'var(--text-sm)',
-                          }}
-                        >
-                          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                            {conn.src_concept?.label || 'Unknown'}
-                          </span>
-                          <span style={{ color: 'var(--neutral-500)' }}>
-                            {conn.rel_type.replace(/_/g, ' ')}
-                          </span>
-                          <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                            {item.label}
-                          </span>
-                          {conn.relationship_label && (
-                            <span style={{
-                              fontSize: 'var(--text-xs)',
-                              color: 'var(--neutral-500)',
-                              fontStyle: 'italic',
-                            }}>
-                              "{conn.relationship_label}"
-                            </span>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteRelationship(conn.id)}
-                            style={{
-                              marginLeft: 'auto',
-                              background: 'transparent',
-                              border: 'none',
-                              color: 'var(--error)',
-                              cursor: 'pointer',
-                              padding: 'var(--space-1)',
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              transition: 'background 0.15s',
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                          >
-                            <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
-                          </button>
+                            fontWeight: 700,
+                            color: 'var(--primary)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                          }}>
+                            {cat}
+                          </div>
+                          {Object.entries(grouped[cat]).map(([relType, conns]) => (
+                            <div key={relType}>
+                              <div style={{
+                                padding: 'var(--space-2) var(--space-3)',
+                                borderBottom: '1px solid var(--neutral-200)',
+                                fontFamily: 'var(--font-body)',
+                                fontSize: 'var(--text-xs)',
+                                fontWeight: 600,
+                                color: 'var(--neutral-500)',
+                                textTransform: 'capitalize',
+                              }}>
+                                {relType.replace(/_/g, ' ')}
+                              </div>
+                              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                                {conns.map(conn => (
+                                  <li
+                                    key={conn.key}
+                                    style={{
+                                      padding: 'var(--space-2) var(--space-3) var(--space-2) var(--space-6)',
+                                      borderBottom: '1px solid var(--neutral-100)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 'var(--space-2)',
+                                      fontSize: 'var(--text-sm)',
+                                      ...(conn.direction === 'new' ? { background: 'var(--accent-green-light)' } : {}),
+                                    }}
+                                  >
+                                    <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)', flexShrink: 0 }}>
+                                      {conn.direction === 'in' ? '\u2190' : '\u2192'}
+                                    </span>
+                                    {conn.direction === 'in' ? (
+                                      <>
+                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                                          {conn.src_concept?.label || 'Unknown'}
+                                        </span>
+                                        <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}>
+                                          {conn.rel_type.replace(/_/g, ' ')}
+                                        </span>
+                                        <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                                          {item.label}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                                          {item.label}
+                                        </span>
+                                        <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}>
+                                          {conn.rel_type.replace(/_/g, ' ')}
+                                        </span>
+                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                                          {conn.dst_concept?.label || 'Unknown'}
+                                        </span>
+                                      </>
+                                    )}
+                                    {conn.relationship_label && (
+                                      <span style={{
+                                        fontSize: 'var(--text-xs)',
+                                        color: 'var(--neutral-500)',
+                                        fontStyle: 'italic',
+                                      }}>
+                                        "{conn.relationship_label}"
+                                      </span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteRelationship(conn.id)}
+                                      style={{
+                                        marginLeft: 'auto',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: 'var(--error)',
+                                        cursor: 'pointer',
+                                        padding: 'var(--space-1)',
+                                        borderRadius: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'background 0.15s',
+                                        flexShrink: 0,
+                                      }}
+                                      onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+                                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                    >
+                                      <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               <div>

@@ -386,6 +386,7 @@ export default function ConceptsIndex() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ background: 'var(--card-footer)', borderBottom: '1px solid var(--neutral-200)' }}>
                   <tr>
+                    <th style={{ width: '2rem', padding: '0.75rem 0.5rem' }}></th>
                     <th
                       onClick={() => handleSort('label')}
                       style={{
@@ -717,6 +718,16 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
       </td>
       <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
         <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
+          <a
+            href={`https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, '_')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="icon-btn"
+            title="Wikipedia"
+            style={{ textDecoration: 'none' }}
+          >
+            <i className="fab fa-wikipedia-w" style={{ fontSize: '12px' }}></i>
+          </a>
           <button
             onClick={() => onEdit(concept)}
             className="icon-btn"

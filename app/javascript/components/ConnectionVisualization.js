@@ -57,7 +57,30 @@ export default function ConnectionVisualization() {
     critiques: 'Critiques',
     supports: 'Supports',
     related_to: 'Related to',
-    is_a: 'Is a'
+    is_a: 'Is a',
+    // Positional (general)
+    is_above: 'Is above',
+    is_below: 'Is below',
+    contains: 'Contains',
+    is_inside: 'Is inside',
+    faces: 'Faces',
+    faces_away_from: 'Faces away from',
+    is_near: 'Is near',
+    // Positional (anatomical)
+    superior_to: 'Superior to',
+    inferior_to: 'Inferior to',
+    anterior_to: 'Anterior to',
+    posterior_to: 'Posterior to',
+    medial_to: 'Medial to',
+    lateral_to: 'Lateral to',
+    dorsal_to: 'Dorsal to',
+    ventral_to: 'Ventral to',
+    rostral_to: 'Rostral to',
+    caudal_to: 'Caudal to',
+    proximal_to: 'Proximal to',
+    distal_to: 'Distal to',
+    ipsilateral_to: 'Ipsilateral to',
+    contralateral_to: 'Contralateral to'
   };
 
   const relTypeColors = {
@@ -72,7 +95,30 @@ export default function ConnectionVisualization() {
     critiques: 'bg-orange-100 border-orange-300',
     supports: 'bg-emerald-100 border-emerald-300',
     related_to: 'bg-slate-100 border-slate-300',
-    is_a: 'bg-teal-100 border-teal-300'
+    is_a: 'bg-teal-100 border-teal-300',
+    // Positional (general)
+    is_above: 'bg-amber-100 border-amber-300',
+    is_below: 'bg-amber-100 border-amber-300',
+    contains: 'bg-amber-100 border-amber-300',
+    is_inside: 'bg-amber-100 border-amber-300',
+    faces: 'bg-amber-100 border-amber-300',
+    faces_away_from: 'bg-amber-100 border-amber-300',
+    is_near: 'bg-amber-100 border-amber-300',
+    // Positional (anatomical)
+    superior_to: 'bg-yellow-100 border-yellow-300',
+    inferior_to: 'bg-yellow-100 border-yellow-300',
+    anterior_to: 'bg-yellow-100 border-yellow-300',
+    posterior_to: 'bg-yellow-100 border-yellow-300',
+    medial_to: 'bg-yellow-100 border-yellow-300',
+    lateral_to: 'bg-yellow-100 border-yellow-300',
+    dorsal_to: 'bg-yellow-100 border-yellow-300',
+    ventral_to: 'bg-yellow-100 border-yellow-300',
+    rostral_to: 'bg-yellow-100 border-yellow-300',
+    caudal_to: 'bg-yellow-100 border-yellow-300',
+    proximal_to: 'bg-yellow-100 border-yellow-300',
+    distal_to: 'bg-yellow-100 border-yellow-300',
+    ipsilateral_to: 'bg-yellow-100 border-yellow-300',
+    contralateral_to: 'bg-yellow-100 border-yellow-300'
   };
 
   if (loading) {

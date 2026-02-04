@@ -96,11 +96,19 @@ export default function ConceptRelationshipMap() {
     const semantic = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'];
     const sequential = ['prerequisite_for', 'builds_on', 'derived_from'];
     const influence = ['influenced', 'supports', 'critiques'];
+    const positional = [
+      'is_above', 'is_below', 'contains', 'is_inside', 'faces', 'faces_away_from', 'is_near',
+      'superior_to', 'inferior_to', 'anterior_to', 'posterior_to',
+      'medial_to', 'lateral_to', 'dorsal_to', 'ventral_to',
+      'rostral_to', 'caudal_to', 'proximal_to', 'distal_to',
+      'ipsilateral_to', 'contralateral_to'
+    ];
 
     if (hierarchical.includes(relType)) return 'hierarchical';
     if (semantic.includes(relType)) return 'semantic';
     if (sequential.includes(relType)) return 'sequential';
     if (influence.includes(relType)) return 'influence';
+    if (positional.includes(relType)) return 'positional';
     return 'other';
   };
 
@@ -343,6 +351,11 @@ export default function ConceptRelationshipMap() {
           linkWidth = 1.5;
           dashPattern = [2, 3];
           break;
+        case 'positional':
+          // Dash-dot line
+          linkWidth = 1.5;
+          dashPattern = [8, 3, 2, 3];
+          break;
         default:
           // Regular solid
           linkWidth = 1;
@@ -371,7 +384,7 @@ export default function ConceptRelationshipMap() {
     ctx.stroke();
 
     // Draw arrow for directional relationships
-    if (link.category === 'hierarchical' || link.category === 'sequential') {
+    if (link.category === 'hierarchical' || link.category === 'sequential' || link.category === 'positional') {
       const arrowLength = 12 / globalScale;
       const arrowWidth = 6 / globalScale;
 
@@ -588,6 +601,33 @@ export default function ConceptRelationshipMap() {
             >
               Influence
             </button>
+            <button
+              onClick={() => setFilterType('positional')}
+              style={{
+                padding: 'var(--space-2) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filterType === 'positional' ? 'var(--accent-green)' : 'var(--neutral-100)',
+                color: filterType === 'positional' ? 'white' : 'var(--neutral-700)'
+              }}
+              onMouseEnter={(e) => {
+                if (filterType !== 'positional') {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filterType !== 'positional') {
+                  e.currentTarget.style.background = 'var(--neutral-100)';
+                }
+              }}
+            >
+              Positional
+            </button>
           </div>
         </div>
 
@@ -623,6 +663,12 @@ export default function ConceptRelationshipMap() {
               <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="2,3" />
             </svg>
             <span>Influence</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <svg width="32" height="3" style={{ flexShrink: 0 }}>
+              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="8,3,2,3" />
+            </svg>
+            <span>Positional</span>
           </div>
         </div>
       </div>

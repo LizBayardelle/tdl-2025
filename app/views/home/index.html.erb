@@ -1,59 +1,147 @@
 <div style="background: var(--background);">
-  <!-- Hero Section -->
-  <div style="position: relative; background: linear-gradient(135deg, var(--primary) 0%, #3d4d22 100%); color: white; padding: 4rem 1.5rem; overflow: hidden;">
-    <!-- Decorative elements -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; background-image:
-      radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-    "></div>
-
-    <!-- Subtle grid pattern -->
-    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.03; background-image:
-      linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-      background-size: 50px 50px;
-    "></div>
+  <!-- 1. Hero Section -->
+  <div style="position: relative; background: linear-gradient(180deg, #eaede2 0%, #f5f7f0 100%); color: var(--neutral-900); padding: 5rem 1.5rem 4rem; overflow: hidden;">
+    <!-- Node-and-edge decorative pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none;">
+      <!-- Nodes - left cluster -->
+      <div style="position: absolute; width: 16px; height: 16px; background: var(--accent-green); opacity: 0.22; border-radius: 50%; top: 12%; left: 8%;"></div>
+      <div style="position: absolute; width: 12px; height: 12px; background: var(--accent-gold); opacity: 0.25; border-radius: 50%; top: 28%; left: 21%;"></div>
+      <div style="position: absolute; width: 20px; height: 20px; background: var(--accent-blue); opacity: 0.18; border-radius: 50%; top: 55%; left: 5%;"></div>
+      <div style="position: absolute; width: 12px; height: 12px; background: var(--accent-purple); opacity: 0.22; border-radius: 50%; top: 78%; left: 17%;"></div>
+      <div style="position: absolute; width: 10px; height: 10px; background: var(--accent-green); opacity: 0.18; border-radius: 50%; top: 42%; left: 14%;"></div>
+      <div style="position: absolute; width: 8px; height: 8px; background: var(--accent-gold); opacity: 0.20; border-radius: 50%; top: 18%; left: 3%;"></div>
+      <div style="position: absolute; width: 14px; height: 14px; background: var(--accent-blue); opacity: 0.16; border-radius: 50%; top: 88%; left: 7%;"></div>
+      <div style="position: absolute; width: 10px; height: 10px; background: var(--accent-purple); opacity: 0.14; border-radius: 50%; top: 62%; left: 22%;"></div>
+      <!-- Nodes - center-left scattered -->
+      <div style="position: absolute; width: 8px; height: 8px; background: var(--accent-green); opacity: 0.12; border-radius: 50%; top: 8%; left: 30%;"></div>
+      <div style="position: absolute; width: 6px; height: 6px; background: var(--accent-gold); opacity: 0.14; border-radius: 50%; top: 90%; left: 28%;"></div>
+      <div style="position: absolute; width: 7px; height: 7px; background: var(--accent-blue); opacity: 0.10; border-radius: 50%; top: 35%; left: 32%;"></div>
+      <!-- Nodes - center-right scattered -->
+      <div style="position: absolute; width: 7px; height: 7px; background: var(--accent-purple); opacity: 0.12; border-radius: 50%; top: 6%; right: 30%;"></div>
+      <div style="position: absolute; width: 8px; height: 8px; background: var(--accent-green); opacity: 0.10; border-radius: 50%; top: 88%; right: 28%;"></div>
+      <div style="position: absolute; width: 6px; height: 6px; background: var(--accent-gold); opacity: 0.12; border-radius: 50%; top: 38%; right: 32%;"></div>
+      <!-- Nodes - right cluster -->
+      <div style="position: absolute; width: 18px; height: 18px; background: var(--accent-blue); opacity: 0.22; border-radius: 50%; top: 10%; right: 11%;"></div>
+      <div style="position: absolute; width: 12px; height: 12px; background: var(--accent-green); opacity: 0.24; border-radius: 50%; top: 32%; right: 5%;"></div>
+      <div style="position: absolute; width: 14px; height: 14px; background: var(--accent-gold); opacity: 0.18; border-radius: 50%; top: 65%; right: 9%;"></div>
+      <div style="position: absolute; width: 16px; height: 16px; background: var(--accent-purple); opacity: 0.22; border-radius: 50%; top: 48%; right: 19%;"></div>
+      <div style="position: absolute; width: 10px; height: 10px; background: var(--accent-blue); opacity: 0.18; border-radius: 50%; top: 82%; right: 16%;"></div>
+      <div style="position: absolute; width: 8px; height: 8px; background: var(--accent-green); opacity: 0.20; border-radius: 50%; top: 20%; right: 3%;"></div>
+      <div style="position: absolute; width: 14px; height: 14px; background: var(--accent-gold); opacity: 0.16; border-radius: 50%; top: 90%; right: 8%;"></div>
+      <div style="position: absolute; width: 10px; height: 10px; background: var(--accent-purple); opacity: 0.14; border-radius: 50%; top: 58%; right: 24%;"></div>
+      <!-- Edges (lines between nodes) -->
+      <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" preserveAspectRatio="none">
+        <!-- Left cluster edges -->
+        <line x1="8.5%" y1="13%" x2="21.5%" y2="29%" stroke="var(--accent-green)" stroke-width="1.5" opacity="0.16"/>
+        <line x1="21.5%" y1="29%" x2="14.5%" y2="43%" stroke="var(--accent-gold)" stroke-width="1.5" opacity="0.14"/>
+        <line x1="14.5%" y1="43%" x2="6%" y2="56%" stroke="var(--accent-blue)" stroke-width="1.5" opacity="0.16"/>
+        <line x1="6%" y1="56%" x2="17.5%" y2="79%" stroke="var(--accent-purple)" stroke-width="1.5" opacity="0.14"/>
+        <line x1="3.5%" y1="19%" x2="8.5%" y2="13%" stroke="var(--accent-gold)" stroke-width="1" opacity="0.12"/>
+        <line x1="6%" y1="56%" x2="7.5%" y2="89%" stroke="var(--accent-blue)" stroke-width="1" opacity="0.12"/>
+        <line x1="22.5%" y1="63%" x2="17.5%" y2="79%" stroke="var(--accent-purple)" stroke-width="1" opacity="0.10"/>
+        <line x1="8.5%" y1="13%" x2="14.5%" y2="43%" stroke="var(--accent-green)" stroke-width="1" opacity="0.10" stroke-dasharray="4,4"/>
+        <line x1="21.5%" y1="29%" x2="6%" y2="56%" stroke="var(--accent-gold)" stroke-width="0.75" opacity="0.08" stroke-dasharray="4,4"/>
+        <!-- Left to center-left -->
+        <line x1="21.5%" y1="29%" x2="30.5%" y2="9%" stroke="var(--accent-green)" stroke-width="0.75" opacity="0.10"/>
+        <line x1="17.5%" y1="79%" x2="28.5%" y2="91%" stroke="var(--accent-gold)" stroke-width="0.75" opacity="0.10"/>
+        <line x1="14.5%" y1="43%" x2="32.5%" y2="36%" stroke="var(--accent-blue)" stroke-width="0.75" opacity="0.08" stroke-dasharray="4,4"/>
+        <!-- Right cluster edges -->
+        <line x1="89%" y1="11%" x2="95%" y2="33%" stroke="var(--accent-blue)" stroke-width="1.5" opacity="0.16"/>
+        <line x1="95%" y1="33%" x2="81%" y2="49%" stroke="var(--accent-green)" stroke-width="1.5" opacity="0.14"/>
+        <line x1="81%" y1="49%" x2="91%" y2="66%" stroke="var(--accent-gold)" stroke-width="1.5" opacity="0.16"/>
+        <line x1="91%" y1="66%" x2="84%" y2="83%" stroke="var(--accent-purple)" stroke-width="1.5" opacity="0.14"/>
+        <line x1="97%" y1="21%" x2="89%" y2="11%" stroke="var(--accent-green)" stroke-width="1" opacity="0.12"/>
+        <line x1="91%" y1="66%" x2="92%" y2="91%" stroke="var(--accent-gold)" stroke-width="1" opacity="0.12"/>
+        <line x1="76%" y1="59%" x2="81%" y2="49%" stroke="var(--accent-purple)" stroke-width="1" opacity="0.10"/>
+        <line x1="89%" y1="11%" x2="81%" y2="49%" stroke="var(--accent-blue)" stroke-width="1" opacity="0.10" stroke-dasharray="4,4"/>
+        <line x1="95%" y1="33%" x2="91%" y2="66%" stroke="var(--accent-green)" stroke-width="0.75" opacity="0.08" stroke-dasharray="4,4"/>
+        <!-- Right to center-right -->
+        <line x1="89%" y1="11%" x2="70.5%" y2="7%" stroke="var(--accent-blue)" stroke-width="0.75" opacity="0.10"/>
+        <line x1="84%" y1="83%" x2="72.5%" y2="89%" stroke="var(--accent-green)" stroke-width="0.75" opacity="0.10"/>
+        <line x1="81%" y1="49%" x2="68.5%" y2="39%" stroke="var(--accent-gold)" stroke-width="0.75" opacity="0.08" stroke-dasharray="4,4"/>
+        <!-- Cross edges -->
+        <line x1="21.5%" y1="29%" x2="81%" y2="49%" stroke="var(--neutral-400)" stroke-width="0.75" opacity="0.08" stroke-dasharray="6,6"/>
+        <line x1="14.5%" y1="43%" x2="89%" y2="11%" stroke="var(--neutral-400)" stroke-width="0.5" opacity="0.06" stroke-dasharray="6,6"/>
+        <line x1="6%" y1="56%" x2="91%" y2="66%" stroke="var(--neutral-400)" stroke-width="0.5" opacity="0.06" stroke-dasharray="6,6"/>
+      </svg>
+    </div>
 
     <div style="max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;">
-      <div style="max-width: 900px; margin: 0 auto;">
-        <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); padding: 0.5rem 1rem; border-radius: 100px; margin-bottom: 1.5rem;">
-          <span style="font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; letter-spacing: 0.05em;">FOR RESEARCHERS & ACADEMICS</span>
+      <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+        <div style="display: inline-block; background: var(--accent-green-light); padding: 0.5rem 1.25rem; border-radius: 100px; margin-bottom: 1.5rem;">
+          <span style="font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0.08em; color: var(--accent-green);">BUILT FOR MEDICAL &amp; PSYCHOLOGICAL RESEARCH</span>
         </div>
 
-        <h1 style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 700; line-height: 1.2; margin-bottom: 1.5rem; letter-spacing: -0.02em;">
-          A knowledge management system built for the way research actually works
+        <h1 style="font-family: var(--font-display); font-size: 3.25rem; font-weight: 700; line-height: 1.2; margin-bottom: 1.5rem; letter-spacing: -0.02em; color: var(--neutral-900);">
+          Organize your research. See the connections. Build real expertise.
         </h1>
-        <p style="font-family: var(--font-body); font-size: 1.25rem; line-height: 1.6; color: rgba(255, 255, 255, 0.9); margin-bottom: 2.5rem;">
-          Map My Research helps you build interconnected knowledge frameworks through concept networks, semantic tagging, and powerful filtering. Stop collecting notes in silos—start seeing the big picture.
+        <p style="font-family: var(--font-body); font-size: 1.2rem; line-height: 1.7; color: var(--neutral-600); margin-bottom: 2.5rem; max-width: 780px; margin-left: auto; margin-right: auto;">
+          Map My Research helps medical and psychology students and researchers organize articles, map theoretical frameworks, and connect ideas across studies. From your first literature review to your hundredth&mdash;every source, note, and concept in one place.
         </p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
           <% if user_signed_in? %>
-            <%= link_to dashboard_path, style: "background: white; color: var(--primary); padding: 1rem 2rem; border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; box-shadow: var(--shadow-lg);" do %>
+            <%= link_to dashboard_path, style: "background: var(--primary); color: white; padding: 1rem 2rem; border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; box-shadow: var(--shadow-lg);" do %>
               Go to Dashboard <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
             <% end %>
           <% else %>
-            <%= link_to new_user_registration_path, style: "background: white; color: var(--primary); padding: 1rem 2rem; border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; box-shadow: var(--shadow-lg);" do %>
+            <%= link_to new_user_registration_path, style: "background: var(--primary); color: white; padding: 1rem 2rem; border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; box-shadow: var(--shadow-lg);" do %>
               Get Started Free <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
             <% end %>
-            <%= link_to new_user_session_path, style: "background: transparent; color: white; padding: 1rem 2rem; border-radius: 4px; border: 2px solid rgba(255, 255, 255, 0.4); font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center;" do %>
+            <%= link_to new_user_session_path, style: "background: transparent; color: var(--neutral-700); padding: 1rem 2rem; border-radius: 4px; border: 2px solid var(--neutral-300); font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center;" do %>
               Sign In
             <% end %>
           <% end %>
+        </div>
+        <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-500); margin-top: 1.25rem;">
+          Free to use&mdash;no credit card required
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Trust Bar -->
+  <div style="background: var(--neutral-100); padding: 2rem 1.5rem; border-bottom: 1px solid var(--neutral-200);">
+    <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+      <div style="display: flex; align-items: start; gap: 0.75rem;">
+        <i class="fas fa-brain" style="font-size: 1.25rem; color: var(--primary); margin-top: 0.15rem; flex-shrink: 0;"></i>
+        <div>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--neutral-800);">Psychology &amp; Medicine</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Purpose-built for clinical and behavioral research</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: start; gap: 0.75rem;">
+        <i class="fas fa-project-diagram" style="font-size: 1.25rem; color: var(--primary); margin-top: 0.15rem; flex-shrink: 0;"></i>
+        <div>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--neutral-800);">Concept Mapping</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Visualize how theories connect</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: start; gap: 0.75rem;">
+        <i class="fas fa-file-medical" style="font-size: 1.25rem; color: var(--primary); margin-top: 0.15rem; flex-shrink: 0;"></i>
+        <div>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--neutral-800);">Anatomical Relations</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Superior, anterior, medial&mdash;built in</div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: start; gap: 0.75rem;">
+        <i class="fas fa-lock" style="font-size: 1.25rem; color: var(--primary); margin-top: 0.15rem; flex-shrink: 0;"></i>
+        <div>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--neutral-800);">Private &amp; Secure</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Your research stays yours</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Problem Section -->
+  <!-- 3. Problem Section -->
   <div style="padding: 5rem 1.5rem; background: white;">
     <div style="max-width: 1200px; margin: 0 auto;">
       <div style="text-align: center; margin-bottom: 3rem;">
         <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
-          You're drowning in notes. We get it.
+          Sound familiar?
         </h2>
-        <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--neutral-600); max-width: 700px; margin: 0 auto; line-height: 1.6;">
-          Traditional note-taking apps force you into a linear structure. But research happens in networks, connections, and evolving frameworks.
+        <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--neutral-600); max-width: 720px; margin: 0 auto; line-height: 1.6;">
+          Most tools were built for taking notes, not for doing research. Here's what falls apart when your reading list hits 50 papers.
         </p>
       </div>
 
@@ -64,10 +152,10 @@
             <i class="fas fa-file-alt" style="color: white; font-size: 1.25rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-            Notes in silos
+            Scattered across tools
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
-            Your insights from Paper A don't connect to Paper B. Concepts remain isolated. You rebuild the wheel every time you write.
+            Half your citations are in Zotero, your notes live in Google Docs, and your concept map is a whiteboard photo from three months ago. Nothing talks to anything else.
           </p>
         </div>
 
@@ -77,10 +165,10 @@
             <i class="fas fa-search" style="color: white; font-size: 1.25rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-            Lost in the search
+            Impossible to find later
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
-            "I know I read something about this..." Six months later, you still can't find that crucial citation or insight.
+            "I read something about CBT and exposure therapy..." You know it's in one of your 73 papers, but you'll spend an hour looking for it instead of writing.
           </p>
         </div>
 
@@ -90,29 +178,28 @@
             <i class="fas fa-project-diagram" style="color: white; font-size: 1.25rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-            No big picture
+            No way to see the big picture
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
-            You can't see patterns across your reading. Theoretical frameworks stay fuzzy. Synthesis feels impossible.
+            How does Attachment Theory connect to Object Relations? Where does the evidence overlap? Your brain knows there's a pattern, but your tools can't show it.
           </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Solution Section -->
+  <!-- 4. Solution / Features -->
   <div style="padding: 5rem 1.5rem; background: var(--background);">
     <div style="max-width: 1200px; margin: 0 auto;">
       <div style="text-align: center; margin-bottom: 4rem;">
         <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
-          Think in networks, not notebooks
+          One system for your entire research workflow
         </h2>
-        <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--neutral-600); max-width: 700px; margin: 0 auto; line-height: 1.6;">
-          Map My Research is built around how research actually works: concepts connect to sources, which connect to people, which connect to other concepts.
+        <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--neutral-600); max-width: 750px; margin: 0 auto; line-height: 1.6;">
+          Articles, concepts, theorists, and your own notes&mdash;connected the way they actually relate to each other.
         </p>
       </div>
 
-      <!-- Feature Grid -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3rem;">
         <!-- Feature 1: Concepts -->
         <div>
@@ -120,14 +207,14 @@
             <i class="fas fa-lightbulb" style="color: var(--accent-green); font-size: 1.75rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem;">
-            Build concept networks
+            Map theories and concepts
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7; margin-bottom: 1rem;">
-            Create constructs like "Grounded Theory" or "Attachment Theory." Connect them hierarchically. See how concepts relate to each other—not just alphabetically, but conceptually.
+            Create concepts for the theories, treatments, and frameworks you're studying. Connect them hierarchically and see how ideas relate&mdash;not just alphabetically, but conceptually.
           </p>
           <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 3px solid var(--accent-green);">
             <code style="font-family: monospace; font-size: var(--text-sm); color: var(--neutral-700);">
-              Qualitative Methods → Grounded Theory → Open Coding
+              CBT &rarr; Exposure Therapy &rarr; Systematic Desensitization
             </code>
           </div>
         </div>
@@ -138,32 +225,38 @@
             <i class="fas fa-book" style="color: var(--accent-blue); font-size: 1.75rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem;">
-            Tag sources semantically
+            All your articles in one place
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7; margin-bottom: 1rem;">
-            Link papers to concepts, people, and tags. Upload PDFs. Take inline notes. Filter by year, author, or theoretical framework. Actually find what you're looking for.
+            Paste a DOI and we'll pull in the title, authors, journal, and year automatically. Link papers to concepts, people, and custom tags. Tag a project like "Thesis Ch. 3" and instantly see every related source, note, and concept in one place.
           </p>
-          <div style="background: white; padding: 1rem; border-radius: 4px; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
-            <span style="background: var(--accent-green-light); color: var(--accent-green); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">Grounded Theory</span>
-            <span style="background: var(--accent-gold-light); color: var(--accent-gold); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">Strauss</span>
-            <span style="background: var(--accent-purple-light); color: var(--accent-purple); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">methodology</span>
+          <div style="background: white; padding: 1rem; border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; border: 1px solid var(--neutral-200);">
+            <i class="fas fa-magic" style="color: var(--accent-blue); font-size: 1rem;"></i>
+            <code style="font-family: monospace; font-size: var(--text-xs); color: var(--neutral-500);">10.1001/jamapsychiatry.2023.0001</code>
+            <i class="fas fa-arrow-right" style="color: var(--neutral-300); font-size: 0.75rem;"></i>
+            <span style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-700); font-weight: 500;">Auto-filled</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+            <span style="background: var(--accent-green-light); color: var(--accent-green); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">CBT</span>
+            <span style="background: var(--accent-gold-light); color: var(--accent-gold); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">Beck, A.T.</span>
+            <span style="background: var(--accent-purple-light); color: var(--accent-purple); padding: 0.25rem 0.75rem; border-radius: 4px; font-size: var(--text-xs); font-weight: 500;">meta-analysis</span>
           </div>
         </div>
 
         <!-- Feature 3: Notes -->
         <div>
-          <div style="width: 56px; height: 56px; background: #e0f2f4; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-            <i class="fas fa-sticky-note" style="color: #639CA1; font-size: 1.75rem;"></i>
+          <div style="width: 56px; height: 56px; background: var(--accent-teal-light); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+            <i class="fas fa-sticky-note" style="color: var(--accent-teal); font-size: 1.75rem;"></i>
           </div>
           <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem;">
-            Notes that connect everything
+            Notes that write your literature review
           </h3>
           <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7; margin-bottom: 1rem;">
-            Every note links to sources, concepts, and people. Filter by any combination. Your literature review writes itself when you can see all notes about a concept across all sources.
+            Every note links to sources, concepts, and people. Filter by any combination. When it's time to write, pull up all notes on a concept across every source.
           </p>
-          <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 3px solid #639CA1;">
+          <div style="background: white; padding: 1rem; border-radius: 4px; border-left: 3px solid var(--accent-teal);">
             <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); font-style: italic; margin: 0;">
-              "The constant comparison method requires..." → linked to 3 concepts, 2 sources, 1 person
+              "Bowlby (1969) posits that early attachment bonds form internal working models that..." &rarr; linked to 3 concepts, 2 sources
             </p>
           </div>
         </div>
@@ -171,57 +264,134 @@
     </div>
   </div>
 
-  <!-- How it Works -->
+  <!-- 5. Visual Demo -->
+  <div style="padding: 5rem 1.5rem; background: var(--neutral-100); border-top: 1px solid var(--neutral-200); border-bottom: 1px solid var(--neutral-200);">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 3rem;">
+        <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
+          See how your research connects
+        </h2>
+      </div>
+
+      <!-- CSS Concept Map Diagram -->
+      <div class="home-demo-map" style="position: relative; width: 100%; max-width: 700px; margin: 0 auto 3rem; height: 360px; background: white; border-radius: 8px; box-shadow: var(--shadow-card);">
+        <!-- SVG edges -->
+        <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 700 360" preserveAspectRatio="xMidYMid meet">
+          <!-- Central to CBT -->
+          <line x1="350" y1="160" x2="160" y2="70" stroke="var(--neutral-300)" stroke-width="2"/>
+          <!-- Central to SSRI -->
+          <line x1="350" y1="160" x2="560" y2="70" stroke="var(--neutral-300)" stroke-width="2"/>
+          <!-- Central to Beck -->
+          <line x1="350" y1="160" x2="140" y2="290" stroke="var(--neutral-300)" stroke-width="2"/>
+          <!-- Central to Hofmann -->
+          <line x1="350" y1="160" x2="560" y2="290" stroke="var(--neutral-300)" stroke-width="2"/>
+          <!-- CBT to Beck -->
+          <line x1="160" y1="70" x2="140" y2="290" stroke="var(--neutral-200)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- SSRI to Hofmann -->
+          <line x1="560" y1="70" x2="560" y2="290" stroke="var(--neutral-200)" stroke-width="1" stroke-dasharray="4,4"/>
+        </svg>
+
+        <!-- Central Node: Anxiety Disorders -->
+        <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--accent-green); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; white-space: nowrap; box-shadow: var(--shadow-md);">
+          Anxiety Disorders
+        </div>
+
+        <!-- CBT Node -->
+        <div style="position: absolute; left: 23%; top: 20%; transform: translate(-50%, -50%); background: var(--accent-green-light); color: var(--accent-green); padding: 0.5rem 1.25rem; border-radius: 8px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; border: 1px solid var(--accent-green); box-shadow: var(--shadow-sm);">
+          CBT
+        </div>
+
+        <!-- SSRI Treatment Node -->
+        <div style="position: absolute; left: 80%; top: 20%; transform: translate(-50%, -50%); background: var(--accent-green-light); color: var(--accent-green); padding: 0.5rem 1.25rem; border-radius: 8px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; border: 1px solid var(--accent-green); box-shadow: var(--shadow-sm);">
+          SSRI Treatment
+        </div>
+
+        <!-- Beck Node -->
+        <div style="position: absolute; left: 20%; top: 80%; transform: translate(-50%, -50%); background: var(--accent-gold-light); color: var(--accent-gold); padding: 0.5rem 1.25rem; border-radius: 8px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; border: 1px solid var(--accent-gold); box-shadow: var(--shadow-sm);">
+          Beck, A.T.
+        </div>
+
+        <!-- Hofmann Node -->
+        <div style="position: absolute; left: 80%; top: 80%; transform: translate(-50%, -50%); background: var(--accent-blue-light); color: var(--accent-blue); padding: 0.5rem 1.25rem; border-radius: 8px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; white-space: nowrap; border: 1px solid var(--accent-blue); box-shadow: var(--shadow-sm);">
+          Hofmann et al., 2012
+        </div>
+      </div>
+
+      <!-- Callouts -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; text-align: center;">
+        <div>
+          <i class="fas fa-search-plus" style="font-size: 1.5rem; color: var(--accent-green); margin-bottom: 0.5rem;"></i>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; color: var(--neutral-800);">Zoom &amp; explore</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Navigate your concept map interactively</div>
+        </div>
+        <div>
+          <i class="fas fa-filter" style="font-size: 1.5rem; color: var(--accent-gold); margin-bottom: 0.5rem;"></i>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; color: var(--neutral-800);">Filter by type</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Show concepts, people, or sources</div>
+        </div>
+        <div>
+          <i class="fas fa-share-alt" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 0.5rem;"></i>
+          <div style="font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; color: var(--neutral-800);">Share with others</div>
+          <div style="font-family: var(--font-body); font-size: var(--text-xs); color: var(--neutral-500); line-height: 1.5;">Export or share your research maps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. How It Works -->
   <div style="padding: 5rem 1.5rem; background: white;">
     <div style="max-width: 900px; margin: 0 auto;">
       <div style="text-align: center; margin-bottom: 3rem;">
         <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
-          From chaos to clarity in three steps
+          Get started in minutes
         </h2>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 2rem;">
+      <div style="display: flex; flex-direction: column; gap: 0; position: relative;">
+        <!-- Dashed timeline line -->
+        <div style="position: absolute; left: 23px; top: 48px; bottom: 48px; width: 2px; border-left: 2px dashed var(--neutral-300);"></div>
+
         <!-- Step 1 -->
-        <div style="display: flex; gap: 2rem; align-items: start;">
-          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700;">
+        <div style="display: flex; gap: 2rem; align-items: start; padding-bottom: 2.5rem;">
+          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; position: relative; z-index: 1;">
             1
           </div>
           <div style="flex: 1;">
             <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-              Build your theoretical framework
+              Add your first concepts
             </h3>
             <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7;">
-              Create concepts for theories, methods, or ideas you're working with. Organize them hierarchically. Define relationships between them.
+              Start with the theories and frameworks you're studying&mdash;Attachment Theory, CBT, Dopamine Pathways. Organize them hierarchically and define how they relate.
             </p>
           </div>
         </div>
 
         <!-- Step 2 -->
-        <div style="display: flex; gap: 2rem; align-items: start;">
-          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700;">
+        <div style="display: flex; gap: 2rem; align-items: start; padding-bottom: 2.5rem;">
+          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; position: relative; z-index: 1;">
             2
           </div>
           <div style="flex: 1;">
             <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-              Add sources and connect them
+              Import your articles
             </h3>
             <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7;">
-              Import papers, books, articles. Tag them with concepts. Link to authors. Upload PDFs for inline annotation. Let the system remember what's where.
+              Paste a DOI to auto-import article details, or add sources manually. Upload PDFs, tag them with concepts and people, and take inline annotations so your notes live right next to the source material.
             </p>
           </div>
         </div>
 
         <!-- Step 3 -->
         <div style="display: flex; gap: 2rem; align-items: start;">
-          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700;">
+          <div style="flex-shrink: 0; width: 48px; height: 48px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; position: relative; z-index: 1;">
             3
           </div>
           <div style="flex: 1;">
             <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.5rem;">
-              Filter, find, synthesize
+              Search, filter, and write
             </h3>
             <p style="font-family: var(--font-body); font-size: var(--text-base); color: var(--neutral-700); line-height: 1.7;">
-              Need all notes on "Attachment Theory" from sources published after 2015? Done. Want to see how Strauss connects to contemporary researchers? Easy. Your knowledge network is finally searchable.
+              Filter notes by concept, person, or year. Pull up everything you've ever read about a topic in one view. Your literature review practically writes itself.
             </p>
           </div>
         </div>
@@ -229,68 +399,114 @@
     </div>
   </div>
 
-  <!-- Who it's for -->
-  <div style="padding: 5rem 1.5rem; background: linear-gradient(135deg, #2d5466 0%, #1e3a47 100%); color: white;">
+  <!-- 7. Who It's For -->
+  <div style="padding: 5rem 1.5rem; background: var(--neutral-100); border-top: 1px solid var(--neutral-200);">
     <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
-      <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.02em;">
-        Built for serious knowledge work
+      <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
+        Built for how you actually study and research
       </h2>
-      <p style="font-family: var(--font-body); font-size: 1.125rem; line-height: 1.6; color: rgba(255, 255, 255, 0.9); max-width: 700px; margin: 0 auto 3rem;">
-        If you're doing research, writing a dissertation, building a framework, or synthesizing complex information—this is for you.
+      <p style="font-family: var(--font-body); font-size: 1.125rem; line-height: 1.6; color: var(--neutral-600); max-width: 700px; margin: 0 auto 3rem;">
+        Whether you're just starting your program or running a research lab, Map My Research adapts to the way you work.
       </p>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: left;">
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 2rem; border-radius: 4px;">
-          <i class="fas fa-graduation-cap" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-green-light);"></i>
-          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin-bottom: 0.75rem;">
-            PhD Students
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; text-align: left;">
+        <div style="background: white; padding: 2rem; border-radius: 8px; border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm);">
+          <i class="fas fa-graduation-cap" style="font-size: 1.75rem; margin-bottom: 1rem; display: block; color: var(--accent-green);"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.75rem;">
+            Psychology Students
           </h3>
-          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: rgba(255, 255, 255, 0.85);">
-            Managing a literature review across 100+ papers? Building a theoretical framework for your dissertation? Stay organized from day one.
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--neutral-600);">
+            Organize literature reviews around theoretical frameworks. Map how concepts connect across your coursework and thesis research.
           </p>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 2rem; border-radius: 4px;">
-          <i class="fas fa-microscope" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-blue-light);"></i>
-          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin-bottom: 0.75rem;">
-            Researchers
+        <div style="background: white; padding: 2rem; border-radius: 8px; border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm);">
+          <i class="fas fa-stethoscope" style="font-size: 1.75rem; margin-bottom: 1rem; display: block; color: var(--accent-blue);"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.75rem;">
+            Medical Students
           </h3>
-          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: rgba(255, 255, 255, 0.85);">
-            Track methodological approaches across studies. Compare theoretical perspectives. Build cumulative knowledge instead of starting from scratch each project.
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--neutral-600);">
+            Map anatomy, pharmacology, and pathology with built-in anatomical relationship types. Connect structures, drugs, and conditions.
           </p>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 2rem; border-radius: 4px;">
-          <i class="fas fa-chalkboard-teacher" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-gold-light);"></i>
-          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin-bottom: 0.75rem;">
-            Educators & Clinicians
+        <div style="background: white; padding: 2rem; border-radius: 8px; border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm);">
+          <i class="fas fa-flask" style="font-size: 1.75rem; margin-bottom: 1rem; display: block; color: var(--accent-gold);"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.75rem;">
+            Clinical Researchers
           </h3>
-          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: rgba(255, 255, 255, 0.85);">
-            Synthesize approaches across modalities. Track evidence for different interventions. Build your personal knowledge base of what works.
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--neutral-600);">
+            Track treatment approaches, compare evidence bases, and build cumulative knowledge across studies and clinical trials.
           </p>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.1); padding: 2rem; border-radius: 4px;">
-          <i class="fas fa-brain" style="font-size: 2rem; margin-bottom: 1rem; color: var(--accent-purple-light);"></i>
-          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; margin-bottom: 0.75rem;">
-            Lifelong Learners
+        <div style="background: white; padding: 2rem; border-radius: 8px; border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm);">
+          <i class="fas fa-chalkboard-teacher" style="font-size: 1.75rem; margin-bottom: 1rem; display: block; color: var(--accent-purple);"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: 0.75rem;">
+            Professors &amp; Supervisors
           </h3>
-          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: rgba(255, 255, 255, 0.85);">
-            Building expertise in a complex field? Create your own curriculum. Track your intellectual development. See connections emerge over time.
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.6; color: var(--neutral-600);">
+            Share concept maps with students, build lab knowledge bases, and keep your own research organized across decades of work.
           </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Final CTA -->
+  <!-- 8. Coming Soon / Roadmap -->
   <div style="padding: 5rem 1.5rem; background: white;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <div style="text-align: center; margin-bottom: 3rem;">
+        <div style="display: inline-block; background: var(--accent-green-light); padding: 0.35rem 1rem; border-radius: 100px; margin-bottom: 1.25rem;">
+          <span style="font-family: var(--font-body); font-size: var(--text-xs); font-weight: 600; color: var(--accent-green); letter-spacing: 0.06em;">COMING SOON</span>
+        </div>
+        <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
+          The roadmap
+        </h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div style="background: var(--neutral-100); padding: 1.75rem; border-radius: 4px;">
+          <i class="fas fa-robot" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 0.75rem; display: block;"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 700; color: var(--neutral-900); margin-bottom: 0.5rem;">
+            AI-Powered Summaries
+          </h3>
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
+            Auto-extract key findings, methods, and conclusions from your uploaded PDFs.
+          </p>
+        </div>
+
+        <div style="background: var(--neutral-100); padding: 1.75rem; border-radius: 4px;">
+          <i class="fas fa-database" style="font-size: 1.5rem; color: var(--accent-green); margin-bottom: 0.75rem; display: block;"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 700; color: var(--neutral-900); margin-bottom: 0.5rem;">
+            Pre-Loaded Concept Libraries
+          </h3>
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
+            Start with ready-made frameworks for the DSM-5, neuroanatomy, pharmacology, and more.
+          </p>
+        </div>
+
+        <div style="background: var(--neutral-100); padding: 1.75rem; border-radius: 4px;">
+          <i class="fas fa-users" style="font-size: 1.5rem; color: var(--accent-gold); margin-bottom: 0.75rem; display: block;"></i>
+          <h3 style="font-family: var(--font-display); font-size: var(--text-base); font-weight: 700; color: var(--neutral-900); margin-bottom: 0.5rem;">
+            Team Workspaces
+          </h3>
+          <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600); line-height: 1.6;">
+            Share your knowledge base with your lab, study group, or cohort. Collaborate in real time.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. Final CTA -->
+  <div style="padding: 5rem 1.5rem; background: linear-gradient(180deg, white 0%, #f5f7f0 100%);">
     <div style="max-width: 800px; margin: 0 auto; text-align: center;">
       <h2 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--neutral-900); margin-bottom: 1rem; letter-spacing: -0.02em;">
-        Stop collecting notes.<br>Start building knowledge.
+        Your research deserves a system that actually works.
       </h2>
       <p style="font-family: var(--font-body); font-size: 1.125rem; color: var(--neutral-600); line-height: 1.6; margin-bottom: 2.5rem;">
-        Your research deserves better than scattered documents and forgotten highlights.
+        Join researchers and students who are organizing their work in a way that compounds over time. Free to get started.
       </p>
       <% if user_signed_in? %>
         <%= link_to dashboard_path, style: "background: var(--primary); color: white; padding: 1rem 3rem; border-radius: 4px; font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; box-shadow: var(--shadow-lg);" do %>
@@ -319,7 +535,29 @@
   }
 
   a[href*="session"][style*="transparent"]:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border-color: rgba(255, 255, 255, 0.8) !important;
+    background: var(--neutral-100) !important;
+    border-color: var(--neutral-400) !important;
+  }
+
+  /* Text wrapping - no orphans/widows, balanced lines */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p, li, div, span {
+    text-wrap: pretty;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .home-demo-map {
+      height: 280px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .home-demo-map {
+      height: 240px !important;
+    }
   }
 </style>

@@ -20,23 +20,19 @@
     <%= javascript_include_tag "application", type: "module" %>
   </head>
 
-  <body style="min-height: 100vh; background: white;">
-    <%= render 'shared/navigation' %>
-
+  <body style="min-height: 100vh; background: var(--background);">
     <% if notice %>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        <div class="bg-sand border-l-4 border-primary p-4 rounded">
-          <%= notice %>
-        </div>
+      <div style="width: 100%; padding: 0.75rem 1.5rem; background: #f0f4e8; border-bottom: 2px solid var(--primary); font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-800);">
+        <%= notice %>
       </div>
     <% end %>
     <% if alert %>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        <div class="bg-accent-light border-l-4 border-accent-dark p-4 rounded">
-          <%= alert %>
-        </div>
+      <div style="width: 100%; padding: 0.75rem 1.5rem; background: #fdf0f0; border-bottom: 2px solid var(--error, #c0392b); font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-800);">
+        <%= alert %>
       </div>
     <% end %>
+
+    <%= render 'shared/navigation' %>
 
     <%= yield %>
   </body>
