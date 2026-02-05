@@ -14,18 +14,23 @@ class Concept < ApplicationRecord
 
   # Enums
   enum :node_type, {
+    undeclared: "undeclared",
+    concept: "concept",
+    theory: "theory",
+    method: "method",
+    measure: "measure",
+    entity: "entity",
+    category: "category",
+    subject: "subject",
+    other: "other",
+    # Legacy values (kept for backwards compatibility)
     model: "model",
     technique: "technique",
     construct: "construct",
-    measure: "measure",
     population: "population",
-    category: "category",
     discipline: "discipline",
     school_of_thought: "school_of_thought",
-    subject: "subject",
-    theory: "theory",
-    structure: "structure",
-    other: "other"
+    structure: "structure"
   }, prefix: true
 
   enum :level_status, {
@@ -48,6 +53,23 @@ class Concept < ApplicationRecord
   scope :by_type, ->(type) { where(node_type: type) }
   scope :by_status, ->(status) { where(level_status: status) }
   scope :needs_review, -> { where("last_reviewed_on IS NULL OR last_reviewed_on < ?", 30.days.ago) }
+
+  # Count methods for JSON serialization
+  def sources_count
+    sources.size
+  end
+
+  def people_count
+    people.size
+  end
+
+  def notes_count
+    linked_notes.size
+  end
+
+  def tags_count
+    tags.size
+  end
 
   private
 

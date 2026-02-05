@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require 'openssl'
 
 class ArticleMetadataExtractor
   ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
@@ -17,23 +18,26 @@ class ArticleMetadataExtractor
       return metadata if metadata
     end
 
-    # If no DOI in URL, fetch page and search HTML for DOI
-    begin
-      page_content, raw_content = fetch_page_content_with_raw
+    # If no DOI in URL, and URL looks like a valid web URL, fetch page and search HTML for DOI
+    # Skip this step if the input is just a bare DOI (no scheme)
+    if @url.match?(/^https?:\/\//i)
+      begin
+        page_content, raw_content = fetch_page_content_with_raw
 
-      # Try raw content first (before encoding conversion)
-      doi = extract_doi_from_raw_html(raw_content) if raw_content
+        # Try raw content first (before encoding conversion)
+        doi = extract_doi_from_raw_html(raw_content) if raw_content
 
-      # If not found in raw, try decoded content
-      doi ||= extract_doi_from_html(page_content)
+        # If not found in raw, try decoded content
+        doi ||= extract_doi_from_html(page_content)
 
-      if doi
-        Rails.logger.info "Found DOI in HTML: #{doi}, using CrossRef API"
-        metadata = extract_from_crossref(doi)
-        return metadata if metadata
+        if doi
+          Rails.logger.info "Found DOI in HTML: #{doi}, using CrossRef API"
+          metadata = extract_from_crossref(doi)
+          return metadata if metadata
+        end
+      rescue => e
+        Rails.logger.warn "Failed to fetch page for DOI extraction: #{e.message}"
       end
-    rescue => e
-      Rails.logger.warn "Failed to fetch page for DOI extraction: #{e.message}"
     end
 
     # Fall back to AI extraction with the page content we already fetched
@@ -156,16 +160,46 @@ class ArticleMetadataExtractor
   end
 
   def extract_from_crossref(doi)
-    uri = URI("https://api.crossref.org/works/#{doi}")
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.open_timeout = 10
-    http.read_timeout = 10
+    uri = URI("https://api.crossref.org/works/#{URI.encode_www_form_component(doi)}")
 
-    request = Net::HTTP::Get.new(uri.path)
+    request = Net::HTTP::Get.new(uri.request_uri)
     request['User-Agent'] = 'Mozilla/5.0 (Map My Research App; mailto:research@example.com)'
 
-    response = http.request(request)
+    # Try with standard SSL verification first, fall back to relaxed verification if CRL check fails
+    response = nil
+    [true, false].each do |strict_ssl|
+      begin
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        http.open_timeout = 10
+        http.read_timeout = 10
+
+        if strict_ssl
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        else
+          # Relaxed mode: still verify peer but don't fail on CRL issues
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.verify_callback = lambda { |preverify_ok, store_ctx|
+            # Accept if basic verification passed, even if CRL check failed
+            return true if preverify_ok
+            # Accept CRL-related errors (error codes 3, 12)
+            err = store_ctx.error
+            return true if [3, 12].include?(err)
+            false
+          }
+        end
+
+        response = http.request(request)
+        break # Success, exit the retry loop
+      rescue OpenSSL::SSL::SSLError => e
+        if strict_ssl && e.message.include?('certificate')
+          Rails.logger.warn "CrossRef SSL strict mode failed, trying relaxed mode: #{e.message}"
+          next # Try relaxed mode
+        else
+          raise # Re-raise if already in relaxed mode or different error
+        end
+      end
+    end
 
     if response.is_a?(Net::HTTPSuccess)
       data = JSON.parse(response.body)

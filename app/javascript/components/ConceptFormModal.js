@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SlidePanel from './SlidePanel';
 import ConceptSearchSelect from './ConceptSearchSelect';
+import { NODE_TYPES } from '../config/nodeTypes';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = useState([]);
@@ -8,9 +9,12 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basics');
   const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
   const [newRelationships, setNewRelationships] = useState([]);
+  const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
+  const [typeDropdownPos, setTypeDropdownPos] = useState({ top: 0, left: 0 });
+  const typeDropdownTriggerRef = useRef(null);
   const [formData, setFormData] = useState({
     label: '',
-    node_type: 'construct',
+    node_type: 'undeclared',
     level_status: 'mapped',
     summary_top: '',
     summary_mid: '',
@@ -40,12 +44,13 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab('basics');
       setDeletedRelationshipIds([]);
       setNewRelationships([]);
+      setTypeDropdownOpen(false);
       fetchPeople();
       fetchConcepts();
       if (item) {
         setFormData({
           label: item.label || '',
-          node_type: item.node_type || 'model',
+          node_type: item.node_type || 'undeclared',
           level_status: item.level_status || 'mapped',
           summary_top: item.summary_top || '',
           summary_mid: item.summary_mid || '',
@@ -71,7 +76,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       } else {
         setFormData({
           label: '',
-          node_type: 'construct',
+          node_type: 'undeclared',
           level_status: 'mapped',
           summary_top: '',
           summary_mid: '',
@@ -245,7 +250,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ concept: { label, node_type: 'construct' } }),
+        body: JSON.stringify({ concept: { label, node_type: 'concept' } }),
       });
 
       if (response.ok) {
@@ -490,26 +495,124 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div style={{ position: 'relative' }}>
                   <label className="form-label required">Type</label>
-                  <select
-                    value={formData.node_type}
-                    onChange={(e) => setFormData({ ...formData, node_type: e.target.value })}
-                    className="form-select"
+                  <button
+                    type="button"
+                    ref={typeDropdownTriggerRef}
+                    onClick={() => {
+                      if (typeDropdownTriggerRef.current) {
+                        const rect = typeDropdownTriggerRef.current.getBoundingClientRect();
+                        const dropdownHeight = 400;
+                        const dropdownWidth = 320;
+                        let top = rect.bottom + 4;
+                        if (top + dropdownHeight > window.innerHeight) {
+                          top = Math.max(8, rect.top - dropdownHeight - 4);
+                        }
+                        let left = rect.left;
+                        if (left + dropdownWidth > window.innerWidth) {
+                          left = window.innerWidth - dropdownWidth - 8;
+                        }
+                        setTypeDropdownPos({ top, left });
+                      }
+                      setTypeDropdownOpen(!typeDropdownOpen);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: 'var(--space-2) var(--space-3)',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: 'var(--radius)',
+                      background: 'white',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'var(--text-sm)',
+                    }}
                   >
-                    <option value="construct">Construct</option>
-                    <option value="model">Model</option>
-                    <option value="theory">Theory</option>
-                    <option value="technique">Technique</option>
-                    <option value="measure">Measure</option>
-                    <option value="structure">Structure</option>
-                    <option value="school_of_thought">School of Thought</option>
-                    <option value="subject">Subject</option>
-                    <option value="population">Population</option>
-                    <option value="category">Category</option>
-                    <option value="discipline">Discipline</option>
-                    <option value="other">Other</option>
-                  </select>
+                    <span>{NODE_TYPES.find(t => t.value === formData.node_type)?.label || formData.node_type}</span>
+                    <i className="fas fa-chevron-down" style={{ fontSize: '10px', color: 'var(--neutral-400)' }}></i>
+                  </button>
+                  {typeDropdownOpen && (
+                    <>
+                      <div
+                        style={{
+                          position: 'fixed',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          zIndex: 9998,
+                        }}
+                        onClick={() => setTypeDropdownOpen(false)}
+                      />
+                      <div style={{
+                        position: 'fixed',
+                        top: typeDropdownPos.top,
+                        left: typeDropdownPos.left,
+                        width: '320px',
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        background: 'white',
+                        border: '1px solid var(--neutral-300)',
+                        borderRadius: 'var(--radius)',
+                        boxShadow: 'var(--shadow-lg)',
+                        zIndex: 9999,
+                      }}>
+                        {NODE_TYPES.map(opt => (
+                          <div
+                            key={opt.value}
+                            onClick={() => {
+                              setFormData({ ...formData, node_type: opt.value });
+                              setTypeDropdownOpen(false);
+                            }}
+                            style={{
+                              padding: 'var(--space-3)',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid var(--neutral-100)',
+                              background: formData.node_type === opt.value ? 'var(--accent-green-light)' : 'transparent',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (formData.node_type !== opt.value) {
+                                e.currentTarget.style.background = 'var(--neutral-50)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = formData.node_type === opt.value ? 'var(--accent-green-light)' : 'transparent';
+                            }}
+                          >
+                            <div style={{
+                              fontWeight: 600,
+                              fontSize: 'var(--text-sm)',
+                              color: 'var(--neutral-900)',
+                              marginBottom: '2px',
+                            }}>
+                              {opt.label}
+                            </div>
+                            <div style={{
+                              fontSize: 'var(--text-xs)',
+                              color: 'var(--neutral-500)',
+                              lineHeight: 1.4,
+                            }}>
+                              {opt.description}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {formData.node_type && (
+                    <p style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-500)',
+                      marginTop: 'var(--space-1)',
+                      lineHeight: 1.4,
+                    }}>
+                      {NODE_TYPES.find(t => t.value === formData.node_type)?.description}
+                    </p>
+                  )}
                 </div>
 
                 <div>

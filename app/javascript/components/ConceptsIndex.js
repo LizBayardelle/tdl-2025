@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ConceptFormModal from './ConceptFormModal';
 import { buildConceptHierarchy, flattenHierarchy } from '../utils/conceptHierarchy';
+import { NODE_TYPES, getNodeTypeLabel } from '../config/nodeTypes';
 
 export default function ConceptsIndex() {
   const [concepts, setConcepts] = useState([]);
@@ -219,7 +220,7 @@ export default function ConceptsIndex() {
                       }}
                       style={{ accentColor: 'var(--primary)' }}
                     />
-                    <span style={{ flex: 1, textTransform: 'capitalize' }}>{type}</span>
+                    <span style={{ flex: 1 }}>{getNodeTypeLabel(type)}</span>
                     <span
                       style={{
                         fontSize: 'var(--text-xs)',
@@ -266,7 +267,7 @@ export default function ConceptsIndex() {
       </button>
 
       {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#ffffff' }}>
         {/* Header */}
         <div style={{
           padding: 'var(--space-6)',
@@ -285,7 +286,7 @@ export default function ConceptsIndex() {
                   marginBottom: 'var(--space-1)',
                 }}
               >
-                Constructs
+                Concepts
               </h1>
               <p
                 style={{
@@ -295,7 +296,7 @@ export default function ConceptsIndex() {
                   margin: 0,
                 }}
               >
-                Theories, Concepts, Subjects, Fields, etc.
+                Theories, Constructs, Structures, and Research Topics
               </p>
             </div>
             <button
@@ -352,7 +353,7 @@ export default function ConceptsIndex() {
           overflowY: 'auto',
           padding: 'var(--space-6)',
           paddingLeft: 'calc(var(--space-6) + 24px)',
-          background: 'var(--background)'
+          background: '#ffffff'
         }}>
           {filteredConcepts.length === 0 ? (
             <div
@@ -384,15 +385,39 @@ export default function ConceptsIndex() {
               }}
             >
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ background: 'var(--card-footer)', borderBottom: '1px solid var(--neutral-200)' }}>
+                <thead style={{ background: 'var(--card-footer)' }}>
+                  {/* First header row - grouped */}
                   <tr>
-                    <th style={{ width: '2rem', padding: '0.75rem 0.5rem' }}></th>
+                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
+                    <th style={{ padding: '0.5rem 1rem' }}></th>
+                    <th style={{ padding: '0.5rem 1rem' }}></th>
+                    <th
+                      colSpan={5}
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        textAlign: 'center',
+                        padding: '0.5rem 0.5rem 0.25rem',
+                        fontWeight: 600,
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        borderBottom: '1px solid var(--neutral-200)',
+                      }}
+                    >
+                      Relationships
+                    </th>
+                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
+                  </tr>
+                  {/* Second header row - individual columns */}
+                  <tr style={{ borderBottom: '1px solid var(--neutral-200)' }}>
+                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
                     <th
                       onClick={() => handleSort('label')}
                       style={{
                         fontFamily: 'var(--font-display)',
                         textAlign: 'left',
-                        padding: '0.75rem 1rem',
+                        padding: '0.5rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-700)',
@@ -412,7 +437,7 @@ export default function ConceptsIndex() {
                       style={{
                         fontFamily: 'var(--font-display)',
                         textAlign: 'left',
-                        padding: '0.75rem 1rem',
+                        padding: '0.5rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-700)',
@@ -427,56 +452,23 @@ export default function ConceptsIndex() {
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
                       )}
                     </th>
-                    <th
-                      onClick={() => handleSort('status')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'color 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                    >
-                      Status {sortField === 'status' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
+                    {/* Relationship sub-columns with icons */}
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Concepts">
+                      <i className="fas fa-lightbulb" style={{ color: 'var(--accent-green)', fontSize: '12px' }}></i>
                     </th>
-                    <th
-                      onClick={() => handleSort('relationships')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'color 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
-                    >
-                      Relationships {sortField === 'relationships' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Sources">
+                      <i className="fas fa-book" style={{ color: 'var(--accent-blue)', fontSize: '12px' }}></i>
                     </th>
-                    <th style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'right',
-                      padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)'
-                    }}>
-                      Actions
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="People">
+                      <i className="fas fa-user" style={{ color: 'var(--accent-gold)', fontSize: '12px' }}></i>
                     </th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Notes">
+                      <i className="fas fa-sticky-note" style={{ color: 'var(--accent-teal)', fontSize: '12px' }}></i>
+                    </th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Tags">
+                      <i className="fas fa-tag" style={{ color: 'var(--accent-purple)', fontSize: '12px' }}></i>
+                    </th>
+                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -502,23 +494,49 @@ export default function ConceptsIndex() {
   );
 }
 
-const NODE_TYPE_OPTIONS = [
-  { value: 'construct', label: 'Construct' },
-  { value: 'model', label: 'Model' },
-  { value: 'theory', label: 'Theory' },
-  { value: 'technique', label: 'Technique' },
-  { value: 'measure', label: 'Measure' },
-  { value: 'structure', label: 'Structure' },
-  { value: 'school_of_thought', label: 'School of Thought' },
-  { value: 'subject', label: 'Subject' },
-  { value: 'population', label: 'Population' },
-  { value: 'category', label: 'Category' },
-  { value: 'discipline', label: 'Discipline' },
-  { value: 'other', label: 'Other' },
-];
 
 function ConceptRow({ concept, depth, onUpdate, onEdit }) {
   const [editingType, setEditingType] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target) &&
+          triggerRef.current && !triggerRef.current.contains(e.target)) {
+        setEditingType(false);
+      }
+    };
+    if (editingType) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [editingType]);
+
+  const openDropdown = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownHeight = 400; // max-height of dropdown
+      const dropdownWidth = 320;
+
+      // Check if dropdown would go below viewport
+      let top = rect.bottom + 4;
+      if (top + dropdownHeight > window.innerHeight) {
+        top = Math.max(8, rect.top - dropdownHeight - 4);
+      }
+
+      // Check if dropdown would go off right edge
+      let left = rect.left;
+      if (left + dropdownWidth > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - 8;
+      }
+
+      setDropdownPos({ top, left });
+    }
+    setEditingType(true);
+  };
 
   const handleTypeChange = async (newType) => {
     setEditingType(false);
@@ -627,6 +645,18 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
       onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
     >
+      <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center', width: '2rem' }}>
+        <a
+          href={`https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, '_')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="icon-btn"
+          title="Wikipedia"
+          style={{ textDecoration: 'none' }}
+        >
+          <i className="fab fa-wikipedia-w" style={{ fontSize: '12px' }}></i>
+        </a>
+      </td>
       <td style={{ padding: '0.75rem 1rem' }}>
         <div style={{ paddingLeft: `${indentPx}px`, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {depth > 0 && (
@@ -651,101 +681,120 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
           >
             {concept.label}
           </a>
-        </div>
-      </td>
-      <td style={{ padding: '0.75rem 1rem', position: 'relative' }}>
-        {editingType ? (
-          <select
-            autoFocus
-            value={concept.node_type}
-            onChange={(e) => handleTypeChange(e.target.value)}
-            onBlur={() => setEditingType(false)}
-            style={{
-              fontSize: 'var(--text-xs)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              padding: 'var(--space-1) var(--space-2)',
-              borderRadius: '4px',
-              border: '1px solid var(--primary)',
-              background: 'white',
-              color: 'var(--primary)',
-              fontFamily: 'var(--font-body)',
-              fontWeight: 500,
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            {NODE_TYPE_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        ) : (
-          <span
-            className="tag concept"
-            onClick={(e) => { e.stopPropagation(); setEditingType(true); }}
-            style={{
-              display: 'inline-block',
-              fontSize: 'var(--text-xs)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.outline = '2px solid var(--primary)'; e.currentTarget.style.outlineOffset = '2px'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.outline = 'none'; }}
-            title="Click to change type"
-          >
-            {concept.node_type?.replace(/_/g, ' ')}
-          </span>
-        )}
-      </td>
-      <td style={{ padding: '0.75rem 1rem' }}>
-        {concept.level_status && (
-          <span
-            style={{
-              fontSize: 'var(--text-xs)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: 'var(--neutral-600)',
-            }}
-          >
-            {concept.level_status}
-          </span>
-        )}
-      </td>
-      <td style={{ padding: '0.75rem 1rem', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {totalConnections > 0 ? totalConnections : '—'}
-      </td>
-      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-        <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
-          <a
-            href={`https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, '_')}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="icon-btn"
-            title="Wikipedia"
-            style={{ textDecoration: 'none' }}
-          >
-            <i className="fab fa-wikipedia-w" style={{ fontSize: '12px' }}></i>
-          </a>
           <button
             onClick={() => onEdit(concept)}
             className="icon-btn"
             title="Edit"
+            style={{ flexShrink: 0 }}
           >
-            <i className="fas fa-pen" style={{ fontSize: '12px' }}></i>
-          </button>
-          <button
-            onClick={handleDelete}
-            className="icon-btn"
-            title="Delete"
-            style={{ color: 'var(--error)' }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-          >
-            <i className="fas fa-trash" style={{ fontSize: '12px' }}></i>
+            <i className="fas fa-pen" style={{ fontSize: '10px' }}></i>
           </button>
         </div>
+      </td>
+      <td style={{ padding: '0.75rem 1rem' }}>
+        <span
+          ref={triggerRef}
+          className="tag concept"
+          onClick={(e) => { e.stopPropagation(); editingType ? setEditingType(false) : openDropdown(); }}
+          style={{
+            display: 'inline-block',
+            fontSize: 'var(--text-xs)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.outline = '2px solid var(--primary)'; e.currentTarget.style.outlineOffset = '2px'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.outline = 'none'; }}
+          title="Click to change type"
+        >
+          {getNodeTypeLabel(concept.node_type)}
+        </span>
+        {editingType && (
+          <div
+            ref={dropdownRef}
+            style={{
+              position: 'fixed',
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              zIndex: 9999,
+              background: 'white',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: 'var(--radius)',
+              boxShadow: 'var(--shadow-lg)',
+              minWidth: '320px',
+              maxHeight: '400px',
+              overflowY: 'auto',
+            }}>
+            {NODE_TYPES.map(opt => (
+              <div
+                key={opt.value}
+                onClick={() => handleTypeChange(opt.value)}
+                style={{
+                  padding: 'var(--space-3)',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid var(--neutral-100)',
+                  background: concept.node_type === opt.value ? 'var(--accent-green-light)' : 'white',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  if (concept.node_type !== opt.value) {
+                    e.currentTarget.style.background = 'var(--neutral-50)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = concept.node_type === opt.value ? 'var(--accent-green-light)' : 'white';
+                }}
+              >
+                <div style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 600,
+                  color: 'var(--neutral-800)',
+                  marginBottom: 'var(--space-1)',
+                }}>
+                  {opt.label}
+                </div>
+                <div style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--neutral-500)',
+                  lineHeight: 1.4,
+                }}>
+                  {opt.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </td>
+      {/* Relationship counts */}
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {totalConnections > 0 ? totalConnections : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {concept.sources_count > 0 ? concept.sources_count : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {concept.people_count > 0 ? concept.people_count : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {concept.notes_count > 0 ? concept.notes_count : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {concept.tags_count > 0 ? concept.tags_count : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', width: '2rem' }}>
+        <button
+          onClick={handleDelete}
+          className="icon-btn"
+          title="Delete"
+          style={{ color: 'var(--error)' }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          <i className="fas fa-trash" style={{ fontSize: '12px' }}></i>
+        </button>
       </td>
     </tr>
   );

@@ -3,12 +3,15 @@ class ConceptsController < ApplicationController
   before_action :set_concept, only: [:show, :update, :destroy]
 
   def index
-    @concepts = current_user.concepts.includes(:outgoing_connections, :incoming_connections).recent
+    @concepts = current_user.concepts
+      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :tags)
+      .recent
 
     respond_to do |format|
       format.html
       format.json {
         render json: @concepts.as_json(
+          methods: [:sources_count, :people_count, :notes_count, :tags_count],
           include: {
             outgoing_connections: {
               only: [:id, :rel_type, :relationship_label],

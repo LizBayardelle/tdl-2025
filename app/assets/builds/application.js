@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React40 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef14 = React40.useRef, useEffect41 = React40.useEffect, useMemo14 = React40.useMemo, useDebugValue3 = React40.useDebugValue;
+      var React40 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef16 = React40.useRef, useEffect41 = React40.useEffect, useMemo14 = React40.useMemo, useDebugValue3 = React40.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef14(null);
+        var instRef = useRef16(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -24244,6 +24244,59 @@ function ConceptSearchSelect({
   ));
 }
 
+// app/javascript/config/nodeTypes.js
+var NODE_TYPES = [
+  {
+    value: "undeclared",
+    label: "Undeclared",
+    description: "Not yet categorized. Choose a type to better organize your research."
+  },
+  {
+    value: "concept",
+    label: "Concept",
+    description: "An abstract idea, construct, or phenomenon studied in research (e.g., internalized racism, working memory, fear conditioning)."
+  },
+  {
+    value: "theory",
+    label: "Theory / Model",
+    description: "A formal explanatory framework describing how concepts relate or operate (e.g., Minority Stress Theory, Dual Process Model)."
+  },
+  {
+    value: "method",
+    label: "Method",
+    description: "A research, clinical, or analytical procedure or approach (e.g., fMRI, CBT, randomized controlled trial)."
+  },
+  {
+    value: "measure",
+    label: "Measure / Instrument",
+    description: "A tool used to assess, quantify, or operationalize a concept (e.g., PHQ-9, Stroop Task, ACEs questionnaire)."
+  },
+  {
+    value: "entity",
+    label: "Entity",
+    description: "A concrete or bounded thing, including anatomical structures, populations, or named systems (e.g., amygdala, HPA axis, adolescents)."
+  },
+  {
+    value: "category",
+    label: "Category",
+    description: 'A grouping used to organize related concepts via "is-a" relationships (e.g., brain areas, affective disorders, imaging techniques).'
+  },
+  {
+    value: "subject",
+    label: "Subject",
+    description: "A field, domain, or area of study that provides context rather than content (e.g., social psychology, cognitive neuroscience)."
+  },
+  {
+    value: "other",
+    label: "Other",
+    description: "Anything that doesn't fit the above or is intentionally left uncategorized."
+  }
+];
+var getNodeTypeLabel = (value) => {
+  const type = NODE_TYPES.find((t4) => t4.value === value);
+  return type ? type.label : value?.replace(/_/g, " ");
+};
+
 // app/javascript/components/ConceptFormModal.js
 function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [people, setPeople] = (0, import_react3.useState)([]);
@@ -24251,9 +24304,12 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = (0, import_react3.useState)("basics");
   const [deletedRelationshipIds, setDeletedRelationshipIds] = (0, import_react3.useState)([]);
   const [newRelationships, setNewRelationships] = (0, import_react3.useState)([]);
+  const [typeDropdownOpen, setTypeDropdownOpen] = (0, import_react3.useState)(false);
+  const [typeDropdownPos, setTypeDropdownPos] = (0, import_react3.useState)({ top: 0, left: 0 });
+  const typeDropdownTriggerRef = (0, import_react3.useRef)(null);
   const [formData, setFormData] = (0, import_react3.useState)({
     label: "",
-    node_type: "construct",
+    node_type: "undeclared",
     level_status: "mapped",
     summary_top: "",
     summary_mid: "",
@@ -24282,12 +24338,13 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab("basics");
       setDeletedRelationshipIds([]);
       setNewRelationships([]);
+      setTypeDropdownOpen(false);
       fetchPeople();
       fetchConcepts();
       if (item) {
         setFormData({
           label: item.label || "",
-          node_type: item.node_type || "model",
+          node_type: item.node_type || "undeclared",
           level_status: item.level_status || "mapped",
           summary_top: item.summary_top || "",
           summary_mid: item.summary_mid || "",
@@ -24313,7 +24370,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       } else {
         setFormData({
           label: "",
-          node_type: "construct",
+          node_type: "undeclared",
           level_status: "mapped",
           summary_top: "",
           summary_mid: "",
@@ -24466,7 +24523,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           "Content-Type": "application/json",
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ concept: { label, node_type: "construct" } })
+        body: JSON.stringify({ concept: { label, node_type: "concept" } })
       });
       if (response.ok) {
         const newConcept = await response.json();
@@ -24684,26 +24741,110 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "form-input",
         required: true
       }
-    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label required" }, "Type"), /* @__PURE__ */ import_react3.default.createElement(
-      "select",
+    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label required" }, "Type"), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
       {
-        value: formData.node_type,
-        onChange: (e3) => setFormData({ ...formData, node_type: e3.target.value }),
-        className: "form-select"
+        type: "button",
+        ref: typeDropdownTriggerRef,
+        onClick: () => {
+          if (typeDropdownTriggerRef.current) {
+            const rect = typeDropdownTriggerRef.current.getBoundingClientRect();
+            const dropdownHeight = 400;
+            const dropdownWidth = 320;
+            let top = rect.bottom + 4;
+            if (top + dropdownHeight > window.innerHeight) {
+              top = Math.max(8, rect.top - dropdownHeight - 4);
+            }
+            let left = rect.left;
+            if (left + dropdownWidth > window.innerWidth) {
+              left = window.innerWidth - dropdownWidth - 8;
+            }
+            setTypeDropdownPos({ top, left });
+          }
+          setTypeDropdownOpen(!typeDropdownOpen);
+        },
+        style: {
+          width: "100%",
+          padding: "var(--space-2) var(--space-3)",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "var(--radius)",
+          background: "white",
+          textAlign: "left",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)"
+        }
       },
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "construct" }, "Construct"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "model" }, "Model"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "theory" }, "Theory"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "technique" }, "Technique"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "measure" }, "Measure"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "structure" }, "Structure"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "school_of_thought" }, "School of Thought"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "subject" }, "Subject"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "population" }, "Population"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "category" }, "Category"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "discipline" }, "Discipline"),
-      /* @__PURE__ */ import_react3.default.createElement("option", { value: "other" }, "Other")
-    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label" }, "Status"), /* @__PURE__ */ import_react3.default.createElement(
+      /* @__PURE__ */ import_react3.default.createElement("span", null, NODE_TYPES.find((t4) => t4.value === formData.node_type)?.label || formData.node_type),
+      /* @__PURE__ */ import_react3.default.createElement("i", { className: "fas fa-chevron-down", style: { fontSize: "10px", color: "var(--neutral-400)" } })
+    ), typeDropdownOpen && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, /* @__PURE__ */ import_react3.default.createElement(
+      "div",
+      {
+        style: {
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9998
+        },
+        onClick: () => setTypeDropdownOpen(false)
+      }
+    ), /* @__PURE__ */ import_react3.default.createElement("div", { style: {
+      position: "fixed",
+      top: typeDropdownPos.top,
+      left: typeDropdownPos.left,
+      width: "320px",
+      maxHeight: "400px",
+      overflowY: "auto",
+      background: "white",
+      border: "1px solid var(--neutral-300)",
+      borderRadius: "var(--radius)",
+      boxShadow: "var(--shadow-lg)",
+      zIndex: 9999
+    } }, NODE_TYPES.map((opt) => /* @__PURE__ */ import_react3.default.createElement(
+      "div",
+      {
+        key: opt.value,
+        onClick: () => {
+          setFormData({ ...formData, node_type: opt.value });
+          setTypeDropdownOpen(false);
+        },
+        style: {
+          padding: "var(--space-3)",
+          cursor: "pointer",
+          borderBottom: "1px solid var(--neutral-100)",
+          background: formData.node_type === opt.value ? "var(--accent-green-light)" : "transparent"
+        },
+        onMouseEnter: (e3) => {
+          if (formData.node_type !== opt.value) {
+            e3.currentTarget.style.background = "var(--neutral-50)";
+          }
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = formData.node_type === opt.value ? "var(--accent-green-light)" : "transparent";
+        }
+      },
+      /* @__PURE__ */ import_react3.default.createElement("div", { style: {
+        fontWeight: 600,
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-900)",
+        marginBottom: "2px"
+      } }, opt.label),
+      /* @__PURE__ */ import_react3.default.createElement("div", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        lineHeight: 1.4
+      } }, opt.description)
+    )))), formData.node_type && /* @__PURE__ */ import_react3.default.createElement("p", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      marginTop: "var(--space-1)",
+      lineHeight: 1.4
+    } }, NODE_TYPES.find((t4) => t4.value === formData.node_type)?.description)), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "form-label" }, "Status"), /* @__PURE__ */ import_react3.default.createElement(
       "select",
       {
         value: formData.level_status,
@@ -25247,7 +25388,7 @@ function ConceptsIndex() {
             style: { accentColor: "var(--primary)" }
           }
         ),
-        /* @__PURE__ */ import_react4.default.createElement("span", { style: { flex: 1, textTransform: "capitalize" } }, type),
+        /* @__PURE__ */ import_react4.default.createElement("span", { style: { flex: 1 } }, getNodeTypeLabel(type)),
         /* @__PURE__ */ import_react4.default.createElement(
           "span",
           {
@@ -25288,7 +25429,7 @@ function ConceptsIndex() {
       title: sidebarOpen ? "Hide filters" : "Show filters"
     },
     /* @__PURE__ */ import_react4.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
-  ), /* @__PURE__ */ import_react4.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" } }, /* @__PURE__ */ import_react4.default.createElement("div", { style: {
+  ), /* @__PURE__ */ import_react4.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#ffffff" } }, /* @__PURE__ */ import_react4.default.createElement("div", { style: {
     padding: "var(--space-6)",
     borderBottom: "1px solid var(--neutral-200)",
     background: "white"
@@ -25304,7 +25445,7 @@ function ConceptsIndex() {
         marginBottom: "var(--space-1)"
       }
     },
-    "Constructs"
+    "Concepts"
   ), /* @__PURE__ */ import_react4.default.createElement(
     "p",
     {
@@ -25315,7 +25456,7 @@ function ConceptsIndex() {
         margin: 0
       }
     },
-    "Theories, Concepts, Subjects, Fields, etc."
+    "Theories, Constructs, Structures, and Research Topics"
   )), /* @__PURE__ */ import_react4.default.createElement(
     "button",
     {
@@ -25368,7 +25509,7 @@ function ConceptsIndex() {
     overflowY: "auto",
     padding: "var(--space-6)",
     paddingLeft: "calc(var(--space-6) + 24px)",
-    background: "var(--background)"
+    background: "#ffffff"
   } }, filteredConcepts.length === 0 ? /* @__PURE__ */ import_react4.default.createElement(
     "div",
     {
@@ -25395,14 +25536,31 @@ function ConceptsIndex() {
         e3.currentTarget.style.transform = "none";
       }
     },
-    /* @__PURE__ */ import_react4.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse" } }, /* @__PURE__ */ import_react4.default.createElement("thead", { style: { background: "var(--card-footer)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react4.default.createElement("tr", null, /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.75rem 0.5rem" } }), /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse" } }, /* @__PURE__ */ import_react4.default.createElement("thead", { style: { background: "var(--card-footer)" } }, /* @__PURE__ */ import_react4.default.createElement("tr", null, /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.5rem 0.5rem" } }), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem 1rem" } }), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem 1rem" } }), /* @__PURE__ */ import_react4.default.createElement(
+      "th",
+      {
+        colSpan: 5,
+        style: {
+          fontFamily: "var(--font-display)",
+          textAlign: "center",
+          padding: "0.5rem 0.5rem 0.25rem",
+          fontWeight: 600,
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-500)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          borderBottom: "1px solid var(--neutral-200)"
+        }
+      },
+      "Relationships"
+    ), /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.5rem 0.5rem" } })), /* @__PURE__ */ import_react4.default.createElement("tr", { style: { borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.5rem 0.5rem" } }), /* @__PURE__ */ import_react4.default.createElement(
       "th",
       {
         onClick: () => handleSort("label"),
         style: {
           fontFamily: "var(--font-display)",
           textAlign: "left",
-          padding: "0.75rem 1rem",
+          padding: "0.5rem 1rem",
           fontWeight: 600,
           fontSize: "var(--text-sm)",
           color: "var(--neutral-700)",
@@ -25422,7 +25580,7 @@ function ConceptsIndex() {
         style: {
           fontFamily: "var(--font-display)",
           textAlign: "left",
-          padding: "0.75rem 1rem",
+          padding: "0.5rem 1rem",
           fontWeight: 600,
           fontSize: "var(--text-sm)",
           color: "var(--neutral-700)",
@@ -25435,54 +25593,7 @@ function ConceptsIndex() {
       },
       "Type ",
       sortField === "type" && /* @__PURE__ */ import_react4.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
-    ), /* @__PURE__ */ import_react4.default.createElement(
-      "th",
-      {
-        onClick: () => handleSort("status"),
-        style: {
-          fontFamily: "var(--font-display)",
-          textAlign: "left",
-          padding: "0.75rem 1rem",
-          fontWeight: 600,
-          fontSize: "var(--text-sm)",
-          color: "var(--neutral-700)",
-          cursor: "pointer",
-          userSelect: "none",
-          transition: "color 0.15s"
-        },
-        onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--primary)",
-        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
-      },
-      "Status ",
-      sortField === "status" && /* @__PURE__ */ import_react4.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
-    ), /* @__PURE__ */ import_react4.default.createElement(
-      "th",
-      {
-        onClick: () => handleSort("relationships"),
-        style: {
-          fontFamily: "var(--font-display)",
-          textAlign: "left",
-          padding: "0.75rem 1rem",
-          fontWeight: 600,
-          fontSize: "var(--text-sm)",
-          color: "var(--neutral-700)",
-          cursor: "pointer",
-          userSelect: "none",
-          transition: "color 0.15s"
-        },
-        onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--primary)",
-        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-700)"
-      },
-      "Relationships ",
-      sortField === "relationships" && /* @__PURE__ */ import_react4.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
-    ), /* @__PURE__ */ import_react4.default.createElement("th", { style: {
-      fontFamily: "var(--font-display)",
-      textAlign: "right",
-      padding: "0.75rem 1rem",
-      fontWeight: 600,
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-700)"
-    } }, "Actions"))), /* @__PURE__ */ import_react4.default.createElement("tbody", null, flatConcepts.map(({ concept, depth }) => /* @__PURE__ */ import_react4.default.createElement(
+    ), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem", textAlign: "center", width: "3rem" }, title: "Concepts" }, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-lightbulb", style: { color: "var(--accent-green)", fontSize: "12px" } })), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem", textAlign: "center", width: "3rem" }, title: "Sources" }, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-book", style: { color: "var(--accent-blue)", fontSize: "12px" } })), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem", textAlign: "center", width: "3rem" }, title: "People" }, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-user", style: { color: "var(--accent-gold)", fontSize: "12px" } })), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem", textAlign: "center", width: "3rem" }, title: "Notes" }, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-sticky-note", style: { color: "var(--accent-teal)", fontSize: "12px" } })), /* @__PURE__ */ import_react4.default.createElement("th", { style: { padding: "0.5rem", textAlign: "center", width: "3rem" }, title: "Tags" }, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-tag", style: { color: "var(--accent-purple)", fontSize: "12px" } })), /* @__PURE__ */ import_react4.default.createElement("th", { style: { width: "2rem", padding: "0.5rem 0.5rem" } }))), /* @__PURE__ */ import_react4.default.createElement("tbody", null, flatConcepts.map(({ concept, depth }) => /* @__PURE__ */ import_react4.default.createElement(
       ConceptRow,
       {
         key: concept.id,
@@ -25497,22 +25608,39 @@ function ConceptsIndex() {
     ))))
   ))));
 }
-var NODE_TYPE_OPTIONS = [
-  { value: "construct", label: "Construct" },
-  { value: "model", label: "Model" },
-  { value: "theory", label: "Theory" },
-  { value: "technique", label: "Technique" },
-  { value: "measure", label: "Measure" },
-  { value: "structure", label: "Structure" },
-  { value: "school_of_thought", label: "School of Thought" },
-  { value: "subject", label: "Subject" },
-  { value: "population", label: "Population" },
-  { value: "category", label: "Category" },
-  { value: "discipline", label: "Discipline" },
-  { value: "other", label: "Other" }
-];
 function ConceptRow({ concept, depth, onUpdate, onEdit }) {
   const [editingType, setEditingType] = (0, import_react4.useState)(false);
+  const [dropdownPos, setDropdownPos] = (0, import_react4.useState)({ top: 0, left: 0 });
+  const triggerRef = (0, import_react4.useRef)(null);
+  const dropdownRef = (0, import_react4.useRef)(null);
+  (0, import_react4.useEffect)(() => {
+    const handleClickOutside = (e3) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e3.target) && triggerRef.current && !triggerRef.current.contains(e3.target)) {
+        setEditingType(false);
+      }
+    };
+    if (editingType) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [editingType]);
+  const openDropdown = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      const dropdownHeight = 400;
+      const dropdownWidth = 320;
+      let top = rect.bottom + 4;
+      if (top + dropdownHeight > window.innerHeight) {
+        top = Math.max(8, rect.top - dropdownHeight - 4);
+      }
+      let left = rect.left;
+      if (left + dropdownWidth > window.innerWidth) {
+        left = window.innerWidth - dropdownWidth - 8;
+      }
+      setDropdownPos({ top, left });
+    }
+    setEditingType(true);
+  };
   const handleTypeChange = async (newType) => {
     setEditingType(false);
     if (newType === concept.node_type) return;
@@ -25600,6 +25728,18 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 0.5rem", textAlign: "center", width: "2rem" } }, /* @__PURE__ */ import_react4.default.createElement(
+      "a",
+      {
+        href: `https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, "_")}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        className: "icon-btn",
+        title: "Wikipedia",
+        style: { textDecoration: "none" }
+      },
+      /* @__PURE__ */ import_react4.default.createElement("i", { className: "fab fa-wikipedia-w", style: { fontSize: "12px" } })
+    )),
     /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, /* @__PURE__ */ import_react4.default.createElement("div", { style: { paddingLeft: `${indentPx}px`, display: "flex", alignItems: "center", gap: "0.5rem" } }, depth > 0 && /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-level-up-alt", style: {
       fontSize: "0.75rem",
       color: "var(--neutral-400)",
@@ -25620,37 +25760,24 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-green)"
       },
       concept.label
-    ))),
-    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", position: "relative" } }, editingType ? /* @__PURE__ */ import_react4.default.createElement(
-      "select",
+    ), /* @__PURE__ */ import_react4.default.createElement(
+      "button",
       {
-        autoFocus: true,
-        value: concept.node_type,
-        onChange: (e3) => handleTypeChange(e3.target.value),
-        onBlur: () => setEditingType(false),
-        style: {
-          fontSize: "var(--text-xs)",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          padding: "var(--space-1) var(--space-2)",
-          borderRadius: "4px",
-          border: "1px solid var(--primary)",
-          background: "white",
-          color: "var(--primary)",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500,
-          cursor: "pointer",
-          outline: "none"
-        }
+        onClick: () => onEdit(concept),
+        className: "icon-btn",
+        title: "Edit",
+        style: { flexShrink: 0 }
       },
-      NODE_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react4.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
-    ) : /* @__PURE__ */ import_react4.default.createElement(
+      /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-pen", style: { fontSize: "10px" } })
+    ))),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, /* @__PURE__ */ import_react4.default.createElement(
       "span",
       {
+        ref: triggerRef,
         className: "tag concept",
         onClick: (e3) => {
           e3.stopPropagation();
-          setEditingType(true);
+          editingType ? setEditingType(false) : openDropdown();
         },
         style: {
           display: "inline-block",
@@ -25669,41 +25796,67 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
         },
         title: "Click to change type"
       },
-      concept.node_type?.replace(/_/g, " ")
-    )),
-    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, concept.level_status && /* @__PURE__ */ import_react4.default.createElement(
-      "span",
+      getNodeTypeLabel(concept.node_type)
+    ), editingType && /* @__PURE__ */ import_react4.default.createElement(
+      "div",
       {
+        ref: dropdownRef,
         style: {
-          fontSize: "var(--text-xs)",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          color: "var(--neutral-600)"
+          position: "fixed",
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          zIndex: 9999,
+          background: "white",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "var(--radius)",
+          boxShadow: "var(--shadow-lg)",
+          minWidth: "320px",
+          maxHeight: "400px",
+          overflowY: "auto"
         }
       },
-      concept.level_status
+      NODE_TYPES.map((opt) => /* @__PURE__ */ import_react4.default.createElement(
+        "div",
+        {
+          key: opt.value,
+          onClick: () => handleTypeChange(opt.value),
+          style: {
+            padding: "var(--space-3)",
+            cursor: "pointer",
+            borderBottom: "1px solid var(--neutral-100)",
+            background: concept.node_type === opt.value ? "var(--accent-green-light)" : "white",
+            transition: "background 0.15s"
+          },
+          onMouseEnter: (e3) => {
+            if (concept.node_type !== opt.value) {
+              e3.currentTarget.style.background = "var(--neutral-50)";
+            }
+          },
+          onMouseLeave: (e3) => {
+            e3.currentTarget.style.background = concept.node_type === opt.value ? "var(--accent-green-light)" : "white";
+          }
+        },
+        /* @__PURE__ */ import_react4.default.createElement("div", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          color: "var(--neutral-800)",
+          marginBottom: "var(--space-1)"
+        } }, opt.label),
+        /* @__PURE__ */ import_react4.default.createElement("div", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-500)",
+          lineHeight: 1.4
+        } }, opt.description)
+      ))
     )),
-    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, totalConnections > 0 ? totalConnections : "\u2014"),
-    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "right" } }, /* @__PURE__ */ import_react4.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react4.default.createElement(
-      "a",
-      {
-        href: `https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, "_")}`,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        className: "icon-btn",
-        title: "Wikipedia",
-        style: { textDecoration: "none" }
-      },
-      /* @__PURE__ */ import_react4.default.createElement("i", { className: "fab fa-wikipedia-w", style: { fontSize: "12px" } })
-    ), /* @__PURE__ */ import_react4.default.createElement(
-      "button",
-      {
-        onClick: () => onEdit(concept),
-        className: "icon-btn",
-        title: "Edit"
-      },
-      /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-pen", style: { fontSize: "12px" } })
-    ), /* @__PURE__ */ import_react4.default.createElement(
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, totalConnections > 0 ? totalConnections : "\u2014"),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, concept.sources_count > 0 ? concept.sources_count : "\u2014"),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, concept.people_count > 0 ? concept.people_count : "\u2014"),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, concept.notes_count > 0 ? concept.notes_count : "\u2014"),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, concept.tags_count > 0 ? concept.tags_count : "\u2014"),
+    /* @__PURE__ */ import_react4.default.createElement("td", { style: { padding: "0.5rem", textAlign: "center", width: "2rem" } }, /* @__PURE__ */ import_react4.default.createElement(
       "button",
       {
         onClick: handleDelete2,
@@ -25714,7 +25867,7 @@ function ConceptRow({ concept, depth, onUpdate, onEdit }) {
         onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
       },
       /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-trash", style: { fontSize: "12px" } })
-    )))
+    ))
   );
 }
 
@@ -60909,7 +61062,7 @@ function ConceptShow({ conceptId }) {
       "aria-label": "Toggle concepts sidebar"
     },
     /* @__PURE__ */ import_react29.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}` })
-  ), /* @__PURE__ */ import_react29.default.createElement("div", { style: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" } }, loading || !concept ? /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", padding: "var(--space-8) 0", flex: 1 } }, /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-lg)", fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, loading ? "Loading..." : "Concept not found")) : /* @__PURE__ */ import_react29.default.createElement("div", { style: { maxWidth: "1280px", margin: "0 auto", padding: "0 var(--space-6)", width: "100%" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { marginBottom: "var(--space-6)", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "var(--space-4)" } }, /* @__PURE__ */ import_react29.default.createElement(
+  ), /* @__PURE__ */ import_react29.default.createElement("div", { style: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", background: "#ffffff" } }, loading || !concept ? /* @__PURE__ */ import_react29.default.createElement("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", padding: "var(--space-8) 0", flex: 1 } }, /* @__PURE__ */ import_react29.default.createElement("p", { style: { fontSize: "var(--text-lg)", fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, loading ? "Loading..." : "Concept not found")) : /* @__PURE__ */ import_react29.default.createElement("div", { style: { maxWidth: "1280px", margin: "0 auto", padding: "0 var(--space-6)", width: "100%" } }, /* @__PURE__ */ import_react29.default.createElement("div", { style: { marginBottom: "var(--space-6)", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "var(--space-4)" } }, /* @__PURE__ */ import_react29.default.createElement(
     "a",
     {
       href: "/concepts",
