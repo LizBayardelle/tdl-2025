@@ -37,6 +37,9 @@ class Source < ApplicationRecord
     other: "other"
   }, prefix: true
 
+  # Callbacks
+  before_validation :normalize_blank_fields
+
   # Validations
   validates :title, presence: true
   validates :user_id, presence: true
@@ -76,6 +79,12 @@ class Source < ApplicationRecord
   end
 
   private
+
+  # Convert empty strings to nil for fields with unique constraints
+  def normalize_blank_fields
+    self.doi = nil if doi.blank?
+    self.url = nil if url.blank?
+  end
 
   def generate_article_citation
     author_list = ordered_authors.map(&:full_name).join(', ')

@@ -10,6 +10,12 @@ class ArticleMetadataExtractor
   end
 
   def extract
+    # If input is a bare DOI (e.g., "10.1234/abc"), convert to doi.org URL
+    if @url.match?(/^10\.\d{4,}\//) && !@url.match?(/^https?:\/\//i)
+      @url = "https://doi.org/#{@url}"
+      Rails.logger.info "Converted bare DOI to URL: #{@url}"
+    end
+
     # First, try to extract DOI from URL (fastest)
     doi = extract_doi_from_url(@url)
     if doi
@@ -19,7 +25,7 @@ class ArticleMetadataExtractor
     end
 
     # If no DOI in URL, and URL looks like a valid web URL, fetch page and search HTML for DOI
-    # Skip this step if the input is just a bare DOI (no scheme)
+    # Skip this step if the input doesn't have a proper URL scheme
     if @url.match?(/^https?:\/\//i)
       begin
         page_content, raw_content = fetch_page_content_with_raw
@@ -48,7 +54,11 @@ class ArticleMetadataExtractor
     end
 
     # Use page_content if we already have it, otherwise fetch it
+    # But only if we have a valid HTTP URL
     unless page_content
+      unless @url.match?(/^https?:\/\//i)
+        raise "Invalid URL format. Please enter a full URL (starting with http:// or https://) or a DOI."
+      end
       page_content, _raw = fetch_page_content_with_raw
     end
 
@@ -289,11 +299,6 @@ class ArticleMetadataExtractor
   def fetch_page_content_with_raw
     uri = URI(@url)
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.scheme == 'https')
-    http.open_timeout = 10
-    http.read_timeout = 10
-
     request = Net::HTTP::Get.new(uri.request_uri)
 
     # Add headers to look like a real browser
@@ -304,7 +309,42 @@ class ArticleMetadataExtractor
     request['Connection'] = 'keep-alive'
     request['Upgrade-Insecure-Requests'] = '1'
 
-    response = http.request(request)
+    # Try with standard SSL verification first, fall back to relaxed verification if CRL check fails
+    response = nil
+    [true, false].each do |strict_ssl|
+      begin
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = (uri.scheme == 'https')
+        http.open_timeout = 10
+        http.read_timeout = 10
+
+        if uri.scheme == 'https'
+          if strict_ssl
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          else
+            # Relaxed mode: still verify peer but don't fail on CRL issues
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+            http.verify_callback = lambda { |preverify_ok, store_ctx|
+              return true if preverify_ok
+              # Accept CRL-related errors (error codes 3, 12)
+              err = store_ctx.error
+              return true if [3, 12].include?(err)
+              false
+            }
+          end
+        end
+
+        response = http.request(request)
+        break # Success, exit the retry loop
+      rescue OpenSSL::SSL::SSLError => e
+        if strict_ssl && (e.message.include?('certificate') || e.message.include?('CRL'))
+          Rails.logger.warn "SSL strict mode failed, trying relaxed mode: #{e.message}"
+          next # Try relaxed mode
+        else
+          raise # Re-raise if already in relaxed mode or different error
+        end
+      end
+    end
 
     # Follow redirects
     if response.is_a?(Net::HTTPRedirection)
@@ -362,11 +402,6 @@ class ArticleMetadataExtractor
   def fetch_page_content
     uri = URI(@url)
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = (uri.scheme == 'https')
-    http.open_timeout = 10
-    http.read_timeout = 10
-
     request = Net::HTTP::Get.new(uri.request_uri)
 
     # Add headers to look like a real browser
@@ -377,7 +412,42 @@ class ArticleMetadataExtractor
     request['Connection'] = 'keep-alive'
     request['Upgrade-Insecure-Requests'] = '1'
 
-    response = http.request(request)
+    # Try with standard SSL verification first, fall back to relaxed verification if CRL check fails
+    response = nil
+    [true, false].each do |strict_ssl|
+      begin
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = (uri.scheme == 'https')
+        http.open_timeout = 10
+        http.read_timeout = 10
+
+        if uri.scheme == 'https'
+          if strict_ssl
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          else
+            # Relaxed mode: still verify peer but don't fail on CRL issues
+            http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+            http.verify_callback = lambda { |preverify_ok, store_ctx|
+              return true if preverify_ok
+              # Accept CRL-related errors (error codes 3, 12)
+              err = store_ctx.error
+              return true if [3, 12].include?(err)
+              false
+            }
+          end
+        end
+
+        response = http.request(request)
+        break # Success, exit the retry loop
+      rescue OpenSSL::SSL::SSLError => e
+        if strict_ssl && (e.message.include?('certificate') || e.message.include?('CRL'))
+          Rails.logger.warn "SSL strict mode failed, trying relaxed mode: #{e.message}"
+          next # Try relaxed mode
+        else
+          raise # Re-raise if already in relaxed mode or different error
+        end
+      end
+    end
 
     # Follow redirects
     if response.is_a?(Net::HTTPRedirection)
