@@ -889,6 +889,11 @@ export default function NotesIndex() {
           setShowFormModal(false);
           setEditingNote(null);
         }}
+        onDelete={(noteId) => {
+          handleDeleteNote(noteId);
+          setShowFormModal(false);
+          setEditingNote(null);
+        }}
         item={editingNote}
       />
     </>

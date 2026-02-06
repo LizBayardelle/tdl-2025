@@ -1052,6 +1052,23 @@ function ConceptNotes({ conceptId }) {
     }
   };
 
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ marginTop: 'var(--space-8)' }}>

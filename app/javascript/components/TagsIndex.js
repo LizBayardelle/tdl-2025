@@ -298,12 +298,11 @@ export default function TagsIndex() {
         )}
 
         {/* Main Content */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
           {/* Header */}
           <div style={{
             padding: 'var(--space-6)',
             borderBottom: '1px solid var(--neutral-200)',
-            background: 'white'
           }}>
             <h1 style={{
               fontSize: 'var(--text-4xl)',
@@ -328,7 +327,6 @@ export default function TagsIndex() {
             flex: 1,
             overflowY: 'auto',
             padding: 'var(--space-6)',
-            background: 'var(--background)'
           }}>
             {selectedTag ? (
               <TagDetail

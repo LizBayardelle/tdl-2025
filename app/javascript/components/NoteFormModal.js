@@ -25,7 +25,7 @@ import {
   faIndent, faOutdent, faCode
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
+export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId }) {
   const [activeTab, setActiveTab] = useState('content');
   const [formData, setFormData] = useState({
     title: '',
@@ -742,28 +742,63 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, item, concep
           background: 'var(--background)',
           padding: 'var(--space-6)',
           display: 'flex',
-          justifyContent: 'center',
-          gap: 'var(--space-3)',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}>
-          <button
-            type="submit"
-            className="btn-primary"
-            style={{
-              background: '#639CA1',
-              color: 'white'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#527d81'}
-            onMouseLeave={(e) => e.currentTarget.style.background = '#639CA1'}
-          >
-            {item ? 'Save Changes' : 'Create Note'}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn-secondary"
-          >
-            Cancel
-          </button>
+          {/* Left side - Delete button (only when editing) */}
+          <div>
+            {item && onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this note?')) {
+                    onDelete(item.id);
+                  }
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--error)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-2)',
+                  borderRadius: 'var(--radius)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-body)',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139, 45, 45, 0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              >
+                <i className="fas fa-trash-alt"></i>
+                <span className="hidden sm:inline">Delete</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right side - Save and Cancel */}
+          <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{
+                background: '#639CA1',
+                color: 'white'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#527d81'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#639CA1'}
+            >
+              {item ? 'Save Changes' : 'Create Note'}
+            </button>
+          </div>
         </div>
       </form>
     </SlidePanel>

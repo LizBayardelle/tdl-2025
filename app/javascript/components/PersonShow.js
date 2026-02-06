@@ -367,7 +367,7 @@ export default function PersonShow({ personId: initialPersonId }) {
         paddingRight: 'var(--space-6)',
         paddingBottom: 'var(--space-6)',
         paddingLeft: 'calc(var(--space-6) + 24px)',
-        background: 'var(--background)',
+        background: 'white',
       }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--neutral-500)' }}>

@@ -22,7 +22,6 @@ class Note < ApplicationRecord
   }, prefix: true
 
   # Validations
-  validates :body, presence: true
   validates :user_id, presence: true
 
   # Scopes

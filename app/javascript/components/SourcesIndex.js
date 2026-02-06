@@ -594,7 +594,7 @@ export default function SourcesIndex() {
           overflowY: 'auto',
           padding: 'var(--space-6)',
           paddingLeft: 'calc(var(--space-6) + 24px)',
-          background: 'var(--background)'
+          background: 'white'
         }}>
           {filteredSources.length === 0 ? (
             <div
@@ -676,22 +676,38 @@ function SourceCard({ source, onUpdate }) {
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--neutral-200)',
         }}>
-          <a
-            href={`/sources/${source.id}`}
-            style={{
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-              color: 'var(--neutral-900)',
-              textDecoration: 'none',
-              lineHeight: 1.4,
-              transition: 'color 0.15s',
-              flex: 1,
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-          >
-            {source.title}
-          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flex: 1 }}>
+            {source.pdf_url && (
+              <a
+                href={source.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--accent-blue)',
+                  fontSize: 'var(--text-base)',
+                }}
+                title="View PDF"
+              >
+                <i className="fas fa-file-pdf"></i>
+              </a>
+            )}
+            <a
+              href={`/sources/${source.id}`}
+              style={{
+                fontSize: 'var(--text-sm)',
+                fontWeight: 600,
+                color: 'var(--neutral-900)',
+                textDecoration: 'none',
+                lineHeight: 1.4,
+                transition: 'color 0.15s',
+                flex: 1,
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+            >
+              {source.title}
+            </a>
+          </div>
 
           <div style={{ display: 'flex', gap: 'var(--space-2)', marginLeft: 'var(--space-4)' }}>
             <button
@@ -844,52 +860,22 @@ function SourceCard({ source, onUpdate }) {
           fontSize: 'var(--text-xs)',
           color: 'var(--neutral-500)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            {source.pdf_url && (
-              <>
-                <a
-                  href={source.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: 'var(--accent-blue)',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <i className="fas fa-file-pdf" style={{ fontSize: 'var(--text-base)' }}></i>
-                </a>
-                <a
-                  href={source.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: 'var(--neutral-600)',
-                    textDecoration: 'none',
-                    transition: 'text-decoration 0.15s',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-                >
-                  View PDF
-                </a>
-                <span>•</span>
-                <a
-                  href={`/sources/${source.id}/study`}
-                  style={{
-                    color: 'var(--neutral-600)',
-                    textDecoration: 'none',
-                    transition: 'text-decoration 0.15s',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                  onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-                >
-                  Take Notes on PDF
-                </a>
-              </>
-            )}
-          </div>
+          <a
+            href={`/sources/${source.id}/study`}
+            style={{
+              color: 'var(--accent-teal)',
+              textDecoration: 'none',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-1)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+            onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+          >
+            <i className="fas fa-pen"></i>
+            Take Notes
+          </a>
 
           <span>{source.notes_count || 0} note{source.notes_count !== 1 ? 's' : ''}</span>
         </div>

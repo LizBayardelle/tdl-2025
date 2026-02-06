@@ -57899,7 +57899,7 @@ var faListUl = {
 };
 
 // app/javascript/components/NoteFormModal.js
-function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }) {
+function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId }) {
   const [activeTab, setActiveTab] = (0, import_react22.useState)("content");
   const [formData, setFormData] = (0, import_react22.useState)({
     title: "",
@@ -58516,9 +58516,44 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
       background: "var(--background)",
       padding: "var(--space-6)",
       display: "flex",
-      justifyContent: "center",
-      gap: "var(--space-3)"
-    } }, /* @__PURE__ */ import_react22.default.createElement(
+      justifyContent: "space-between",
+      alignItems: "center"
+    } }, /* @__PURE__ */ import_react22.default.createElement("div", null, item && onDelete && /* @__PURE__ */ import_react22.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => {
+          if (window.confirm("Are you sure you want to delete this note?")) {
+            onDelete(item.id);
+          }
+        },
+        style: {
+          background: "transparent",
+          border: "none",
+          color: "var(--error)",
+          cursor: "pointer",
+          padding: "var(--space-2)",
+          borderRadius: "var(--radius)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.background = "rgba(139, 45, 45, 0.1)",
+        onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+      },
+      /* @__PURE__ */ import_react22.default.createElement("i", { className: "fas fa-trash-alt" }),
+      /* @__PURE__ */ import_react22.default.createElement("span", { className: "hidden sm:inline" }, "Delete")
+    )), /* @__PURE__ */ import_react22.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react22.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: onClose,
+        className: "btn-secondary"
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react22.default.createElement(
       "button",
       {
         type: "submit",
@@ -58531,15 +58566,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, item, conceptId, sourceId }
         onMouseLeave: (e3) => e3.currentTarget.style.background = "#639CA1"
       },
       item ? "Save Changes" : "Create Note"
-    ), /* @__PURE__ */ import_react22.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: onClose,
-        className: "btn-secondary"
-      },
-      "Cancel"
-    )))
+    ))))
   );
 }
 
@@ -61627,6 +61654,21 @@ function ConceptNotes({ conceptId }) {
       setLoading(false);
     }
   };
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ import_react29.default.createElement("div", { style: { marginTop: "var(--space-8)" } }, /* @__PURE__ */ import_react29.default.createElement("h2", { style: {
       fontSize: "var(--text-2xl)",
@@ -62299,7 +62341,7 @@ function SourcesIndex() {
     overflowY: "auto",
     padding: "var(--space-6)",
     paddingLeft: "calc(var(--space-6) + 24px)",
-    background: "var(--background)"
+    background: "white"
   } }, filteredSources.length === 0 ? /* @__PURE__ */ import_react30.default.createElement(
     "div",
     {
@@ -62359,7 +62401,20 @@ function SourceCard({ source, onUpdate }) {
       alignItems: "center",
       justifyContent: "space-between",
       borderBottom: "1px solid var(--neutral-200)"
-    } }, /* @__PURE__ */ import_react30.default.createElement(
+    } }, /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flex: 1 } }, source.pdf_url && /* @__PURE__ */ import_react30.default.createElement(
+      "a",
+      {
+        href: source.pdf_url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          color: "var(--accent-blue)",
+          fontSize: "var(--text-base)"
+        },
+        title: "View PDF"
+      },
+      /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-file-pdf" })
+    ), /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/sources/${source.id}`,
@@ -62376,7 +62431,7 @@ function SourceCard({ source, onUpdate }) {
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
       },
       source.title
-    ), /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", marginLeft: "var(--space-4)" } }, /* @__PURE__ */ import_react30.default.createElement(
+    )), /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", marginLeft: "var(--space-4)" } }, /* @__PURE__ */ import_react30.default.createElement(
       "button",
       {
         onClick: () => setShowEdit(true),
@@ -62480,49 +62535,24 @@ function SourceCard({ source, onUpdate }) {
       justifyContent: "space-between",
       fontSize: "var(--text-xs)",
       color: "var(--neutral-500)"
-    } }, /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, source.pdf_url && /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement(
-      "a",
-      {
-        href: source.pdf_url,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        style: {
-          color: "var(--accent-blue)",
-          textDecoration: "none",
-          display: "flex",
-          alignItems: "center"
-        }
-      },
-      /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-file-pdf", style: { fontSize: "var(--text-base)" } })
-    ), /* @__PURE__ */ import_react30.default.createElement(
-      "a",
-      {
-        href: source.pdf_url,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        style: {
-          color: "var(--neutral-600)",
-          textDecoration: "none",
-          transition: "text-decoration 0.15s"
-        },
-        onMouseEnter: (e3) => e3.currentTarget.style.textDecoration = "underline",
-        onMouseLeave: (e3) => e3.currentTarget.style.textDecoration = "none"
-      },
-      "View PDF"
-    ), /* @__PURE__ */ import_react30.default.createElement("span", null, "\u2022"), /* @__PURE__ */ import_react30.default.createElement(
+    } }, /* @__PURE__ */ import_react30.default.createElement(
       "a",
       {
         href: `/sources/${source.id}/study`,
         style: {
-          color: "var(--neutral-600)",
+          color: "var(--accent-teal)",
           textDecoration: "none",
-          transition: "text-decoration 0.15s"
+          fontWeight: 500,
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-1)"
         },
         onMouseEnter: (e3) => e3.currentTarget.style.textDecoration = "underline",
         onMouseLeave: (e3) => e3.currentTarget.style.textDecoration = "none"
       },
-      "Take Notes on PDF"
-    ))), /* @__PURE__ */ import_react30.default.createElement("span", null, source.notes_count || 0, " note", source.notes_count !== 1 ? "s" : ""))
+      /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-pen" }),
+      "Take Notes"
+    ), /* @__PURE__ */ import_react30.default.createElement("span", null, source.notes_count || 0, " note", source.notes_count !== 1 ? "s" : ""))
   ), /* @__PURE__ */ import_react30.default.createElement(
     SourceFormModal,
     {
@@ -62721,7 +62751,7 @@ function SourceShow({ sourceId }) {
       "aria-label": "Toggle sources sidebar"
     },
     /* @__PURE__ */ import_react31.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}` })
-  ), /* @__PURE__ */ import_react31.default.createElement("div", { style: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: { maxWidth: "1280px", margin: "0 auto", padding: "0 var(--space-6)", width: "100%" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+  ), /* @__PURE__ */ import_react31.default.createElement("div", { style: { flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", background: "white" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: { maxWidth: "1280px", margin: "0 auto", padding: "0 var(--space-6)", width: "100%" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
     "a",
     {
       href: "/sources",
@@ -62781,52 +62811,7 @@ function SourceDisplay({ source }) {
     borderRadius: "4px",
     fontFamily: "var(--font-body)",
     fontWeight: 500
-  } }, methodology)), source.year && /* @__PURE__ */ import_react31.default.createElement("span", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)", fontWeight: 600 } }, source.year), source.pdf_url && /* @__PURE__ */ import_react31.default.createElement(import_react31.default.Fragment, null, /* @__PURE__ */ import_react31.default.createElement(
-    "a",
-    {
-      href: source.pdf_url,
-      target: "_blank",
-      rel: "noopener noreferrer",
-      className: "btn-secondary",
-      style: {
-        marginLeft: "auto",
-        fontSize: "var(--text-sm)",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        background: "var(--accent-blue-light)",
-        color: "var(--accent-blue)",
-        border: "1px solid var(--accent-blue-light)"
-      },
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-blue)";
-        e3.currentTarget.style.color = "white";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-blue-light)";
-        e3.currentTarget.style.color = "var(--accent-blue)";
-      }
-    },
-    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-file-pdf" }),
-    /* @__PURE__ */ import_react31.default.createElement("span", null, "View PDF")
-  ), /* @__PURE__ */ import_react31.default.createElement(
-    "a",
-    {
-      href: `/sources/${source.id}/study`,
-      className: "btn-primary",
-      style: {
-        background: "var(--accent-blue)",
-        fontSize: "var(--text-sm)",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "var(--space-2)"
-      },
-      onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--accent-blue-dark)",
-      onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-blue)"
-    },
-    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-book-open" }),
-    /* @__PURE__ */ import_react31.default.createElement("span", null, "Take Notes")
-  ))), /* @__PURE__ */ import_react31.default.createElement("h1", { style: {
+  } }, methodology)), source.year && /* @__PURE__ */ import_react31.default.createElement("span", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)", fontWeight: 600 } }, source.year)), /* @__PURE__ */ import_react31.default.createElement("h1", { style: {
     fontSize: "var(--text-3xl)",
     fontWeight: 700,
     fontFamily: "var(--font-display)",
@@ -62893,6 +62878,37 @@ function SourceDisplay({ source }) {
       }
     },
     source.url || source.doi
+  )), source.pdf_url && /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react31.default.createElement(
+    "a",
+    {
+      href: source.pdf_url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        color: "var(--accent-blue)",
+        textDecoration: "none",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)",
+        fontWeight: 500,
+        padding: "var(--space-2) var(--space-3)",
+        border: "1px solid var(--accent-blue)",
+        borderRadius: "4px",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-blue)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "transparent";
+        e3.currentTarget.style.color = "var(--accent-blue)";
+      }
+    },
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-file-pdf" }),
+    "View PDF"
   )), (source.concepts && source.concepts.length > 0 || source.tags && source.tags.length > 0) && /* @__PURE__ */ import_react31.default.createElement("div", { style: { paddingTop: "var(--space-6)", borderTop: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, source.concepts?.map((concept) => /* @__PURE__ */ import_react31.default.createElement(
     "a",
     {
@@ -62998,6 +63014,21 @@ function SourceNotes({ sourceId }) {
       setLoading(false);
     }
   };
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginTop: "var(--space-8)" } }, /* @__PURE__ */ import_react31.default.createElement("h2", { style: {
       fontSize: "var(--text-2xl)",
@@ -63065,6 +63096,10 @@ function SourceNotes({ sourceId }) {
       onSuccess: (updatedNote) => {
         fetchNotes();
         setEditingNote(null);
+      },
+      onDelete: (noteId) => {
+        handleDeleteNote(noteId);
+        setEditingNote(null);
       }
     }
   ), /* @__PURE__ */ import_react31.default.createElement("div", { style: { marginTop: "var(--space-8)" } }, /* @__PURE__ */ import_react31.default.createElement("div", { style: {
@@ -63087,7 +63122,11 @@ function SourceNotes({ sourceId }) {
         fontSize: "var(--text-sm)",
         background: "#639CA1",
         color: "white",
-        border: "none"
+        border: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        cursor: "pointer"
       },
       onMouseEnter: (e3) => {
         e3.currentTarget.style.background = "#527d81";
@@ -63096,7 +63135,8 @@ function SourceNotes({ sourceId }) {
         e3.currentTarget.style.background = "#639CA1";
       }
     },
-    "+ New Note"
+    /* @__PURE__ */ import_react31.default.createElement("i", { className: "fas fa-plus" }),
+    "New Note"
   )), /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, notes.map((note) => /* @__PURE__ */ import_react31.default.createElement("div", { key: note.id, className: "card", style: { overflow: "hidden" } }, note.title && /* @__PURE__ */ import_react31.default.createElement("div", { style: {
     background: "#639CA1",
     padding: "var(--space-3) var(--space-4)",
@@ -64514,7 +64554,7 @@ function PersonShow({ personId: initialPersonId }) {
     paddingRight: "var(--space-6)",
     paddingBottom: "var(--space-6)",
     paddingLeft: "calc(var(--space-6) + 24px)",
-    background: "var(--background)"
+    background: "white"
   } }, loading ? /* @__PURE__ */ import_react34.default.createElement("div", { style: { textAlign: "center", padding: "3rem", color: "var(--neutral-500)" } }, "Loading person...") : !person ? /* @__PURE__ */ import_react34.default.createElement("div", { style: { textAlign: "center", padding: "3rem", color: "var(--neutral-500)" } }, "Person not found") : /* @__PURE__ */ import_react34.default.createElement(import_react34.default.Fragment, null, /* @__PURE__ */ import_react34.default.createElement("div", { style: {
     marginBottom: "var(--space-6)",
     paddingTop: "var(--space-4)",
@@ -66422,6 +66462,11 @@ function NotesIndex() {
         setShowFormModal(false);
         setEditingNote(null);
       },
+      onDelete: (noteId) => {
+        handleDeleteNote(noteId);
+        setShowFormModal(false);
+        setEditingNote(null);
+      },
       item: editingNote
     }
   ));
@@ -67243,10 +67288,9 @@ function TagsIndex() {
       flexShrink: 0,
       opacity: 0.7
     } }, tag.taggings_count || 0))
-  ))))), /* @__PURE__ */ import_react41.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" } }, /* @__PURE__ */ import_react41.default.createElement("div", { style: {
+  ))))), /* @__PURE__ */ import_react41.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "white" } }, /* @__PURE__ */ import_react41.default.createElement("div", { style: {
     padding: "var(--space-6)",
-    borderBottom: "1px solid var(--neutral-200)",
-    background: "white"
+    borderBottom: "1px solid var(--neutral-200)"
   } }, /* @__PURE__ */ import_react41.default.createElement("h1", { style: {
     fontSize: "var(--text-4xl)",
     fontWeight: 700,
@@ -67262,8 +67306,7 @@ function TagsIndex() {
   } }, "Browse and organize your knowledge by tags")), /* @__PURE__ */ import_react41.default.createElement("div", { style: {
     flex: 1,
     overflowY: "auto",
-    padding: "var(--space-6)",
-    background: "var(--background)"
+    padding: "var(--space-6)"
   } }, selectedTag ? /* @__PURE__ */ import_react41.default.createElement(
     TagDetail,
     {
@@ -106616,7 +106659,32 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   });
   const [editingNote, setEditingNote] = (0, import_react60.useState)(null);
   const [showNoteModal, setShowNoteModal] = (0, import_react60.useState)(false);
+  const [sidebarWidth, setSidebarWidth] = (0, import_react60.useState)(280);
+  const [isDragging, setIsDragging] = (0, import_react60.useState)(false);
   const mainContentRef = (0, import_react60.useRef)(null);
+  const containerRef = (0, import_react60.useRef)(null);
+  (0, import_react60.useEffect)(() => {
+    const handleMouseMove2 = (e3) => {
+      if (!isDragging) return;
+      const newWidth = Math.min(Math.max(200, e3.clientX), 500);
+      setSidebarWidth(newWidth);
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove2);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    }
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove2);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isDragging]);
   (0, import_react60.useEffect)(() => {
     fetchNotes();
   }, [sourceId]);
@@ -106651,6 +106719,21 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       setNotes(data);
     } catch (error) {
       console.error("Error fetching notes:", error);
+    }
+  };
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error("Error deleting note:", error);
     }
   };
   const handleSubmitNote = async (e3) => {
@@ -106693,15 +106776,9 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   const onDocumentLoadSuccess = ({ numPages: numPages2 }) => {
     setNumPages(numPages2);
   };
-  if (!pdfUrl) {
-    return /* @__PURE__ */ import_react60.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", height: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react60.default.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ import_react60.default.createElement("p", { style: { fontSize: "var(--text-xl)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No PDF available for this source"), /* @__PURE__ */ import_react60.default.createElement("a", { href: `/sources/${sourceId}`, className: "btn-secondary", style: {
-      display: "inline-block",
-      marginTop: "var(--space-4)",
-      textDecoration: "none"
-    } }, "Back to Source")));
-  }
-  return /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null, /* @__PURE__ */ import_react60.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, sidebarOpen && /* @__PURE__ */ import_react60.default.createElement("aside", { style: {
-    width: "280px",
+  const hasPdf = !!pdfUrl;
+  return /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null, /* @__PURE__ */ import_react60.default.createElement("div", { ref: containerRef, style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, sidebarOpen && /* @__PURE__ */ import_react60.default.createElement(import_react60.default.Fragment, null, /* @__PURE__ */ import_react60.default.createElement("aside", { style: {
+    width: `${sidebarWidth}px`,
     background: "var(--sidebar-bg)",
     overflowY: "auto",
     padding: "var(--space-4)",
@@ -106715,7 +106792,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     color: "var(--neutral-500)",
     marginBottom: "var(--space-3)",
     fontFamily: "var(--font-body)"
-  } }, "Create Note (Page ", currentPage, ")"), /* @__PURE__ */ import_react60.default.createElement("form", { onSubmit: handleSubmitNote, style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react60.default.createElement("style", null, `
+  } }, "Create Note", hasPdf ? ` (Page ${currentPage})` : ""), /* @__PURE__ */ import_react60.default.createElement("form", { onSubmit: handleSubmitNote, style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react60.default.createElement("style", null, `
                   .study-form-input:focus,
                   .study-form-select:focus,
                   .study-form-textarea:focus {
@@ -106746,7 +106823,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       style: { fontSize: "var(--text-sm)", padding: "var(--space-2)" },
       placeholder: "Optional..."
     }
-  )), /* @__PURE__ */ import_react60.default.createElement("div", null, /* @__PURE__ */ import_react60.default.createElement("label", { className: "form-label required teal", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Note"), /* @__PURE__ */ import_react60.default.createElement(
+  )), /* @__PURE__ */ import_react60.default.createElement("div", null, /* @__PURE__ */ import_react60.default.createElement("label", { className: "form-label teal", style: { fontSize: "var(--text-xs)", marginBottom: "var(--space-1)" } }, "Note"), /* @__PURE__ */ import_react60.default.createElement(
     "textarea",
     {
       value: formData.body,
@@ -106754,8 +106831,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       className: "form-textarea study-form-textarea",
       rows: "4",
       style: { fontSize: "var(--text-sm)", padding: "var(--space-2)" },
-      placeholder: "Write your note...",
-      required: true
+      placeholder: "Write your note..."
     }
   )), /* @__PURE__ */ import_react60.default.createElement(
     "button",
@@ -106858,13 +106934,32 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     },
     /* @__PURE__ */ import_react60.default.createElement("i", { className: "fas fa-edit" })
   ))))))), /* @__PURE__ */ import_react60.default.createElement(
+    "div",
+    {
+      onMouseDown: () => setIsDragging(true),
+      style: {
+        width: "6px",
+        cursor: "col-resize",
+        background: isDragging ? "var(--accent-blue)" : "#d4cfc4",
+        transition: "background 0.15s",
+        flexShrink: 0,
+        zIndex: 10
+      },
+      onMouseEnter: (e3) => {
+        if (!isDragging) e3.currentTarget.style.background = "#c4bfb4";
+      },
+      onMouseLeave: (e3) => {
+        if (!isDragging) e3.currentTarget.style.background = "#d4cfc4";
+      }
+    }
+  )), /* @__PURE__ */ import_react60.default.createElement(
     "button",
     {
       onClick: () => setSidebarOpen(!sidebarOpen),
       className: "sidebar-toggle",
       style: {
         position: "absolute",
-        left: sidebarOpen ? "280px" : "0",
+        left: sidebarOpen ? `${sidebarWidth + 6}px` : "0",
         top: "0",
         zIndex: 20,
         background: "var(--accent-blue)",
@@ -106872,7 +106967,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         border: "none",
         padding: "var(--space-2)",
         cursor: "pointer",
-        transition: "all 0.2s",
+        transition: "left 0.2s",
         borderRadius: "0 4px 4px 0",
         display: "flex",
         alignItems: "center",
@@ -106908,7 +107003,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     fontFamily: "var(--font-display)",
     letterSpacing: "-0.02em",
     margin: 0
-  } }, sourceTitle), /* @__PURE__ */ import_react60.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react60.default.createElement("span", { style: {
+  } }, sourceTitle), hasPdf && /* @__PURE__ */ import_react60.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react60.default.createElement("span", { style: {
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-600)",
@@ -106947,7 +107042,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
     /* @__PURE__ */ import_react60.default.createElement("i", { className: "fas fa-plus" })
-  ))), /* @__PURE__ */ import_react60.default.createElement("div", { style: {
+  ))), hasPdf ? /* @__PURE__ */ import_react60.default.createElement("div", { style: {
     padding: "var(--space-6)",
     display: "flex",
     flexDirection: "column",
@@ -106990,7 +107085,39 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         }
       )
     ))
-  )))), /* @__PURE__ */ import_react60.default.createElement(
+  )) : /* @__PURE__ */ import_react60.default.createElement("div", { style: {
+    padding: "var(--space-8)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "400px",
+    background: "var(--neutral-100)",
+    textAlign: "center"
+  } }, /* @__PURE__ */ import_react60.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "12px",
+    padding: "var(--space-8)",
+    boxShadow: "var(--shadow-card)",
+    maxWidth: "500px"
+  } }, /* @__PURE__ */ import_react60.default.createElement("i", { className: "fas fa-sticky-note", style: {
+    fontSize: "48px",
+    color: "var(--accent-teal)",
+    marginBottom: "var(--space-4)",
+    display: "block"
+  } }), /* @__PURE__ */ import_react60.default.createElement("h2", { style: {
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    fontFamily: "var(--font-display)",
+    marginBottom: "var(--space-2)"
+  } }, "Notes-Only Mode"), /* @__PURE__ */ import_react60.default.createElement("p", { style: {
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-600)",
+    fontFamily: "var(--font-body)",
+    lineHeight: 1.6,
+    margin: 0
+  } }, "No PDF is attached to this source. Use the sidebar to create and manage notes directly."))))), /* @__PURE__ */ import_react60.default.createElement(
     NoteFormModal,
     {
       isOpen: showNoteModal,
@@ -107000,6 +107127,11 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       },
       onSuccess: () => {
         fetchNotes();
+        setShowNoteModal(false);
+        setEditingNote(null);
+      },
+      onDelete: (noteId) => {
+        handleDeleteNote(noteId);
         setShowNoteModal(false);
         setEditingNote(null);
       },

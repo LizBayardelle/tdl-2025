@@ -231,7 +231,7 @@ export default function SourceShow({ sourceId }) {
       </button>
 
       {/* Main Content */}
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', background: 'white' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 var(--space-6)', width: '100%' }}>
         {/* Header with Back and Edit */}
         <div style={{ marginBottom: 'var(--space-6)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 'var(--space-4)' }}>
@@ -321,53 +321,6 @@ function SourceDisplay({ source }) {
             <span style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)', fontWeight: 600 }}>
               {source.year}
             </span>
-          )}
-          {source.pdf_url && (
-            <>
-              <a
-                href={source.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary"
-                style={{
-                  marginLeft: 'auto',
-                  fontSize: 'var(--text-sm)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  background: 'var(--accent-blue-light)',
-                  color: 'var(--accent-blue)',
-                  border: '1px solid var(--accent-blue-light)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-blue)';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-blue-light)';
-                  e.currentTarget.style.color = 'var(--accent-blue)';
-                }}
-              >
-                <i className="fas fa-file-pdf"></i>
-                <span>View PDF</span>
-              </a>
-              <a
-                href={`/sources/${source.id}/study`}
-                className="btn-primary"
-                style={{
-                  background: 'var(--accent-blue)',
-                  fontSize: 'var(--text-sm)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-blue-dark)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-blue)'}
-              >
-                <i className="fas fa-book-open"></i>
-                <span>Take Notes</span>
-              </a>
-            </>
           )}
         </div>
         <h1 style={{
@@ -467,6 +420,41 @@ function SourceDisplay({ source }) {
               }}
             >
               {source.url || source.doi}
+            </a>
+          </div>
+        )}
+
+        {source.pdf_url && (
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <a
+              href={source.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                color: 'var(--accent-blue)',
+                textDecoration: 'none',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 500,
+                padding: 'var(--space-2) var(--space-3)',
+                border: '1px solid var(--accent-blue)',
+                borderRadius: '4px',
+                transition: 'all 0.15s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--accent-blue)';
+                e.currentTarget.style.color = 'white';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--accent-blue)';
+              }}
+            >
+              <i className="fas fa-file-pdf"></i>
+              View PDF
             </a>
           </div>
         )}
@@ -603,6 +591,23 @@ function SourceNotes({ sourceId }) {
     }
   };
 
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ marginTop: 'var(--space-8)' }}>
@@ -688,6 +693,10 @@ function SourceNotes({ sourceId }) {
           fetchNotes();
           setEditingNote(null);
         }}
+        onDelete={(noteId) => {
+          handleDeleteNote(noteId);
+          setEditingNote(null);
+        }}
       />
       <div style={{ marginTop: 'var(--space-8)' }}>
         {/* Notes Header */}
@@ -713,7 +722,11 @@ function SourceNotes({ sourceId }) {
               fontSize: 'var(--text-sm)',
               background: '#639CA1',
               color: 'white',
-              border: 'none'
+              border: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              cursor: 'pointer'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = '#527d81';
@@ -722,7 +735,8 @@ function SourceNotes({ sourceId }) {
               e.currentTarget.style.background = '#639CA1';
             }}
           >
-            + New Note
+            <i className="fas fa-plus"></i>
+            New Note
           </button>
         </div>
 

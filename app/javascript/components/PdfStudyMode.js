@@ -20,7 +20,37 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   });
   const [editingNote, setEditingNote] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [isDragging, setIsDragging] = useState(false);
   const mainContentRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Handle sidebar resize drag
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      const newWidth = Math.min(Math.max(200, e.clientX), 500);
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging]);
 
   useEffect(() => {
     fetchNotes();
@@ -64,6 +94,23 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
       setNotes(data);
     } catch (error) {
       console.error('Error fetching notes:', error);
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const response = await fetch(`/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+
+      if (response.ok) {
+        fetchNotes();
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
     }
   };
 
@@ -114,30 +161,17 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
     setNumPages(numPages);
   };
 
-  if (!pdfUrl) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 64px)' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: 'var(--text-xl)', color: 'var(--neutral-600)', fontFamily: 'var(--font-body)' }}>No PDF available for this source</p>
-          <a href={`/sources/${sourceId}`} className="btn-secondary" style={{
-            display: 'inline-block',
-            marginTop: 'var(--space-4)',
-            textDecoration: 'none'
-          }}>
-            Back to Source
-          </a>
-        </div>
-      </div>
-    );
-  }
+  // Check if we have a PDF
+  const hasPdf = !!pdfUrl;
 
   return (
     <>
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+    <div ref={containerRef} style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
         {/* Left Sidebar - Notes */}
         {sidebarOpen && (
+          <>
           <aside style={{
-            width: '280px',
+            width: `${sidebarWidth}px`,
             background: 'var(--sidebar-bg)',
             overflowY: 'auto',
             padding: 'var(--space-4)',
@@ -155,7 +189,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                 marginBottom: 'var(--space-3)',
                 fontFamily: 'var(--font-body)'
               }}>
-                Create Note (Page {currentPage})
+                Create Note{hasPdf ? ` (Page ${currentPage})` : ''}
               </div>
               <form onSubmit={handleSubmitNote} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                 <style>{`
@@ -197,7 +231,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                 </div>
 
                 <div>
-                  <label className="form-label required teal" style={{ fontSize: 'var(--text-xs)', marginBottom: 'var(--space-1)' }}>Note</label>
+                  <label className="form-label teal" style={{ fontSize: 'var(--text-xs)', marginBottom: 'var(--space-1)' }}>Note</label>
                   <textarea
                     value={formData.body}
                     onChange={(e) => setFormData({ ...formData, body: e.target.value })}
@@ -205,7 +239,6 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                     rows="4"
                     style={{ fontSize: 'var(--text-sm)', padding: 'var(--space-2)' }}
                     placeholder="Write your note..."
-                    required
                   />
                 </div>
 
@@ -359,6 +392,25 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               )}
             </div>
           </aside>
+          {/* Draggable Divider */}
+          <div
+            onMouseDown={() => setIsDragging(true)}
+            style={{
+              width: '6px',
+              cursor: 'col-resize',
+              background: isDragging ? 'var(--accent-blue)' : '#d4cfc4',
+              transition: 'background 0.15s',
+              flexShrink: 0,
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => {
+              if (!isDragging) e.currentTarget.style.background = '#c4bfb4';
+            }}
+            onMouseLeave={(e) => {
+              if (!isDragging) e.currentTarget.style.background = '#d4cfc4';
+            }}
+          />
+          </>
         )}
 
         {/* Sidebar Toggle Button */}
@@ -367,7 +419,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           className="sidebar-toggle"
           style={{
             position: 'absolute',
-            left: sidebarOpen ? '280px' : '0',
+            left: sidebarOpen ? `${sidebarWidth + 6}px` : '0',
             top: '0',
             zIndex: 20,
             background: 'var(--accent-blue)',
@@ -375,7 +427,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             border: 'none',
             padding: 'var(--space-2)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
+            transition: 'left 0.2s',
             borderRadius: '0 4px 4px 0',
             display: 'flex',
             alignItems: 'center',
@@ -389,7 +441,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
         </button>
 
-        {/* Main Content - PDF Viewer */}
+        {/* Main Content - PDF Viewer or Notes-Only Mode */}
         <main ref={mainContentRef} style={{ flex: 1, overflowY: 'auto', background: 'white' }}>
           {/* Breadcrumbs */}
           <div style={{ padding: 'var(--space-4) var(--space-6)', borderBottom: '1px solid var(--neutral-200)' }}>
@@ -431,97 +483,145 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             }}>
               {sourceTitle}
             </h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              <span style={{
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                color: 'var(--neutral-600)',
-                fontWeight: 600
-              }}>
-                Page {currentPage} of {numPages || '...'}
-              </span>
-              <button
-                onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--neutral-300)',
-                  borderRadius: '4px',
-                  padding: 'var(--space-2)',
-                  cursor: 'pointer',
-                  color: 'var(--neutral-700)',
-                  transition: 'all 0.15s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <i className="fas fa-minus"></i>
-              </button>
-              <span style={{ fontSize: 'var(--text-sm)', width: '4rem', textAlign: 'center', fontFamily: 'var(--font-body)' }}>
-                {Math.round(scale * 100)}%
-              </span>
-              <button
-                onClick={() => setScale(s => Math.min(2.0, s + 0.1))}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--neutral-300)',
-                  borderRadius: '4px',
-                  padding: 'var(--space-2)',
-                  cursor: 'pointer',
-                  color: 'var(--neutral-700)',
-                  transition: 'all 0.15s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <i className="fas fa-plus"></i>
-              </button>
-            </div>
+            {hasPdf && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                <span style={{
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--font-body)',
+                  color: 'var(--neutral-600)',
+                  fontWeight: 600
+                }}>
+                  Page {currentPage} of {numPages || '...'}
+                </span>
+                <button
+                  onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--neutral-300)',
+                    borderRadius: '4px',
+                    padding: 'var(--space-2)',
+                    cursor: 'pointer',
+                    color: 'var(--neutral-700)',
+                    transition: 'all 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <i className="fas fa-minus"></i>
+                </button>
+                <span style={{ fontSize: 'var(--text-sm)', width: '4rem', textAlign: 'center', fontFamily: 'var(--font-body)' }}>
+                  {Math.round(scale * 100)}%
+                </span>
+                <button
+                  onClick={() => setScale(s => Math.min(2.0, s + 0.1))}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--neutral-300)',
+                    borderRadius: '4px',
+                    padding: 'var(--space-2)',
+                    cursor: 'pointer',
+                    color: 'var(--neutral-700)',
+                    transition: 'all 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <i className="fas fa-plus"></i>
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* PDF Document */}
-          <div style={{
-            padding: 'var(--space-6)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 'var(--space-4)',
-            background: 'var(--neutral-100)'
-          }}>
-            <Document
-              file={pdfUrl}
-              onLoadSuccess={onDocumentLoadSuccess}
-            >
-              {Array.from(new Array(numPages), (el, index) => (
-                <div
-                  key={`page_${index + 1}`}
-                  data-page-number={index + 1}
-                  style={{
-                    boxShadow: 'var(--shadow-card)',
-                    marginBottom: 'var(--space-4)',
-                    position: 'relative'
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute',
-                    top: '-24px',
-                    left: '0',
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--neutral-500)',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: 600
-                  }}>
-                    Page {index + 1}
+          {/* PDF Document or Notes-Only View */}
+          {hasPdf ? (
+            <div style={{
+              padding: 'var(--space-6)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--space-4)',
+              background: 'var(--neutral-100)'
+            }}>
+              <Document
+                file={pdfUrl}
+                onLoadSuccess={onDocumentLoadSuccess}
+              >
+                {Array.from(new Array(numPages), (el, index) => (
+                  <div
+                    key={`page_${index + 1}`}
+                    data-page-number={index + 1}
+                    style={{
+                      boxShadow: 'var(--shadow-card)',
+                      marginBottom: 'var(--space-4)',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: '-24px',
+                      left: '0',
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-500)',
+                      fontFamily: 'var(--font-body)',
+                      fontWeight: 600
+                    }}>
+                      Page {index + 1}
+                    </div>
+                    <Page
+                      pageNumber={index + 1}
+                      scale={scale}
+                      renderTextLayer={true}
+                      renderAnnotationLayer={true}
+                    />
                   </div>
-                  <Page
-                    pageNumber={index + 1}
-                    scale={scale}
-                    renderTextLayer={true}
-                    renderAnnotationLayer={true}
-                  />
-                </div>
-              ))}
-            </Document>
-          </div>
+                ))}
+              </Document>
+            </div>
+          ) : (
+            <div style={{
+              padding: 'var(--space-8)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '400px',
+              background: 'var(--neutral-100)',
+              textAlign: 'center'
+            }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: 'var(--space-8)',
+                boxShadow: 'var(--shadow-card)',
+                maxWidth: '500px'
+              }}>
+                <i className="fas fa-sticky-note" style={{
+                  fontSize: '48px',
+                  color: 'var(--accent-teal)',
+                  marginBottom: 'var(--space-4)',
+                  display: 'block'
+                }}></i>
+                <h2 style={{
+                  fontSize: 'var(--text-xl)',
+                  fontWeight: 600,
+                  color: 'var(--neutral-800)',
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: 'var(--space-2)'
+                }}>
+                  Notes-Only Mode
+                </h2>
+                <p style={{
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--neutral-600)',
+                  fontFamily: 'var(--font-body)',
+                  lineHeight: 1.6,
+                  margin: 0
+                }}>
+                  No PDF is attached to this source. Use the sidebar to create and manage notes directly.
+                </p>
+              </div>
+            </div>
+          )}
         </main>
     </div>
 
@@ -533,6 +633,11 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         }}
         onSuccess={() => {
           fetchNotes();
+          setShowNoteModal(false);
+          setEditingNote(null);
+        }}
+        onDelete={(noteId) => {
+          handleDeleteNote(noteId);
           setShowNoteModal(false);
           setEditingNote(null);
         }}
