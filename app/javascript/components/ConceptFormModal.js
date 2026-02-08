@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SlidePanel from './SlidePanel';
 import ConceptSearchSelect from './ConceptSearchSelect';
+import InlineRelTypeSelect, { getRelTypeCategory } from './InlineRelTypeSelect';
 import { NODE_TYPES } from '../config/nodeTypes';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
@@ -9,6 +10,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basics');
   const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
   const [newRelationships, setNewRelationships] = useState([]);
+  const [updatedRelationships, setUpdatedRelationships] = useState({}); // { id: newRelType }
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const [typeDropdownPos, setTypeDropdownPos] = useState({ top: 0, left: 0 });
   const typeDropdownTriggerRef = useRef(null);
@@ -44,6 +46,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab('basics');
       setDeletedRelationshipIds([]);
       setNewRelationships([]);
+      setUpdatedRelationships({});
       setTypeDropdownOpen(false);
       fetchPeople();
       fetchConcepts();
@@ -211,6 +214,32 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     }
   };
 
+  const handleUpdateRelationshipType = async (connectionId, newRelType) => {
+    try {
+      const response = await fetch(`/connections/${connectionId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          connection: { rel_type: newRelType }
+        }),
+      });
+
+      if (response.ok) {
+        // Track the update locally so UI reflects the change
+        setUpdatedRelationships(prev => ({ ...prev, [connectionId]: newRelType }));
+      } else {
+        const data = await response.json();
+        alert(data.errors?.join(', ') || 'Failed to update relationship');
+      }
+    } catch (error) {
+      console.error('Error updating relationship:', error);
+      alert('An error occurred while updating the relationship');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -265,8 +294,8 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   };
 
   const handleClose = () => {
-    // If we added or deleted relationships, refresh the parent
-    if (newRelationships.length > 0 || deletedRelationshipIds.length > 0) {
+    // If we added, deleted, or updated relationships, refresh the parent
+    if (newRelationships.length > 0 || deletedRelationshipIds.length > 0 || Object.keys(updatedRelationships).length > 0) {
       onSuccess();
     }
     onClose();
@@ -939,49 +968,34 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                   </p>
                 )}
 
-                {/* Existing Relationships — grouped by category then rel_type */}
+                {/* Existing Relationships — grouped by category with inline editable types */}
                 {item && (() => {
-                  const categoryFor = (relType) => {
-                    const hierarchical = ['parent_of', 'child_of', 'is_a'];
-                    const semantic = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'];
-                    const sequential = ['prerequisite_for', 'builds_on', 'derived_from'];
-                    const influence = ['influenced', 'supports', 'critiques'];
-                    const positional = [
-                      'is_above', 'is_below', 'contains', 'is_inside', 'faces', 'faces_away_from', 'is_near',
-                      'superior_to', 'inferior_to', 'anterior_to', 'posterior_to',
-                      'medial_to', 'lateral_to', 'dorsal_to', 'ventral_to',
-                      'rostral_to', 'caudal_to', 'proximal_to', 'distal_to',
-                      'ipsilateral_to', 'contralateral_to'
-                    ];
-                    if (hierarchical.includes(relType)) return 'Hierarchical';
-                    if (semantic.includes(relType)) return 'Semantic';
-                    if (sequential.includes(relType)) return 'Sequential';
-                    if (influence.includes(relType)) return 'Influence';
-                    if (positional.includes(relType)) return 'Positional';
-                    return 'Other';
-                  };
+                  const categoryOrder = ['Hierarchical', 'Sequential', 'Semantic', 'Influence', 'Positional', 'Positional - Anatomical', 'Other'];
 
-                  const categoryOrder = ['Hierarchical', 'Sequential', 'Semantic', 'Influence', 'Positional', 'Other'];
-
-                  // Normalize all connections into a flat list
+                  // Normalize all connections into a flat list with effective rel_type
                   const allConns = [];
                   (item.outgoing_connections || [])
                     .filter(c => !deletedRelationshipIds.includes(c.id))
-                    .forEach(c => allConns.push({ ...c, direction: 'out', key: `out-${c.id}` }));
+                    .forEach(c => {
+                      const effectiveRelType = updatedRelationships[c.id] || c.rel_type;
+                      allConns.push({ ...c, rel_type: effectiveRelType, originalRelType: c.rel_type, direction: 'out', key: `out-${c.id}` });
+                    });
                   newRelationships.forEach(c => allConns.push({ ...c, direction: 'new', key: `new-${c.id}` }));
                   (item.incoming_connections || [])
                     .filter(c => !deletedRelationshipIds.includes(c.id))
-                    .forEach(c => allConns.push({ ...c, direction: 'in', key: `in-${c.id}` }));
+                    .forEach(c => {
+                      const effectiveRelType = updatedRelationships[c.id] || c.rel_type;
+                      allConns.push({ ...c, rel_type: effectiveRelType, originalRelType: c.rel_type, direction: 'in', key: `in-${c.id}` });
+                    });
 
                   if (allConns.length === 0) return null;
 
-                  // Group: category → rel_type → connections[]
+                  // Group by category
                   const grouped = {};
                   allConns.forEach(c => {
-                    const cat = categoryFor(c.rel_type);
-                    if (!grouped[cat]) grouped[cat] = {};
-                    if (!grouped[cat][c.rel_type]) grouped[cat][c.rel_type] = [];
-                    grouped[cat][c.rel_type].push(c);
+                    const cat = getRelTypeCategory(c.rel_type);
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(c);
                   });
 
                   return (
@@ -1006,97 +1020,86 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                           }}>
                             {cat}
                           </div>
-                          {Object.entries(grouped[cat]).map(([relType, conns]) => (
-                            <div key={relType}>
-                              <div style={{
-                                padding: 'var(--space-2) var(--space-3)',
-                                borderBottom: '1px solid var(--neutral-200)',
-                                fontFamily: 'var(--font-body)',
-                                fontSize: 'var(--text-xs)',
-                                fontWeight: 600,
-                                color: 'var(--neutral-500)',
-                                textTransform: 'capitalize',
-                              }}>
-                                {relType.replace(/_/g, ' ')}
-                              </div>
-                              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                                {conns.map(conn => (
-                                  <li
-                                    key={conn.key}
-                                    style={{
-                                      padding: 'var(--space-2) var(--space-3) var(--space-2) var(--space-6)',
-                                      borderBottom: '1px solid var(--neutral-100)',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 'var(--space-2)',
-                                      fontSize: 'var(--text-sm)',
-                                      ...(conn.direction === 'new' ? { background: 'var(--accent-green-light)' } : {}),
-                                    }}
-                                  >
-                                    <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)', flexShrink: 0 }}>
-                                      {conn.direction === 'in' ? '\u2190' : '\u2192'}
+                          <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                            {grouped[cat].map(conn => (
+                              <li
+                                key={conn.key}
+                                style={{
+                                  padding: 'var(--space-2) var(--space-3)',
+                                  borderBottom: '1px solid var(--neutral-100)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 'var(--space-2)',
+                                  fontSize: 'var(--text-sm)',
+                                  ...(conn.direction === 'new' ? { background: 'var(--accent-green-light)' } : {}),
+                                }}
+                              >
+                                <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)', flexShrink: 0 }}>
+                                  {conn.direction === 'in' ? '\u2190' : '\u2192'}
+                                </span>
+                                {conn.direction === 'in' ? (
+                                  <>
+                                    <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                                      {conn.src_concept?.label || 'Unknown'}
                                     </span>
-                                    {conn.direction === 'in' ? (
-                                      <>
-                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                                          {conn.src_concept?.label || 'Unknown'}
-                                        </span>
-                                        <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}>
-                                          {conn.rel_type.replace(/_/g, ' ')}
-                                        </span>
-                                        <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                                          {item.label}
-                                        </span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                                          {item.label}
-                                        </span>
-                                        <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}>
-                                          {conn.rel_type.replace(/_/g, ' ')}
-                                        </span>
-                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                                          {conn.dst_concept?.label || 'Unknown'}
-                                        </span>
-                                      </>
-                                    )}
-                                    {conn.relationship_label && (
-                                      <span style={{
-                                        fontSize: 'var(--text-xs)',
-                                        color: 'var(--neutral-500)',
-                                        fontStyle: 'italic',
-                                      }}>
-                                        "{conn.relationship_label}"
-                                      </span>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeleteRelationship(conn.id)}
-                                      style={{
-                                        marginLeft: 'auto',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: 'var(--error)',
-                                        cursor: 'pointer',
-                                        padding: 'var(--space-1)',
-                                        borderRadius: '4px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        transition: 'background 0.15s',
-                                        flexShrink: 0,
-                                      }}
-                                      onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-                                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                    >
-                                      <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
-                                    </button>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          ))}
+                                    <InlineRelTypeSelect
+                                      value={conn.rel_type}
+                                      onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
+                                      disabled={conn.direction === 'new'}
+                                    />
+                                    <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                                      {item.label}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
+                                      {item.label}
+                                    </span>
+                                    <InlineRelTypeSelect
+                                      value={conn.rel_type}
+                                      onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
+                                      disabled={conn.direction === 'new'}
+                                    />
+                                    <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
+                                      {conn.dst_concept?.label || 'Unknown'}
+                                    </span>
+                                  </>
+                                )}
+                                {conn.relationship_label && (
+                                  <span style={{
+                                    fontSize: 'var(--text-xs)',
+                                    color: 'var(--neutral-500)',
+                                    fontStyle: 'italic',
+                                  }}>
+                                    "{conn.relationship_label}"
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteRelationship(conn.id)}
+                                  style={{
+                                    marginLeft: 'auto',
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--error)',
+                                    cursor: 'pointer',
+                                    padding: 'var(--space-1)',
+                                    borderRadius: '4px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'background 0.15s',
+                                    flexShrink: 0,
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                >
+                                  <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       ))}
                     </div>
