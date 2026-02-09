@@ -4,7 +4,7 @@ class ConceptsController < ApplicationController
 
   def index
     @concepts = current_user.concepts
-      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :tags)
+      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes)
       .recent
 
     respond_to do |format|
@@ -95,23 +95,10 @@ class ConceptsController < ApplicationController
       :summary_top,
       :summary_mid,
       :summary_deep,
-      :evidence_brief,
-      :confidence_note,
       :level_status,
       :last_reviewed_on,
       :new_relationship_dst_concept_id,
       :new_relationship_rel_type,
-      mechanisms: [],
-      signature_techniques: [],
-      strengths: [],
-      weaknesses: [],
-      adjacent_models: [],
-      contrasts_with: [],
-      integrates_with: [],
-      intake_questions: [],
-      micro_skills: [],
-      practice_prompts: [],
-      assessment_links: [],
       tags: [],
       people_ids: []
     )

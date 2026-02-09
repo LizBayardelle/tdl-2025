@@ -257,7 +257,7 @@ export default function ConceptsIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 5,
+          zIndex: 20,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"
@@ -304,6 +304,9 @@ export default function ConceptsIndex() {
               style={{
                 width: '48px',
                 height: '48px',
+                minWidth: '48px',
+                minHeight: '48px',
+                flexShrink: 0,
                 borderRadius: '50%',
                 background: 'var(--primary)',
                 color: 'white',
@@ -350,9 +353,9 @@ export default function ConceptsIndex() {
         {/* Concepts Table */}
         <div style={{
           flex: 1,
-          overflowY: 'auto',
-          padding: 'var(--space-6)',
-          paddingLeft: 'calc(var(--space-6) + 24px)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
           background: '#ffffff'
         }}>
           {filteredConcepts.length === 0 ? (
@@ -360,6 +363,8 @@ export default function ConceptsIndex() {
               style={{
                 textAlign: 'center',
                 padding: '3rem 1.5rem',
+                margin: 'var(--space-6)',
+                marginLeft: 'calc(var(--space-6) + 24px)',
                 background: 'white',
                 border: '1px solid var(--neutral-200)',
                 borderRadius: '4px',
@@ -373,19 +378,15 @@ export default function ConceptsIndex() {
               </p>
             </div>
           ) : (
-            <div
-              className="card"
-              style={{
-                overflow: 'hidden',
-                transform: 'none !important',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = 'var(--shadow-card)';
-                e.currentTarget.style.transform = 'none';
-              }}
-            >
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ background: 'var(--card-footer)' }}>
+            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
+              <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
+                <thead style={{
+                  background: 'var(--card-footer)',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}>
                   {/* First header row - grouped */}
                   <tr>
                     <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>

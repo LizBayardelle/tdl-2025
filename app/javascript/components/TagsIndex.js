@@ -670,6 +670,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'white',
                     color: 'var(--accent-gold)',
@@ -703,6 +706,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'var(--accent-gold)',
                     color: 'white',
@@ -807,6 +813,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'white',
                     color: 'var(--accent-green)',
@@ -840,6 +849,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'var(--accent-green)',
                     color: 'white',
@@ -961,6 +973,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'white',
                     color: 'var(--accent-blue)',
@@ -994,6 +1009,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'var(--accent-blue)',
                     color: 'white',
@@ -1118,6 +1136,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'white',
                     color: 'var(--accent-teal)',
@@ -1151,6 +1172,9 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                   style={{
                     width: '32px',
                     height: '32px',
+                    minWidth: '32px',
+                    minHeight: '32px',
+                    flexShrink: 0,
                     borderRadius: '50%',
                     background: 'var(--accent-teal)',
                     color: 'white',

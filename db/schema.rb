@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -86,19 +86,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_27_190122) do
     t.text "summary_top"
     t.text "summary_mid"
     t.text "summary_deep"
-    t.text "mechanisms", default: [], array: true
-    t.text "signature_techniques", default: [], array: true
-    t.text "strengths", default: [], array: true
-    t.text "weaknesses", default: [], array: true
-    t.text "adjacent_models", default: [], array: true
-    t.text "contrasts_with", default: [], array: true
-    t.text "integrates_with", default: [], array: true
-    t.text "intake_questions", default: [], array: true
-    t.text "micro_skills", default: [], array: true
-    t.text "practice_prompts", default: [], array: true
-    t.text "assessment_links", default: [], array: true
-    t.text "evidence_brief"
-    t.text "confidence_note"
     t.text "tags", default: [], array: true
     t.string "level_status"
     t.date "last_reviewed_on"

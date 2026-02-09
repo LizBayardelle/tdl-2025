@@ -2,10 +2,23 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import ConceptSearchSelect from './ConceptSearchSelect';
 import InlineRelTypeSelect, { getRelTypeCategory } from './InlineRelTypeSelect';
+import TagSelector from './TagSelector';
 import { NODE_TYPES } from '../config/nodeTypes';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBold, faItalic, faUnderline, faStrikethrough,
+  faListUl, faListOl, faLink, faUnlink, faQuoteLeft
+} from '@fortawesome/free-solid-svg-icons';
 
 export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [people, setPeople] = useState([]);
   const [concepts, setConcepts] = useState([]);
   const [activeTab, setActiveTab] = useState('basics');
   const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
@@ -21,21 +34,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     summary_top: '',
     summary_mid: '',
     summary_deep: '',
-    mechanisms: [],
-    signature_techniques: [],
-    strengths: [],
-    weaknesses: [],
-    adjacent_models: [],
-    contrasts_with: [],
-    integrates_with: [],
-    intake_questions: [],
-    micro_skills: [],
-    practice_prompts: [],
-    assessment_links: [],
-    evidence_brief: '',
-    confidence_note: '',
     tags: [],
-    people_ids: [],
     new_relationship_dst_concept_id: '',
     new_relationship_rel_type: 'related_to'
   });
@@ -44,6 +43,66 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
   const saveTimeoutRef = useRef(null);
   const isInitialMount = useRef(true);
   const lastSavedData = useRef(null);
+
+  // Editor extensions configuration
+  const editorExtensions = [
+    StarterKit,
+    Underline,
+    TextStyle,
+    Color,
+    Highlight.configure({ multicolor: true }),
+    TextAlign.configure({ types: ['heading', 'paragraph'] }),
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: { class: 'text-primary underline' },
+    }),
+  ];
+
+  // WYSIWYG editors for summary fields
+  const editorTop = useEditor({
+    extensions: editorExtensions,
+    content: formData.summary_top,
+    onUpdate: ({ editor }) => {
+      setFormData(prev => ({ ...prev, summary_top: editor.getHTML() }));
+    },
+  });
+
+  const editorMid = useEditor({
+    extensions: editorExtensions,
+    content: formData.summary_mid,
+    onUpdate: ({ editor }) => {
+      setFormData(prev => ({ ...prev, summary_mid: editor.getHTML() }));
+    },
+  });
+
+  const editorDeep = useEditor({
+    extensions: editorExtensions,
+    content: formData.summary_deep,
+    onUpdate: ({ editor }) => {
+      setFormData(prev => ({ ...prev, summary_deep: editor.getHTML() }));
+    },
+  });
+
+  // Toolbar styles
+  const toolbarButtonStyle = (isActive) => ({
+    padding: 'var(--space-1)',
+    borderRadius: '4px',
+    fontSize: 'var(--text-xs)',
+    color: 'var(--primary)',
+    background: isActive ? 'var(--accent-green-light)' : 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '24px',
+    height: '24px',
+  });
+
+  const toolbarHover = (isActive) => ({
+    onMouseEnter: (e) => !isActive && (e.currentTarget.style.background = 'var(--neutral-100)'),
+    onMouseLeave: (e) => !isActive && (e.currentTarget.style.background = 'transparent'),
+  });
 
   // Autosave function for existing items
   const performAutosave = useCallback(async (dataToSave) => {
@@ -127,7 +186,6 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setTypeDropdownOpen(false);
       setSaveStatus('idle');
       isInitialMount.current = true;
-      fetchPeople();
       fetchConcepts();
       if (item) {
         const newFormData = {
@@ -137,26 +195,16 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           summary_top: item.summary_top || '',
           summary_mid: item.summary_mid || '',
           summary_deep: item.summary_deep || '',
-          mechanisms: item.mechanisms || [],
-          signature_techniques: item.signature_techniques || [],
-          strengths: item.strengths || [],
-          weaknesses: item.weaknesses || [],
-          adjacent_models: item.adjacent_models || [],
-          contrasts_with: item.contrasts_with || [],
-          integrates_with: item.integrates_with || [],
-          intake_questions: item.intake_questions || [],
-          micro_skills: item.micro_skills || [],
-          practice_prompts: item.practice_prompts || [],
-          assessment_links: item.assessment_links || [],
-          evidence_brief: item.evidence_brief || '',
-          confidence_note: item.confidence_note || '',
           tags: item.tags || [],
-          people_ids: item.people_ids || [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
+        // Set editor content
+        if (editorTop) editorTop.commands.setContent(newFormData.summary_top);
+        if (editorMid) editorMid.commands.setContent(newFormData.summary_mid);
+        if (editorDeep) editorDeep.commands.setContent(newFormData.summary_deep);
       } else {
         const newFormData = {
           label: '',
@@ -165,40 +213,20 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           summary_top: '',
           summary_mid: '',
           summary_deep: '',
-          mechanisms: [],
-          signature_techniques: [],
-          strengths: [],
-          weaknesses: [],
-          adjacent_models: [],
-          contrasts_with: [],
-          integrates_with: [],
-          intake_questions: [],
-          micro_skills: [],
-          practice_prompts: [],
-          assessment_links: [],
-          evidence_brief: '',
-          confidence_note: '',
           tags: [],
-          people_ids: [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
         setFormData(newFormData);
         lastSavedData.current = null;
+        // Clear editor content
+        if (editorTop) editorTop.commands.setContent('');
+        if (editorMid) editorMid.commands.setContent('');
+        if (editorDeep) editorDeep.commands.setContent('');
       }
       setError('');
     }
-  }, [isOpen, item]);
-
-  const fetchPeople = async () => {
-    try {
-      const response = await fetch('/people.json');
-      const data = await response.json();
-      setPeople(data);
-    } catch (error) {
-      console.error('Error fetching people:', error);
-    }
-  };
+  }, [isOpen, item, editorTop, editorMid, editorDeep]);
 
   const fetchConcepts = async () => {
     try {
@@ -208,11 +236,6 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     } catch (error) {
       console.error('Error fetching concepts:', error);
     }
-  };
-
-  const handleArrayInput = (field, value) => {
-    const items = value.split('\n').filter(item => item.trim());
-    setFormData({ ...formData, [field]: items });
   };
 
   const handleDeleteRelationship = async (relationshipId) => {
@@ -521,39 +544,6 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
             <button
               type="button"
-              onClick={() => setActiveTab('details')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'details' ? 'var(--neutral-200)' : 'transparent',
-                border: 'none',
-                transition: 'background 0.15s',
-                marginBottom: '0.25rem',
-                textAlign: 'left',
-                fontFamily: 'var(--font-body)',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'details') e.currentTarget.style.background = 'var(--neutral-100)';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'details') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Details"
-            >
-              <i className="fas fa-list-ul" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Details</span>
-            </button>
-
-            <button
-              type="button"
               onClick={() => setActiveTab('relationships')}
               className="justify-center md:justify-start"
               style={{
@@ -746,12 +736,52 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                   Summary Top
                 </label>
                 <div className="form-helper">2-3 sentences</div>
-                <textarea
-                  value={formData.summary_top}
-                  onChange={(e) => setFormData({ ...formData, summary_top: e.target.value })}
-                  rows="3"
-                  className="form-textarea"
-                />
+                <div style={{
+                  border: '1px solid var(--neutral-300)',
+                  borderRadius: 'var(--radius)',
+                  background: 'white',
+                  overflow: 'hidden'
+                }}>
+                  {editorTop && (
+                    <div style={{
+                      borderBottom: '1px solid var(--neutral-200)',
+                      padding: 'var(--space-1) var(--space-2)',
+                      display: 'flex',
+                      gap: '2px',
+                      flexWrap: 'wrap',
+                      background: 'var(--neutral-50)'
+                    }}>
+                      <button type="button" onClick={() => editorTop.chain().focus().toggleBold().run()}
+                        style={toolbarButtonStyle(editorTop.isActive('bold'))} {...toolbarHover(editorTop.isActive('bold'))} title="Bold">
+                        <FontAwesomeIcon icon={faBold} />
+                      </button>
+                      <button type="button" onClick={() => editorTop.chain().focus().toggleItalic().run()}
+                        style={toolbarButtonStyle(editorTop.isActive('italic'))} {...toolbarHover(editorTop.isActive('italic'))} title="Italic">
+                        <FontAwesomeIcon icon={faItalic} />
+                      </button>
+                      <button type="button" onClick={() => editorTop.chain().focus().toggleUnderline().run()}
+                        style={toolbarButtonStyle(editorTop.isActive('underline'))} {...toolbarHover(editorTop.isActive('underline'))} title="Underline">
+                        <FontAwesomeIcon icon={faUnderline} />
+                      </button>
+                      <button type="button" onClick={() => editorTop.chain().focus().toggleBulletList().run()}
+                        style={toolbarButtonStyle(editorTop.isActive('bulletList'))} {...toolbarHover(editorTop.isActive('bulletList'))} title="Bullet List">
+                        <FontAwesomeIcon icon={faListUl} />
+                      </button>
+                      <button type="button" onClick={() => {
+                        const url = window.prompt('Enter URL:');
+                        if (url) editorTop.chain().focus().setLink({ href: url }).run();
+                      }} style={toolbarButtonStyle(editorTop.isActive('link'))} {...toolbarHover(editorTop.isActive('link'))} title="Add Link">
+                        <FontAwesomeIcon icon={faLink} />
+                      </button>
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
+                    <EditorContent
+                      editor={editorTop}
+                      className="px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -761,172 +791,170 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
               <div>
                 <label className="form-label">Summary Mid</label>
                 <div className="form-helper">~200 words</div>
-                <textarea
-                  value={formData.summary_mid}
-                  onChange={(e) => setFormData({ ...formData, summary_mid: e.target.value })}
-                  rows="8"
-                  className="form-textarea"
-                />
+                <div style={{
+                  border: '1px solid var(--neutral-300)',
+                  borderRadius: 'var(--radius)',
+                  background: 'white',
+                  overflow: 'hidden'
+                }}>
+                  {editorMid && (
+                    <div style={{
+                      borderBottom: '1px solid var(--neutral-200)',
+                      padding: 'var(--space-1) var(--space-2)',
+                      display: 'flex',
+                      gap: '2px',
+                      flexWrap: 'wrap',
+                      background: 'var(--neutral-50)'
+                    }}>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleBold().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('bold'))} {...toolbarHover(editorMid.isActive('bold'))} title="Bold">
+                        <FontAwesomeIcon icon={faBold} />
+                      </button>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleItalic().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('italic'))} {...toolbarHover(editorMid.isActive('italic'))} title="Italic">
+                        <FontAwesomeIcon icon={faItalic} />
+                      </button>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleUnderline().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('underline'))} {...toolbarHover(editorMid.isActive('underline'))} title="Underline">
+                        <FontAwesomeIcon icon={faUnderline} />
+                      </button>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleStrike().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('strike'))} {...toolbarHover(editorMid.isActive('strike'))} title="Strikethrough">
+                        <FontAwesomeIcon icon={faStrikethrough} />
+                      </button>
+                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleBulletList().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('bulletList'))} {...toolbarHover(editorMid.isActive('bulletList'))} title="Bullet List">
+                        <FontAwesomeIcon icon={faListUl} />
+                      </button>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleOrderedList().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('orderedList'))} {...toolbarHover(editorMid.isActive('orderedList'))} title="Numbered List">
+                        <FontAwesomeIcon icon={faListOl} />
+                      </button>
+                      <button type="button" onClick={() => editorMid.chain().focus().toggleBlockquote().run()}
+                        style={toolbarButtonStyle(editorMid.isActive('blockquote'))} {...toolbarHover(editorMid.isActive('blockquote'))} title="Quote">
+                        <FontAwesomeIcon icon={faQuoteLeft} />
+                      </button>
+                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
+                      <button type="button" onClick={() => {
+                        const url = window.prompt('Enter URL:');
+                        if (url) editorMid.chain().focus().setLink({ href: url }).run();
+                      }} style={toolbarButtonStyle(editorMid.isActive('link'))} {...toolbarHover(editorMid.isActive('link'))} title="Add Link">
+                        <FontAwesomeIcon icon={faLink} />
+                      </button>
+                      {editorMid.isActive('link') && (
+                        <button type="button" onClick={() => editorMid.chain().focus().unsetLink().run()}
+                          style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Remove Link">
+                          <FontAwesomeIcon icon={faUnlink} />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    <EditorContent
+                      editor={editorMid}
+                      className="px-3 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[130px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="form-label">Summary Deep</label>
                 <div className="form-helper">~600 words</div>
-                <textarea
-                  value={formData.summary_deep}
-                  onChange={(e) => setFormData({ ...formData, summary_deep: e.target.value })}
-                  rows="12"
-                  className="form-textarea"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'details' && (
-            <div className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="form-label">Mechanisms</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.mechanisms.join('\n')}
-                    onChange={(e) => handleArrayInput('mechanisms', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
+                <div style={{
+                  border: '1px solid var(--neutral-300)',
+                  borderRadius: 'var(--radius)',
+                  background: 'white',
+                  overflow: 'hidden'
+                }}>
+                  {editorDeep && (
+                    <div style={{
+                      borderBottom: '1px solid var(--neutral-200)',
+                      padding: 'var(--space-1) var(--space-2)',
+                      display: 'flex',
+                      gap: '2px',
+                      flexWrap: 'wrap',
+                      background: 'var(--neutral-50)'
+                    }}>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBold().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('bold'))} {...toolbarHover(editorDeep.isActive('bold'))} title="Bold">
+                        <FontAwesomeIcon icon={faBold} />
+                      </button>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleItalic().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('italic'))} {...toolbarHover(editorDeep.isActive('italic'))} title="Italic">
+                        <FontAwesomeIcon icon={faItalic} />
+                      </button>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleUnderline().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('underline'))} {...toolbarHover(editorDeep.isActive('underline'))} title="Underline">
+                        <FontAwesomeIcon icon={faUnderline} />
+                      </button>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleStrike().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('strike'))} {...toolbarHover(editorDeep.isActive('strike'))} title="Strikethrough">
+                        <FontAwesomeIcon icon={faStrikethrough} />
+                      </button>
+                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
+                      <select
+                        onChange={(e) => {
+                          const level = parseInt(e.target.value);
+                          if (level) editorDeep.chain().focus().toggleHeading({ level }).run();
+                          else editorDeep.chain().focus().setParagraph().run();
+                        }}
+                        style={{
+                          padding: '2px 4px',
+                          borderRadius: '4px',
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--primary)',
+                          border: '1px solid var(--neutral-300)',
+                          background: 'white',
+                          cursor: 'pointer',
+                        }}
+                        value={
+                          editorDeep.isActive('heading', { level: 2 }) ? '2' :
+                          editorDeep.isActive('heading', { level: 3 }) ? '3' :
+                          editorDeep.isActive('heading', { level: 4 }) ? '4' : ''
+                        }
+                      >
+                        <option value="">Paragraph</option>
+                        <option value="2">Heading 2</option>
+                        <option value="3">Heading 3</option>
+                        <option value="4">Heading 4</option>
+                      </select>
+                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBulletList().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('bulletList'))} {...toolbarHover(editorDeep.isActive('bulletList'))} title="Bullet List">
+                        <FontAwesomeIcon icon={faListUl} />
+                      </button>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleOrderedList().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('orderedList'))} {...toolbarHover(editorDeep.isActive('orderedList'))} title="Numbered List">
+                        <FontAwesomeIcon icon={faListOl} />
+                      </button>
+                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBlockquote().run()}
+                        style={toolbarButtonStyle(editorDeep.isActive('blockquote'))} {...toolbarHover(editorDeep.isActive('blockquote'))} title="Quote">
+                        <FontAwesomeIcon icon={faQuoteLeft} />
+                      </button>
+                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
+                      <button type="button" onClick={() => {
+                        const url = window.prompt('Enter URL:');
+                        if (url) editorDeep.chain().focus().setLink({ href: url }).run();
+                      }} style={toolbarButtonStyle(editorDeep.isActive('link'))} {...toolbarHover(editorDeep.isActive('link'))} title="Add Link">
+                        <FontAwesomeIcon icon={faLink} />
+                      </button>
+                      {editorDeep.isActive('link') && (
+                        <button type="button" onClick={() => editorDeep.chain().focus().unsetLink().run()}
+                          style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Remove Link">
+                          <FontAwesomeIcon icon={faUnlink} />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    <EditorContent
+                      editor={editorDeep}
+                      className="px-3 py-2 min-h-[250px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[230px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-base [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1"
+                    />
+                  </div>
                 </div>
-
-                <div>
-                  <label className="form-label">Signature Techniques</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.signature_techniques.join('\n')}
-                    onChange={(e) => handleArrayInput('signature_techniques', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Strengths</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.strengths.join('\n')}
-                    onChange={(e) => handleArrayInput('strengths', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Weaknesses</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.weaknesses.join('\n')}
-                    onChange={(e) => handleArrayInput('weaknesses', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Intake Questions</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.intake_questions.join('\n')}
-                    onChange={(e) => handleArrayInput('intake_questions', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Micro Skills</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.micro_skills.join('\n')}
-                    onChange={(e) => handleArrayInput('micro_skills', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Practice Prompts</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.practice_prompts.join('\n')}
-                    onChange={(e) => handleArrayInput('practice_prompts', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Assessment Links</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.assessment_links.join('\n')}
-                    onChange={(e) => handleArrayInput('assessment_links', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-
-                <div>
-                  <label className="form-label">Tags</label>
-                  <div className="form-helper">One per line</div>
-                  <textarea
-                    value={formData.tags.join('\n')}
-                    onChange={(e) => handleArrayInput('tags', e.target.value)}
-                    rows="3"
-                    className="form-textarea"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="form-label">Link People</label>
-                <div className="form-helper">Hold Cmd/Ctrl to select multiple</div>
-                <select
-                  multiple
-                  value={formData.people_ids}
-                  onChange={(e) => {
-                    const selected = Array.from(e.target.selectedOptions).map(opt => parseInt(opt.value));
-                    setFormData({ ...formData, people_ids: selected });
-                  }}
-                  className="form-select"
-                  size="5"
-                >
-                  {people.map(person => (
-                    <option key={person.id} value={person.id}>
-                      {person.full_name} ({person.role})
-                    </option>
-                  ))}
-                </select>
-                <p className="form-helper" style={{ marginTop: 'var(--space-2)' }}>
-                  Selected: {formData.people_ids.length} {formData.people_ids.length === 1 ? 'person' : 'people'}
-                </p>
-              </div>
-
-              <div>
-                <label className="form-label">Evidence Brief</label>
-                <textarea
-                  value={formData.evidence_brief}
-                  onChange={(e) => setFormData({ ...formData, evidence_brief: e.target.value })}
-                  rows="4"
-                  className="form-textarea"
-                />
-              </div>
-
-              <div>
-                <label className="form-label">Confidence Note</label>
-                <textarea
-                  value={formData.confidence_note}
-                  onChange={(e) => setFormData({ ...formData, confidence_note: e.target.value })}
-                  rows="3"
-                  className="form-textarea"
-                />
               </div>
             </div>
           )}
@@ -1190,37 +1218,24 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                 })()}
               </div>
 
-              <div>
-                <label className="form-label">Adjacent Models</label>
-                <div className="form-helper">One per line</div>
-                <textarea
-                  value={formData.adjacent_models.join('\n')}
-                  onChange={(e) => handleArrayInput('adjacent_models', e.target.value)}
-                  rows="4"
-                  className="form-textarea"
-                />
-              </div>
-
-              <div>
-                <label className="form-label">Contrasts With</label>
-                <div className="form-helper">One per line</div>
-                <textarea
-                  value={formData.contrasts_with.join('\n')}
-                  onChange={(e) => handleArrayInput('contrasts_with', e.target.value)}
-                  rows="4"
-                  className="form-textarea"
-                />
-              </div>
-
-              <div>
-                <label className="form-label">Integrates With</label>
-                <div className="form-helper">One per line</div>
-                <textarea
-                  value={formData.integrates_with.join('\n')}
-                  onChange={(e) => handleArrayInput('integrates_with', e.target.value)}
-                  rows="4"
-                  className="form-textarea"
-                />
+              {/* Tags */}
+              <div style={{ marginTop: 'var(--space-6)' }}>
+                <div style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 'var(--text-xl)',
+                  fontWeight: 700,
+                  color: 'var(--primary)',
+                  marginBottom: 'var(--space-3)',
+                }}>
+                  Tags
+                </div>
+                <div style={{ height: '350px' }}>
+                  <TagSelector
+                    selectedTags={formData.tags}
+                    onChange={(tags) => setFormData({ ...formData, tags: tags })}
+                    themeColor="var(--accent-green)"
+                  />
+                </div>
               </div>
             </div>
           )}

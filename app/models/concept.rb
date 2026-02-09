@@ -1,6 +1,4 @@
 class Concept < ApplicationRecord
-  include Taggable
-
   belongs_to :user
   has_many :concept_sources, dependent: :destroy
   has_many :sources, through: :concept_sources

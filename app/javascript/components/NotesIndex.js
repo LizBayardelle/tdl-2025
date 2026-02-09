@@ -593,6 +593,9 @@ export default function NotesIndex() {
                 style={{
                   width: '48px',
                   height: '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                  flexShrink: 0,
                   borderRadius: '50%',
                   background: 'var(--accent-teal)',
                   color: 'white',
