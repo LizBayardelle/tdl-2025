@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -22,7 +22,7 @@ import {
   faAlignLeft, faAlignCenter, faAlignRight,
   faListUl, faListOl, faLink, faUnlink,
   faQuoteLeft, faMinus, faTable, faImage,
-  faIndent, faOutdent, faCode
+  faIndent, faOutdent, faCode, faExpand, faCompress
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId }) {
@@ -39,6 +39,84 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     tags: []
   });
   const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
+  const [editorExpanded, setEditorExpanded] = useState(false);
+  const saveTimeoutRef = useRef(null);
+  const isInitialMount = useRef(true);
+  const lastSavedData = useRef(null);
+
+  // Autosave function for existing items
+  const performAutosave = useCallback(async (dataToSave) => {
+    if (!item?.id) return;
+
+    setSaveStatus('saving');
+
+    const payload = {
+      ...dataToSave,
+      concept_ids: dataToSave.concept_ids || [],
+      source_id: dataToSave.source_id || null,
+      tags: dataToSave.tags || []
+    };
+
+    try {
+      const response = await fetch(`/notes/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ note: payload }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus('saved');
+        // Clear "saved" status after 2 seconds
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (error) {
+      console.error('Autosave error:', error);
+      setSaveStatus('error');
+    }
+  }, [item?.id]);
+
+  // Debounced autosave effect
+  useEffect(() => {
+    if (!isOpen || !item?.id) return;
+
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+
+    // Skip if data hasn't changed
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+
+    // Show pending state immediately when data changes
+    setSaveStatus('pending');
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new debounced save
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1000);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
 
   const editor = useEditor({
     extensions: [
@@ -77,6 +155,8 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
   useEffect(() => {
     if (isOpen) {
       setActiveTab('content');
+      setSaveStatus('idle');
+      isInitialMount.current = true;
       if (item) {
         const newFormData = {
           title: item.title || '',
@@ -90,6 +170,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           tags: item.tags?.map(t => t.name) || []
         };
         setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
         if (editor) {
           editor.commands.setContent(newFormData.body);
         }
@@ -106,6 +187,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           tags: []
         };
         setFormData(newFormData);
+        lastSavedData.current = null;
         if (editor) {
           editor.commands.setContent('');
         }
@@ -645,12 +727,33 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 >
                   <FontAwesomeIcon icon={faImage} />
                 </button>
+
+                {divider}
+
+                {/* Expand/Collapse */}
+                <button
+                  type="button"
+                  onClick={() => setEditorExpanded(!editorExpanded)}
+                  style={toolbarButtonStyle(editorExpanded)}
+                  {...toolbarHover(editorExpanded)}
+                  title={editorExpanded ? "Collapse editor" : "Expand editor"}
+                >
+                  <FontAwesomeIcon icon={editorExpanded ? faCompress : faExpand} />
+                </button>
               </div>
             )}
-                <EditorContent
-                  editor={editor}
-                  className="px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
-                />
+                <div style={{
+                  height: editorExpanded ? '60vh' : 'auto',
+                  minHeight: editorExpanded ? '60vh' : '150px',
+                  maxHeight: editorExpanded ? '60vh' : 'none',
+                  overflowY: editorExpanded ? 'auto' : 'visible',
+                  transition: 'all 0.2s ease',
+                }}>
+                  <EditorContent
+                    editor={editor}
+                    className="px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
+                  />
+                </div>
               </div>
             </div>
 
@@ -736,49 +839,17 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           </div>
         </div>
 
-        {/* Footer */}
-        <div style={{
-          borderTop: '1px solid var(--neutral-200)',
-          background: 'var(--background)',
-          padding: 'var(--space-6)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          {/* Left side - Delete button (only when editing) */}
-          <div>
-            {item && onDelete && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this note?')) {
-                    onDelete(item.id);
-                  }
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--error)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-2)',
-                  borderRadius: 'var(--radius)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  fontSize: 'var(--text-sm)',
-                  fontFamily: 'var(--font-body)',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(139, 45, 45, 0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              >
-                <i className="fas fa-trash-alt"></i>
-                <span className="hidden sm:inline">Delete</span>
-              </button>
-            )}
-          </div>
-
-          {/* Right side - Save and Cancel */}
-          <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+        {/* Footer - only show for new notes, editing uses autosave + X button */}
+        {!item ? (
+          <div style={{
+            borderTop: '1px solid var(--neutral-200)',
+            background: 'var(--background)',
+            padding: 'var(--space-6)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 'var(--space-3)',
+          }}>
             <button
               type="button"
               onClick={onClose}
@@ -796,10 +867,87 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               onMouseEnter={(e) => e.currentTarget.style.background = '#527d81'}
               onMouseLeave={(e) => e.currentTarget.style.background = '#639CA1'}
             >
-              {item ? 'Save Changes' : 'Create Note'}
+              Create Note
             </button>
           </div>
-        </div>
+        ) : (
+          /* Floating status bar for editing mode */
+          <div style={{
+            position: 'absolute',
+            bottom: 'var(--space-4)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-3)',
+            background: 'white',
+            padding: 'var(--space-2) var(--space-4)',
+            borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-md)',
+            fontSize: 'var(--text-sm)',
+            fontFamily: 'var(--font-body)',
+          }}>
+            {/* Delete button */}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this note?')) {
+                    onDelete(item.id);
+                  }
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--error)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                title="Delete note"
+              >
+                <i className="fas fa-trash-alt"></i>
+              </button>
+            )}
+            {onDelete && <span style={{ color: 'var(--neutral-300)' }}>|</span>}
+            {/* Save status */}
+            <span style={{
+              color: saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}>
+              {saveStatus === 'pending' && (
+                <>
+                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                  <span style={{ color: 'var(--neutral-500)' }}>Save pending...</span>
+                </>
+              )}
+              {saveStatus === 'saving' && (
+                <>
+                  <i className="fas fa-circle-notch fa-spin" style={{ color: '#639CA1' }}></i>
+                  <span style={{ color: '#639CA1' }}>Saving...</span>
+                </>
+              )}
+              {saveStatus === 'saved' && (
+                <>
+                  <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                  Saved
+                </>
+              )}
+              {saveStatus === 'error' && (
+                <>
+                  <i className="fas fa-exclamation-circle"></i>
+                  Error
+                </>
+              )}
+              {saveStatus === 'idle' && (
+                <span style={{ color: 'var(--neutral-400)' }}>Auto-saving enabled</span>
+              )}
+            </span>
+          </div>
+        )}
       </form>
     </SlidePanel>
   );

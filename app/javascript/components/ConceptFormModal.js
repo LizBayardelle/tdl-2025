@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import ConceptSearchSelect from './ConceptSearchSelect';
 import InlineRelTypeSelect, { getRelTypeCategory } from './InlineRelTypeSelect';
@@ -40,6 +40,83 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     new_relationship_rel_type: 'related_to'
   });
   const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
+  const saveTimeoutRef = useRef(null);
+  const isInitialMount = useRef(true);
+  const lastSavedData = useRef(null);
+
+  // Autosave function for existing items
+  const performAutosave = useCallback(async (dataToSave) => {
+    if (!item?.id) return;
+
+    setSaveStatus('saving');
+
+    try {
+      const response = await fetch(`/concepts/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ concept: dataToSave }),
+      });
+
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (error) {
+      console.error('Autosave error:', error);
+      setSaveStatus('error');
+    }
+  }, [item?.id]);
+
+  // Debounced autosave effect
+  useEffect(() => {
+    if (!isOpen || !item?.id) return;
+
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+
+    // Skip if data hasn't changed (exclude relationship form fields)
+    const dataToCompare = { ...formData };
+    delete dataToCompare.new_relationship_dst_concept_id;
+    delete dataToCompare.new_relationship_rel_type;
+
+    const lastData = lastSavedData.current ? JSON.parse(lastSavedData.current) : null;
+    if (lastData) {
+      delete lastData.new_relationship_dst_concept_id;
+      delete lastData.new_relationship_rel_type;
+    }
+
+    if (JSON.stringify(dataToCompare) === JSON.stringify(lastData)) return;
+
+    // Show pending state immediately when data changes
+    setSaveStatus('pending');
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new debounced save
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1000);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
 
   useEffect(() => {
     if (isOpen) {
@@ -48,10 +125,12 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setNewRelationships([]);
       setUpdatedRelationships({});
       setTypeDropdownOpen(false);
+      setSaveStatus('idle');
+      isInitialMount.current = true;
       fetchPeople();
       fetchConcepts();
       if (item) {
-        setFormData({
+        const newFormData = {
           label: item.label || '',
           node_type: item.node_type || 'undeclared',
           level_status: item.level_status || 'mapped',
@@ -75,9 +154,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           people_ids: item.people_ids || [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
-        setFormData({
+        const newFormData = {
           label: '',
           node_type: 'undeclared',
           level_status: 'mapped',
@@ -101,7 +182,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           people_ids: [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = null;
       }
       setError('');
     }
@@ -1144,29 +1227,85 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         </div>
       </div>
 
-        {/* Footer */}
-        <div style={{
-          borderTop: '1px solid var(--neutral-200)',
-          background: 'var(--background)',
-          padding: 'var(--space-6)',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 'var(--space-3)',
-        }}>
-          <button
-            type="submit"
-            className="btn-primary"
-          >
-            {item ? 'Save Changes' : 'Create Construct'}
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="btn-secondary"
-          >
-            Cancel
-          </button>
-        </div>
+        {/* Footer - only show for new constructs, editing uses autosave + X button */}
+        {!item ? (
+          <div style={{
+            borderTop: '1px solid var(--neutral-200)',
+            background: 'var(--background)',
+            padding: 'var(--space-6)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 'var(--space-3)',
+          }}>
+            <button
+              type="submit"
+              className="btn-primary"
+            >
+              Create Construct
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          /* Floating status bar for editing mode */
+          <div style={{
+            position: 'absolute',
+            bottom: 'var(--space-4)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            background: 'white',
+            padding: 'var(--space-2) var(--space-4)',
+            borderRadius: 'var(--radius)',
+            boxShadow: 'var(--shadow-md)',
+            fontSize: 'var(--text-sm)',
+            fontFamily: 'var(--font-body)',
+            zIndex: 5,
+          }}>
+            <span style={{
+              color: saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}>
+              {saveStatus === 'pending' && (
+                <>
+                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                  <span style={{ color: 'var(--neutral-500)' }}>Save pending...</span>
+                </>
+              )}
+              {saveStatus === 'saving' && (
+                <>
+                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-green)' }}></i>
+                  <span style={{ color: 'var(--accent-green)' }}>Saving...</span>
+                </>
+              )}
+              {saveStatus === 'saved' && (
+                <>
+                  <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                  Saved
+                </>
+              )}
+              {saveStatus === 'error' && (
+                <>
+                  <i className="fas fa-exclamation-circle"></i>
+                  Error
+                </>
+              )}
+              {saveStatus === 'idle' && (
+                <span style={{ color: 'var(--neutral-400)' }}>Auto-saving enabled</span>
+              )}
+            </span>
+          </div>
+        )}
       </form>
     </SlidePanel>
   );

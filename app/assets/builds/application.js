@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React41 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef17 = React41.useRef, useEffect42 = React41.useEffect, useMemo14 = React41.useMemo, useDebugValue3 = React41.useDebugValue;
+      var React41 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef18 = React41.useRef, useEffect42 = React41.useEffect, useMemo14 = React41.useMemo, useDebugValue3 = React41.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef17(null);
+        var instRef = useRef18(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -24596,6 +24596,63 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     new_relationship_rel_type: "related_to"
   });
   const [error, setError] = (0, import_react4.useState)("");
+  const [saveStatus, setSaveStatus] = (0, import_react4.useState)("idle");
+  const saveTimeoutRef = (0, import_react4.useRef)(null);
+  const isInitialMount = (0, import_react4.useRef)(true);
+  const lastSavedData = (0, import_react4.useRef)(null);
+  const performAutosave = (0, import_react4.useCallback)(async (dataToSave) => {
+    if (!item?.id) return;
+    setSaveStatus("saving");
+    try {
+      const response = await fetch(`/concepts/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ concept: dataToSave })
+      });
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2e3);
+      } else {
+        setSaveStatus("error");
+      }
+    } catch (error2) {
+      console.error("Autosave error:", error2);
+      setSaveStatus("error");
+    }
+  }, [item?.id]);
+  (0, import_react4.useEffect)(() => {
+    if (!isOpen || !item?.id) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+    const dataToCompare = { ...formData };
+    delete dataToCompare.new_relationship_dst_concept_id;
+    delete dataToCompare.new_relationship_rel_type;
+    const lastData = lastSavedData.current ? JSON.parse(lastSavedData.current) : null;
+    if (lastData) {
+      delete lastData.new_relationship_dst_concept_id;
+      delete lastData.new_relationship_rel_type;
+    }
+    if (JSON.stringify(dataToCompare) === JSON.stringify(lastData)) return;
+    setSaveStatus("pending");
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1e3);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
   (0, import_react4.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basics");
@@ -24603,10 +24660,12 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       setNewRelationships([]);
       setUpdatedRelationships({});
       setTypeDropdownOpen(false);
+      setSaveStatus("idle");
+      isInitialMount.current = true;
       fetchPeople();
       fetchConcepts();
       if (item) {
-        setFormData({
+        const newFormData = {
           label: item.label || "",
           node_type: item.node_type || "undeclared",
           level_status: item.level_status || "mapped",
@@ -24630,9 +24689,11 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           people_ids: item.people_ids || [],
           new_relationship_dst_concept_id: "",
           new_relationship_rel_type: "related_to"
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
-        setFormData({
+        const newFormData = {
           label: "",
           node_type: "undeclared",
           level_status: "mapped",
@@ -24656,7 +24717,9 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           people_ids: [],
           new_relationship_dst_concept_id: "",
           new_relationship_rel_type: "related_to"
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = null;
       }
       setError("");
     }
@@ -25444,12 +25507,13 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         rows: "4",
         className: "form-textarea"
       }
-    ))))), /* @__PURE__ */ import_react4.default.createElement("div", { style: {
+    ))))), !item ? /* @__PURE__ */ import_react4.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
       padding: "var(--space-6)",
       display: "flex",
       justifyContent: "center",
+      alignItems: "center",
       gap: "var(--space-3)"
     } }, /* @__PURE__ */ import_react4.default.createElement(
       "button",
@@ -25457,7 +25521,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         type: "submit",
         className: "btn-primary"
       },
-      item ? "Save Changes" : "Create Construct"
+      "Create Construct"
     ), /* @__PURE__ */ import_react4.default.createElement(
       "button",
       {
@@ -25466,7 +25530,30 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "btn-secondary"
       },
       "Cancel"
-    )))
+    )) : (
+      /* Floating status bar for editing mode */
+      /* @__PURE__ */ import_react4.default.createElement("div", { style: {
+        position: "absolute",
+        bottom: "var(--space-4)",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        background: "white",
+        padding: "var(--space-2) var(--space-4)",
+        borderRadius: "var(--radius)",
+        boxShadow: "var(--shadow-md)",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)",
+        zIndex: 5
+      } }, /* @__PURE__ */ import_react4.default.createElement("span", { style: {
+        color: saveStatus === "error" ? "var(--error)" : "var(--neutral-500)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      } }, saveStatus === "pending" && /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react4.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react4.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), "Saved"), saveStatus === "error" && /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("i", { className: "fas fa-exclamation-circle" }), "Error"), saveStatus === "idle" && /* @__PURE__ */ import_react4.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-saving enabled")))
+    ))
   );
 }
 
@@ -58084,6 +58171,11 @@ var faAlignLeft = {
   iconName: "align-left",
   icon: [448, 512, [], "f036", "M288 64c0 17.7-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l224 0c17.7 0 32 14.3 32 32zm0 256c0 17.7-14.3 32-32 32L32 352c-17.7 0-32-14.3-32-32s14.3-32 32-32l224 0c17.7 0 32 14.3 32 32zM0 192c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 224c-17.7 0-32-14.3-32-32zM448 448c0 17.7-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"]
 };
+var faExpand = {
+  prefix: "fas",
+  iconName: "expand",
+  icon: [448, 512, [], "f065", "M32 32C14.3 32 0 46.3 0 64l0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64 64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 352c0-17.7-14.3-32-32-32S0 334.3 0 352l0 96c0 17.7 14.3 32 32 32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-64zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0 0 64c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96c0-17.7-14.3-32-32-32l-96 0zM448 352c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 64-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0c17.7 0 32-14.3 32-32l0-96z"]
+};
 var faTable = {
   prefix: "fas",
   iconName: "table",
@@ -58150,6 +58242,11 @@ var faLinkSlash = {
   icon: [576, 512, ["chain-broken", "chain-slash", "unlink"], "f127", "M41-24.9c-9.4-9.4-24.6-9.4-33.9 0S-2.3-.3 7 9.1l528 528c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-122-122c4.2-3.4 8.3-7.1 12.1-10.9l71.1-71.1c29.3-29.3 45.8-69.1 45.8-110.6 0-86.4-70-156.5-156.5-156.5-37.3 0-73.1 13.3-101.3 37.2 20.3 10.1 38.7 23.5 54.5 39.5 14.1-8.3 30.2-12.7 46.8-12.7 51.1 0 92.5 41.4 92.5 92.5 0 24.5-9.7 48-27.1 65.4l-71.1 71.1c-3.9 3.9-8.1 7.4-12.6 10.5l-47.5-47.5c16.5-.9 29.7-14.4 30.2-31.1 0-1.3 0-2.6 0-3.9 0-86.3-69.9-156.9-156.5-156.9-19.2 0-37.9 3.5-55.5 10.2L41-24.9zM225.9 160c.6 0 1.1 0 1.7 0 15.1 0 29.5 3.7 42.1 10.2 1.8 1.2 3.6 2.3 5.5 3.1 26.8 16.3 44.8 45.9 44.8 79.6 0 .4 0 .8 0 1.2L225.9 160zM346.2 416L192 261.8c1.2 84.6 69.6 152.9 154.1 154.1zM139.7 209.5l-45.3-45.3-48.6 48.6c-29.3 29.3-45.8 69.1-45.8 110.6 0 86.4 70 156.5 156.5 156.5 37.2 0 73.1-13.3 101.3-37.2-20.3-10.1-38.8-23.5-54.6-39.5-14 8.2-30.1 12.6-46.7 12.6-51.1 0-92.5-41.4-92.5-92.5 0-24.5 9.7-48 27.1-65.4l48.6-48.6z"]
 };
 var faUnlink = faLinkSlash;
+var faCompress = {
+  prefix: "fas",
+  iconName: "compress",
+  icon: [448, 512, [], "f066", "M160 64c0-17.7-14.3-32-32-32S96 46.3 96 64l0 64-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0c17.7 0 32-14.3 32-32l0-96zM32 320c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0 0 64c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96c0-17.7-14.3-32-32-32l-96 0zM352 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-64zM320 320c-17.7 0-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64 64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0z"]
+};
 var faOutdent = {
   prefix: "fas",
   iconName: "outdent",
@@ -58181,6 +58278,64 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
     tags: []
   });
   const [error, setError] = (0, import_react23.useState)("");
+  const [saveStatus, setSaveStatus] = (0, import_react23.useState)("idle");
+  const [editorExpanded, setEditorExpanded] = (0, import_react23.useState)(false);
+  const saveTimeoutRef = (0, import_react23.useRef)(null);
+  const isInitialMount = (0, import_react23.useRef)(true);
+  const lastSavedData = (0, import_react23.useRef)(null);
+  const performAutosave = (0, import_react23.useCallback)(async (dataToSave) => {
+    if (!item?.id) return;
+    setSaveStatus("saving");
+    const payload = {
+      ...dataToSave,
+      concept_ids: dataToSave.concept_ids || [],
+      source_id: dataToSave.source_id || null,
+      tags: dataToSave.tags || []
+    };
+    try {
+      const response = await fetch(`/notes/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ note: payload })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2e3);
+      } else {
+        setSaveStatus("error");
+      }
+    } catch (error2) {
+      console.error("Autosave error:", error2);
+      setSaveStatus("error");
+    }
+  }, [item?.id]);
+  (0, import_react23.useEffect)(() => {
+    if (!isOpen || !item?.id) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+    setSaveStatus("pending");
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1e3);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
   const editor = useEditor({
     extensions: [
       index_default3,
@@ -58217,6 +58372,8 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
   (0, import_react23.useEffect)(() => {
     if (isOpen) {
       setActiveTab("content");
+      setSaveStatus("idle");
+      isInitialMount.current = true;
       if (item) {
         const newFormData = {
           title: item.title || "",
@@ -58230,6 +58387,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
           tags: item.tags?.map((t4) => t4.name) || []
         };
         setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
         if (editor) {
           editor.commands.setContent(newFormData.body);
         }
@@ -58246,6 +58404,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
           tags: []
         };
         setFormData(newFormData);
+        lastSavedData.current = null;
         if (editor) {
           editor.commands.setContent("");
         }
@@ -58721,13 +58880,29 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         title: "Insert Image"
       },
       /* @__PURE__ */ import_react23.default.createElement(FontAwesomeIcon, { icon: faImage })
-    )), /* @__PURE__ */ import_react23.default.createElement(
+    ), divider, /* @__PURE__ */ import_react23.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setEditorExpanded(!editorExpanded),
+        style: toolbarButtonStyle(editorExpanded),
+        ...toolbarHover(editorExpanded),
+        title: editorExpanded ? "Collapse editor" : "Expand editor"
+      },
+      /* @__PURE__ */ import_react23.default.createElement(FontAwesomeIcon, { icon: editorExpanded ? faCompress : faExpand })
+    )), /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+      height: editorExpanded ? "60vh" : "auto",
+      minHeight: editorExpanded ? "60vh" : "150px",
+      maxHeight: editorExpanded ? "60vh" : "none",
+      overflowY: editorExpanded ? "auto" : "visible",
+      transition: "all 0.2s ease"
+    } }, /* @__PURE__ */ import_react23.default.createElement(
       EditorContent,
       {
         editor,
         className: "px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
       }
-    ))), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label" }, "Context"), /* @__PURE__ */ import_react23.default.createElement(
+    )))), /* @__PURE__ */ import_react23.default.createElement("div", null, /* @__PURE__ */ import_react23.default.createElement("label", { className: "form-label" }, "Context"), /* @__PURE__ */ import_react23.default.createElement(
       "textarea",
       {
         value: formData.context,
@@ -58779,41 +58954,15 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         onChange: (tags) => setFormData({ ...formData, tags }),
         themeColor: "#639CA1"
       }
-    )))))), /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+    )))))), !item ? /* @__PURE__ */ import_react23.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
       padding: "var(--space-6)",
       display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center"
-    } }, /* @__PURE__ */ import_react23.default.createElement("div", null, item && onDelete && /* @__PURE__ */ import_react23.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => {
-          if (window.confirm("Are you sure you want to delete this note?")) {
-            onDelete(item.id);
-          }
-        },
-        style: {
-          background: "transparent",
-          border: "none",
-          color: "var(--error)",
-          cursor: "pointer",
-          padding: "var(--space-2)",
-          borderRadius: "var(--radius)",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          fontSize: "var(--text-sm)",
-          fontFamily: "var(--font-body)"
-        },
-        onMouseEnter: (e3) => e3.currentTarget.style.background = "rgba(139, 45, 45, 0.1)",
-        onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
-      },
-      /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-trash-alt" }),
-      /* @__PURE__ */ import_react23.default.createElement("span", { className: "hidden sm:inline" }, "Delete")
-    )), /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react23.default.createElement(
+      justifyContent: "center",
+      alignItems: "center",
+      gap: "var(--space-3)"
+    } }, /* @__PURE__ */ import_react23.default.createElement(
       "button",
       {
         type: "button",
@@ -58833,8 +58982,51 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         onMouseEnter: (e3) => e3.currentTarget.style.background = "#527d81",
         onMouseLeave: (e3) => e3.currentTarget.style.background = "#639CA1"
       },
-      item ? "Save Changes" : "Create Note"
-    ))))
+      "Create Note"
+    )) : (
+      /* Floating status bar for editing mode */
+      /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+        position: "absolute",
+        bottom: "var(--space-4)",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        background: "white",
+        padding: "var(--space-2) var(--space-4)",
+        borderRadius: "var(--radius)",
+        boxShadow: "var(--shadow-md)",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)"
+      } }, onDelete && /* @__PURE__ */ import_react23.default.createElement(
+        "button",
+        {
+          type: "button",
+          onClick: () => {
+            if (window.confirm("Are you sure you want to delete this note?")) {
+              onDelete(item.id);
+            }
+          },
+          style: {
+            background: "transparent",
+            border: "none",
+            color: "var(--error)",
+            cursor: "pointer",
+            padding: "var(--space-1)",
+            display: "flex",
+            alignItems: "center"
+          },
+          title: "Delete note"
+        },
+        /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-trash-alt" })
+      ), onDelete && /* @__PURE__ */ import_react23.default.createElement("span", { style: { color: "var(--neutral-300)" } }, "|"), /* @__PURE__ */ import_react23.default.createElement("span", { style: {
+        color: saveStatus === "error" ? "var(--error)" : "var(--neutral-500)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      } }, saveStatus === "pending" && /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react23.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "#639CA1" } }), /* @__PURE__ */ import_react23.default.createElement("span", { style: { color: "#639CA1" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), "Saved"), saveStatus === "error" && /* @__PURE__ */ import_react23.default.createElement(import_react23.default.Fragment, null, /* @__PURE__ */ import_react23.default.createElement("i", { className: "fas fa-exclamation-circle" }), "Error"), saveStatus === "idle" && /* @__PURE__ */ import_react23.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-saving enabled")))
+    ))
   );
 }
 
