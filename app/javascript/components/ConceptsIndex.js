@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConceptFormModal from './ConceptFormModal';
-import { buildConceptHierarchy, flattenHierarchy, getRelTypeLabel } from '../utils/conceptHierarchy';
+import { buildConceptHierarchy, flattenHierarchy } from '../utils/conceptHierarchy';
 import { NODE_TYPES, getNodeTypeLabel } from '../config/nodeTypes';
 
 export default function ConceptsIndex() {
@@ -710,15 +710,6 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
           >
             {concept.label}
           </a>
-          {depth > 0 && parentRelType && (
-            <span style={{
-              fontSize: 'var(--text-xs)',
-              color: 'var(--neutral-400)',
-              fontStyle: 'italic',
-            }}>
-              ({getRelTypeLabel(parentRelType)})
-            </span>
-          )}
           <button
             onClick={() => onEdit(concept)}
             className="icon-btn"

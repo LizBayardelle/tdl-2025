@@ -1,10 +1,34 @@
 // Utility functions for organizing concepts into hierarchical structures
 
-// Relationships where the SOURCE is the parent (outgoing = I am parent of child)
-const PARENT_OUTGOING_TYPES = ['parent_of', 'contains'];
+// Relationships where the SOURCE is the parent/container/superior
+// (outgoing = I am parent/above/contains the dst)
+const PARENT_OUTGOING_TYPES = [
+  'parent_of',
+  'contains',
+  'categorizes',
+  'superior_to',
+  'anterior_to',
+  'medial_to',
+  'dorsal_to',
+  'rostral_to',
+  'proximal_to',
+  'is_above',
+];
 
-// Relationships where the SOURCE is the child (outgoing = I am child of parent)
-const CHILD_OUTGOING_TYPES = ['child_of', 'is_inside', 'is_a'];
+// Relationships where the SOURCE is the child/contained/inferior
+// (outgoing = I am child/below/inside the dst)
+const CHILD_OUTGOING_TYPES = [
+  'child_of',
+  'is_inside',
+  'is_a',
+  'inferior_to',
+  'posterior_to',
+  'lateral_to',
+  'ventral_to',
+  'caudal_to',
+  'distal_to',
+  'is_below',
+];
 
 // Human-readable labels for relationship types in hierarchy
 const REL_TYPE_LABELS = {
@@ -13,6 +37,21 @@ const REL_TYPE_LABELS = {
   'contains': 'inside',
   'is_inside': 'inside',
   'is_a': 'type of',
+  'categorizes': 'member',
+  'superior_to': 'inferior',
+  'inferior_to': 'inferior',
+  'anterior_to': 'posterior',
+  'posterior_to': 'posterior',
+  'medial_to': 'lateral',
+  'lateral_to': 'lateral',
+  'dorsal_to': 'ventral',
+  'ventral_to': 'ventral',
+  'rostral_to': 'caudal',
+  'caudal_to': 'caudal',
+  'proximal_to': 'distal',
+  'distal_to': 'distal',
+  'is_above': 'below',
+  'is_below': 'below',
 };
 
 /**

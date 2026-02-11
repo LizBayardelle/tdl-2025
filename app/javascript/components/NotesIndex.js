@@ -24,6 +24,9 @@ export default function NotesIndex() {
   const [filterType, setFilterType] = useState('all');
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
 
+  // View mode: 'cards' or 'list'
+  const [viewMode, setViewMode] = useState('cards');
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -229,6 +232,44 @@ export default function NotesIndex() {
             boxShadow: 'var(--shadow-sidebar)',
             flexShrink: 0
           }}>
+            {/* Add Note Button */}
+            <button
+              onClick={() => {
+                setEditingNote(null);
+                setShowFormModal(true);
+              }}
+              style={{
+                width: '100%',
+                padding: 'var(--space-3)',
+                marginBottom: 'var(--space-4)',
+                borderRadius: 'var(--radius)',
+                background: 'var(--accent-teal)',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 'var(--space-2)',
+                fontSize: 'var(--text-sm)',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 600,
+                transition: 'all 0.15s',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#4a8187';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--accent-teal)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+              }}
+            >
+              <i className="fas fa-plus"></i>
+              New Note
+            </button>
+
             {/* Search */}
             <div style={{ marginBottom: 'var(--space-4)' }}>
               <input
@@ -585,43 +626,73 @@ export default function NotesIndex() {
                   Showing {filteredNotes.length} of {notes.length} notes
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setEditingNote(null);
-                  setShowFormModal(true);
-                }}
+              {/* View Mode Toggle - hidden on mobile */}
+              <div
+                className="hidden md:flex"
+                onClick={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
                 style={{
-                  width: '48px',
-                  height: '48px',
-                  minWidth: '48px',
-                  minHeight: '48px',
-                  flexShrink: 0,
-                  borderRadius: '50%',
+                  width: '56px',
+                  height: '28px',
                   background: 'var(--accent-teal)',
-                  color: 'white',
-                  border: 'none',
+                  borderRadius: '14px',
+                  padding: '3px',
                   cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                }}
+                title={viewMode === 'cards' ? 'Switch to list view' : 'Switch to card view'}
+              >
+                {/* Sliding ball */}
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  background: 'white',
+                  borderRadius: '50%',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                  transform: viewMode === 'list' ? 'translateX(28px)' : 'translateX(0)',
+                  transition: 'transform 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 'var(--text-xl)',
-                  transition: 'all 0.15s',
-                  boxShadow: 'var(--shadow-md)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#4a8187';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-teal)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                title="New Note"
-              >
-                <i className="fas fa-plus"></i>
-              </button>
+                }}>
+                  <i
+                    className={`fas ${viewMode === 'cards' ? 'fa-th-large' : 'fa-list'}`}
+                    style={{ fontSize: '10px', color: 'var(--accent-teal)' }}
+                  ></i>
+                </div>
+                {/* Background icons */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0 8px',
+                  pointerEvents: 'none',
+                }}>
+                  <i
+                    className="fas fa-th-large"
+                    style={{
+                      fontSize: '10px',
+                      color: 'white',
+                      opacity: viewMode === 'cards' ? 0 : 0.6,
+                      transition: 'opacity 0.2s',
+                    }}
+                  ></i>
+                  <i
+                    className="fas fa-list"
+                    style={{
+                      fontSize: '10px',
+                      color: 'white',
+                      opacity: viewMode === 'list' ? 0 : 0.6,
+                      transition: 'opacity 0.2s',
+                    }}
+                  ></i>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -648,9 +719,11 @@ export default function NotesIndex() {
               </div>
             ) : (
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                gap: 'var(--space-4)'
+                display: viewMode === 'list' ? 'flex' : 'grid',
+                flexDirection: viewMode === 'list' ? 'column' : undefined,
+                gridTemplateColumns: viewMode === 'list' ? undefined : 'repeat(auto-fill, minmax(300px, 1fr))',
+                gap: 'var(--space-4)',
+                maxWidth: viewMode === 'list' ? '900px' : undefined,
               }}>
                 {filteredNotes.map(note => (
                   <div
@@ -858,6 +931,38 @@ export default function NotesIndex() {
             )}
           </div>
         </main>
+
+        {/* Mobile FAB - only show when sidebar is closed */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => {
+              setEditingNote(null);
+              setShowFormModal(true);
+            }}
+            className="md:hidden"
+            style={{
+              position: 'fixed',
+              bottom: 'var(--space-6)',
+              right: 'var(--space-6)',
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              background: 'var(--accent-teal)',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 'var(--text-xl)',
+              boxShadow: 'var(--shadow-lg)',
+              zIndex: 30,
+            }}
+            title="New Note"
+          >
+            <i className="fas fa-plus"></i>
+          </button>
+        )}
       </div>
 
       <NoteShowModal

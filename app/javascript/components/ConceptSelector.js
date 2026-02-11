@@ -221,15 +221,6 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
                   }}
                 />
                 <span style={{ fontSize: 'var(--text-sm)' }}>{concept.label}</span>
-                {concept.node_type && concept.node_type !== 'concept' && (
-                  <span style={{
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--neutral-500)',
-                    marginLeft: 'auto'
-                  }}>
-                    ({concept.node_type})
-                  </span>
-                )}
               </label>
             ))}
           </div>

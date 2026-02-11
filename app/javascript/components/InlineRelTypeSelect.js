@@ -1,5 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+// Inverse relationship pairs - maps each type to its inverse
+// When viewing from the "other" direction, show the inverse type
+export const INVERSE_PAIRS = {
+  // Hierarchical
+  'parent_of': 'child_of',
+  'child_of': 'parent_of',
+  'is_a': 'categorizes',
+  'categorizes': 'is_a',
+  // Sequential
+  'prerequisite_for': 'builds_on',
+  'builds_on': 'prerequisite_for',
+  'influenced': 'derived_from',
+  'derived_from': 'influenced',
+  // Positional (general)
+  'is_above': 'is_below',
+  'is_below': 'is_above',
+  'contains': 'is_inside',
+  'is_inside': 'contains',
+  'faces': 'faces_away_from',
+  'faces_away_from': 'faces',
+  // Positional (anatomical)
+  'superior_to': 'inferior_to',
+  'inferior_to': 'superior_to',
+  'anterior_to': 'posterior_to',
+  'posterior_to': 'anterior_to',
+  'medial_to': 'lateral_to',
+  'lateral_to': 'medial_to',
+  'dorsal_to': 'ventral_to',
+  'ventral_to': 'dorsal_to',
+  'rostral_to': 'caudal_to',
+  'caudal_to': 'rostral_to',
+  'proximal_to': 'distal_to',
+  'distal_to': 'proximal_to',
+};
+
+// Get the inverse relationship type (if one exists)
+export const getInverseRelType = (relType) => {
+  return INVERSE_PAIRS[relType] || null;
+};
+
 // Relationship types organized by category
 export const RELATIONSHIP_CATEGORIES = [
   {
@@ -8,6 +48,7 @@ export const RELATIONSHIP_CATEGORIES = [
       { value: 'parent_of', text: 'is a parent of' },
       { value: 'child_of', text: 'is a child of' },
       { value: 'is_a', text: 'is a (categorization)' },
+      { value: 'categorizes', text: 'categorizes' },
     ]
   },
   {

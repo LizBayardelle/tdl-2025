@@ -23955,15 +23955,30 @@ function SlidePanel({ isOpen, onClose, children: children2 }) {
 var import_react2 = __toESM(require_react());
 
 // app/javascript/utils/conceptHierarchy.js
-var PARENT_OUTGOING_TYPES = ["parent_of", "contains"];
-var CHILD_OUTGOING_TYPES = ["child_of", "is_inside", "is_a"];
-var REL_TYPE_LABELS = {
-  "parent_of": "child",
-  "child_of": "child",
-  "contains": "inside",
-  "is_inside": "inside",
-  "is_a": "type of"
-};
+var PARENT_OUTGOING_TYPES = [
+  "parent_of",
+  "contains",
+  "categorizes",
+  "superior_to",
+  "anterior_to",
+  "medial_to",
+  "dorsal_to",
+  "rostral_to",
+  "proximal_to",
+  "is_above"
+];
+var CHILD_OUTGOING_TYPES = [
+  "child_of",
+  "is_inside",
+  "is_a",
+  "inferior_to",
+  "posterior_to",
+  "lateral_to",
+  "ventral_to",
+  "caudal_to",
+  "distal_to",
+  "is_below"
+];
 function buildConceptHierarchy(concepts) {
   if (!concepts || concepts.length === 0) return [];
   const conceptMap = new Map(concepts.map((c5) => [c5.id, { ...c5, children: [], parentRelType: null }]));
@@ -24013,9 +24028,6 @@ function buildConceptHierarchy(concepts) {
     sortChildrenRecursively(root3);
   });
   return roots;
-}
-function getRelTypeLabel(relType) {
-  return REL_TYPE_LABELS[relType] || relType?.replace(/_/g, " ");
 }
 function sortChildrenRecursively(node) {
   if (node.children && node.children.length > 0) {
@@ -24294,13 +24306,49 @@ function ConceptSearchSelect({
 
 // app/javascript/components/InlineRelTypeSelect.js
 var import_react3 = __toESM(require_react());
+var INVERSE_PAIRS = {
+  // Hierarchical
+  "parent_of": "child_of",
+  "child_of": "parent_of",
+  "is_a": "categorizes",
+  "categorizes": "is_a",
+  // Sequential
+  "prerequisite_for": "builds_on",
+  "builds_on": "prerequisite_for",
+  "influenced": "derived_from",
+  "derived_from": "influenced",
+  // Positional (general)
+  "is_above": "is_below",
+  "is_below": "is_above",
+  "contains": "is_inside",
+  "is_inside": "contains",
+  "faces": "faces_away_from",
+  "faces_away_from": "faces",
+  // Positional (anatomical)
+  "superior_to": "inferior_to",
+  "inferior_to": "superior_to",
+  "anterior_to": "posterior_to",
+  "posterior_to": "anterior_to",
+  "medial_to": "lateral_to",
+  "lateral_to": "medial_to",
+  "dorsal_to": "ventral_to",
+  "ventral_to": "dorsal_to",
+  "rostral_to": "caudal_to",
+  "caudal_to": "rostral_to",
+  "proximal_to": "distal_to",
+  "distal_to": "proximal_to"
+};
+var getInverseRelType = (relType) => {
+  return INVERSE_PAIRS[relType] || null;
+};
 var RELATIONSHIP_CATEGORIES = [
   {
     label: "Hierarchical",
     types: [
       { value: "parent_of", text: "is a parent of" },
       { value: "child_of", text: "is a child of" },
-      { value: "is_a", text: "is a (categorization)" }
+      { value: "is_a", text: "is a (categorization)" },
+      { value: "categorizes", text: "categorizes" }
     ]
   },
   {
@@ -53398,9 +53446,9 @@ var faListUl = {
 };
 
 // app/javascript/components/ConceptFormModal.js
-function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0 }) {
+function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0, initialTab = "basics" }) {
   const [concepts, setConcepts] = (0, import_react16.useState)([]);
-  const [activeTab, setActiveTab] = (0, import_react16.useState)("basics");
+  const [activeTab, setActiveTab] = (0, import_react16.useState)(initialTab);
   const [deletedRelationshipIds, setDeletedRelationshipIds] = (0, import_react16.useState)([]);
   const [newRelationships, setNewRelationships] = (0, import_react16.useState)([]);
   const [updatedRelationships, setUpdatedRelationships] = (0, import_react16.useState)({});
@@ -53529,7 +53577,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
   }, [formData, isOpen, item?.id, performAutosave]);
   (0, import_react16.useEffect)(() => {
     if (isOpen) {
-      setActiveTab("basics");
+      setActiveTab(initialTab);
       setDeletedRelationshipIds([]);
       setNewRelationships([]);
       setUpdatedRelationships({});
@@ -53574,7 +53622,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       }
       setError("");
     }
-  }, [isOpen, item, editorTop, editorMid, editorDeep]);
+  }, [isOpen, item, initialTab, editorTop, editorMid, editorDeep]);
   const fetchConcepts = async () => {
     try {
       const response = await fetch("/concepts.json");
@@ -53922,7 +53970,35 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       "button",
       {
         type: "button",
-        onClick: () => setActiveTab("relationships"),
+        onClick: async () => {
+          if (!item?.id && formData.label.trim()) {
+            try {
+              const response = await fetch("/concepts", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ concept: formData })
+              });
+              if (response.ok) {
+                const newConcept = await response.json();
+                onSuccess(newConcept, "relationships");
+              } else {
+                const data = await response.json();
+                setError(data.errors?.join(", ") || "Failed to save concept");
+              }
+            } catch (error2) {
+              console.error("Error saving concept:", error2);
+              setError("An error occurred while saving the concept");
+            }
+          } else if (!item?.id && !formData.label.trim()) {
+            setError("Please enter a label before adding relationships");
+            setActiveTab("basics");
+          } else {
+            setActiveTab("relationships");
+          }
+        },
         className: "justify-center md:justify-start",
         style: {
           width: "100%",
@@ -54394,7 +54470,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
         onChange: (e3) => setFormData({ ...formData, new_relationship_rel_type: e3.target.value }),
         className: "form-select"
       },
-      /* @__PURE__ */ import_react16.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react16.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "child_of" }, "is a child of"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "is_a" }, "is a (categorization)")),
+      /* @__PURE__ */ import_react16.default.createElement("optgroup", { label: "Hierarchical" }, /* @__PURE__ */ import_react16.default.createElement("option", { value: "parent_of" }, "is a parent of"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "child_of" }, "is a child of"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "is_a" }, "is a (categorization)"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "categorizes" }, "categorizes")),
       /* @__PURE__ */ import_react16.default.createElement("optgroup", { label: "Sequential" }, /* @__PURE__ */ import_react16.default.createElement("option", { value: "prerequisite_for" }, "is a prerequisite for"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "builds_on" }, "builds on"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "derived_from" }, "is derived from")),
       /* @__PURE__ */ import_react16.default.createElement("optgroup", { label: "Semantic" }, /* @__PURE__ */ import_react16.default.createElement("option", { value: "related_to" }, "is related to"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "contrasts_with" }, "contrasts with"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "integrates_with" }, "integrates with"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "associated_with" }, "is associated with")),
       /* @__PURE__ */ import_react16.default.createElement("optgroup", { label: "Influence" }, /* @__PURE__ */ import_react16.default.createElement("option", { value: "influenced" }, "influenced"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "supports" }, "supports"), /* @__PURE__ */ import_react16.default.createElement("option", { value: "critiques" }, "critiques")),
@@ -55139,7 +55215,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
       console.error("Error deleting concept:", error);
     }
   };
-  const getInverseRelType = (relType) => {
+  const getInverseRelType2 = (relType) => {
     const inverses = {
       parent_of: "child_of",
       child_of: "parent_of",
@@ -55153,7 +55229,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
   const outgoingConnections = concept.outgoing_connections || [];
   const incomingConnections = concept.incoming_connections || [];
   const normalizedIncoming = incomingConnections.map((conn) => {
-    const inverseType = getInverseRelType(conn.rel_type);
+    const inverseType = getInverseRelType2(conn.rel_type);
     return {
       id: conn.id,
       rel_type: inverseType,
@@ -55172,7 +55248,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
   const allRelationships = [...normalizedOutgoing, ...normalizedIncoming];
   const uniqueRelationships = allRelationships.filter((rel, index8, self2) => {
     const firstIndex = self2.findIndex(
-      (r4) => r4.target.id === rel.target.id && (r4.rel_type === rel.rel_type || r4.rel_type === getInverseRelType(rel.rel_type))
+      (r4) => r4.target.id === rel.target.id && (r4.rel_type === rel.rel_type || r4.rel_type === getInverseRelType2(rel.rel_type))
     );
     if (firstIndex === index8) return true;
     if (firstIndex !== index8 && !rel.isConverted) return true;
@@ -55222,11 +55298,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-green)"
       },
       concept.label
-    ), depth > 0 && parentRelType && /* @__PURE__ */ import_react18.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-400)",
-      fontStyle: "italic"
-    } }, "(", getRelTypeLabel(parentRelType), ")"), /* @__PURE__ */ import_react18.default.createElement(
+    ), /* @__PURE__ */ import_react18.default.createElement(
       "button",
       {
         onClick: () => onEdit(concept),
@@ -58373,12 +58445,7 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16, themeC
         }
       }
     ),
-    /* @__PURE__ */ import_react22.default.createElement("span", { style: { fontSize: "var(--text-sm)" } }, concept.label),
-    concept.node_type && concept.node_type !== "concept" && /* @__PURE__ */ import_react22.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-500)",
-      marginLeft: "auto"
-    } }, "(", concept.node_type, ")")
+    /* @__PURE__ */ import_react22.default.createElement("span", { style: { fontSize: "var(--text-sm)" } }, concept.label)
   )))));
 }
 
@@ -61872,14 +61939,22 @@ var ConceptSidebar = import_react31.default.memo(({
   setSearchQuery,
   sortBy,
   setSortBy,
-  onConceptClick
+  showRelationships,
+  setShowRelationships,
+  onConceptClick,
+  onCreateConcept
 }) => {
-  const filteredConcepts = (0, import_react31.useMemo)(() => {
-    return allConcepts.filter((c5) => {
+  const displayConcepts = (0, import_react31.useMemo)(() => {
+    let filtered = allConcepts.filter((c5) => {
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return c5.label?.toLowerCase().includes(query) || c5.node_type?.toLowerCase().includes(query);
-    }).sort((a5, b2) => {
+    });
+    if (showRelationships && !searchQuery) {
+      const hierarchy = buildConceptHierarchy(filtered);
+      return flattenHierarchy(hierarchy);
+    }
+    const sorted = [...filtered].sort((a5, b2) => {
       if (sortBy === "alphabetical") {
         return (a5.label || "").localeCompare(b2.label || "");
       } else if (sortBy === "type") {
@@ -61888,7 +61963,8 @@ var ConceptSidebar = import_react31.default.memo(({
         return new Date(b2.updated_at) - new Date(a5.updated_at);
       }
     });
-  }, [allConcepts, searchQuery, sortBy]);
+    return sorted.map((c5) => ({ concept: c5, depth: 0 }));
+  }, [allConcepts, searchQuery, sortBy, showRelationships]);
   return /* @__PURE__ */ import_react31.default.createElement(
     "aside",
     {
@@ -61904,6 +61980,34 @@ var ConceptSidebar = import_react31.default.memo(({
       }
     },
     sidebarOpen && /* @__PURE__ */ import_react31.default.createElement("div", { style: { width: "280px", padding: "var(--space-4)" } }, /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        onClick: onCreateConcept,
+        style: {
+          width: "100%",
+          padding: "var(--space-2) var(--space-3)",
+          marginBottom: "var(--space-3)",
+          background: "var(--accent-green)",
+          color: "white",
+          border: "1px solid var(--accent-green)",
+          borderRadius: "var(--radius)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          fontWeight: 600,
+          cursor: "pointer",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--accent-green-light)";
+          e3.currentTarget.style.color = "var(--accent-green)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "var(--accent-green)";
+          e3.currentTarget.style.color = "white";
+        }
+      },
+      "+ New Concept"
+    ), /* @__PURE__ */ import_react31.default.createElement(
       "input",
       {
         type: "text",
@@ -61924,16 +62028,21 @@ var ConceptSidebar = import_react31.default.memo(({
           e3.currentTarget.style.borderColor = "var(--neutral-300)";
         }
       }
-    ), /* @__PURE__ */ import_react31.default.createElement(
+    ), /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      marginBottom: "var(--space-4)"
+    } }, /* @__PURE__ */ import_react31.default.createElement(
       "select",
       {
         value: sortBy,
         onChange: (e3) => setSortBy(e3.target.value),
         className: "form-select",
         style: {
-          width: "100%",
-          marginBottom: "var(--space-4)",
-          fontSize: "var(--text-xs)"
+          flex: 1,
+          fontSize: "var(--text-xs)",
+          padding: "var(--space-1) var(--space-2)"
         },
         onFocus: (e3) => {
           e3.currentTarget.style.borderColor = "var(--accent-green)";
@@ -61943,10 +62052,50 @@ var ConceptSidebar = import_react31.default.memo(({
           e3.currentTarget.style.borderColor = "var(--neutral-300)";
         }
       },
-      /* @__PURE__ */ import_react31.default.createElement("option", { value: "recent" }, "Recently Updated"),
-      /* @__PURE__ */ import_react31.default.createElement("option", { value: "alphabetical" }, "Alphabetical"),
-      /* @__PURE__ */ import_react31.default.createElement("option", { value: "type" }, "By Type")
-    ), /* @__PURE__ */ import_react31.default.createElement("div", { style: {
+      /* @__PURE__ */ import_react31.default.createElement("option", { value: "recent" }, "Recent"),
+      /* @__PURE__ */ import_react31.default.createElement("option", { value: "alphabetical" }, "A-Z"),
+      /* @__PURE__ */ import_react31.default.createElement("option", { value: "type" }, "Type")
+    ), /* @__PURE__ */ import_react31.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setShowRelationships(!showRelationships),
+        title: showRelationships ? "Hide hierarchy" : "Show hierarchy",
+        style: {
+          position: "relative",
+          width: "36px",
+          height: "20px",
+          borderRadius: "10px",
+          border: "none",
+          cursor: "pointer",
+          background: showRelationships ? "var(--accent-green)" : "var(--neutral-300)",
+          transition: "background 0.2s ease",
+          flexShrink: 0
+        }
+      },
+      /* @__PURE__ */ import_react31.default.createElement("span", { style: {
+        position: "absolute",
+        top: "2px",
+        left: showRelationships ? "18px" : "2px",
+        width: "16px",
+        height: "16px",
+        borderRadius: "50%",
+        background: "white",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+        transition: "left 0.2s ease"
+      } })
+    ), /* @__PURE__ */ import_react31.default.createElement(
+      "i",
+      {
+        className: "fas fa-sitemap",
+        style: {
+          fontSize: "12px",
+          color: showRelationships ? "var(--accent-green)" : "var(--neutral-400)",
+          transition: "color 0.2s ease"
+        },
+        title: "Hierarchy view"
+      }
+    )), /* @__PURE__ */ import_react31.default.createElement("div", { style: {
       fontSize: "var(--text-xs)",
       fontWeight: 700,
       textTransform: "uppercase",
@@ -61954,13 +62103,14 @@ var ConceptSidebar = import_react31.default.memo(({
       color: "var(--neutral-500)",
       marginBottom: "var(--space-2)",
       fontFamily: "var(--font-body)"
-    } }, "All Concepts (", filteredConcepts.length, ")"), conceptsLoading ? /* @__PURE__ */ import_react31.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "Loading...") : /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, filteredConcepts.map((c5) => /* @__PURE__ */ import_react31.default.createElement(
+    } }, "All Concepts (", displayConcepts.length, ")"), conceptsLoading ? /* @__PURE__ */ import_react31.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "Loading...") : /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, displayConcepts.map(({ concept: c5, depth }) => /* @__PURE__ */ import_react31.default.createElement(
       "button",
       {
         key: c5.id,
         onClick: () => onConceptClick(c5.slug || c5.id, c5.id),
         style: {
           padding: "var(--space-2)",
+          paddingLeft: `calc(var(--space-2) + ${depth * 12}px)`,
           borderRadius: "4px",
           textDecoration: "none",
           fontSize: "var(--text-sm)",
@@ -61970,7 +62120,8 @@ var ConceptSidebar = import_react31.default.memo(({
           background: c5.id === parseInt(currentConceptId) ? "var(--accent-green-light)" : "transparent",
           fontWeight: c5.id === parseInt(currentConceptId) ? 600 : 400,
           transition: "all 0.15s",
-          display: "block",
+          display: "flex",
+          alignItems: "center",
           width: "100%",
           textAlign: "left",
           border: "none",
@@ -61987,6 +62138,11 @@ var ConceptSidebar = import_react31.default.memo(({
           }
         }
       },
+      depth > 0 && showRelationships && /* @__PURE__ */ import_react31.default.createElement("span", { style: {
+        color: "var(--neutral-400)",
+        marginRight: "4px",
+        fontSize: "var(--text-xs)"
+      } }, "\u2514"),
       c5.label
     ))))
   );
@@ -62002,6 +62158,9 @@ function ConceptShow({ conceptId }) {
   const [sidebarOpen, setSidebarOpen] = (0, import_react31.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
   const [searchQuery, setSearchQuery] = (0, import_react31.useState)("");
   const [sortBy, setSortBy] = (0, import_react31.useState)("recent");
+  const [showRelationships, setShowRelationships] = (0, import_react31.useState)(true);
+  const [creatingConcept, setCreatingConcept] = (0, import_react31.useState)(false);
+  const [editInitialTab, setEditInitialTab] = (0, import_react31.useState)("basics");
   (0, import_react31.useEffect)(() => {
     fetchAllConcepts();
   }, []);
@@ -62035,6 +62194,25 @@ function ConceptShow({ conceptId }) {
     }
   };
   return /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", height: "100vh", overflow: "hidden" } }, /* @__PURE__ */ import_react31.default.createElement(
+    ConceptFormModal,
+    {
+      isOpen: creatingConcept,
+      onClose: () => setCreatingConcept(false),
+      item: null,
+      onSuccess: (newConcept, initialTab) => {
+        fetchAllConcepts();
+        setCreatingConcept(false);
+        if (newConcept?.id) {
+          handleConceptClick(newConcept.slug || newConcept.id, newConcept.id);
+          if (initialTab === "relationships") {
+            setEditInitialTab("relationships");
+            setConceptStack([newConcept]);
+            setEditing(true);
+          }
+        }
+      }
+    }
+  ), /* @__PURE__ */ import_react31.default.createElement(
     ConceptSidebar,
     {
       sidebarOpen,
@@ -62045,7 +62223,10 @@ function ConceptShow({ conceptId }) {
       setSearchQuery,
       sortBy,
       setSortBy,
-      onConceptClick: handleConceptClick
+      showRelationships,
+      setShowRelationships,
+      onConceptClick: handleConceptClick,
+      onCreateConcept: () => setCreatingConcept(true)
     }
   ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
@@ -62102,6 +62283,7 @@ function ConceptShow({ conceptId }) {
     "button",
     {
       onClick: () => {
+        setEditInitialTab("basics");
         setConceptStack([concept]);
         setEditing(true);
       },
@@ -62147,10 +62329,12 @@ function ConceptShow({ conceptId }) {
         } else {
           setEditing(false);
           setConceptStack([]);
+          setEditInitialTab("basics");
         }
       },
       item: conceptStack[conceptStack.length - 1] || concept,
       stackDepth: conceptStack.length - 1,
+      initialTab: editInitialTab,
       onSuccess: (updatedConcept) => {
         const editingItem = conceptStack[conceptStack.length - 1];
         if (!editingItem || editingItem.id === concept.id) {
@@ -62161,6 +62345,7 @@ function ConceptShow({ conceptId }) {
         } else {
           setEditing(false);
           setConceptStack([]);
+          setEditInitialTab("basics");
         }
         fetchAllConcepts();
         fetchConcept();
@@ -62333,23 +62518,14 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
       console.error("Error deleting connection:", error);
     }
   };
-  const relTypeLabels = {
-    parent_of: "Parent of",
-    child_of: "Child of",
-    is_a: "Is a",
-    prerequisite_for: "Prerequisite for",
-    builds_on: "Builds on",
-    derived_from: "Derived from",
-    related_to: "Related to",
-    contrasts_with: "Contrasts with",
-    integrates_with: "Integrates with",
-    associated_with: "Associated with",
-    influenced: "Influenced",
-    supports: "Supports",
-    critiques: "Critiques",
-    authored: "Authored",
-    applies_to: "Applies to",
-    treats: "Treats"
+  const getEffectiveRelType = (connection) => {
+    const isSource = connection.src_concept.id === parseInt(conceptId);
+    const rawType = connection.rel_type;
+    if (isSource) {
+      return rawType;
+    } else {
+      return getInverseRelType(rawType) || rawType;
+    }
   };
   return /* @__PURE__ */ import_react31.default.createElement(import_react31.default.Fragment, null, /* @__PURE__ */ import_react31.default.createElement(
     ConnectionFormModal,
@@ -62397,11 +62573,12 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
   )), loading ? /* @__PURE__ */ import_react31.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "Loading relationships...") : connections.length === 0 ? /* @__PURE__ */ import_react31.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)", fontFamily: "var(--font-body)" } }, "No relationships yet.") : /* @__PURE__ */ import_react31.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-5)" } }, (() => {
     const grouped = {};
     connections.forEach((connection) => {
-      const relType = connection.relationship_label || relTypeLabels[connection.rel_type] || connection.rel_type;
-      if (!grouped[relType]) {
-        grouped[relType] = { label: relType, rawType: connection.rel_type, items: [] };
+      const effectiveType = getEffectiveRelType(connection);
+      const displayLabel = connection.relationship_label || getRelTypeText(effectiveType);
+      if (!grouped[effectiveType]) {
+        grouped[effectiveType] = { label: displayLabel, rawType: effectiveType, items: [] };
       }
-      grouped[relType].items.push(connection);
+      grouped[effectiveType].items.push(connection);
     });
     return Object.values(grouped).map((group) => /* @__PURE__ */ import_react31.default.createElement("div", { key: group.label }, /* @__PURE__ */ import_react31.default.createElement("div", { style: {
       display: "inline-block",
@@ -66753,6 +66930,7 @@ function NotesIndex() {
   const [selectedTags, setSelectedTags] = (0, import_react39.useState)([]);
   const [filterType, setFilterType] = (0, import_react39.useState)("all");
   const [showPinnedOnly, setShowPinnedOnly] = (0, import_react39.useState)(false);
+  const [viewMode, setViewMode] = (0, import_react39.useState)("cards");
   (0, import_react39.useEffect)(() => {
     fetchData2();
   }, []);
@@ -66917,7 +67095,44 @@ function NotesIndex() {
     padding: "var(--space-4)",
     boxShadow: "var(--shadow-sidebar)",
     flexShrink: 0
-  } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react39.default.createElement(
+  } }, /* @__PURE__ */ import_react39.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setEditingNote(null);
+        setShowFormModal(true);
+      },
+      style: {
+        width: "100%",
+        padding: "var(--space-3)",
+        marginBottom: "var(--space-4)",
+        borderRadius: "var(--radius)",
+        background: "var(--accent-teal)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "var(--space-2)",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)",
+        fontWeight: 600,
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "#4a8187";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-teal)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      }
+    },
+    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" }),
+    "New Note"
+  ), /* @__PURE__ */ import_react39.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react39.default.createElement(
     "input",
     {
       type: "text",
@@ -67229,43 +67444,74 @@ function NotesIndex() {
     fontFamily: "var(--font-body)",
     margin: 0
   } }, "Showing ", filteredNotes.length, " of ", notes.length, " notes")), /* @__PURE__ */ import_react39.default.createElement(
-    "button",
+    "div",
     {
-      onClick: () => {
-        setEditingNote(null);
-        setShowFormModal(true);
-      },
+      className: "hidden md:flex",
+      onClick: () => setViewMode(viewMode === "cards" ? "list" : "cards"),
       style: {
-        width: "48px",
-        height: "48px",
-        minWidth: "48px",
-        minHeight: "48px",
-        flexShrink: 0,
-        borderRadius: "50%",
+        width: "56px",
+        height: "28px",
         background: "var(--accent-teal)",
-        color: "white",
-        border: "none",
+        borderRadius: "14px",
+        padding: "3px",
         cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "var(--text-xl)",
-        transition: "all 0.15s",
-        boxShadow: "var(--shadow-md)"
+        position: "relative",
+        transition: "background 0.2s"
       },
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.background = "#4a8187";
-        e3.currentTarget.style.transform = "translateY(-2px)";
-        e3.currentTarget.style.boxShadow = "var(--shadow-lg)";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-teal)";
-        e3.currentTarget.style.transform = "translateY(0)";
-        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
-      },
-      title: "New Note"
+      title: viewMode === "cards" ? "Switch to list view" : "Switch to card view"
     },
-    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" })
+    /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+      width: "22px",
+      height: "22px",
+      background: "white",
+      borderRadius: "50%",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+      transform: viewMode === "list" ? "translateX(28px)" : "translateX(0)",
+      transition: "transform 0.2s ease",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    } }, /* @__PURE__ */ import_react39.default.createElement(
+      "i",
+      {
+        className: `fas ${viewMode === "cards" ? "fa-th-large" : "fa-list"}`,
+        style: { fontSize: "10px", color: "var(--accent-teal)" }
+      }
+    )),
+    /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "0 8px",
+      pointerEvents: "none"
+    } }, /* @__PURE__ */ import_react39.default.createElement(
+      "i",
+      {
+        className: "fas fa-th-large",
+        style: {
+          fontSize: "10px",
+          color: "white",
+          opacity: viewMode === "cards" ? 0 : 0.6,
+          transition: "opacity 0.2s"
+        }
+      }
+    ), /* @__PURE__ */ import_react39.default.createElement(
+      "i",
+      {
+        className: "fas fa-list",
+        style: {
+          fontSize: "10px",
+          color: "white",
+          opacity: viewMode === "list" ? 0 : 0.6,
+          transition: "opacity 0.2s"
+        }
+      }
+    ))
   ))), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     flex: 1,
     overflowY: "auto",
@@ -67280,9 +67526,11 @@ function NotesIndex() {
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)"
   } }, hasActiveFilters ? "No notes match your filters" : "No notes yet")) : /* @__PURE__ */ import_react39.default.createElement("div", { style: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-    gap: "var(--space-4)"
+    display: viewMode === "list" ? "flex" : "grid",
+    flexDirection: viewMode === "list" ? "column" : void 0,
+    gridTemplateColumns: viewMode === "list" ? void 0 : "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "var(--space-4)",
+    maxWidth: viewMode === "list" ? "900px" : void 0
   } }, filteredNotes.map((note) => /* @__PURE__ */ import_react39.default.createElement(
     "div",
     {
@@ -67476,7 +67724,36 @@ function NotesIndex() {
       },
       /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-trash" })
     )))
-  )))))), /* @__PURE__ */ import_react39.default.createElement(
+  ))))), !sidebarOpen && /* @__PURE__ */ import_react39.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setEditingNote(null);
+        setShowFormModal(true);
+      },
+      className: "md:hidden",
+      style: {
+        position: "fixed",
+        bottom: "var(--space-6)",
+        right: "var(--space-6)",
+        width: "56px",
+        height: "56px",
+        borderRadius: "50%",
+        background: "var(--accent-teal)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-xl)",
+        boxShadow: "var(--shadow-lg)",
+        zIndex: 30
+      },
+      title: "New Note"
+    },
+    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" })
+  )), /* @__PURE__ */ import_react39.default.createElement(
     NoteShowModal,
     {
       isOpen: showViewModal,

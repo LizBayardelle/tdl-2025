@@ -4,6 +4,8 @@ import ConnectionFormModal from './ConnectionFormModal';
 import NoteFormModal from './NoteFormModal';
 import PersonFormModal from './PersonFormModal';
 import SourceFormModal from './SourceFormModal';
+import { buildConceptHierarchy, flattenHierarchy, getIndentPrefix } from '../utils/conceptHierarchy';
+import { getInverseRelType, getRelTypeText } from './InlineRelTypeSelect';
 
 // Memoized Sidebar component to prevent re-renders
 const ConceptSidebar = React.memo(({
@@ -15,26 +17,41 @@ const ConceptSidebar = React.memo(({
   setSearchQuery,
   sortBy,
   setSortBy,
-  onConceptClick
+  showRelationships,
+  setShowRelationships,
+  onConceptClick,
+  onCreateConcept
 }) => {
-  const filteredConcepts = useMemo(() => {
-    return allConcepts
-      .filter(c => {
-        if (!searchQuery) return true;
-        const query = searchQuery.toLowerCase();
-        return c.label?.toLowerCase().includes(query) ||
-               c.node_type?.toLowerCase().includes(query);
-      })
-      .sort((a, b) => {
-        if (sortBy === 'alphabetical') {
-          return (a.label || '').localeCompare(b.label || '');
-        } else if (sortBy === 'type') {
-          return (a.node_type || '').localeCompare(b.node_type || '');
-        } else {
-          return new Date(b.updated_at) - new Date(a.updated_at);
-        }
-      });
-  }, [allConcepts, searchQuery, sortBy]);
+  // Process concepts based on showRelationships toggle
+  const displayConcepts = useMemo(() => {
+    // First filter by search query
+    let filtered = allConcepts.filter(c => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return c.label?.toLowerCase().includes(query) ||
+             c.node_type?.toLowerCase().includes(query);
+    });
+
+    // If showing relationships, build hierarchy
+    if (showRelationships && !searchQuery) {
+      const hierarchy = buildConceptHierarchy(filtered);
+      return flattenHierarchy(hierarchy);
+    }
+
+    // Otherwise return flat list with sorting
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === 'alphabetical') {
+        return (a.label || '').localeCompare(b.label || '');
+      } else if (sortBy === 'type') {
+        return (a.node_type || '').localeCompare(b.node_type || '');
+      } else {
+        return new Date(b.updated_at) - new Date(a.updated_at);
+      }
+    });
+
+    // Return in same format as hierarchy (with depth 0)
+    return sorted.map(c => ({ concept: c, depth: 0 }));
+  }, [allConcepts, searchQuery, sortBy, showRelationships]);
 
   return (
     <aside
@@ -51,6 +68,33 @@ const ConceptSidebar = React.memo(({
     >
       {sidebarOpen && (
         <div style={{ width: '280px', padding: 'var(--space-4)' }}>
+          <button
+            onClick={onCreateConcept}
+            style={{
+              width: '100%',
+              padding: 'var(--space-2) var(--space-3)',
+              marginBottom: 'var(--space-3)',
+              background: 'var(--accent-green)',
+              color: 'white',
+              border: '1px solid var(--accent-green)',
+              borderRadius: 'var(--radius)',
+              fontSize: 'var(--text-sm)',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green-light)';
+              e.currentTarget.style.color = 'var(--accent-green)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--accent-green)';
+              e.currentTarget.style.color = 'white';
+            }}
+          >
+            + New Concept
+          </button>
           <input
             type="text"
             value={searchQuery}
@@ -71,27 +115,74 @@ const ConceptSidebar = React.memo(({
             }}
           />
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="form-select"
-            style={{
-              width: '100%',
-              marginBottom: 'var(--space-4)',
-              fontSize: 'var(--text-xs)'
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.borderColor = 'var(--accent-green)';
-              e.currentTarget.style.outline = 'none';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.borderColor = 'var(--neutral-300)';
-            }}
-          >
-            <option value="recent">Recently Updated</option>
-            <option value="alphabetical">Alphabetical</option>
-            <option value="type">By Type</option>
-          </select>
+          {/* Sort dropdown and relationships toggle on same line */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            marginBottom: 'var(--space-4)',
+          }}>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="form-select"
+              style={{
+                flex: 1,
+                fontSize: 'var(--text-xs)',
+                padding: 'var(--space-1) var(--space-2)',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = 'var(--accent-green)';
+                e.currentTarget.style.outline = 'none';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'var(--neutral-300)';
+              }}
+            >
+              <option value="recent">Recent</option>
+              <option value="alphabetical">A-Z</option>
+              <option value="type">Type</option>
+            </select>
+
+            {/* iOS-style toggle */}
+            <button
+              type="button"
+              onClick={() => setShowRelationships(!showRelationships)}
+              title={showRelationships ? 'Hide hierarchy' : 'Show hierarchy'}
+              style={{
+                position: 'relative',
+                width: '36px',
+                height: '20px',
+                borderRadius: '10px',
+                border: 'none',
+                cursor: 'pointer',
+                background: showRelationships ? 'var(--accent-green)' : 'var(--neutral-300)',
+                transition: 'background 0.2s ease',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute',
+                top: '2px',
+                left: showRelationships ? '18px' : '2px',
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: 'white',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                transition: 'left 0.2s ease',
+              }} />
+            </button>
+            <i
+              className="fas fa-sitemap"
+              style={{
+                fontSize: '12px',
+                color: showRelationships ? 'var(--accent-green)' : 'var(--neutral-400)',
+                transition: 'color 0.2s ease',
+              }}
+              title="Hierarchy view"
+            />
+          </div>
 
           <div style={{
             fontSize: 'var(--text-xs)',
@@ -102,7 +193,7 @@ const ConceptSidebar = React.memo(({
             marginBottom: 'var(--space-2)',
             fontFamily: 'var(--font-body)'
           }}>
-            All Concepts ({filteredConcepts.length})
+            All Concepts ({displayConcepts.length})
           </div>
 
           {conceptsLoading ? (
@@ -111,12 +202,13 @@ const ConceptSidebar = React.memo(({
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-              {filteredConcepts.map(c => (
+              {displayConcepts.map(({ concept: c, depth }) => (
                 <button
                   key={c.id}
                   onClick={() => onConceptClick(c.slug || c.id, c.id)}
                   style={{
                     padding: 'var(--space-2)',
+                    paddingLeft: `calc(var(--space-2) + ${depth * 12}px)`,
                     borderRadius: '4px',
                     textDecoration: 'none',
                     fontSize: 'var(--text-sm)',
@@ -126,7 +218,8 @@ const ConceptSidebar = React.memo(({
                     background: c.id === parseInt(currentConceptId) ? 'var(--accent-green-light)' : 'transparent',
                     fontWeight: c.id === parseInt(currentConceptId) ? 600 : 400,
                     transition: 'all 0.15s',
-                    display: 'block',
+                    display: 'flex',
+                    alignItems: 'center',
                     width: '100%',
                     textAlign: 'left',
                     border: 'none',
@@ -143,6 +236,13 @@ const ConceptSidebar = React.memo(({
                     }
                   }}
                 >
+                  {depth > 0 && showRelationships && (
+                    <span style={{
+                      color: 'var(--neutral-400)',
+                      marginRight: '4px',
+                      fontSize: 'var(--text-xs)',
+                    }}>└</span>
+                  )}
                   {c.label}
                 </button>
               ))}
@@ -165,6 +265,9 @@ export default function ConceptShow({ conceptId }) {
   const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('recent');
+  const [showRelationships, setShowRelationships] = useState(true);
+  const [creatingConcept, setCreatingConcept] = useState(false);
+  const [editInitialTab, setEditInitialTab] = useState('basics');
 
   useEffect(() => {
     fetchAllConcepts();
@@ -206,6 +309,27 @@ export default function ConceptShow({ conceptId }) {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* New Concept Modal */}
+      <ConceptFormModal
+        isOpen={creatingConcept}
+        onClose={() => setCreatingConcept(false)}
+        item={null}
+        onSuccess={(newConcept, initialTab) => {
+          fetchAllConcepts();
+          setCreatingConcept(false);
+          // Navigate to the new concept
+          if (newConcept?.id) {
+            handleConceptClick(newConcept.slug || newConcept.id, newConcept.id);
+            // If initialTab is specified, open the edit modal on that tab
+            if (initialTab === 'relationships') {
+              setEditInitialTab('relationships');
+              setConceptStack([newConcept]);
+              setEditing(true);
+            }
+          }
+        }}
+      />
+
       {/* Left Sidebar - Concepts List */}
       <ConceptSidebar
         sidebarOpen={sidebarOpen}
@@ -216,7 +340,10 @@ export default function ConceptShow({ conceptId }) {
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        showRelationships={showRelationships}
+        setShowRelationships={setShowRelationships}
         onConceptClick={handleConceptClick}
+        onCreateConcept={() => setCreatingConcept(true)}
       />
 
       {/* Toggle Button */}
@@ -284,6 +411,7 @@ export default function ConceptShow({ conceptId }) {
                 </a>
                 <button
                   onClick={() => {
+                    setEditInitialTab('basics');
                     setConceptStack([concept]);
                     setEditing(true);
                   }}
@@ -333,10 +461,12 @@ export default function ConceptShow({ conceptId }) {
                 } else {
                   setEditing(false);
                   setConceptStack([]);
+                  setEditInitialTab('basics'); // Reset for next time
                 }
               }}
               item={conceptStack[conceptStack.length - 1] || concept}
               stackDepth={conceptStack.length - 1}
+              initialTab={editInitialTab}
               onSuccess={(updatedConcept) => {
                 // If we were editing the current concept, update it
                 const editingItem = conceptStack[conceptStack.length - 1];
@@ -349,6 +479,7 @@ export default function ConceptShow({ conceptId }) {
                 } else {
                   setEditing(false);
                   setConceptStack([]);
+                  setEditInitialTab('basics'); // Reset for next time
                 }
                 fetchAllConcepts(); // Refresh sidebar
                 fetchConcept(); // Refresh current concept in case relationships changed
@@ -661,23 +792,18 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
     }
   };
 
-  const relTypeLabels = {
-    parent_of: 'Parent of',
-    child_of: 'Child of',
-    is_a: 'Is a',
-    prerequisite_for: 'Prerequisite for',
-    builds_on: 'Builds on',
-    derived_from: 'Derived from',
-    related_to: 'Related to',
-    contrasts_with: 'Contrasts with',
-    integrates_with: 'Integrates with',
-    associated_with: 'Associated with',
-    influenced: 'Influenced',
-    supports: 'Supports',
-    critiques: 'Critiques',
-    authored: 'Authored',
-    applies_to: 'Applies to',
-    treats: 'Treats'
+  // Helper to get the effective relationship type based on direction
+  const getEffectiveRelType = (connection) => {
+    const isSource = connection.src_concept.id === parseInt(conceptId);
+    const rawType = connection.rel_type;
+
+    // If this concept is the source, use the stored rel_type
+    // If this concept is the destination, use the inverse (if one exists)
+    if (isSource) {
+      return rawType;
+    } else {
+      return getInverseRelType(rawType) || rawType;
+    }
   };
 
   return (
@@ -742,14 +868,15 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
             {(() => {
-              // Group connections by their effective rel_type
+              // Group connections by their effective rel_type (considering direction)
               const grouped = {};
               connections.forEach(connection => {
-                const relType = connection.relationship_label || relTypeLabels[connection.rel_type] || connection.rel_type;
-                if (!grouped[relType]) {
-                  grouped[relType] = { label: relType, rawType: connection.rel_type, items: [] };
+                const effectiveType = getEffectiveRelType(connection);
+                const displayLabel = connection.relationship_label || getRelTypeText(effectiveType);
+                if (!grouped[effectiveType]) {
+                  grouped[effectiveType] = { label: displayLabel, rawType: effectiveType, items: [] };
                 }
-                grouped[relType].items.push(connection);
+                grouped[effectiveType].items.push(connection);
               });
 
               return Object.values(grouped).map(group => (

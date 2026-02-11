@@ -18,9 +18,9 @@ import {
   faListUl, faListOl, faLink, faUnlink, faQuoteLeft
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0 }) {
+export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0, initialTab = 'basics' }) {
   const [concepts, setConcepts] = useState([]);
-  const [activeTab, setActiveTab] = useState('basics');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
   const [newRelationships, setNewRelationships] = useState([]);
   const [updatedRelationships, setUpdatedRelationships] = useState({}); // { id: newRelType }
@@ -179,7 +179,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab('basics');
+      setActiveTab(initialTab);
       setDeletedRelationshipIds([]);
       setNewRelationships([]);
       setUpdatedRelationships({});
@@ -226,7 +226,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
       }
       setError('');
     }
-  }, [isOpen, item, editorTop, editorMid, editorDeep]);
+  }, [isOpen, item, initialTab, editorTop, editorMid, editorDeep]);
 
   const fetchConcepts = async () => {
     try {
@@ -669,7 +669,40 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
 
             <button
               type="button"
-              onClick={() => setActiveTab('relationships')}
+              onClick={async () => {
+                // If creating new concept and has a label, save first then switch to relationships
+                if (!item?.id && formData.label.trim()) {
+                  try {
+                    const response = await fetch('/concepts', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+                      },
+                      body: JSON.stringify({ concept: formData }),
+                    });
+
+                    if (response.ok) {
+                      const newConcept = await response.json();
+                      // Call onSuccess which should reopen in edit mode
+                      // Pass a flag to indicate we want to go to relationships tab
+                      onSuccess(newConcept, 'relationships');
+                    } else {
+                      const data = await response.json();
+                      setError(data.errors?.join(', ') || 'Failed to save concept');
+                    }
+                  } catch (error) {
+                    console.error('Error saving concept:', error);
+                    setError('An error occurred while saving the concept');
+                  }
+                } else if (!item?.id && !formData.label.trim()) {
+                  // No label yet, show a message
+                  setError('Please enter a label before adding relationships');
+                  setActiveTab('basics');
+                } else {
+                  setActiveTab('relationships');
+                }
+              }}
               className="justify-center md:justify-start"
               style={{
                 width: '100%',
@@ -1128,6 +1161,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                       <option value="parent_of">is a parent of</option>
                       <option value="child_of">is a child of</option>
                       <option value="is_a">is a (categorization)</option>
+                      <option value="categorizes">categorizes</option>
                     </optgroup>
                     <optgroup label="Sequential">
                       <option value="prerequisite_for">is a prerequisite for</option>

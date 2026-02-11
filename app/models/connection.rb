@@ -7,7 +7,7 @@ class Connection < ApplicationRecord
 
   # Enums for relationship types
   # Core relationship types for visualization
-  HIERARCHICAL_TYPES = ['parent_of', 'child_of', 'is_a'].freeze
+  HIERARCHICAL_TYPES = ['parent_of', 'child_of', 'is_a', 'categorizes'].freeze
   SEMANTIC_TYPES = ['related_to', 'contrasts_with', 'integrates_with', 'associated_with'].freeze
   SEQUENTIAL_TYPES = ['prerequisite_for', 'builds_on', 'derived_from'].freeze
   INFLUENCE_TYPES = ['influenced', 'supports', 'critiques'].freeze
@@ -25,6 +25,8 @@ class Connection < ApplicationRecord
   INVERSE_PAIRS = {
     'parent_of' => 'child_of',      # Canonical: parent_of
     'child_of' => 'parent_of',      # Will be converted to parent_of
+    'is_a' => 'categorizes',        # Canonical: is_a
+    'categorizes' => 'is_a',        # Will be converted to is_a
     'prerequisite_for' => 'builds_on',  # Canonical: prerequisite_for
     'builds_on' => 'prerequisite_for',  # Will be converted to prerequisite_for
     'influenced' => 'derived_from',     # Canonical: influenced
@@ -53,7 +55,7 @@ class Connection < ApplicationRecord
     'parent_of', 'prerequisite_for', 'influenced',
     'is_above', 'contains', 'faces',
     'superior_to', 'anterior_to', 'medial_to', 'dorsal_to',
-    'rostral_to', 'proximal_to'
+    'rostral_to', 'proximal_to', 'is_a'
   ].freeze
 
   enum :rel_type, {
@@ -61,6 +63,7 @@ class Connection < ApplicationRecord
     parent_of: "parent_of",
     child_of: "child_of",
     is_a: "is_a",
+    categorizes: "categorizes",
 
     # Sequential (learning path)
     prerequisite_for: "prerequisite_for",
