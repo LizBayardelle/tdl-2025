@@ -114,7 +114,7 @@ class Connection < ApplicationRecord
   validates :dst_concept_id, presence: true
   validates :rel_type, presence: true
   validates :user_id, presence: true
-  validates :src_concept_id, uniqueness: { scope: :dst_concept_id }
+  validates :src_concept_id, uniqueness: { scope: [:dst_concept_id, :rel_type], message: "already has this type of relationship with the destination concept" }
   validate :cannot_link_to_self
 
   # Scopes

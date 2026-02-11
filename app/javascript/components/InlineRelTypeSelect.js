@@ -191,7 +191,7 @@ export default function InlineRelTypeSelect({ value, onChange, disabled = false,
               left: 0,
               right: 0,
               bottom: 0,
-              zIndex: 9998,
+              zIndex: 10001,
             }}
             onClick={() => setIsOpen(false)}
           />
@@ -207,7 +207,7 @@ export default function InlineRelTypeSelect({ value, onChange, disabled = false,
             border: '1px solid var(--neutral-300)',
             borderRadius: 'var(--radius)',
             boxShadow: 'var(--shadow-lg)',
-            zIndex: 9999,
+            zIndex: 10002,
           }}>
             {RELATIONSHIP_CATEGORIES.map(cat => (
               <div key={cat.label}>

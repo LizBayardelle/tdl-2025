@@ -24063,11 +24063,25 @@ function ConceptSearchSelect({
     return flattenHierarchy(hierarchy);
   }, [concepts, excludeId]);
   const filteredConcepts = (0, import_react2.useMemo)(() => {
-    if (!query.trim()) return flatConcepts;
+    if (!query.trim()) return flatConcepts.slice(0, 15);
     const lower2 = query.toLowerCase();
-    return flatConcepts.filter(
-      ({ concept }) => concept.label.toLowerCase().includes(lower2) || concept.node_type && concept.node_type.toLowerCase().includes(lower2)
+    const matches2 = flatConcepts.filter(
+      ({ concept }) => concept.label.toLowerCase().includes(lower2)
     );
+    matches2.sort((a5, b2) => {
+      const aLabel = a5.concept.label.toLowerCase();
+      const bLabel = b2.concept.label.toLowerCase();
+      const aExact = aLabel === lower2;
+      const bExact = bLabel === lower2;
+      if (aExact && !bExact) return -1;
+      if (bExact && !aExact) return 1;
+      const aStarts = aLabel.startsWith(lower2);
+      const bStarts = bLabel.startsWith(lower2);
+      if (aStarts && !bStarts) return -1;
+      if (bStarts && !aStarts) return 1;
+      return aLabel.localeCompare(bLabel);
+    });
+    return matches2.slice(0, 15);
   }, [flatConcepts, query]);
   const canCreate = query.trim() && !concepts?.some((c5) => c5.label.toLowerCase() === query.trim().toLowerCase());
   const selectedConcept = concepts?.find((c5) => c5.id === parseInt(value));
@@ -24447,7 +24461,7 @@ function InlineRelTypeSelect({ value, onChange: onChange16, disabled: disabled2 
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9998
+        zIndex: 10001
       },
       onClick: () => setIsOpen(false)
     }
@@ -24462,7 +24476,7 @@ function InlineRelTypeSelect({ value, onChange: onChange16, disabled: disabled2 
     border: "1px solid var(--neutral-300)",
     borderRadius: "var(--radius)",
     boxShadow: "var(--shadow-lg)",
-    zIndex: 9999
+    zIndex: 10002
   } }, RELATIONSHIP_CATEGORIES.map((cat) => /* @__PURE__ */ import_react3.default.createElement("div", { key: cat.label }, /* @__PURE__ */ import_react3.default.createElement("div", { style: {
     padding: "var(--space-2) var(--space-3)",
     background: "var(--neutral-100)",
@@ -54509,15 +54523,13 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
           InlineRelTypeSelect,
           {
             value: conn.rel_type,
-            onChange: (newType) => handleUpdateRelationshipType(conn.id, newType),
-            disabled: conn.direction === "new"
+            onChange: (newType) => handleUpdateRelationshipType(conn.id, newType)
           }
         ), /* @__PURE__ */ import_react16.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label)) : /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("span", { style: { fontWeight: 600, color: "var(--neutral-700)" } }, item.label), /* @__PURE__ */ import_react16.default.createElement(
           InlineRelTypeSelect,
           {
             value: conn.rel_type,
-            onChange: (newType) => handleUpdateRelationshipType(conn.id, newType),
-            disabled: conn.direction === "new"
+            onChange: (newType) => handleUpdateRelationshipType(conn.id, newType)
           }
         ), /* @__PURE__ */ import_react16.default.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react16.default.createElement(
           "a",

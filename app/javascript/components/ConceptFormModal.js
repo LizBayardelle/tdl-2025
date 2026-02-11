@@ -1324,8 +1324,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                                     <InlineRelTypeSelect
                                       value={conn.rel_type}
                                       onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
-                                      disabled={conn.direction === 'new'}
-                                    />
+                                                                          />
                                     <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
                                       {item.label}
                                     </span>
@@ -1338,8 +1337,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                                     <InlineRelTypeSelect
                                       value={conn.rel_type}
                                       onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
-                                      disabled={conn.direction === 'new'}
-                                    />
+                                                                          />
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                                       <a
                                         href={`/concepts/${conn.dst_concept?.id}`}

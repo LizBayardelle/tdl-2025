@@ -30,14 +30,39 @@ export default function ConceptSearchSelect({
     return flattenHierarchy(hierarchy);
   }, [concepts, excludeId]);
 
-  // Filter by query
+  // Filter by query with smart sorting and limit
   const filteredConcepts = useMemo(() => {
-    if (!query.trim()) return flatConcepts;
+    if (!query.trim()) return flatConcepts.slice(0, 15);
     const lower = query.toLowerCase();
-    return flatConcepts.filter(({ concept }) =>
-      concept.label.toLowerCase().includes(lower) ||
-      (concept.node_type && concept.node_type.toLowerCase().includes(lower))
+
+    // Filter matches (by label only)
+    const matches = flatConcepts.filter(({ concept }) =>
+      concept.label.toLowerCase().includes(lower)
     );
+
+    // Sort: exact matches first, then starts-with, then contains
+    matches.sort((a, b) => {
+      const aLabel = a.concept.label.toLowerCase();
+      const bLabel = b.concept.label.toLowerCase();
+
+      // Exact match
+      const aExact = aLabel === lower;
+      const bExact = bLabel === lower;
+      if (aExact && !bExact) return -1;
+      if (bExact && !aExact) return 1;
+
+      // Starts with
+      const aStarts = aLabel.startsWith(lower);
+      const bStarts = bLabel.startsWith(lower);
+      if (aStarts && !bStarts) return -1;
+      if (bStarts && !aStarts) return 1;
+
+      // Alphabetical
+      return aLabel.localeCompare(bLabel);
+    });
+
+    // Limit to 15 results
+    return matches.slice(0, 15);
   }, [flatConcepts, query]);
 
   const canCreate = query.trim() &&
