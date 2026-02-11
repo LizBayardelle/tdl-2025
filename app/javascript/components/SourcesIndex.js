@@ -886,7 +886,11 @@ function SourceCard({ source, onUpdate }) {
 
       <SourceFormModal
         isOpen={showEdit}
-        onClose={() => setShowEdit(false)}
+        onClose={() => {
+          // Refresh data when closing edit modal (autosave means changes may have been made)
+          onUpdate();
+          setShowEdit(false);
+        }}
         onSuccess={() => {
           onUpdate();
           setShowEdit(false);

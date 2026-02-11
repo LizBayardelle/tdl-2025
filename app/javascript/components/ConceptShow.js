@@ -159,6 +159,7 @@ export default function ConceptShow({ conceptId }) {
   const [concept, setConcept] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [conceptStack, setConceptStack] = useState([]); // Stack for nested editing
   const [allConcepts, setAllConcepts] = useState([]);
   const [conceptsLoading, setConceptsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 768 : false);
@@ -282,7 +283,10 @@ export default function ConceptShow({ conceptId }) {
                   <i className="fab fa-wikipedia-w"></i>
                 </a>
                 <button
-                  onClick={() => setEditing(true)}
+                  onClick={() => {
+                    setConceptStack([concept]);
+                    setEditing(true);
+                  }}
                   className="icon-btn"
                   style={{ color: 'var(--accent-green)' }}
                   title="Edit Concept"
@@ -322,12 +326,44 @@ export default function ConceptShow({ conceptId }) {
 
             <ConceptFormModal
               isOpen={editing}
-              onClose={() => setEditing(false)}
-              item={concept}
+              onClose={() => {
+                // Pop from stack - if stack has more items, go back to previous
+                if (conceptStack.length > 1) {
+                  setConceptStack(prev => prev.slice(0, -1));
+                } else {
+                  setEditing(false);
+                  setConceptStack([]);
+                }
+              }}
+              item={conceptStack[conceptStack.length - 1] || concept}
+              stackDepth={conceptStack.length - 1}
               onSuccess={(updatedConcept) => {
-                setConcept(updatedConcept);
-                setEditing(false);
+                // If we were editing the current concept, update it
+                const editingItem = conceptStack[conceptStack.length - 1];
+                if (!editingItem || editingItem.id === concept.id) {
+                  setConcept(updatedConcept);
+                }
+                // Pop from stack on success
+                if (conceptStack.length > 1) {
+                  setConceptStack(prev => prev.slice(0, -1));
+                } else {
+                  setEditing(false);
+                  setConceptStack([]);
+                }
                 fetchAllConcepts(); // Refresh sidebar
+                fetchConcept(); // Refresh current concept in case relationships changed
+              }}
+              onEditRelatedConcept={async (conceptId) => {
+                try {
+                  const response = await fetch(`/concepts/${conceptId}.json`);
+                  if (response.ok) {
+                    const conceptData = await response.json();
+                    // Push to stack instead of replacing
+                    setConceptStack(prev => [...prev, conceptData]);
+                  }
+                } catch (error) {
+                  console.error('Error fetching concept:', error);
+                }
               }}
             />
 

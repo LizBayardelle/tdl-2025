@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
@@ -7,6 +7,10 @@ import RichTextEditor from './RichTextEditor';
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'pending', 'saving', 'saved', 'error'
+  const saveTimeoutRef = useRef(null);
+  const isInitialMount = useRef(true);
+  const lastSavedData = useRef(null);
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -21,16 +25,98 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   });
   const [error, setError] = useState('');
 
+  // Autosave function for existing items
+  const performAutosave = useCallback(async (dataToSave) => {
+    if (!item?.id) return;
+
+    setSaveStatus('saving');
+
+    try {
+      const response = await fetch(`/people/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ person: dataToSave }),
+      });
+
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (error) {
+      console.error('Autosave error:', error);
+      setSaveStatus('error');
+    }
+  }, [item?.id]);
+
+  // Handle close with pending save check
+  const handleClose = useCallback(async () => {
+    // If there's a pending save, save immediately before closing
+    if (saveStatus === 'pending' && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    }
+    // If currently saving, wait for it to complete
+    else if (saveStatus === 'saving') {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+
+  // Debounced autosave effect
+  useEffect(() => {
+    if (!isOpen || !item?.id) return;
+
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+
+    // Skip if data hasn't changed
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+
+    // Show pending state immediately when data changes
+    setSaveStatus('pending');
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new debounced save
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1000);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
+
   useEffect(() => {
     if (isOpen) {
       setActiveTab('basic');
+      setSaveStatus('idle');
+      isInitialMount.current = true;
       if (item) {
         // Combine first_name and middle_name if middle_name exists (for legacy data)
         const combinedFirstName = [item.first_name, item.middle_name]
           .filter(Boolean)
           .join(' ') || '';
 
-        setFormData({
+        const newFormData = {
           first_name: combinedFirstName,
           last_name: item.last_name || '',
           role: item.role || 'theorist',
@@ -41,7 +127,9 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           concept_ids: item.concept_ids || [],
           source_ids: item.source_ids || [],
           tags: item.tags || []
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
         setFormData({
           first_name: '',
@@ -55,6 +143,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           source_ids: [],
           tags: []
         });
+        lastSavedData.current = null;
       }
       setError('');
     }
@@ -100,9 +189,111 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   return (
     <SlidePanel
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Modal Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3) var(--space-4)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--sidebar-bg)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            <h2 style={{
+              margin: 0,
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-lg)',
+              fontWeight: 700,
+              color: 'var(--accent-gold)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}>
+              <i className="fas fa-user" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+              {item ? (`${formData.first_name} ${formData.last_name}`.trim() || item.full_name || 'Untitled Person') : 'New Person'}
+            </h2>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {/* Save Status - only show for editing */}
+            {item && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                background: 'white',
+                padding: 'var(--space-1) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                boxShadow: 'var(--shadow-sm)',
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-body)',
+              }}>
+                {saveStatus === 'pending' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                    <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
+                  </>
+                )}
+                {saveStatus === 'saving' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-gold)' }}></i>
+                    <span style={{ color: 'var(--accent-gold)' }}>Saving...</span>
+                  </>
+                )}
+                {saveStatus === 'saved' && (
+                  <>
+                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
+                  </>
+                )}
+                {saveStatus === 'error' && (
+                  <>
+                    <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
+                    <span style={{ color: 'var(--error)' }}>Error</span>
+                  </>
+                )}
+                {saveStatus === 'idle' && (
+                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                )}
+              </div>
+            )}
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--neutral-400)',
+                fontSize: 'var(--text-xl)',
+                cursor: 'pointer',
+                padding: 'var(--space-1)',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+                transition: 'all 0.15s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--neutral-200)';
+                e.currentTarget.style.color = 'var(--neutral-700)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--neutral-400)';
+              }}
+              title="Close"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -112,47 +303,11 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
 
         {/* Sidebar + Content Layout */}
         <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: 'var(--space-4)',
-              right: 'var(--space-4)',
-              zIndex: 10,
-              background: 'white',
-              border: 'none',
-              color: 'var(--neutral-500)',
-              fontSize: 'var(--text-2xl)',
-              cursor: 'pointer',
-              padding: 0,
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%',
-              boxShadow: 'var(--shadow-md)',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-100)';
-              e.currentTarget.style.color = 'var(--neutral-900)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-              e.currentTarget.style.color = 'var(--neutral-500)';
-            }}
-          >
-            ×
-          </button>
-
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
             background: 'var(--sidebar-bg)',
             padding: 'var(--space-2)',
-            paddingTop: 'var(--space-6)',
+            paddingTop: 'var(--space-3)',
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column'
@@ -545,31 +700,33 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           </div>
         </div>
 
-        {/* Footer with Buttons */}
-        <div style={{
-          borderTop: '1px solid var(--neutral-200)',
-          padding: 'var(--space-6)',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 'var(--space-3)',
-        }}>
-          <button
-            type="submit"
-            className="btn-primary"
-            style={{ background: 'var(--accent-gold)' }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#8a6624'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
-          >
-            {item ? 'Save Changes' : 'Create Person'}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn-secondary"
-          >
-            Cancel
-          </button>
-        </div>
+        {/* Footer - only show for new people, editing uses autosave */}
+        {!item && (
+          <div style={{
+            borderTop: '1px solid var(--neutral-200)',
+            padding: 'var(--space-6)',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 'var(--space-3)',
+          }}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ background: 'var(--accent-gold)' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#8a6624'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
+            >
+              Create Person
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </form>
     </SlidePanel>
   );

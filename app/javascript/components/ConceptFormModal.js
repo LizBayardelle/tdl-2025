@@ -18,7 +18,7 @@ import {
   faListUl, faListOl, faLink, faUnlink, faQuoteLeft
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
+export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0 }) {
   const [concepts, setConcepts] = useState([]);
   const [activeTab, setActiveTab] = useState('basics');
   const [deletedRelationshipIds, setDeletedRelationshipIds] = useState([]);
@@ -399,7 +399,20 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     return null;
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    // If there's a pending save, save immediately before closing
+    if (saveStatus === 'pending' && item?.id) {
+      // Clear the debounce timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      // Save immediately and wait for it
+      await performAutosave(formData);
+    }
+    // If currently saving, wait for it to complete
+    else if (saveStatus === 'saving') {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
     // If we added, deleted, or updated relationships, refresh the parent
     if (newRelationships.length > 0 || deletedRelationshipIds.length > 0 || Object.keys(updatedRelationships).length > 0) {
       onSuccess();
@@ -413,6 +426,153 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       onClose={handleClose}
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Modal Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3) var(--space-4)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--sidebar-bg)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {/* Back Button - shown when in stacked modal */}
+            {stackDepth > 0 && (
+              <button
+                type="button"
+                onClick={handleClose}
+                style={{
+                  background: 'var(--accent-green-light)',
+                  border: '1px solid var(--primary)',
+                  color: 'var(--primary)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1) var(--space-2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: 500,
+                  transition: 'all 0.15s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--primary)';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-green-light)';
+                  e.currentTarget.style.color = 'var(--primary)';
+                }}
+                title="Go back to previous concept"
+              >
+                <i className="fas fa-arrow-left"></i>
+                <span className="hidden md:inline">Back</span>
+              </button>
+            )}
+            <h2 style={{
+              margin: 0,
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-lg)',
+              fontWeight: 700,
+              color: 'var(--primary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}>
+              <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+              {item ? (formData.label || item.label || 'Untitled Concept') : 'New Construct'}
+            </h2>
+            {stackDepth > 0 && (
+              <span style={{
+                fontSize: 'var(--text-xs)',
+                color: 'var(--neutral-400)',
+                background: 'var(--neutral-100)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+              }}>
+                Level {stackDepth + 1}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {/* Save Status - only show for editing */}
+            {item && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                background: 'white',
+                padding: 'var(--space-1) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                boxShadow: 'var(--shadow-sm)',
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-body)',
+              }}>
+                {saveStatus === 'pending' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                    <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
+                  </>
+                )}
+                {saveStatus === 'saving' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--primary)' }}></i>
+                    <span style={{ color: 'var(--primary)' }}>Saving...</span>
+                  </>
+                )}
+                {saveStatus === 'saved' && (
+                  <>
+                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
+                  </>
+                )}
+                {saveStatus === 'error' && (
+                  <>
+                    <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
+                    <span style={{ color: 'var(--error)' }}>Error</span>
+                  </>
+                )}
+                {saveStatus === 'idle' && (
+                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                )}
+              </div>
+            )}
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--neutral-400)',
+                fontSize: 'var(--text-xl)',
+                cursor: 'pointer',
+                padding: 'var(--space-1)',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+                transition: 'all 0.15s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--neutral-200)';
+                e.currentTarget.style.color = 'var(--neutral-700)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--neutral-400)';
+              }}
+              title="Close"
+            >
+            <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -422,46 +582,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
 
         {/* Sidebar + Content Layout */}
         <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={handleClose}
-            style={{
-              position: 'absolute',
-              top: 'var(--space-4)',
-              right: 'var(--space-4)',
-              zIndex: 10,
-              background: 'white',
-              border: 'none',
-              color: 'var(--neutral-500)',
-              fontSize: 'var(--text-2xl)',
-              cursor: 'pointer',
-              padding: 0,
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%',
-              boxShadow: 'var(--shadow-md)',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-100)';
-              e.currentTarget.style.color = 'var(--neutral-900)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-              e.currentTarget.style.color = 'var(--neutral-500)';
-            }}
-          >
-            ×
-          </button>
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
             background: 'var(--sidebar-bg)',
             padding: 'var(--space-2)',
-            paddingTop: 'var(--space-6)',
+            paddingTop: 'var(--space-3)',
             flexShrink: 0,
           }}>
             <div className="hidden md:block" style={{
@@ -1150,8 +1275,51 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                                 </span>
                                 {conn.direction === 'in' ? (
                                   <>
-                                    <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                                      {conn.src_concept?.label || 'Unknown'}
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                      <a
+                                        href={`/concepts/${conn.src_concept?.id}`}
+                                        style={{
+                                          color: 'var(--primary)',
+                                          textDecoration: 'underline',
+                                          textDecorationStyle: 'dotted',
+                                          textUnderlineOffset: '2px'
+                                        }}
+                                      >
+                                        {conn.src_concept?.label || 'Unknown'}
+                                      </a>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          if (conn.src_concept?.id && onEditRelatedConcept) {
+                                            onEditRelatedConcept(conn.src_concept.id);
+                                          }
+                                        }}
+                                        style={{
+                                          background: 'transparent',
+                                          border: 'none',
+                                          color: 'var(--neutral-400)',
+                                          cursor: 'pointer',
+                                          padding: '2px 4px',
+                                          fontSize: '11px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          borderRadius: '2px',
+                                          transition: 'all 0.15s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.color = 'var(--primary)';
+                                          e.currentTarget.style.background = 'var(--neutral-100)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.color = 'var(--neutral-400)';
+                                          e.currentTarget.style.background = 'transparent';
+                                        }}
+                                        title={`Edit ${conn.src_concept?.label}`}
+                                      >
+                                        <i className="fas fa-pen"></i>
+                                      </button>
                                     </span>
                                     <InlineRelTypeSelect
                                       value={conn.rel_type}
@@ -1172,8 +1340,51 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
                                       onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
                                       disabled={conn.direction === 'new'}
                                     />
-                                    <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-                                      {conn.dst_concept?.label || 'Unknown'}
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                                      <a
+                                        href={`/concepts/${conn.dst_concept?.id}`}
+                                        style={{
+                                          color: 'var(--primary)',
+                                          textDecoration: 'underline',
+                                          textDecorationStyle: 'dotted',
+                                          textUnderlineOffset: '2px'
+                                        }}
+                                      >
+                                        {conn.dst_concept?.label || 'Unknown'}
+                                      </a>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          if (conn.dst_concept?.id && onEditRelatedConcept) {
+                                            onEditRelatedConcept(conn.dst_concept.id);
+                                          }
+                                        }}
+                                        style={{
+                                          background: 'transparent',
+                                          border: 'none',
+                                          color: 'var(--neutral-400)',
+                                          cursor: 'pointer',
+                                          padding: '2px 4px',
+                                          fontSize: '11px',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          borderRadius: '2px',
+                                          transition: 'all 0.15s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.color = 'var(--primary)';
+                                          e.currentTarget.style.background = 'var(--neutral-100)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.color = 'var(--neutral-400)';
+                                          e.currentTarget.style.background = 'transparent';
+                                        }}
+                                        title={`Edit ${conn.dst_concept?.label}`}
+                                      >
+                                        <i className="fas fa-pen"></i>
+                                      </button>
                                     </span>
                                   </>
                                 )}
@@ -1267,60 +1478,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
               Cancel
             </button>
           </div>
-        ) : (
-          /* Floating status bar for editing mode */
-          <div style={{
-            position: 'absolute',
-            bottom: 'var(--space-4)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            background: 'white',
-            padding: 'var(--space-2) var(--space-4)',
-            borderRadius: 'var(--radius)',
-            boxShadow: 'var(--shadow-md)',
-            fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-body)',
-            zIndex: 5,
-          }}>
-            <span style={{
-              color: saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}>
-              {saveStatus === 'pending' && (
-                <>
-                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
-                  <span style={{ color: 'var(--neutral-500)' }}>Save pending...</span>
-                </>
-              )}
-              {saveStatus === 'saving' && (
-                <>
-                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-green)' }}></i>
-                  <span style={{ color: 'var(--accent-green)' }}>Saving...</span>
-                </>
-              )}
-              {saveStatus === 'saved' && (
-                <>
-                  <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
-                  Saved
-                </>
-              )}
-              {saveStatus === 'error' && (
-                <>
-                  <i className="fas fa-exclamation-circle"></i>
-                  Error
-                </>
-              )}
-              {saveStatus === 'idle' && (
-                <span style={{ color: 'var(--neutral-400)' }}>Auto-saving enabled</span>
-              )}
-            </span>
-          </div>
-        )}
+        ) : null}
       </form>
     </SlidePanel>
   );

@@ -5,7 +5,11 @@ Rails.application.routes.draw do
   get "dashboard", to: "home#dashboard"
   get "search", to: "search#index"
 
-  resources :concepts, only: [:index, :show, :create, :update, :destroy]
+  resources :concepts, only: [:index, :show, :create, :update, :destroy] do
+    collection do
+      post :find_or_create_from_keywords
+    end
+  end
   resources :connections, only: [:index, :show, :create, :update, :destroy]
   resources :sources, only: [:index, :show, :create, :update, :destroy] do
     collection do

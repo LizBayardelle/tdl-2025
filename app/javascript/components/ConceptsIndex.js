@@ -7,7 +7,7 @@ export default function ConceptsIndex() {
   const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingConcept, setEditingConcept] = useState(null);
+  const [conceptStack, setConceptStack] = useState([]); // Stack of concepts for nested editing
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sortField, setSortField] = useState('label');
@@ -339,15 +339,42 @@ export default function ConceptsIndex() {
         <ConceptFormModal
           isOpen={showForm}
           onClose={() => {
-            setShowForm(false);
-            setEditingConcept(null);
+            // Refresh data when closing edit modal (autosave means changes may have been made)
+            if (conceptStack.length > 0) {
+              fetchConcepts();
+            }
+            // Pop from stack - if stack has more items, go back to previous
+            if (conceptStack.length > 1) {
+              setConceptStack(prev => prev.slice(0, -1));
+            } else {
+              setShowForm(false);
+              setConceptStack([]);
+            }
           }}
           onSuccess={() => {
             fetchConcepts();
-            setShowForm(false);
-            setEditingConcept(null);
+            // Pop from stack on success too
+            if (conceptStack.length > 1) {
+              setConceptStack(prev => prev.slice(0, -1));
+            } else {
+              setShowForm(false);
+              setConceptStack([]);
+            }
           }}
-          item={editingConcept}
+          item={conceptStack[conceptStack.length - 1] || null}
+          stackDepth={conceptStack.length - 1}
+          onEditRelatedConcept={async (conceptId) => {
+            try {
+              const response = await fetch(`/concepts/${conceptId}.json`);
+              if (response.ok) {
+                const conceptData = await response.json();
+                // Push to stack instead of replacing
+                setConceptStack(prev => [...prev, conceptData]);
+              }
+            } catch (error) {
+              console.error('Error fetching concept:', error);
+            }
+          }}
         />
 
         {/* Concepts Table */}
@@ -481,7 +508,7 @@ export default function ConceptsIndex() {
                       parentRelType={parentRelType}
                       onUpdate={fetchConcepts}
                       onEdit={(concept) => {
-                        setEditingConcept(concept);
+                        setConceptStack([concept]);
                         setShowForm(true);
                       }}
                     />

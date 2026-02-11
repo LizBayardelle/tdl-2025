@@ -67,41 +67,61 @@ export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       size="medium"
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxHeight: '90vh', overflow: 'hidden', position: 'relative' }}>
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: 'var(--space-4)',
-            right: 'var(--space-4)',
-            zIndex: 10,
-            background: 'white',
-            border: 'none',
-            color: 'var(--neutral-500)',
-            fontSize: 'var(--text-2xl)',
-            cursor: 'pointer',
-            padding: 0,
-            width: '32px',
-            height: '32px',
+        {/* Modal Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3) var(--space-4)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--sidebar-bg)',
+          flexShrink: 0,
+        }}>
+          <h2 style={{
+            margin: 0,
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-lg)',
+            fontWeight: 700,
+            color: 'var(--accent-purple)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '50%',
-            boxShadow: 'var(--shadow-md)',
-            transition: 'all 0.15s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--neutral-100)';
-            e.currentTarget.style.color = 'var(--neutral-900)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'white';
-            e.currentTarget.style.color = 'var(--neutral-500)';
-          }}
-        >
-          ×
-        </button>
+            gap: 'var(--space-2)',
+          }}>
+            <i className="fas fa-tag" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+            {item ? (formData.name || item.name || 'Untitled Tag') : 'New Tag'}
+          </h2>
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--neutral-400)',
+              fontSize: 'var(--text-xl)',
+              cursor: 'pointer',
+              padding: 'var(--space-1)',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '4px',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--neutral-200)';
+              e.currentTarget.style.color = 'var(--neutral-700)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--neutral-400)';
+            }}
+            title="Close"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
 
         {/* Body */}
         <div style={{

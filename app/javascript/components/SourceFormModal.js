@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import TagSelector from './TagSelector';
 import ConceptSelector from './ConceptSelector';
@@ -8,6 +8,10 @@ import RichTextEditor from './RichTextEditor';
 
 export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = useState('basic');
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'pending', 'saving', 'saved', 'error'
+  const saveTimeoutRef = useRef(null);
+  const isInitialMount = useRef(true);
+  const lastSavedData = useRef(null);
   const [formData, setFormData] = useState({
     title: '',
     authors: '',
@@ -44,6 +48,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [parsedAuthors, setParsedAuthors] = useState([]);
   const [titleDuplicate, setTitleDuplicate] = useState(null);
   const [urlDuplicate, setUrlDuplicate] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Debounced duplicate checking
   useEffect(() => {
@@ -87,13 +92,94 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     return () => clearTimeout(timeoutId);
   }, [formData.title, formData.url, isOpen, item]);
 
+  // Autosave function for existing items
+  const performAutosave = useCallback(async (dataToSave) => {
+    if (!item?.id) return;
+
+    setSaveStatus('saving');
+
+    try {
+      const response = await fetch(`/sources/${item.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ source: dataToSave }),
+      });
+
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (error) {
+      console.error('Autosave error:', error);
+      setSaveStatus('error');
+    }
+  }, [item?.id]);
+
+  // Handle close with pending save check
+  const handleClose = useCallback(async () => {
+    // If there's a pending save, save immediately before closing
+    if (saveStatus === 'pending' && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    }
+    // If currently saving, wait for it to complete
+    else if (saveStatus === 'saving') {
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+
+  // Debounced autosave effect
+  useEffect(() => {
+    if (!isOpen || !item?.id) return;
+
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+
+    // Skip if data hasn't changed
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+
+    // Show pending state immediately when data changes
+    setSaveStatus('pending');
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new debounced save
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1000);
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
+
   useEffect(() => {
     if (isOpen) {
       setActiveTab('basic');
+      setSaveStatus('idle');
+      isInitialMount.current = true;
       setTitleDuplicate(null);
       setUrlDuplicate(null);
       if (item) {
-        setFormData({
+        const newFormData = {
           title: item.title || '',
           authors: item.authors || '',
           year: item.year || '',
@@ -120,7 +206,9 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           chapter_number: item.chapter_number || '',
           website_name: item.website_name || '',
           access_date: item.access_date || ''
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
         setFormData({
           title: '',
@@ -180,6 +268,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   };
 
   const performSave = async (processedAuthors = null) => {
+    setSubmitting(true);
     try {
       const url = item ? `/sources/${item.id}` : '/sources';
       const method = item ? 'PATCH' : 'POST';
@@ -238,6 +327,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     } catch (error) {
       console.error('Error saving source:', error);
       setError('An error occurred while saving the source');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -268,6 +359,27 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (response.ok) {
         const metadata = await response.json();
 
+        // Convert keywords to concepts (find or create)
+        let conceptIds = [...formData.concept_ids];
+        if (metadata.keywords && metadata.keywords.length > 0) {
+          try {
+            const conceptResponse = await fetch('/concepts/find_or_create_from_keywords', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+              },
+              body: JSON.stringify({ keywords: metadata.keywords }),
+            });
+            if (conceptResponse.ok) {
+              const conceptData = await conceptResponse.json();
+              conceptIds = [...new Set([...conceptIds, ...conceptData.concept_ids])];
+            }
+          } catch (err) {
+            console.error('Error creating concepts from keywords:', err);
+          }
+        }
+
         setFormData({
           ...formData,
           title: metadata.title || '',
@@ -288,7 +400,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           isbn: metadata.isbn || '',
           website_name: metadata.website_name || '',
           summary: metadata.abstract || metadata.summary || '',
-          tags: metadata.keywords || []
+          concept_ids: conceptIds
         });
 
         setExtractUrl('');
@@ -314,9 +426,111 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     <>
       <SlidePanel
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
       >
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          {/* Modal Header */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 'var(--space-3) var(--space-4)',
+            borderBottom: '1px solid var(--neutral-200)',
+            background: 'var(--sidebar-bg)',
+            flexShrink: 0,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <h2 style={{
+                margin: 0,
+                fontFamily: 'var(--font-display)',
+                fontSize: 'var(--text-lg)',
+                fontWeight: 700,
+                color: 'var(--accent-blue)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+              }}>
+                <i className="fas fa-book" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+                {item ? (formData.title || item.title || 'Untitled Source') : 'New Source'}
+              </h2>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              {/* Save Status - only show for editing */}
+              {item && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  background: 'white',
+                  padding: 'var(--space-1) var(--space-3)',
+                  borderRadius: 'var(--radius)',
+                  boxShadow: 'var(--shadow-sm)',
+                  fontSize: 'var(--text-xs)',
+                  fontFamily: 'var(--font-body)',
+                }}>
+                  {saveStatus === 'pending' && (
+                    <>
+                      <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                      <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
+                    </>
+                  )}
+                  {saveStatus === 'saving' && (
+                    <>
+                      <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-blue)' }}></i>
+                      <span style={{ color: 'var(--accent-blue)' }}>Saving...</span>
+                    </>
+                  )}
+                  {saveStatus === 'saved' && (
+                    <>
+                      <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                      <span style={{ color: 'var(--accent-green)' }}>Saved</span>
+                    </>
+                  )}
+                  {saveStatus === 'error' && (
+                    <>
+                      <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
+                      <span style={{ color: 'var(--error)' }}>Error</span>
+                    </>
+                  )}
+                  {saveStatus === 'idle' && (
+                    <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                  )}
+                </div>
+              )}
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={handleClose}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--neutral-400)',
+                  fontSize: 'var(--text-xl)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1)',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '4px',
+                  transition: 'all 0.15s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--neutral-200)';
+                  e.currentTarget.style.color = 'var(--neutral-700)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--neutral-400)';
+                }}
+                title="Close"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
           {error && (
             <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
               <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -326,47 +540,11 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
           {/* Sidebar + Content Layout */}
           <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                position: 'absolute',
-                top: 'var(--space-4)',
-                right: 'var(--space-4)',
-                zIndex: 10,
-                background: 'white',
-                border: 'none',
-                color: 'var(--neutral-500)',
-                fontSize: 'var(--text-2xl)',
-                cursor: 'pointer',
-                padding: 0,
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                boxShadow: 'var(--shadow-md)',
-                transition: 'all 0.15s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--neutral-100)';
-                e.currentTarget.style.color = 'var(--neutral-900)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'white';
-                e.currentTarget.style.color = 'var(--neutral-500)';
-              }}
-            >
-              ×
-            </button>
-
             {/* Left Sidebar Navigation */}
             <div className="w-12 md:w-[200px]" style={{
               background: 'var(--sidebar-bg)',
               padding: 'var(--space-2)',
-              paddingTop: 'var(--space-6)',
+              paddingTop: 'var(--space-3)',
               flexShrink: 0,
             }}>
               <div className="hidden md:block" style={{
@@ -1187,31 +1365,38 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             </div>
           </div>
 
-          {/* Footer with Buttons */}
-          <div style={{
-            borderTop: '1px solid var(--neutral-200)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 'var(--space-3)',
-          }}>
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{ background: 'var(--accent-blue)' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-blue-dark)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-blue)'}
-            >
-              {item ? 'Save Changes' : 'Create Source'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
-          </div>
+          {/* Footer - only show for new sources, editing uses autosave */}
+          {!item && (
+            <div style={{
+              borderTop: '1px solid var(--neutral-200)',
+              padding: 'var(--space-6)',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 'var(--space-3)',
+            }}>
+              <button
+                type="submit"
+                className="btn-primary"
+                style={{ background: 'var(--accent-blue)', minWidth: '140px' }}
+                onMouseEnter={(e) => !submitting && (e.currentTarget.style.background = 'var(--accent-blue-dark)')}
+                onMouseLeave={(e) => !submitting && (e.currentTarget.style.background = 'var(--accent-blue)')}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <><i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>Saving...</>
+                ) : (
+                  'Create Source'
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </form>
       </SlidePanel>
 

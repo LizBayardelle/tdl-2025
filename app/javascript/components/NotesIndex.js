@@ -884,6 +884,10 @@ export default function NotesIndex() {
       <NoteFormModal
         isOpen={showFormModal}
         onClose={() => {
+          // Refresh data when closing edit modal (autosave means changes may have been made)
+          if (editingNote) {
+            fetchData();
+          }
           setShowFormModal(false);
           setEditingNote(null);
         }}

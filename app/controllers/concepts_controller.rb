@@ -36,9 +36,22 @@ class ConceptsController < ApplicationController
       format.html
       format.json {
         render json: @concept.as_json(
+          methods: [:sources_count, :people_count, :notes_count, :tags_count],
           include: {
             people: { only: [:id, :full_name, :role, :summary] },
-            sources: { only: [:id, :title, :authors, :year, :kind] }
+            sources: { only: [:id, :title, :authors, :year, :kind] },
+            outgoing_connections: {
+              only: [:id, :rel_type, :relationship_label],
+              include: {
+                dst_concept: { only: [:id, :label, :node_type] }
+              }
+            },
+            incoming_connections: {
+              only: [:id, :rel_type, :relationship_label],
+              include: {
+                src_concept: { only: [:id, :label, :node_type] }
+              }
+            }
           }
         )
       }
@@ -78,6 +91,34 @@ class ConceptsController < ApplicationController
   def destroy
     @concept.destroy
     head :no_content
+  end
+
+  # POST /concepts/find_or_create_from_keywords
+  # Takes an array of keywords and returns concept IDs (finding existing or creating new)
+  def find_or_create_from_keywords
+    keywords = params[:keywords] || []
+    concept_ids = []
+
+    keywords.each do |keyword|
+      next if keyword.blank?
+      keyword = keyword.strip
+
+      # Try to find existing concept by label (case-insensitive)
+      concept = current_user.concepts.where('LOWER(label) = LOWER(?)', keyword).first
+
+      unless concept
+        # Create new concept with 'subject' type (research topic/keyword)
+        concept = current_user.concepts.create(
+          label: keyword.titleize,
+          node_type: 'subject',
+          level_status: 'mapped'
+        )
+      end
+
+      concept_ids << concept.id if concept.persisted?
+    end
+
+    render json: { concept_ids: concept_ids }
   end
 
   private

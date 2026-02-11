@@ -84,6 +84,25 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     }
   }, [item?.id]);
 
+  // Handle close with pending save check
+  const handleClose = useCallback(async () => {
+    // If there's a pending save, save immediately before closing
+    if (saveStatus === 'pending' && item?.id) {
+      // Clear the debounce timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      // Save immediately and wait for it
+      await performAutosave(formData);
+    }
+    // If currently saving, wait for it to complete
+    else if (saveStatus === 'saving') {
+      // Wait a bit for the save to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+
   // Debounced autosave effect
   useEffect(() => {
     if (!isOpen || !item?.id) return;
@@ -265,9 +284,143 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
   return (
     <SlidePanel
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Modal Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-3) var(--space-4)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--sidebar-bg)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            <h2 style={{
+              margin: 0,
+              fontFamily: 'var(--font-display)',
+              fontSize: 'var(--text-lg)',
+              fontWeight: 700,
+              color: '#639CA1',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+            }}>
+              <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+              {item ? (formData.title || item.title || 'Untitled Note') : 'New Note'}
+            </h2>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {/* Delete button - only show for editing */}
+            {item && onDelete && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this note?')) {
+                    onDelete(item.id);
+                  }
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--neutral-400)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '4px',
+                  transition: 'all 0.15s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--error)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--neutral-400)';
+                }}
+                title="Delete note"
+              >
+                <i className="fas fa-trash-alt"></i>
+              </button>
+            )}
+            {/* Save Status - only show for editing */}
+            {item && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                background: 'white',
+                padding: 'var(--space-1) var(--space-3)',
+                borderRadius: 'var(--radius)',
+                boxShadow: 'var(--shadow-sm)',
+                fontSize: 'var(--text-xs)',
+                fontFamily: 'var(--font-body)',
+              }}>
+                {saveStatus === 'pending' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
+                    <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
+                  </>
+                )}
+                {saveStatus === 'saving' && (
+                  <>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: '#639CA1' }}></i>
+                    <span style={{ color: '#639CA1' }}>Saving...</span>
+                  </>
+                )}
+                {saveStatus === 'saved' && (
+                  <>
+                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
+                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
+                  </>
+                )}
+                {saveStatus === 'error' && (
+                  <>
+                    <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
+                    <span style={{ color: 'var(--error)' }}>Error</span>
+                  </>
+                )}
+                {saveStatus === 'idle' && (
+                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                )}
+              </div>
+            )}
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleClose}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--neutral-400)',
+                fontSize: 'var(--text-xl)',
+                cursor: 'pointer',
+                padding: 'var(--space-1)',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '4px',
+                transition: 'all 0.15s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--neutral-200)';
+                e.currentTarget.style.color = 'var(--neutral-700)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--neutral-400)';
+              }}
+              title="Close"
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
             <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
@@ -277,46 +430,11 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
 
         {/* Sidebar + Content Layout */}
         <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              position: 'absolute',
-              top: 'var(--space-4)',
-              right: 'var(--space-4)',
-              zIndex: 10,
-              background: 'white',
-              border: 'none',
-              color: 'var(--neutral-500)',
-              fontSize: 'var(--text-2xl)',
-              cursor: 'pointer',
-              padding: 0,
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '50%',
-              boxShadow: 'var(--shadow-md)',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-100)';
-              e.currentTarget.style.color = 'var(--neutral-900)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-              e.currentTarget.style.color = 'var(--neutral-500)';
-            }}
-          >
-            ×
-          </button>
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
             background: 'var(--sidebar-bg)',
             padding: 'var(--space-2)',
-            paddingTop: 'var(--space-6)',
+            paddingTop: 'var(--space-3)',
             flexShrink: 0,
           }}>
             <div className="hidden md:block" style={{
@@ -408,6 +526,17 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
             {activeTab === 'content' && (
               <div className="space-y-4">
             <div>
+              <label className="form-label teal">Title</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="form-input"
+                placeholder="Optional title for this note"
+              />
+            </div>
+
+            <div>
               <label className="form-label required teal">Type</label>
               <select
                 value={formData.note_type}
@@ -420,17 +549,6 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 <option value="connection">Connection</option>
                 <option value="todo">To Do Item</option>
               </select>
-            </div>
-
-            <div>
-              <label className="form-label teal">Title</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="form-input"
-                placeholder="Optional title for this note"
-              />
             </div>
 
             <div>
@@ -839,8 +957,8 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           </div>
         </div>
 
-        {/* Footer - only show for new notes, editing uses autosave + X button */}
-        {!item ? (
+        {/* Footer - only show for new notes, editing uses autosave */}
+        {!item && (
           <div style={{
             borderTop: '1px solid var(--neutral-200)',
             background: 'var(--background)',
@@ -869,83 +987,6 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
             >
               Create Note
             </button>
-          </div>
-        ) : (
-          /* Floating status bar for editing mode */
-          <div style={{
-            position: 'absolute',
-            bottom: 'var(--space-4)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-            background: 'white',
-            padding: 'var(--space-2) var(--space-4)',
-            borderRadius: 'var(--radius)',
-            boxShadow: 'var(--shadow-md)',
-            fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-body)',
-          }}>
-            {/* Delete button */}
-            {onDelete && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this note?')) {
-                    onDelete(item.id);
-                  }
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--error)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-                title="Delete note"
-              >
-                <i className="fas fa-trash-alt"></i>
-              </button>
-            )}
-            {onDelete && <span style={{ color: 'var(--neutral-300)' }}>|</span>}
-            {/* Save status */}
-            <span style={{
-              color: saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}>
-              {saveStatus === 'pending' && (
-                <>
-                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
-                  <span style={{ color: 'var(--neutral-500)' }}>Save pending...</span>
-                </>
-              )}
-              {saveStatus === 'saving' && (
-                <>
-                  <i className="fas fa-circle-notch fa-spin" style={{ color: '#639CA1' }}></i>
-                  <span style={{ color: '#639CA1' }}>Saving...</span>
-                </>
-              )}
-              {saveStatus === 'saved' && (
-                <>
-                  <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
-                  Saved
-                </>
-              )}
-              {saveStatus === 'error' && (
-                <>
-                  <i className="fas fa-exclamation-circle"></i>
-                  Error
-                </>
-              )}
-              {saveStatus === 'idle' && (
-                <span style={{ color: 'var(--neutral-400)' }}>Auto-saving enabled</span>
-              )}
-            </span>
           </div>
         )}
       </form>

@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React41 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef18 = React41.useRef, useEffect42 = React41.useEffect, useMemo14 = React41.useMemo, useDebugValue3 = React41.useDebugValue;
+      var React41 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef20 = React41.useRef, useEffect42 = React41.useEffect, useMemo14 = React41.useMemo, useDebugValue3 = React41.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef18(null);
+        var instRef = useRef20(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -53384,7 +53384,7 @@ var faListUl = {
 };
 
 // app/javascript/components/ConceptFormModal.js
-function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
+function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConcept, stackDepth = 0 }) {
   const [concepts, setConcepts] = (0, import_react16.useState)([]);
   const [activeTab, setActiveTab] = (0, import_react16.useState)("basics");
   const [deletedRelationshipIds, setDeletedRelationshipIds] = (0, import_react16.useState)([]);
@@ -53709,7 +53709,15 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
     }
     return null;
   };
-  const handleClose = () => {
+  const handleClose = async () => {
+    if (saveStatus === "pending" && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    } else if (saveStatus === "saving") {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
     if (newRelationships.length > 0 || deletedRelationshipIds.length > 0 || Object.keys(updatedRelationships).length > 0) {
       onSuccess();
     }
@@ -53721,45 +53729,106 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
       isOpen,
       onClose: handleClose
     },
-    /* @__PURE__ */ import_react16.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react16.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react16.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react16.default.createElement(
+    /* @__PURE__ */ import_react16.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, stackDepth > 0 && /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
         onClick: handleClose,
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
-          border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          background: "var(--accent-green-light)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)",
+          fontSize: "var(--text-sm)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1) var(--space-2)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-1)",
+          borderRadius: "var(--radius)",
+          fontFamily: "var(--font-body)",
+          fontWeight: 500,
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "var(--primary)";
+          e3.currentTarget.style.color = "white";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "var(--accent-green-light)";
+          e3.currentTarget.style.color = "var(--primary)";
+        },
+        title: "Go back to previous concept"
+      },
+      /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-arrow-left" }),
+      /* @__PURE__ */ import_react16.default.createElement("span", { className: "hidden md:inline" }, "Back")
+    ), /* @__PURE__ */ import_react16.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "var(--primary)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-lightbulb", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? formData.label || item.label || "Untitled Concept" : "New Construct"), stackDepth > 0 && /* @__PURE__ */ import_react16.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-400)",
+      background: "var(--neutral-100)",
+      padding: "2px 8px",
+      borderRadius: "10px"
+    } }, "Level ", stackDepth + 1)), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      background: "white",
+      padding: "var(--space-1) var(--space-3)",
+      borderRadius: "var(--radius)",
+      boxShadow: "var(--shadow-sm)",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, saveStatus === "pending" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--primary)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--primary)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-Saving Enabled")), /* @__PURE__ */ import_react16.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: handleClose,
+        style: {
+          background: "transparent",
+          border: "none",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
+          cursor: "pointer",
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+      /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-times" })
+    ))), error && /* @__PURE__ */ import_react16.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react16.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react16.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
-      paddingTop: "var(--space-6)",
+      paddingTop: "var(--space-3)",
       flexShrink: 0
     } }, /* @__PURE__ */ import_react16.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
@@ -54390,7 +54459,53 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
           }
         },
         /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-400)", fontSize: "var(--text-xs)", flexShrink: 0 } }, conn.direction === "in" ? "\u2190" : "\u2192"),
-        conn.direction === "in" ? /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.src_concept?.label || "Unknown"), /* @__PURE__ */ import_react16.default.createElement(
+        conn.direction === "in" ? /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react16.default.createElement(
+          "a",
+          {
+            href: `/concepts/${conn.src_concept?.id}`,
+            style: {
+              color: "var(--primary)",
+              textDecoration: "underline",
+              textDecorationStyle: "dotted",
+              textUnderlineOffset: "2px"
+            }
+          },
+          conn.src_concept?.label || "Unknown"
+        ), /* @__PURE__ */ import_react16.default.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: (e3) => {
+              e3.preventDefault();
+              e3.stopPropagation();
+              if (conn.src_concept?.id && onEditRelatedConcept) {
+                onEditRelatedConcept(conn.src_concept.id);
+              }
+            },
+            style: {
+              background: "transparent",
+              border: "none",
+              color: "var(--neutral-400)",
+              cursor: "pointer",
+              padding: "2px 4px",
+              fontSize: "11px",
+              display: "inline-flex",
+              alignItems: "center",
+              borderRadius: "2px",
+              transition: "all 0.15s"
+            },
+            onMouseEnter: (e3) => {
+              e3.currentTarget.style.color = "var(--primary)";
+              e3.currentTarget.style.background = "var(--neutral-100)";
+            },
+            onMouseLeave: (e3) => {
+              e3.currentTarget.style.color = "var(--neutral-400)";
+              e3.currentTarget.style.background = "transparent";
+            },
+            title: `Edit ${conn.src_concept?.label}`
+          },
+          /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-pen" })
+        )), /* @__PURE__ */ import_react16.default.createElement(
           InlineRelTypeSelect,
           {
             value: conn.rel_type,
@@ -54404,7 +54519,53 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
             onChange: (newType) => handleUpdateRelationshipType(conn.id, newType),
             disabled: conn.direction === "new"
           }
-        ), /* @__PURE__ */ import_react16.default.createElement("span", { style: { fontWeight: 600, color: "var(--primary)" } }, conn.dst_concept?.label || "Unknown")),
+        ), /* @__PURE__ */ import_react16.default.createElement("span", { style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react16.default.createElement(
+          "a",
+          {
+            href: `/concepts/${conn.dst_concept?.id}`,
+            style: {
+              color: "var(--primary)",
+              textDecoration: "underline",
+              textDecorationStyle: "dotted",
+              textUnderlineOffset: "2px"
+            }
+          },
+          conn.dst_concept?.label || "Unknown"
+        ), /* @__PURE__ */ import_react16.default.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: (e3) => {
+              e3.preventDefault();
+              e3.stopPropagation();
+              if (conn.dst_concept?.id && onEditRelatedConcept) {
+                onEditRelatedConcept(conn.dst_concept.id);
+              }
+            },
+            style: {
+              background: "transparent",
+              border: "none",
+              color: "var(--neutral-400)",
+              cursor: "pointer",
+              padding: "2px 4px",
+              fontSize: "11px",
+              display: "inline-flex",
+              alignItems: "center",
+              borderRadius: "2px",
+              transition: "all 0.15s"
+            },
+            onMouseEnter: (e3) => {
+              e3.currentTarget.style.color = "var(--primary)";
+              e3.currentTarget.style.background = "var(--neutral-100)";
+            },
+            onMouseLeave: (e3) => {
+              e3.currentTarget.style.color = "var(--neutral-400)";
+              e3.currentTarget.style.background = "transparent";
+            },
+            title: `Edit ${conn.dst_concept?.label}`
+          },
+          /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-pen" })
+        ))),
         conn.relationship_label && /* @__PURE__ */ import_react16.default.createElement("span", { style: {
           fontSize: "var(--text-xs)",
           color: "var(--neutral-500)",
@@ -54471,30 +54632,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item }) {
         className: "btn-secondary"
       },
       "Cancel"
-    )) : (
-      /* Floating status bar for editing mode */
-      /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-        position: "absolute",
-        bottom: "var(--space-4)",
-        left: "50%",
-        transform: "translateX(-50%)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)",
-        background: "white",
-        padding: "var(--space-2) var(--space-4)",
-        borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md)",
-        fontSize: "var(--text-sm)",
-        fontFamily: "var(--font-body)",
-        zIndex: 5
-      } }, /* @__PURE__ */ import_react16.default.createElement("span", { style: {
-        color: saveStatus === "error" ? "var(--error)" : "var(--neutral-500)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)"
-      } }, saveStatus === "pending" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), "Saved"), saveStatus === "error" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-exclamation-circle" }), "Error"), saveStatus === "idle" && /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-saving enabled")))
-    ))
+    )) : null)
   );
 }
 
@@ -54503,7 +54641,7 @@ function ConceptsIndex() {
   const [concepts, setConcepts] = (0, import_react18.useState)([]);
   const [loading, setLoading] = (0, import_react18.useState)(true);
   const [showForm, setShowForm] = (0, import_react18.useState)(false);
-  const [editingConcept, setEditingConcept] = (0, import_react18.useState)(null);
+  const [conceptStack, setConceptStack] = (0, import_react18.useState)([]);
   const [selectedTypes, setSelectedTypes] = (0, import_react18.useState)([]);
   const [sidebarOpen, setSidebarOpen] = (0, import_react18.useState)(true);
   const [sortField, setSortField] = (0, import_react18.useState)("label");
@@ -54788,15 +54926,38 @@ function ConceptsIndex() {
     {
       isOpen: showForm,
       onClose: () => {
-        setShowForm(false);
-        setEditingConcept(null);
+        if (conceptStack.length > 0) {
+          fetchConcepts();
+        }
+        if (conceptStack.length > 1) {
+          setConceptStack((prev) => prev.slice(0, -1));
+        } else {
+          setShowForm(false);
+          setConceptStack([]);
+        }
       },
       onSuccess: () => {
         fetchConcepts();
-        setShowForm(false);
-        setEditingConcept(null);
+        if (conceptStack.length > 1) {
+          setConceptStack((prev) => prev.slice(0, -1));
+        } else {
+          setShowForm(false);
+          setConceptStack([]);
+        }
       },
-      item: editingConcept
+      item: conceptStack[conceptStack.length - 1] || null,
+      stackDepth: conceptStack.length - 1,
+      onEditRelatedConcept: async (conceptId) => {
+        try {
+          const response = await fetch(`/concepts/${conceptId}.json`);
+          if (response.ok) {
+            const conceptData = await response.json();
+            setConceptStack((prev) => [...prev, conceptData]);
+          }
+        } catch (error) {
+          console.error("Error fetching concept:", error);
+        }
+      }
     }
   ), /* @__PURE__ */ import_react18.default.createElement("div", { style: {
     flex: 1,
@@ -54891,7 +55052,7 @@ function ConceptsIndex() {
       parentRelType,
       onUpdate: fetchConcepts,
       onEdit: (concept2) => {
-        setEditingConcept(concept2);
+        setConceptStack([concept2]);
         setShowForm(true);
       }
     }
@@ -55374,42 +55535,55 @@ function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, conc
       onClose,
       size: "medium"
     },
-    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react21.default.createElement(
+    /* @__PURE__ */ import_react21.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react21.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react21.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "var(--primary)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react21.default.createElement("i", { className: "fas fa-link", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? "Edit Relationship" : "New Relationship"), /* @__PURE__ */ import_react21.default.createElement(
       "button",
       {
         type: "button",
         onClick: onClose,
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
+          background: "transparent",
           border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react21.default.createElement("div", { style: {
+      /* @__PURE__ */ import_react21.default.createElement("i", { className: "fas fa-times" })
+    )), /* @__PURE__ */ import_react21.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
       background: "var(--background)",
@@ -58429,6 +58603,17 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
       setSaveStatus("error");
     }
   }, [item?.id]);
+  const handleClose = (0, import_react24.useCallback)(async () => {
+    if (saveStatus === "pending" && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    } else if (saveStatus === "saving") {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
   (0, import_react24.useEffect)(() => {
     if (!isOpen || !item?.id) return;
     if (isInitialMount.current) {
@@ -58586,47 +58771,100 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
     SlidePanel,
     {
       isOpen,
-      onClose
+      onClose: handleClose
     },
-    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react24.default.createElement(
+    /* @__PURE__ */ import_react24.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react24.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react24.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "#639CA1",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? formData.title || item.title || "Untitled Note" : "New Note")), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && onDelete && /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "button",
-        onClick: onClose,
+        onClick: () => {
+          if (window.confirm("Are you sure you want to delete this note?")) {
+            onDelete(item.id);
+          }
+        },
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
+          background: "transparent",
           border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-sm)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1)",
+          display: "flex",
+          alignItems: "center",
+          borderRadius: "4px",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.color = "var(--error)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Delete note"
+      },
+      /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-trash-alt" })
+    ), item && /* @__PURE__ */ import_react24.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      background: "white",
+      padding: "var(--space-1) var(--space-3)",
+      borderRadius: "var(--radius)",
+      boxShadow: "var(--shadow-sm)",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, saveStatus === "pending" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "#639CA1" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "#639CA1" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-Saving Enabled")), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: handleClose,
+        style: {
+          background: "transparent",
+          border: "none",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
+          cursor: "pointer",
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react24.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+      /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times" })
+    ))), error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
-      paddingTop: "var(--space-6)",
+      paddingTop: "var(--space-3)",
       flexShrink: 0
     } }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
@@ -58707,7 +58945,16 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
       overflowY: "auto",
       background: "var(--background)",
       padding: "var(--space-6)"
-    } }, activeTab === "content" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label required teal" }, "Type"), /* @__PURE__ */ import_react24.default.createElement(
+    } }, activeTab === "content" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label teal" }, "Title"), /* @__PURE__ */ import_react24.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: formData.title,
+        onChange: (e3) => setFormData({ ...formData, title: e3.target.value }),
+        className: "form-input",
+        placeholder: "Optional title for this note"
+      }
+    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label required teal" }, "Type"), /* @__PURE__ */ import_react24.default.createElement(
       "select",
       {
         value: formData.note_type,
@@ -58719,15 +58966,6 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
       /* @__PURE__ */ import_react24.default.createElement("option", { value: "synthesis" }, "Synthesis"),
       /* @__PURE__ */ import_react24.default.createElement("option", { value: "connection" }, "Connection"),
       /* @__PURE__ */ import_react24.default.createElement("option", { value: "todo" }, "To Do Item")
-    )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label teal" }, "Title"), /* @__PURE__ */ import_react24.default.createElement(
-      "input",
-      {
-        type: "text",
-        value: formData.title,
-        onChange: (e3) => setFormData({ ...formData, title: e3.target.value }),
-        className: "form-input",
-        placeholder: "Optional title for this note"
-      }
     )), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label required teal" }, "Body"), /* @__PURE__ */ import_react24.default.createElement("div", { style: {
       border: "1px solid var(--neutral-300)",
       borderRadius: "var(--radius)",
@@ -59068,7 +59306,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         onChange: (tags) => setFormData({ ...formData, tags }),
         themeColor: "#639CA1"
       }
-    )))))), !item ? /* @__PURE__ */ import_react24.default.createElement("div", { style: {
+    )))))), !item && /* @__PURE__ */ import_react24.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       background: "var(--background)",
       padding: "var(--space-6)",
@@ -59097,50 +59335,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         onMouseLeave: (e3) => e3.currentTarget.style.background = "#639CA1"
       },
       "Create Note"
-    )) : (
-      /* Floating status bar for editing mode */
-      /* @__PURE__ */ import_react24.default.createElement("div", { style: {
-        position: "absolute",
-        bottom: "var(--space-4)",
-        left: "50%",
-        transform: "translateX(-50%)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-3)",
-        background: "white",
-        padding: "var(--space-2) var(--space-4)",
-        borderRadius: "var(--radius)",
-        boxShadow: "var(--shadow-md)",
-        fontSize: "var(--text-sm)",
-        fontFamily: "var(--font-body)"
-      } }, onDelete && /* @__PURE__ */ import_react24.default.createElement(
-        "button",
-        {
-          type: "button",
-          onClick: () => {
-            if (window.confirm("Are you sure you want to delete this note?")) {
-              onDelete(item.id);
-            }
-          },
-          style: {
-            background: "transparent",
-            border: "none",
-            color: "var(--error)",
-            cursor: "pointer",
-            padding: "var(--space-1)",
-            display: "flex",
-            alignItems: "center"
-          },
-          title: "Delete note"
-        },
-        /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-trash-alt" })
-      ), onDelete && /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--neutral-300)" } }, "|"), /* @__PURE__ */ import_react24.default.createElement("span", { style: {
-        color: saveStatus === "error" ? "var(--error)" : "var(--neutral-500)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)"
-      } }, saveStatus === "pending" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "#639CA1" } }), /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "#639CA1" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), "Saved"), saveStatus === "error" && /* @__PURE__ */ import_react24.default.createElement(import_react24.default.Fragment, null, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-exclamation-circle" }), "Error"), saveStatus === "idle" && /* @__PURE__ */ import_react24.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-saving enabled")))
-    ))
+    )))
   );
 }
 
@@ -59413,6 +59608,10 @@ function RichTextEditor({ value, onChange: onChange16, placeholder, rows = 4, th
 // app/javascript/components/PersonFormModal.js
 function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = (0, import_react27.useState)("basic");
+  const [saveStatus, setSaveStatus] = (0, import_react27.useState)("idle");
+  const saveTimeoutRef = (0, import_react27.useRef)(null);
+  const isInitialMount = (0, import_react27.useRef)(true);
+  const lastSavedData = (0, import_react27.useRef)(null);
   const [formData, setFormData] = (0, import_react27.useState)({
     first_name: "",
     last_name: "",
@@ -59426,12 +59625,71 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     tags: []
   });
   const [error, setError] = (0, import_react27.useState)("");
+  const performAutosave = (0, import_react27.useCallback)(async (dataToSave) => {
+    if (!item?.id) return;
+    setSaveStatus("saving");
+    try {
+      const response = await fetch(`/people/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ person: dataToSave })
+      });
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2e3);
+      } else {
+        setSaveStatus("error");
+      }
+    } catch (error2) {
+      console.error("Autosave error:", error2);
+      setSaveStatus("error");
+    }
+  }, [item?.id]);
+  const handleClose = (0, import_react27.useCallback)(async () => {
+    if (saveStatus === "pending" && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    } else if (saveStatus === "saving") {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+  (0, import_react27.useEffect)(() => {
+    if (!isOpen || !item?.id) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+    setSaveStatus("pending");
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1e3);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
   (0, import_react27.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basic");
+      setSaveStatus("idle");
+      isInitialMount.current = true;
       if (item) {
         const combinedFirstName = [item.first_name, item.middle_name].filter(Boolean).join(" ") || "";
-        setFormData({
+        const newFormData = {
           first_name: combinedFirstName,
           last_name: item.last_name || "",
           role: item.role || "theorist",
@@ -59442,7 +59700,9 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           concept_ids: item.concept_ids || [],
           source_ids: item.source_ids || [],
           tags: item.tags || []
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
         setFormData({
           first_name: "",
@@ -59456,6 +59716,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           source_ids: [],
           tags: []
         });
+        lastSavedData.current = null;
       }
       setError("");
     }
@@ -59496,47 +59757,70 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     SlidePanel,
     {
       isOpen,
-      onClose
+      onClose: handleClose
     },
-    /* @__PURE__ */ import_react27.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react27.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react27.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react27.default.createElement(
+    /* @__PURE__ */ import_react27.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react27.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "var(--accent-gold)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-user", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? `${formData.first_name} ${formData.last_name}`.trim() || item.full_name || "Untitled Person" : "New Person")), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      background: "white",
+      padding: "var(--space-1) var(--space-3)",
+      borderRadius: "var(--radius)",
+      boxShadow: "var(--shadow-sm)",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, saveStatus === "pending" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-gold)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--accent-gold)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-Saving Enabled")), /* @__PURE__ */ import_react27.default.createElement(
       "button",
       {
         type: "button",
-        onClick: onClose,
+        onClick: handleClose,
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
+          background: "transparent",
           border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times" })
+    ))), error && /* @__PURE__ */ import_react27.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react27.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
-      paddingTop: "var(--space-6)",
+      paddingTop: "var(--space-3)",
       flexShrink: 0,
       display: "flex",
       flexDirection: "column"
@@ -59855,7 +60139,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    ))))))), /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+    ))))))), !item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       padding: "var(--space-6)",
       display: "flex",
@@ -59870,7 +60154,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         onMouseEnter: (e3) => e3.currentTarget.style.background = "#8a6624",
         onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-gold)"
       },
-      item ? "Save Changes" : "Create Person"
+      "Create Person"
     ), /* @__PURE__ */ import_react27.default.createElement(
       "button",
       {
@@ -60487,6 +60771,10 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, onConfirm }) {
 // app/javascript/components/SourceFormModal.js
 function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [activeTab, setActiveTab] = (0, import_react30.useState)("basic");
+  const [saveStatus, setSaveStatus] = (0, import_react30.useState)("idle");
+  const saveTimeoutRef = (0, import_react30.useRef)(null);
+  const isInitialMount = (0, import_react30.useRef)(true);
+  const lastSavedData = (0, import_react30.useRef)(null);
   const [formData, setFormData] = (0, import_react30.useState)({
     title: "",
     authors: "",
@@ -60523,6 +60811,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [parsedAuthors, setParsedAuthors] = (0, import_react30.useState)([]);
   const [titleDuplicate, setTitleDuplicate] = (0, import_react30.useState)(null);
   const [urlDuplicate, setUrlDuplicate] = (0, import_react30.useState)(null);
+  const [submitting, setSubmitting] = (0, import_react30.useState)(false);
   (0, import_react30.useEffect)(() => {
     if (!isOpen || item) return;
     const checkDuplicates = async () => {
@@ -60558,13 +60847,71 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     const timeoutId = setTimeout(checkDuplicates, 500);
     return () => clearTimeout(timeoutId);
   }, [formData.title, formData.url, isOpen, item]);
+  const performAutosave = (0, import_react30.useCallback)(async (dataToSave) => {
+    if (!item?.id) return;
+    setSaveStatus("saving");
+    try {
+      const response = await fetch(`/sources/${item.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ source: dataToSave })
+      });
+      if (response.ok) {
+        lastSavedData.current = JSON.stringify(dataToSave);
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 2e3);
+      } else {
+        setSaveStatus("error");
+      }
+    } catch (error2) {
+      console.error("Autosave error:", error2);
+      setSaveStatus("error");
+    }
+  }, [item?.id]);
+  const handleClose = (0, import_react30.useCallback)(async () => {
+    if (saveStatus === "pending" && item?.id) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      await performAutosave(formData);
+    } else if (saveStatus === "saving") {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    onClose();
+  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+  (0, import_react30.useEffect)(() => {
+    if (!isOpen || !item?.id) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      lastSavedData.current = JSON.stringify(formData);
+      return;
+    }
+    if (JSON.stringify(formData) === lastSavedData.current) return;
+    setSaveStatus("pending");
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      performAutosave(formData);
+    }, 1e3);
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [formData, isOpen, item?.id, performAutosave]);
   (0, import_react30.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basic");
+      setSaveStatus("idle");
+      isInitialMount.current = true;
       setTitleDuplicate(null);
       setUrlDuplicate(null);
       if (item) {
-        setFormData({
+        const newFormData = {
           title: item.title || "",
           authors: item.authors || "",
           year: item.year || "",
@@ -60591,7 +60938,9 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           chapter_number: item.chapter_number || "",
           website_name: item.website_name || "",
           access_date: item.access_date || ""
-        });
+        };
+        setFormData(newFormData);
+        lastSavedData.current = JSON.stringify(newFormData);
       } else {
         setFormData({
           title: "",
@@ -60646,6 +60995,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     await performSave(processedAuthors);
   };
   const performSave = async (processedAuthors = null) => {
+    setSubmitting(true);
     try {
       const url = item ? `/sources/${item.id}` : "/sources";
       const method = item ? "PATCH" : "POST";
@@ -60696,6 +61046,8 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     } catch (error2) {
       console.error("Error saving source:", error2);
       setError("An error occurred while saving the source");
+    } finally {
+      setSubmitting(false);
     }
   };
   const handleArrayInput = (field, value) => {
@@ -60720,6 +61072,25 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       });
       if (response.ok) {
         const metadata = await response.json();
+        let conceptIds = [...formData.concept_ids];
+        if (metadata.keywords && metadata.keywords.length > 0) {
+          try {
+            const conceptResponse = await fetch("/concepts/find_or_create_from_keywords", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+              },
+              body: JSON.stringify({ keywords: metadata.keywords })
+            });
+            if (conceptResponse.ok) {
+              const conceptData = await conceptResponse.json();
+              conceptIds = [.../* @__PURE__ */ new Set([...conceptIds, ...conceptData.concept_ids])];
+            }
+          } catch (err) {
+            console.error("Error creating concepts from keywords:", err);
+          }
+        }
         setFormData({
           ...formData,
           title: metadata.title || "",
@@ -60740,7 +61111,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           isbn: metadata.isbn || "",
           website_name: metadata.website_name || "",
           summary: metadata.abstract || metadata.summary || "",
-          tags: metadata.keywords || []
+          concept_ids: conceptIds
         });
         setExtractUrl("");
       } else {
@@ -60763,47 +61134,70 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     SlidePanel,
     {
       isOpen,
-      onClose
+      onClose: handleClose
     },
-    /* @__PURE__ */ import_react30.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, error && /* @__PURE__ */ import_react30.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react30.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react30.default.createElement(
+    /* @__PURE__ */ import_react30.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", height: "100%" } }, /* @__PURE__ */ import_react30.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react30.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "var(--accent-blue)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-book", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? formData.title || item.title || "Untitled Source" : "New Source")), /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react30.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      background: "white",
+      padding: "var(--space-1) var(--space-3)",
+      borderRadius: "var(--radius)",
+      boxShadow: "var(--shadow-sm)",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, saveStatus === "pending" && /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react30.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-blue)" } }), /* @__PURE__ */ import_react30.default.createElement("span", { style: { color: "var(--accent-blue)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react30.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react30.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react30.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-Saving Enabled")), /* @__PURE__ */ import_react30.default.createElement(
       "button",
       {
         type: "button",
-        onClick: onClose,
+        onClick: handleClose,
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
+          background: "transparent",
           border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
+      /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-times" })
+    ))), error && /* @__PURE__ */ import_react30.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react30.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react30.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
       background: "var(--sidebar-bg)",
       padding: "var(--space-2)",
-      paddingTop: "var(--space-6)",
+      paddingTop: "var(--space-3)",
       flexShrink: 0
     } }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
@@ -61419,7 +61813,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         selectedTags: formData.tags,
         onChange: (tags) => setFormData({ ...formData, tags })
       }
-    ))))))), /* @__PURE__ */ import_react30.default.createElement("div", { style: {
+    ))))))), !item && /* @__PURE__ */ import_react30.default.createElement("div", { style: {
       borderTop: "1px solid var(--neutral-200)",
       padding: "var(--space-6)",
       display: "flex",
@@ -61430,11 +61824,12 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       {
         type: "submit",
         className: "btn-primary",
-        style: { background: "var(--accent-blue)" },
-        onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--accent-blue-dark)",
-        onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-blue)"
+        style: { background: "var(--accent-blue)", minWidth: "140px" },
+        onMouseEnter: (e3) => !submitting && (e3.currentTarget.style.background = "var(--accent-blue-dark)"),
+        onMouseLeave: (e3) => !submitting && (e3.currentTarget.style.background = "var(--accent-blue)"),
+        disabled: submitting
       },
-      item ? "Save Changes" : "Create Source"
+      submitting ? /* @__PURE__ */ import_react30.default.createElement(import_react30.default.Fragment, null, /* @__PURE__ */ import_react30.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { marginRight: "8px" } }), "Saving...") : "Create Source"
     ), /* @__PURE__ */ import_react30.default.createElement(
       "button",
       {
@@ -61589,6 +61984,7 @@ function ConceptShow({ conceptId }) {
   const [concept, setConcept] = (0, import_react31.useState)(null);
   const [loading, setLoading] = (0, import_react31.useState)(true);
   const [editing, setEditing] = (0, import_react31.useState)(false);
+  const [conceptStack, setConceptStack] = (0, import_react31.useState)([]);
   const [allConcepts, setAllConcepts] = (0, import_react31.useState)([]);
   const [conceptsLoading, setConceptsLoading] = (0, import_react31.useState)(true);
   const [sidebarOpen, setSidebarOpen] = (0, import_react31.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
@@ -61693,7 +62089,10 @@ function ConceptShow({ conceptId }) {
   ), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
-      onClick: () => setEditing(true),
+      onClick: () => {
+        setConceptStack([concept]);
+        setEditing(true);
+      },
       className: "icon-btn",
       style: { color: "var(--accent-green)" },
       title: "Edit Concept"
@@ -61730,12 +62129,40 @@ function ConceptShow({ conceptId }) {
     ConceptFormModal,
     {
       isOpen: editing,
-      onClose: () => setEditing(false),
-      item: concept,
+      onClose: () => {
+        if (conceptStack.length > 1) {
+          setConceptStack((prev) => prev.slice(0, -1));
+        } else {
+          setEditing(false);
+          setConceptStack([]);
+        }
+      },
+      item: conceptStack[conceptStack.length - 1] || concept,
+      stackDepth: conceptStack.length - 1,
       onSuccess: (updatedConcept) => {
-        setConcept(updatedConcept);
-        setEditing(false);
+        const editingItem = conceptStack[conceptStack.length - 1];
+        if (!editingItem || editingItem.id === concept.id) {
+          setConcept(updatedConcept);
+        }
+        if (conceptStack.length > 1) {
+          setConceptStack((prev) => prev.slice(0, -1));
+        } else {
+          setEditing(false);
+          setConceptStack([]);
+        }
         fetchAllConcepts();
+        fetchConcept();
+      },
+      onEditRelatedConcept: async (conceptId2) => {
+        try {
+          const response = await fetch(`/concepts/${conceptId2}.json`);
+          if (response.ok) {
+            const conceptData = await response.json();
+            setConceptStack((prev) => [...prev, conceptData]);
+          }
+        } catch (error) {
+          console.error("Error fetching concept:", error);
+        }
       }
     }
   ), /* @__PURE__ */ import_react31.default.createElement("div", { style: { background: "white", padding: "var(--space-6)", marginBottom: "var(--space-8)" } }, /* @__PURE__ */ import_react31.default.createElement(ConceptDisplay, { concept }), /* @__PURE__ */ import_react31.default.createElement(ConnectionManager, { conceptId: currentConceptId, allConcepts, onConceptClick: handleConceptClick }), /* @__PURE__ */ import_react31.default.createElement(ConceptPeople, { conceptId: currentConceptId }), /* @__PURE__ */ import_react31.default.createElement(ConceptSources, { conceptId: currentConceptId }), /* @__PURE__ */ import_react31.default.createElement(ConceptNotes, { conceptId: currentConceptId })))));
@@ -63134,7 +63561,10 @@ function SourceCard({ source, onUpdate }) {
     SourceFormModal,
     {
       isOpen: showEdit,
-      onClose: () => setShowEdit(false),
+      onClose: () => {
+        onUpdate();
+        setShowEdit(false);
+      },
       onSuccess: () => {
         onUpdate();
         setShowEdit(false);
@@ -64207,7 +64637,7 @@ function PeopleIndex() {
         borderTopRightRadius: "4px",
         borderBottomRightRadius: "4px",
         transition: "left 0.3s ease",
-        zIndex: 5,
+        zIndex: 20,
         boxShadow: "2px 0 4px rgba(0, 0, 0, 0.2)"
       },
       className: "sidebar-toggle",
@@ -64285,6 +64715,9 @@ function PeopleIndex() {
     {
       isOpen: showForm,
       onClose: () => {
+        if (editingPerson) {
+          fetchPeople();
+        }
         setShowForm(false);
         setEditingPerson(null);
       },
@@ -64297,16 +64730,18 @@ function PeopleIndex() {
     }
   ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
     flex: 1,
-    overflowY: "auto",
-    padding: "var(--space-6)",
-    paddingLeft: "calc(var(--space-6) + 24px)",
-    background: "var(--background)"
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    background: "#ffffff"
   } }, sortedPeople.length === 0 ? /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
       style: {
         textAlign: "center",
         padding: "3rem 1.5rem",
+        margin: "var(--space-6)",
+        marginLeft: "calc(var(--space-6) + 24px)",
         background: "white",
         border: "1px solid var(--neutral-200)",
         borderRadius: "4px"
@@ -64314,14 +64749,20 @@ function PeopleIndex() {
     },
     /* @__PURE__ */ import_react34.default.createElement("p", { style: { fontSize: "var(--text-lg)", marginBottom: "1rem", color: "var(--neutral-700)" } }, "No people found."),
     /* @__PURE__ */ import_react34.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, hasActiveFilters ? "Try adjusting your filters." : "Add your first person to track intellectual lineage and influence.")
-  ) : /* @__PURE__ */ import_react34.default.createElement("div", { style: { background: "white", borderRadius: "4px", border: "1px solid var(--neutral-200)", overflow: "hidden" } }, /* @__PURE__ */ import_react34.default.createElement("div", { style: { overflowX: "auto" } }, /* @__PURE__ */ import_react34.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse", minWidth: "800px" } }, /* @__PURE__ */ import_react34.default.createElement("thead", { style: { background: "var(--neutral-50)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react34.default.createElement("tr", null, /* @__PURE__ */ import_react34.default.createElement(
+  ) : /* @__PURE__ */ import_react34.default.createElement("div", { style: { flex: 1, overflowX: "auto", overflowY: "auto" } }, /* @__PURE__ */ import_react34.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse", minWidth: "800px" } }, /* @__PURE__ */ import_react34.default.createElement("thead", { style: {
+    background: "var(--card-footer)",
+    position: "sticky",
+    top: 0,
+    zIndex: 10,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+  } }, /* @__PURE__ */ import_react34.default.createElement("tr", null, /* @__PURE__ */ import_react34.default.createElement(
     "th",
     {
       onClick: () => handleSort("name"),
       style: {
         fontFamily: "var(--font-display)",
         textAlign: "left",
-        padding: "0.75rem 1rem",
+        padding: "0.75rem 1rem 0.75rem 2rem",
         fontWeight: 600,
         fontSize: "var(--text-sm)",
         color: "var(--neutral-700)",
@@ -64426,14 +64867,9 @@ function PeopleIndex() {
     "Tags ",
     sortField === "tags" && /* @__PURE__ */ import_react34.default.createElement("i", { className: `fas fa-chevron-${sortDirection === "asc" ? "up" : "down"}`, style: { marginLeft: "0.5rem", fontSize: "0.75rem" } })
   ), /* @__PURE__ */ import_react34.default.createElement("th", { style: {
-    fontFamily: "var(--font-display)",
-    textAlign: "right",
     padding: "0.75rem 1rem",
-    fontWeight: 600,
-    fontSize: "var(--text-sm)",
-    color: "var(--neutral-700)",
-    width: "100px"
-  } }, "Actions"))), /* @__PURE__ */ import_react34.default.createElement("tbody", null, sortedPeople.map((person) => /* @__PURE__ */ import_react34.default.createElement(
+    width: "60px"
+  } }))), /* @__PURE__ */ import_react34.default.createElement("tbody", null, sortedPeople.map((person) => /* @__PURE__ */ import_react34.default.createElement(
     PersonRow,
     {
       key: person.id,
@@ -64444,7 +64880,7 @@ function PeopleIndex() {
         setShowForm(true);
       }
     }
-  )))))))));
+  ))))))));
 }
 function PersonRow({ person, onUpdate, onEdit }) {
   const handleDelete2 = async () => {
@@ -64476,7 +64912,7 @@ function PersonRow({ person, onUpdate, onEdit }) {
       onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-50)",
       onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
     },
-    /* @__PURE__ */ import_react34.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react34.default.createElement("td", { style: { padding: "0.75rem 1rem 0.75rem 2rem" } }, /* @__PURE__ */ import_react34.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react34.default.createElement(
       "a",
       {
         href: `/people/${person.id}`,
@@ -64492,7 +64928,34 @@ function PersonRow({ person, onUpdate, onEdit }) {
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
       },
       person.full_name
-    )),
+    ), /* @__PURE__ */ import_react34.default.createElement(
+      "button",
+      {
+        onClick: () => onEdit(person),
+        style: {
+          background: "transparent",
+          border: "none",
+          color: "var(--neutral-400)",
+          cursor: "pointer",
+          padding: "2px 4px",
+          fontSize: "11px",
+          display: "inline-flex",
+          alignItems: "center",
+          borderRadius: "2px",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.color = "var(--accent-gold)";
+          e3.currentTarget.style.background = "var(--neutral-100)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.color = "var(--neutral-400)";
+          e3.currentTarget.style.background = "transparent";
+        },
+        title: `Edit ${person.full_name}`
+      },
+      /* @__PURE__ */ import_react34.default.createElement("i", { className: "fas fa-pen" })
+    ))),
     /* @__PURE__ */ import_react34.default.createElement("td", { style: { padding: "0.75rem 1rem" } }, person.role && /* @__PURE__ */ import_react34.default.createElement(
       "span",
       {
@@ -64559,26 +65022,7 @@ function PersonRow({ person, onUpdate, onEdit }) {
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
     } }, (person.tags || []).length),
-    /* @__PURE__ */ import_react34.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "right" } }, /* @__PURE__ */ import_react34.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react34.default.createElement(
-      "button",
-      {
-        onClick: () => onEdit(person),
-        className: "icon-btn",
-        title: "Edit",
-        style: {
-          color: "var(--accent-gold)",
-          background: "transparent",
-          border: "none",
-          cursor: "pointer",
-          padding: "0.25rem",
-          fontSize: "var(--text-sm)",
-          transition: "color 0.15s"
-        },
-        onMouseEnter: (e3) => e3.currentTarget.style.color = "#8a6624",
-        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
-      },
-      /* @__PURE__ */ import_react34.default.createElement("i", { className: "fas fa-pen" })
-    ), /* @__PURE__ */ import_react34.default.createElement(
+    /* @__PURE__ */ import_react34.default.createElement("td", { style: { padding: "0.75rem 1rem", textAlign: "right" } }, /* @__PURE__ */ import_react34.default.createElement(
       "button",
       {
         onClick: handleDelete2,
@@ -64597,7 +65041,7 @@ function PersonRow({ person, onUpdate, onEdit }) {
         onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--accent-gold)"
       },
       /* @__PURE__ */ import_react34.default.createElement("i", { className: "fas fa-trash" })
-    )))
+    ))
   );
 }
 
@@ -64666,42 +65110,55 @@ function TagFormModal({ isOpen, onClose, onSuccess, item }) {
       onClose,
       size: "medium"
     },
-    /* @__PURE__ */ import_react35.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react35.default.createElement(
+    /* @__PURE__ */ import_react35.default.createElement("form", { onSubmit: handleSubmit, style: { display: "flex", flexDirection: "column", maxHeight: "90vh", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react35.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "var(--space-3) var(--space-4)",
+      borderBottom: "1px solid var(--neutral-200)",
+      background: "var(--sidebar-bg)",
+      flexShrink: 0
+    } }, /* @__PURE__ */ import_react35.default.createElement("h2", { style: {
+      margin: 0,
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 700,
+      color: "var(--accent-purple)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react35.default.createElement("i", { className: "fas fa-tag", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? formData.name || item.name || "Untitled Tag" : "New Tag"), /* @__PURE__ */ import_react35.default.createElement(
       "button",
       {
         type: "button",
         onClick: onClose,
         style: {
-          position: "absolute",
-          top: "var(--space-4)",
-          right: "var(--space-4)",
-          zIndex: 10,
-          background: "white",
+          background: "transparent",
           border: "none",
-          color: "var(--neutral-500)",
-          fontSize: "var(--text-2xl)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xl)",
           cursor: "pointer",
-          padding: 0,
+          padding: "var(--space-1)",
           width: "32px",
           height: "32px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "50%",
-          boxShadow: "var(--shadow-md)",
+          borderRadius: "4px",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-          e3.currentTarget.style.color = "var(--neutral-900)";
+          e3.currentTarget.style.background = "var(--neutral-200)";
+          e3.currentTarget.style.color = "var(--neutral-700)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-          e3.currentTarget.style.color = "var(--neutral-500)";
-        }
+          e3.currentTarget.style.background = "transparent";
+          e3.currentTarget.style.color = "var(--neutral-400)";
+        },
+        title: "Close"
       },
-      "\xD7"
-    ), /* @__PURE__ */ import_react35.default.createElement("div", { style: {
+      /* @__PURE__ */ import_react35.default.createElement("i", { className: "fas fa-times" })
+    )), /* @__PURE__ */ import_react35.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
       background: "var(--background)",
@@ -67037,6 +67494,9 @@ function NotesIndex() {
     {
       isOpen: showFormModal,
       onClose: () => {
+        if (editingNote) {
+          fetchData2();
+        }
         setShowFormModal(false);
         setEditingNote(null);
       },

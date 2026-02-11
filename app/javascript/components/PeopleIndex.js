@@ -484,7 +484,7 @@ export default function PeopleIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 5,
+          zIndex: 20,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"
@@ -566,6 +566,10 @@ export default function PeopleIndex() {
         <PersonFormModal
           isOpen={showForm}
           onClose={() => {
+            // Refresh data when closing edit modal (autosave means changes may have been made)
+            if (editingPerson) {
+              fetchPeople();
+            }
             setShowForm(false);
             setEditingPerson(null);
           }}
@@ -580,16 +584,18 @@ export default function PeopleIndex() {
         {/* People Table */}
         <div style={{
           flex: 1,
-          overflowY: 'auto',
-          padding: 'var(--space-6)',
-          paddingLeft: 'calc(var(--space-6) + 24px)',
-          background: 'var(--background)'
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#ffffff'
         }}>
           {sortedPeople.length === 0 ? (
             <div
               style={{
                 textAlign: 'center',
                 padding: '3rem 1.5rem',
+                margin: 'var(--space-6)',
+                marginLeft: 'calc(var(--space-6) + 24px)',
                 background: 'white',
                 border: '1px solid var(--neutral-200)',
                 borderRadius: '4px',
@@ -603,17 +609,22 @@ export default function PeopleIndex() {
               </p>
             </div>
           ) : (
-            <div style={{ background: 'white', borderRadius: '4px', border: '1px solid var(--neutral-200)', overflow: 'hidden' }}>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-                <thead style={{ background: 'var(--neutral-50)', borderBottom: '1px solid var(--neutral-200)' }}>
+            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
+                <thead style={{
+                  background: 'var(--card-footer)',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}>
                   <tr>
                     <th
                       onClick={() => handleSort('name')}
                       style={{
                         fontFamily: 'var(--font-display)',
                         textAlign: 'left',
-                        padding: '0.75rem 1rem',
+                        padding: '0.75rem 1rem 0.75rem 2rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-700)',
@@ -723,15 +734,9 @@ export default function PeopleIndex() {
                       )}
                     </th>
                     <th style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'right',
                       padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      width: '100px'
+                      width: '60px'
                     }}>
-                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -749,7 +754,6 @@ export default function PeopleIndex() {
                   ))}
                 </tbody>
               </table>
-              </div>
             </div>
           )}
         </div>
@@ -791,22 +795,50 @@ function PersonRow({ person, onUpdate, onEdit }) {
       onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
     >
       {/* Name */}
-      <td style={{ padding: '0.75rem 1rem' }}>
-        <a
-          href={`/people/${person.id}`}
-          style={{
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            color: 'var(--neutral-900)',
-            textDecoration: 'none',
-            fontFamily: 'var(--font-body)',
-            transition: 'color 0.15s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-        >
-          {person.full_name}
-        </a>
+      <td style={{ padding: '0.75rem 1rem 0.75rem 2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          <a
+            href={`/people/${person.id}`}
+            style={{
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+              color: 'var(--neutral-900)',
+              textDecoration: 'none',
+              fontFamily: 'var(--font-body)',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+          >
+            {person.full_name}
+          </a>
+          <button
+            onClick={() => onEdit(person)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--neutral-400)',
+              cursor: 'pointer',
+              padding: '2px 4px',
+              fontSize: '11px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: '2px',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--accent-gold)';
+              e.currentTarget.style.background = 'var(--neutral-100)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--neutral-400)';
+              e.currentTarget.style.background = 'transparent';
+            }}
+            title={`Edit ${person.full_name}`}
+          >
+            <i className="fas fa-pen"></i>
+          </button>
+        </div>
       </td>
 
       {/* Role */}
@@ -898,46 +930,26 @@ function PersonRow({ person, onUpdate, onEdit }) {
         {(person.tags || []).length}
       </td>
 
-      {/* Actions */}
+      {/* Delete */}
       <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-        <div style={{ display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
-          <button
-            onClick={() => onEdit(person)}
-            className="icon-btn"
-            title="Edit"
-            style={{
-              color: 'var(--accent-gold)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '0.25rem',
-              fontSize: 'var(--text-sm)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-          >
-            <i className="fas fa-pen"></i>
-          </button>
-          <button
-            onClick={handleDelete}
-            className="icon-btn"
-            title="Delete"
-            style={{
-              color: 'var(--accent-gold)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '0.25rem',
-              fontSize: 'var(--text-sm)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-          >
-            <i className="fas fa-trash"></i>
-          </button>
-        </div>
+        <button
+          onClick={handleDelete}
+          className="icon-btn"
+          title="Delete"
+          style={{
+            color: 'var(--accent-gold)',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0.25rem',
+            fontSize: 'var(--text-sm)',
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+        >
+          <i className="fas fa-trash"></i>
+        </button>
       </td>
     </tr>
   );
