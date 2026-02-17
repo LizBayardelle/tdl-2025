@@ -50,6 +50,12 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [urlDuplicate, setUrlDuplicate] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Collections state
+  const [collections, setCollections] = useState([]);
+  const [itemCollections, setItemCollections] = useState([]);
+  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [collectionFilter, setCollectionFilter] = useState('');
+
   // Debounced duplicate checking
   useEffect(() => {
     if (!isOpen || item) return; // Only check for new sources
@@ -178,7 +184,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       isInitialMount.current = true;
       setTitleDuplicate(null);
       setUrlDuplicate(null);
+      fetchCollections();
+      setCollectionFilter('');
       if (item) {
+        fetchItemCollections(item.id);
         const newFormData = {
           title: item.title || '',
           authors: item.authors || '',
@@ -210,6 +219,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
       } else {
+        setItemCollections([]);
         setFormData({
           title: '',
           authors: '',
@@ -416,6 +426,110 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     }
   };
 
+  const fetchCollections = async () => {
+    setLoadingCollections(true);
+    try {
+      const response = await fetch('/collections.json');
+      const data = await response.json();
+      setCollections(data);
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+    } finally {
+      setLoadingCollections(false);
+    }
+  };
+
+  const fetchItemCollections = async (sourceId) => {
+    try {
+      const response = await fetch(`/sources/${sourceId}.json`);
+      const data = await response.json();
+      setItemCollections(data.collections || []);
+    } catch (error) {
+      console.error('Error fetching item collections:', error);
+    }
+  };
+
+  const handleAddToCollection = async (collectionId) => {
+    if (!item?.id) return;
+
+    try {
+      const response = await fetch(`/collections/${collectionId}/add_item`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          item_type: 'Source',
+          item_id: item.id
+        }),
+      });
+
+      if (response.ok) {
+        const collection = collections.find(c => c.id === collectionId);
+        if (collection && !itemCollections.find(c => c.id === collectionId)) {
+          setItemCollections([...itemCollections, collection]);
+        }
+      }
+    } catch (error) {
+      console.error('Error adding to collection:', error);
+    }
+  };
+
+  const handleRemoveFromCollection = async (collectionId) => {
+    if (!item?.id) return;
+
+    try {
+      const response = await fetch(`/collections/${collectionId}/remove_item`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          item_type: 'Source',
+          item_id: item.id
+        }),
+      });
+
+      if (response.ok) {
+        setItemCollections(itemCollections.filter(c => c.id !== collectionId));
+      }
+    } catch (error) {
+      console.error('Error removing from collection:', error);
+    }
+  };
+
+  const handleCreateCollection = async (name) => {
+    if (!name.trim()) return;
+
+    try {
+      const response = await fetch('/collections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          collection: { name: name.trim() }
+        }),
+      });
+
+      if (response.ok) {
+        const newCollection = await response.json();
+        setCollections([newCollection, ...collections]);
+        setCollectionFilter('');
+        if (item?.id) {
+          handleAddToCollection(newCollection.id);
+        }
+        return newCollection;
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+    }
+    return null;
+  };
+
   const showArticleFields = formData.kind === 'article' || formData.kind === 'conference';
   const showBookFields = formData.kind === 'book';
   const showChapterFields = formData.kind === 'book_chapter';
@@ -435,8 +549,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: 'var(--space-3) var(--space-4)',
-            borderBottom: '1px solid var(--neutral-200)',
-            background: 'var(--sidebar-bg)',
+            background: 'var(--accent-blue)',
             flexShrink: 0,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -445,12 +558,12 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                 fontFamily: 'var(--font-display)',
                 fontSize: 'var(--text-lg)',
                 fontWeight: 700,
-                color: 'var(--accent-blue)',
+                color: 'white',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)',
               }}>
-                <i className="fas fa-book" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+                <i className="fas fa-book" style={{ fontSize: 'var(--text-base)', opacity: 0.9 }}></i>
                 {item ? (formData.title || item.title || 'Untitled Source') : 'New Source'}
               </h2>
             </div>
@@ -461,10 +574,9 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 'var(--space-2)',
-                  background: 'white',
+                  background: 'rgba(255,255,255,0.9)',
                   padding: 'var(--space-1) var(--space-3)',
                   borderRadius: 'var(--radius)',
-                  boxShadow: 'var(--shadow-sm)',
                   fontSize: 'var(--text-xs)',
                   fontFamily: 'var(--font-body)',
                 }}>
@@ -493,7 +605,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                     </>
                   )}
                   {saveStatus === 'idle' && (
-                    <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                    <span style={{ color: 'var(--neutral-400)' }}>Auto-save on</span>
                   )}
                 </div>
               )}
@@ -502,9 +614,9 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                 type="button"
                 onClick={handleClose}
                 style={{
-                  background: 'transparent',
+                  background: 'rgba(255,255,255,0.2)',
                   border: 'none',
-                  color: 'var(--neutral-400)',
+                  color: 'white',
                   fontSize: 'var(--text-xl)',
                   cursor: 'pointer',
                   padding: 'var(--space-1)',
@@ -517,12 +629,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   transition: 'all 0.15s'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                  e.currentTarget.style.color = 'var(--neutral-700)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = 'var(--neutral-400)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
                 }}
                 title="Close"
               >
@@ -542,10 +652,11 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
             {/* Left Sidebar Navigation */}
             <div className="w-12 md:w-[200px]" style={{
-              background: 'var(--sidebar-bg)',
+              background: '#e2e2e2',
               padding: 'var(--space-2)',
               paddingTop: 'var(--space-3)',
               flexShrink: 0,
+              boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.15)',
             }}>
               <div className="hidden md:block" style={{
                 fontSize: 'var(--text-xs)',
@@ -572,24 +683,23 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   borderRadius: 'var(--radius)',
                   cursor: 'pointer',
                   fontSize: 'var(--text-sm)',
-                  color: 'var(--accent-blue)',
-                  background: activeTab === 'basic' ? 'var(--neutral-200)' : 'transparent',
+                  color: 'var(--neutral-700)',
+                  background: activeTab === 'basic' ? '#c8c8c8' : 'transparent',
                   border: 'none',
                   textAlign: 'left',
-                  transition: 'all 0.15s',
+                  transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)',
-                  fontWeight: activeTab === 'basic' ? 600 : 400,
-                  marginBottom: 'var(--space-1)',
+                  marginBottom: '0.25rem',
                 }}
                 onMouseEnter={(e) => {
-                  if (activeTab !== 'basic') e.currentTarget.style.background = 'var(--neutral-100)';
+                  if (activeTab !== 'basic') e.currentTarget.style.background = '#d8d8d8';
                 }}
                 onMouseLeave={(e) => {
                   if (activeTab !== 'basic') e.currentTarget.style.background = 'transparent';
                 }}
                 title="Basic Info"
               >
-                <i className="fas fa-info-circle" style={{ width: '16px', color: 'var(--accent-blue)' }}></i>
+                <i className="fas fa-info-circle" style={{ width: '16px' }}></i>
                 <span className="hidden md:inline">Basic Info</span>
               </button>
 
@@ -606,24 +716,23 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   borderRadius: 'var(--radius)',
                   cursor: 'pointer',
                   fontSize: 'var(--text-sm)',
-                  color: 'var(--accent-blue)',
-                  background: activeTab === 'publication' ? 'var(--neutral-200)' : 'transparent',
+                  color: 'var(--neutral-700)',
+                  background: activeTab === 'publication' ? '#c8c8c8' : 'transparent',
                   border: 'none',
                   textAlign: 'left',
-                  transition: 'all 0.15s',
+                  transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)',
-                  fontWeight: activeTab === 'publication' ? 600 : 400,
-                  marginBottom: 'var(--space-1)',
+                  marginBottom: '0.25rem',
                 }}
                 onMouseEnter={(e) => {
-                  if (activeTab !== 'publication') e.currentTarget.style.background = 'var(--neutral-100)';
+                  if (activeTab !== 'publication') e.currentTarget.style.background = '#d8d8d8';
                 }}
                 onMouseLeave={(e) => {
                   if (activeTab !== 'publication') e.currentTarget.style.background = 'transparent';
                 }}
                 title="Publication"
               >
-                <i className="fas fa-book" style={{ width: '16px', color: 'var(--accent-blue)' }}></i>
+                <i className="fas fa-book" style={{ width: '16px' }}></i>
                 <span className="hidden md:inline">Publication</span>
               </button>
 
@@ -640,24 +749,23 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   borderRadius: 'var(--radius)',
                   cursor: 'pointer',
                   fontSize: 'var(--text-sm)',
-                  color: 'var(--accent-blue)',
-                  background: activeTab === 'content' ? 'var(--neutral-200)' : 'transparent',
+                  color: 'var(--neutral-700)',
+                  background: activeTab === 'content' ? '#c8c8c8' : 'transparent',
                   border: 'none',
                   textAlign: 'left',
-                  transition: 'all 0.15s',
+                  transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)',
-                  fontWeight: activeTab === 'content' ? 600 : 400,
-                  marginBottom: 'var(--space-1)',
+                  marginBottom: '0.25rem',
                 }}
                 onMouseEnter={(e) => {
-                  if (activeTab !== 'content') e.currentTarget.style.background = 'var(--neutral-100)';
+                  if (activeTab !== 'content') e.currentTarget.style.background = '#d8d8d8';
                 }}
                 onMouseLeave={(e) => {
                   if (activeTab !== 'content') e.currentTarget.style.background = 'transparent';
                 }}
                 title="Content"
               >
-                <i className="fas fa-file-alt" style={{ width: '16px', color: 'var(--accent-blue)' }}></i>
+                <i className="fas fa-file-alt" style={{ width: '16px' }}></i>
                 <span className="hidden md:inline">Content</span>
               </button>
 
@@ -674,25 +782,24 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   borderRadius: 'var(--radius)',
                   cursor: 'pointer',
                   fontSize: 'var(--text-sm)',
-                  color: 'var(--accent-blue)',
-                  background: activeTab === 'metadata' ? 'var(--neutral-200)' : 'transparent',
+                  color: 'var(--neutral-700)',
+                  background: activeTab === 'metadata' ? '#c8c8c8' : 'transparent',
                   border: 'none',
                   textAlign: 'left',
-                  transition: 'all 0.15s',
+                  transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)',
-                  fontWeight: activeTab === 'metadata' ? 600 : 400,
-                  marginBottom: 'var(--space-1)',
+                  marginBottom: '0.25rem',
                 }}
                 onMouseEnter={(e) => {
-                  if (activeTab !== 'metadata') e.currentTarget.style.background = 'var(--neutral-100)';
+                  if (activeTab !== 'metadata') e.currentTarget.style.background = '#d8d8d8';
                 }}
                 onMouseLeave={(e) => {
                   if (activeTab !== 'metadata') e.currentTarget.style.background = 'transparent';
                 }}
-                title="Concepts & Tags"
+                title="Connections"
               >
-                <i className="fas fa-tags" style={{ width: '16px', color: 'var(--accent-blue)' }}></i>
-                <span className="hidden md:inline">Concepts & Tags</span>
+                <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
+                <span className="hidden md:inline">Connections</span>
               </button>
             </div>
 
@@ -1327,7 +1434,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                 </div>
               )}
 
-              {/* Concepts & Tags Tab */}
+              {/* Connections Tab */}
               {activeTab === 'metadata' && (
                 <div>
                   <h2 style={{
@@ -1337,27 +1444,343 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                     color: 'var(--accent-blue)',
                     marginBottom: 'var(--space-4)',
                   }}>
-                    Concepts & Tags
+                    Connections
                   </h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+
+                  {/* Row 1: Concepts and People */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
+                    {/* Concepts */}
                     <div>
-                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Concepts</label>
-                      <div style={{ height: '400px', overflowY: 'auto' }}>
+                      <div style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 700,
+                        color: 'var(--accent-green)',
+                        marginBottom: 'var(--space-2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                      }}>
+                        <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
+                        Concepts
+                      </div>
+                      <div style={{ height: '280px' }}>
                         <ConceptSelector
                           selectedConceptIds={formData.concept_ids}
                           onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+                          themeColor="var(--accent-green)"
                         />
                       </div>
                     </div>
 
+                    {/* People */}
                     <div>
-                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Tags</label>
-                      <div style={{ height: '400px', overflowY: 'auto' }}>
+                      <div style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 700,
+                        color: 'var(--accent-gold)',
+                        marginBottom: 'var(--space-2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                      }}>
+                        <i className="fas fa-user" style={{ fontSize: 'var(--text-sm)' }}></i>
+                        People
+                      </div>
+                      <div style={{ height: '280px' }}>
+                        <PeopleSelector
+                          selectedPersonIds={formData.person_ids}
+                          onChange={(person_ids) => setFormData({ ...formData, person_ids })}
+                          themeColor="var(--accent-gold)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Tags and Collections */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                    {/* Tags */}
+                    <div>
+                      <div style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 700,
+                        color: 'var(--accent-purple)',
+                        marginBottom: 'var(--space-2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                      }}>
+                        <i className="fas fa-tag" style={{ fontSize: 'var(--text-sm)' }}></i>
+                        Tags
+                      </div>
+                      <div style={{ height: '280px' }}>
                         <TagSelector
                           selectedTags={formData.tags}
                           onChange={(tags) => setFormData({ ...formData, tags })}
+                          themeColor="var(--accent-purple)"
                         />
                       </div>
+                    </div>
+
+                    {/* Collections */}
+                    <div>
+                      <div style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 700,
+                        color: 'var(--accent-maroon)',
+                        marginBottom: 'var(--space-2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                      }}>
+                        <i className="fas fa-folder" style={{ fontSize: 'var(--text-sm)' }}></i>
+                        Collections
+                      </div>
+
+                      {!item?.id ? (
+                        <div style={{
+                          height: '280px',
+                          padding: 'var(--space-4)',
+                          background: 'var(--neutral-100)',
+                          borderRadius: 'var(--radius)',
+                          border: '1px solid var(--neutral-300)',
+                          color: 'var(--neutral-500)',
+                          fontSize: 'var(--text-sm)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                        }}>
+                          Save the source first to add it to collections.
+                        </div>
+                      ) : (
+                        <div style={{
+                          border: '1px solid var(--neutral-300)',
+                          borderRadius: 'var(--radius)',
+                          overflow: 'hidden',
+                          height: '280px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          background: 'white',
+                        }}>
+                          {/* In Collections */}
+                          <div style={{
+                            padding: 'var(--space-2) var(--space-3)',
+                            background: 'var(--accent-maroon-light)',
+                            borderBottom: '1px solid var(--neutral-200)',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            color: 'var(--accent-maroon)',
+                          }}>
+                            In Collections ({itemCollections.length})
+                          </div>
+                          <div style={{
+                            flex: '0 0 auto',
+                            maxHeight: '80px',
+                            overflowY: 'auto',
+                            borderBottom: '1px solid var(--neutral-200)',
+                          }}>
+                            {itemCollections.length === 0 ? (
+                              <div style={{
+                                padding: 'var(--space-2)',
+                                color: 'var(--neutral-400)',
+                                fontSize: 'var(--text-xs)',
+                                textAlign: 'center',
+                              }}>
+                                Not in any collections yet
+                              </div>
+                            ) : (
+                              <div style={{ padding: 'var(--space-2)' }}>
+                                {itemCollections.map(collection => (
+                                  <div
+                                    key={collection.id}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'space-between',
+                                      padding: 'var(--space-1) var(--space-2)',
+                                      background: 'var(--accent-maroon-light)',
+                                      borderRadius: 'var(--radius)',
+                                      marginBottom: 'var(--space-1)',
+                                    }}
+                                  >
+                                    <span style={{
+                                      fontSize: 'var(--text-xs)',
+                                      color: 'var(--neutral-700)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 'var(--space-1)',
+                                    }}>
+                                      <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: '10px' }}></i>
+                                      {collection.name}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveFromCollection(collection.id)}
+                                      style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: 'var(--neutral-400)',
+                                        cursor: 'pointer',
+                                        padding: '2px 4px',
+                                        fontSize: '10px',
+                                      }}
+                                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
+                                      title="Remove from collection"
+                                    >
+                                      <i className="fas fa-times"></i>
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Add to Collection */}
+                          <div style={{
+                            padding: 'var(--space-2) var(--space-3)',
+                            background: 'var(--neutral-100)',
+                            borderBottom: '1px solid var(--neutral-200)',
+                            fontSize: 'var(--text-xs)',
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            color: 'var(--neutral-500)',
+                          }}>
+                            Add to Collection
+                          </div>
+                          {/* Filter/Create Input */}
+                          <div style={{ padding: 'var(--space-2)', borderBottom: '1px solid var(--neutral-200)' }}>
+                            <input
+                              type="text"
+                              value={collectionFilter}
+                              onChange={(e) => setCollectionFilter(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const filterLower = collectionFilter.trim().toLowerCase();
+                                  const canCreate = collectionFilter.trim() &&
+                                    !collections.some(c => c.name.toLowerCase() === filterLower);
+                                  if (canCreate) {
+                                    handleCreateCollection(collectionFilter.trim());
+                                  }
+                                }
+                              }}
+                              placeholder="Type to filter or create..."
+                              style={{
+                                width: '100%',
+                                padding: 'var(--space-1) var(--space-2)',
+                                border: '1px solid var(--neutral-300)',
+                                borderRadius: 'var(--radius)',
+                                fontSize: 'var(--text-xs)',
+                                fontFamily: 'var(--font-body)',
+                              }}
+                            />
+                            {(() => {
+                              const filterLower = collectionFilter.trim().toLowerCase();
+                              const canCreate = collectionFilter.trim() &&
+                                !collections.some(c => c.name.toLowerCase() === filterLower);
+                              if (canCreate) {
+                                return (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCreateCollection(collectionFilter.trim())}
+                                    style={{
+                                      background: 'none',
+                                      padding: 0,
+                                      color: 'var(--accent-maroon)',
+                                      fontSize: 'var(--text-xs)',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      marginTop: 'var(--space-1)',
+                                      fontFamily: 'var(--font-body)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 'var(--space-1)',
+                                    }}
+                                  >
+                                    <i className="fas fa-plus"></i> Create "{collectionFilter.trim()}"
+                                  </button>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
+                          <div style={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            padding: 'var(--space-1)',
+                          }}>
+                            {loadingCollections ? (
+                              <div style={{
+                                padding: 'var(--space-2)',
+                                color: 'var(--neutral-400)',
+                                fontSize: 'var(--text-xs)',
+                                textAlign: 'center',
+                              }}>
+                                Loading...
+                              </div>
+                            ) : (() => {
+                              const availableCollections = collections
+                                .filter(c => !itemCollections.find(ic => ic.id === c.id))
+                                .filter(c => !collectionFilter.trim() ||
+                                  c.name.toLowerCase().includes(collectionFilter.trim().toLowerCase()));
+
+                              if (availableCollections.length === 0) {
+                                return (
+                                  <div style={{
+                                    padding: 'var(--space-2)',
+                                    color: 'var(--neutral-400)',
+                                    fontSize: 'var(--text-xs)',
+                                    textAlign: 'center',
+                                  }}>
+                                    {collectionFilter.trim()
+                                      ? 'No matches. Press Enter to create.'
+                                      : collections.length === 0
+                                        ? 'No collections yet.'
+                                        : 'In all collections'}
+                                  </div>
+                                );
+                              }
+
+                              return availableCollections.map(collection => (
+                                <div
+                                  key={collection.id}
+                                  onClick={() => handleAddToCollection(collection.id)}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 'var(--space-1)',
+                                    padding: 'var(--space-1) var(--space-2)',
+                                    borderRadius: 'var(--radius)',
+                                    cursor: 'pointer',
+                                    marginBottom: '2px',
+                                    transition: 'background 0.15s',
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                >
+                                  <i className="fas fa-folder" style={{ color: 'var(--neutral-400)', fontSize: '10px' }}></i>
+                                  <span style={{
+                                    fontSize: 'var(--text-xs)',
+                                    color: 'var(--neutral-600)',
+                                    flex: 1,
+                                  }}>
+                                    {collection.name}
+                                  </span>
+                                  <i className="fas fa-plus" style={{ color: 'var(--accent-maroon)', fontSize: '10px' }}></i>
+                                </div>
+                              ));
+                            })()}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1369,31 +1792,50 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           {!item && (
             <div style={{
               borderTop: '1px solid var(--neutral-200)',
-              padding: 'var(--space-6)',
+              background: 'white',
+              padding: 'var(--space-4) var(--space-6)',
               display: 'flex',
-              justifyContent: 'center',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
               gap: 'var(--space-3)',
             }}>
               <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  background: 'white',
+                  color: 'var(--accent-blue)',
+                  border: '1px solid var(--accent-blue)',
+                  borderRadius: '6px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                }}
+              >
+                Cancel
+              </button>
+              <button
                 type="submit"
-                className="btn-primary"
-                style={{ background: 'var(--accent-blue)', minWidth: '140px' }}
-                onMouseEnter={(e) => !submitting && (e.currentTarget.style.background = 'var(--accent-blue-dark)')}
-                onMouseLeave={(e) => !submitting && (e.currentTarget.style.background = 'var(--accent-blue)')}
                 disabled={submitting}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  background: submitting ? 'var(--neutral-300)' : 'var(--accent-blue)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 500,
+                  cursor: submitting ? 'not-allowed' : 'pointer',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                }}
               >
                 {submitting ? (
                   <><i className="fas fa-spinner fa-spin" style={{ marginRight: '8px' }}></i>Saving...</>
                 ) : (
                   'Create Source'
                 )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="btn-secondary"
-              >
-                Cancel
               </button>
             </div>
           )}

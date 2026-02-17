@@ -10,6 +10,37 @@
       </p>
     </div>
 
+    <!-- Profile Image Card (separate auto-saving form) -->
+    <div class="card" style="margin-bottom: var(--space-6);">
+      <div style="padding: var(--space-6);">
+        <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: var(--space-6);">
+          Profile Image
+        </h2>
+
+        <div style="display: flex; align-items: center; gap: var(--space-6);">
+          <!-- Current Image Preview -->
+          <div id="profile-image-preview" style="flex-shrink: 0;">
+            <% if resource.profile_image.attached? && resource.profile_image.blob.persisted? %>
+              <%= image_tag resource.profile_image.variant(resize_to_fill: [96, 96]), style: "width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neutral-200);", id: "profile-image-img" %>
+            <% else %>
+              <div id="profile-image-placeholder" style="width: 96px; height: 96px; border-radius: 50%; background: var(--neutral-200); display: flex; align-items: center; justify-content: center; border: 3px solid var(--neutral-300);">
+                <i class="fas fa-user" style="font-size: 40px; color: var(--neutral-400);"></i>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Upload Field -->
+          <div style="flex: 1;">
+            <label for="profile_image_input" class="form-label" style="display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);">Upload New Image</label>
+            <input type="file" id="profile_image_input" name="profile_image" accept="image/*" class="form-input" style="width: 100%; padding: var(--space-2); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body);" />
+            <div id="profile-image-status" style="font-size: var(--text-xs); color: var(--neutral-500); margin-top: var(--space-2);">
+              JPG, PNG, or GIF. Max 5MB.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
       <!-- Error Messages -->
       <%= render "devise/shared/error_messages", resource: resource %>
@@ -65,7 +96,7 @@
         <!-- Card Footer with Actions -->
         <div style="padding: var(--space-4) var(--space-6); background: var(--card-footer); border-top: 1px solid var(--neutral-200); display: flex; gap: var(--space-3); justify-content: flex-end;">
           <%= link_to "Cancel", :back, style: "background: transparent; color: var(--neutral-700); border: 1px solid var(--neutral-300); padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s;" %>
-          <%= f.submit "Update Account", class: "btn-primary", style: "background: var(--primary); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+          <%= f.submit "Update Login Information", class: "btn-primary", style: "background: var(--primary); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
         </div>
       </div>
     <% end %>
@@ -119,3 +150,75 @@
     background: var(--neutral-100) !important;
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('profile_image_input');
+    const preview = document.getElementById('profile-image-preview');
+    const status = document.getElementById('profile-image-status');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          status.textContent = 'File too large. Max 5MB.';
+          status.style.color = 'var(--error)';
+          return;
+        }
+
+        // Show uploading status
+        status.textContent = 'Uploading...';
+        status.style.color = 'var(--accent-blue)';
+
+        // Create form data
+        const formData = new FormData();
+        formData.append('profile_image', file);
+
+        try {
+          const response = await fetch('<%= update_profile_image_path %>', {
+            method: 'PATCH',
+            headers: {
+              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+              'Accept': 'application/json'
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update preview
+            preview.innerHTML = `<img src="${data.image_url}" style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neutral-200);" id="profile-image-img" />`;
+            status.textContent = 'Image updated!';
+            status.style.color = 'var(--accent-green)';
+
+            // Also update nav profile image if it exists
+            const navImg = document.querySelector('#user-menu-button img');
+            if (navImg) {
+              navImg.src = data.image_url.replace('96', '32').replace('96', '32');
+            }
+
+            // Reset status after a moment
+            setTimeout(() => {
+              status.textContent = 'JPG, PNG, or GIF. Max 5MB.';
+              status.style.color = 'var(--neutral-500)';
+            }, 3000);
+          } else {
+            status.textContent = data.errors?.join(', ') || 'Upload failed.';
+            status.style.color = 'var(--error)';
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          status.textContent = 'Upload failed. Please try again.';
+          status.style.color = 'var(--error)';
+        }
+
+        // Clear the file input
+        fileInput.value = '';
+      });
+    }
+  });
+</script>

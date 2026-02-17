@@ -31,6 +31,9 @@
   --accent-purple: #674675;       /* Tags - muted plum */
   --accent-purple-light: #ebe5ed; /* Pastel version */
 
+  --accent-maroon: #7b3b3b;       /* Collections - maroon */
+  --accent-maroon-light: #f0e5e5; /* Pastel version */
+
   --accent-teal: #639CA1;         /* Notes - teal */
   --accent-teal-light: #e8f2f3;   /* Pastel version */
 
@@ -51,14 +54,14 @@
   --neutral-900: #1a1917;    /* Maximum contrast */
 
   /* BACKGROUNDS */
-  --background: #faf9f6;       /* Warm white - main content area */
-  --sidebar-bg: #f3f1eb;       /* Warm tan - sidebar */
+  --background: #d7d5d0;       /* Warm gray - main content area */
+  --sidebar-bg: #d7d5d0;       /* Warm gray - sidebar */
   --card-header: #faf9f6;      /* Warm white - card headers */
   --card-footer: #f3f1eb;      /* Warm tan - card footers */
 
   /* TYPOGRAPHY */
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Merriweather', Georgia, serif; /* For headings, labels, buttons */
+  --font-display: 'Special Elite', 'Courier New', monospace; /* For headings, labels, buttons */
 
   /* FONT SIZES */
   --text-xs: 0.75rem;        /* 12px - tiny labels */

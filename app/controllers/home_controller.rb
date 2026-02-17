@@ -5,4 +5,8 @@ class HomeController < ApplicationController
   def dashboard
     authenticate_user!
   end
+
+  def sharing
+    authenticate_user!
+  end
 end

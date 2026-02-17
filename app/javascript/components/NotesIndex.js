@@ -226,7 +226,7 @@ export default function NotesIndex() {
         {sidebarOpen && (
           <aside style={{
             width: '280px',
-            background: 'var(--sidebar-bg)',
+            background: '#e2e2e2',
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
@@ -599,29 +599,31 @@ export default function NotesIndex() {
         )}
 
         {/* Main Content */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
           {/* Header */}
           <div style={{
-            padding: 'var(--space-6)',
-            borderBottom: '1px solid var(--neutral-200)',
-            background: 'white'
+            padding: 'var(--space-6) var(--space-8)',
+            background: 'color-mix(in srgb, var(--accent-teal) 15%, white)',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+            position: 'relative',
+            zIndex: 5,
           }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
               <div>
                 <h1 style={{
-                  fontSize: 'var(--text-3xl)',
+                  fontSize: 'var(--text-4xl)',
                   fontWeight: 700,
                   fontFamily: 'var(--font-display)',
-                  color: 'var(--neutral-900)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: 'var(--space-1)',
-                  margin: 0
+                  color: 'var(--accent-teal)',
+                  margin: 0,
+                  lineHeight: 1.1
                 }}>Notes</h1>
                 <p style={{
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--neutral-500)',
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--neutral-600)',
                   fontFamily: 'var(--font-body)',
-                  margin: 0
+                  marginTop: 'var(--space-1)',
+                  marginBottom: 0
                 }}>
                   Showing {filteredNotes.length} of {notes.length} notes
                 </p>
@@ -701,8 +703,9 @@ export default function NotesIndex() {
             flex: 1,
             overflowY: 'auto',
             padding: 'var(--space-6)',
+            paddingTop: 'var(--space-8)',
             paddingLeft: 'calc(var(--space-6) + 24px)',
-            background: 'var(--background)'
+            background: 'white'
           }}>
             {filteredNotes.length === 0 ? (
               <div className="card" style={{
@@ -857,7 +860,7 @@ export default function NotesIndex() {
                     </div>
                     <div style={{
                       padding: 'var(--space-2) var(--space-4)',
-                      background: 'var(--card-footer)',
+                      background: '#e2e2e2',
                       borderTop: '1px solid var(--neutral-200)',
                       display: 'flex',
                       alignItems: 'center',

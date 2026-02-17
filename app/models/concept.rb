@@ -1,4 +1,6 @@
 class Concept < ApplicationRecord
+  include Shareable
+
   belongs_to :user
   has_many :concept_sources, dependent: :destroy
   has_many :sources, through: :concept_sources
@@ -67,6 +69,10 @@ class Concept < ApplicationRecord
 
   def tags_count
     tags.size
+  end
+
+  def collections_count
+    collections.size
   end
 
   private

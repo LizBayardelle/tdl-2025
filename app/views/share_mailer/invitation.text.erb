@@ -1,0 +1,11 @@
+<%= @owner.email %> has shared something with you on TDL!
+
+<%= @shareable.class.name %>: <%= shareable_display_name %>
+Access level: <%= @share.permission.titleize %>
+
+Accept this share by visiting:
+<%= @accept_url %>
+
+If you don't have a TDL account yet, you'll be able to create one when you click the link above.
+
+If you weren't expecting this email, you can safely ignore it.

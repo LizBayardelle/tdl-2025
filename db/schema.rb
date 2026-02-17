@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_16_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,31 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
     t.index ["full_name"], name: "index_authors_on_full_name"
     t.index ["orcid"], name: "index_authors_on_orcid", unique: true, where: "(orcid IS NOT NULL)"
     t.index ["user_id"], name: "index_authors_on_user_id"
+  end
+
+  create_table "collection_items", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.string "collectable_type", null: false
+    t.bigint "collectable_id", null: false
+    t.datetime "added_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.bigint "added_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["added_by_id"], name: "index_collection_items_on_added_by_id"
+    t.index ["collectable_type", "collectable_id"], name: "index_collection_items_on_collectable_type_and_collectable_id"
+    t.index ["collection_id", "collectable_type", "collectable_id"], name: "idx_collection_items_unique", unique: true
+    t.index ["collection_id"], name: "index_collection_items_on_collection_id"
+  end
+
+  create_table "collections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "slug"], name: "index_collections_on_user_id_and_slug", unique: true
+    t.index ["user_id"], name: "index_collections_on_user_id"
   end
 
   create_table "concept_notes", force: :cascade do |t|
@@ -240,6 +265,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
     t.index ["source_id"], name: "index_people_sources_on_source_id"
   end
 
+  create_table "shares", force: :cascade do |t|
+    t.bigint "owner_id", null: false
+    t.bigint "recipient_id"
+    t.string "shareable_type", null: false
+    t.bigint "shareable_id", null: false
+    t.string "permission", default: "viewer", null: false
+    t.string "invited_email"
+    t.string "invite_token"
+    t.datetime "invite_sent_at"
+    t.datetime "invite_accepted_at"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invite_token"], name: "index_shares_on_invite_token", unique: true, where: "(invite_token IS NOT NULL)"
+    t.index ["invited_email"], name: "index_shares_on_invited_email"
+    t.index ["owner_id"], name: "index_shares_on_owner_id"
+    t.index ["recipient_id"], name: "index_shares_on_recipient_id"
+    t.index ["shareable_type", "shareable_id"], name: "index_shares_on_shareable_type_and_shareable_id"
+  end
+
   create_table "source_authors", force: :cascade do |t|
     t.bigint "source_id", null: false
     t.bigint "author_id", null: false
@@ -328,6 +373,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "authors", "users"
+  add_foreign_key "collection_items", "collections"
+  add_foreign_key "collection_items", "users", column: "added_by_id"
+  add_foreign_key "collections", "users"
   add_foreign_key "concept_notes", "concepts"
   add_foreign_key "concept_notes", "notes"
   add_foreign_key "concept_sources", "concepts"
@@ -350,6 +398,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_09_203357) do
   add_foreign_key "people_notes", "people"
   add_foreign_key "people_sources", "people"
   add_foreign_key "people_sources", "sources"
+  add_foreign_key "shares", "users", column: "owner_id"
+  add_foreign_key "shares", "users", column: "recipient_id"
   add_foreign_key "source_authors", "authors"
   add_foreign_key "source_authors", "sources"
   add_foreign_key "sources", "users"

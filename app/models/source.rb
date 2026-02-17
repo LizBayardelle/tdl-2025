@@ -1,5 +1,6 @@
 class Source < ApplicationRecord
   include Taggable
+  include Shareable
 
   belongs_to :user
 

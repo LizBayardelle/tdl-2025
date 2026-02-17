@@ -134,7 +134,7 @@ export default function TagsIndex() {
         {sidebarOpen && (
           <aside style={{
             width: '280px',
-            background: 'var(--sidebar-bg)',
+            background: '#e2e2e2',
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
@@ -187,7 +187,7 @@ export default function TagsIndex() {
 
             {/* Tags List */}
             <div style={{
-              borderTop: '1px solid var(--neutral-200)',
+              borderTop: '1px solid var(--neutral-300)',
               paddingTop: 'var(--space-3)'
             }}>
               <h2 style={{
@@ -226,7 +226,7 @@ export default function TagsIndex() {
                       }}
                       onMouseEnter={(e) => {
                         if (selectedTag?.id !== tag.id) {
-                          e.currentTarget.style.background = 'var(--neutral-100)';
+                          e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -301,21 +301,25 @@ export default function TagsIndex() {
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
           {/* Header */}
           <div style={{
-            padding: 'var(--space-6)',
-            borderBottom: '1px solid var(--neutral-200)',
+            padding: 'var(--space-6) var(--space-8)',
+            background: 'color-mix(in srgb, var(--accent-purple) 15%, white)',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+            position: 'relative',
+            zIndex: 5,
           }}>
             <h1 style={{
               fontSize: 'var(--text-4xl)',
               fontWeight: 700,
               fontFamily: 'var(--font-display)',
               color: 'var(--accent-purple)',
-              margin: 0
+              margin: 0,
+              lineHeight: 1.1
             }}>Tags</h1>
             <p style={{
               fontSize: 'var(--text-base)',
               color: 'var(--neutral-600)',
               fontFamily: 'var(--font-body)',
-              marginTop: 'var(--space-2)',
+              marginTop: 'var(--space-1)',
               marginBottom: 0
             }}>
               Browse and organize your knowledge by tags

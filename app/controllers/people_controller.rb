@@ -1,19 +1,25 @@
 class PeopleController < ApplicationController
   before_action :authenticate_user!
   before_action :set_person, only: [:show, :update, :destroy]
+  before_action :authorize_edit!, only: [:update, :destroy]
 
   def index
-    @people = current_user.people.alphabetical
+    auth = AuthorizationService.new(current_user)
+    accessible_ids = auth.accessible_ids(Person)
+    @people = Person.where(id: accessible_ids).alphabetical
 
     respond_to do |format|
       format.html
       format.json {
         render json: @people.includes(:concepts, :sources, :notes, :tags).map { |person|
+          is_owner = person.user_id == current_user.id
           person.as_json.merge(
             sources_count: person.sources.count,
             notes_count: person.notes.count,
             concepts: person.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
-            tags: person.tags.pluck(:name)
+            tags: is_owner ? person.tags.pluck(:name) : [],
+            permission: person.permission_for(current_user),
+            is_owner: is_owner
           )
         }
       }
@@ -100,7 +106,12 @@ class PeopleController < ApplicationController
   private
 
   def set_person
-    @person = current_user.people.find(params[:id])
+    @person = Person.find(params[:id])
+    head :forbidden unless @person.shared_with?(current_user)
+  end
+
+  def authorize_edit!
+    head :forbidden unless @person.editable_by?(current_user)
   end
 
   def person_params

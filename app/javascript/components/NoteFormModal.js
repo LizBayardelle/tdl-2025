@@ -40,7 +40,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
   });
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
-  const [editorExpanded, setEditorExpanded] = useState(false);
+  const [fullscreenMode, setFullscreenMode] = useState(false);
   const saveTimeoutRef = useRef(null);
   const isInitialMount = useRef(true);
   const lastSavedData = useRef(null);
@@ -280,6 +280,136 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
   const divider = (
     <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
   );
+
+  // Fullscreen mode render
+  if (fullscreenMode && isOpen) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 10000,
+        background: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        {/* Fullscreen Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 'var(--space-2) var(--space-3)',
+          borderBottom: '1px solid var(--neutral-200)',
+          background: 'var(--sidebar-bg)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <button
+              type="button"
+              onClick={() => setFullscreenMode(false)}
+              style={{
+                background: '#639CA1',
+                border: 'none',
+                color: 'white',
+                fontSize: 'var(--text-sm)',
+                cursor: 'pointer',
+                padding: 'var(--space-1) var(--space-2)',
+                borderRadius: 'var(--radius)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-1)',
+              }}
+            >
+              <i className="fas fa-compress"></i>
+              <span>Exit</span>
+            </button>
+            <span style={{
+              fontSize: 'var(--text-sm)',
+              color: 'var(--neutral-600)',
+              fontFamily: 'var(--font-body)',
+            }}>
+              {formData.title || 'Untitled Note'}
+            </span>
+          </div>
+          {/* Save status in fullscreen */}
+          {item && (
+            <div style={{
+              fontSize: 'var(--text-xs)',
+              color: saveStatus === 'saved' ? 'var(--accent-green)' :
+                     saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
+            }}>
+              {saveStatus === 'pending' && <><i className="fas fa-circle-notch fa-spin"></i> Pending...</>}
+              {saveStatus === 'saving' && <><i className="fas fa-circle-notch fa-spin"></i> Saving...</>}
+              {saveStatus === 'saved' && <><i className="fas fa-check"></i> Saved</>}
+              {saveStatus === 'error' && <><i className="fas fa-exclamation-circle"></i> Error</>}
+              {saveStatus === 'idle' && <span style={{ color: 'var(--neutral-400)' }}>Auto-save on</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Fullscreen Toolbar */}
+        {editor && (
+          <div style={{
+            padding: 'var(--space-2)',
+            borderBottom: '1px solid var(--neutral-200)',
+            display: 'flex',
+            gap: 'var(--space-1)',
+            flexWrap: 'wrap',
+            background: 'white',
+            flexShrink: 0,
+          }}>
+            <button type="button" onClick={() => editor.chain().focus().toggleBold().run()}
+              style={toolbarButtonStyle(editor.isActive('bold'))} {...toolbarHover(editor.isActive('bold'))} title="Bold">
+              <FontAwesomeIcon icon={faBold} />
+            </button>
+            <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()}
+              style={toolbarButtonStyle(editor.isActive('italic'))} {...toolbarHover(editor.isActive('italic'))} title="Italic">
+              <FontAwesomeIcon icon={faItalic} />
+            </button>
+            <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()}
+              style={toolbarButtonStyle(editor.isActive('underline'))} {...toolbarHover(editor.isActive('underline'))} title="Underline">
+              <FontAwesomeIcon icon={faUnderline} />
+            </button>
+            {divider}
+            <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}
+              style={toolbarButtonStyle(editor.isActive('bulletList'))} {...toolbarHover(editor.isActive('bulletList'))} title="Bullet List">
+              <FontAwesomeIcon icon={faListUl} />
+            </button>
+            <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              style={toolbarButtonStyle(editor.isActive('orderedList'))} {...toolbarHover(editor.isActive('orderedList'))} title="Numbered List">
+              <FontAwesomeIcon icon={faListOl} />
+            </button>
+            {divider}
+            <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              style={toolbarButtonStyle(editor.isActive('blockquote'))} {...toolbarHover(editor.isActive('blockquote'))} title="Blockquote">
+              <FontAwesomeIcon icon={faQuoteLeft} />
+            </button>
+            <button type="button" onClick={() => {
+              const url = window.prompt('Enter URL:');
+              if (url) editor.chain().focus().setLink({ href: url }).run();
+            }} style={toolbarButtonStyle(editor.isActive('link'))} {...toolbarHover(editor.isActive('link'))} title="Add Link">
+              <FontAwesomeIcon icon={faLink} />
+            </button>
+          </div>
+        )}
+
+        {/* Fullscreen Editor */}
+        <div style={{
+          flex: 1,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+        }}>
+          <EditorContent
+            editor={editor}
+            style={{ fontSize: '16px' }} // Prevent iOS zoom
+            className="h-full px-4 py-3 prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-full [&_.ProseMirror]:text-base [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SlidePanel
@@ -848,24 +978,20 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
 
                 {divider}
 
-                {/* Expand/Collapse */}
+                {/* Fullscreen mode */}
                 <button
                   type="button"
-                  onClick={() => setEditorExpanded(!editorExpanded)}
-                  style={toolbarButtonStyle(editorExpanded)}
-                  {...toolbarHover(editorExpanded)}
-                  title={editorExpanded ? "Collapse editor" : "Expand editor"}
+                  onClick={() => setFullscreenMode(true)}
+                  style={toolbarButtonStyle(false)}
+                  {...toolbarHover(false)}
+                  title="Fullscreen mode"
                 >
-                  <FontAwesomeIcon icon={editorExpanded ? faCompress : faExpand} />
+                  <FontAwesomeIcon icon={faExpand} />
                 </button>
               </div>
             )}
                 <div style={{
-                  height: editorExpanded ? '60vh' : 'auto',
-                  minHeight: editorExpanded ? '60vh' : '150px',
-                  maxHeight: editorExpanded ? '60vh' : 'none',
-                  overflowY: editorExpanded ? 'auto' : 'visible',
-                  transition: 'all 0.2s ease',
+                  minHeight: '150px',
                 }}>
                   <EditorContent
                     editor={editor}

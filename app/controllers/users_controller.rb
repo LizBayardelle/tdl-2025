@@ -1,0 +1,31 @@
+class UsersController < ApplicationController
+  before_action :authenticate_user!
+
+  def update_profile_image
+    if params[:profile_image].present?
+      current_user.profile_image.attach(params[:profile_image])
+
+      if current_user.save
+        respond_to do |format|
+          format.json do
+            render json: {
+              success: true,
+              image_url: url_for(current_user.profile_image.variant(resize_to_fill: [96, 96]))
+            }
+          end
+          format.html { redirect_to edit_user_registration_path, notice: "Profile image updated." }
+        end
+      else
+        respond_to do |format|
+          format.json { render json: { success: false, errors: current_user.errors.full_messages }, status: :unprocessable_entity }
+          format.html { redirect_to edit_user_registration_path, alert: "Failed to update profile image." }
+        end
+      end
+    else
+      respond_to do |format|
+        format.json { render json: { success: false, errors: ["No image provided"] }, status: :unprocessable_entity }
+        format.html { redirect_to edit_user_registration_path, alert: "No image provided." }
+      end
+    end
+  end
+end

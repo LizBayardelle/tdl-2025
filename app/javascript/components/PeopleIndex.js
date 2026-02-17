@@ -183,11 +183,11 @@ export default function PeopleIndex() {
       <div
         style={{
           width: sidebarOpen ? '280px' : '0',
-          background: 'var(--sidebar-bg)',
+          background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
           padding: sidebarOpen ? 'var(--space-6)' : '0',
-          boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
+          boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
           transition: 'all 0.3s ease',
         }}
       >
@@ -494,23 +494,25 @@ export default function PeopleIndex() {
       </button>
 
       {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
         {/* Header */}
         <div style={{
-          padding: 'var(--space-6)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'white'
+          padding: 'var(--space-6) var(--space-8)',
+          background: 'color-mix(in srgb, var(--accent-gold) 15%, white)',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+          position: 'relative',
+          zIndex: 5,
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <div>
               <h1
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-3xl)',
+                  fontSize: 'var(--text-4xl)',
                   fontWeight: 700,
-                  color: 'var(--neutral-900)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: 'var(--space-1)',
+                  color: 'var(--accent-gold)',
+                  margin: 0,
+                  lineHeight: 1.1,
                 }}
               >
                 People
@@ -518,9 +520,10 @@ export default function PeopleIndex() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--neutral-500)',
-                  margin: 0,
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--neutral-600)',
+                  marginTop: 'var(--space-1)',
+                  marginBottom: 0,
                 }}
               >
                 {filteredPeople.length} of {people.length} people
@@ -587,7 +590,8 @@ export default function PeopleIndex() {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          background: '#ffffff'
+          background: 'white',
+          paddingTop: 'var(--space-8)',
         }}>
           {sortedPeople.length === 0 ? (
             <div
@@ -612,11 +616,11 @@ export default function PeopleIndex() {
             <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
                 <thead style={{
-                  background: 'var(--card-footer)',
+                  background: 'white',
                   position: 'sticky',
                   top: 0,
                   zIndex: 10,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   <tr>
                     <th
@@ -627,13 +631,13 @@ export default function PeopleIndex() {
                         padding: '0.75rem 1rem 0.75rem 2rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-gold)',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        transition: 'color 0.15s',
+                        transition: 'opacity 0.15s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       Name {sortField === 'name' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -647,13 +651,13 @@ export default function PeopleIndex() {
                         padding: '0.75rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-gold)',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        transition: 'color 0.15s',
+                        transition: 'opacity 0.15s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       Role {sortField === 'role' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -665,7 +669,7 @@ export default function PeopleIndex() {
                       padding: '0.75rem 1rem',
                       fontWeight: 600,
                       fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
+                      color: 'var(--accent-gold)',
                       width: '80px'
                     }}>
                       Contact
@@ -678,14 +682,14 @@ export default function PeopleIndex() {
                         padding: '0.75rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-gold)',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        transition: 'color 0.15s',
+                        transition: 'opacity 0.15s',
                         width: '100px'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       Sources {sortField === 'sources' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -699,14 +703,14 @@ export default function PeopleIndex() {
                         padding: '0.75rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-gold)',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        transition: 'color 0.15s',
+                        transition: 'opacity 0.15s',
                         width: '100px'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       Notes {sortField === 'notes' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -720,14 +724,14 @@ export default function PeopleIndex() {
                         padding: '0.75rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-gold)',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        transition: 'color 0.15s',
+                        transition: 'opacity 0.15s',
                         width: '100px'
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                       Tags {sortField === 'tags' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>

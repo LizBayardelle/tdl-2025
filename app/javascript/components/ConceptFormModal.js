@@ -44,6 +44,12 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
   const isInitialMount = useRef(true);
   const lastSavedData = useRef(null);
 
+  // Collections state
+  const [collections, setCollections] = useState([]);
+  const [itemCollections, setItemCollections] = useState([]); // collections this concept is in
+  const [loadingCollections, setLoadingCollections] = useState(false);
+  const [collectionFilter, setCollectionFilter] = useState('');
+
   // Editor extensions configuration
   const editorExtensions = [
     StarterKit,
@@ -187,7 +193,10 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
       setSaveStatus('idle');
       isInitialMount.current = true;
       fetchConcepts();
+      fetchCollections();
+      setCollectionFilter('');
       if (item) {
+        fetchItemCollections(item.id);
         const newFormData = {
           label: item.label || '',
           node_type: item.node_type || 'undeclared',
@@ -219,6 +228,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         };
         setFormData(newFormData);
         lastSavedData.current = null;
+        setItemCollections([]);
         // Clear editor content
         if (editorTop) editorTop.commands.setContent('');
         if (editorMid) editorMid.commands.setContent('');
@@ -236,6 +246,114 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
     } catch (error) {
       console.error('Error fetching concepts:', error);
     }
+  };
+
+  const fetchCollections = async () => {
+    setLoadingCollections(true);
+    try {
+      const response = await fetch('/collections.json');
+      const data = await response.json();
+      setCollections(data);
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+    } finally {
+      setLoadingCollections(false);
+    }
+  };
+
+  const fetchItemCollections = async (conceptId) => {
+    try {
+      const response = await fetch(`/concepts/${conceptId}.json`);
+      const data = await response.json();
+      setItemCollections(data.collections || []);
+    } catch (error) {
+      console.error('Error fetching item collections:', error);
+    }
+  };
+
+  const handleAddToCollection = async (collectionId) => {
+    if (!item?.id) return;
+
+    try {
+      const response = await fetch(`/collections/${collectionId}/add_item`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          item_type: 'Concept',
+          item_id: item.id
+        }),
+      });
+
+      if (response.ok) {
+        // Add to local state
+        const collection = collections.find(c => c.id === collectionId);
+        if (collection && !itemCollections.find(c => c.id === collectionId)) {
+          setItemCollections([...itemCollections, collection]);
+        }
+      }
+    } catch (error) {
+      console.error('Error adding to collection:', error);
+    }
+  };
+
+  const handleRemoveFromCollection = async (collectionId) => {
+    if (!item?.id) return;
+
+    try {
+      const response = await fetch(`/collections/${collectionId}/remove_item`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          item_type: 'Concept',
+          item_id: item.id
+        }),
+      });
+
+      if (response.ok) {
+        setItemCollections(itemCollections.filter(c => c.id !== collectionId));
+      }
+    } catch (error) {
+      console.error('Error removing from collection:', error);
+    }
+  };
+
+  const handleCreateCollection = async (name) => {
+    if (!name.trim()) return;
+
+    try {
+      const response = await fetch('/collections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          collection: { name: name.trim() }
+        }),
+      });
+
+      if (response.ok) {
+        const newCollection = await response.json();
+        // Add to collections list
+        setCollections([newCollection, ...collections]);
+        // Clear filter
+        setCollectionFilter('');
+        // If we have an item, also add it to this new collection
+        if (item?.id) {
+          handleAddToCollection(newCollection.id);
+        }
+        return newCollection;
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+    }
+    return null;
   };
 
   const handleDeleteRelationship = async (relationshipId) => {
@@ -432,8 +550,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: 'var(--space-3) var(--space-4)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--sidebar-bg)',
+          background: 'var(--accent-green)',
           flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
@@ -443,9 +560,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 type="button"
                 onClick={handleClose}
                 style={{
-                  background: 'var(--accent-green-light)',
-                  border: '1px solid var(--primary)',
-                  color: 'var(--primary)',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  color: 'white',
                   fontSize: 'var(--text-sm)',
                   cursor: 'pointer',
                   padding: 'var(--space-1) var(--space-2)',
@@ -458,12 +575,10 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                   transition: 'all 0.15s'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--primary)';
-                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-green-light)';
-                  e.currentTarget.style.color = 'var(--primary)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
                 }}
                 title="Go back to previous concept"
               >
@@ -476,19 +591,19 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
               fontFamily: 'var(--font-display)',
               fontSize: 'var(--text-lg)',
               fontWeight: 700,
-              color: 'var(--primary)',
+              color: 'white',
               display: 'flex',
               alignItems: 'center',
               gap: 'var(--space-2)',
             }}>
-              <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+              <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-base)', opacity: 0.9 }}></i>
               {item ? (formData.label || item.label || 'Untitled Concept') : 'New Construct'}
             </h2>
             {stackDepth > 0 && (
               <span style={{
                 fontSize: 'var(--text-xs)',
-                color: 'var(--neutral-400)',
-                background: 'var(--neutral-100)',
+                color: 'white',
+                background: 'rgba(255,255,255,0.2)',
                 padding: '2px 8px',
                 borderRadius: '10px',
               }}>
@@ -503,10 +618,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 display: 'flex',
                 alignItems: 'center',
                 gap: 'var(--space-2)',
-                background: 'white',
+                background: 'rgba(255,255,255,0.9)',
                 padding: 'var(--space-1) var(--space-3)',
                 borderRadius: 'var(--radius)',
-                boxShadow: 'var(--shadow-sm)',
                 fontSize: 'var(--text-xs)',
                 fontFamily: 'var(--font-body)',
               }}>
@@ -518,8 +632,8 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 )}
                 {saveStatus === 'saving' && (
                   <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--primary)' }}></i>
-                    <span style={{ color: 'var(--primary)' }}>Saving...</span>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-green)' }}></i>
+                    <span style={{ color: 'var(--accent-green)' }}>Saving...</span>
                   </>
                 )}
                 {saveStatus === 'saved' && (
@@ -535,7 +649,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                   </>
                 )}
                 {saveStatus === 'idle' && (
-                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
+                  <span style={{ color: 'var(--neutral-400)' }}>Auto-save on</span>
                 )}
               </div>
             )}
@@ -544,9 +658,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
               type="button"
               onClick={handleClose}
               style={{
-                background: 'transparent',
+                background: 'rgba(255,255,255,0.2)',
                 border: 'none',
-                color: 'var(--neutral-400)',
+                color: 'white',
                 fontSize: 'var(--text-xl)',
                 cursor: 'pointer',
                 padding: 'var(--space-1)',
@@ -559,12 +673,10 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 transition: 'all 0.15s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--neutral-200)';
-                e.currentTarget.style.color = 'var(--neutral-700)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = 'var(--neutral-400)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
               }}
               title="Close"
             >
@@ -584,10 +696,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
-            background: 'var(--sidebar-bg)',
+            background: '#e2e2e2',
             padding: 'var(--space-2)',
             paddingTop: 'var(--space-3)',
             flexShrink: 0,
+            boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.15)',
           }}>
             <div className="hidden md:block" style={{
               fontSize: 'var(--text-xs)',
@@ -615,7 +728,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 cursor: 'pointer',
                 fontSize: 'var(--text-sm)',
                 color: 'var(--neutral-700)',
-                background: activeTab === 'basics' ? 'var(--neutral-200)' : 'transparent',
+                background: activeTab === 'basics' ? '#c8c8c8' : 'transparent',
                 border: 'none',
                 transition: 'background 0.15s',
                 marginBottom: '0.25rem',
@@ -623,7 +736,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 fontFamily: 'var(--font-body)',
               }}
               onMouseEnter={(e) => {
-                if (activeTab !== 'basics') e.currentTarget.style.background = 'var(--neutral-100)';
+                if (activeTab !== 'basics') e.currentTarget.style.background = '#d8d8d8';
               }}
               onMouseLeave={(e) => {
                 if (activeTab !== 'basics') e.currentTarget.style.background = 'transparent';
@@ -648,7 +761,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 cursor: 'pointer',
                 fontSize: 'var(--text-sm)',
                 color: 'var(--neutral-700)',
-                background: activeTab === 'summaries' ? 'var(--neutral-200)' : 'transparent',
+                background: activeTab === 'summaries' ? '#c8c8c8' : 'transparent',
                 border: 'none',
                 transition: 'background 0.15s',
                 marginBottom: '0.25rem',
@@ -656,7 +769,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 fontFamily: 'var(--font-body)',
               }}
               onMouseEnter={(e) => {
-                if (activeTab !== 'summaries') e.currentTarget.style.background = 'var(--neutral-100)';
+                if (activeTab !== 'summaries') e.currentTarget.style.background = '#d8d8d8';
               }}
               onMouseLeave={(e) => {
                 if (activeTab !== 'summaries') e.currentTarget.style.background = 'transparent';
@@ -714,7 +827,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 cursor: 'pointer',
                 fontSize: 'var(--text-sm)',
                 color: 'var(--neutral-700)',
-                background: activeTab === 'relationships' ? 'var(--neutral-200)' : 'transparent',
+                background: activeTab === 'relationships' ? '#c8c8c8' : 'transparent',
                 border: 'none',
                 transition: 'background 0.15s',
                 marginBottom: '0.25rem',
@@ -722,7 +835,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 fontFamily: 'var(--font-body)',
               }}
               onMouseEnter={(e) => {
-                if (activeTab !== 'relationships') e.currentTarget.style.background = 'var(--neutral-100)';
+                if (activeTab !== 'relationships') e.currentTarget.style.background = '#d8d8d8';
               }}
               onMouseLeave={(e) => {
                 if (activeTab !== 'relationships') e.currentTarget.style.background = 'transparent';
@@ -738,7 +851,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           <div style={{
             flex: 1,
             overflowY: 'auto',
-            background: 'var(--background)',
+            background: 'white',
             padding: 'var(--space-6)',
           }}>
           {activeTab === 'basics' && (
@@ -1461,23 +1574,285 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 })()}
               </div>
 
-              {/* Tags */}
-              <div style={{ marginTop: 'var(--space-6)' }}>
-                <div style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-xl)',
-                  fontWeight: 700,
-                  color: 'var(--primary)',
-                  marginBottom: 'var(--space-3)',
-                }}>
-                  Tags
+              {/* Tags & Collections - 2 column layout */}
+              <div style={{
+                marginTop: 'var(--space-6)',
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 'var(--space-6)',
+              }}>
+                {/* Tags Column */}
+                <div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--text-xl)',
+                    fontWeight: 700,
+                    color: 'var(--primary)',
+                    marginBottom: 'var(--space-3)',
+                  }}>
+                    Tags
+                  </div>
+                  <div style={{ height: '350px' }}>
+                    <TagSelector
+                      selectedTags={formData.tags}
+                      onChange={(tags) => setFormData({ ...formData, tags: tags })}
+                      themeColor="var(--accent-green)"
+                    />
+                  </div>
                 </div>
-                <div style={{ height: '350px' }}>
-                  <TagSelector
-                    selectedTags={formData.tags}
-                    onChange={(tags) => setFormData({ ...formData, tags: tags })}
-                    themeColor="var(--accent-green)"
-                  />
+
+                {/* Collections Column */}
+                <div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--text-xl)',
+                    fontWeight: 700,
+                    color: 'var(--accent-maroon)',
+                    marginBottom: 'var(--space-3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                  }}>
+                    <i className="fas fa-folder" style={{ fontSize: 'var(--text-lg)' }}></i>
+                    Collections
+                  </div>
+
+                  {!item?.id ? (
+                    <div style={{
+                      padding: 'var(--space-4)',
+                      background: 'var(--neutral-100)',
+                      borderRadius: 'var(--radius)',
+                      color: 'var(--neutral-500)',
+                      fontSize: 'var(--text-sm)',
+                      textAlign: 'center',
+                    }}>
+                      Save the construct first to add it to collections.
+                    </div>
+                  ) : (
+                    <div style={{
+                      border: '1px solid var(--neutral-200)',
+                      borderRadius: 'var(--radius)',
+                      overflow: 'hidden',
+                      height: '350px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}>
+                      {/* In Collections */}
+                      <div style={{
+                        padding: 'var(--space-2) var(--space-3)',
+                        background: 'var(--accent-maroon-light)',
+                        borderBottom: '1px solid var(--neutral-200)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'var(--accent-maroon)',
+                      }}>
+                        In Collections ({itemCollections.length})
+                      </div>
+                      <div style={{
+                        flex: '0 0 auto',
+                        maxHeight: '140px',
+                        overflowY: 'auto',
+                        borderBottom: '1px solid var(--neutral-200)',
+                      }}>
+                        {itemCollections.length === 0 ? (
+                          <div style={{
+                            padding: 'var(--space-3)',
+                            color: 'var(--neutral-400)',
+                            fontSize: 'var(--text-sm)',
+                            textAlign: 'center',
+                          }}>
+                            Not in any collections yet
+                          </div>
+                        ) : (
+                          <div style={{ padding: 'var(--space-2)' }}>
+                            {itemCollections.map(collection => (
+                              <div
+                                key={collection.id}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  padding: 'var(--space-2)',
+                                  background: 'var(--accent-maroon-light)',
+                                  borderRadius: 'var(--radius)',
+                                  marginBottom: 'var(--space-1)',
+                                }}
+                              >
+                                <span style={{
+                                  fontSize: 'var(--text-sm)',
+                                  color: 'var(--neutral-700)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 'var(--space-2)',
+                                }}>
+                                  <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: 'var(--text-xs)' }}></i>
+                                  {collection.name}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveFromCollection(collection.id)}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--neutral-400)',
+                                    cursor: 'pointer',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    fontSize: 'var(--text-xs)',
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
+                                  title="Remove from collection"
+                                >
+                                  <i className="fas fa-times"></i>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Available Collections */}
+                      <div style={{
+                        padding: 'var(--space-2) var(--space-3)',
+                        background: 'var(--neutral-100)',
+                        borderBottom: '1px solid var(--neutral-200)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: 'var(--neutral-500)',
+                      }}>
+                        Add to Collection
+                      </div>
+                      {/* Filter/Create Input */}
+                      <div style={{ padding: 'var(--space-2)', borderBottom: '1px solid var(--neutral-200)' }}>
+                        <input
+                          type="text"
+                          value={collectionFilter}
+                          onChange={(e) => setCollectionFilter(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const filterLower = collectionFilter.trim().toLowerCase();
+                              const canCreate = collectionFilter.trim() &&
+                                !collections.some(c => c.name.toLowerCase() === filterLower);
+                              if (canCreate) {
+                                handleCreateCollection(collectionFilter.trim());
+                              }
+                            }
+                          }}
+                          placeholder="Type to filter or create..."
+                          style={{
+                            width: '100%',
+                            padding: 'var(--space-2)',
+                            border: '1px solid var(--neutral-300)',
+                            borderRadius: 'var(--radius)',
+                            fontSize: 'var(--text-sm)',
+                            fontFamily: 'var(--font-body)',
+                          }}
+                        />
+                        {(() => {
+                          const filterLower = collectionFilter.trim().toLowerCase();
+                          const canCreate = collectionFilter.trim() &&
+                            !collections.some(c => c.name.toLowerCase() === filterLower);
+                          if (canCreate) {
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => handleCreateCollection(collectionFilter.trim())}
+                                style={{
+                                  background: 'none',
+                                  padding: 0,
+                                  color: 'var(--accent-maroon)',
+                                  fontSize: 'var(--text-xs)',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  marginTop: 'var(--space-2)',
+                                  fontFamily: 'var(--font-body)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 'var(--space-1)',
+                                }}
+                              >
+                                <i className="fas fa-plus"></i> Create "{collectionFilter.trim()}"
+                              </button>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                      <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        padding: 'var(--space-2)',
+                      }}>
+                        {loadingCollections ? (
+                          <div style={{
+                            padding: 'var(--space-3)',
+                            color: 'var(--neutral-400)',
+                            fontSize: 'var(--text-sm)',
+                            textAlign: 'center',
+                          }}>
+                            Loading collections...
+                          </div>
+                        ) : (() => {
+                          const availableCollections = collections
+                            .filter(c => !itemCollections.find(ic => ic.id === c.id))
+                            .filter(c => !collectionFilter.trim() ||
+                              c.name.toLowerCase().includes(collectionFilter.trim().toLowerCase()));
+
+                          if (availableCollections.length === 0) {
+                            return (
+                              <div style={{
+                                padding: 'var(--space-3)',
+                                color: 'var(--neutral-400)',
+                                fontSize: 'var(--text-sm)',
+                                textAlign: 'center',
+                              }}>
+                                {collectionFilter.trim()
+                                  ? 'No matching collections. Press Enter to create.'
+                                  : collections.length === 0
+                                    ? 'No collections yet. Type above to create one.'
+                                    : 'Already in all collections'}
+                              </div>
+                            );
+                          }
+
+                          return availableCollections.map(collection => (
+                            <div
+                              key={collection.id}
+                              onClick={() => handleAddToCollection(collection.id)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-2)',
+                                padding: 'var(--space-2)',
+                                borderRadius: 'var(--radius)',
+                                cursor: 'pointer',
+                                marginBottom: 'var(--space-1)',
+                                transition: 'background 0.15s',
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                            >
+                              <i className="fas fa-folder" style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}></i>
+                              <span style={{
+                                fontSize: 'var(--text-sm)',
+                                color: 'var(--neutral-600)',
+                                flex: 1,
+                              }}>
+                                {collection.name}
+                              </span>
+                              <i className="fas fa-plus" style={{ color: 'var(--accent-maroon)', fontSize: 'var(--text-xs)' }}></i>
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1489,25 +1864,45 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         {!item ? (
           <div style={{
             borderTop: '1px solid var(--neutral-200)',
-            background: 'var(--background)',
-            padding: 'var(--space-6)',
+            background: 'white',
+            padding: 'var(--space-4) var(--space-6)',
             display: 'flex',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'center',
             gap: 'var(--space-3)',
           }}>
             <button
-              type="submit"
-              className="btn-primary"
-            >
-              Create Construct
-            </button>
-            <button
               type="button"
               onClick={handleClose}
-              className="btn-secondary"
+              style={{
+                padding: '0.5rem 1.25rem',
+                background: 'white',
+                color: 'var(--accent-green)',
+                border: '1px solid var(--accent-green)',
+                borderRadius: '6px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+              }}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              style={{
+                padding: '0.5rem 1.25rem',
+                background: 'var(--accent-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+              }}
+            >
+              Create Construct
             </button>
           </div>
         ) : null}

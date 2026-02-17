@@ -11,13 +11,15 @@
     'var(--accent-gold)'
   when %r{^/tags}
     'var(--accent-purple)'
+  when %r{^/collections}
+    'var(--accent-maroon)'
   else
-    '#8e897b'
+    'white'
   end
 
-  is_themed = true  # Always use white text — all nav backgrounds are dark enough
+  is_themed = nav_color != 'white'
 %>
-<nav style="background: <%= nav_color %>; box-shadow: var(--shadow-nav); position: relative; z-index: 10;">
+<nav style="background: <%= nav_color %>; box-shadow: var(--shadow-nav); position: relative; z-index: 10; <%= 'border-bottom: 1px solid var(--neutral-200);' unless is_themed %>">
   <div style="max-width: 1280px; margin: 0 auto; padding: 0 1.5rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
       <!-- Logo/Brand -->
@@ -28,27 +30,30 @@
       </div>
 
       <!-- Right side: Desktop Navigation, User dropdown, Mobile menu button -->
-      <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
         <% if user_signed_in? %>
           <!-- Desktop Navigation -->
           <div class="hidden md:flex" style="align-items: center; gap: 0.5rem;">
-            <%= link_to dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-gauge"></i> Dashboard
+            <%= link_to dashboard_path, class: "nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'} #{current_page?(dashboard_path) && !is_themed ? 'nav-link--dashboard-active' : ''}" do %>
+              <i class="fas fa-gauge" <%= "style='color: var(--neutral-500);'".html_safe unless is_themed %>></i> Dashboard
             <% end %>
-            <%= link_to concepts_path, class: "nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-lightbulb"></i> Concepts
+            <%= link_to concepts_path, class: "nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-lightbulb" <%= "style='color: var(--accent-green);'".html_safe unless is_themed %>></i> Concepts
             <% end %>
-            <%= link_to sources_path, class: "nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-book"></i> Sources
+            <%= link_to sources_path, class: "nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-book" <%= "style='color: var(--accent-blue);'".html_safe unless is_themed %>></i> Sources
             <% end %>
-            <%= link_to people_path, class: "nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-user"></i> People
+            <%= link_to people_path, class: "nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-user" <%= "style='color: var(--accent-gold);'".html_safe unless is_themed %>></i> People
             <% end %>
-            <%= link_to notes_path, class: "nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-sticky-note"></i> Notes
+            <%= link_to notes_path, class: "nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-sticky-note" <%= "style='color: var(--accent-teal);'".html_safe unless is_themed %>></i> Notes
             <% end %>
-            <%= link_to tags_path, class: "nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'nav-link--muted'}" do %>
-              <i class="fas fa-tag"></i> Tags
+            <%= link_to tags_path, class: "nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-tag" <%= "style='color: var(--accent-purple);'".html_safe unless is_themed %>></i> Tags
+            <% end %>
+            <%= link_to collections_path, class: "nav-link #{request.path.start_with?('/collections') ? 'active' : ''} #{is_themed ? '' : 'nav-link--light'}" do %>
+              <i class="fas fa-folder" <%= "style='color: var(--accent-maroon);'".html_safe unless is_themed %>></i> Collections
             <% end %>
           </div>
 
@@ -57,11 +62,15 @@
             <button
               type="button"
               id="user-menu-button"
-              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 4px; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
+              style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem; border-radius: 50%; color: <%= is_themed ? 'rgba(255,255,255,0.85)' : 'var(--neutral-600)' %>; background: transparent; border: none; cursor: pointer; transition: background 0.15s; font-family: var(--font-body); font-size: var(--text-sm);"
               onmouseover="this.style.background='<%= is_themed ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' %>';"
               onmouseout="this.style.background='transparent';"
             >
-              <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+              <% if current_user.profile_image.attached? && current_user.profile_image.blob.persisted? %>
+                <%= image_tag current_user.profile_image.variant(resize_to_fill: [40, 40]), style: "width: 40px; height: 40px; border-radius: 50%; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" %>
+              <% else %>
+                <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+              <% end %>
             </button>
             <div
               id="user-menu-dropdown"
@@ -72,6 +81,9 @@
               </div>
               <%= link_to edit_user_registration_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
                 <i class="fas fa-user" style="width: 1.25rem; margin-right: 0.5rem;"></i>Account
+              <% end %>
+              <%= link_to sharing_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
+                <i class="fas fa-share-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sharing
               <% end %>
               <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); background: none; border: none; cursor: pointer; transition: background 0.15s;" do %>
                 <i class="fas fa-sign-out-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sign out
@@ -122,39 +134,45 @@
   </div>
 
   <!-- Mobile menu (only visible when button is clicked on mobile) -->
-  <div id="mobile-menu" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.2);" class="md:hidden">
+  <div id="mobile-menu" style="display: none; border-top: 1px solid <%= is_themed ? 'rgba(255, 255, 255, 0.2)' : 'var(--neutral-200)' %>;" class="md:hidden">
     <div style="padding: 0.5rem 1rem;">
       <% if user_signed_in? %>
-        <%= link_to dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-gauge"></i> Dashboard
+        <%= link_to dashboard_path, class: "mobile-nav-link #{current_page?(dashboard_path) ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'} #{current_page?(dashboard_path) && !is_themed ? 'mobile-nav-link--dashboard-active' : ''}" do %>
+          <i class="fas fa-gauge" <%= "style='color: var(--neutral-500);'".html_safe unless is_themed %>></i> Dashboard
         <% end %>
-        <%= link_to concepts_path, class: "mobile-nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-lightbulb"></i> Concepts
+        <%= link_to concepts_path, class: "mobile-nav-link #{request.path.start_with?('/concepts') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-lightbulb" <%= "style='color: var(--accent-green);'".html_safe unless is_themed %>></i> Concepts
         <% end %>
-        <%= link_to sources_path, class: "mobile-nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-book"></i> Sources
+        <%= link_to sources_path, class: "mobile-nav-link #{request.path.start_with?('/sources') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-book" <%= "style='color: var(--accent-blue);'".html_safe unless is_themed %>></i> Sources
         <% end %>
-        <%= link_to people_path, class: "mobile-nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-user"></i> People
+        <%= link_to people_path, class: "mobile-nav-link #{request.path.start_with?('/people') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-user" <%= "style='color: var(--accent-gold);'".html_safe unless is_themed %>></i> People
         <% end %>
-        <%= link_to notes_path, class: "mobile-nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-sticky-note"></i> Notes
+        <%= link_to notes_path, class: "mobile-nav-link #{request.path.start_with?('/notes') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-sticky-note" <%= "style='color: var(--accent-teal);'".html_safe unless is_themed %>></i> Notes
         <% end %>
-        <%= link_to tags_path, class: "mobile-nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--muted'}" do %>
-          <i class="fas fa-tag"></i> Tags
+        <%= link_to tags_path, class: "mobile-nav-link #{request.path.start_with?('/tags') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-tag" <%= "style='color: var(--accent-purple);'".html_safe unless is_themed %>></i> Tags
+        <% end %>
+        <%= link_to collections_path, class: "mobile-nav-link #{request.path.start_with?('/collections') ? 'active' : ''} #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+          <i class="fas fa-folder" <%= "style='color: var(--accent-maroon);'".html_safe unless is_themed %>></i> Collections
         <% end %>
 
         <!-- Mobile user menu -->
-        <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); margin-top: 0.5rem;">
-          <div style="padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: rgba(255, 255, 255, 0.7);"><%= current_user.email %></div>
-          <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link" %>
-          <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: rgba(255, 255, 255, 0.9); background: none; border: none; cursor: pointer; padding: 0.75rem 1rem; border-radius: var(--radius); transition: all 0.15s; margin-bottom: 0.25rem;" do %>
+        <div style="padding-top: 1rem; border-top: 1px solid <%= is_themed ? 'rgba(255, 255, 255, 0.2)' : 'var(--neutral-200)' %>; margin-top: 0.5rem;">
+          <div style="padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: <%= is_themed ? 'rgba(255, 255, 255, 0.7)' : 'var(--neutral-600)' %>;"><%= current_user.email %></div>
+          <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" %>
+          <%= link_to sharing_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+            <i class="fas fa-share-alt"></i> Sharing
+          <% end %>
+          <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: #{is_themed ? 'rgba(255, 255, 255, 0.9)' : 'var(--neutral-700)'}; background: none; border: none; cursor: pointer; padding: 0.75rem 1rem; border-radius: var(--radius); transition: all 0.15s; margin-bottom: 0.25rem;" do %>
             Sign out
           <% end %>
         </div>
       <% else %>
-        <%= link_to "Sign In", new_user_session_path, class: "mobile-nav-link" %>
-        <%= link_to "Create Account", new_user_registration_path, class: "mobile-nav-link" %>
+        <%= link_to "Sign In", new_user_session_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" %>
+        <%= link_to "Create Account", new_user_registration_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" %>
       <% end %>
     </div>
   </div>
@@ -191,6 +209,35 @@
     background: rgba(255, 255, 255, 0.35);
   }
 
+  /* --- Light theme nav links (white background) --- */
+  .nav-link--light {
+    color: var(--neutral-700);
+  }
+
+  .nav-link--light:hover {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+  }
+
+  .nav-link--light.active {
+    background: var(--neutral-200);
+    color: var(--neutral-900);
+  }
+
+  .nav-link--light.active:hover {
+    background: var(--neutral-300);
+  }
+
+  /* Dashboard-specific active state - darker grey */
+  .nav-link--light.nav-link--dashboard-active {
+    background: #c5c5c5;
+    color: var(--neutral-900);
+  }
+
+  .nav-link--light.nav-link--dashboard-active:hover {
+    background: #b8b8b8;
+  }
+
   /* --- Mobile nav links --- */
   .mobile-nav-link {
     display: flex;
@@ -220,6 +267,35 @@
 
   .mobile-nav-link.active:hover {
     background: rgba(255, 255, 255, 0.35);
+  }
+
+  /* --- Light theme mobile nav links --- */
+  .mobile-nav-link--light {
+    color: var(--neutral-700);
+  }
+
+  .mobile-nav-link--light:hover {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+  }
+
+  .mobile-nav-link--light.active {
+    background: var(--neutral-200);
+    color: var(--neutral-900);
+  }
+
+  .mobile-nav-link--light.active:hover {
+    background: var(--neutral-300);
+  }
+
+  /* Dashboard-specific active state - darker grey */
+  .mobile-nav-link--light.mobile-nav-link--dashboard-active {
+    background: #c5c5c5;
+    color: var(--neutral-900);
+  }
+
+  .mobile-nav-link--light.mobile-nav-link--dashboard-active:hover {
+    background: #b8b8b8;
   }
 
   #user-menu-dropdown a:hover,

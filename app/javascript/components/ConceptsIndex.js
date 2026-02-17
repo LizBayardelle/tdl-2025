@@ -129,7 +129,7 @@ export default function ConceptsIndex() {
       <div
         style={{
           width: sidebarOpen ? '280px' : '0',
-          background: 'var(--sidebar-bg)',
+          background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
           padding: sidebarOpen ? 'var(--space-6)' : '0',
@@ -257,7 +257,7 @@ export default function ConceptsIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 20,
+          zIndex: 10,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"
@@ -267,21 +267,23 @@ export default function ConceptsIndex() {
       </button>
 
       {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#ffffff' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
         {/* Header */}
         <div style={{
-          padding: 'var(--space-6)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'white'
+          padding: 'var(--space-6) var(--space-8)',
+          background: 'color-mix(in srgb, var(--accent-green) 15%, white)',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+          position: 'relative',
+          zIndex: 5,
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <div>
               <h1
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-3xl)',
+                  fontSize: 'var(--text-4xl)',
                   fontWeight: 700,
-                  color: 'var(--neutral-900)',
+                  color: 'var(--accent-green)',
                   letterSpacing: '-0.02em',
                   marginBottom: 'var(--space-1)',
                 }}
@@ -383,7 +385,8 @@ export default function ConceptsIndex() {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          background: '#ffffff'
+          background: '#ffffff',
+          paddingTop: 'var(--space-8)',
         }}>
           {filteredConcepts.length === 0 ? (
             <div
@@ -408,7 +411,7 @@ export default function ConceptsIndex() {
             <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
               <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
                 <thead style={{
-                  background: 'var(--card-footer)',
+                  background: 'white',
                   position: 'sticky',
                   top: 0,
                   zIndex: 10,
@@ -420,14 +423,14 @@ export default function ConceptsIndex() {
                     <th style={{ padding: '0.5rem 1rem' }}></th>
                     <th style={{ padding: '0.5rem 1rem' }}></th>
                     <th
-                      colSpan={5}
+                      colSpan={6}
                       style={{
                         fontFamily: 'var(--font-display)',
                         textAlign: 'center',
                         padding: '0.5rem 0.5rem 0.25rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-xs)',
-                        color: 'var(--neutral-500)',
+                        color: 'var(--accent-green)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em',
                         borderBottom: '1px solid var(--neutral-200)',
@@ -448,13 +451,13 @@ export default function ConceptsIndex() {
                         padding: '0.5rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-green)',
                         cursor: 'pointer',
                         userSelect: 'none',
                         transition: 'color 0.15s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
                     >
                       Concept {sortField === 'label' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -468,13 +471,13 @@ export default function ConceptsIndex() {
                         padding: '0.5rem 1rem',
                         fontWeight: 600,
                         fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
+                        color: 'var(--accent-green)',
                         cursor: 'pointer',
                         userSelect: 'none',
                         transition: 'color 0.15s',
                       }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-700)'}
+                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
                     >
                       Type {sortField === 'type' && (
                         <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
@@ -495,6 +498,9 @@ export default function ConceptsIndex() {
                     </th>
                     <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Tags">
                       <i className="fas fa-tag" style={{ color: 'var(--accent-purple)', fontSize: '12px' }}></i>
+                    </th>
+                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Collections">
+                      <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: '12px' }}></i>
                     </th>
                     <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
                   </tr>
@@ -698,15 +704,15 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
           <a
             href={`/concepts/${concept.id}`}
             style={{
-              fontFamily: 'var(--font-display)',
-              color: 'var(--accent-green)',
+              fontFamily: 'var(--font-body)',
+              color: 'var(--neutral-900)',
               textDecoration: 'none',
-              fontWeight: 600,
+              fontWeight: 400,
               fontSize: 'var(--text-sm)',
               transition: 'color 0.15s',
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
+            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
+            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
           >
             {concept.label}
           </a>
@@ -812,6 +818,9 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
       </td>
       <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
         {concept.tags_count > 0 ? concept.tags_count : '—'}
+      </td>
+      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
+        {concept.collections_count > 0 ? concept.collections_count : '—'}
       </td>
       <td style={{ padding: '0.5rem', textAlign: 'center', width: '2rem' }}>
         <button

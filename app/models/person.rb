@@ -1,5 +1,6 @@
 class Person < ApplicationRecord
   include Taggable
+  include Shareable
 
   belongs_to :user
   has_many :people_concepts, class_name: 'PersonConcept', dependent: :destroy

@@ -3,6 +3,8 @@ import SourceFormModal from './SourceFormModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
+const ITEMS_PER_PAGE = 20;
+
 export default function SourcesIndex() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +16,8 @@ export default function SourcesIndex() {
   const [yearMax, setYearMax] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [pdfOnly, setPdfOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchSources();
@@ -104,8 +108,25 @@ export default function SourcesIndex() {
       return false;
     }
 
+    // PDF filter
+    if (pdfOnly && !source.pdf_url) {
+      return false;
+    }
+
     return true;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredSources.length / ITEMS_PER_PAGE);
+  const paginatedSources = filteredSources.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedKinds, selectedAuthors, selectedTags, yearMin, yearMax, pdfOnly]);
 
   // Toggle selections
   const toggleKind = (kind) => {
@@ -133,10 +154,11 @@ export default function SourcesIndex() {
     setYearMin('');
     setYearMax('');
     setSearchQuery('');
+    setPdfOnly(false);
   };
 
   const hasActiveFilters = selectedKinds.length > 0 || selectedAuthors.length > 0 ||
-                          selectedTags.length > 0 || yearMin || yearMax || searchQuery;
+                          selectedTags.length > 0 || yearMin || yearMax || searchQuery || pdfOnly;
 
   if (loading) {
     return (
@@ -152,11 +174,11 @@ export default function SourcesIndex() {
       <div
         style={{
           width: sidebarOpen ? '280px' : '0',
-          background: 'var(--sidebar-bg)',
+          background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
           padding: sidebarOpen ? 'var(--space-6)' : '0',
-          boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
+          boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
           transition: 'all 0.3s ease',
         }}
       >
@@ -189,6 +211,47 @@ export default function SourcesIndex() {
                   padding: 'var(--space-2)',
                 }}
               />
+            </div>
+
+            {/* PDF Filter Toggle */}
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--neutral-700)',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                  }}
+                >
+                  PDFs Only
+                  <span
+                    style={{
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-400)',
+                      fontWeight: 500,
+                    }}
+                  >
+                    ({sources.filter(s => s.pdf_url).length})
+                  </span>
+                </span>
+                <div
+                  className={`toggle-switch ${pdfOnly ? 'active' : ''}`}
+                  onClick={() => setPdfOnly(!pdfOnly)}
+                >
+                  <div className="toggle-slider"></div>
+                </div>
+              </label>
             </div>
 
             {/* Clear all button */}
@@ -503,7 +566,7 @@ export default function SourcesIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 5,
+          zIndex: 10,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"
@@ -513,23 +576,25 @@ export default function SourcesIndex() {
       </button>
 
       {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
         {/* Header */}
         <div style={{
-          padding: 'var(--space-6)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'white'
+          padding: 'var(--space-6) var(--space-8)',
+          background: 'color-mix(in srgb, var(--accent-blue) 15%, white)',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+          position: 'relative',
+          zIndex: 5,
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
             <div>
               <h1
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-3xl)',
+                  fontSize: 'var(--text-4xl)',
                   fontWeight: 700,
-                  color: 'var(--neutral-900)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: 'var(--space-1)',
+                  color: 'var(--accent-blue)',
+                  margin: 0,
+                  lineHeight: 1.1,
                 }}
               >
                 Sources
@@ -537,9 +602,10 @@ export default function SourcesIndex() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--neutral-500)',
-                  margin: 0,
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--neutral-600)',
+                  marginTop: 'var(--space-1)',
+                  marginBottom: 0,
                 }}
               >
                 {filteredSources.length} of {sources.length} sources
@@ -596,6 +662,7 @@ export default function SourcesIndex() {
           flex: 1,
           overflowY: 'auto',
           padding: 'var(--space-6)',
+          paddingTop: 'var(--space-8)',
           paddingLeft: 'calc(var(--space-6) + 24px)',
           background: 'white'
         }}>
@@ -617,11 +684,114 @@ export default function SourcesIndex() {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              {filteredSources.map(source => (
-                <SourceCard key={source.id} source={source} onUpdate={fetchSources} />
-              ))}
-            </div>
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                {paginatedSources.map(source => (
+                  <SourceCard key={source.id} source={source} onUpdate={fetchSources} />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 'var(--space-2)',
+                    marginTop: 'var(--space-6)',
+                    paddingBottom: 'var(--space-4)',
+                  }}
+                >
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: 'var(--space-2) var(--space-3)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      background: currentPage === 1 ? 'var(--neutral-100)' : 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '4px',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      color: currentPage === 1 ? 'var(--neutral-400)' : 'var(--neutral-700)',
+                      transition: 'all 0.15s',
+                    }}
+                    title="First page"
+                  >
+                    <i className="fas fa-angle-double-left"></i>
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: 'var(--space-2) var(--space-3)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      background: currentPage === 1 ? 'var(--neutral-100)' : 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '4px',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      color: currentPage === 1 ? 'var(--neutral-400)' : 'var(--neutral-700)',
+                      transition: 'all 0.15s',
+                    }}
+                    title="Previous page"
+                  >
+                    <i className="fas fa-angle-left"></i>
+                  </button>
+
+                  <span
+                    style={{
+                      padding: 'var(--space-2) var(--space-4)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      color: 'var(--neutral-600)',
+                      minWidth: '100px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: 'var(--space-2) var(--space-3)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      background: currentPage === totalPages ? 'var(--neutral-100)' : 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '4px',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      color: currentPage === totalPages ? 'var(--neutral-400)' : 'var(--neutral-700)',
+                      transition: 'all 0.15s',
+                    }}
+                    title="Next page"
+                  >
+                    <i className="fas fa-angle-right"></i>
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: 'var(--space-2) var(--space-3)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      background: currentPage === totalPages ? 'var(--neutral-100)' : 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '4px',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      color: currentPage === totalPages ? 'var(--neutral-400)' : 'var(--neutral-700)',
+                      transition: 'all 0.15s',
+                    }}
+                    title="Last page"
+                  >
+                    <i className="fas fa-angle-double-right"></i>
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -672,7 +842,7 @@ function SourceCard({ source, onUpdate }) {
       >
         {/* Card Header */}
         <div style={{
-          background: 'var(--card-header)',
+          background: '#e2e2e2',
           padding: 'var(--space-3) var(--space-4)',
           display: 'flex',
           alignItems: 'center',
@@ -855,7 +1025,7 @@ function SourceCard({ source, onUpdate }) {
         {/* Card Footer */}
         <div style={{
           padding: 'var(--space-2) var(--space-4)',
-          background: 'var(--card-footer)',
+          background: '#e2e2e2',
           borderTop: '1px solid var(--neutral-200)',
           display: 'flex',
           alignItems: 'center',

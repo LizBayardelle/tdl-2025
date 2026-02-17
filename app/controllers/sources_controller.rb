@@ -1,23 +1,29 @@
 class SourcesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_source, only: [:show, :study, :notes, :update, :destroy]
+  before_action :authorize_edit!, only: [:update, :destroy]
 
   def index
-    @sources = current_user.sources.recent
+    auth = AuthorizationService.new(current_user)
+    accessible_ids = auth.accessible_ids(Source)
+    @sources = Source.where(id: accessible_ids).recent
 
     respond_to do |format|
       format.html
       format.json {
         render json: @sources.includes(:concepts, :tags, :people, :notes).map { |source|
+          is_owner = source.user_id == current_user.id
           source.as_json.merge(
-            tags: source.tags.pluck(:name),
+            tags: is_owner ? source.tags.pluck(:name) : [],
             keywords: source[:keywords] || [],
             concept_ids: source.concept_ids,
             concepts: source.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
             people: source.people.map { |p| { id: p.id, full_name: p.full_name } },
             notes_count: source.notes.count,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
-            pdf_filename: source.pdf.attached? ? source.pdf.filename.to_s : nil
+            pdf_filename: source.pdf.attached? ? source.pdf.filename.to_s : nil,
+            permission: source.permission_for(current_user),
+            is_owner: is_owner
           )
         }
       }
@@ -32,7 +38,8 @@ class SourcesController < ApplicationController
           include: {
             concepts: { only: [:id, :label, :node_type, :summary_top] },
             people: { only: [:id, :full_name, :role, :summary] },
-            tags: { only: [:id, :name, :slug] }
+            tags: { only: [:id, :name, :slug] },
+            collections: { only: [:id, :name, :description] }
           }
         ).merge(
           concept_ids: @source.concept_ids,
@@ -203,7 +210,12 @@ class SourcesController < ApplicationController
   private
 
   def set_source
-    @source = current_user.sources.find(params[:id])
+    @source = Source.find(params[:id])
+    head :forbidden unless @source.shared_with?(current_user)
+  end
+
+  def authorize_edit!
+    head :forbidden unless @source.editable_by?(current_user)
   end
 
   def parse_and_link_authors(source, authors_string, processed_authors = nil)

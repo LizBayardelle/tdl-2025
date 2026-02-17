@@ -1,8 +1,12 @@
 Rails.application.routes.draw do
   devise_for :users
 
+  # User profile image upload
+  patch "users/profile_image", to: "users#update_profile_image", as: :update_profile_image
+
   root "home#index"
   get "dashboard", to: "home#dashboard"
+  get "sharing", to: "home#sharing", as: :sharing
   get "search", to: "search#index"
 
   resources :concepts, only: [:index, :show, :create, :update, :destroy] do
@@ -33,6 +37,20 @@ Rails.application.routes.draw do
     end
   end
   resources :highlights, only: [:index, :create, :destroy]
+
+  resources :collections do
+    member do
+      post :add_item
+      delete :remove_item
+    end
+  end
+
+  resources :shares, only: [:index, :create, :update, :destroy] do
+    collection do
+      get :received
+    end
+  end
+  get 'shares/accept/:token', to: 'shares#accept', as: :accept_share
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.

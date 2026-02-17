@@ -420,7 +420,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           style={{
             position: 'absolute',
             left: sidebarOpen ? `${sidebarWidth + 6}px` : '0',
-            top: '0',
+            top: '100px',
             zIndex: 20,
             background: 'var(--accent-blue)',
             color: 'white',
@@ -442,96 +442,105 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         </button>
 
         {/* Main Content - PDF Viewer or Notes-Only Mode */}
-        <main ref={mainContentRef} style={{ flex: 1, overflowY: 'auto', background: 'white' }}>
-          {/* Breadcrumbs */}
-          <div style={{ padding: 'var(--space-4) var(--space-6)', borderBottom: '1px solid var(--neutral-200)' }}>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', overflow: 'hidden' }}>
+          {/* Fixed Header Section */}
+          <div style={{ flexShrink: 0, background: 'white', zIndex: 5 }}>
+            {/* Breadcrumbs */}
+            <div style={{ padding: 'var(--space-4) var(--space-6) var(--space-4) 48px', borderBottom: '1px solid var(--neutral-200)' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'auto auto 1fr',
+                gap: 'var(--space-2)',
+                alignItems: 'center',
+                fontSize: 'var(--text-sm)',
+                color: 'var(--neutral-600)',
+                fontFamily: 'var(--font-body)'
+              }}>
+                <a href="/sources" style={{ color: 'var(--neutral-600)', textDecoration: 'none', fontWeight: 600 }}>Sources</a>
+                <span style={{ padding: '0 var(--space-2)' }}><i className="fas fa-chevron-right"></i></span>
+                <a href={`/sources/${sourceId}`} style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600, lineHeight: 1.1 }}>
+                  {sourceTitle}
+                </a>
+              </div>
+            </div>
+
+            {/* Main Header */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'auto auto 1fr',
-              gap: 'var(--space-2)',
+              padding: 'var(--space-4) var(--space-6) var(--space-4) 48px',
+              background: 'white',
+              borderBottom: '1px solid var(--neutral-200)',
+              display: 'flex',
               alignItems: 'center',
-              fontSize: 'var(--text-sm)',
-              color: 'var(--neutral-600)',
-              fontFamily: 'var(--font-body)'
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 'var(--space-3)'
             }}>
-              <a href="/sources" style={{ color: 'var(--neutral-600)', textDecoration: 'none', fontWeight: 600 }}>Sources</a>
-              <span style={{ padding: '0 var(--space-2)' }}><i className="fas fa-chevron-right"></i></span>
-              <a href={`/sources/${sourceId}`} style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600, lineHeight: 1.1 }}>
+              <h1 style={{
+                fontSize: 'var(--text-3xl)',
+                fontWeight: 700,
+                color: 'var(--neutral-900)',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '-0.02em',
+                margin: 0
+              }}>
                 {sourceTitle}
-              </a>
+              </h1>
+              {hasPdf && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1, minWidth: '200px' }}>
+                  <span style={{
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-600)',
+                    fontWeight: 600
+                  }}>
+                    Page {currentPage} of {numPages || '...'}
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+                    <button
+                      onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--neutral-300)',
+                        borderRadius: '4px',
+                        padding: 'var(--space-1) var(--space-2)',
+                        cursor: 'pointer',
+                        color: 'var(--neutral-700)',
+                        transition: 'all 0.15s',
+                        lineHeight: 1
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <i className="fas fa-minus" style={{ fontSize: '10px' }}></i>
+                    </button>
+                    <span style={{ fontSize: 'var(--text-xs)', width: '3rem', textAlign: 'center', fontFamily: 'var(--font-body)' }}>
+                      {Math.round(scale * 100)}%
+                    </span>
+                    <button
+                      onClick={() => setScale(s => Math.min(2.0, s + 0.1))}
+                      style={{
+                        background: 'transparent',
+                        border: '1px solid var(--neutral-300)',
+                        borderRadius: '4px',
+                        padding: 'var(--space-1) var(--space-2)',
+                        cursor: 'pointer',
+                        color: 'var(--neutral-700)',
+                        transition: 'all 0.15s',
+                        lineHeight: 1
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <i className="fas fa-plus" style={{ fontSize: '10px' }}></i>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Main Header */}
-          <div style={{
-            padding: 'var(--space-6)',
-            background: 'white',
-            borderBottom: '1px solid var(--neutral-200)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 'var(--space-4)'
-          }}>
-            <h1 style={{
-              fontSize: 'var(--text-3xl)',
-              fontWeight: 700,
-              color: 'var(--neutral-900)',
-              fontFamily: 'var(--font-display)',
-              letterSpacing: '-0.02em',
-              margin: 0
-            }}>
-              {sourceTitle}
-            </h1>
-            {hasPdf && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <span style={{
-                  fontSize: 'var(--text-sm)',
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-600)',
-                  fontWeight: 600
-                }}>
-                  Page {currentPage} of {numPages || '...'}
-                </span>
-                <button
-                  onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--neutral-300)',
-                    borderRadius: '4px',
-                    padding: 'var(--space-2)',
-                    cursor: 'pointer',
-                    color: 'var(--neutral-700)',
-                    transition: 'all 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <i className="fas fa-minus"></i>
-                </button>
-                <span style={{ fontSize: 'var(--text-sm)', width: '4rem', textAlign: 'center', fontFamily: 'var(--font-body)' }}>
-                  {Math.round(scale * 100)}%
-                </span>
-                <button
-                  onClick={() => setScale(s => Math.min(2.0, s + 0.1))}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--neutral-300)',
-                    borderRadius: '4px',
-                    padding: 'var(--space-2)',
-                    cursor: 'pointer',
-                    color: 'var(--neutral-700)',
-                    transition: 'all 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <i className="fas fa-plus"></i>
-                </button>
-              </div>
-            )}
-          </div>
-
+          {/* Scrollable PDF Content */}
+          <div ref={mainContentRef} style={{ flex: 1, overflowY: 'auto' }}>
           {/* PDF Document or Notes-Only View */}
           {hasPdf ? (
             <div style={{
@@ -622,6 +631,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               </div>
             </div>
           )}
+          </div>
         </main>
     </div>
 

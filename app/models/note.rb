@@ -1,5 +1,6 @@
 class Note < ApplicationRecord
   include Taggable
+  include Shareable
 
   belongs_to :user
   belongs_to :concept, optional: true  # Legacy single concept

@@ -1,11 +1,14 @@
 class NotesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_note, only: [:show, :edit, :update, :destroy]
+  before_action :authorize_edit!, only: [:edit, :update, :destroy]
 
   # GET /notes
   # GET /notes.json
   def index
-    @notes = current_user.notes.includes(:concept, :source, :people, :tags)
+    auth = AuthorizationService.new(current_user)
+    accessible_ids = auth.accessible_ids(Note)
+    @notes = Note.where(id: accessible_ids).includes(:concept, :source, :people, :tags)
 
     # Filter by note type
     @notes = @notes.by_type(params[:note_type]) if params[:note_type].present?
@@ -27,12 +30,19 @@ class NotesController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        render json: @notes.as_json(include: {
-          concepts: { only: [:id, :label, :node_type] },
-          source: { only: [:id, :title, :authors, :year] },
-          people: { only: [:id, :full_name, :role] },
-          tags: { only: [:id, :name] }
-        })
+        render json: @notes.map { |note|
+          is_owner = note.user_id == current_user.id
+          note.as_json(include: {
+            concepts: { only: [:id, :label, :node_type] },
+            source: { only: [:id, :title, :authors, :year] },
+            people: { only: [:id, :full_name, :role] },
+            tags: is_owner ? { only: [:id, :name] } : { only: [] }
+          }).merge(
+            tags: is_owner ? note.tags.as_json(only: [:id, :name]) : [],
+            permission: note.permission_for(current_user),
+            is_owner: is_owner
+          )
+        }
       }
     end
   end
@@ -172,7 +182,12 @@ class NotesController < ApplicationController
   private
 
   def set_note
-    @note = current_user.notes.find(params[:id])
+    @note = Note.find(params[:id])
+    head :forbidden unless @note.shared_with?(current_user)
+  end
+
+  def authorize_edit!
+    head :forbidden unless @note.editable_by?(current_user)
   end
 
   def note_params

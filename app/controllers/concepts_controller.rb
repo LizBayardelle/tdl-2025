@@ -1,32 +1,40 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_concept, only: [:show, :update, :destroy]
+  before_action :authorize_edit!, only: [:update, :destroy]
 
   def index
-    @concepts = current_user.concepts
+    auth = AuthorizationService.new(current_user)
+    accessible_ids = auth.accessible_ids(Concept)
+    @concepts = Concept.where(id: accessible_ids)
       .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes)
       .recent
 
     respond_to do |format|
       format.html
       format.json {
-        render json: @concepts.as_json(
-          methods: [:sources_count, :people_count, :notes_count, :tags_count],
-          include: {
-            outgoing_connections: {
-              only: [:id, :rel_type, :relationship_label],
-              include: {
-                dst_concept: { only: [:id, :label, :node_type] }
-              }
-            },
-            incoming_connections: {
-              only: [:id, :rel_type, :relationship_label],
-              include: {
-                src_concept: { only: [:id, :label, :node_type] }
+        render json: @concepts.map { |concept|
+          concept.as_json(
+            methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count],
+            include: {
+              outgoing_connections: {
+                only: [:id, :rel_type, :relationship_label],
+                include: {
+                  dst_concept: { only: [:id, :label, :node_type] }
+                }
+              },
+              incoming_connections: {
+                only: [:id, :rel_type, :relationship_label],
+                include: {
+                  src_concept: { only: [:id, :label, :node_type] }
+                }
               }
             }
-          }
-        )
+          ).merge(
+            permission: concept.permission_for(current_user),
+            is_owner: concept.user_id == current_user.id
+          )
+        }
       }
     end
   end
@@ -36,10 +44,11 @@ class ConceptsController < ApplicationController
       format.html
       format.json {
         render json: @concept.as_json(
-          methods: [:sources_count, :people_count, :notes_count, :tags_count],
+          methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count],
           include: {
             people: { only: [:id, :full_name, :role, :summary] },
             sources: { only: [:id, :title, :authors, :year, :kind] },
+            collections: { only: [:id, :name, :description] },
             outgoing_connections: {
               only: [:id, :rel_type, :relationship_label],
               include: {
@@ -125,7 +134,12 @@ class ConceptsController < ApplicationController
 
   def set_concept
     # Try to find by slug first, fall back to ID
-    @concept = current_user.concepts.find_by(slug: params[:id]) || current_user.concepts.find(params[:id])
+    @concept = Concept.find_by(slug: params[:id]) || Concept.find(params[:id])
+    head :forbidden unless @concept.shared_with?(current_user)
+  end
+
+  def authorize_edit!
+    head :forbidden unless @concept.editable_by?(current_user)
   end
 
   def concept_params

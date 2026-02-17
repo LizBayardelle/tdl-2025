@@ -13,10 +13,14 @@ import ConnectionVisualization from './components/ConnectionVisualization';
 import NotesIndex from './components/NotesIndex';
 import NotesForm from './components/NotesForm';
 import TagsIndex from './components/TagsIndex';
+import CollectionsIndex from './components/CollectionsIndex';
 import Dashboard from './components/Dashboard';
 import GlobalSearch from './components/GlobalSearch';
 import UserDropdown from './components/UserDropdown';
 import PdfStudyMode from './components/PdfStudyMode';
+import SharingHub from './components/SharingHub';
+import CollectionManager from './components/CollectionManager';
+import ShareModal from './components/ShareModal';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,6 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(tagsIndexRoot).render(<TagsIndex />);
   }
 
+  const collectionsIndexRoot = document.getElementById('collections-index-root');
+  if (collectionsIndexRoot) {
+    createRoot(collectionsIndexRoot).render(<CollectionsIndex />);
+  }
+
   const dashboardRoot = document.getElementById('dashboard-root');
   if (dashboardRoot) {
     createRoot(dashboardRoot).render(<Dashboard />);
@@ -102,4 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
       />
     );
   }
+
+  const sharingHubRoot = document.getElementById('sharing-hub-root');
+  if (sharingHubRoot) {
+    createRoot(sharingHubRoot).render(<SharingHub />);
+  }
 });
+
+// Export components for use in other React components
+export { CollectionManager, ShareModal };
