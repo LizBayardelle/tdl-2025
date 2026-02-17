@@ -13,6 +13,10 @@ class Note < ApplicationRecord
   has_many :concept_notes, dependent: :destroy
   has_many :concepts, through: :concept_notes
 
+  # Collections (polymorphic)
+  has_many :collection_items, as: :collectable, dependent: :destroy
+  has_many :collections, through: :collection_items
+
   # Enums
   enum :note_type, {
     note: "note",

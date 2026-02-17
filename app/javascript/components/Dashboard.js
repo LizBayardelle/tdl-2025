@@ -36,7 +36,7 @@ export default function Dashboard() {
         fetch('/collections.json')
       ]);
 
-      const [concepts, sources, people, connections, notes, tags, collections] = await Promise.all([
+      const [concepts, sourcesData, people, connections, notes, tags, collectionsData] = await Promise.all([
         conceptsRes.json(),
         sourcesRes.json(),
         peopleRes.json(),
@@ -45,6 +45,12 @@ export default function Dashboard() {
         tagsRes.json(),
         collectionsRes.json()
       ]);
+
+      // Handle paginated responses
+      const sources = Array.isArray(sourcesData) ? sourcesData : (sourcesData.sources || []);
+      const sourcesTotal = sourcesData.pagination?.total_count || sources.length;
+      const sourcesPdfCount = sourcesData.filters?.pdf_count || sources.filter(s => s.pdf_url).length;
+      const collections = Array.isArray(collectionsData) ? collectionsData : (collectionsData.collections || collectionsData);
 
       // Calculate stats
       const conceptsByType = concepts.reduce((acc, concept) => {
@@ -67,13 +73,13 @@ export default function Dashboard() {
 
       setStats({
         totalConcepts: concepts.length,
-        totalSources: sources.length,
+        totalSources: sourcesTotal,
         totalPeople: people.length,
         totalConnections: connections.length,
         totalNotes: notes.length,
         totalTags: tags.length,
-        totalCollections: collections.length,
-        totalPdfs: sources.filter(s => s.pdf_url).length,
+        totalCollections: Array.isArray(collections) ? collections.length : 0,
+        totalPdfs: sourcesPdfCount,
         conceptsByType,
         conceptsByStatus,
         needsReview,

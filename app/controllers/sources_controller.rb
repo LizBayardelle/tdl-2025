@@ -11,21 +11,88 @@ class SourcesController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        render json: @sources.includes(:concepts, :tags, :people, :notes).map { |source|
+        # Pagination params
+        page = (params[:page] || 1).to_i
+        per_page = (params[:per_page] || 20).to_i
+        per_page = [per_page, 100].min # Cap at 100
+
+        # Get total count before pagination
+        total_count = @sources.count
+
+        # Apply pagination
+        paginated_sources = @sources.offset((page - 1) * per_page).limit(per_page)
+          .includes(:concepts, :tags, :people, :collections, :notes)
+          .with_attached_pdf
+
+        # Build paginated source data
+        sources_data = paginated_sources.map { |source|
           is_owner = source.user_id == current_user.id
-          source.as_json.merge(
+          source.as_json(only: [:id, :title, :authors, :year, :kind, :doi, :abstract, :summary]).merge(
             tags: is_owner ? source.tags.pluck(:name) : [],
             keywords: source[:keywords] || [],
             concept_ids: source.concept_ids,
             concepts: source.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
             people: source.people.map { |p| { id: p.id, full_name: p.full_name } },
-            notes_count: source.notes.count,
+            collections: source.collections.map { |c| { id: c.id, name: c.name } },
+            notes_count: source.notes.size,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
             pdf_filename: source.pdf.attached? ? source.pdf.filename.to_s : nil,
             permission: source.permission_for(current_user),
             is_owner: is_owner
           )
         }
+
+        # On first page, include filter metadata
+        if page == 1
+          # Aggregate filter data efficiently using separate queries
+          # Use reorder(nil) to remove the default ordering before distinct
+          kinds = @sources.reorder(nil).distinct.pluck(:kind).compact.sort
+          years = @sources.reorder(nil).distinct.pluck(:year).compact.sort
+
+          # Get authors (people linked to sources)
+          people_ids = PersonSource.where(source_id: accessible_ids).distinct.pluck(:person_id)
+          authors = Person.where(id: people_ids).pluck(:id, :full_name).map { |id, name| { id: id, full_name: name } }.sort_by { |p| p[:full_name] }
+
+          # Get tags (only from owned sources)
+          owned_source_ids = @sources.where(user_id: current_user.id).pluck(:id)
+          tag_ids = Tagging.where(taggable_type: 'Source', taggable_id: owned_source_ids).distinct.pluck(:tag_id)
+          tags = Tag.where(id: tag_ids).pluck(:name).sort
+
+          # Get collections
+          collection_ids = CollectionItem.where(collectable_type: 'Source', collectable_id: accessible_ids).distinct.pluck(:collection_id)
+          collections = Collection.where(id: collection_ids).pluck(:id, :name).map { |id, name| { id: id, name: name } }.sort_by { |c| c[:name] }
+
+          # Count PDFs
+          pdf_count = ActiveStorage::Attachment.where(record_type: 'Source', record_id: accessible_ids, name: 'pdf').count
+
+          render json: {
+            sources: sources_data,
+            pagination: {
+              page: page,
+              per_page: per_page,
+              total_count: total_count,
+              total_pages: (total_count.to_f / per_page).ceil
+            },
+            filters: {
+              kinds: kinds,
+              years: years,
+              authors: authors,
+              tags: tags,
+              collections: collections,
+              pdf_count: pdf_count
+            }
+          }
+        else
+          render json: {
+            sources: sources_data,
+            pagination: {
+              page: page,
+              per_page: per_page,
+              total_count: total_count,
+              total_pages: (total_count.to_f / per_page).ceil
+            }
+          }
+        end
       }
     end
   end

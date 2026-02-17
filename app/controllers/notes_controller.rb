@@ -8,7 +8,7 @@ class NotesController < ApplicationController
   def index
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Note)
-    @notes = Note.where(id: accessible_ids).includes(:concept, :source, :people, :tags)
+    @notes = Note.where(id: accessible_ids).includes(:concept, :source, :people, :tags, :collections)
 
     # Filter by note type
     @notes = @notes.by_type(params[:note_type]) if params[:note_type].present?
@@ -36,7 +36,8 @@ class NotesController < ApplicationController
             concepts: { only: [:id, :label, :node_type] },
             source: { only: [:id, :title, :authors, :year] },
             people: { only: [:id, :full_name, :role] },
-            tags: is_owner ? { only: [:id, :name] } : { only: [] }
+            tags: is_owner ? { only: [:id, :name] } : { only: [] },
+            collections: { only: [:id, :name] }
           }).merge(
             tags: is_owner ? note.tags.as_json(only: [:id, :name]) : [],
             permission: note.permission_for(current_user),

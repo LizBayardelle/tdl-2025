@@ -65,9 +65,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (formData.title && formData.title.length > 10) {
         try {
           const response = await fetch(`/sources.json`);
-          const sources = await response.json();
+          const data = await response.json();
+          const sources = Array.isArray(data) ? data : (data.sources || []);
           const duplicate = sources.find(s =>
-            s.title.toLowerCase().trim() === formData.title.toLowerCase().trim()
+            s.title?.toLowerCase().trim() === formData.title.toLowerCase().trim()
           );
           setTitleDuplicate(duplicate || null);
         } catch (error) {
@@ -81,7 +82,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (formData.url && formData.url.length > 10) {
         try {
           const response = await fetch(`/sources.json`);
-          const sources = await response.json();
+          const data = await response.json();
+          const sources = Array.isArray(data) ? data : (data.sources || []);
           const duplicate = sources.find(s =>
             s.url && s.url.toLowerCase().trim() === formData.url.toLowerCase().trim()
           );
@@ -176,6 +178,41 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       }
     };
   }, [formData, isOpen, item?.id, performAutosave]);
+
+  // Autosave when PDF file is selected (for existing items)
+  useEffect(() => {
+    if (!isOpen || !item?.id || !pdfFile) return;
+
+    const uploadPdf = async () => {
+      setSaveStatus('saving');
+
+      try {
+        const formDataToSend = new FormData();
+        formDataToSend.append('_method', 'PATCH');
+        formDataToSend.append('source[pdf]', pdfFile);
+
+        const response = await fetch(`/sources/${item.id}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          },
+          body: formDataToSend,
+        });
+
+        if (response.ok) {
+          setSaveStatus('saved');
+          setTimeout(() => setSaveStatus('idle'), 2000);
+        } else {
+          setSaveStatus('error');
+        }
+      } catch (error) {
+        console.error('PDF upload error:', error);
+        setSaveStatus('error');
+      }
+    };
+
+    uploadPdf();
+  }, [pdfFile, isOpen, item?.id]);
 
   useEffect(() => {
     if (isOpen) {

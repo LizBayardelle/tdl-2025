@@ -8,10 +8,12 @@ const ITEMS_PER_PAGE = 20;
 export default function SourcesIndex() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [selectedKinds, setSelectedKinds] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedCollections, setSelectedCollections] = useState([]);
   const [yearMin, setYearMin] = useState('');
   const [yearMax, setYearMax] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,8 +21,22 @@ export default function SourcesIndex() {
   const [pdfOnly, setPdfOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Server-side pagination state
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Filter metadata (loaded once from first page)
+  const [filterMeta, setFilterMeta] = useState({
+    kinds: [],
+    years: [],
+    authors: [],
+    tags: [],
+    collections: [],
+    pdfCount: 0
+  });
+
   useEffect(() => {
-    fetchSources();
+    fetchSources(1, true);
   }, []);
 
   // Handle responsive sidebar - closed on mobile by default (below md: 768px)
@@ -40,38 +56,77 @@ export default function SourcesIndex() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchSources = async () => {
+  const fetchSources = async (page = 1, isInitial = false) => {
     try {
-      const response = await fetch('/sources.json');
+      if (isInitial) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      const response = await fetch(`/sources.json?page=${page}&per_page=${ITEMS_PER_PAGE}`);
       const data = await response.json();
-      setSources(data);
-      setLoading(false);
+
+      // Handle both old array format and new paginated format
+      if (Array.isArray(data)) {
+        // Old format - array of sources
+        setSources(data);
+        setTotalCount(data.length);
+        setTotalPages(1);
+      } else if (data.sources) {
+        // New paginated format
+        if (page === 1) {
+          setSources(data.sources);
+          // Store filter metadata from first page
+          if (data.filters) {
+            setFilterMeta({
+              kinds: data.filters.kinds || [],
+              years: data.filters.years || [],
+              authors: data.filters.authors || [],
+              tags: data.filters.tags || [],
+              collections: data.filters.collections || [],
+              pdfCount: data.filters.pdf_count || 0
+            });
+          }
+        } else {
+          setSources(prev => [...prev, ...data.sources]);
+        }
+
+        if (data.pagination) {
+          setTotalCount(data.pagination.total_count);
+          setTotalPages(data.pagination.total_pages);
+        }
+      } else {
+        console.error('Unexpected response format:', data);
+        setSources([]);
+      }
+
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error fetching sources:', error);
+      setSources([]);
+    } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
-  // Get unique values for filters
-  const sourceKinds = [...new Set(sources.map(s => s.kind))].filter(Boolean).sort();
+  const loadMoreSources = () => {
+    if (currentPage < totalPages && !loadingMore) {
+      fetchSources(currentPage + 1);
+    }
+  };
 
-  const peopleMap = new Map();
-  sources.forEach(s => {
-    (s.people || []).forEach(p => {
-      if (!peopleMap.has(p.id)) {
-        peopleMap.set(p.id, { id: p.id, full_name: p.full_name });
-      }
-    });
-  });
-  const allAuthors = Array.from(peopleMap.values()).sort((a, b) => a.full_name.localeCompare(b.full_name));
-
-  const allTags = [...new Set(sources.flatMap(s => s.tags || []))].filter(Boolean).sort();
-
-  const years = [...new Set(sources.map(s => s.year).filter(Boolean))].sort((a, b) => a - b);
+  // Use filter metadata for sidebar
+  const sourceKinds = filterMeta.kinds;
+  const allAuthors = filterMeta.authors;
+  const allTags = filterMeta.tags;
+  const allCollections = filterMeta.collections;
+  const years = filterMeta.years;
   const minYear = years[0] || new Date().getFullYear();
   const maxYear = years[years.length - 1] || new Date().getFullYear();
 
-  // Filter sources
+  // Filter sources (client-side filtering on loaded data)
   const filteredSources = sources.filter(source => {
     // Search filter
     if (searchQuery) {
@@ -100,6 +155,11 @@ export default function SourcesIndex() {
       return false;
     }
 
+    // Collection filter
+    if (selectedCollections.length > 0 && !source.collections?.some(c => selectedCollections.includes(c.id))) {
+      return false;
+    }
+
     // Year range filter
     if (yearMin && source.year < parseInt(yearMin)) {
       return false;
@@ -116,17 +176,7 @@ export default function SourcesIndex() {
     return true;
   });
 
-  // Pagination
-  const totalPages = Math.ceil(filteredSources.length / ITEMS_PER_PAGE);
-  const paginatedSources = filteredSources.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedKinds, selectedAuthors, selectedTags, yearMin, yearMax, pdfOnly]);
+  const hasMorePages = currentPage < totalPages;
 
   // Toggle selections
   const toggleKind = (kind) => {
@@ -147,10 +197,17 @@ export default function SourcesIndex() {
     );
   };
 
+  const toggleCollection = (collectionId) => {
+    setSelectedCollections(prev =>
+      prev.includes(collectionId) ? prev.filter(c => c !== collectionId) : [...prev, collectionId]
+    );
+  };
+
   const clearAllFilters = () => {
     setSelectedKinds([]);
     setSelectedAuthors([]);
     setSelectedTags([]);
+    setSelectedCollections([]);
     setYearMin('');
     setYearMax('');
     setSearchQuery('');
@@ -158,7 +215,7 @@ export default function SourcesIndex() {
   };
 
   const hasActiveFilters = selectedKinds.length > 0 || selectedAuthors.length > 0 ||
-                          selectedTags.length > 0 || yearMin || yearMax || searchQuery || pdfOnly;
+                          selectedTags.length > 0 || selectedCollections.length > 0 || yearMin || yearMax || searchQuery || pdfOnly;
 
   if (loading) {
     return (
@@ -242,7 +299,7 @@ export default function SourcesIndex() {
                       fontWeight: 500,
                     }}
                   >
-                    ({sources.filter(s => s.pdf_url).length})
+                    ({filterMeta.pdfCount})
                   </span>
                 </span>
                 <div
@@ -296,10 +353,17 @@ export default function SourcesIndex() {
                   marginBottom: 'var(--space-3)',
                 }}
               >
-                Type
+                Type ({sourceKinds.length})
               </div>
 
-              <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              <div style={{
+                maxHeight: '200px',
+                overflowY: 'auto',
+                background: 'white',
+                borderRadius: '6px',
+                padding: 'var(--space-2)',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}>
                 {sourceKinds.map(kind => {
                   const count = sources.filter(s => s.kind === kind).length;
                   const isSelected = selectedKinds.includes(kind);
@@ -316,12 +380,12 @@ export default function SourcesIndex() {
                         cursor: 'pointer',
                         fontSize: 'var(--text-sm)',
                         color: 'var(--neutral-700)',
-                        background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                        background: isSelected ? 'color-mix(in srgb, var(--accent-blue) 20%, white)' : 'transparent',
                         transition: 'background 0.15s',
                         marginBottom: '0.125rem',
                       }}
                       onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                        if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-blue) 15%, white)';
                       }}
                       onMouseLeave={(e) => {
                         if (!isSelected) e.currentTarget.style.background = 'transparent';
@@ -366,10 +430,17 @@ export default function SourcesIndex() {
                     marginBottom: 'var(--space-3)',
                   }}
                 >
-                  Author
+                  Author ({allAuthors.length})
                 </div>
 
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
                   {allAuthors.map(author => {
                     const count = sources.filter(s => s.people?.some(p => p.id === author.id)).length;
                     const isSelected = selectedAuthors.includes(author.id);
@@ -386,12 +457,12 @@ export default function SourcesIndex() {
                           cursor: 'pointer',
                           fontSize: 'var(--text-sm)',
                           color: 'var(--neutral-700)',
-                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-blue) 20%, white)' : 'transparent',
                           transition: 'background 0.15s',
                           marginBottom: '0.125rem',
                         }}
                         onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-blue) 15%, white)';
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) e.currentTarget.style.background = 'transparent';
@@ -437,10 +508,17 @@ export default function SourcesIndex() {
                     marginBottom: 'var(--space-3)',
                   }}
                 >
-                  Tag
+                  Tag ({allTags.length})
                 </div>
 
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
                   {allTags.map(tag => {
                     const count = sources.filter(s => s.tags?.includes(tag)).length;
                     const isSelected = selectedTags.includes(tag);
@@ -457,12 +535,12 @@ export default function SourcesIndex() {
                           cursor: 'pointer',
                           fontSize: 'var(--text-sm)',
                           color: 'var(--neutral-700)',
-                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-blue) 20%, white)' : 'transparent',
                           transition: 'background 0.15s',
                           marginBottom: '0.125rem',
                         }}
                         onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-blue) 15%, white)';
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) e.currentTarget.style.background = 'transparent';
@@ -478,6 +556,84 @@ export default function SourcesIndex() {
                           style={{ accentColor: 'var(--accent-blue)' }}
                         />
                         <span style={{ flex: 1 }}>{tag}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Collection filters */}
+            {allCollections.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Collection ({allCollections.length})
+                </div>
+
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
+                  {allCollections.map(collection => {
+                    const count = sources.filter(s => s.collections?.some(c => c.id === collection.id)).length;
+                    const isSelected = selectedCollections.includes(collection.id);
+                    return (
+                      <label
+                        key={collection.id}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-blue) 20%, white)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-blue) 15%, white)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleCollection(collection.id);
+                          }}
+                          style={{ accentColor: 'var(--accent-blue)' }}
+                        />
+                        <span style={{ flex: 1 }}>{collection.name}</span>
                         <span
                           style={{
                             fontSize: 'var(--text-xs)',
@@ -608,7 +764,8 @@ export default function SourcesIndex() {
                   marginBottom: 0,
                 }}
               >
-                {filteredSources.length} of {sources.length} sources
+                {filteredSources.length} of {totalCount} sources
+                {sources.length < totalCount && ` (${sources.length} loaded)`}
               </p>
             </div>
             <button
@@ -686,109 +843,81 @@ export default function SourcesIndex() {
           ) : (
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                {paginatedSources.map(source => (
-                  <SourceCard key={source.id} source={source} onUpdate={fetchSources} />
+                {filteredSources.map(source => (
+                  <SourceCard key={source.id} source={source} onUpdate={() => fetchSources(1, true)} />
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
+              {/* Load More */}
+              {hasMorePages && (
                 <div
                   style={{
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
                     gap: 'var(--space-2)',
                     marginTop: 'var(--space-6)',
                     paddingBottom: 'var(--space-4)',
                   }}
                 >
-                  <button
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
-                    style={{
-                      padding: 'var(--space-2) var(--space-3)',
-                      fontSize: 'var(--text-sm)',
-                      fontFamily: 'var(--font-body)',
-                      background: currentPage === 1 ? 'var(--neutral-100)' : 'white',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: '4px',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                      color: currentPage === 1 ? 'var(--neutral-400)' : 'var(--neutral-700)',
-                      transition: 'all 0.15s',
-                    }}
-                    title="First page"
-                  >
-                    <i className="fas fa-angle-double-left"></i>
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    style={{
-                      padding: 'var(--space-2) var(--space-3)',
-                      fontSize: 'var(--text-sm)',
-                      fontFamily: 'var(--font-body)',
-                      background: currentPage === 1 ? 'var(--neutral-100)' : 'white',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: '4px',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                      color: currentPage === 1 ? 'var(--neutral-400)' : 'var(--neutral-700)',
-                      transition: 'all 0.15s',
-                    }}
-                    title="Previous page"
-                  >
-                    <i className="fas fa-angle-left"></i>
-                  </button>
-
                   <span
                     style={{
-                      padding: 'var(--space-2) var(--space-4)',
                       fontSize: 'var(--text-sm)',
                       fontFamily: 'var(--font-body)',
-                      color: 'var(--neutral-600)',
-                      minWidth: '100px',
-                      textAlign: 'center',
+                      color: 'var(--neutral-500)',
                     }}
                   >
-                    Page {currentPage} of {totalPages}
+                    Showing {sources.length} of {totalCount} sources
                   </span>
+                  <button
+                    onClick={loadMoreSources}
+                    disabled={loadingMore}
+                    style={{
+                      padding: 'var(--space-3) var(--space-6)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      fontWeight: 500,
+                      background: loadingMore ? 'var(--neutral-200)' : 'var(--accent-blue)',
+                      color: loadingMore ? 'var(--neutral-500)' : 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: loadingMore ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!loadingMore) e.currentTarget.style.background = 'var(--accent-blue-dark)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!loadingMore) e.currentTarget.style.background = 'var(--accent-blue)';
+                    }}
+                  >
+                    {loadingMore ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin" style={{ marginRight: 'var(--space-2)' }}></i>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-plus" style={{ marginRight: 'var(--space-2)' }}></i>
+                        Load More
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
 
-                  <button
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      padding: 'var(--space-2) var(--space-3)',
-                      fontSize: 'var(--text-sm)',
-                      fontFamily: 'var(--font-body)',
-                      background: currentPage === totalPages ? 'var(--neutral-100)' : 'white',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: '4px',
-                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                      color: currentPage === totalPages ? 'var(--neutral-400)' : 'var(--neutral-700)',
-                      transition: 'all 0.15s',
-                    }}
-                    title="Next page"
-                  >
-                    <i className="fas fa-angle-right"></i>
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      padding: 'var(--space-2) var(--space-3)',
-                      fontSize: 'var(--text-sm)',
-                      fontFamily: 'var(--font-body)',
-                      background: currentPage === totalPages ? 'var(--neutral-100)' : 'white',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: '4px',
-                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                      color: currentPage === totalPages ? 'var(--neutral-400)' : 'var(--neutral-700)',
-                      transition: 'all 0.15s',
-                    }}
-                    title="Last page"
-                  >
-                    <i className="fas fa-angle-double-right"></i>
-                  </button>
+              {!hasMorePages && sources.length > 0 && (
+                <div
+                  style={{
+                    textAlign: 'center',
+                    marginTop: 'var(--space-6)',
+                    paddingBottom: 'var(--space-4)',
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-500)',
+                  }}
+                >
+                  Showing all {totalCount} sources
                 </div>
               )}
             </>

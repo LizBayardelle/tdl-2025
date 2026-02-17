@@ -11,12 +11,14 @@ class PeopleController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        render json: @people.includes(:concepts, :sources, :notes, :tags).map { |person|
+        render json: @people.includes(:concepts, :sources, :notes, :tags, :collections).map { |person|
           is_owner = person.user_id == current_user.id
           person.as_json.merge(
             sources_count: person.sources.count,
             notes_count: person.notes.count,
             concepts: person.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
+            sources: person.sources.map { |s| { id: s.id, title: s.title, kind: s.kind } },
+            collections: person.collections.map { |c| { id: c.id, name: c.name } },
             tags: is_owner ? person.tags.pluck(:name) : [],
             permission: person.permission_for(current_user),
             is_owner: is_owner
@@ -43,7 +45,8 @@ class PeopleController < ApplicationController
         render json: @person.as_json(
           include: {
             concepts: { only: [:id, :label, :node_type] },
-            sources: { only: [:id, :title, :authors, :year] }
+            sources: { only: [:id, :title, :authors, :year] },
+            collections: { only: [:id, :name, :description] }
           }
         ).merge(
           tags: @person.tags.pluck(:name)

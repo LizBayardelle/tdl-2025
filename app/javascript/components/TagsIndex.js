@@ -169,22 +169,6 @@ export default function TagsIndex() {
               </select>
             </div>
 
-            <button
-              onClick={() => setCreatingTag(true)}
-              className="btn-primary"
-              style={{
-                width: '100%',
-                background: 'var(--accent-purple)',
-                marginBottom: 'var(--space-4)',
-                fontFamily: 'var(--font-body)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-purple) 80%, black)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
-            >
-              <i className="fas fa-plus" style={{ marginRight: 'var(--space-2)' }}></i>
-              New Tag
-            </button>
-
             {/* Tags List */}
             <div style={{
               borderTop: '1px solid var(--neutral-300)',
@@ -307,23 +291,57 @@ export default function TagsIndex() {
             position: 'relative',
             zIndex: 5,
           }}>
-            <h1 style={{
-              fontSize: 'var(--text-4xl)',
-              fontWeight: 700,
-              fontFamily: 'var(--font-display)',
-              color: 'var(--accent-purple)',
-              margin: 0,
-              lineHeight: 1.1
-            }}>Tags</h1>
-            <p style={{
-              fontSize: 'var(--text-base)',
-              color: 'var(--neutral-600)',
-              fontFamily: 'var(--font-body)',
-              marginTop: 'var(--space-1)',
-              marginBottom: 0
-            }}>
-              Browse and organize your knowledge by tags
-            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{
+                  fontSize: 'var(--text-4xl)',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--accent-purple)',
+                  margin: 0,
+                  lineHeight: 1.1
+                }}>Tags</h1>
+                <p style={{
+                  fontSize: 'var(--text-base)',
+                  color: 'var(--neutral-600)',
+                  fontFamily: 'var(--font-body)',
+                  marginTop: 'var(--space-1)',
+                  marginBottom: 0
+                }}>
+                  Browse and organize your knowledge by tags
+                </p>
+              </div>
+              {/* New Tag Button */}
+              <button
+                onClick={() => setCreatingTag(true)}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'var(--accent-purple)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 'var(--text-lg)',
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-purple) 80%, black)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-purple)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+                title="New Tag"
+              >
+                <i className="fas fa-plus"></i>
+              </button>
+            </div>
           </div>
 
           {/* Content Area */}

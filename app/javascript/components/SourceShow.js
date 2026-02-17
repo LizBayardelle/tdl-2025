@@ -33,7 +33,8 @@ export default function SourceShow({ sourceId }) {
     try {
       const response = await fetch('/sources.json');
       const data = await response.json();
-      setAllSources(data);
+      const sources = Array.isArray(data) ? data : (data.sources || []);
+      setAllSources(sources);
       setSourcesLoading(false);
     } catch (error) {
       console.error('Error fetching sources:', error);

@@ -7,6 +7,8 @@ export default function NotesIndex() {
   const [allSources, setAllSources] = useState([]);
   const [allConcepts, setAllConcepts] = useState([]);
   const [allTags, setAllTags] = useState([]);
+  const [allPeople, setAllPeople] = useState([]);
+  const [allCollections, setAllCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
@@ -21,7 +23,10 @@ export default function NotesIndex() {
   const [selectedConcepts, setSelectedConcepts] = useState([]);
   const [selectedSources, setSelectedSources] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedPeople, setSelectedPeople] = useState([]);
+  const [selectedCollections, setSelectedCollections] = useState([]);
   const [filterType, setFilterType] = useState('all');
+  const [sourceNameFilter, setSourceNameFilter] = useState('');
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
 
   // View mode: 'cards' or 'list'
@@ -47,24 +52,31 @@ export default function NotesIndex() {
 
   const fetchData = async () => {
     try {
-      const [notesRes, sourcesRes, conceptsRes, tagsRes] = await Promise.all([
+      const [notesRes, sourcesRes, conceptsRes, tagsRes, peopleRes, collectionsRes] = await Promise.all([
         fetch('/notes.json'),
         fetch('/sources.json'),
         fetch('/concepts.json'),
-        fetch('/tags.json')
+        fetch('/tags.json'),
+        fetch('/people.json'),
+        fetch('/collections.json')
       ]);
 
-      const [notesData, sourcesData, conceptsData, tagsData] = await Promise.all([
+      const [notesData, sourcesData, conceptsData, tagsData, peopleData, collectionsData] = await Promise.all([
         notesRes.json(),
         sourcesRes.json(),
         conceptsRes.json(),
-        tagsRes.json()
+        tagsRes.json(),
+        peopleRes.json(),
+        collectionsRes.json()
       ]);
 
       setNotes(notesData);
-      setAllSources(sourcesData);
+      // Handle paginated sources response
+      setAllSources(Array.isArray(sourcesData) ? sourcesData : (sourcesData.sources || []));
       setAllConcepts(conceptsData);
       setAllTags(tagsData);
+      setAllPeople(peopleData);
+      setAllCollections(Array.isArray(collectionsData) ? collectionsData : (collectionsData.collections || collectionsData));
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -120,6 +132,45 @@ export default function NotesIndex() {
     todo: 'To Do'
   };
 
+  // Helper: Check if a note belongs to a collection (directly or via source/person/concept)
+  const noteInCollection = (note, collectionId) => {
+    // Direct membership
+    if (note.collections?.some(c => c.id === collectionId)) return true;
+
+    // Via source
+    if (note.source) {
+      const source = allSources.find(s => s.id === note.source.id);
+      if (source?.collections?.some(c => c.id === collectionId)) return true;
+    }
+
+    // Via people
+    if (note.people?.length > 0) {
+      for (const notePerson of note.people) {
+        const person = allPeople.find(p => p.id === notePerson.id);
+        if (person?.collections?.some(c => c.id === collectionId)) return true;
+      }
+    }
+
+    // Via concepts
+    if (note.concepts?.length > 0) {
+      for (const noteConcept of note.concepts) {
+        const concept = allConcepts.find(c => c.id === noteConcept.id);
+        if (concept?.collections?.some(c => c.id === collectionId)) return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Helper: Check if a note belongs to any shared collection (not owned by current user)
+  const noteInSharedCollection = (note) => {
+    // Get all shared collections (where is_owner is false)
+    const sharedCollections = allCollections.filter(c => !c.is_owner);
+
+    // Check if note belongs to any of them
+    return sharedCollections.some(collection => noteInCollection(note, collection.id));
+  };
+
   // Filter notes
   const getFilteredNotes = () => {
     let filtered = [...notes];
@@ -151,6 +202,18 @@ export default function NotesIndex() {
       );
     }
 
+    if (selectedPeople.length > 0) {
+      filtered = filtered.filter(note =>
+        note.people?.some(p => selectedPeople.includes(p.id))
+      );
+    }
+
+    if (selectedCollections.length > 0) {
+      filtered = filtered.filter(note =>
+        selectedCollections.some(collectionId => noteInCollection(note, collectionId))
+      );
+    }
+
     if (filterType !== 'all') {
       filtered = filtered.filter(note => note.note_type === filterType);
     }
@@ -174,14 +237,36 @@ export default function NotesIndex() {
     setSelectedConcepts([]);
     setSelectedSources([]);
     setSelectedTags([]);
+    setSelectedPeople([]);
+    setSelectedCollections([]);
     setFilterType('all');
+    setSourceNameFilter('');
     setShowPinnedOnly(false);
   };
 
   const hasActiveFilters = searchQuery || selectedConcepts.length > 0 || selectedSources.length > 0 ||
-    selectedTags.length > 0 || filterType !== 'all' || showPinnedOnly;
+    selectedTags.length > 0 || selectedPeople.length > 0 || selectedCollections.length > 0 ||
+    filterType !== 'all' || sourceNameFilter || showPinnedOnly;
 
   const filteredNotes = getFilteredNotes();
+
+  // Compute which filter sections have data (items with count > 0)
+  const hasConceptsWithNotes = allConcepts.some(concept =>
+    notes.filter(n => n.concepts?.some(c => c.id === concept.id)).length > 0
+  );
+  const hasSourcesWithNotes = allSources.some(source =>
+    notes.filter(n => n.source?.id === source.id).length > 0
+  );
+  const hasPeopleWithNotes = allPeople.some(person =>
+    notes.filter(n => n.people?.some(p => p.id === person.id)).length > 0
+  );
+  const hasCollectionsWithNotes = allCollections.some(collection =>
+    notes.some(n => noteInCollection(n, collection.id))
+  );
+  const hasTagsWithNotes = allTags.some(tag => {
+    const tagName = typeof tag === 'string' ? tag : tag.name;
+    return notes.filter(n => n.tags?.some(t => (typeof t === 'string' ? t : t.name) === tagName)).length > 0;
+  });
 
   if (loading) {
     return (
@@ -232,44 +317,6 @@ export default function NotesIndex() {
             boxShadow: 'var(--shadow-sidebar)',
             flexShrink: 0
           }}>
-            {/* Add Note Button */}
-            <button
-              onClick={() => {
-                setEditingNote(null);
-                setShowFormModal(true);
-              }}
-              style={{
-                width: '100%',
-                padding: 'var(--space-3)',
-                marginBottom: 'var(--space-4)',
-                borderRadius: 'var(--radius)',
-                background: 'var(--accent-teal)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 'var(--space-2)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 600,
-                transition: 'all 0.15s',
-                boxShadow: 'var(--shadow-sm)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#4a8187';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--accent-teal)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-              }}
-            >
-              <i className="fas fa-plus"></i>
-              New Note
-            </button>
-
             {/* Search */}
             <div style={{ marginBottom: 'var(--space-4)' }}>
               <input
@@ -395,7 +442,7 @@ export default function NotesIndex() {
             )}
 
             {/* Filter: By Concept */}
-            <FilterSection title="By Concept">
+            {hasConceptsWithNotes && <FilterSection title="By Concept">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', maxHeight: '200px', overflowY: 'auto' }}>
                 {allConcepts.map(concept => {
                   const count = notes.filter(n => n.concepts?.some(c => c.id === concept.id)).length;
@@ -433,16 +480,87 @@ export default function NotesIndex() {
                   );
                 })}
               </div>
-            </FilterSection>
+            </FilterSection>}
 
             {/* Filter: By Source */}
-            <FilterSection title="By Source">
+            {hasSourcesWithNotes && <FilterSection title="By Source">
+              {/* Source name filter input */}
+              <input
+                type="text"
+                value={sourceNameFilter}
+                onChange={(e) => setSourceNameFilter(e.target.value)}
+                placeholder="Search sources..."
+                style={{
+                  width: '100%',
+                  padding: 'var(--space-2)',
+                  marginBottom: 'var(--space-2)',
+                  fontSize: 'var(--text-xs)',
+                  border: '1px solid var(--neutral-300)',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-body)',
+                  background: 'white',
+                  outline: 'none',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.border = '2px solid var(--accent-teal)';
+                  e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-teal) 15%, transparent)';
+                  e.currentTarget.style.padding = 'calc(var(--space-2) - 1px)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.padding = 'var(--space-2)';
+                }}
+              />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', maxHeight: '200px', overflowY: 'auto' }}>
-                {allSources.map(source => {
-                  const count = notes.filter(n => n.source?.id === source.id).length;
+                {allSources
+                  .filter(source => !sourceNameFilter || source.title?.toLowerCase().includes(sourceNameFilter.toLowerCase()))
+                  .map(source => {
+                    const count = notes.filter(n => n.source?.id === source.id).length;
+                    if (count === 0) return null;
+                    return (
+                      <label key={source.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                        fontSize: 'var(--text-sm)',
+                        fontFamily: 'var(--font-body)',
+                        cursor: 'pointer',
+                        padding: 'var(--space-1)',
+                        borderRadius: '4px',
+                        transition: 'background 0.15s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSources.includes(source.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedSources([...selectedSources, source.id]);
+                            } else {
+                              setSelectedSources(selectedSources.filter(id => id !== source.id));
+                            }
+                          }}
+                          style={{ accentColor: 'var(--accent-teal)' }}
+                        />
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={source.title}>{source.title}</span>
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>({count})</span>
+                      </label>
+                    );
+                  })}
+              </div>
+            </FilterSection>}
+
+            {/* Filter: By Person */}
+            {hasPeopleWithNotes && <FilterSection title="By Person">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', maxHeight: '200px', overflowY: 'auto' }}>
+                {allPeople.map(person => {
+                  const count = notes.filter(n => n.people?.some(p => p.id === person.id)).length;
                   if (count === 0) return null;
                   return (
-                    <label key={source.id} style={{
+                    <label key={person.id} style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: 'var(--space-2)',
@@ -458,26 +576,67 @@ export default function NotesIndex() {
                     >
                       <input
                         type="checkbox"
-                        checked={selectedSources.includes(source.id)}
+                        checked={selectedPeople.includes(person.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setSelectedSources([...selectedSources, source.id]);
+                            setSelectedPeople([...selectedPeople, person.id]);
                           } else {
-                            setSelectedSources(selectedSources.filter(id => id !== source.id));
+                            setSelectedPeople(selectedPeople.filter(id => id !== person.id));
                           }
                         }}
                         style={{ accentColor: 'var(--accent-teal)' }}
                       />
-                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={source.title}>{source.title}</span>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={person.full_name}>{person.full_name}</span>
                       <span style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>({count})</span>
                     </label>
                   );
                 })}
               </div>
-            </FilterSection>
+            </FilterSection>}
+
+            {/* Filter: By Collection */}
+            {hasCollectionsWithNotes && <FilterSection title="By Collection">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', maxHeight: '200px', overflowY: 'auto' }}>
+                {allCollections.map(collection => {
+                  const count = notes.filter(n => noteInCollection(n, collection.id)).length;
+                  if (count === 0) return null;
+                  return (
+                    <label key={collection.id} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
+                      cursor: 'pointer',
+                      padding: 'var(--space-1)',
+                      borderRadius: '4px',
+                      transition: 'background 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedCollections.includes(collection.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCollections([...selectedCollections, collection.id]);
+                          } else {
+                            setSelectedCollections(selectedCollections.filter(id => id !== collection.id));
+                          }
+                        }}
+                        style={{ accentColor: 'var(--accent-teal)' }}
+                      />
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={collection.name}>{collection.name}</span>
+                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>({count})</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </FilterSection>}
 
             {/* Filter: By Tag */}
-            <FilterSection title="By Tag">
+            {hasTagsWithNotes && <FilterSection title="By Tag">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', maxHeight: '200px', overflowY: 'auto' }}>
                 {allTags.map(tag => {
                   const tagName = typeof tag === 'string' ? tag : tag.name;
@@ -516,7 +675,7 @@ export default function NotesIndex() {
                   );
                 })}
               </div>
-            </FilterSection>
+            </FilterSection>}
 
             {/* Filter: By Type */}
             <FilterSection title="By Type">
@@ -618,83 +777,122 @@ export default function NotesIndex() {
                   margin: 0,
                   lineHeight: 1.1
                 }}>Notes</h1>
-                <p style={{
-                  fontSize: 'var(--text-base)',
-                  color: 'var(--neutral-600)',
-                  fontFamily: 'var(--font-body)',
-                  marginTop: 'var(--space-1)',
-                  marginBottom: 0
-                }}>
-                  Showing {filteredNotes.length} of {notes.length} notes
-                </p>
-              </div>
-              {/* View Mode Toggle - hidden on mobile */}
-              <div
-                className="hidden md:flex"
-                onClick={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
-                style={{
-                  width: '56px',
-                  height: '28px',
-                  background: 'var(--accent-teal)',
-                  borderRadius: '14px',
-                  padding: '3px',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'background 0.2s',
-                }}
-                title={viewMode === 'cards' ? 'Switch to list view' : 'Switch to card view'}
-              >
-                {/* Sliding ball */}
                 <div style={{
-                  width: '22px',
-                  height: '22px',
-                  background: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                  marginTop: 'var(--space-1)',
+                }}>
+                  <p style={{
+                    fontSize: 'var(--text-base)',
+                    color: 'var(--neutral-600)',
+                    fontFamily: 'var(--font-body)',
+                    margin: 0
+                  }}>
+                    Showing {filteredNotes.length} of {notes.length} notes
+                  </p>
+                  {/* View Mode Toggle - hidden on mobile */}
+                  <div
+                    className="hidden md:flex"
+                    onClick={() => setViewMode(viewMode === 'cards' ? 'list' : 'cards')}
+                    style={{
+                      width: '48px',
+                      height: '24px',
+                      background: 'var(--accent-teal)',
+                      borderRadius: '12px',
+                      padding: '2px',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'background 0.2s',
+                    }}
+                    title={viewMode === 'cards' ? 'Switch to list view' : 'Switch to card view'}
+                  >
+                    {/* Sliding ball */}
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                      transform: viewMode === 'list' ? 'translateX(24px)' : 'translateX(0)',
+                      transition: 'transform 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      <i
+                        className={`fas ${viewMode === 'cards' ? 'fa-th-large' : 'fa-list'}`}
+                        style={{ fontSize: '9px', color: 'var(--accent-teal)' }}
+                      ></i>
+                    </div>
+                    {/* Background icons */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '0 6px',
+                      pointerEvents: 'none',
+                    }}>
+                      <i
+                        className="fas fa-th-large"
+                        style={{
+                          fontSize: '9px',
+                          color: 'white',
+                          opacity: viewMode === 'cards' ? 0 : 0.6,
+                          transition: 'opacity 0.2s',
+                        }}
+                      ></i>
+                      <i
+                        className="fas fa-list"
+                        style={{
+                          fontSize: '9px',
+                          color: 'white',
+                          opacity: viewMode === 'list' ? 0 : 0.6,
+                          transition: 'opacity 0.2s',
+                        }}
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* New Note Button */}
+              <button
+                onClick={() => {
+                  setEditingNote(null);
+                  setShowFormModal(true);
+                }}
+                style={{
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                  transform: viewMode === 'list' ? 'translateX(28px)' : 'translateX(0)',
-                  transition: 'transform 0.2s ease',
+                  background: 'var(--accent-teal)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                }}>
-                  <i
-                    className={`fas ${viewMode === 'cards' ? 'fa-th-large' : 'fa-list'}`}
-                    style={{ fontSize: '10px', color: 'var(--accent-teal)' }}
-                  ></i>
-                </div>
-                {/* Background icons */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0 8px',
-                  pointerEvents: 'none',
-                }}>
-                  <i
-                    className="fas fa-th-large"
-                    style={{
-                      fontSize: '10px',
-                      color: 'white',
-                      opacity: viewMode === 'cards' ? 0 : 0.6,
-                      transition: 'opacity 0.2s',
-                    }}
-                  ></i>
-                  <i
-                    className="fas fa-list"
-                    style={{
-                      fontSize: '10px',
-                      color: 'white',
-                      opacity: viewMode === 'list' ? 0 : 0.6,
-                      transition: 'opacity 0.2s',
-                    }}
-                  ></i>
-                </div>
-              </div>
+                  fontSize: 'var(--text-lg)',
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#4a8187';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-teal)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+                title="New Note"
+              >
+                <i className="fas fa-plus"></i>
+              </button>
             </div>
           </div>
 
@@ -760,6 +958,17 @@ export default function NotesIndex() {
                         }}>
                           {note.title}
                         </h3>
+                        {noteInSharedCollection(note) && (
+                          <i
+                            className="fas fa-folder"
+                            style={{
+                              color: 'rgba(255, 255, 255, 0.8)',
+                              fontSize: 'var(--text-sm)',
+                              marginLeft: 'var(--space-2)'
+                            }}
+                            title="From shared collection"
+                          ></i>
+                        )}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
                           style={{
@@ -779,23 +988,39 @@ export default function NotesIndex() {
                     )}
                     <div style={{ padding: 'var(--space-4)', flex: 1 }}>
                       {!note.title && (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
-                          style={{
-                            position: 'absolute',
-                            top: 'var(--space-3)',
-                            right: 'var(--space-3)',
-                            background: 'none',
-                            border: 'none',
-                            color: note.pinned ? 'var(--accent-teal)' : 'var(--neutral-400)',
-                            cursor: 'pointer',
-                            padding: 'var(--space-1)',
-                            fontSize: 'var(--text-sm)'
-                          }}
-                          title={note.pinned ? 'Unpin' : 'Pin'}
-                        >
-                          <i className="fas fa-thumbtack"></i>
-                        </button>
+                        <div style={{
+                          position: 'absolute',
+                          top: 'var(--space-3)',
+                          right: 'var(--space-3)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)'
+                        }}>
+                          {noteInSharedCollection(note) && (
+                            <i
+                              className="fas fa-folder"
+                              style={{
+                                color: 'var(--neutral-400)',
+                                fontSize: 'var(--text-sm)'
+                              }}
+                              title="From shared collection"
+                            ></i>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleTogglePin(note); }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: note.pinned ? 'var(--accent-teal)' : 'var(--neutral-400)',
+                              cursor: 'pointer',
+                              padding: 'var(--space-1)',
+                              fontSize: 'var(--text-sm)'
+                            }}
+                            title={note.pinned ? 'Unpin' : 'Pin'}
+                          >
+                            <i className="fas fa-thumbtack"></i>
+                          </button>
+                        </div>
                       )}
                       <div
                         className="prose prose-sm max-w-none [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-1 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-1 [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-2 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-1 [&_td]:text-xs [&_th]:border [&_th]:border-gray-300 [&_th]:p-1 [&_th]:text-xs [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto"
@@ -1022,8 +1247,6 @@ function FilterSection({ title, children }) {
   return (
     <div style={{
       marginBottom: 'var(--space-4)',
-      paddingBottom: 'var(--space-3)',
-      borderBottom: '1px solid var(--neutral-200)'
     }}>
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -1049,7 +1272,16 @@ function FilterSection({ title, children }) {
         <span>{title}</span>
         <i className={`fas fa-chevron-${isOpen ? 'down' : 'right'}`} style={{ fontSize: '10px' }}></i>
       </button>
-      {isOpen && <div>{children}</div>}
+      {isOpen && (
+        <div style={{
+          background: 'white',
+          borderRadius: '6px',
+          padding: 'var(--space-2)',
+          boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+        }}>
+          {children}
+        </div>
+      )}
     </div>
   );
 }

@@ -9,6 +9,9 @@ export default function PeopleIndex() {
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedConcepts, setSelectedConcepts] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedSources, setSelectedSources] = useState([]);
+  const [selectedCollections, setSelectedCollections] = useState([]);
+  const [sourceSearchFilter, setSourceSearchFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sortField, setSortField] = useState('name');
@@ -62,6 +65,29 @@ export default function PeopleIndex() {
 
   const allTags = [...new Set(people.flatMap(p => p.tags || []))].filter(Boolean).sort();
 
+  const sourcesMap = new Map();
+  people.forEach(p => {
+    (p.sources || []).forEach(s => {
+      if (!sourcesMap.has(s.id)) {
+        sourcesMap.set(s.id, { id: s.id, title: s.title, kind: s.kind });
+      }
+    });
+  });
+  const allSources = Array.from(sourcesMap.values()).sort((a, b) => a.title.localeCompare(b.title));
+  const filteredSourcesForSidebar = sourceSearchFilter
+    ? allSources.filter(s => s.title.toLowerCase().includes(sourceSearchFilter.toLowerCase()))
+    : allSources;
+
+  const collectionsMap = new Map();
+  people.forEach(p => {
+    (p.collections || []).forEach(c => {
+      if (!collectionsMap.has(c.id)) {
+        collectionsMap.set(c.id, { id: c.id, name: c.name });
+      }
+    });
+  });
+  const allCollections = Array.from(collectionsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
   // Filter people
   const filteredPeople = people.filter(person => {
     // Search filter
@@ -90,6 +116,16 @@ export default function PeopleIndex() {
       return false;
     }
 
+    // Source filter
+    if (selectedSources.length > 0 && !person.sources?.some(s => selectedSources.includes(s.id))) {
+      return false;
+    }
+
+    // Collection filter
+    if (selectedCollections.length > 0 && !person.collections?.some(c => selectedCollections.includes(c.id))) {
+      return false;
+    }
+
     return true;
   });
 
@@ -112,15 +148,30 @@ export default function PeopleIndex() {
     );
   };
 
+  const toggleSource = (sourceId) => {
+    setSelectedSources(prev =>
+      prev.includes(sourceId) ? prev.filter(s => s !== sourceId) : [...prev, sourceId]
+    );
+  };
+
+  const toggleCollection = (collectionId) => {
+    setSelectedCollections(prev =>
+      prev.includes(collectionId) ? prev.filter(c => c !== collectionId) : [...prev, collectionId]
+    );
+  };
+
   const clearAllFilters = () => {
     setSelectedRoles([]);
     setSelectedConcepts([]);
     setSelectedTags([]);
+    setSelectedSources([]);
+    setSelectedCollections([]);
     setSearchQuery('');
   };
 
   const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 ||
-                          selectedTags.length > 0 || searchQuery;
+                          selectedTags.length > 0 || selectedSources.length > 0 ||
+                          selectedCollections.length > 0 || searchQuery;
 
   // Sort people
   const sortedPeople = [...filteredPeople].sort((a, b) => {
@@ -252,73 +303,82 @@ export default function PeopleIndex() {
             )}
 
             {/* Role filters */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: 'var(--neutral-500)',
-                  marginBottom: 'var(--space-3)',
-                }}
-              >
-                Role
-              </div>
+            {personRoles.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Role ({personRoles.length})
+                </div>
 
-              <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                {personRoles.map(role => {
-                  const count = people.filter(p => p.role === role).length;
-                  const isSelected = selectedRoles.includes(role);
-                  return (
-                    <label
-                      key={role}
-                      style={{
-                        fontFamily: 'var(--font-body)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-2)',
-                        padding: 'var(--space-1) var(--space-2)',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-700)',
-                        background: isSelected ? 'var(--neutral-200)' : 'transparent',
-                        transition: 'background 0.15s',
-                        marginBottom: '0.125rem',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = 'transparent';
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          toggleRole(role);
-                        }}
-                        style={{ accentColor: 'var(--accent-gold)' }}
-                      />
-                      <span style={{ flex: 1, textTransform: 'capitalize' }}>{role.replace(/_/g, ' ')}</span>
-                      <span
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
+                  {personRoles.map(role => {
+                    const count = people.filter(p => p.role === role).length;
+                    const isSelected = selectedRoles.includes(role);
+                    return (
+                      <label
+                        key={role}
                         style={{
-                          fontSize: 'var(--text-xs)',
-                          color: 'var(--neutral-400)',
-                          fontWeight: 500,
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
                         }}
                       >
-                        {count}
-                      </span>
-                    </label>
-                  );
-                })}
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleRole(role);
+                          }}
+                          style={{ accentColor: 'var(--accent-gold)' }}
+                        />
+                        <span style={{ flex: 1, textTransform: 'capitalize' }}>{role.replace(/_/g, ' ')}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Concept filters */}
             {allConcepts.length > 0 && (
@@ -334,10 +394,17 @@ export default function PeopleIndex() {
                     marginBottom: 'var(--space-3)',
                   }}
                 >
-                  Concept
+                  Concept ({allConcepts.length})
                 </div>
 
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
                   {allConcepts.map(concept => {
                     const count = people.filter(p => p.concepts?.some(c => c.id === concept.id)).length;
                     const isSelected = selectedConcepts.includes(concept.id);
@@ -354,12 +421,12 @@ export default function PeopleIndex() {
                           cursor: 'pointer',
                           fontSize: 'var(--text-sm)',
                           color: 'var(--neutral-700)',
-                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
                           transition: 'background 0.15s',
                           marginBottom: '0.125rem',
                         }}
                         onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) e.currentTarget.style.background = 'transparent';
@@ -405,10 +472,17 @@ export default function PeopleIndex() {
                     marginBottom: 'var(--space-3)',
                   }}
                 >
-                  Tag
+                  Tag ({allTags.length})
                 </div>
 
-                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
                   {allTags.map(tag => {
                     const count = people.filter(p => p.tags?.includes(tag)).length;
                     const isSelected = selectedTags.includes(tag);
@@ -425,12 +499,12 @@ export default function PeopleIndex() {
                           cursor: 'pointer',
                           fontSize: 'var(--text-sm)',
                           color: 'var(--neutral-700)',
-                          background: isSelected ? 'var(--neutral-200)' : 'transparent',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
                           transition: 'background 0.15s',
                           marginBottom: '0.125rem',
                         }}
                         onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) e.currentTarget.style.background = 'transparent';
@@ -446,6 +520,194 @@ export default function PeopleIndex() {
                           style={{ accentColor: 'var(--accent-gold)' }}
                         />
                         <span style={{ flex: 1 }}>{tag}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Source filters */}
+            {allSources.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Source ({allSources.length})
+                </div>
+
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
+                  <input
+                    type="text"
+                    value={sourceSearchFilter}
+                    onChange={(e) => setSourceSearchFilter(e.target.value)}
+                    placeholder="Search sources..."
+                    style={{
+                      width: '100%',
+                      padding: 'var(--space-2)',
+                      marginBottom: 'var(--space-2)',
+                      fontSize: 'var(--text-xs)',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '4px',
+                      fontFamily: 'var(--font-body)',
+                      background: 'white',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.outline = 'none';
+                      e.currentTarget.style.border = '2px solid var(--accent-gold)';
+                      e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 15%, transparent)';
+                      e.currentTarget.style.padding = 'calc(var(--space-2) - 1px)';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.border = '1px solid var(--neutral-300)';
+                      e.currentTarget.style.boxShadow = 'none';
+                      e.currentTarget.style.padding = 'var(--space-2)';
+                    }}
+                  />
+                  {filteredSourcesForSidebar.map(source => {
+                    const count = people.filter(p => p.sources?.some(s => s.id === source.id)).length;
+                    const isSelected = selectedSources.includes(source.id);
+                    return (
+                      <label
+                        key={source.id}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleSource(source.id);
+                          }}
+                          style={{ accentColor: 'var(--accent-gold)' }}
+                        />
+                        <span style={{
+                          flex: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }} title={source.title}>{source.title}</span>
+                        <span
+                          style={{
+                            fontSize: 'var(--text-xs)',
+                            color: 'var(--neutral-400)',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {count}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Collection filters */}
+            {allCollections.length > 0 && (
+              <div style={{ marginBottom: 'var(--space-6)' }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: 'var(--neutral-500)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
+                  Collection ({allCollections.length})
+                </div>
+
+                <div style={{
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  background: 'white',
+                  borderRadius: '6px',
+                  padding: 'var(--space-2)',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}>
+                  {allCollections.map(collection => {
+                    const count = people.filter(p => p.collections?.some(c => c.id === collection.id)).length;
+                    const isSelected = selectedCollections.includes(collection.id);
+                    return (
+                      <label
+                        key={collection.id}
+                        style={{
+                          fontFamily: 'var(--font-body)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          padding: 'var(--space-1) var(--space-2)',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
+                          transition: 'background 0.15s',
+                          marginBottom: '0.125rem',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleCollection(collection.id);
+                          }}
+                          style={{ accentColor: 'var(--accent-gold)' }}
+                        />
+                        <span style={{ flex: 1 }}>{collection.name}</span>
                         <span
                           style={{
                             fontSize: 'var(--text-xs)',

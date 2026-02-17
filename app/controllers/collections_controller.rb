@@ -4,15 +4,25 @@ class CollectionsController < ApplicationController
 
   def index
     # Own collections + shared collections
-    owned = current_user.collections
+    owned = current_user.collections.includes(:user)
     shared = Collection.joins(:shares)
+      .includes(:user, :shares)
       .where(shares: { recipient_id: current_user.id, active: true })
 
     @collections = (owned + shared).uniq
 
     respond_to do |format|
       format.html
-      format.json { render json: @collections.as_json(methods: [:items_count]) }
+      format.json {
+        render json: @collections.map { |c|
+          share = c.shares.find { |s| s.recipient_id == current_user.id && s.active }
+          c.as_json(methods: [:items_count]).merge(
+            is_owner: c.user_id == current_user.id,
+            owner_email: c.user.email,
+            share_permission: share&.permission
+          )
+        }
+      }
     end
   end
 
@@ -20,12 +30,25 @@ class CollectionsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        render json: @collection.as_json(include: {
+        json_data = @collection.as_json(include: {
           sources: { only: [:id, :title] },
           concepts: { only: [:id, :label] },
           people: { only: [:id, :full_name] },
           notes: { only: [:id, :title, :body] }
         })
+
+        # Include shares info if owner
+        if @collection.user_id == current_user.id
+          json_data['shares'] = @collection.shares.where(active: true).includes(:recipient).map do |share|
+            {
+              id: share.id,
+              email: share.recipient.email,
+              permission: share.permission
+            }
+          end
+        end
+
+        render json: json_data
       }
     end
   end

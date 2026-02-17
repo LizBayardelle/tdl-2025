@@ -58767,6 +58767,7 @@ var import_react23 = __toESM(require_react());
 function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onChange: onChange16, multiple = true, themeColor = "var(--accent-blue)" }) {
   const [allSources, setAllSources] = (0, import_react23.useState)([]);
   const [filter2, setFilter] = (0, import_react23.useState)("");
+  const [typeFilter, setTypeFilter] = (0, import_react23.useState)("");
   const [loading, setLoading] = (0, import_react23.useState)(true);
   (0, import_react23.useEffect)(() => {
     fetchSources();
@@ -58775,16 +58776,24 @@ function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onCha
     try {
       const response = await fetch("/sources.json");
       const data = await response.json();
-      setAllSources(data.sort((a5, b2) => a5.title.localeCompare(b2.title)));
+      const sources = Array.isArray(data) ? data : data.sources || [];
+      setAllSources(sources.sort((a5, b2) => (a5.title || "").localeCompare(b2.title || "")));
       setLoading(false);
     } catch (error) {
       console.error("Error fetching sources:", error);
       setLoading(false);
     }
   };
-  const filteredSources = filter2 ? allSources.filter(
-    (source) => source.title.toLowerCase().includes(filter2.toLowerCase())
-  ) : allSources;
+  const sourceTypes = [...new Set(allSources.map((s3) => s3.kind).filter(Boolean))].sort();
+  const filteredSources = allSources.filter((source) => {
+    if (filter2 && !source.title.toLowerCase().includes(filter2.toLowerCase())) {
+      return false;
+    }
+    if (typeFilter && source.kind !== typeFilter) {
+      return false;
+    }
+    return true;
+  });
   const handleToggle = (sourceId) => {
     if (multiple) {
       if (selectedSourceIds.includes(sourceId)) {
@@ -58815,15 +58824,15 @@ function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onCha
   } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: {
     padding: "var(--space-3)",
     borderBottom: "1px solid var(--neutral-200)"
-  } }, /* @__PURE__ */ import_react23.default.createElement(
+  } }, /* @__PURE__ */ import_react23.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react23.default.createElement(
     "input",
     {
       type: "text",
       value: filter2,
       onChange: (e3) => setFilter(e3.target.value),
-      placeholder: "Type to filter sources...",
+      placeholder: "Search sources...",
       style: {
-        width: "100%",
+        flex: 1,
         padding: "var(--space-2) var(--space-3)",
         fontSize: "var(--text-sm)",
         border: "1px solid var(--neutral-300)",
@@ -58841,7 +58850,26 @@ function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onCha
         e3.currentTarget.style.padding = "var(--space-2) var(--space-3)";
       }
     }
-  )), selectedSources.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
+  ), /* @__PURE__ */ import_react23.default.createElement(
+    "select",
+    {
+      value: typeFilter,
+      onChange: (e3) => setTypeFilter(e3.target.value),
+      style: {
+        padding: "var(--space-2)",
+        fontSize: "var(--text-xs)",
+        border: "1px solid var(--neutral-300)",
+        borderRadius: "var(--radius)",
+        fontFamily: "var(--font-body)",
+        background: "white",
+        color: typeFilter ? "var(--neutral-900)" : "var(--neutral-500)",
+        cursor: "pointer",
+        minWidth: "90px"
+      }
+    },
+    /* @__PURE__ */ import_react23.default.createElement("option", { value: "" }, "All Types"),
+    sourceTypes.map((type) => /* @__PURE__ */ import_react23.default.createElement("option", { key: type, value: type, style: { textTransform: "capitalize" } }, type.replace(/_/g, " ")))
+  ))), selectedSources.length > 0 && /* @__PURE__ */ import_react23.default.createElement("div", { style: {
     padding: "var(--space-3)",
     borderBottom: "1px solid var(--neutral-200)",
     background: `color-mix(in srgb, ${themeColor} 10%, white)`
@@ -58935,11 +58963,21 @@ function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onCha
         }
       }
     ),
-    /* @__PURE__ */ import_react23.default.createElement("span", { style: {
+    /* @__PURE__ */ import_react23.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react23.default.createElement("span", { style: {
       fontSize: "var(--text-sm)",
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)"
-    } }, source.title, " ", source.year && `(${source.year})`)
+    } }, source.title, " ", source.year && `(${source.year})`), source.kind && /* @__PURE__ */ import_react23.default.createElement("span", { style: {
+      display: "inline-block",
+      marginLeft: "var(--space-2)",
+      padding: "1px 6px",
+      fontSize: "10px",
+      fontWeight: 500,
+      textTransform: "uppercase",
+      background: "var(--neutral-100)",
+      color: "var(--neutral-500)",
+      borderRadius: "3px"
+    } }, source.kind.replace(/_/g, " ")))
   )))));
 }
 
@@ -60143,6 +60181,10 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     tags: []
   });
   const [error, setError] = (0, import_react27.useState)("");
+  const [collections, setCollections] = (0, import_react27.useState)([]);
+  const [itemCollections, setItemCollections] = (0, import_react27.useState)([]);
+  const [loadingCollections, setLoadingCollections] = (0, import_react27.useState)(false);
+  const [collectionFilter, setCollectionFilter] = (0, import_react27.useState)("");
   const performAutosave = (0, import_react27.useCallback)(async (dataToSave) => {
     if (!item?.id) return;
     setSaveStatus("saving");
@@ -60205,7 +60247,10 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       setActiveTab("basic");
       setSaveStatus("idle");
       isInitialMount.current = true;
+      setCollectionFilter("");
+      fetchCollections();
       if (item) {
+        fetchItemCollections(item.id);
         const combinedFirstName = [item.first_name, item.middle_name].filter(Boolean).join(" ") || "";
         const newFormData = {
           first_name: combinedFirstName,
@@ -60222,6 +60267,7 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
       } else {
+        setItemCollections([]);
         setFormData({
           first_name: "",
           last_name: "",
@@ -60271,6 +60317,99 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     const items = value.split("\n").filter((item2) => item2.trim());
     setFormData({ ...formData, aka: items });
   };
+  const fetchCollections = async () => {
+    setLoadingCollections(true);
+    try {
+      const response = await fetch("/collections.json");
+      const data = await response.json();
+      setCollections(data);
+    } catch (error2) {
+      console.error("Error fetching collections:", error2);
+    } finally {
+      setLoadingCollections(false);
+    }
+  };
+  const fetchItemCollections = async (personId) => {
+    try {
+      const response = await fetch(`/people/${personId}.json`);
+      const data = await response.json();
+      setItemCollections(data.collections || []);
+    } catch (error2) {
+      console.error("Error fetching item collections:", error2);
+    }
+  };
+  const handleAddToCollection = async (collectionId) => {
+    if (!item?.id) return;
+    try {
+      const response = await fetch(`/collections/${collectionId}/add_item`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          item_type: "Person",
+          item_id: item.id
+        })
+      });
+      if (response.ok) {
+        const collection = collections.find((c5) => c5.id === collectionId);
+        if (collection && !itemCollections.find((c5) => c5.id === collectionId)) {
+          setItemCollections([...itemCollections, collection]);
+        }
+      }
+    } catch (error2) {
+      console.error("Error adding to collection:", error2);
+    }
+  };
+  const handleRemoveFromCollection = async (collectionId) => {
+    if (!item?.id) return;
+    try {
+      const response = await fetch(`/collections/${collectionId}/remove_item`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          item_type: "Person",
+          item_id: item.id
+        })
+      });
+      if (response.ok) {
+        setItemCollections(itemCollections.filter((c5) => c5.id !== collectionId));
+      }
+    } catch (error2) {
+      console.error("Error removing from collection:", error2);
+    }
+  };
+  const handleCreateCollection = async (name) => {
+    if (!name.trim()) return;
+    try {
+      const response = await fetch("/collections", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          collection: { name: name.trim() }
+        })
+      });
+      if (response.ok) {
+        const newCollection = await response.json();
+        setCollections([newCollection, ...collections]);
+        setCollectionFilter("");
+        if (item?.id) {
+          handleAddToCollection(newCollection.id);
+        }
+        return newCollection;
+      }
+    } catch (error2) {
+      console.error("Error creating collection:", error2);
+    }
+    return null;
+  };
   return /* @__PURE__ */ import_react27.default.createElement(
     SlidePanel,
     {
@@ -60282,26 +60421,24 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       alignItems: "center",
       justifyContent: "space-between",
       padding: "var(--space-3) var(--space-4)",
-      borderBottom: "1px solid var(--neutral-200)",
-      background: "var(--sidebar-bg)",
+      background: "var(--accent-gold)",
       flexShrink: 0
     } }, /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react27.default.createElement("h2", { style: {
       margin: 0,
       fontFamily: "var(--font-display)",
       fontSize: "var(--text-lg)",
       fontWeight: 700,
-      color: "var(--accent-gold)",
+      color: "white",
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)"
-    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-user", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? `${formData.first_name} ${formData.last_name}`.trim() || item.full_name || "Untitled Person" : "New Person")), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-user", style: { fontSize: "var(--text-base)", opacity: 0.9 } }), item ? `${formData.first_name} ${formData.last_name}`.trim() || item.full_name || "Untitled Person" : "New Person")), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)",
-      background: "white",
+      background: "rgba(255,255,255,0.9)",
       padding: "var(--space-1) var(--space-3)",
       borderRadius: "var(--radius)",
-      boxShadow: "var(--shadow-sm)",
       fontSize: "var(--text-xs)",
       fontFamily: "var(--font-body)"
     } }, saveStatus === "pending" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-gold)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--accent-gold)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react27.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-Saving Enabled")), /* @__PURE__ */ import_react27.default.createElement(
@@ -60310,9 +60447,9 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         type: "button",
         onClick: handleClose,
         style: {
-          background: "transparent",
+          background: "rgba(255,255,255,0.2)",
           border: "none",
-          color: "var(--neutral-400)",
+          color: "white",
           fontSize: "var(--text-xl)",
           cursor: "pointer",
           padding: "var(--space-1)",
@@ -60325,23 +60462,20 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-200)";
-          e3.currentTarget.style.color = "var(--neutral-700)";
+          e3.currentTarget.style.background = "rgba(255,255,255,0.3)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "transparent";
-          e3.currentTarget.style.color = "var(--neutral-400)";
+          e3.currentTarget.style.background = "rgba(255,255,255,0.2)";
         },
         title: "Close"
       },
       /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times" })
     ))), error && /* @__PURE__ */ import_react27.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react27.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
-      background: "var(--sidebar-bg)",
+      background: "#e2e2e2",
       padding: "var(--space-2)",
       paddingTop: "var(--space-3)",
       flexShrink: 0,
-      display: "flex",
-      flexDirection: "column"
+      boxShadow: "inset -8px 0 16px -8px rgba(0, 0, 0, 0.15)"
     } }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
       fontWeight: 700,
@@ -60365,24 +60499,23 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           borderRadius: "var(--radius)",
           cursor: "pointer",
           fontSize: "var(--text-sm)",
-          color: "var(--accent-gold)",
-          background: activeTab === "basic" ? "var(--neutral-200)" : "transparent",
+          color: "var(--neutral-700)",
+          background: activeTab === "basic" ? "#c8c8c8" : "transparent",
           border: "none",
           textAlign: "left",
-          transition: "all 0.15s",
+          transition: "background 0.15s",
           fontFamily: "var(--font-body)",
-          fontWeight: activeTab === "basic" ? 600 : 400,
-          marginBottom: "var(--space-1)"
+          marginBottom: "0.25rem"
         },
         onMouseEnter: (e3) => {
-          if (activeTab !== "basic") e3.currentTarget.style.background = "var(--neutral-100)";
+          if (activeTab !== "basic") e3.currentTarget.style.background = "#d8d8d8";
         },
         onMouseLeave: (e3) => {
           if (activeTab !== "basic") e3.currentTarget.style.background = "transparent";
         },
         title: "Basic Info"
       },
-      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-info-circle", style: { width: "16px", color: "var(--accent-gold)" } }),
+      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-info-circle", style: { width: "16px" } }),
       /* @__PURE__ */ import_react27.default.createElement("span", { className: "hidden md:inline" }, "Basic Info")
     ), /* @__PURE__ */ import_react27.default.createElement(
       "button",
@@ -60399,24 +60532,23 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           borderRadius: "var(--radius)",
           cursor: "pointer",
           fontSize: "var(--text-sm)",
-          color: "var(--accent-gold)",
-          background: activeTab === "details" ? "var(--neutral-200)" : "transparent",
+          color: "var(--neutral-700)",
+          background: activeTab === "details" ? "#c8c8c8" : "transparent",
           border: "none",
           textAlign: "left",
-          transition: "all 0.15s",
+          transition: "background 0.15s",
           fontFamily: "var(--font-body)",
-          fontWeight: activeTab === "details" ? 600 : 400,
-          marginBottom: "var(--space-1)"
+          marginBottom: "0.25rem"
         },
         onMouseEnter: (e3) => {
-          if (activeTab !== "details") e3.currentTarget.style.background = "var(--neutral-100)";
+          if (activeTab !== "details") e3.currentTarget.style.background = "#d8d8d8";
         },
         onMouseLeave: (e3) => {
           if (activeTab !== "details") e3.currentTarget.style.background = "transparent";
         },
         title: "Details"
       },
-      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-file-alt", style: { width: "16px", color: "var(--accent-gold)" } }),
+      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-file-alt", style: { width: "16px" } }),
       /* @__PURE__ */ import_react27.default.createElement("span", { className: "hidden md:inline" }, "Details")
     ), /* @__PURE__ */ import_react27.default.createElement(
       "button",
@@ -60433,25 +60565,24 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           borderRadius: "var(--radius)",
           cursor: "pointer",
           fontSize: "var(--text-sm)",
-          color: "var(--accent-gold)",
-          background: activeTab === "metadata" ? "var(--neutral-200)" : "transparent",
+          color: "var(--neutral-700)",
+          background: activeTab === "metadata" ? "#c8c8c8" : "transparent",
           border: "none",
           textAlign: "left",
-          transition: "all 0.15s",
+          transition: "background 0.15s",
           fontFamily: "var(--font-body)",
-          fontWeight: activeTab === "metadata" ? 600 : 400,
-          marginBottom: "var(--space-1)"
+          marginBottom: "0.25rem"
         },
         onMouseEnter: (e3) => {
-          if (activeTab !== "metadata") e3.currentTarget.style.background = "var(--neutral-100)";
+          if (activeTab !== "metadata") e3.currentTarget.style.background = "#d8d8d8";
         },
         onMouseLeave: (e3) => {
           if (activeTab !== "metadata") e3.currentTarget.style.background = "transparent";
         },
-        title: "Concepts & Tags"
+        title: "Relationships"
       },
-      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-tags", style: { width: "16px", color: "var(--accent-gold)" } }),
-      /* @__PURE__ */ import_react27.default.createElement("span", { className: "hidden md:inline" }, "Concepts & Tags")
+      /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-project-diagram", style: { width: "16px" } }),
+      /* @__PURE__ */ import_react27.default.createElement("span", { className: "hidden md:inline" }, "Relationships")
     )), /* @__PURE__ */ import_react27.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6)", background: "white" } }, activeTab === "basic" && /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("h2", { style: {
       fontFamily: "var(--font-display)",
       fontSize: "var(--text-2xl)",
@@ -60640,47 +60771,281 @@ function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       fontWeight: 700,
       color: "var(--accent-gold)",
       marginBottom: "var(--space-4)"
-    } }, "Concepts & Tags"), /* @__PURE__ */ import_react27.default.createElement("div", { style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: "var(--space-4)",
-      height: "100%"
-    } }, /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("label", { className: "form-label" }, "Concepts"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { height: "370px" } }, /* @__PURE__ */ import_react27.default.createElement(
+    } }, "Relationships"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-base)",
+      fontWeight: 700,
+      color: "var(--accent-green)",
+      marginBottom: "var(--space-2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-lightbulb", style: { fontSize: "var(--text-sm)" } }), "Concepts"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { height: "280px" } }, /* @__PURE__ */ import_react27.default.createElement(
       ConceptSelector,
       {
         selectedConceptIds: formData.concept_ids,
-        onChange: (concept_ids) => setFormData({ ...formData, concept_ids })
+        onChange: (concept_ids) => setFormData({ ...formData, concept_ids }),
+        themeColor: "var(--accent-green)"
       }
-    ))), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("label", { className: "form-label" }, "Tags"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { height: "370px" } }, /* @__PURE__ */ import_react27.default.createElement(
+    ))), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-base)",
+      fontWeight: 700,
+      color: "var(--accent-purple)",
+      marginBottom: "var(--space-2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-tag", style: { fontSize: "var(--text-sm)" } }), "Tags"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { height: "280px" } }, /* @__PURE__ */ import_react27.default.createElement(
       TagSelector,
       {
         selectedTags: formData.tags,
-        onChange: (tags) => setFormData({ ...formData, tags })
+        onChange: (tags) => setFormData({ ...formData, tags }),
+        themeColor: "var(--accent-purple)"
       }
-    ))))))), !item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
-      borderTop: "1px solid var(--neutral-200)",
-      padding: "var(--space-6)",
+    )))), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-base)",
+      fontWeight: 700,
+      color: "var(--accent-maroon)",
+      marginBottom: "var(--space-2)",
       display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-folder", style: { fontSize: "var(--text-sm)" } }), "Collections"), !item?.id ? /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      height: "280px",
+      padding: "var(--space-4)",
+      background: "var(--neutral-100)",
+      borderRadius: "var(--radius)",
+      border: "1px solid var(--neutral-300)",
+      color: "var(--neutral-500)",
+      fontSize: "var(--text-sm)",
+      display: "flex",
+      alignItems: "center",
       justifyContent: "center",
+      textAlign: "center"
+    } }, "Save the person first to add them to collections.") : /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      border: "1px solid var(--neutral-300)",
+      borderRadius: "var(--radius)",
+      overflow: "hidden",
+      height: "280px",
+      display: "flex",
+      flexDirection: "column",
+      background: "white"
+    } }, /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      padding: "var(--space-2) var(--space-3)",
+      background: "var(--accent-maroon-light)",
+      borderBottom: "1px solid var(--neutral-200)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      color: "var(--accent-maroon)"
+    } }, "In Collections (", itemCollections.length, ")"), /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      flex: "0 0 auto",
+      maxHeight: "100px",
+      overflowY: "auto",
+      borderBottom: "1px solid var(--neutral-200)"
+    } }, itemCollections.length === 0 ? /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      padding: "var(--space-2)",
+      color: "var(--neutral-400)",
+      fontSize: "var(--text-xs)",
+      textAlign: "center"
+    } }, "Not in any collections yet") : /* @__PURE__ */ import_react27.default.createElement("div", { style: { padding: "var(--space-2)" } }, itemCollections.map((collection) => /* @__PURE__ */ import_react27.default.createElement(
+      "div",
+      {
+        key: collection.id,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "var(--space-1) var(--space-2)",
+          background: "var(--accent-maroon-light)",
+          borderRadius: "var(--radius)",
+          marginBottom: "var(--space-1)"
+        }
+      },
+      /* @__PURE__ */ import_react27.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-700)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-1)"
+      } }, /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-folder", style: { color: "var(--accent-maroon)", fontSize: "10px" } }), collection.name),
+      /* @__PURE__ */ import_react27.default.createElement(
+        "button",
+        {
+          type: "button",
+          onClick: () => handleRemoveFromCollection(collection.id),
+          style: {
+            background: "transparent",
+            border: "none",
+            color: "var(--neutral-400)",
+            cursor: "pointer",
+            padding: "2px 4px",
+            fontSize: "10px"
+          },
+          onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--error)",
+          onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-400)",
+          title: "Remove from collection"
+        },
+        /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-times" })
+      )
+    )))), /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      padding: "var(--space-2) var(--space-3)",
+      background: "var(--neutral-100)",
+      borderBottom: "1px solid var(--neutral-200)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      color: "var(--neutral-500)"
+    } }, "Add to Collection"), /* @__PURE__ */ import_react27.default.createElement("div", { style: { padding: "var(--space-2)", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react27.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: collectionFilter,
+        onChange: (e3) => setCollectionFilter(e3.target.value),
+        onKeyDown: (e3) => {
+          if (e3.key === "Enter") {
+            e3.preventDefault();
+            const filterLower = collectionFilter.trim().toLowerCase();
+            const canCreate = collectionFilter.trim() && !collections.some((c5) => c5.name.toLowerCase() === filterLower);
+            if (canCreate) {
+              handleCreateCollection(collectionFilter.trim());
+            }
+          }
+        },
+        placeholder: "Type to filter or create...",
+        style: {
+          width: "100%",
+          padding: "var(--space-1) var(--space-2)",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "var(--radius)",
+          fontSize: "var(--text-xs)",
+          fontFamily: "var(--font-body)"
+        }
+      }
+    ), (() => {
+      const filterLower = collectionFilter.trim().toLowerCase();
+      const canCreate = collectionFilter.trim() && !collections.some((c5) => c5.name.toLowerCase() === filterLower);
+      if (canCreate) {
+        return /* @__PURE__ */ import_react27.default.createElement(
+          "button",
+          {
+            type: "button",
+            onClick: () => handleCreateCollection(collectionFilter.trim()),
+            style: {
+              background: "none",
+              padding: 0,
+              color: "var(--accent-maroon)",
+              fontSize: "var(--text-xs)",
+              border: "none",
+              cursor: "pointer",
+              marginTop: "var(--space-1)",
+              fontFamily: "var(--font-body)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-1)"
+            }
+          },
+          /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-plus" }),
+          ' Create "',
+          collectionFilter.trim(),
+          '"'
+        );
+      }
+      return null;
+    })()), /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      flex: 1,
+      overflowY: "auto",
+      padding: "var(--space-1)"
+    } }, loadingCollections ? /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      padding: "var(--space-2)",
+      color: "var(--neutral-400)",
+      fontSize: "var(--text-xs)",
+      textAlign: "center"
+    } }, "Loading...") : (() => {
+      const availableCollections = collections.filter((c5) => !itemCollections.find((ic) => ic.id === c5.id)).filter((c5) => !collectionFilter.trim() || c5.name.toLowerCase().includes(collectionFilter.trim().toLowerCase()));
+      if (availableCollections.length === 0) {
+        return /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+          padding: "var(--space-2)",
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-xs)",
+          textAlign: "center"
+        } }, collectionFilter.trim() ? "No matches. Press Enter to create." : collections.length === 0 ? "No collections yet." : "In all collections");
+      }
+      return availableCollections.map((collection) => /* @__PURE__ */ import_react27.default.createElement(
+        "div",
+        {
+          key: collection.id,
+          onClick: () => handleAddToCollection(collection.id),
+          style: {
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-1)",
+            padding: "var(--space-1) var(--space-2)",
+            borderRadius: "var(--radius)",
+            cursor: "pointer",
+            marginBottom: "2px",
+            transition: "background 0.15s"
+          },
+          onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
+          onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+        },
+        /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-folder", style: { color: "var(--neutral-400)", fontSize: "10px" } }),
+        /* @__PURE__ */ import_react27.default.createElement("span", { style: {
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-600)",
+          flex: 1
+        } }, collection.name),
+        /* @__PURE__ */ import_react27.default.createElement("i", { className: "fas fa-plus", style: { color: "var(--accent-maroon)", fontSize: "10px" } })
+      ));
+    })())))))), !item && /* @__PURE__ */ import_react27.default.createElement("div", { style: {
+      borderTop: "1px solid var(--neutral-200)",
+      background: "white",
+      padding: "var(--space-4) var(--space-6)",
+      display: "flex",
+      justifyContent: "flex-end",
+      alignItems: "center",
       gap: "var(--space-3)"
     } }, /* @__PURE__ */ import_react27.default.createElement(
       "button",
       {
+        type: "button",
+        onClick: onClose,
+        style: {
+          padding: "0.5rem 1.25rem",
+          background: "white",
+          color: "var(--accent-gold)",
+          border: "1px solid var(--accent-gold)",
+          borderRadius: "6px",
+          fontWeight: 500,
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)"
+        }
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react27.default.createElement(
+      "button",
+      {
         type: "submit",
-        className: "btn-primary",
-        style: { background: "var(--accent-gold)" },
+        style: {
+          padding: "0.5rem 1.25rem",
+          background: "var(--accent-gold)",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          fontWeight: 500,
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)"
+        },
         onMouseEnter: (e3) => e3.currentTarget.style.background = "#8a6624",
         onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-gold)"
       },
       "Create Person"
-    ), /* @__PURE__ */ import_react27.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: onClose,
-        className: "btn-secondary"
-      },
-      "Cancel"
     )))
   );
 }
@@ -61340,9 +61705,10 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (formData.title && formData.title.length > 10) {
         try {
           const response = await fetch(`/sources.json`);
-          const sources = await response.json();
+          const data = await response.json();
+          const sources = Array.isArray(data) ? data : data.sources || [];
           const duplicate = sources.find(
-            (s3) => s3.title.toLowerCase().trim() === formData.title.toLowerCase().trim()
+            (s3) => s3.title?.toLowerCase().trim() === formData.title.toLowerCase().trim()
           );
           setTitleDuplicate(duplicate || null);
         } catch (error2) {
@@ -61354,7 +61720,8 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (formData.url && formData.url.length > 10) {
         try {
           const response = await fetch(`/sources.json`);
-          const sources = await response.json();
+          const data = await response.json();
+          const sources = Array.isArray(data) ? data : data.sources || [];
           const duplicate = sources.find(
             (s3) => s3.url && s3.url.toLowerCase().trim() === formData.url.toLowerCase().trim()
           );
@@ -61425,6 +61792,34 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       }
     };
   }, [formData, isOpen, item?.id, performAutosave]);
+  (0, import_react30.useEffect)(() => {
+    if (!isOpen || !item?.id || !pdfFile) return;
+    const uploadPdf = async () => {
+      setSaveStatus("saving");
+      try {
+        const formDataToSend = new FormData();
+        formDataToSend.append("_method", "PATCH");
+        formDataToSend.append("source[pdf]", pdfFile);
+        const response = await fetch(`/sources/${item.id}`, {
+          method: "POST",
+          headers: {
+            "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+          },
+          body: formDataToSend
+        });
+        if (response.ok) {
+          setSaveStatus("saved");
+          setTimeout(() => setSaveStatus("idle"), 2e3);
+        } else {
+          setSaveStatus("error");
+        }
+      } catch (error2) {
+        console.error("PDF upload error:", error2);
+        setSaveStatus("error");
+      }
+    };
+    uploadPdf();
+  }, [pdfFile, isOpen, item?.id]);
   (0, import_react30.useEffect)(() => {
     if (isOpen) {
       setActiveTab("basic");
@@ -63795,18 +64190,30 @@ var ITEMS_PER_PAGE = 20;
 function SourcesIndex() {
   const [sources, setSources] = (0, import_react32.useState)([]);
   const [loading, setLoading] = (0, import_react32.useState)(true);
+  const [loadingMore, setLoadingMore] = (0, import_react32.useState)(false);
   const [showForm, setShowForm] = (0, import_react32.useState)(false);
   const [selectedKinds, setSelectedKinds] = (0, import_react32.useState)([]);
   const [selectedAuthors, setSelectedAuthors] = (0, import_react32.useState)([]);
   const [selectedTags, setSelectedTags] = (0, import_react32.useState)([]);
+  const [selectedCollections, setSelectedCollections] = (0, import_react32.useState)([]);
   const [yearMin, setYearMin] = (0, import_react32.useState)("");
   const [yearMax, setYearMax] = (0, import_react32.useState)("");
   const [searchQuery, setSearchQuery] = (0, import_react32.useState)("");
   const [sidebarOpen, setSidebarOpen] = (0, import_react32.useState)(true);
   const [pdfOnly, setPdfOnly] = (0, import_react32.useState)(false);
   const [currentPage, setCurrentPage] = (0, import_react32.useState)(1);
+  const [totalCount, setTotalCount] = (0, import_react32.useState)(0);
+  const [totalPages, setTotalPages] = (0, import_react32.useState)(1);
+  const [filterMeta, setFilterMeta] = (0, import_react32.useState)({
+    kinds: [],
+    years: [],
+    authors: [],
+    tags: [],
+    collections: [],
+    pdfCount: 0
+  });
   (0, import_react32.useEffect)(() => {
-    fetchSources();
+    fetchSources(1, true);
   }, []);
   (0, import_react32.useEffect)(() => {
     const handleResize = () => {
@@ -63820,29 +64227,62 @@ function SourcesIndex() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const fetchSources = async () => {
+  const fetchSources = async (page = 1, isInitial = false) => {
     try {
-      const response = await fetch("/sources.json");
+      if (isInitial) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      const response = await fetch(`/sources.json?page=${page}&per_page=${ITEMS_PER_PAGE}`);
       const data = await response.json();
-      setSources(data);
-      setLoading(false);
+      if (Array.isArray(data)) {
+        setSources(data);
+        setTotalCount(data.length);
+        setTotalPages(1);
+      } else if (data.sources) {
+        if (page === 1) {
+          setSources(data.sources);
+          if (data.filters) {
+            setFilterMeta({
+              kinds: data.filters.kinds || [],
+              years: data.filters.years || [],
+              authors: data.filters.authors || [],
+              tags: data.filters.tags || [],
+              collections: data.filters.collections || [],
+              pdfCount: data.filters.pdf_count || 0
+            });
+          }
+        } else {
+          setSources((prev) => [...prev, ...data.sources]);
+        }
+        if (data.pagination) {
+          setTotalCount(data.pagination.total_count);
+          setTotalPages(data.pagination.total_pages);
+        }
+      } else {
+        console.error("Unexpected response format:", data);
+        setSources([]);
+      }
+      setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching sources:", error);
+      setSources([]);
+    } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
-  const sourceKinds = [...new Set(sources.map((s3) => s3.kind))].filter(Boolean).sort();
-  const peopleMap = /* @__PURE__ */ new Map();
-  sources.forEach((s3) => {
-    (s3.people || []).forEach((p3) => {
-      if (!peopleMap.has(p3.id)) {
-        peopleMap.set(p3.id, { id: p3.id, full_name: p3.full_name });
-      }
-    });
-  });
-  const allAuthors = Array.from(peopleMap.values()).sort((a5, b2) => a5.full_name.localeCompare(b2.full_name));
-  const allTags = [...new Set(sources.flatMap((s3) => s3.tags || []))].filter(Boolean).sort();
-  const years = [...new Set(sources.map((s3) => s3.year).filter(Boolean))].sort((a5, b2) => a5 - b2);
+  const loadMoreSources = () => {
+    if (currentPage < totalPages && !loadingMore) {
+      fetchSources(currentPage + 1);
+    }
+  };
+  const sourceKinds = filterMeta.kinds;
+  const allAuthors = filterMeta.authors;
+  const allTags = filterMeta.tags;
+  const allCollections = filterMeta.collections;
+  const years = filterMeta.years;
   const minYear = years[0] || (/* @__PURE__ */ new Date()).getFullYear();
   const maxYear = years[years.length - 1] || (/* @__PURE__ */ new Date()).getFullYear();
   const filteredSources = sources.filter((source) => {
@@ -63865,6 +64305,9 @@ function SourcesIndex() {
     if (selectedTags.length > 0 && !source.tags?.some((t4) => selectedTags.includes(t4))) {
       return false;
     }
+    if (selectedCollections.length > 0 && !source.collections?.some((c5) => selectedCollections.includes(c5.id))) {
+      return false;
+    }
     if (yearMin && source.year < parseInt(yearMin)) {
       return false;
     }
@@ -63876,14 +64319,7 @@ function SourcesIndex() {
     }
     return true;
   });
-  const totalPages = Math.ceil(filteredSources.length / ITEMS_PER_PAGE);
-  const paginatedSources = filteredSources.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-  (0, import_react32.useEffect)(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedKinds, selectedAuthors, selectedTags, yearMin, yearMax, pdfOnly]);
+  const hasMorePages = currentPage < totalPages;
   const toggleKind = (kind) => {
     setSelectedKinds(
       (prev) => prev.includes(kind) ? prev.filter((k3) => k3 !== kind) : [...prev, kind]
@@ -63899,16 +64335,22 @@ function SourcesIndex() {
       (prev) => prev.includes(tag) ? prev.filter((t4) => t4 !== tag) : [...prev, tag]
     );
   };
+  const toggleCollection = (collectionId) => {
+    setSelectedCollections(
+      (prev) => prev.includes(collectionId) ? prev.filter((c5) => c5 !== collectionId) : [...prev, collectionId]
+    );
+  };
   const clearAllFilters = () => {
     setSelectedKinds([]);
     setSelectedAuthors([]);
     setSelectedTags([]);
+    setSelectedCollections([]);
     setYearMin("");
     setYearMax("");
     setSearchQuery("");
     setPdfOnly(false);
   };
-  const hasActiveFilters = selectedKinds.length > 0 || selectedAuthors.length > 0 || selectedTags.length > 0 || yearMin || yearMax || searchQuery || pdfOnly;
+  const hasActiveFilters = selectedKinds.length > 0 || selectedAuthors.length > 0 || selectedTags.length > 0 || selectedCollections.length > 0 || yearMin || yearMax || searchQuery || pdfOnly;
   if (loading) {
     return /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex justify-center items-center py-12" }, /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-lg" }, "Loading sources..."));
   }
@@ -63987,7 +64429,7 @@ function SourcesIndex() {
             }
           },
           "(",
-          sources.filter((s3) => s3.pdf_url).length,
+          filterMeta.pdfCount,
           ")"
         )
       ),
@@ -64038,8 +64480,17 @@ function SourcesIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Type"
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, sourceKinds.map((kind) => {
+      "Type (",
+      sourceKinds.length,
+      ")"
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, sourceKinds.map((kind) => {
       const count = sources.filter((s3) => s3.kind === kind).length;
       const isSelected = selectedKinds.includes(kind);
       return /* @__PURE__ */ import_react32.default.createElement(
@@ -64056,12 +64507,12 @@ function SourcesIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-blue) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-blue) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -64105,8 +64556,17 @@ function SourcesIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Author"
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, allAuthors.map((author) => {
+      "Author (",
+      allAuthors.length,
+      ")"
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allAuthors.map((author) => {
       const count = sources.filter((s3) => s3.people?.some((p3) => p3.id === author.id)).length;
       const isSelected = selectedAuthors.includes(author.id);
       return /* @__PURE__ */ import_react32.default.createElement(
@@ -64123,12 +64583,12 @@ function SourcesIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-blue) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-blue) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -64172,8 +64632,17 @@ function SourcesIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Tag"
-    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, allTags.map((tag) => {
+      "Tag (",
+      allTags.length,
+      ")"
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allTags.map((tag) => {
       const count = sources.filter((s3) => s3.tags?.includes(tag)).length;
       const isSelected = selectedTags.includes(tag);
       return /* @__PURE__ */ import_react32.default.createElement(
@@ -64190,12 +64659,12 @@ function SourcesIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-blue) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-blue) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -64214,6 +64683,82 @@ function SourcesIndex() {
           }
         ),
         /* @__PURE__ */ import_react32.default.createElement("span", { style: { flex: 1 } }, tag),
+        /* @__PURE__ */ import_react32.default.createElement(
+          "span",
+          {
+            style: {
+              fontSize: "var(--text-xs)",
+              color: "var(--neutral-400)",
+              fontWeight: 500
+            }
+          },
+          count
+        )
+      );
+    }))), allCollections.length > 0 && /* @__PURE__ */ import_react32.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react32.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--neutral-500)",
+          marginBottom: "var(--space-3)"
+        }
+      },
+      "Collection (",
+      allCollections.length,
+      ")"
+    ), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allCollections.map((collection) => {
+      const count = sources.filter((s3) => s3.collections?.some((c5) => c5.id === collection.id)).length;
+      const isSelected = selectedCollections.includes(collection.id);
+      return /* @__PURE__ */ import_react32.default.createElement(
+        "label",
+        {
+          key: collection.id,
+          style: {
+            fontFamily: "var(--font-body)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            padding: "var(--space-1) var(--space-2)",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "var(--text-sm)",
+            color: "var(--neutral-700)",
+            background: isSelected ? "color-mix(in srgb, var(--accent-blue) 20%, white)" : "transparent",
+            transition: "background 0.15s",
+            marginBottom: "0.125rem"
+          },
+          onMouseEnter: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-blue) 15%, white)";
+          },
+          onMouseLeave: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "transparent";
+          }
+        },
+        /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "checkbox",
+            checked: isSelected,
+            onChange: (e3) => {
+              e3.stopPropagation();
+              toggleCollection(collection.id);
+            },
+            style: { accentColor: "var(--accent-blue)" }
+          }
+        ),
+        /* @__PURE__ */ import_react32.default.createElement("span", { style: { flex: 1 } }, collection.name),
         /* @__PURE__ */ import_react32.default.createElement(
           "span",
           {
@@ -64332,8 +64877,9 @@ function SourcesIndex() {
     },
     filteredSources.length,
     " of ",
-    sources.length,
-    " sources"
+    totalCount,
+    " sources",
+    sources.length < totalCount && ` (${sources.length} loaded)`
   )), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
@@ -64399,115 +64945,74 @@ function SourcesIndex() {
     },
     /* @__PURE__ */ import_react32.default.createElement("p", { style: { fontSize: "var(--text-lg)", marginBottom: "1rem", color: "var(--neutral-700)" } }, "No sources found."),
     /* @__PURE__ */ import_react32.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, hasActiveFilters ? "Try adjusting your filters." : "Add your first source to build your evidence base.")
-  ) : /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, paginatedSources.map((source) => /* @__PURE__ */ import_react32.default.createElement(SourceCard, { key: source.id, source, onUpdate: fetchSources }))), totalPages > 1 && /* @__PURE__ */ import_react32.default.createElement(
+  ) : /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, filteredSources.map((source) => /* @__PURE__ */ import_react32.default.createElement(SourceCard, { key: source.id, source, onUpdate: () => fetchSources(1, true) }))), hasMorePages && /* @__PURE__ */ import_react32.default.createElement(
     "div",
     {
       style: {
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
         gap: "var(--space-2)",
         marginTop: "var(--space-6)",
         paddingBottom: "var(--space-4)"
       }
     },
     /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        onClick: () => setCurrentPage(1),
-        disabled: currentPage === 1,
-        style: {
-          padding: "var(--space-2) var(--space-3)",
-          fontSize: "var(--text-sm)",
-          fontFamily: "var(--font-body)",
-          background: currentPage === 1 ? "var(--neutral-100)" : "white",
-          border: "1px solid var(--neutral-300)",
-          borderRadius: "4px",
-          cursor: currentPage === 1 ? "not-allowed" : "pointer",
-          color: currentPage === 1 ? "var(--neutral-400)" : "var(--neutral-700)",
-          transition: "all 0.15s"
-        },
-        title: "First page"
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-angle-double-left" })
-    ),
-    /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        onClick: () => setCurrentPage((p3) => Math.max(1, p3 - 1)),
-        disabled: currentPage === 1,
-        style: {
-          padding: "var(--space-2) var(--space-3)",
-          fontSize: "var(--text-sm)",
-          fontFamily: "var(--font-body)",
-          background: currentPage === 1 ? "var(--neutral-100)" : "white",
-          border: "1px solid var(--neutral-300)",
-          borderRadius: "4px",
-          cursor: currentPage === 1 ? "not-allowed" : "pointer",
-          color: currentPage === 1 ? "var(--neutral-400)" : "var(--neutral-700)",
-          transition: "all 0.15s"
-        },
-        title: "Previous page"
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-angle-left" })
-    ),
-    /* @__PURE__ */ import_react32.default.createElement(
       "span",
       {
         style: {
-          padding: "var(--space-2) var(--space-4)",
           fontSize: "var(--text-sm)",
           fontFamily: "var(--font-body)",
-          color: "var(--neutral-600)",
-          minWidth: "100px",
-          textAlign: "center"
+          color: "var(--neutral-500)"
         }
       },
-      "Page ",
-      currentPage,
+      "Showing ",
+      sources.length,
       " of ",
-      totalPages
+      totalCount,
+      " sources"
     ),
     /* @__PURE__ */ import_react32.default.createElement(
       "button",
       {
-        onClick: () => setCurrentPage((p3) => Math.min(totalPages, p3 + 1)),
-        disabled: currentPage === totalPages,
+        onClick: loadMoreSources,
+        disabled: loadingMore,
         style: {
-          padding: "var(--space-2) var(--space-3)",
+          padding: "var(--space-3) var(--space-6)",
           fontSize: "var(--text-sm)",
           fontFamily: "var(--font-body)",
-          background: currentPage === totalPages ? "var(--neutral-100)" : "white",
-          border: "1px solid var(--neutral-300)",
+          fontWeight: 500,
+          background: loadingMore ? "var(--neutral-200)" : "var(--accent-blue)",
+          color: loadingMore ? "var(--neutral-500)" : "white",
+          border: "none",
           borderRadius: "4px",
-          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-          color: currentPage === totalPages ? "var(--neutral-400)" : "var(--neutral-700)",
+          cursor: loadingMore ? "not-allowed" : "pointer",
           transition: "all 0.15s"
         },
-        title: "Next page"
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-angle-right" })
-    ),
-    /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        onClick: () => setCurrentPage(totalPages),
-        disabled: currentPage === totalPages,
-        style: {
-          padding: "var(--space-2) var(--space-3)",
-          fontSize: "var(--text-sm)",
-          fontFamily: "var(--font-body)",
-          background: currentPage === totalPages ? "var(--neutral-100)" : "white",
-          border: "1px solid var(--neutral-300)",
-          borderRadius: "4px",
-          cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-          color: currentPage === totalPages ? "var(--neutral-400)" : "var(--neutral-700)",
-          transition: "all 0.15s"
+        onMouseEnter: (e3) => {
+          if (!loadingMore) e3.currentTarget.style.background = "var(--accent-blue-dark)";
         },
-        title: "Last page"
+        onMouseLeave: (e3) => {
+          if (!loadingMore) e3.currentTarget.style.background = "var(--accent-blue)";
+        }
       },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-angle-double-right" })
+      loadingMore ? /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { marginRight: "var(--space-2)" } }), "Loading...") : /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-2)" } }), "Load More")
     )
+  ), !hasMorePages && sources.length > 0 && /* @__PURE__ */ import_react32.default.createElement(
+    "div",
+    {
+      style: {
+        textAlign: "center",
+        marginTop: "var(--space-6)",
+        paddingBottom: "var(--space-4)",
+        fontSize: "var(--text-sm)",
+        fontFamily: "var(--font-body)",
+        color: "var(--neutral-500)"
+      }
+    },
+    "Showing all ",
+    totalCount,
+    " sources"
   )))));
 }
 function SourceCard({ source, onUpdate }) {
@@ -64753,7 +65258,8 @@ function SourceShow({ sourceId }) {
     try {
       const response = await fetch("/sources.json");
       const data = await response.json();
-      setAllSources(data);
+      const sources = Array.isArray(data) ? data : data.sources || [];
+      setAllSources(sources);
       setSourcesLoading(false);
     } catch (error) {
       console.error("Error fetching sources:", error);
@@ -65368,6 +65874,9 @@ function PeopleIndex() {
   const [selectedRoles, setSelectedRoles] = (0, import_react34.useState)([]);
   const [selectedConcepts, setSelectedConcepts] = (0, import_react34.useState)([]);
   const [selectedTags, setSelectedTags] = (0, import_react34.useState)([]);
+  const [selectedSources, setSelectedSources] = (0, import_react34.useState)([]);
+  const [selectedCollections, setSelectedCollections] = (0, import_react34.useState)([]);
+  const [sourceSearchFilter, setSourceSearchFilter] = (0, import_react34.useState)("");
   const [searchQuery, setSearchQuery] = (0, import_react34.useState)("");
   const [sidebarOpen, setSidebarOpen] = (0, import_react34.useState)(true);
   const [sortField, setSortField] = (0, import_react34.useState)("name");
@@ -65409,6 +65918,25 @@ function PeopleIndex() {
   });
   const allConcepts = Array.from(conceptsMap.values()).sort((a5, b2) => a5.label.localeCompare(b2.label));
   const allTags = [...new Set(people.flatMap((p3) => p3.tags || []))].filter(Boolean).sort();
+  const sourcesMap = /* @__PURE__ */ new Map();
+  people.forEach((p3) => {
+    (p3.sources || []).forEach((s3) => {
+      if (!sourcesMap.has(s3.id)) {
+        sourcesMap.set(s3.id, { id: s3.id, title: s3.title, kind: s3.kind });
+      }
+    });
+  });
+  const allSources = Array.from(sourcesMap.values()).sort((a5, b2) => a5.title.localeCompare(b2.title));
+  const filteredSourcesForSidebar = sourceSearchFilter ? allSources.filter((s3) => s3.title.toLowerCase().includes(sourceSearchFilter.toLowerCase())) : allSources;
+  const collectionsMap = /* @__PURE__ */ new Map();
+  people.forEach((p3) => {
+    (p3.collections || []).forEach((c5) => {
+      if (!collectionsMap.has(c5.id)) {
+        collectionsMap.set(c5.id, { id: c5.id, name: c5.name });
+      }
+    });
+  });
+  const allCollections = Array.from(collectionsMap.values()).sort((a5, b2) => a5.name.localeCompare(b2.name));
   const filteredPeople = people.filter((person) => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -65428,6 +65956,12 @@ function PeopleIndex() {
     if (selectedTags.length > 0 && !person.tags?.some((t4) => selectedTags.includes(t4))) {
       return false;
     }
+    if (selectedSources.length > 0 && !person.sources?.some((s3) => selectedSources.includes(s3.id))) {
+      return false;
+    }
+    if (selectedCollections.length > 0 && !person.collections?.some((c5) => selectedCollections.includes(c5.id))) {
+      return false;
+    }
     return true;
   });
   const toggleRole = (role) => {
@@ -65445,13 +65979,25 @@ function PeopleIndex() {
       (prev) => prev.includes(tag) ? prev.filter((t4) => t4 !== tag) : [...prev, tag]
     );
   };
+  const toggleSource = (sourceId) => {
+    setSelectedSources(
+      (prev) => prev.includes(sourceId) ? prev.filter((s3) => s3 !== sourceId) : [...prev, sourceId]
+    );
+  };
+  const toggleCollection = (collectionId) => {
+    setSelectedCollections(
+      (prev) => prev.includes(collectionId) ? prev.filter((c5) => c5 !== collectionId) : [...prev, collectionId]
+    );
+  };
   const clearAllFilters = () => {
     setSelectedRoles([]);
     setSelectedConcepts([]);
     setSelectedTags([]);
+    setSelectedSources([]);
+    setSelectedCollections([]);
     setSearchQuery("");
   };
-  const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 || selectedTags.length > 0 || searchQuery;
+  const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 || selectedTags.length > 0 || selectedSources.length > 0 || selectedCollections.length > 0 || searchQuery;
   const sortedPeople = [...filteredPeople].sort((a5, b2) => {
     let aVal, bVal;
     switch (sortField) {
@@ -65564,7 +66110,7 @@ function PeopleIndex() {
         }
       },
       "Clear All Filters"
-    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react34.default.createElement(
+    ), personRoles.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react34.default.createElement(
       "div",
       {
         style: {
@@ -65577,8 +66123,17 @@ function PeopleIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Role"
-    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, personRoles.map((role) => {
+      "Role (",
+      personRoles.length,
+      ")"
+    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, personRoles.map((role) => {
       const count = people.filter((p3) => p3.role === role).length;
       const isSelected = selectedRoles.includes(role);
       return /* @__PURE__ */ import_react34.default.createElement(
@@ -65595,12 +66150,12 @@ function PeopleIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-gold) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-gold) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -65644,8 +66199,17 @@ function PeopleIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Concept"
-    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, allConcepts.map((concept) => {
+      "Concept (",
+      allConcepts.length,
+      ")"
+    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allConcepts.map((concept) => {
       const count = people.filter((p3) => p3.concepts?.some((c5) => c5.id === concept.id)).length;
       const isSelected = selectedConcepts.includes(concept.id);
       return /* @__PURE__ */ import_react34.default.createElement(
@@ -65662,12 +66226,12 @@ function PeopleIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-gold) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-gold) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -65711,8 +66275,17 @@ function PeopleIndex() {
           marginBottom: "var(--space-3)"
         }
       },
-      "Tag"
-    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, allTags.map((tag) => {
+      "Tag (",
+      allTags.length,
+      ")"
+    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allTags.map((tag) => {
       const count = people.filter((p3) => p3.tags?.includes(tag)).length;
       const isSelected = selectedTags.includes(tag);
       return /* @__PURE__ */ import_react34.default.createElement(
@@ -65729,12 +66302,12 @@ function PeopleIndex() {
             cursor: "pointer",
             fontSize: "var(--text-sm)",
             color: "var(--neutral-700)",
-            background: isSelected ? "var(--neutral-200)" : "transparent",
+            background: isSelected ? "color-mix(in srgb, var(--accent-gold) 20%, white)" : "transparent",
             transition: "background 0.15s",
             marginBottom: "0.125rem"
           },
           onMouseEnter: (e3) => {
-            if (!isSelected) e3.currentTarget.style.background = "var(--neutral-100)";
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-gold) 15%, white)";
           },
           onMouseLeave: (e3) => {
             if (!isSelected) e3.currentTarget.style.background = "transparent";
@@ -65753,6 +66326,192 @@ function PeopleIndex() {
           }
         ),
         /* @__PURE__ */ import_react34.default.createElement("span", { style: { flex: 1 } }, tag),
+        /* @__PURE__ */ import_react34.default.createElement(
+          "span",
+          {
+            style: {
+              fontSize: "var(--text-xs)",
+              color: "var(--neutral-400)",
+              fontWeight: 500
+            }
+          },
+          count
+        )
+      );
+    }))), allSources.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react34.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--neutral-500)",
+          marginBottom: "var(--space-3)"
+        }
+      },
+      "Source (",
+      allSources.length,
+      ")"
+    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, /* @__PURE__ */ import_react34.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: sourceSearchFilter,
+        onChange: (e3) => setSourceSearchFilter(e3.target.value),
+        placeholder: "Search sources...",
+        style: {
+          width: "100%",
+          padding: "var(--space-2)",
+          marginBottom: "var(--space-2)",
+          fontSize: "var(--text-xs)",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          fontFamily: "var(--font-body)",
+          background: "white"
+        },
+        onFocus: (e3) => {
+          e3.currentTarget.style.outline = "none";
+          e3.currentTarget.style.border = "2px solid var(--accent-gold)";
+          e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-gold) 15%, transparent)";
+          e3.currentTarget.style.padding = "calc(var(--space-2) - 1px)";
+        },
+        onBlur: (e3) => {
+          e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+          e3.currentTarget.style.boxShadow = "none";
+          e3.currentTarget.style.padding = "var(--space-2)";
+        }
+      }
+    ), filteredSourcesForSidebar.map((source) => {
+      const count = people.filter((p3) => p3.sources?.some((s3) => s3.id === source.id)).length;
+      const isSelected = selectedSources.includes(source.id);
+      return /* @__PURE__ */ import_react34.default.createElement(
+        "label",
+        {
+          key: source.id,
+          style: {
+            fontFamily: "var(--font-body)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            padding: "var(--space-1) var(--space-2)",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "var(--text-sm)",
+            color: "var(--neutral-700)",
+            background: isSelected ? "color-mix(in srgb, var(--accent-gold) 20%, white)" : "transparent",
+            transition: "background 0.15s",
+            marginBottom: "0.125rem"
+          },
+          onMouseEnter: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-gold) 15%, white)";
+          },
+          onMouseLeave: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "transparent";
+          }
+        },
+        /* @__PURE__ */ import_react34.default.createElement(
+          "input",
+          {
+            type: "checkbox",
+            checked: isSelected,
+            onChange: (e3) => {
+              e3.stopPropagation();
+              toggleSource(source.id);
+            },
+            style: { accentColor: "var(--accent-gold)" }
+          }
+        ),
+        /* @__PURE__ */ import_react34.default.createElement("span", { style: {
+          flex: 1,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }, title: source.title }, source.title),
+        /* @__PURE__ */ import_react34.default.createElement(
+          "span",
+          {
+            style: {
+              fontSize: "var(--text-xs)",
+              color: "var(--neutral-400)",
+              fontWeight: 500
+            }
+          },
+          count
+        )
+      );
+    }))), allCollections.length > 0 && /* @__PURE__ */ import_react34.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react34.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--neutral-500)",
+          marginBottom: "var(--space-3)"
+        }
+      },
+      "Collection (",
+      allCollections.length,
+      ")"
+    ), /* @__PURE__ */ import_react34.default.createElement("div", { style: {
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white",
+      borderRadius: "6px",
+      padding: "var(--space-2)",
+      boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+    } }, allCollections.map((collection) => {
+      const count = people.filter((p3) => p3.collections?.some((c5) => c5.id === collection.id)).length;
+      const isSelected = selectedCollections.includes(collection.id);
+      return /* @__PURE__ */ import_react34.default.createElement(
+        "label",
+        {
+          key: collection.id,
+          style: {
+            fontFamily: "var(--font-body)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            padding: "var(--space-1) var(--space-2)",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "var(--text-sm)",
+            color: "var(--neutral-700)",
+            background: isSelected ? "color-mix(in srgb, var(--accent-gold) 20%, white)" : "transparent",
+            transition: "background 0.15s",
+            marginBottom: "0.125rem"
+          },
+          onMouseEnter: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-gold) 15%, white)";
+          },
+          onMouseLeave: (e3) => {
+            if (!isSelected) e3.currentTarget.style.background = "transparent";
+          }
+        },
+        /* @__PURE__ */ import_react34.default.createElement(
+          "input",
+          {
+            type: "checkbox",
+            checked: isSelected,
+            onChange: (e3) => {
+              e3.stopPropagation();
+              toggleCollection(collection.id);
+            },
+            style: { accentColor: "var(--accent-gold)" }
+          }
+        ),
+        /* @__PURE__ */ import_react34.default.createElement("span", { style: { flex: 1 } }, collection.name),
         /* @__PURE__ */ import_react34.default.createElement(
           "span",
           {
@@ -67882,6 +68641,8 @@ function NotesIndex() {
   const [allSources, setAllSources] = (0, import_react39.useState)([]);
   const [allConcepts, setAllConcepts] = (0, import_react39.useState)([]);
   const [allTags, setAllTags] = (0, import_react39.useState)([]);
+  const [allPeople, setAllPeople] = (0, import_react39.useState)([]);
+  const [allCollections, setAllCollections] = (0, import_react39.useState)([]);
   const [loading, setLoading] = (0, import_react39.useState)(true);
   const [showFormModal, setShowFormModal] = (0, import_react39.useState)(false);
   const [editingNote, setEditingNote] = (0, import_react39.useState)(null);
@@ -67892,7 +68653,10 @@ function NotesIndex() {
   const [selectedConcepts, setSelectedConcepts] = (0, import_react39.useState)([]);
   const [selectedSources, setSelectedSources] = (0, import_react39.useState)([]);
   const [selectedTags, setSelectedTags] = (0, import_react39.useState)([]);
+  const [selectedPeople, setSelectedPeople] = (0, import_react39.useState)([]);
+  const [selectedCollections, setSelectedCollections] = (0, import_react39.useState)([]);
   const [filterType, setFilterType] = (0, import_react39.useState)("all");
+  const [sourceNameFilter, setSourceNameFilter] = (0, import_react39.useState)("");
   const [showPinnedOnly, setShowPinnedOnly] = (0, import_react39.useState)(false);
   const [viewMode, setViewMode] = (0, import_react39.useState)("cards");
   (0, import_react39.useEffect)(() => {
@@ -67912,22 +68676,28 @@ function NotesIndex() {
   }, []);
   const fetchData2 = async () => {
     try {
-      const [notesRes, sourcesRes, conceptsRes, tagsRes] = await Promise.all([
+      const [notesRes, sourcesRes, conceptsRes, tagsRes, peopleRes, collectionsRes] = await Promise.all([
         fetch("/notes.json"),
         fetch("/sources.json"),
         fetch("/concepts.json"),
-        fetch("/tags.json")
+        fetch("/tags.json"),
+        fetch("/people.json"),
+        fetch("/collections.json")
       ]);
-      const [notesData, sourcesData, conceptsData, tagsData] = await Promise.all([
+      const [notesData, sourcesData, conceptsData, tagsData, peopleData, collectionsData] = await Promise.all([
         notesRes.json(),
         sourcesRes.json(),
         conceptsRes.json(),
-        tagsRes.json()
+        tagsRes.json(),
+        peopleRes.json(),
+        collectionsRes.json()
       ]);
       setNotes(notesData);
-      setAllSources(sourcesData);
+      setAllSources(Array.isArray(sourcesData) ? sourcesData : sourcesData.sources || []);
       setAllConcepts(conceptsData);
       setAllTags(tagsData);
+      setAllPeople(peopleData);
+      setAllCollections(Array.isArray(collectionsData) ? collectionsData : collectionsData.collections || collectionsData);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -67976,6 +68746,30 @@ function NotesIndex() {
     connection: "Connection",
     todo: "To Do"
   };
+  const noteInCollection = (note, collectionId) => {
+    if (note.collections?.some((c5) => c5.id === collectionId)) return true;
+    if (note.source) {
+      const source = allSources.find((s3) => s3.id === note.source.id);
+      if (source?.collections?.some((c5) => c5.id === collectionId)) return true;
+    }
+    if (note.people?.length > 0) {
+      for (const notePerson of note.people) {
+        const person = allPeople.find((p3) => p3.id === notePerson.id);
+        if (person?.collections?.some((c5) => c5.id === collectionId)) return true;
+      }
+    }
+    if (note.concepts?.length > 0) {
+      for (const noteConcept of note.concepts) {
+        const concept = allConcepts.find((c5) => c5.id === noteConcept.id);
+        if (concept?.collections?.some((c5) => c5.id === collectionId)) return true;
+      }
+    }
+    return false;
+  };
+  const noteInSharedCollection = (note) => {
+    const sharedCollections = allCollections.filter((c5) => !c5.is_owner);
+    return sharedCollections.some((collection) => noteInCollection(note, collection.id));
+  };
   const getFilteredNotes = () => {
     let filtered = [...notes];
     if (searchQuery) {
@@ -67999,6 +68793,16 @@ function NotesIndex() {
         (note) => note.tags?.some((t4) => selectedTags.includes(typeof t4 === "string" ? t4 : t4.name))
       );
     }
+    if (selectedPeople.length > 0) {
+      filtered = filtered.filter(
+        (note) => note.people?.some((p3) => selectedPeople.includes(p3.id))
+      );
+    }
+    if (selectedCollections.length > 0) {
+      filtered = filtered.filter(
+        (note) => selectedCollections.some((collectionId) => noteInCollection(note, collectionId))
+      );
+    }
     if (filterType !== "all") {
       filtered = filtered.filter((note) => note.note_type === filterType);
     }
@@ -68017,11 +68821,30 @@ function NotesIndex() {
     setSelectedConcepts([]);
     setSelectedSources([]);
     setSelectedTags([]);
+    setSelectedPeople([]);
+    setSelectedCollections([]);
     setFilterType("all");
+    setSourceNameFilter("");
     setShowPinnedOnly(false);
   };
-  const hasActiveFilters = searchQuery || selectedConcepts.length > 0 || selectedSources.length > 0 || selectedTags.length > 0 || filterType !== "all" || showPinnedOnly;
+  const hasActiveFilters = searchQuery || selectedConcepts.length > 0 || selectedSources.length > 0 || selectedTags.length > 0 || selectedPeople.length > 0 || selectedCollections.length > 0 || filterType !== "all" || sourceNameFilter || showPinnedOnly;
   const filteredNotes = getFilteredNotes();
+  const hasConceptsWithNotes = allConcepts.some(
+    (concept) => notes.filter((n3) => n3.concepts?.some((c5) => c5.id === concept.id)).length > 0
+  );
+  const hasSourcesWithNotes = allSources.some(
+    (source) => notes.filter((n3) => n3.source?.id === source.id).length > 0
+  );
+  const hasPeopleWithNotes = allPeople.some(
+    (person) => notes.filter((n3) => n3.people?.some((p3) => p3.id === person.id)).length > 0
+  );
+  const hasCollectionsWithNotes = allCollections.some(
+    (collection) => notes.some((n3) => noteInCollection(n3, collection.id))
+  );
+  const hasTagsWithNotes = allTags.some((tag) => {
+    const tagName = typeof tag === "string" ? tag : tag.name;
+    return notes.filter((n3) => n3.tags?.some((t4) => (typeof t4 === "string" ? t4 : t4.name) === tagName)).length > 0;
+  });
   if (loading) {
     return /* @__PURE__ */ import_react39.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react39.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading notes..."));
   }
@@ -68059,44 +68882,7 @@ function NotesIndex() {
     padding: "var(--space-4)",
     boxShadow: "var(--shadow-sidebar)",
     flexShrink: 0
-  } }, /* @__PURE__ */ import_react39.default.createElement(
-    "button",
-    {
-      onClick: () => {
-        setEditingNote(null);
-        setShowFormModal(true);
-      },
-      style: {
-        width: "100%",
-        padding: "var(--space-3)",
-        marginBottom: "var(--space-4)",
-        borderRadius: "var(--radius)",
-        background: "var(--accent-teal)",
-        color: "white",
-        border: "none",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: "var(--space-2)",
-        fontSize: "var(--text-sm)",
-        fontFamily: "var(--font-body)",
-        fontWeight: 600,
-        transition: "all 0.15s",
-        boxShadow: "var(--shadow-sm)"
-      },
-      onMouseEnter: (e3) => {
-        e3.currentTarget.style.background = "#4a8187";
-        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
-      },
-      onMouseLeave: (e3) => {
-        e3.currentTarget.style.background = "var(--accent-teal)";
-        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
-      }
-    },
-    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" }),
-    "New Note"
-  ), /* @__PURE__ */ import_react39.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react39.default.createElement(
+  } }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react39.default.createElement(
     "input",
     {
       type: "text",
@@ -68196,7 +68982,7 @@ function NotesIndex() {
       style: { background: "none", border: "none", color: "var(--accent-purple)", cursor: "pointer", padding: 0 }
     },
     /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-times", style: { fontSize: "10px" } })
-  ))))), /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Concept" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allConcepts.map((concept) => {
+  ))))), hasConceptsWithNotes && /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Concept" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allConcepts.map((concept) => {
     const count = notes.filter((n3) => n3.concepts?.some((c5) => c5.id === concept.id)).length;
     if (count === 0) return null;
     return /* @__PURE__ */ import_react39.default.createElement(
@@ -68235,7 +69021,36 @@ function NotesIndex() {
       /* @__PURE__ */ import_react39.default.createElement("span", { style: { flex: 1 } }, concept.label),
       /* @__PURE__ */ import_react39.default.createElement("span", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)" } }, "(", count, ")")
     );
-  }))), /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Source" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allSources.map((source) => {
+  }))), hasSourcesWithNotes && /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Source" }, /* @__PURE__ */ import_react39.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: sourceNameFilter,
+      onChange: (e3) => setSourceNameFilter(e3.target.value),
+      placeholder: "Search sources...",
+      style: {
+        width: "100%",
+        padding: "var(--space-2)",
+        marginBottom: "var(--space-2)",
+        fontSize: "var(--text-xs)",
+        border: "1px solid var(--neutral-300)",
+        borderRadius: "4px",
+        fontFamily: "var(--font-body)",
+        background: "white",
+        outline: "none"
+      },
+      onFocus: (e3) => {
+        e3.currentTarget.style.border = "2px solid var(--accent-teal)";
+        e3.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in srgb, var(--accent-teal) 15%, transparent)";
+        e3.currentTarget.style.padding = "calc(var(--space-2) - 1px)";
+      },
+      onBlur: (e3) => {
+        e3.currentTarget.style.border = "1px solid var(--neutral-300)";
+        e3.currentTarget.style.boxShadow = "none";
+        e3.currentTarget.style.padding = "var(--space-2)";
+      }
+    }
+  ), /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allSources.filter((source) => !sourceNameFilter || source.title?.toLowerCase().includes(sourceNameFilter.toLowerCase())).map((source) => {
     const count = notes.filter((n3) => n3.source?.id === source.id).length;
     if (count === 0) return null;
     return /* @__PURE__ */ import_react39.default.createElement(
@@ -68274,7 +69089,85 @@ function NotesIndex() {
       /* @__PURE__ */ import_react39.default.createElement("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, title: source.title }, source.title),
       /* @__PURE__ */ import_react39.default.createElement("span", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)" } }, "(", count, ")")
     );
-  }))), /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Tag" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allTags.map((tag) => {
+  }))), hasPeopleWithNotes && /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Person" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allPeople.map((person) => {
+    const count = notes.filter((n3) => n3.people?.some((p3) => p3.id === person.id)).length;
+    if (count === 0) return null;
+    return /* @__PURE__ */ import_react39.default.createElement(
+      "label",
+      {
+        key: person.id,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          cursor: "pointer",
+          padding: "var(--space-1)",
+          borderRadius: "4px",
+          transition: "background 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
+        onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+      },
+      /* @__PURE__ */ import_react39.default.createElement(
+        "input",
+        {
+          type: "checkbox",
+          checked: selectedPeople.includes(person.id),
+          onChange: (e3) => {
+            if (e3.target.checked) {
+              setSelectedPeople([...selectedPeople, person.id]);
+            } else {
+              setSelectedPeople(selectedPeople.filter((id2) => id2 !== person.id));
+            }
+          },
+          style: { accentColor: "var(--accent-teal)" }
+        }
+      ),
+      /* @__PURE__ */ import_react39.default.createElement("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, title: person.full_name }, person.full_name),
+      /* @__PURE__ */ import_react39.default.createElement("span", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)" } }, "(", count, ")")
+    );
+  }))), hasCollectionsWithNotes && /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Collection" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allCollections.map((collection) => {
+    const count = notes.filter((n3) => noteInCollection(n3, collection.id)).length;
+    if (count === 0) return null;
+    return /* @__PURE__ */ import_react39.default.createElement(
+      "label",
+      {
+        key: collection.id,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          cursor: "pointer",
+          padding: "var(--space-1)",
+          borderRadius: "4px",
+          transition: "background 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.background = "var(--neutral-100)",
+        onMouseLeave: (e3) => e3.currentTarget.style.background = "transparent"
+      },
+      /* @__PURE__ */ import_react39.default.createElement(
+        "input",
+        {
+          type: "checkbox",
+          checked: selectedCollections.includes(collection.id),
+          onChange: (e3) => {
+            if (e3.target.checked) {
+              setSelectedCollections([...selectedCollections, collection.id]);
+            } else {
+              setSelectedCollections(selectedCollections.filter((id2) => id2 !== collection.id));
+            }
+          },
+          style: { accentColor: "var(--accent-teal)" }
+        }
+      ),
+      /* @__PURE__ */ import_react39.default.createElement("span", { style: { flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, title: collection.name }, collection.name),
+      /* @__PURE__ */ import_react39.default.createElement("span", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)" } }, "(", count, ")")
+    );
+  }))), hasTagsWithNotes && /* @__PURE__ */ import_react39.default.createElement(FilterSection, { title: "By Tag" }, /* @__PURE__ */ import_react39.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "200px", overflowY: "auto" } }, allTags.map((tag) => {
     const tagName = typeof tag === "string" ? tag : tag.name;
     const count = notes.filter((n3) => n3.tags?.some((t4) => (typeof t4 === "string" ? t4 : t4.name) === tagName)).length;
     if (count === 0) return null;
@@ -68403,23 +69296,27 @@ function NotesIndex() {
     color: "var(--accent-teal)",
     margin: 0,
     lineHeight: 1.1
-  } }, "Notes"), /* @__PURE__ */ import_react39.default.createElement("p", { style: {
+  } }, "Notes"), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-3)",
+    marginTop: "var(--space-1)"
+  } }, /* @__PURE__ */ import_react39.default.createElement("p", { style: {
     fontSize: "var(--text-base)",
     color: "var(--neutral-600)",
     fontFamily: "var(--font-body)",
-    marginTop: "var(--space-1)",
-    marginBottom: 0
-  } }, "Showing ", filteredNotes.length, " of ", notes.length, " notes")), /* @__PURE__ */ import_react39.default.createElement(
+    margin: 0
+  } }, "Showing ", filteredNotes.length, " of ", notes.length, " notes"), /* @__PURE__ */ import_react39.default.createElement(
     "div",
     {
       className: "hidden md:flex",
       onClick: () => setViewMode(viewMode === "cards" ? "list" : "cards"),
       style: {
-        width: "56px",
-        height: "28px",
+        width: "48px",
+        height: "24px",
         background: "var(--accent-teal)",
-        borderRadius: "14px",
-        padding: "3px",
+        borderRadius: "12px",
+        padding: "2px",
         cursor: "pointer",
         position: "relative",
         transition: "background 0.2s"
@@ -68427,12 +69324,12 @@ function NotesIndex() {
       title: viewMode === "cards" ? "Switch to list view" : "Switch to card view"
     },
     /* @__PURE__ */ import_react39.default.createElement("div", { style: {
-      width: "22px",
-      height: "22px",
+      width: "20px",
+      height: "20px",
       background: "white",
       borderRadius: "50%",
       boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-      transform: viewMode === "list" ? "translateX(28px)" : "translateX(0)",
+      transform: viewMode === "list" ? "translateX(24px)" : "translateX(0)",
       transition: "transform 0.2s ease",
       display: "flex",
       alignItems: "center",
@@ -68441,7 +69338,7 @@ function NotesIndex() {
       "i",
       {
         className: `fas ${viewMode === "cards" ? "fa-th-large" : "fa-list"}`,
-        style: { fontSize: "10px", color: "var(--accent-teal)" }
+        style: { fontSize: "9px", color: "var(--accent-teal)" }
       }
     )),
     /* @__PURE__ */ import_react39.default.createElement("div", { style: {
@@ -68453,14 +69350,14 @@ function NotesIndex() {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      padding: "0 8px",
+      padding: "0 6px",
       pointerEvents: "none"
     } }, /* @__PURE__ */ import_react39.default.createElement(
       "i",
       {
         className: "fas fa-th-large",
         style: {
-          fontSize: "10px",
+          fontSize: "9px",
           color: "white",
           opacity: viewMode === "cards" ? 0 : 0.6,
           transition: "opacity 0.2s"
@@ -68471,13 +69368,46 @@ function NotesIndex() {
       {
         className: "fas fa-list",
         style: {
-          fontSize: "10px",
+          fontSize: "9px",
           color: "white",
           opacity: viewMode === "list" ? 0 : 0.6,
           transition: "opacity 0.2s"
         }
       }
     ))
+  ))), /* @__PURE__ */ import_react39.default.createElement(
+    "button",
+    {
+      onClick: () => {
+        setEditingNote(null);
+        setShowFormModal(true);
+      },
+      style: {
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        background: "var(--accent-teal)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-lg)",
+        boxShadow: "var(--shadow-sm)",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "#4a8187";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-teal)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Note"
+    },
+    /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-plus" })
   ))), /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     flex: 1,
     overflowY: "auto",
@@ -68535,7 +69465,18 @@ function NotesIndex() {
       textOverflow: "ellipsis",
       whiteSpace: "nowrap",
       lineHeight: 1.2
-    } }, note.title), /* @__PURE__ */ import_react39.default.createElement(
+    } }, note.title), noteInSharedCollection(note) && /* @__PURE__ */ import_react39.default.createElement(
+      "i",
+      {
+        className: "fas fa-folder",
+        style: {
+          color: "rgba(255, 255, 255, 0.8)",
+          fontSize: "var(--text-sm)",
+          marginLeft: "var(--space-2)"
+        },
+        title: "From shared collection"
+      }
+    ), /* @__PURE__ */ import_react39.default.createElement(
       "button",
       {
         onClick: (e3) => {
@@ -68555,7 +69496,24 @@ function NotesIndex() {
       },
       /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-thumbtack" })
     )),
-    /* @__PURE__ */ import_react39.default.createElement("div", { style: { padding: "var(--space-4)", flex: 1 } }, !note.title && /* @__PURE__ */ import_react39.default.createElement(
+    /* @__PURE__ */ import_react39.default.createElement("div", { style: { padding: "var(--space-4)", flex: 1 } }, !note.title && /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+      position: "absolute",
+      top: "var(--space-3)",
+      right: "var(--space-3)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, noteInSharedCollection(note) && /* @__PURE__ */ import_react39.default.createElement(
+      "i",
+      {
+        className: "fas fa-folder",
+        style: {
+          color: "var(--neutral-400)",
+          fontSize: "var(--text-sm)"
+        },
+        title: "From shared collection"
+      }
+    ), /* @__PURE__ */ import_react39.default.createElement(
       "button",
       {
         onClick: (e3) => {
@@ -68563,9 +69521,6 @@ function NotesIndex() {
           handleTogglePin(note);
         },
         style: {
-          position: "absolute",
-          top: "var(--space-3)",
-          right: "var(--space-3)",
           background: "none",
           border: "none",
           color: note.pinned ? "var(--accent-teal)" : "var(--neutral-400)",
@@ -68576,7 +69531,7 @@ function NotesIndex() {
         title: note.pinned ? "Unpin" : "Pin"
       },
       /* @__PURE__ */ import_react39.default.createElement("i", { className: "fas fa-thumbtack" })
-    ), /* @__PURE__ */ import_react39.default.createElement(
+    )), /* @__PURE__ */ import_react39.default.createElement(
       "div",
       {
         className: "prose prose-sm max-w-none [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-1 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-1 [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-2 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-1 [&_td]:text-xs [&_th]:border [&_th]:border-gray-300 [&_th]:p-1 [&_th]:text-xs [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto",
@@ -68773,9 +69728,7 @@ function NotesIndex() {
 function FilterSection({ title, children: children2 }) {
   const [isOpen, setIsOpen] = (0, import_react39.useState)(true);
   return /* @__PURE__ */ import_react39.default.createElement("div", { style: {
-    marginBottom: "var(--space-4)",
-    paddingBottom: "var(--space-3)",
-    borderBottom: "1px solid var(--neutral-200)"
+    marginBottom: "var(--space-4)"
   } }, /* @__PURE__ */ import_react39.default.createElement(
     "button",
     {
@@ -68801,7 +69754,12 @@ function FilterSection({ title, children: children2 }) {
     },
     /* @__PURE__ */ import_react39.default.createElement("span", null, title),
     /* @__PURE__ */ import_react39.default.createElement("i", { className: `fas fa-chevron-${isOpen ? "down" : "right"}`, style: { fontSize: "10px" } })
-  ), isOpen && /* @__PURE__ */ import_react39.default.createElement("div", null, children2));
+  ), isOpen && /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "6px",
+    padding: "var(--space-2)",
+    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)"
+  } }, children2));
 }
 
 // app/javascript/components/NotesForm.js
@@ -69491,23 +70449,7 @@ function TagsIndex() {
     },
     /* @__PURE__ */ import_react43.default.createElement("option", { value: "popularity" }, "Popularity"),
     /* @__PURE__ */ import_react43.default.createElement("option", { value: "alphabetical" }, "Alphabetical")
-  )), /* @__PURE__ */ import_react43.default.createElement(
-    "button",
-    {
-      onClick: () => setCreatingTag(true),
-      className: "btn-primary",
-      style: {
-        width: "100%",
-        background: "var(--accent-purple)",
-        marginBottom: "var(--space-4)",
-        fontFamily: "var(--font-body)"
-      },
-      onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-purple) 80%, black)",
-      onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-purple)"
-    },
-    /* @__PURE__ */ import_react43.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-2)" } }),
-    "New Tag"
-  ), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
+  )), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
     borderTop: "1px solid var(--neutral-300)",
     paddingTop: "var(--space-3)"
   } }, /* @__PURE__ */ import_react43.default.createElement("h2", { style: {
@@ -69593,7 +70535,7 @@ function TagsIndex() {
     boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
     position: "relative",
     zIndex: 5
-  } }, /* @__PURE__ */ import_react43.default.createElement("h1", { style: {
+  } }, /* @__PURE__ */ import_react43.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between" } }, /* @__PURE__ */ import_react43.default.createElement("div", null, /* @__PURE__ */ import_react43.default.createElement("h1", { style: {
     fontSize: "var(--text-4xl)",
     fontWeight: 700,
     fontFamily: "var(--font-display)",
@@ -69606,7 +70548,37 @@ function TagsIndex() {
     fontFamily: "var(--font-body)",
     marginTop: "var(--space-1)",
     marginBottom: 0
-  } }, "Browse and organize your knowledge by tags")), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
+  } }, "Browse and organize your knowledge by tags")), /* @__PURE__ */ import_react43.default.createElement(
+    "button",
+    {
+      onClick: () => setCreatingTag(true),
+      style: {
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        background: "var(--accent-purple)",
+        color: "white",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-lg)",
+        boxShadow: "var(--shadow-sm)",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-purple) 80%, black)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-purple)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Tag"
+    },
+    /* @__PURE__ */ import_react43.default.createElement("i", { className: "fas fa-plus" })
+  ))), /* @__PURE__ */ import_react43.default.createElement("div", { style: {
     flex: 1,
     overflowY: "auto",
     padding: "var(--space-6)"
@@ -71137,18 +72109,34 @@ function ShareModalStyles({ themeColor }) {
 // app/javascript/components/CollectionsIndex.js
 function CollectionsIndex() {
   const [collections, setCollections] = (0, import_react45.useState)([]);
+  const [selectedCollection, setSelectedCollection] = (0, import_react45.useState)(null);
   const [loading, setLoading] = (0, import_react45.useState)(true);
   const [error, setError] = (0, import_react45.useState)("");
-  const [currentTime] = (0, import_react45.useState)(/* @__PURE__ */ new Date());
+  const [sidebarOpen, setSidebarOpen] = (0, import_react45.useState)(typeof window !== "undefined" ? window.innerWidth >= 768 : false);
   const [showCreateForm, setShowCreateForm] = (0, import_react45.useState)(false);
   const [newName, setNewName] = (0, import_react45.useState)("");
   const [newDescription, setNewDescription] = (0, import_react45.useState)("");
   const [creating, setCreating] = (0, import_react45.useState)(false);
-  const [expandedId, setExpandedId] = (0, import_react45.useState)(null);
-  const [expandedDetails, setExpandedDetails] = (0, import_react45.useState)(null);
   const [shareCollection, setShareCollection] = (0, import_react45.useState)(null);
   (0, import_react45.useEffect)(() => {
     fetchCollections();
+  }, []);
+  (0, import_react45.useEffect)(() => {
+    if (collections.length > 0 && !selectedCollection) {
+      handleCollectionClick(collections[0]);
+    }
+  }, [collections]);
+  (0, import_react45.useEffect)(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
   const fetchCollections = async () => {
     setLoading(true);
@@ -71164,6 +72152,20 @@ function CollectionsIndex() {
       setError("Failed to load collections");
     } finally {
       setLoading(false);
+    }
+  };
+  const handleCollectionClick = async (collection) => {
+    try {
+      const response = await fetch(`/collections/${collection.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedCollection({ ...collection, ...data });
+        if (window.innerWidth < 768) {
+          setSidebarOpen(false);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load collection details");
     }
   };
   const handleCreate = async (e3) => {
@@ -71184,10 +72186,12 @@ function CollectionsIndex() {
       });
       if (response.ok) {
         const newCollection = await response.json();
-        setCollections([newCollection, ...collections]);
+        const collectionWithOwner = { ...newCollection, is_owner: true, items_count: 0 };
+        setCollections([collectionWithOwner, ...collections]);
         setNewName("");
         setNewDescription("");
         setShowCreateForm(false);
+        handleCollectionClick(collectionWithOwner);
       } else {
         const data = await response.json();
         setError(data.errors?.join(", ") || "Failed to create collection");
@@ -71207,30 +72211,12 @@ function CollectionsIndex() {
       });
       if (response.ok) {
         setCollections(collections.filter((c5) => c5.id !== id2));
-        if (expandedId === id2) {
-          setExpandedId(null);
-          setExpandedDetails(null);
+        if (selectedCollection?.id === id2) {
+          setSelectedCollection(null);
         }
       }
     } catch (err) {
       setError("Failed to delete collection");
-    }
-  };
-  const handleExpand = async (id2) => {
-    if (expandedId === id2) {
-      setExpandedId(null);
-      setExpandedDetails(null);
-      return;
-    }
-    try {
-      const response = await fetch(`/collections/${id2}.json`);
-      if (response.ok) {
-        const data = await response.json();
-        setExpandedDetails(data);
-        setExpandedId(id2);
-      }
-    } catch (err) {
-      console.error("Failed to load collection details");
     }
   };
   const handleRemoveItem = async (collectionId, itemType, itemId) => {
@@ -71247,7 +72233,7 @@ function CollectionsIndex() {
         const refreshResponse = await fetch(`/collections/${collectionId}.json`);
         if (refreshResponse.ok) {
           const data = await refreshResponse.json();
-          setExpandedDetails(data);
+          setSelectedCollection((prev) => ({ ...prev, ...data }));
           setCollections(collections.map(
             (c5) => c5.id === collectionId ? { ...c5, items_count: (c5.items_count || 1) - 1 } : c5
           ));
@@ -71301,46 +72287,54 @@ function CollectionsIndex() {
         return "var(--neutral-500)";
     }
   };
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    }).toUpperCase();
-  };
-  const formatTime = (date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    });
+  const formatPermission = (permission) => {
+    if (!permission) return "";
+    return permission.charAt(0).toUpperCase() + permission.slice(1);
   };
   if (loading) {
-    return /* @__PURE__ */ import_react45.default.createElement("div", { style: {
-      minHeight: "calc(100vh - 64px)",
-      background: "#e2e2e2",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      fontFamily: "var(--font-display)",
-      color: "var(--neutral-600)",
-      fontSize: "var(--text-lg)",
-      letterSpacing: "0.1em"
-    } }, "LOADING ARCHIVES...");
+    return /* @__PURE__ */ import_react45.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react45.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading collections..."));
   }
   const totalItems = collections.reduce((sum2, c5) => sum2 + (c5.items_count || 0), 0);
-  return /* @__PURE__ */ import_react45.default.createElement("div", { style: {
-    minHeight: "calc(100vh - 64px)",
-    background: "#e2e2e2"
-  } }, /* @__PURE__ */ import_react45.default.createElement(CollectionsStyles, null), /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-container" }, /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-header" }, /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-header-date" }, collections.length, " COLLECTIONS \u2014 ", totalItems, " ITEMS"), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } }, /* @__PURE__ */ import_react45.default.createElement("h1", { className: "collections-header-title" }, "Collections"), !showCreateForm && /* @__PURE__ */ import_react45.default.createElement(
+  return /* @__PURE__ */ import_react45.default.createElement(import_react45.default.Fragment, null, /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react45.default.createElement(
     "button",
     {
-      onClick: () => setShowCreateForm(true),
-      className: "collections-add-btn"
+      onClick: () => setSidebarOpen(!sidebarOpen),
+      style: {
+        position: "absolute",
+        left: sidebarOpen ? "280px" : "0",
+        top: "200px",
+        zIndex: 20,
+        background: "var(--accent-maroon)",
+        color: "white",
+        border: "none",
+        padding: "var(--space-2)",
+        cursor: "pointer",
+        transition: "all 0.2s",
+        borderRadius: "0 4px 4px 0",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "24px",
+        height: "48px"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-maroon) 80%, black)",
+      onMouseLeave: (e3) => e3.currentTarget.style.background = "var(--accent-maroon)"
     },
-    /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-plus" })
-  ))), error && /* @__PURE__ */ import_react45.default.createElement("div", { style: { padding: "0.75rem 1rem", backgroundColor: "#fee", color: "#c00", borderRadius: "4px", marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" } }, error, /* @__PURE__ */ import_react45.default.createElement("button", { onClick: () => setError(""), style: { background: "none", border: "none", cursor: "pointer", fontSize: "1.25rem", color: "#c00" } }, "\xD7")), showCreateForm && /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-create-form" }, /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-create-form-tab" }, "New Collection"), /* @__PURE__ */ import_react45.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react45.default.createElement(
+    /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
+  ), sidebarOpen && /* @__PURE__ */ import_react45.default.createElement("aside", { style: {
+    width: "280px",
+    background: "#e2e2e2",
+    overflowY: "auto",
+    padding: "var(--space-4)",
+    boxShadow: "var(--shadow-sidebar)",
+    flexShrink: 0
+  } }, showCreateForm && /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    background: "white",
+    padding: "var(--space-4)",
+    borderRadius: "4px",
+    marginBottom: "var(--space-4)",
+    border: "1px solid var(--neutral-300)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react45.default.createElement(
     "input",
     {
       type: "text",
@@ -71348,7 +72342,8 @@ function CollectionsIndex() {
       onChange: (e3) => setNewName(e3.target.value),
       placeholder: "Collection name",
       autoFocus: true,
-      className: "collections-form-input"
+      className: "form-input",
+      style: { width: "100%", marginBottom: "var(--space-2)", fontFamily: "var(--font-body)" }
     }
   ), /* @__PURE__ */ import_react45.default.createElement(
     "textarea",
@@ -71357,22 +72352,19 @@ function CollectionsIndex() {
       onChange: (e3) => setNewDescription(e3.target.value),
       placeholder: "Description (optional)",
       rows: 2,
-      className: "collections-form-textarea"
+      className: "form-input",
+      style: { width: "100%", marginBottom: "var(--space-3)", fontFamily: "var(--font-body)", resize: "vertical" }
     }
-  ), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", gap: "0.5rem" } }, /* @__PURE__ */ import_react45.default.createElement(
+  ), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react45.default.createElement(
     "button",
     {
       type: "submit",
       disabled: creating || !newName.trim(),
+      className: "btn-primary",
       style: {
-        padding: "0.5rem 1.25rem",
-        backgroundColor: creating || !newName.trim() ? "var(--neutral-300)" : "var(--accent-maroon)",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        fontWeight: 500,
-        cursor: creating || !newName.trim() ? "not-allowed" : "pointer",
-        fontFamily: "var(--font-body)"
+        flex: 1,
+        background: creating || !newName.trim() ? "var(--neutral-300)" : "var(--accent-maroon)",
+        cursor: creating || !newName.trim() ? "not-allowed" : "pointer"
       }
     },
     creating ? "Creating..." : "Create"
@@ -71385,50 +72377,204 @@ function CollectionsIndex() {
         setNewName("");
         setNewDescription("");
       },
-      style: {
-        padding: "0.5rem 1.25rem",
-        backgroundColor: "white",
-        color: "var(--accent-maroon)",
-        border: "2px solid var(--accent-maroon)",
-        borderRadius: "4px",
-        fontWeight: 500,
-        cursor: "pointer",
-        fontFamily: "var(--font-body)"
-      }
+      className: "btn-secondary",
+      style: { flex: 1 }
     },
     "Cancel"
-  )))), collections.length === 0 ? /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-empty" }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-folder-open", style: { fontSize: "3rem", color: "var(--accent-maroon)", marginBottom: "1rem", display: "block" } }), /* @__PURE__ */ import_react45.default.createElement("h2", { style: { fontSize: "1.25rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--neutral-700)", fontFamily: "var(--font-display)" } }, "No Collections Yet"), /* @__PURE__ */ import_react45.default.createElement("p", { style: { color: "var(--neutral-500)", marginBottom: "1.5rem", fontFamily: "var(--font-body)" } }, "Create collections to organize and share your research."), !showCreateForm && /* @__PURE__ */ import_react45.default.createElement(
+  )))), error && /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    backgroundColor: "#fee",
+    color: "#c00",
+    borderRadius: "4px",
+    marginBottom: "var(--space-4)",
+    fontSize: "var(--text-sm)",
+    fontFamily: "var(--font-body)"
+  } }, error, /* @__PURE__ */ import_react45.default.createElement("button", { onClick: () => setError(""), style: { float: "right", background: "none", border: "none", cursor: "pointer", color: "#c00" } }, "\xD7")), (() => {
+    const myCollections = collections.filter((c5) => c5.is_owner);
+    const sharedCollections = collections.filter((c5) => !c5.is_owner);
+    return /* @__PURE__ */ import_react45.default.createElement(import_react45.default.Fragment, null, /* @__PURE__ */ import_react45.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react45.default.createElement("h2", { style: {
+      fontSize: "var(--text-xs)",
+      fontWeight: 700,
+      fontFamily: "var(--font-body)",
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-3)"
+    } }, "My Collections (", myCollections.length, ")"), myCollections.length === 0 ? /* @__PURE__ */ import_react45.default.createElement("p", { style: {
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-600)",
+      fontFamily: "var(--font-body)",
+      textAlign: "center",
+      padding: "var(--space-4)"
+    } }, "No collections yet") : /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, myCollections.map((collection) => /* @__PURE__ */ import_react45.default.createElement(
+      "div",
+      {
+        key: collection.id,
+        onClick: () => handleCollectionClick(collection),
+        style: {
+          padding: "var(--space-2) var(--space-3)",
+          borderRadius: "4px",
+          cursor: "pointer",
+          background: selectedCollection?.id === collection.id ? "var(--accent-maroon)" : "transparent",
+          color: selectedCollection?.id === collection.id ? "white" : "var(--neutral-900)",
+          transition: "all 0.15s",
+          fontFamily: "var(--font-body)"
+        },
+        onMouseEnter: (e3) => {
+          if (selectedCollection?.id !== collection.id) {
+            e3.currentTarget.style.background = "rgba(0,0,0,0.05)";
+          }
+        },
+        onMouseLeave: (e3) => {
+          if (selectedCollection?.id !== collection.id) {
+            e3.currentTarget.style.background = "transparent";
+          }
+        }
+      },
+      /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500
+      } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-folder", style: { fontSize: "12px", opacity: 0.7 } }), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      } }, collection.name))), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        marginLeft: "var(--space-2)",
+        flexShrink: 0,
+        opacity: 0.7
+      } }, collection.items_count || 0))
+    )))), sharedCollections.length > 0 && /* @__PURE__ */ import_react45.default.createElement("div", null, /* @__PURE__ */ import_react45.default.createElement("h2", { style: {
+      fontSize: "var(--text-xs)",
+      fontWeight: 700,
+      fontFamily: "var(--font-body)",
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-3)"
+    } }, "Shared with Me (", sharedCollections.length, ")"), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, sharedCollections.map((collection) => /* @__PURE__ */ import_react45.default.createElement(
+      "div",
+      {
+        key: collection.id,
+        onClick: () => handleCollectionClick(collection),
+        style: {
+          padding: "var(--space-2) var(--space-3)",
+          borderRadius: "4px",
+          cursor: "pointer",
+          background: selectedCollection?.id === collection.id ? "var(--accent-maroon)" : "transparent",
+          color: selectedCollection?.id === collection.id ? "white" : "var(--neutral-900)",
+          transition: "all 0.15s",
+          fontFamily: "var(--font-body)"
+        },
+        onMouseEnter: (e3) => {
+          if (selectedCollection?.id !== collection.id) {
+            e3.currentTarget.style.background = "rgba(0,0,0,0.05)";
+          }
+        },
+        onMouseLeave: (e3) => {
+          if (selectedCollection?.id !== collection.id) {
+            e3.currentTarget.style.background = "transparent";
+          }
+        }
+      },
+      /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500
+      } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-share-alt", style: { fontSize: "12px", opacity: 0.7 } }), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      } }, collection.name)), /* @__PURE__ */ import_react45.default.createElement("p", { style: {
+        fontSize: "var(--text-xs)",
+        marginTop: "2px",
+        opacity: 0.7,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      } }, "from ", collection.owner_email?.split("@")[0])), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        marginLeft: "var(--space-2)",
+        flexShrink: 0,
+        opacity: 0.7
+      } }, collection.items_count || 0))
+    )))));
+  })()), /* @__PURE__ */ import_react45.default.createElement("main", { style: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "white" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    padding: "var(--space-6) var(--space-8)",
+    background: "color-mix(in srgb, var(--accent-maroon) 15%, white)",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+    position: "relative",
+    zIndex: 5
+  } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between" } }, /* @__PURE__ */ import_react45.default.createElement("div", null, /* @__PURE__ */ import_react45.default.createElement("h1", { style: {
+    fontSize: "var(--text-4xl)",
+    fontWeight: 700,
+    fontFamily: "var(--font-display)",
+    color: "var(--accent-maroon)",
+    margin: 0,
+    lineHeight: 1.1
+  } }, "Collections"), /* @__PURE__ */ import_react45.default.createElement("p", { style: {
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-600)",
+    fontFamily: "var(--font-body)",
+    marginTop: "var(--space-1)",
+    marginBottom: 0
+  } }, collections.length, " collections \u2014 ", totalItems, " items")), /* @__PURE__ */ import_react45.default.createElement(
     "button",
     {
-      onClick: () => setShowCreateForm(true),
+      onClick: () => setShowCreateForm(!showCreateForm),
       style: {
-        padding: "0.625rem 1.5rem",
-        backgroundColor: "var(--accent-maroon)",
+        width: "40px",
+        height: "40px",
+        borderRadius: "50%",
+        background: "var(--accent-maroon)",
         color: "white",
         border: "none",
-        borderRadius: "4px",
-        fontWeight: 500,
         cursor: "pointer",
-        fontFamily: "var(--font-body)"
-      }
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-lg)",
+        boxShadow: "var(--shadow-sm)",
+        transition: "all 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-maroon) 80%, black)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-maroon)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "New Collection"
     },
-    "Create Your First Collection"
-  )) : /* @__PURE__ */ import_react45.default.createElement("div", { className: "collections-grid" }, collections.map((collection) => /* @__PURE__ */ import_react45.default.createElement(
-    CollectionCard,
+    /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-plus" })
+  ))), /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    flex: 1,
+    overflowY: "auto",
+    padding: "var(--space-6)"
+  } }, selectedCollection ? /* @__PURE__ */ import_react45.default.createElement(
+    CollectionDetail,
     {
-      key: collection.id,
-      collection,
-      isExpanded: expandedId === collection.id,
-      expandedDetails: expandedId === collection.id ? expandedDetails : null,
-      onExpand: () => handleExpand(collection.id),
-      onDelete: () => handleDelete2(collection.id),
-      onShare: () => setShareCollection({ id: collection.id, name: collection.name, type: "Collection" }),
+      collection: selectedCollection,
+      onDelete: () => handleDelete2(selectedCollection.id),
+      onShare: () => setShareCollection({ id: selectedCollection.id, name: selectedCollection.name, type: "Collection" }),
       onRemoveItem: handleRemoveItem,
       getItemLink,
       getTypeIcon,
-      getTypeColor
+      getTypeColor,
+      formatPermission
     }
-  )))), shareCollection && /* @__PURE__ */ import_react45.default.createElement(
+  ) : /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    textAlign: "center",
+    padding: "var(--space-8)",
+    color: "var(--neutral-500)",
+    fontFamily: "var(--font-body)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-folder-open", style: { fontSize: "3rem", marginBottom: "var(--space-4)", display: "block", color: "var(--accent-maroon)", opacity: 0.5 } }), "Select a collection to view its contents")))), shareCollection && /* @__PURE__ */ import_react45.default.createElement(
     ShareModal,
     {
       isOpen: !!shareCollection,
@@ -71437,326 +72583,222 @@ function CollectionsIndex() {
     }
   ));
 }
-function CollectionCard({ collection, isExpanded, expandedDetails, onExpand, onDelete, onShare, onRemoveItem, getItemLink, getTypeIcon, getTypeColor }) {
-  const [isHovered, setIsHovered] = (0, import_react45.useState)(false);
-  return /* @__PURE__ */ import_react45.default.createElement(
-    "div",
+function CollectionDetail({ collection, onDelete, onShare, onRemoveItem, getItemLink, getTypeIcon, getTypeColor, formatPermission }) {
+  const isOwner = collection.is_owner;
+  const hasSharing = !isOwner || isOwner && collection.shares && collection.shares.length > 0;
+  return /* @__PURE__ */ import_react45.default.createElement("div", { style: { overflow: "visible" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    padding: "var(--space-6)",
+    borderBottom: "1px solid var(--neutral-200)",
+    background: "white"
+  } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "start",
+    justifyContent: "space-between",
+    gap: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-folder-open", style: { color: "var(--accent-maroon)", fontSize: "var(--text-2xl)" } }), /* @__PURE__ */ import_react45.default.createElement("h2", { style: {
+    fontSize: "var(--text-3xl)",
+    fontWeight: 700,
+    fontFamily: "var(--font-display)",
+    color: "var(--accent-maroon)",
+    margin: 0
+  } }, collection.name)), collection.description && /* @__PURE__ */ import_react45.default.createElement("p", { style: {
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-600)",
+    fontFamily: "var(--font-body)",
+    margin: 0
+  } }, collection.description)), isOwner && /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react45.default.createElement(
+    "button",
     {
-      className: "collection-card-wrapper",
+      onClick: onShare,
       style: {
-        transform: isHovered && !isExpanded ? "translateY(-4px)" : "translateY(0)"
+        background: "none",
+        border: "none",
+        color: "var(--accent-maroon)",
+        cursor: "pointer",
+        padding: "var(--space-2)",
+        fontSize: "var(--text-lg)",
+        transition: "color 0.15s",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
       },
-      onMouseEnter: () => setIsHovered(true),
-      onMouseLeave: () => setIsHovered(false)
+      onMouseEnter: (e3) => e3.currentTarget.style.opacity = "0.7",
+      onMouseLeave: (e3) => e3.currentTarget.style.opacity = "1",
+      title: "Share"
     },
-    /* @__PURE__ */ import_react45.default.createElement("div", { className: "collection-card-tab" }, collection.items_count || 0, " items"),
-    /* @__PURE__ */ import_react45.default.createElement(
+    /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-share-alt" })
+  ), /* @__PURE__ */ import_react45.default.createElement(
+    "button",
+    {
+      onClick: onDelete,
+      style: {
+        background: "none",
+        border: "none",
+        color: "var(--neutral-400)",
+        cursor: "pointer",
+        padding: "var(--space-2)",
+        fontSize: "var(--text-lg)",
+        transition: "color 0.15s",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--error)",
+      onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-400)",
+      title: "Delete"
+    },
+    /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-trash" })
+  ))), !isOwner && /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    marginTop: "var(--space-4)",
+    padding: "var(--space-3) var(--space-4)",
+    background: "#e2e2e2",
+    border: "1px solid var(--neutral-300)",
+    borderRadius: "4px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "var(--space-2)",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("div", null, /* @__PURE__ */ import_react45.default.createElement("span", { style: { color: "var(--neutral-500)", marginRight: "var(--space-2)" } }, "Shared by:"), /* @__PURE__ */ import_react45.default.createElement("span", { style: { color: "var(--neutral-700)", fontWeight: 500 } }, collection.owner_email)), /* @__PURE__ */ import_react45.default.createElement("div", null, /* @__PURE__ */ import_react45.default.createElement("span", { style: { color: "var(--neutral-500)", marginRight: "var(--space-2)" } }, "Your role:"), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+    color: "white",
+    background: "var(--accent-maroon)",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontWeight: 500,
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  } }, formatPermission(collection.share_permission)))), isOwner && collection.shares && collection.shares.length > 0 && /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    marginTop: "var(--space-4)",
+    padding: "var(--space-3) var(--space-4)",
+    background: "#e2e2e2",
+    border: "1px solid var(--neutral-300)",
+    borderRadius: "4px",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)",
+    marginBottom: "var(--space-2)",
+    color: "var(--neutral-600)",
+    fontWeight: 600
+  } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-users", style: { fontSize: "12px" } }), "Shared with"), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, collection.shares.map((share) => /* @__PURE__ */ import_react45.default.createElement("div", { key: share.id, style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react45.default.createElement("span", { style: { color: "var(--neutral-700)" } }, share.email), /* @__PURE__ */ import_react45.default.createElement("span", { style: {
+    color: "white",
+    background: "var(--accent-maroon)",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontWeight: 500,
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  } }, formatPermission(share.permission))))))), /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    padding: "var(--space-6)",
+    borderBottom: "1px solid var(--neutral-200)",
+    background: "white"
+  } }, /* @__PURE__ */ import_react45.default.createElement("h3", { style: {
+    fontSize: "var(--text-lg)",
+    fontWeight: 600,
+    fontFamily: "var(--font-display)",
+    color: "var(--neutral-900)",
+    marginBottom: "var(--space-3)"
+  } }, "Items (", collection.items_count || 0, ")"), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, ["sources", "concepts", "people", "notes"].map((type) => {
+    const count = collection[type]?.length || 0;
+    if (count === 0) return null;
+    return /* @__PURE__ */ import_react45.default.createElement(
       "div",
       {
-        className: "collection-card",
+        key: type,
         style: {
-          boxShadow: isHovered || isExpanded ? "0 8px 24px rgba(0,0,0,0.18), 2px 2px 0 rgba(0,0,0,0.05)" : "0 2px 8px rgba(0,0,0,0.1), 2px 2px 0 rgba(0,0,0,0.03)"
+          background: getTypeColor(type),
+          color: "white",
+          padding: "var(--space-2) var(--space-3)",
+          borderRadius: "4px",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          fontWeight: 500
+        }
+      },
+      /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas ${getTypeIcon(type)}`, style: { marginRight: "var(--space-2)" } }),
+      type.charAt(0).toUpperCase() + type.slice(1),
+      /* @__PURE__ */ import_react45.default.createElement("span", { style: { marginLeft: "var(--space-2)", opacity: 0.8 } }, "(", count, ")")
+    );
+  }))), /* @__PURE__ */ import_react45.default.createElement("div", { style: { padding: "var(--space-6)", background: "white" } }, ["sources", "concepts", "people", "notes"].map((type) => {
+    const items = collection[type] || [];
+    if (items.length === 0) return null;
+    const singularType = type === "people" ? "Person" : type.charAt(0).toUpperCase() + type.slice(1, -1);
+    return /* @__PURE__ */ import_react45.default.createElement("div", { key: type, style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react45.default.createElement("h3", { style: {
+      fontSize: "var(--text-lg)",
+      fontWeight: 600,
+      fontFamily: "var(--font-display)",
+      color: getTypeColor(type),
+      marginBottom: "var(--space-3)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas ${getTypeIcon(type)}`, style: { fontSize: "var(--text-sm)" } }), type.charAt(0).toUpperCase() + type.slice(1), " (", items.length, ")"), /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+      gap: "var(--space-3)"
+    } }, items.map((item) => /* @__PURE__ */ import_react45.default.createElement(
+      "div",
+      {
+        key: item.id,
+        className: "card",
+        style: {
+          padding: "var(--space-3)",
+          paddingRight: "var(--space-6)",
+          borderLeft: `3px solid ${getTypeColor(type)}`,
+          transition: "all 0.15s",
+          position: "relative"
         }
       },
       /* @__PURE__ */ import_react45.default.createElement(
-        "div",
+        "a",
         {
-          onClick: onExpand,
+          href: getItemLink(type, item.id),
           style: {
-            padding: "1rem 1.25rem",
-            cursor: "pointer",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start"
-          }
+            textDecoration: "none",
+            color: "var(--neutral-900)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 500,
+            fontFamily: "var(--font-body)"
+          },
+          onMouseEnter: (e3) => e3.currentTarget.style.color = getTypeColor(type),
+          onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
         },
-        /* @__PURE__ */ import_react45.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
-          fontWeight: 600,
-          fontSize: "var(--text-lg)",
-          fontFamily: "var(--font-display)",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          color: "var(--neutral-800)",
-          marginBottom: "0.25rem"
-        } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas ${isExpanded ? "fa-folder-open" : "fa-folder"}`, style: { color: "var(--accent-maroon)" } }), collection.name), collection.description && /* @__PURE__ */ import_react45.default.createElement("div", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-500)", fontFamily: "var(--font-body)" } }, collection.description)),
-        /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "0.25rem", marginLeft: "1rem" } }, /* @__PURE__ */ import_react45.default.createElement(
-          "button",
-          {
-            onClick: (e3) => {
-              e3.stopPropagation();
-              onShare();
-            },
-            title: "Share collection",
-            className: "collection-icon-btn"
-          },
-          /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-share-alt" })
-        ), /* @__PURE__ */ import_react45.default.createElement(
-          "button",
-          {
-            onClick: (e3) => {
-              e3.stopPropagation();
-              onDelete();
-            },
-            title: "Delete collection",
-            className: "collection-icon-btn collection-icon-btn--danger"
-          },
-          /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-trash" })
-        ), /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas fa-chevron-${isExpanded ? "up" : "down"}`, style: { color: "var(--accent-maroon)", marginLeft: "0.5rem", fontSize: "var(--text-sm)" } }))
+        item.title || item.label || item.full_name || item.body?.substring(0, 40)
       ),
-      isExpanded && expandedDetails && /* @__PURE__ */ import_react45.default.createElement("div", { style: { borderTop: "1px solid var(--neutral-200)", padding: "1.25rem", background: "white" } }, ["sources", "concepts", "people", "notes"].map((type) => {
-        const items = expandedDetails[type] || [];
-        if (items.length === 0) return null;
-        const singularType = type === "people" ? "Person" : type.charAt(0).toUpperCase() + type.slice(1, -1);
-        return /* @__PURE__ */ import_react45.default.createElement("div", { key: type, style: { marginBottom: "1.25rem" } }, /* @__PURE__ */ import_react45.default.createElement("div", { style: {
-          fontSize: "var(--text-xs)",
-          fontWeight: 600,
-          color: getTypeColor(type),
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
-          marginBottom: "0.5rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          fontFamily: "var(--font-display)"
-        } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: `fas ${getTypeIcon(type)}` }), type.charAt(0).toUpperCase() + type.slice(1)), /* @__PURE__ */ import_react45.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "0.5rem" } }, items.map((item) => /* @__PURE__ */ import_react45.default.createElement(
-          "div",
-          {
-            key: item.id,
-            style: {
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.375rem 0.625rem",
-              backgroundColor: "var(--neutral-100)",
-              borderRadius: "4px",
-              fontSize: "var(--text-sm)",
-              fontFamily: "var(--font-body)"
-            }
+      /* @__PURE__ */ import_react45.default.createElement(
+        "button",
+        {
+          onClick: () => onRemoveItem(collection.id, singularType, item.id),
+          title: "Remove from collection",
+          style: {
+            position: "absolute",
+            top: "var(--space-2)",
+            right: "var(--space-2)",
+            background: "none",
+            border: "none",
+            color: "var(--neutral-400)",
+            cursor: "pointer",
+            padding: "var(--space-1)",
+            fontSize: "var(--text-xs)"
           },
-          /* @__PURE__ */ import_react45.default.createElement(
-            "a",
-            {
-              href: getItemLink(type, item.id),
-              style: { color: "var(--neutral-700)", textDecoration: "none" }
-            },
-            item.title || item.label || item.full_name || item.body?.substring(0, 40)
-          ),
-          /* @__PURE__ */ import_react45.default.createElement(
-            "button",
-            {
-              onClick: () => onRemoveItem(collection.id, singularType, item.id),
-              title: "Remove from collection",
-              style: { background: "none", border: "none", color: "var(--neutral-400)", cursor: "pointer", padding: "0", fontSize: "0.75rem" }
-            },
-            /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-times" })
-          )
-        ))));
-      }), !expandedDetails.sources?.length && !expandedDetails.concepts?.length && !expandedDetails.people?.length && !expandedDetails.notes?.length && /* @__PURE__ */ import_react45.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", textAlign: "center", padding: "1rem", fontFamily: "var(--font-body)" } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-inbox", style: { display: "block", fontSize: "1.5rem", marginBottom: "0.5rem", color: "var(--neutral-400)" } }), "This collection is empty. Add items from their detail pages."))
-    )
-  );
+          onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--error)",
+          onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-400)"
+        },
+        /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-times" })
+      )
+    ))));
+  }), !collection.sources?.length && !collection.concepts?.length && !collection.people?.length && !collection.notes?.length && /* @__PURE__ */ import_react45.default.createElement("div", { style: {
+    color: "var(--neutral-500)",
+    fontSize: "var(--text-sm)",
+    textAlign: "center",
+    padding: "var(--space-8)",
+    fontFamily: "var(--font-body)"
+  } }, /* @__PURE__ */ import_react45.default.createElement("i", { className: "fas fa-inbox", style: { display: "block", fontSize: "2rem", marginBottom: "var(--space-3)", color: "var(--neutral-400)" } }), "This collection is empty.", /* @__PURE__ */ import_react45.default.createElement("br", null), "Add items from their detail pages.")));
 }
-var CollectionsStyles = () => /* @__PURE__ */ import_react45.default.createElement("style", null, `
-    .collections-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 32px;
-    }
-
-    .collections-header {
-      margin-bottom: 32px;
-    }
-
-    .collections-header-date {
-      font-family: var(--font-body);
-      font-size: var(--text-xs);
-      letter-spacing: 0.2em;
-      color: var(--neutral-500);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    .collections-header-title {
-      font-size: var(--text-5xl);
-      font-weight: 700;
-      font-family: var(--font-display);
-      color: var(--neutral-800);
-      margin: 0;
-      letter-spacing: -0.02em;
-    }
-
-    .collections-add-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--accent-maroon);
-      color: white;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--text-xl);
-      transition: all 0.15s;
-      box-shadow: var(--shadow-md);
-    }
-
-    .collections-add-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .collections-create-form {
-      position: relative;
-      margin-bottom: 32px;
-      padding: 24px;
-      padding-top: 32px;
-      background: color-mix(in srgb, var(--accent-maroon) 15%, white);
-      border: 1px solid var(--neutral-300);
-      border-top: 5px solid var(--accent-maroon);
-      border-radius: 0 4px 4px 4px;
-    }
-
-    .collections-create-form-tab {
-      position: absolute;
-      top: -22px;
-      left: 12px;
-      background: var(--accent-maroon);
-      color: white;
-      padding: 4px 12px 6px;
-      font-family: var(--font-display);
-      font-size: var(--text-xs);
-      letter-spacing: 0.1em;
-      border-radius: 3px 3px 0 0;
-    }
-
-    .collections-form-input,
-    .collections-form-textarea {
-      width: 100%;
-      padding: 0.625rem 0.875rem;
-      border: 1px solid var(--neutral-300);
-      border-radius: 4px;
-      font-family: var(--font-body);
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    .collections-form-input {
-      font-size: 1rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .collections-form-textarea {
-      font-size: 0.9375rem;
-      margin-bottom: 1rem;
-      resize: vertical;
-    }
-
-    .collections-form-input:focus,
-    .collections-form-textarea:focus {
-      border-color: var(--accent-maroon);
-      box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.15);
-    }
-
-    .collections-empty {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: 4px;
-      border: 1px solid var(--neutral-300);
-    }
-
-    .collections-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 32px;
-      padding-top: 24px;
-    }
-
-    .collection-card-wrapper {
-      position: relative;
-      transition: transform 0.2s;
-    }
-
-    .collection-card-tab {
-      position: absolute;
-      top: -18px;
-      left: 12px;
-      background: var(--accent-maroon);
-      color: white;
-      padding: 4px 12px 6px;
-      font-family: var(--font-display);
-      font-size: var(--text-xs);
-      letter-spacing: 0.1em;
-      border-radius: 3px 3px 0 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-      z-index: 2;
-    }
-
-    .collection-card {
-      background: white;
-      border: 1px solid var(--neutral-300);
-      border-top: 5px solid var(--accent-maroon);
-      border-radius: 0 4px 4px 4px;
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-      position: relative;
-      z-index: 1;
-    }
-
-    .collection-icon-btn {
-      background: none;
-      border: none;
-      color: var(--accent-maroon);
-      cursor: pointer;
-      padding: 0.375rem 0.5rem;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-
-    .collection-icon-btn:hover {
-      background: rgba(0,0,0,0.05);
-    }
-
-    .collection-icon-btn--danger {
-      color: var(--neutral-400);
-    }
-
-    .collection-icon-btn--danger:hover {
-      color: var(--error);
-    }
-
-    /* Mobile breakpoint */
-    @media (max-width: 768px) {
-      .collections-container {
-        padding: 16px;
-      }
-
-      .collections-status-bar {
-        padding: 8px 16px;
-        font-size: 10px;
-        gap: 16px;
-      }
-
-      .collections-header-title {
-        font-size: var(--text-3xl);
-      }
-
-      .collections-header-date {
-        font-size: 10px;
-      }
-
-      .collections-grid {
-        gap: 28px;
-      }
-
-      .collections-add-btn {
-        width: 40px;
-        height: 40px;
-        font-size: var(--text-base);
-      }
-    }
-  `);
 
 // app/javascript/components/Dashboard.js
 var import_react48 = __toESM(require_react());
@@ -82557,7 +83599,7 @@ function Dashboard() {
         fetch("/tags.json"),
         fetch("/collections.json")
       ]);
-      const [concepts, sources, people, connections, notes, tags, collections] = await Promise.all([
+      const [concepts, sourcesData, people, connections, notes, tags, collectionsData] = await Promise.all([
         conceptsRes.json(),
         sourcesRes.json(),
         peopleRes.json(),
@@ -82566,6 +83608,10 @@ function Dashboard() {
         tagsRes.json(),
         collectionsRes.json()
       ]);
+      const sources = Array.isArray(sourcesData) ? sourcesData : sourcesData.sources || [];
+      const sourcesTotal = sourcesData.pagination?.total_count || sources.length;
+      const sourcesPdfCount = sourcesData.filters?.pdf_count || sources.filter((s3) => s3.pdf_url).length;
+      const collections = Array.isArray(collectionsData) ? collectionsData : collectionsData.collections || collectionsData;
       const conceptsByType = concepts.reduce((acc, concept) => {
         acc[concept.node_type] = (acc[concept.node_type] || 0) + 1;
         return acc;
@@ -82583,13 +83629,13 @@ function Dashboard() {
       }).length;
       setStats({
         totalConcepts: concepts.length,
-        totalSources: sources.length,
+        totalSources: sourcesTotal,
         totalPeople: people.length,
         totalConnections: connections.length,
         totalNotes: notes.length,
         totalTags: tags.length,
-        totalCollections: collections.length,
-        totalPdfs: sources.filter((s3) => s3.pdf_url).length,
+        totalCollections: Array.isArray(collections) ? collections.length : 0,
+        totalPdfs: sourcesPdfCount,
         conceptsByType,
         conceptsByStatus,
         needsReview,

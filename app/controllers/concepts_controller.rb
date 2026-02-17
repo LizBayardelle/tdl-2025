@@ -7,7 +7,7 @@ class ConceptsController < ApplicationController
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Concept)
     @concepts = Concept.where(id: accessible_ids)
-      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes)
+      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :collections)
       .recent
 
     respond_to do |format|
@@ -31,6 +31,7 @@ class ConceptsController < ApplicationController
               }
             }
           ).merge(
+            collections: concept.collections.map { |c| { id: c.id, name: c.name } },
             permission: concept.permission_for(current_user),
             is_owner: concept.user_id == current_user.id
           )

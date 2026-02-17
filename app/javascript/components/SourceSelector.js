@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 export default function SourceSelector({ selectedSourceIds = [], selectedSourceId = null, onChange, multiple = true, themeColor = 'var(--accent-blue)' }) {
   const [allSources, setAllSources] = useState([]);
   const [filter, setFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +14,8 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
     try {
       const response = await fetch('/sources.json');
       const data = await response.json();
-      setAllSources(data.sort((a, b) => a.title.localeCompare(b.title)));
+      const sources = Array.isArray(data) ? data : (data.sources || []);
+      setAllSources(sources.sort((a, b) => (a.title || '').localeCompare(b.title || '')));
       setLoading(false);
     } catch (error) {
       console.error('Error fetching sources:', error);
@@ -21,11 +23,20 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
     }
   };
 
-  const filteredSources = filter
-    ? allSources.filter(source =>
-        source.title.toLowerCase().includes(filter.toLowerCase())
-      )
-    : allSources;
+  // Get unique source types
+  const sourceTypes = [...new Set(allSources.map(s => s.kind).filter(Boolean))].sort();
+
+  const filteredSources = allSources.filter(source => {
+    // Text filter
+    if (filter && !source.title.toLowerCase().includes(filter.toLowerCase())) {
+      return false;
+    }
+    // Type filter
+    if (typeFilter && source.kind !== typeFilter) {
+      return false;
+    }
+    return true;
+  });
 
   const handleToggle = (sourceId) => {
     if (multiple) {
@@ -71,30 +82,54 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
         padding: 'var(--space-3)',
         borderBottom: '1px solid var(--neutral-200)'
       }}>
-        <input
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Type to filter sources..."
-          style={{
-            width: '100%',
-            padding: 'var(--space-2) var(--space-3)',
-            fontSize: 'var(--text-sm)',
-            border: '1px solid var(--neutral-300)',
-            borderRadius: 'var(--radius)',
-            fontFamily: 'var(--font-body)'
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.border = `2px solid ${themeColor}`;
-            e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
-            e.currentTarget.style.padding = 'calc(var(--space-2) - 1px) calc(var(--space-3) - 1px)';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.border = '1px solid var(--neutral-300)';
-            e.currentTarget.style.boxShadow = 'none';
-            e.currentTarget.style.padding = 'var(--space-2) var(--space-3)';
-          }}
-        />
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <input
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search sources..."
+            style={{
+              flex: 1,
+              padding: 'var(--space-2) var(--space-3)',
+              fontSize: 'var(--text-sm)',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: 'var(--radius)',
+              fontFamily: 'var(--font-body)'
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.border = `2px solid ${themeColor}`;
+              e.currentTarget.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${themeColor} 10%, transparent)`;
+              e.currentTarget.style.padding = 'calc(var(--space-2) - 1px) calc(var(--space-3) - 1px)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.border = '1px solid var(--neutral-300)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.padding = 'var(--space-2) var(--space-3)';
+            }}
+          />
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{
+              padding: 'var(--space-2)',
+              fontSize: 'var(--text-xs)',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: 'var(--radius)',
+              fontFamily: 'var(--font-body)',
+              background: 'white',
+              color: typeFilter ? 'var(--neutral-900)' : 'var(--neutral-500)',
+              cursor: 'pointer',
+              minWidth: '90px',
+            }}
+          >
+            <option value="">All Types</option>
+            {sourceTypes.map(type => (
+              <option key={type} value={type} style={{ textTransform: 'capitalize' }}>
+                {type.replace(/_/g, ' ')}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Selected Sources */}
@@ -203,13 +238,30 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
                     cursor: 'pointer'
                   }}
                 />
-                <span style={{
-                  fontSize: 'var(--text-sm)',
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--neutral-900)'
-                }}>
-                  {source.title} {source.year && `(${source.year})`}
-                </span>
+                <div style={{ flex: 1 }}>
+                  <span style={{
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-900)'
+                  }}>
+                    {source.title} {source.year && `(${source.year})`}
+                  </span>
+                  {source.kind && (
+                    <span style={{
+                      display: 'inline-block',
+                      marginLeft: 'var(--space-2)',
+                      padding: '1px 6px',
+                      fontSize: '10px',
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      background: 'var(--neutral-100)',
+                      color: 'var(--neutral-500)',
+                      borderRadius: '3px',
+                    }}>
+                      {source.kind.replace(/_/g, ' ')}
+                    </span>
+                  )}
+                </div>
               </label>
             ))}
           </div>
