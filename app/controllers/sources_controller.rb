@@ -150,11 +150,12 @@ class SourcesController < ApplicationController
     keywords_array = params[:source][:keywords]
     concept_ids = params[:source][:concept_ids]
     person_ids = params[:source][:person_ids]
+    collection_ids = params[:source][:collection_ids]
     override_authors = params[:source][:override_authors]
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :override_authors, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :collection_ids, :override_authors, :processed_authors)
 
     @source = current_user.sources.build(source_params_clean)
 
@@ -187,10 +188,22 @@ class SourcesController < ApplicationController
 
       @source.save if @source.changed?
 
+      # Add to collections if specified
+      if collection_ids.present?
+        collection_ids.each do |collection_id|
+          next if collection_id.blank?
+          collection = Collection.find_by(id: collection_id)
+          if collection && (collection.user_id == current_user.id || collection.shared_with?(current_user))
+            CollectionItem.find_or_create_by!(collection: collection, collectable: @source)
+          end
+        end
+      end
+
       render json: @source.as_json.merge(
         tags: @source.tags.pluck(:name),
         keywords: @source[:keywords] || [],
-        concept_ids: @source.concept_ids
+        concept_ids: @source.concept_ids,
+        collections: @source.collections.map { |c| { id: c.id, name: c.name } }
       ), status: :created
     else
       render json: { errors: @source.errors.full_messages }, status: :unprocessable_entity
@@ -385,7 +398,8 @@ class SourcesController < ApplicationController
       methodologies: [],
       keywords: [],
       concept_ids: [],
-      person_ids: []
+      person_ids: [],
+      collection_ids: []
     )
   end
 end

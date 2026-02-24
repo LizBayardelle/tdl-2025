@@ -1120,8 +1120,33 @@ function SourceCard({ source, onUpdate }) {
           )}
 
           {/* Tags */}
-          {(source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0) && (
+          {(source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0 || source.collections?.length > 0) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+              {source.collections?.map((collection) => (
+                <a
+                  key={collection.id}
+                  href={`/collections/${collection.id}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 8px',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 500,
+                    background: 'var(--accent-maroon-light)',
+                    color: 'var(--accent-maroon)',
+                    borderRadius: '4px',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-maroon) 25%, white)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-maroon-light)'}
+                >
+                  <i className="fas fa-folder" style={{ fontSize: '10px' }}></i>
+                  {collection.name}
+                </a>
+              ))}
               {source.concepts?.map((concept) => (
                 <a
                   key={concept.id}

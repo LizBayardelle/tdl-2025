@@ -3,6 +3,7 @@ import SlidePanel from './SlidePanel';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
 import SourceSelector from './SourceSelector';
+import CollectionSelector from './CollectionSelector';
 import RichTextEditor from './RichTextEditor';
 
 // Helper to fetch and manage collections
@@ -843,248 +844,18 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                     <i className="fas fa-folder" style={{ fontSize: 'var(--text-sm)' }}></i>
                     Collections
                   </div>
-
-                  {!item?.id ? (
-                    <div style={{
-                      height: '280px',
-                      padding: 'var(--space-4)',
-                      background: 'var(--neutral-100)',
-                      borderRadius: 'var(--radius)',
-                      border: '1px solid var(--neutral-300)',
-                      color: 'var(--neutral-500)',
-                      fontSize: 'var(--text-sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      textAlign: 'center',
-                    }}>
-                      Save the person first to add them to collections.
-                    </div>
-                  ) : (
-                    <div style={{
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: 'var(--radius)',
-                      overflow: 'hidden',
-                      height: '280px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      background: 'white',
-                    }}>
-                      {/* In Collections */}
-                      <div style={{
-                        padding: 'var(--space-2) var(--space-3)',
-                        background: 'var(--accent-maroon-light)',
-                        borderBottom: '1px solid var(--neutral-200)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--accent-maroon)',
-                      }}>
-                        In Collections ({itemCollections.length})
-                      </div>
-                      <div style={{
-                        flex: '0 0 auto',
-                        maxHeight: '100px',
-                        overflowY: 'auto',
-                        borderBottom: '1px solid var(--neutral-200)',
-                      }}>
-                        {itemCollections.length === 0 ? (
-                          <div style={{
-                            padding: 'var(--space-2)',
-                            color: 'var(--neutral-400)',
-                            fontSize: 'var(--text-xs)',
-                            textAlign: 'center',
-                          }}>
-                            Not in any collections yet
-                          </div>
-                        ) : (
-                          <div style={{ padding: 'var(--space-2)' }}>
-                            {itemCollections.map(collection => (
-                              <div
-                                key={collection.id}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  padding: 'var(--space-1) var(--space-2)',
-                                  background: 'var(--accent-maroon-light)',
-                                  borderRadius: 'var(--radius)',
-                                  marginBottom: 'var(--space-1)',
-                                }}
-                              >
-                                <span style={{
-                                  fontSize: 'var(--text-xs)',
-                                  color: 'var(--neutral-700)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-1)',
-                                }}>
-                                  <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: '10px' }}></i>
-                                  {collection.name}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveFromCollection(collection.id)}
-                                  style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--neutral-400)',
-                                    cursor: 'pointer',
-                                    padding: '2px 4px',
-                                    fontSize: '10px',
-                                  }}
-                                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
-                                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
-                                  title="Remove from collection"
-                                >
-                                  <i className="fas fa-times"></i>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Add to Collection */}
-                      <div style={{
-                        padding: 'var(--space-2) var(--space-3)',
-                        background: 'var(--neutral-100)',
-                        borderBottom: '1px solid var(--neutral-200)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--neutral-500)',
-                      }}>
-                        Add to Collection
-                      </div>
-                      {/* Filter/Create Input */}
-                      <div style={{ padding: 'var(--space-2)', borderBottom: '1px solid var(--neutral-200)' }}>
-                        <input
-                          type="text"
-                          value={collectionFilter}
-                          onChange={(e) => setCollectionFilter(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              const filterLower = collectionFilter.trim().toLowerCase();
-                              const canCreate = collectionFilter.trim() &&
-                                !collections.some(c => c.name.toLowerCase() === filterLower);
-                              if (canCreate) {
-                                handleCreateCollection(collectionFilter.trim());
-                              }
-                            }
-                          }}
-                          placeholder="Type to filter or create..."
-                          style={{
-                            width: '100%',
-                            padding: 'var(--space-1) var(--space-2)',
-                            border: '1px solid var(--neutral-300)',
-                            borderRadius: 'var(--radius)',
-                            fontSize: 'var(--text-xs)',
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        />
-                        {(() => {
-                          const filterLower = collectionFilter.trim().toLowerCase();
-                          const canCreate = collectionFilter.trim() &&
-                            !collections.some(c => c.name.toLowerCase() === filterLower);
-                          if (canCreate) {
-                            return (
-                              <button
-                                type="button"
-                                onClick={() => handleCreateCollection(collectionFilter.trim())}
-                                style={{
-                                  background: 'none',
-                                  padding: 0,
-                                  color: 'var(--accent-maroon)',
-                                  fontSize: 'var(--text-xs)',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  marginTop: 'var(--space-1)',
-                                  fontFamily: 'var(--font-body)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-1)',
-                                }}
-                              >
-                                <i className="fas fa-plus"></i> Create "{collectionFilter.trim()}"
-                              </button>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                      <div style={{
-                        flex: 1,
-                        overflowY: 'auto',
-                        padding: 'var(--space-1)',
-                      }}>
-                        {loadingCollections ? (
-                          <div style={{
-                            padding: 'var(--space-2)',
-                            color: 'var(--neutral-400)',
-                            fontSize: 'var(--text-xs)',
-                            textAlign: 'center',
-                          }}>
-                            Loading...
-                          </div>
-                        ) : (() => {
-                          const availableCollections = collections
-                            .filter(c => !itemCollections.find(ic => ic.id === c.id))
-                            .filter(c => !collectionFilter.trim() ||
-                              c.name.toLowerCase().includes(collectionFilter.trim().toLowerCase()));
-
-                          if (availableCollections.length === 0) {
-                            return (
-                              <div style={{
-                                padding: 'var(--space-2)',
-                                color: 'var(--neutral-400)',
-                                fontSize: 'var(--text-xs)',
-                                textAlign: 'center',
-                              }}>
-                                {collectionFilter.trim()
-                                  ? 'No matches. Press Enter to create.'
-                                  : collections.length === 0
-                                    ? 'No collections yet.'
-                                    : 'In all collections'}
-                              </div>
-                            );
-                          }
-
-                          return availableCollections.map(collection => (
-                            <div
-                              key={collection.id}
-                              onClick={() => handleAddToCollection(collection.id)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 'var(--space-1)',
-                                padding: 'var(--space-1) var(--space-2)',
-                                borderRadius: 'var(--radius)',
-                                cursor: 'pointer',
-                                marginBottom: '2px',
-                                transition: 'background 0.15s',
-                              }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                              <i className="fas fa-folder" style={{ color: 'var(--neutral-400)', fontSize: '10px' }}></i>
-                              <span style={{
-                                fontSize: 'var(--text-xs)',
-                                color: 'var(--neutral-600)',
-                                flex: 1,
-                              }}>
-                                {collection.name}
-                              </span>
-                              <i className="fas fa-plus" style={{ color: 'var(--accent-maroon)', fontSize: '10px' }}></i>
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  )}
+                  <div style={{ height: '280px', position: 'relative' }}>
+                    <CollectionSelector
+                      itemType="Person"
+                      itemId={item?.id}
+                      selectedCollectionIds={itemCollections.map(c => c.id)}
+                      onChange={(ids, collections) => {
+                        setItemCollections(collections);
+                      }}
+                      themeColor="var(--accent-maroon)"
+                      disabled={!item?.id}
+                    />
+                  </div>
                 </div>
               </div>
             )}

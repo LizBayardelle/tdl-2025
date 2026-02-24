@@ -137,7 +137,10 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
         <div style={{
           padding: 'var(--space-3)',
           borderBottom: '1px solid var(--neutral-200)',
-          background: `color-mix(in srgb, ${themeColor} 10%, white)`
+          background: `color-mix(in srgb, ${themeColor} 10%, white)`,
+          maxHeight: '100px',
+          overflowY: 'auto',
+          flexShrink: 0
         }}>
           <div style={{
             fontSize: 'var(--text-xs)',
@@ -195,6 +198,7 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
       {/* Scrollable Source List */}
       <div style={{
         flex: 1,
+        minHeight: '120px',
         overflowY: 'auto',
         padding: 'var(--space-3)'
       }}>

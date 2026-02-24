@@ -139,7 +139,10 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
         <div style={{
           padding: 'var(--space-3)',
           borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--neutral-50)'
+          background: `color-mix(in srgb, ${themeColor} 10%, white)`,
+          maxHeight: '100px',
+          overflowY: 'auto',
+          flexShrink: 0
         }}>
           <div style={{
             fontSize: 'var(--text-xs)',
@@ -191,7 +194,7 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
       )}
 
       {/* Scrollable People List */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-3)' }}>
+      <div style={{ flex: 1, minHeight: '120px', overflowY: 'auto', padding: 'var(--space-3)' }}>
         {filteredPeople.length === 0 ? (
           <div style={{
             fontSize: 'var(--text-sm)',
@@ -212,12 +215,12 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
                   alignItems: 'center',
                   gap: 'var(--space-2)',
                   cursor: 'pointer',
-                  padding: 'var(--space-1) var(--space-2)',
-                  borderRadius: '4px',
+                  padding: 'var(--space-2)',
+                  borderRadius: 'var(--radius)',
                   transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = `color-mix(in srgb, ${themeColor} 10%, white)`}
                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 <input
