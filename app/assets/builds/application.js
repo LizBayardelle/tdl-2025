@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React47 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef20 = React47.useRef, useEffect47 = React47.useEffect, useMemo14 = React47.useMemo, useDebugValue3 = React47.useDebugValue;
+      var React47 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef21 = React47.useRef, useEffect47 = React47.useEffect, useMemo14 = React47.useMemo, useDebugValue3 = React47.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef20(null);
+        var instRef = useRef21(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -64158,7 +64158,8 @@ function ConceptNotes({ conceptId }) {
 
 // app/javascript/components/SourcesIndex.js
 var import_react33 = __toESM(require_react());
-var ITEMS_PER_PAGE = 20;
+var ITEMS_PER_PAGE_CARDS = 20;
+var ITEMS_PER_PAGE_LIST = 50;
 function SourcesIndex() {
   const [sources, setSources] = (0, import_react33.useState)([]);
   const [loading, setLoading] = (0, import_react33.useState)(true);
@@ -64174,6 +64175,9 @@ function SourcesIndex() {
   const [sidebarOpen, setSidebarOpen] = (0, import_react33.useState)(true);
   const [pdfOnly, setPdfOnly] = (0, import_react33.useState)(false);
   const [currentPage, setCurrentPage] = (0, import_react33.useState)(1);
+  const [viewMode, setViewMode] = (0, import_react33.useState)("cards");
+  const [sortColumn, setSortColumn] = (0, import_react33.useState)(null);
+  const [sortDirection, setSortDirection] = (0, import_react33.useState)("asc");
   const [totalCount, setTotalCount] = (0, import_react33.useState)(0);
   const [totalPages, setTotalPages] = (0, import_react33.useState)(1);
   const [filterMeta, setFilterMeta] = (0, import_react33.useState)({
@@ -64184,9 +64188,28 @@ function SourcesIndex() {
     collections: [],
     pdfCount: 0
   });
+  const itemsPerPage = viewMode === "cards" ? ITEMS_PER_PAGE_CARDS : ITEMS_PER_PAGE_LIST;
+  const isFirstRender = (0, import_react33.useRef)(true);
   (0, import_react33.useEffect)(() => {
     fetchSources(1, true);
   }, []);
+  (0, import_react33.useEffect)(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setSources([]);
+    setCurrentPage(1);
+    fetchSources(1, true);
+  }, [viewMode, sortColumn, sortDirection]);
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === "year" ? "desc" : "asc");
+    }
+  };
   (0, import_react33.useEffect)(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -64199,14 +64222,19 @@ function SourcesIndex() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  const fetchSources = async (page = 1, isInitial = false) => {
+  const fetchSources = async (page = 1, isInitial = false, perPage = null) => {
     try {
       if (isInitial) {
         setLoading(true);
       } else {
         setLoadingMore(true);
       }
-      const response = await fetch(`/sources.json?page=${page}&per_page=${ITEMS_PER_PAGE}`);
+      const effectivePerPage = perPage || itemsPerPage;
+      let url = `/sources.json?page=${page}&per_page=${effectivePerPage}`;
+      if (sortColumn) {
+        url += `&sort_by=${sortColumn}&sort_dir=${sortDirection}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
       if (Array.isArray(data)) {
         setSources(data);
@@ -64852,6 +64880,54 @@ function SourcesIndex() {
     totalCount,
     " sources",
     sources.length < totalCount && ` (${sources.length} loaded)`
+  )), /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react33.default.createElement("div", { style: {
+    display: "flex",
+    background: "white",
+    borderRadius: "6px",
+    padding: "2px",
+    boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)"
+  } }, /* @__PURE__ */ import_react33.default.createElement(
+    "button",
+    {
+      onClick: () => setViewMode("cards"),
+      style: {
+        padding: "var(--space-2) var(--space-3)",
+        border: "none",
+        borderRadius: "4px",
+        background: viewMode === "cards" ? "var(--accent-blue)" : "transparent",
+        color: viewMode === "cards" ? "white" : "var(--neutral-600)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        transition: "all 0.15s"
+      },
+      title: "Card view"
+    },
+    /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-th-large" })
+  ), /* @__PURE__ */ import_react33.default.createElement(
+    "button",
+    {
+      onClick: () => setViewMode("list"),
+      style: {
+        padding: "var(--space-2) var(--space-3)",
+        border: "none",
+        borderRadius: "4px",
+        background: viewMode === "list" ? "var(--accent-blue)" : "transparent",
+        color: viewMode === "list" ? "white" : "var(--neutral-600)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-1)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        transition: "all 0.15s"
+      },
+      title: "List view"
+    },
+    /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-list" })
   )), /* @__PURE__ */ import_react33.default.createElement(
     "button",
     {
@@ -64887,7 +64963,7 @@ function SourcesIndex() {
       title: "New Source"
     },
     /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-plus" })
-  ))), /* @__PURE__ */ import_react33.default.createElement(
+  )))), /* @__PURE__ */ import_react33.default.createElement(
     SourceFormModal,
     {
       isOpen: showForm,
@@ -64917,7 +64993,16 @@ function SourcesIndex() {
     },
     /* @__PURE__ */ import_react33.default.createElement("p", { style: { fontSize: "var(--text-lg)", marginBottom: "1rem", color: "var(--neutral-700)" } }, "No sources found."),
     /* @__PURE__ */ import_react33.default.createElement("p", { style: { fontSize: "var(--text-sm)", color: "var(--neutral-600)" } }, hasActiveFilters ? "Try adjusting your filters." : "Add your first source to build your evidence base.")
-  ) : /* @__PURE__ */ import_react33.default.createElement(import_react33.default.Fragment, null, /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, filteredSources.map((source) => /* @__PURE__ */ import_react33.default.createElement(SourceCard, { key: source.id, source, onUpdate: () => fetchSources(1, true) }))), hasMorePages && /* @__PURE__ */ import_react33.default.createElement(
+  ) : /* @__PURE__ */ import_react33.default.createElement(import_react33.default.Fragment, null, viewMode === "cards" ? /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, filteredSources.map((source) => /* @__PURE__ */ import_react33.default.createElement(SourceCard, { key: source.id, source, onUpdate: () => fetchSources(1, true) }))) : /* @__PURE__ */ import_react33.default.createElement(
+    SourcesTable,
+    {
+      sources: filteredSources,
+      onUpdate: () => fetchSources(1, true),
+      sortColumn,
+      sortDirection,
+      onSort: handleSort
+    }
+  ), hasMorePages && /* @__PURE__ */ import_react33.default.createElement(
     "div",
     {
       style: {
@@ -64986,6 +65071,279 @@ function SourcesIndex() {
     totalCount,
     " sources"
   )))));
+}
+function SourcesTable({ sources, onUpdate, sortColumn, sortDirection, onSort }) {
+  const [editingSource, setEditingSource] = (0, import_react33.useState)(null);
+  const SortIcon = ({ column }) => {
+    if (sortColumn !== column) {
+      return /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-sort", style: { opacity: 0.3, marginLeft: "4px" } });
+    }
+    return sortDirection === "asc" ? /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-sort-up", style: { marginLeft: "4px" } }) : /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-sort-down", style: { marginLeft: "4px" } });
+  };
+  const handleDelete2 = async (source) => {
+    if (!confirm("Are you sure you want to delete this source?")) return;
+    try {
+      const response = await fetch(`/sources/${source.id}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error("Error deleting source:", error);
+    }
+  };
+  return /* @__PURE__ */ import_react33.default.createElement(import_react33.default.Fragment, null, /* @__PURE__ */ import_react33.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    overflowX: "auto"
+  } }, /* @__PURE__ */ import_react33.default.createElement("table", { style: {
+    minWidth: "900px",
+    width: "100%",
+    borderCollapse: "collapse",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)"
+  } }, /* @__PURE__ */ import_react33.default.createElement("thead", null, /* @__PURE__ */ import_react33.default.createElement("tr", { style: {
+    background: "#e2e2e2",
+    borderBottom: "2px solid var(--neutral-300)"
+  } }, /* @__PURE__ */ import_react33.default.createElement("th", { style: {
+    padding: "var(--space-3) var(--space-2)",
+    textAlign: "center",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    width: "40px"
+  } }, "PDF"), /* @__PURE__ */ import_react33.default.createElement(
+    "th",
+    {
+      onClick: () => onSort("title"),
+      style: {
+        padding: "var(--space-3) var(--space-4)",
+        textAlign: "left",
+        fontWeight: 600,
+        color: sortColumn === "title" ? "var(--accent-blue)" : "var(--neutral-700)",
+        fontSize: "var(--text-xs)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        minWidth: "300px",
+        cursor: "pointer",
+        userSelect: "none"
+      }
+    },
+    "Title",
+    /* @__PURE__ */ import_react33.default.createElement(SortIcon, { column: "title" })
+  ), /* @__PURE__ */ import_react33.default.createElement("th", { style: {
+    padding: "var(--space-3) var(--space-4)",
+    textAlign: "left",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    width: "220px"
+  } }, "Authors"), /* @__PURE__ */ import_react33.default.createElement(
+    "th",
+    {
+      onClick: () => onSort("year"),
+      style: {
+        padding: "var(--space-3) var(--space-4)",
+        textAlign: "center",
+        fontWeight: 600,
+        color: sortColumn === "year" ? "var(--accent-blue)" : "var(--neutral-700)",
+        fontSize: "var(--text-xs)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        width: "80px",
+        cursor: "pointer",
+        userSelect: "none"
+      }
+    },
+    "Year",
+    /* @__PURE__ */ import_react33.default.createElement(SortIcon, { column: "year" })
+  ), /* @__PURE__ */ import_react33.default.createElement("th", { style: {
+    padding: "var(--space-3) var(--space-4)",
+    textAlign: "left",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    width: "280px"
+  } }, "Badges"), /* @__PURE__ */ import_react33.default.createElement("th", { style: {
+    padding: "var(--space-3) var(--space-4)",
+    textAlign: "center",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    width: "80px"
+  } }, "Actions"))), /* @__PURE__ */ import_react33.default.createElement("tbody", null, sources.map((source, index8) => /* @__PURE__ */ import_react33.default.createElement(
+    "tr",
+    {
+      key: source.id,
+      style: {
+        borderBottom: "1px solid var(--neutral-200)",
+        background: index8 % 2 === 0 ? "white" : "var(--neutral-50)",
+        transition: "background 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "color-mix(in srgb, var(--accent-blue) 5%, white)",
+      onMouseLeave: (e3) => e3.currentTarget.style.background = index8 % 2 === 0 ? "white" : "var(--neutral-50)"
+    },
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: { padding: "var(--space-3) var(--space-2)", textAlign: "center" } }, source.pdf_url ? /* @__PURE__ */ import_react33.default.createElement(
+      "a",
+      {
+        href: source.pdf_url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: { color: "var(--accent-blue)", fontSize: "var(--text-base)" },
+        title: "View PDF"
+      },
+      /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-file-pdf" })
+    ) : /* @__PURE__ */ import_react33.default.createElement("span", { style: { color: "var(--neutral-300)" } }, "\u2014")),
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: { padding: "var(--space-3) var(--space-4)" } }, /* @__PURE__ */ import_react33.default.createElement(
+      "a",
+      {
+        href: `/sources/${source.id}`,
+        style: {
+          color: "var(--neutral-900)",
+          textDecoration: "none",
+          fontWeight: 400,
+          lineHeight: 1.4
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-blue)",
+        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-900)"
+      },
+      source.title
+    )),
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: {
+      padding: "var(--space-3) var(--space-4)",
+      color: "var(--neutral-700)",
+      maxWidth: "220px",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      fontSize: "var(--text-xs)"
+    } }, source.authors || (source.people?.length > 0 ? source.people.map((p3) => p3.full_name).join(", ") : "\u2014")),
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: {
+      padding: "var(--space-3) var(--space-4)",
+      textAlign: "center",
+      color: "var(--neutral-600)",
+      fontWeight: 600
+    } }, source.year || "\u2014"),
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: { padding: "var(--space-3) var(--space-4)" } }, /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "4px", alignItems: "center" } }, source.kind && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+      display: "inline-block",
+      padding: "2px 6px",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500,
+      background: "var(--accent-blue-light)",
+      color: "var(--accent-blue)",
+      borderRadius: "3px",
+      textTransform: "uppercase"
+    } }, source.kind.replace(/_/g, " ")), source.doi && /* @__PURE__ */ import_react33.default.createElement(
+      "a",
+      {
+        href: `https://doi.org/${source.doi}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          display: "inline-block",
+          padding: "2px 6px",
+          fontSize: "var(--text-xs)",
+          fontWeight: 500,
+          background: "var(--accent-teal-light)",
+          color: "var(--accent-teal)",
+          borderRadius: "3px",
+          textDecoration: "none"
+        }
+      },
+      "DOI"
+    ), source.notes_count > 0 && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "3px",
+      padding: "2px 6px",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500,
+      background: "var(--accent-gold-light)",
+      color: "var(--accent-gold)",
+      borderRadius: "3px"
+    } }, /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "9px" } }), source.notes_count), source.collections?.slice(0, 2).map((collection) => /* @__PURE__ */ import_react33.default.createElement(
+      "a",
+      {
+        key: collection.id,
+        href: `/collections/${collection.id}`,
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "3px",
+          padding: "2px 6px",
+          fontSize: "var(--text-xs)",
+          fontWeight: 500,
+          background: "var(--accent-maroon-light)",
+          color: "var(--accent-maroon)",
+          borderRadius: "3px",
+          textDecoration: "none"
+        }
+      },
+      /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-folder", style: { fontSize: "9px" } }),
+      collection.name
+    )), source.collections?.length > 2 && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)"
+    } }, "+", source.collections.length - 2), source.concepts?.slice(0, 2).map((concept) => /* @__PURE__ */ import_react33.default.createElement(
+      "a",
+      {
+        key: concept.id,
+        href: `/concepts/${concept.id}`,
+        className: "tag concept",
+        style: { textDecoration: "none", padding: "2px 6px", fontSize: "var(--text-xs)" }
+      },
+      concept.label
+    )), source.concepts?.length > 2 && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)"
+    } }, "+", source.concepts.length - 2))),
+    /* @__PURE__ */ import_react33.default.createElement("td", { style: { padding: "var(--space-3) var(--space-4)", textAlign: "center" } }, /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", justifyContent: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react33.default.createElement(
+      "button",
+      {
+        onClick: () => setEditingSource(source),
+        className: "icon-btn",
+        title: "Edit",
+        style: { color: "var(--accent-blue)", fontSize: "var(--text-sm)" }
+      },
+      /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-pen" })
+    ), /* @__PURE__ */ import_react33.default.createElement(
+      "button",
+      {
+        onClick: () => handleDelete2(source),
+        className: "icon-btn",
+        title: "Delete",
+        style: { color: "var(--accent-blue)", fontSize: "var(--text-sm)" }
+      },
+      /* @__PURE__ */ import_react33.default.createElement("i", { className: "fas fa-trash" })
+    )))
+  ))))), editingSource && /* @__PURE__ */ import_react33.default.createElement(
+    SourceFormModal,
+    {
+      isOpen: true,
+      onClose: () => {
+        onUpdate();
+        setEditingSource(null);
+      },
+      onSuccess: () => {
+        onUpdate();
+        setEditingSource(null);
+      },
+      item: editingSource
+    }
+  ));
 }
 function SourceCard({ source, onUpdate }) {
   const [showEdit, setShowEdit] = (0, import_react33.useState)(false);

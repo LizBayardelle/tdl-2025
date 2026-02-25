@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SourceFormModal from './SourceFormModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE_CARDS = 20;
+const ITEMS_PER_PAGE_LIST = 50;
 
 export default function SourcesIndex() {
   const [sources, setSources] = useState([]);
@@ -20,6 +21,9 @@ export default function SourcesIndex() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [pdfOnly, setPdfOnly] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'list'
+  const [sortColumn, setSortColumn] = useState(null); // 'title' or 'year'
+  const [sortDirection, setSortDirection] = useState('asc'); // 'asc' or 'desc'
 
   // Server-side pagination state
   const [totalCount, setTotalCount] = useState(0);
@@ -35,9 +39,32 @@ export default function SourcesIndex() {
     pdfCount: 0
   });
 
+  const itemsPerPage = viewMode === 'cards' ? ITEMS_PER_PAGE_CARDS : ITEMS_PER_PAGE_LIST;
+  const isFirstRender = useRef(true);
+
   useEffect(() => {
     fetchSources(1, true);
   }, []);
+
+  // Refetch when view mode or sort changes (skip initial mount)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setSources([]);
+    setCurrentPage(1);
+    fetchSources(1, true);
+  }, [viewMode, sortColumn, sortDirection]);
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection(column === 'year' ? 'desc' : 'asc');
+    }
+  };
 
   // Handle responsive sidebar - closed on mobile by default (below md: 768px)
   useEffect(() => {
@@ -56,7 +83,7 @@ export default function SourcesIndex() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchSources = async (page = 1, isInitial = false) => {
+  const fetchSources = async (page = 1, isInitial = false, perPage = null) => {
     try {
       if (isInitial) {
         setLoading(true);
@@ -64,7 +91,12 @@ export default function SourcesIndex() {
         setLoadingMore(true);
       }
 
-      const response = await fetch(`/sources.json?page=${page}&per_page=${ITEMS_PER_PAGE}`);
+      const effectivePerPage = perPage || itemsPerPage;
+      let url = `/sources.json?page=${page}&per_page=${effectivePerPage}`;
+      if (sortColumn) {
+        url += `&sort_by=${sortColumn}&sort_dir=${sortDirection}`;
+      }
+      const response = await fetch(url);
       const data = await response.json();
 
       // Handle both old array format and new paginated format
@@ -768,6 +800,56 @@ export default function SourcesIndex() {
                 {sources.length < totalCount && ` (${sources.length} loaded)`}
               </p>
             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              {/* View toggle */}
+              <div style={{
+                display: 'flex',
+                background: 'white',
+                borderRadius: '6px',
+                padding: '2px',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    background: viewMode === 'cards' ? 'var(--accent-blue)' : 'transparent',
+                    color: viewMode === 'cards' ? 'white' : 'var(--neutral-600)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-1)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 500,
+                    transition: 'all 0.15s',
+                  }}
+                  title="Card view"
+                >
+                  <i className="fas fa-th-large"></i>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  style={{
+                    padding: 'var(--space-2) var(--space-3)',
+                    border: 'none',
+                    borderRadius: '4px',
+                    background: viewMode === 'list' ? 'var(--accent-blue)' : 'transparent',
+                    color: viewMode === 'list' ? 'white' : 'var(--neutral-600)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-1)',
+                    fontSize: 'var(--text-sm)',
+                    fontWeight: 500,
+                    transition: 'all 0.15s',
+                  }}
+                  title="List view"
+                >
+                  <i className="fas fa-list"></i>
+                </button>
+              </div>
             <button
               onClick={() => setShowForm(!showForm)}
               style={{
@@ -802,6 +884,7 @@ export default function SourcesIndex() {
             >
               <i className="fas fa-plus"></i>
             </button>
+            </div>
           </div>
         </div>
 
@@ -842,11 +925,21 @@ export default function SourcesIndex() {
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                {filteredSources.map(source => (
-                  <SourceCard key={source.id} source={source} onUpdate={() => fetchSources(1, true)} />
-                ))}
-              </div>
+              {viewMode === 'cards' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                  {filteredSources.map(source => (
+                    <SourceCard key={source.id} source={source} onUpdate={() => fetchSources(1, true)} />
+                  ))}
+                </div>
+              ) : (
+                <SourcesTable
+                  sources={filteredSources}
+                  onUpdate={() => fetchSources(1, true)}
+                  sortColumn={sortColumn}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+              )}
 
               {/* Load More */}
               {hasMorePages && (
@@ -925,6 +1018,340 @@ export default function SourcesIndex() {
         </div>
       </main>
     </div>
+  );
+}
+
+function SourcesTable({ sources, onUpdate, sortColumn, sortDirection, onSort }) {
+  const [editingSource, setEditingSource] = useState(null);
+
+  const SortIcon = ({ column }) => {
+    if (sortColumn !== column) {
+      return <i className="fas fa-sort" style={{ opacity: 0.3, marginLeft: '4px' }}></i>;
+    }
+    return sortDirection === 'asc'
+      ? <i className="fas fa-sort-up" style={{ marginLeft: '4px' }}></i>
+      : <i className="fas fa-sort-down" style={{ marginLeft: '4px' }}></i>;
+  };
+
+  const handleDelete = async (source) => {
+    if (!confirm('Are you sure you want to delete this source?')) return;
+
+    try {
+      const response = await fetch(`/sources/${source.id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+
+      if (response.ok) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Error deleting source:', error);
+    }
+  };
+
+  return (
+    <>
+      <div style={{
+        background: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        overflowX: 'auto',
+      }}>
+        <table style={{
+          minWidth: '900px',
+          width: '100%',
+          borderCollapse: 'collapse',
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-sm)',
+        }}>
+          <thead>
+            <tr style={{
+              background: '#e2e2e2',
+              borderBottom: '2px solid var(--neutral-300)',
+            }}>
+              <th style={{
+                padding: 'var(--space-3) var(--space-2)',
+                textAlign: 'center',
+                fontWeight: 600,
+                color: 'var(--neutral-700)',
+                fontSize: 'var(--text-xs)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                width: '40px',
+              }}>PDF</th>
+              <th
+                onClick={() => onSort('title')}
+                style={{
+                  padding: 'var(--space-3) var(--space-4)',
+                  textAlign: 'left',
+                  fontWeight: 600,
+                  color: sortColumn === 'title' ? 'var(--accent-blue)' : 'var(--neutral-700)',
+                  fontSize: 'var(--text-xs)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  minWidth: '300px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
+                Title
+                <SortIcon column="title" />
+              </th>
+              <th style={{
+                padding: 'var(--space-3) var(--space-4)',
+                textAlign: 'left',
+                fontWeight: 600,
+                color: 'var(--neutral-700)',
+                fontSize: 'var(--text-xs)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                width: '220px',
+              }}>Authors</th>
+              <th
+                onClick={() => onSort('year')}
+                style={{
+                  padding: 'var(--space-3) var(--space-4)',
+                  textAlign: 'center',
+                  fontWeight: 600,
+                  color: sortColumn === 'year' ? 'var(--accent-blue)' : 'var(--neutral-700)',
+                  fontSize: 'var(--text-xs)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  width: '80px',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
+                Year
+                <SortIcon column="year" />
+              </th>
+              <th style={{
+                padding: 'var(--space-3) var(--space-4)',
+                textAlign: 'left',
+                fontWeight: 600,
+                color: 'var(--neutral-700)',
+                fontSize: 'var(--text-xs)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                width: '280px',
+              }}>Badges</th>
+              <th style={{
+                padding: 'var(--space-3) var(--space-4)',
+                textAlign: 'center',
+                fontWeight: 600,
+                color: 'var(--neutral-700)',
+                fontSize: 'var(--text-xs)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                width: '80px',
+              }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sources.map((source, index) => (
+              <tr
+                key={source.id}
+                style={{
+                  borderBottom: '1px solid var(--neutral-200)',
+                  background: index % 2 === 0 ? 'white' : 'var(--neutral-50)',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-blue) 5%, white)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = index % 2 === 0 ? 'white' : 'var(--neutral-50)'}
+              >
+                <td style={{ padding: 'var(--space-3) var(--space-2)', textAlign: 'center' }}>
+                  {source.pdf_url ? (
+                    <a
+                      href={source.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--accent-blue)', fontSize: 'var(--text-base)' }}
+                      title="View PDF"
+                    >
+                      <i className="fas fa-file-pdf"></i>
+                    </a>
+                  ) : (
+                    <span style={{ color: 'var(--neutral-300)' }}>—</span>
+                  )}
+                </td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <a
+                    href={`/sources/${source.id}`}
+                    style={{
+                      color: 'var(--neutral-900)',
+                      textDecoration: 'none',
+                      fontWeight: 400,
+                      lineHeight: 1.4,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-blue)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
+                  >
+                    {source.title}
+                  </a>
+                </td>
+                <td style={{
+                  padding: 'var(--space-3) var(--space-4)',
+                  color: 'var(--neutral-700)',
+                  maxWidth: '220px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontSize: 'var(--text-xs)',
+                }}>
+                  {source.authors || (source.people?.length > 0 ? source.people.map(p => p.full_name).join(', ') : '—')}
+                </td>
+                <td style={{
+                  padding: 'var(--space-3) var(--space-4)',
+                  textAlign: 'center',
+                  color: 'var(--neutral-600)',
+                  fontWeight: 600,
+                }}>
+                  {source.year || '—'}
+                </td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', alignItems: 'center' }}>
+                    {source.kind && (
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '2px 6px',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 500,
+                        background: 'var(--accent-blue-light)',
+                        color: 'var(--accent-blue)',
+                        borderRadius: '3px',
+                        textTransform: 'uppercase',
+                      }}>
+                        {source.kind.replace(/_/g, ' ')}
+                      </span>
+                    )}
+                    {source.doi && (
+                      <a
+                        href={`https://doi.org/${source.doi}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 6px',
+                          fontSize: 'var(--text-xs)',
+                          fontWeight: 500,
+                          background: 'var(--accent-teal-light)',
+                          color: 'var(--accent-teal)',
+                          borderRadius: '3px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        DOI
+                      </a>
+                    )}
+                    {source.notes_count > 0 && (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        padding: '2px 6px',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 500,
+                        background: 'var(--accent-gold-light)',
+                        color: 'var(--accent-gold)',
+                        borderRadius: '3px',
+                      }}>
+                        <i className="fas fa-sticky-note" style={{ fontSize: '9px' }}></i>
+                        {source.notes_count}
+                      </span>
+                    )}
+                    {source.collections?.slice(0, 2).map((collection) => (
+                      <a
+                        key={collection.id}
+                        href={`/collections/${collection.id}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          padding: '2px 6px',
+                          fontSize: 'var(--text-xs)',
+                          fontWeight: 500,
+                          background: 'var(--accent-maroon-light)',
+                          color: 'var(--accent-maroon)',
+                          borderRadius: '3px',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        <i className="fas fa-folder" style={{ fontSize: '9px' }}></i>
+                        {collection.name}
+                      </a>
+                    ))}
+                    {source.collections?.length > 2 && (
+                      <span style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                      }}>
+                        +{source.collections.length - 2}
+                      </span>
+                    )}
+                    {source.concepts?.slice(0, 2).map((concept) => (
+                      <a
+                        key={concept.id}
+                        href={`/concepts/${concept.id}`}
+                        className="tag concept"
+                        style={{ textDecoration: 'none', padding: '2px 6px', fontSize: 'var(--text-xs)' }}
+                      >
+                        {concept.label}
+                      </a>
+                    ))}
+                    {source.concepts?.length > 2 && (
+                      <span style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                      }}>
+                        +{source.concepts.length - 2}
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td style={{ padding: 'var(--space-3) var(--space-4)', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2)' }}>
+                    <button
+                      onClick={() => setEditingSource(source)}
+                      className="icon-btn"
+                      title="Edit"
+                      style={{ color: 'var(--accent-blue)', fontSize: 'var(--text-sm)' }}
+                    >
+                      <i className="fas fa-pen"></i>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(source)}
+                      className="icon-btn"
+                      title="Delete"
+                      style={{ color: 'var(--accent-blue)', fontSize: 'var(--text-sm)' }}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {editingSource && (
+        <SourceFormModal
+          isOpen={true}
+          onClose={() => {
+            onUpdate();
+            setEditingSource(null);
+          }}
+          onSuccess={() => {
+            onUpdate();
+            setEditingSource(null);
+          }}
+          item={editingSource}
+        />
+      )}
+    </>
   );
 }
 

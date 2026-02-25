@@ -16,6 +16,16 @@ class SourcesController < ApplicationController
         per_page = (params[:per_page] || 20).to_i
         per_page = [per_page, 100].min # Cap at 100
 
+        # Sorting params
+        sort_by = params[:sort_by]
+        sort_dir = params[:sort_dir] == 'desc' ? 'DESC' : 'ASC'
+
+        if sort_by == 'title'
+          @sources = @sources.reorder("LOWER(title) #{sort_dir}")
+        elsif sort_by == 'year'
+          @sources = @sources.reorder("year #{sort_dir} NULLS LAST")
+        end
+
         # Get total count before pagination
         total_count = @sources.count
 
