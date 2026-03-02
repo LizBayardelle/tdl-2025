@@ -765,6 +765,7 @@ function SourceNotes({ sourceId }) {
               )}
               <div style={{ padding: 'var(--space-4)' }}>
                 <div
+                  className="note-content"
                   style={{
                     fontSize: 'var(--text-sm)',
                     color: 'var(--neutral-700)',

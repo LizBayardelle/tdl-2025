@@ -349,7 +349,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           )}
         </div>
 
-        {/* Fullscreen Toolbar */}
+        {/* Fullscreen Toolbar - Full toolbar with all buttons */}
         {editor && (
           <div style={{
             padding: 'var(--space-2)',
@@ -360,6 +360,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
             background: 'white',
             flexShrink: 0,
           }}>
+            {/* Text formatting */}
             <button type="button" onClick={() => editor.chain().focus().toggleBold().run()}
               style={toolbarButtonStyle(editor.isActive('bold'))} {...toolbarHover(editor.isActive('bold'))} title="Bold">
               <FontAwesomeIcon icon={faBold} />
@@ -372,7 +373,101 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               style={toolbarButtonStyle(editor.isActive('underline'))} {...toolbarHover(editor.isActive('underline'))} title="Underline">
               <FontAwesomeIcon icon={faUnderline} />
             </button>
+            <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()}
+              style={toolbarButtonStyle(editor.isActive('strike'))} {...toolbarHover(editor.isActive('strike'))} title="Strikethrough">
+              <FontAwesomeIcon icon={faStrikethrough} />
+            </button>
+
             {divider}
+
+            {/* Headings dropdown */}
+            <select
+              onChange={(e) => {
+                const level = parseInt(e.target.value);
+                if (level) {
+                  editor.chain().focus().toggleHeading({ level }).run();
+                } else {
+                  editor.chain().focus().setParagraph().run();
+                }
+              }}
+              style={{
+                padding: 'var(--space-1) var(--space-2)',
+                borderRadius: '4px',
+                fontSize: 'var(--text-sm)',
+                color: '#639CA1',
+                border: '1px solid rgba(99, 156, 161, 0.2)',
+                background: 'var(--neutral-50)',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)'
+              }}
+              value={
+                editor.isActive('heading', { level: 1 }) ? '1' :
+                editor.isActive('heading', { level: 2 }) ? '2' :
+                editor.isActive('heading', { level: 3 }) ? '3' :
+                editor.isActive('heading', { level: 4 }) ? '4' :
+                editor.isActive('heading', { level: 5 }) ? '5' :
+                editor.isActive('heading', { level: 6 }) ? '6' : ''
+              }
+            >
+              <option value="">Paragraph</option>
+              <option value="1">Heading 1</option>
+              <option value="2">Heading 2</option>
+              <option value="3">Heading 3</option>
+              <option value="4">Heading 4</option>
+              <option value="5">Heading 5</option>
+              <option value="6">Heading 6</option>
+            </select>
+
+            {divider}
+
+            {/* Text color */}
+            <input
+              type="color"
+              onInput={(e) => editor.chain().focus().setColor(e.target.value).run()}
+              value={editor.getAttributes('textStyle').color || '#000000'}
+              style={{
+                width: '32px',
+                height: '24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: '1px solid rgba(99, 156, 161, 0.2)'
+              }}
+              title="Text Color"
+            />
+
+            {/* Highlight */}
+            <input
+              type="color"
+              onInput={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
+              style={{
+                width: '32px',
+                height: '24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                border: '1px solid rgba(99, 156, 161, 0.2)'
+              }}
+              title="Highlight Color"
+            />
+
+            {divider}
+
+            {/* Text alignment */}
+            <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()}
+              style={toolbarButtonStyle(editor.isActive({ textAlign: 'left' }))} {...toolbarHover(editor.isActive({ textAlign: 'left' }))} title="Align Left">
+              <FontAwesomeIcon icon={faAlignLeft} />
+            </button>
+            <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()}
+              style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }))} {...toolbarHover(editor.isActive({ textAlign: 'center' }))} title="Align Center">
+              <FontAwesomeIcon icon={faAlignCenter} />
+            </button>
+            <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()}
+              style={toolbarButtonStyle(editor.isActive({ textAlign: 'right' }))} {...toolbarHover(editor.isActive({ textAlign: 'right' }))} title="Align Right">
+              <FontAwesomeIcon icon={faAlignRight} />
+            </button>
+
+            {divider}
+
+            {/* Lists */}
             <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}
               style={toolbarButtonStyle(editor.isActive('bulletList'))} {...toolbarHover(editor.isActive('bulletList'))} title="Bullet List">
               <FontAwesomeIcon icon={faListUl} />
@@ -381,30 +476,104 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               style={toolbarButtonStyle(editor.isActive('orderedList'))} {...toolbarHover(editor.isActive('orderedList'))} title="Numbered List">
               <FontAwesomeIcon icon={faListOl} />
             </button>
-            {divider}
-            <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              style={toolbarButtonStyle(editor.isActive('blockquote'))} {...toolbarHover(editor.isActive('blockquote'))} title="Blockquote">
-              <FontAwesomeIcon icon={faQuoteLeft} />
+
+            {/* Indent / Outdent */}
+            <button type="button" onClick={() => editor.chain().focus().sinkListItem('listItem').run()}
+              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Indent">
+              <FontAwesomeIcon icon={faIndent} />
             </button>
+            <button type="button" onClick={() => editor.chain().focus().liftListItem('listItem').run()}
+              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Outdent">
+              <FontAwesomeIcon icon={faOutdent} />
+            </button>
+
+            {divider}
+
+            {/* Link */}
             <button type="button" onClick={() => {
               const url = window.prompt('Enter URL:');
               if (url) editor.chain().focus().setLink({ href: url }).run();
             }} style={toolbarButtonStyle(editor.isActive('link'))} {...toolbarHover(editor.isActive('link'))} title="Add Link">
               <FontAwesomeIcon icon={faLink} />
             </button>
+
+            {/* Unlink */}
+            <button type="button" onClick={() => editor.chain().focus().unsetLink().run()}
+              style={{
+                ...toolbarButtonStyle(false),
+                opacity: editor.isActive('link') ? 1 : 0.4,
+                cursor: editor.isActive('link') ? 'pointer' : 'default',
+              }}
+              {...toolbarHover(false)}
+              title="Remove Link"
+              disabled={!editor.isActive('link')}
+            >
+              <FontAwesomeIcon icon={faUnlink} />
+            </button>
+
+            {/* Blockquote */}
+            <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              style={toolbarButtonStyle(editor.isActive('blockquote'))} {...toolbarHover(editor.isActive('blockquote'))} title="Blockquote">
+              <FontAwesomeIcon icon={faQuoteLeft} />
+            </button>
+
+            {/* Code Block */}
+            <button type="button" onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+              style={toolbarButtonStyle(editor.isActive('codeBlock'))} {...toolbarHover(editor.isActive('codeBlock'))} title="Code Block">
+              <FontAwesomeIcon icon={faCode} />
+            </button>
+
+            {/* Horizontal Rule */}
+            <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()}
+              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Horizontal Rule">
+              <FontAwesomeIcon icon={faMinus} />
+            </button>
+
+            {divider}
+
+            {/* Table */}
+            <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Insert Table">
+              <FontAwesomeIcon icon={faTable} />
+            </button>
+
+            {/* Image */}
+            <button type="button" onClick={() => {
+              const url = window.prompt('Enter image URL:');
+              if (url) editor.chain().focus().setImage({ src: url }).run();
+            }}
+              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Insert Image">
+              <FontAwesomeIcon icon={faImage} />
+            </button>
+
+            {divider}
+
+            {/* Exit fullscreen - at end of toolbar */}
+            <button type="button" onClick={() => setFullscreenMode(false)}
+              style={{
+                ...toolbarButtonStyle(false),
+                marginLeft: 'auto',
+              }} {...toolbarHover(false)} title="Exit Focus Mode">
+              <FontAwesomeIcon icon={faCompress} />
+            </button>
           </div>
         )}
 
-        {/* Fullscreen Editor */}
+        {/* Fullscreen Editor - scrollable content area */}
         <div style={{
           flex: 1,
           overflowY: 'auto',
+          overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch',
+          padding: 'var(--space-4)',
+          maxWidth: '900px',
+          margin: '0 auto',
+          width: '100%',
         }}>
           <EditorContent
             editor={editor}
             style={{ fontSize: '16px' }} // Prevent iOS zoom
-            className="h-full px-4 py-3 prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-full [&_.ProseMirror]:text-base [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
+            className="note-content prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[calc(100vh-200px)] [&_.ProseMirror]:text-base [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
           />
         </div>
       </div>
@@ -423,9 +592,12 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: 'var(--space-3) var(--space-4)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--sidebar-bg)',
+          borderBottom: 'none',
+          background: '#639CA1',
           flexShrink: 0,
+          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+          position: 'relative',
+          zIndex: 5,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
             <h2 style={{
@@ -433,14 +605,44 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               fontFamily: 'var(--font-display)',
               fontSize: 'var(--text-lg)',
               fontWeight: 700,
-              color: '#639CA1',
+              color: 'white',
               display: 'flex',
               alignItems: 'center',
               gap: 'var(--space-2)',
             }}>
-              <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
+              <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-base)', opacity: 0.85 }}></i>
               {item ? (formData.title || item.title || 'Untitled Note') : 'New Note'}
             </h2>
+            {/* Focus Mode Button in Header */}
+            <button
+              type="button"
+              onClick={() => setFullscreenMode(true)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: 'white',
+                fontSize: 'var(--text-xs)',
+                cursor: 'pointer',
+                padding: 'var(--space-1) var(--space-2)',
+                borderRadius: 'var(--radius)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-1)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+              }}
+              title="Focus Mode"
+            >
+              <FontAwesomeIcon icon={faExpand} />
+              <span>Focus</span>
+            </button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
             {/* Delete button - only show for editing */}
@@ -455,7 +657,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: 'var(--neutral-400)',
+                  color: 'rgba(255, 255, 255, 0.7)',
                   fontSize: 'var(--text-sm)',
                   cursor: 'pointer',
                   padding: 'var(--space-1)',
@@ -465,10 +667,10 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                   transition: 'all 0.15s'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'var(--error)';
+                  e.currentTarget.style.color = '#ffcccc';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'var(--neutral-400)';
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
                 }}
                 title="Delete note"
               >
@@ -522,9 +724,9 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               type="button"
               onClick={handleClose}
               style={{
-                background: 'transparent',
+                background: 'rgba(255, 255, 255, 0.15)',
                 border: 'none',
-                color: 'var(--neutral-400)',
+                color: 'white',
                 fontSize: 'var(--text-xl)',
                 cursor: 'pointer',
                 padding: 'var(--space-1)',
@@ -533,16 +735,14 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '4px',
+                borderRadius: '50%',
                 transition: 'all 0.15s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--neutral-200)';
-                e.currentTarget.style.color = 'var(--neutral-700)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = 'var(--neutral-400)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
               }}
               title="Close"
             >
@@ -562,10 +762,11 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
         <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
           {/* Left Sidebar Navigation */}
           <div className="w-12 md:w-[200px]" style={{
-            background: 'var(--sidebar-bg)',
+            background: '#e2e2e2',
             padding: 'var(--space-2)',
             paddingTop: 'var(--space-3)',
             flexShrink: 0,
+            boxShadow: 'var(--shadow-sidebar)',
           }}>
             <div className="hidden md:block" style={{
               fontSize: 'var(--text-xs)',
@@ -650,7 +851,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           <div style={{
             flex: 1,
             overflowY: 'auto',
-            background: 'var(--background)',
+            background: 'white',
             padding: 'var(--space-6)',
           }}>
             {activeTab === 'content' && (
@@ -995,7 +1196,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 }}>
                   <EditorContent
                     editor={editor}
-                    className="px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
+                    className="note-content px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
                   />
                 </div>
               </div>

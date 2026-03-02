@@ -685,6 +685,32 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-body);
 }
 
+/* Note content styling - headers use display font and teal color */
+.note-content h1,
+.note-content h2,
+.note-content h3,
+.note-content h4,
+.note-content h5,
+.note-content h6 {
+  font-family: var(--font-display);
+  color: #639CA1;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.note-content h1 {
+  font-size: 1.875rem;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #639CA1;
+}
+.note-content h2 { font-size: 1.5rem; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+.note-content h3 { font-size: 1.05rem; margin-top: 1rem; margin-bottom: 0.25rem; }
+.note-content h4 { font-size: 0.95rem; margin-top: 0.75rem; margin-bottom: 0.25rem; }
+.note-content h5 { font-size: 0.875rem; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+.note-content h6 { font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+
 /* ============================================
    ICON SYSTEM
    ============================================ */

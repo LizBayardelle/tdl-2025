@@ -1284,6 +1284,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                       </div>
                     )}
                     <div
+                      className="note-content"
                       style={{
                         fontSize: 'var(--text-xs)',
                         color: 'var(--neutral-700)',

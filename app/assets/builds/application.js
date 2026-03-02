@@ -53427,6 +53427,11 @@ var faLinkSlash = {
   icon: [576, 512, ["chain-broken", "chain-slash", "unlink"], "f127", "M41-24.9c-9.4-9.4-24.6-9.4-33.9 0S-2.3-.3 7 9.1l528 528c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-122-122c4.2-3.4 8.3-7.1 12.1-10.9l71.1-71.1c29.3-29.3 45.8-69.1 45.8-110.6 0-86.4-70-156.5-156.5-156.5-37.3 0-73.1 13.3-101.3 37.2 20.3 10.1 38.7 23.5 54.5 39.5 14.1-8.3 30.2-12.7 46.8-12.7 51.1 0 92.5 41.4 92.5 92.5 0 24.5-9.7 48-27.1 65.4l-71.1 71.1c-3.9 3.9-8.1 7.4-12.6 10.5l-47.5-47.5c16.5-.9 29.7-14.4 30.2-31.1 0-1.3 0-2.6 0-3.9 0-86.3-69.9-156.9-156.5-156.9-19.2 0-37.9 3.5-55.5 10.2L41-24.9zM225.9 160c.6 0 1.1 0 1.7 0 15.1 0 29.5 3.7 42.1 10.2 1.8 1.2 3.6 2.3 5.5 3.1 26.8 16.3 44.8 45.9 44.8 79.6 0 .4 0 .8 0 1.2L225.9 160zM346.2 416L192 261.8c1.2 84.6 69.6 152.9 154.1 154.1zM139.7 209.5l-45.3-45.3-48.6 48.6c-29.3 29.3-45.8 69.1-45.8 110.6 0 86.4 70 156.5 156.5 156.5 37.2 0 73.1-13.3 101.3-37.2-20.3-10.1-38.8-23.5-54.6-39.5-14 8.2-30.1 12.6-46.7 12.6-51.1 0-92.5-41.4-92.5-92.5 0-24.5 9.7-48 27.1-65.4l48.6-48.6z"]
 };
 var faUnlink = faLinkSlash;
+var faCompress = {
+  prefix: "fas",
+  iconName: "compress",
+  icon: [448, 512, [], "f066", "M160 64c0-17.7-14.3-32-32-32S96 46.3 96 64l0 64-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0c17.7 0 32-14.3 32-32l0-96zM32 320c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0 0 64c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96c0-17.7-14.3-32-32-32l-96 0zM352 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-64zM320 320c-17.7 0-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64 64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0z"]
+};
 var faOutdent = {
   prefix: "fas",
   iconName: "outdent",
@@ -59291,6 +59296,105 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         title: "Underline"
       },
       /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faUnderline })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().toggleStrike().run(),
+        style: toolbarButtonStyle(editor.isActive("strike")),
+        ...toolbarHover(editor.isActive("strike")),
+        title: "Strikethrough"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
+    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+      "select",
+      {
+        onChange: (e3) => {
+          const level = parseInt(e3.target.value);
+          if (level) {
+            editor.chain().focus().toggleHeading({ level }).run();
+          } else {
+            editor.chain().focus().setParagraph().run();
+          }
+        },
+        style: {
+          padding: "var(--space-1) var(--space-2)",
+          borderRadius: "4px",
+          fontSize: "var(--text-sm)",
+          color: "#639CA1",
+          border: "1px solid rgba(99, 156, 161, 0.2)",
+          background: "var(--neutral-50)",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)"
+        },
+        value: editor.isActive("heading", { level: 1 }) ? "1" : editor.isActive("heading", { level: 2 }) ? "2" : editor.isActive("heading", { level: 3 }) ? "3" : editor.isActive("heading", { level: 4 }) ? "4" : editor.isActive("heading", { level: 5 }) ? "5" : editor.isActive("heading", { level: 6 }) ? "6" : ""
+      },
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "" }, "Paragraph"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "1" }, "Heading 1"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "2" }, "Heading 2"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "3" }, "Heading 3"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "4" }, "Heading 4"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "5" }, "Heading 5"),
+      /* @__PURE__ */ import_react24.default.createElement("option", { value: "6" }, "Heading 6")
+    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+      "input",
+      {
+        type: "color",
+        onInput: (e3) => editor.chain().focus().setColor(e3.target.value).run(),
+        value: editor.getAttributes("textStyle").color || "#000000",
+        style: {
+          width: "32px",
+          height: "24px",
+          borderRadius: "4px",
+          cursor: "pointer",
+          border: "1px solid rgba(99, 156, 161, 0.2)"
+        },
+        title: "Text Color"
+      }
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "input",
+      {
+        type: "color",
+        onInput: (e3) => editor.chain().focus().toggleHighlight({ color: e3.target.value }).run(),
+        style: {
+          width: "32px",
+          height: "24px",
+          borderRadius: "4px",
+          cursor: "pointer",
+          border: "1px solid rgba(99, 156, 161, 0.2)"
+        },
+        title: "Highlight Color"
+      }
+    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().setTextAlign("left").run(),
+        style: toolbarButtonStyle(editor.isActive({ textAlign: "left" })),
+        ...toolbarHover(editor.isActive({ textAlign: "left" })),
+        title: "Align Left"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faAlignLeft })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().setTextAlign("center").run(),
+        style: toolbarButtonStyle(editor.isActive({ textAlign: "center" })),
+        ...toolbarHover(editor.isActive({ textAlign: "center" })),
+        title: "Align Center"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faAlignCenter })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().setTextAlign("right").run(),
+        style: toolbarButtonStyle(editor.isActive({ textAlign: "right" })),
+        ...toolbarHover(editor.isActive({ textAlign: "right" })),
+        title: "Align Right"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faAlignRight })
     ), divider, /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
@@ -59311,7 +59415,45 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         title: "Numbered List"
       },
       /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faListOl })
-    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().sinkListItem("listItem").run(),
+        style: toolbarButtonStyle(false),
+        ...toolbarHover(false),
+        title: "Indent"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faIndent })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().liftListItem("listItem").run(),
+        style: toolbarButtonStyle(false),
+        ...toolbarHover(false),
+        title: "Outdent"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faOutdent })
+    ), divider, /* @__PURE__ */ import_react24.default.createElement("button", { type: "button", onClick: () => {
+      const url = window.prompt("Enter URL:");
+      if (url) editor.chain().focus().setLink({ href: url }).run();
+    }, style: toolbarButtonStyle(editor.isActive("link")), ...toolbarHover(editor.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faLink })), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().unsetLink().run(),
+        style: {
+          ...toolbarButtonStyle(false),
+          opacity: editor.isActive("link") ? 1 : 0.4,
+          cursor: editor.isActive("link") ? "pointer" : "default"
+        },
+        ...toolbarHover(false),
+        title: "Remove Link",
+        disabled: !editor.isActive("link")
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faUnlink })
+    ), /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "button",
@@ -59321,19 +59463,77 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         title: "Blockquote"
       },
       /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
-    ), /* @__PURE__ */ import_react24.default.createElement("button", { type: "button", onClick: () => {
-      const url = window.prompt("Enter URL:");
-      if (url) editor.chain().focus().setLink({ href: url }).run();
-    }, style: toolbarButtonStyle(editor.isActive("link")), ...toolbarHover(editor.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react24.default.createElement("div", { style: {
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().toggleCodeBlock().run(),
+        style: toolbarButtonStyle(editor.isActive("codeBlock")),
+        ...toolbarHover(editor.isActive("codeBlock")),
+        title: "Code Block"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faCode })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().setHorizontalRule().run(),
+        style: toolbarButtonStyle(false),
+        ...toolbarHover(false),
+        title: "Horizontal Rule"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faMinus })
+    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+        style: toolbarButtonStyle(false),
+        ...toolbarHover(false),
+        title: "Insert Table"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faTable })
+    ), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => {
+          const url = window.prompt("Enter image URL:");
+          if (url) editor.chain().focus().setImage({ src: url }).run();
+        },
+        style: toolbarButtonStyle(false),
+        ...toolbarHover(false),
+        title: "Insert Image"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faImage })
+    ), divider, /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setFullscreenMode(false),
+        style: {
+          ...toolbarButtonStyle(false),
+          marginLeft: "auto"
+        },
+        ...toolbarHover(false),
+        title: "Exit Focus Mode"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faCompress })
+    )), /* @__PURE__ */ import_react24.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
-      WebkitOverflowScrolling: "touch"
+      overflowX: "hidden",
+      WebkitOverflowScrolling: "touch",
+      padding: "var(--space-4)",
+      maxWidth: "900px",
+      margin: "0 auto",
+      width: "100%"
     } }, /* @__PURE__ */ import_react24.default.createElement(
       EditorContent,
       {
         editor,
         style: { fontSize: "16px" },
-        className: "h-full px-4 py-3 prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-full [&_.ProseMirror]:text-base [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_h3]:text-lg [&_h3]:font-bold [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
+        className: "note-content prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[calc(100vh-200px)] [&_.ProseMirror]:text-base [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
       }
     )));
   }
@@ -59348,19 +59548,52 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
       alignItems: "center",
       justifyContent: "space-between",
       padding: "var(--space-3) var(--space-4)",
-      borderBottom: "1px solid var(--neutral-200)",
-      background: "var(--sidebar-bg)",
-      flexShrink: 0
+      borderBottom: "none",
+      background: "#639CA1",
+      flexShrink: 0,
+      boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+      position: "relative",
+      zIndex: 5
     } }, /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react24.default.createElement("h2", { style: {
       margin: 0,
       fontFamily: "var(--font-display)",
       fontSize: "var(--text-lg)",
       fontWeight: 700,
-      color: "#639CA1",
+      color: "white",
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)"
-    } }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "var(--text-base)", opacity: 0.7 } }), item ? formData.title || item.title || "Untitled Note" : "New Note")), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && onDelete && /* @__PURE__ */ import_react24.default.createElement(
+    } }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-sticky-note", style: { fontSize: "var(--text-base)", opacity: 0.85 } }), item ? formData.title || item.title || "Untitled Note" : "New Note"), /* @__PURE__ */ import_react24.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setFullscreenMode(true),
+        style: {
+          background: "rgba(255, 255, 255, 0.15)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          color: "white",
+          fontSize: "var(--text-xs)",
+          cursor: "pointer",
+          padding: "var(--space-1) var(--space-2)",
+          borderRadius: "var(--radius)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-1)",
+          transition: "all 0.15s"
+        },
+        onMouseEnter: (e3) => {
+          e3.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
+          e3.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.5)";
+        },
+        onMouseLeave: (e3) => {
+          e3.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+          e3.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.3)";
+        },
+        title: "Focus Mode"
+      },
+      /* @__PURE__ */ import_react24.default.createElement(FontAwesomeIcon, { icon: faExpand }),
+      /* @__PURE__ */ import_react24.default.createElement("span", null, "Focus")
+    )), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && onDelete && /* @__PURE__ */ import_react24.default.createElement(
       "button",
       {
         type: "button",
@@ -59372,7 +59605,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         style: {
           background: "transparent",
           border: "none",
-          color: "var(--neutral-400)",
+          color: "rgba(255, 255, 255, 0.7)",
           fontSize: "var(--text-sm)",
           cursor: "pointer",
           padding: "var(--space-1)",
@@ -59382,10 +59615,10 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.color = "var(--error)";
+          e3.currentTarget.style.color = "#ffcccc";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.color = "var(--neutral-400)";
+          e3.currentTarget.style.color = "rgba(255, 255, 255, 0.7)";
         },
         title: "Delete note"
       },
@@ -59406,9 +59639,9 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
         type: "button",
         onClick: handleClose,
         style: {
-          background: "transparent",
+          background: "rgba(255, 255, 255, 0.15)",
           border: "none",
-          color: "var(--neutral-400)",
+          color: "white",
           fontSize: "var(--text-xl)",
           cursor: "pointer",
           padding: "var(--space-1)",
@@ -59417,25 +59650,24 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: "4px",
+          borderRadius: "50%",
           transition: "all 0.15s"
         },
         onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-200)";
-          e3.currentTarget.style.color = "var(--neutral-700)";
+          e3.currentTarget.style.background = "rgba(255, 255, 255, 0.3)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "transparent";
-          e3.currentTarget.style.color = "var(--neutral-400)";
+          e3.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
         },
         title: "Close"
       },
       /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times" })
     ))), error && /* @__PURE__ */ import_react24.default.createElement("div", { className: "alert alert-error", style: { margin: "var(--space-4)", marginBottom: 0 } }, /* @__PURE__ */ import_react24.default.createElement("span", { className: "alert-title" }, /* @__PURE__ */ import_react24.default.createElement("i", { className: "fas fa-times-circle" }), " Error:"), error), /* @__PURE__ */ import_react24.default.createElement("div", { style: { display: "flex", flex: 1, gap: 0, overflow: "hidden", position: "relative" } }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "w-12 md:w-[200px]", style: {
-      background: "var(--sidebar-bg)",
+      background: "#e2e2e2",
       padding: "var(--space-2)",
       paddingTop: "var(--space-3)",
-      flexShrink: 0
+      flexShrink: 0,
+      boxShadow: "var(--shadow-sidebar)"
     } }, /* @__PURE__ */ import_react24.default.createElement("div", { className: "hidden md:block", style: {
       fontSize: "var(--text-xs)",
       fontWeight: 700,
@@ -59513,7 +59745,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
     )), /* @__PURE__ */ import_react24.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
-      background: "var(--background)",
+      background: "white",
       padding: "var(--space-6)"
     } }, activeTab === "content" && /* @__PURE__ */ import_react24.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label teal" }, "Title"), /* @__PURE__ */ import_react24.default.createElement(
       "input",
@@ -59818,7 +60050,7 @@ function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, 
       EditorContent,
       {
         editor,
-        className: "px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
+        className: "note-content px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
       }
     )))), /* @__PURE__ */ import_react24.default.createElement("div", null, /* @__PURE__ */ import_react24.default.createElement("label", { className: "form-label" }, "Context"), /* @__PURE__ */ import_react24.default.createElement(
       "textarea",
@@ -64119,6 +64351,7 @@ function ConceptNotes({ conceptId }) {
   } }, note.title)), /* @__PURE__ */ import_react32.default.createElement("div", { style: { padding: "var(--space-4)" } }, /* @__PURE__ */ import_react32.default.createElement(
     "div",
     {
+      className: "note-content",
       style: {
         fontSize: "var(--text-sm)",
         color: "var(--neutral-700)",
@@ -66166,6 +66399,7 @@ function SourceNotes({ sourceId }) {
   } }, note.title)), /* @__PURE__ */ import_react34.default.createElement("div", { style: { padding: "var(--space-4)" } }, /* @__PURE__ */ import_react34.default.createElement(
     "div",
     {
+      className: "note-content",
       style: {
         fontSize: "var(--text-sm)",
         color: "var(--neutral-700)",
@@ -68796,7 +69030,7 @@ function NoteShowModal({ isOpen, onClose, note, onEdit, onDelete, onTogglePin })
     year: "numeric",
     month: "long",
     day: "numeric"
-  }))), /* @__PURE__ */ import_react39.default.createElement("div", { style: { flex: 1, overflowY: "auto", background: "var(--background)" } }, (note.source || note.concepts?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react39.default.createElement("div", { style: {
+  }))), /* @__PURE__ */ import_react39.default.createElement("div", { style: { flex: 1, overflowY: "auto", background: "white" } }, (note.source || note.concepts?.length > 0 || note.tags?.length > 0) && /* @__PURE__ */ import_react39.default.createElement("div", { style: {
     padding: "var(--space-3) var(--space-6)",
     background: "white",
     borderBottom: "1px solid var(--neutral-200)",
@@ -68870,12 +69104,12 @@ function NoteShowModal({ isOpen, onClose, note, onEdit, onDelete, onTogglePin })
     borderRadius: "4px",
     fontFamily: "var(--font-body)",
     fontWeight: 500
-  } }, typeof tag === "string" ? tag : tag.name))), /* @__PURE__ */ import_react39.default.createElement("div", { style: { padding: "var(--space-6)" } }, /* @__PURE__ */ import_react39.default.createElement(
+  } }, typeof tag === "string" ? tag : tag.name))), /* @__PURE__ */ import_react39.default.createElement("div", { className: "p-6 md:p-8 lg:px-12" }, /* @__PURE__ */ import_react39.default.createElement(
     "div",
     {
-      className: "prose prose-sm max-w-none [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto [&_hr]:my-4 [&_hr]:border-gray-300",
+      className: "note-content prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto [&_hr]:my-4 [&_hr]:border-gray-300",
       style: {
-        fontSize: "var(--text-sm)",
+        fontSize: "var(--text-base)",
         color: "var(--neutral-700)",
         fontFamily: "var(--font-body)",
         lineHeight: 1.7
@@ -69888,7 +70122,7 @@ function NotesIndex() {
     )), /* @__PURE__ */ import_react40.default.createElement(
       "div",
       {
-        className: "prose prose-sm max-w-none [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-1 [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mb-1 [&_h3]:text-base [&_h3]:font-bold [&_h3]:mb-1 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-1 [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-2 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-1 [&_td]:text-xs [&_th]:border [&_th]:border-gray-300 [&_th]:p-1 [&_th]:text-xs [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto",
+        className: "note-content prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:ml-1 [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-2 [&_blockquote]:italic [&_blockquote]:text-gray-500 [&_pre]:bg-gray-100 [&_pre]:p-2 [&_pre]:rounded [&_pre]:text-xs [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-1 [&_td]:text-xs [&_th]:border [&_th]:border-gray-300 [&_th]:p-1 [&_th]:text-xs [&_th]:bg-gray-100 [&_a]:text-blue-600 [&_a]:underline [&_img]:max-w-full [&_img]:h-auto",
         style: {
           fontSize: "var(--text-sm)",
           color: "var(--neutral-700)",
@@ -70426,7 +70660,7 @@ function NotesForm() {
     EditorContent,
     {
       editor,
-      className: "px-4 py-2 min-h-[300px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-lg [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1 [&_h5]:text-base [&_h5]:font-bold [&_h5]:mt-2 [&_h5]:mb-1 [&_h6]:text-sm [&_h6]:font-bold [&_h6]:mt-2 [&_h6]:mb-1 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
+      className: "note-content px-4 py-2 min-h-[300px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-gray-700 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
     }
   ))), /* @__PURE__ */ import_react41.default.createElement("div", null, /* @__PURE__ */ import_react41.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Context"), /* @__PURE__ */ import_react41.default.createElement(
     "textarea",
@@ -70658,6 +70892,7 @@ function NoteSelector({ selectedNoteIds = [], onChange: onChange16, themeColor =
     } }, note.title), note.body && /* @__PURE__ */ import_react43.default.createElement(
       "div",
       {
+        className: "note-content",
         style: {
           fontSize: "var(--text-xs)",
           color: "var(--neutral-600)",
@@ -71716,6 +71951,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
     /* @__PURE__ */ import_react44.default.createElement(
       "div",
       {
+        className: "note-content",
         style: {
           fontSize: "var(--text-xs)",
           color: "var(--neutral-700)",
@@ -111903,6 +112139,7 @@ function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   } }, note.title)), /* @__PURE__ */ import_react65.default.createElement("div", { style: { padding: "var(--space-3)" } }, /* @__PURE__ */ import_react65.default.createElement(
     "div",
     {
+      className: "note-content",
       style: {
         fontSize: "var(--text-sm)",
         color: "var(--neutral-700)",

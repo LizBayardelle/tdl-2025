@@ -299,6 +299,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
                       )}
                       <div style={{ padding: 'var(--space-3)' }}>
                         <div
+                          className="note-content"
                           style={{
                             fontSize: 'var(--text-sm)',
                             color: 'var(--neutral-700)',
