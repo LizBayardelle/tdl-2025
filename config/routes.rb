@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :sources, only: [:index, :show, :create, :update, :destroy] do
     collection do
       post :extract_metadata
+      post :extract_from_pdf
     end
     member do
       get :study
@@ -27,6 +28,7 @@ Rails.application.routes.draw do
   resources :people, only: [:index, :show, :create, :update, :destroy] do
     collection do
       get :search
+      get :search_orcid
     end
   end
   resources :notes

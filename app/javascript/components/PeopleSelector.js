@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function PeopleSelector({ selectedPersonIds = [], onChange, themeColor = 'var(--primary)' }) {
+export default function PeopleSelector({ selectedPersonIds = [], onChange, themeColor = 'var(--accent-gold)' }) {
   const [allPeople, setAllPeople] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -8,6 +8,19 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
   useEffect(() => {
     fetchPeople();
   }, []);
+
+  // Refetch when selectedPersonIds changes (in case new people were created)
+  useEffect(() => {
+    if (selectedPersonIds.length > 0 && allPeople.length > 0) {
+      // Check if any selected IDs are not in allPeople
+      const missingIds = selectedPersonIds.filter(id =>
+        !allPeople.some(p => p.id === Number(id))
+      );
+      if (missingIds.length > 0) {
+        fetchPeople();
+      }
+    }
+  }, [selectedPersonIds, allPeople.length]);
 
   const fetchPeople = async () => {
     try {
@@ -21,6 +34,11 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
     }
   };
 
+  // Normalize IDs to numbers for comparison
+  const normalizedSelectedIds = selectedPersonIds.map(id => Number(id));
+
+  const isSelected = (personId) => normalizedSelectedIds.includes(Number(personId));
+
   const filteredPeople = filter
     ? allPeople.filter(person =>
         person.full_name.toLowerCase().includes(filter.toLowerCase())
@@ -28,10 +46,11 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
     : allPeople;
 
   const handleToggle = (personId) => {
-    if (selectedPersonIds.includes(personId)) {
-      onChange(selectedPersonIds.filter(id => id !== personId));
+    const numId = Number(personId);
+    if (normalizedSelectedIds.includes(numId)) {
+      onChange(normalizedSelectedIds.filter(id => id !== numId));
     } else {
-      onChange([...selectedPersonIds, personId]);
+      onChange([...normalizedSelectedIds, numId]);
     }
   };
 
@@ -63,7 +82,7 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
         if (response.ok) {
           const newPerson = await response.json();
           setAllPeople([...allPeople, newPerson].sort((a, b) => a.full_name.localeCompare(b.full_name)));
-          onChange([...selectedPersonIds, newPerson.id]);
+          onChange([...normalizedSelectedIds, Number(newPerson.id)]);
           setFilter('');
         }
       } catch (error) {
@@ -75,7 +94,7 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
   const canCreateNew = filter.trim() &&
                        !allPeople.some(p => p.full_name.toLowerCase() === filter.trim().toLowerCase());
 
-  const selectedPeople = allPeople.filter(p => selectedPersonIds.includes(p.id));
+  const selectedPeople = allPeople.filter(p => isSelected(p.id));
 
   if (loading) {
     return (
@@ -225,7 +244,7 @@ export default function PeopleSelector({ selectedPersonIds = [], onChange, theme
               >
                 <input
                   type="checkbox"
-                  checked={selectedPersonIds.includes(person.id)}
+                  checked={isSelected(person.id)}
                   onChange={() => handleToggle(person.id)}
                   style={{
                     borderRadius: '4px',

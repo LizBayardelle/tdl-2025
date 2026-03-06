@@ -56,3 +56,6 @@ end
 
 
 gem "dotenv-rails", "~> 3.2", groups: [:development, :test]
+
+# PDF text extraction for DOI extraction
+gem "pdf-reader"

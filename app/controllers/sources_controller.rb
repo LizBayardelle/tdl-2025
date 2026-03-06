@@ -42,7 +42,7 @@ class SourcesController < ApplicationController
             keywords: source[:keywords] || [],
             concept_ids: source.concept_ids,
             concepts: source.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
-            people: source.people.map { |p| { id: p.id, full_name: p.full_name } },
+            people: source.people.map { |p| { id: p.id, full_name: p.full_name, last_name: p.last_name } },
             collections: source.collections.map { |c| { id: c.id, name: c.name } },
             notes_count: source.notes.size,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
@@ -114,7 +114,7 @@ class SourcesController < ApplicationController
         render json: @source.as_json(
           include: {
             concepts: { only: [:id, :label, :node_type, :summary_top] },
-            people: { only: [:id, :full_name, :role, :summary] },
+            people: { only: [:id, :full_name, :last_name, :role, :summary] },
             tags: { only: [:id, :name, :slug] },
             collections: { only: [:id, :name, :description] }
           }
@@ -297,6 +297,69 @@ class SourcesController < ApplicationController
     end
   end
 
+  def extract_from_pdf
+    unless params[:pdf].present?
+      render json: { error: 'PDF file is required' }, status: :unprocessable_entity
+      return
+    end
+
+    begin
+      uploaded_file = params[:pdf]
+      Rails.logger.info "PDF upload received: #{uploaded_file.original_filename}, size: #{uploaded_file.size} bytes"
+
+      # Ensure tempfile is rewound to beginning
+      uploaded_file.tempfile.rewind
+
+      # Extract DOI from PDF
+      extractor = PdfTextExtractor.new(uploaded_file.tempfile)
+      doi = extractor.extract_doi
+
+      metadata = nil
+
+      if doi
+        # Try DOI-based lookup with all APIs
+        Rails.logger.info "Found DOI: #{doi}, trying metadata APIs..."
+        begin
+          metadata_extractor = ArticleMetadataExtractor.new(doi)
+          metadata = metadata_extractor.extract
+        rescue => e
+          Rails.logger.warn "DOI-based extraction failed: #{e.message}"
+          metadata = nil
+        end
+      end
+
+      # If no DOI found or DOI lookup failed, try LLM extraction from PDF text
+      if metadata.nil?
+        Rails.logger.info "DOI lookup failed or no DOI found, trying LLM extraction from PDF text..."
+        pdf_text = extractor.extracted_text
+
+        if pdf_text.present? && pdf_text.length > 100
+          metadata = ArticleMetadataExtractor.extract_from_pdf_text(pdf_text)
+        end
+
+        if metadata.nil?
+          render json: {
+            error: 'Could not extract metadata from PDF. Please enter metadata manually.',
+            doi_found: doi.present?,
+            extracted_doi: doi
+          }, status: :unprocessable_entity
+          return
+        end
+
+        # Mark that this came from LLM extraction
+        metadata['extraction_method'] = 'llm'
+      else
+        metadata['extraction_method'] = 'doi_api'
+      end
+
+      render json: metadata.merge(extracted_doi: doi)
+    rescue => e
+      Rails.logger.error "PDF extraction error: #{e.message}"
+      Rails.logger.error e.backtrace.first(5).join("\n")
+      render json: { error: "Failed to extract metadata: #{e.message}" }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_source
@@ -317,15 +380,27 @@ class SourcesController < ApplicationController
     # If we have processed author data from the disambiguation modal, use that
     if processed_authors.present?
       processed_authors.each do |author_data|
-        if author_data['action'] == 'link'
+        if author_data['action'] == 'link' || author_data['action'] == 'link_and_update'
           # Link to existing person
           person = current_user.people.find_by(id: author_data['linkedPersonId'])
-          source.people << person if person && !source.people.include?(person)
+          if person && !source.people.include?(person)
+            source.people << person
+
+            # Handle mergeOrcid - add ORCID from ORCID registry to existing person
+            if author_data['mergeOrcid'].present? && person.orcid.blank?
+              person.update(orcid: author_data['mergeOrcid'])
+              Rails.logger.info "Added ORCID #{author_data['mergeOrcid']} to existing person #{person.id}"
+            # Update person with ORCID from CrossRef if they don't have one
+            elsif author_data['orcid'].present? && person.orcid.blank?
+              person.update(orcid: author_data['orcid'])
+            end
+          end
         else
           # Create new person with enriched data from disambiguation modal
           first = author_data['firstName']&.strip
           middle = author_data['middleName']&.strip
           last = author_data['lastName']&.strip
+          orcid = author_data['orcid']&.strip
 
           # Combine first and middle into first_name field
           # Handle initials - add period if single letter
@@ -337,6 +412,7 @@ class SourcesController < ApplicationController
           person = current_user.people.create!(
             first_name: first_name_combined.presence,
             last_name: last,
+            orcid: orcid.presence,
             role: 'researcher'
           )
 

@@ -30,12 +30,39 @@ class PeopleController < ApplicationController
 
   def search
     query = params[:q]
-    if query.present?
-      @people = current_user.people.where("full_name ILIKE ?", "%#{query}%").limit(10)
-      render json: @people.as_json(only: [:id, :full_name, :role])
+    orcid = params[:orcid]
+
+    if orcid.present?
+      # Exact ORCID match - highest confidence
+      @people = current_user.people.where(orcid: orcid).limit(10)
+      render json: @people.as_json(only: [:id, :full_name, :role, :orcid]).map { |p| p.merge(match_type: 'orcid') }
+    elsif query.present?
+      # Search by full_name, first_name, last_name, and aka array
+      @people = current_user.people.where(
+        "full_name ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q OR EXISTS (SELECT 1 FROM unnest(aka) AS alias WHERE alias ILIKE :q)",
+        q: "%#{query}%"
+      ).limit(10)
+      render json: @people.as_json(only: [:id, :full_name, :role, :orcid])
     else
       render json: []
     end
+  end
+
+  # Search ORCID public registry for author suggestions
+  def search_orcid
+    family_name = params[:family_name]
+    given_name = params[:given_name]
+    doi = params[:doi]
+
+    if family_name.blank?
+      render json: []
+      return
+    end
+
+    service = OrcidSearchService.new(family_name: family_name, given_name: given_name, doi: doi)
+    results = service.search
+
+    render json: results
   end
 
   def show
@@ -123,6 +150,7 @@ class PeopleController < ApplicationController
       :first_name,
       :middle_name,
       :last_name,
+      :orcid,
       :role,
       :summary,
       :email,

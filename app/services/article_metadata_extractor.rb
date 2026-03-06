@@ -9,6 +9,116 @@ class ArticleMetadataExtractor
     @url = url
   end
 
+  # Class method to extract metadata from PDF text using LLM
+  # Used as fallback when DOI extraction/lookup fails
+  def self.extract_from_pdf_text(pdf_text)
+    Rails.logger.info "Attempting LLM extraction from PDF text (#{pdf_text.length} chars)"
+
+    if ENV['ANTHROPIC_API_KEY'].blank?
+      Rails.logger.error "ANTHROPIC_API_KEY not set, cannot use LLM fallback"
+      return nil
+    end
+
+    prompt = <<~PROMPT
+      You are a metadata extraction assistant. Extract academic article metadata from the following PDF text content.
+
+      This is text extracted from a PDF document. Look for:
+      - Title (usually at the top, larger text, before author names)
+      - Authors (usually after title, before abstract)
+      - Year (look for publication date, copyright year, or date in header/footer)
+      - Journal name (usually in header/footer or after abstract)
+      - Volume and issue numbers
+      - Page numbers
+      - DOI (if present, format: 10.xxxx/xxxx)
+      - Abstract (usually labeled "Abstract" followed by a paragraph)
+
+      Extract and return ONLY a JSON object with these fields:
+      - title: Article title
+      - authors: Author names as a string (format: "Last, F., Last, F.")
+      - authors_data: Array of author objects with {given, family} for each author
+      - year: Publication year (integer)
+      - kind: Source type (usually "article" for PDFs)
+      - journal_name: Journal name
+      - volume: Volume number
+      - issue: Issue number
+      - pages: Page range (e.g., "123-145")
+      - doi: DOI if found
+      - abstract: Article abstract
+
+      Only include fields that you can confidently extract. Return valid JSON only, no other text.
+
+      PDF Text Content (first 8000 chars):
+      #{pdf_text[0..8000]}
+    PROMPT
+
+    uri = URI(ANTHROPIC_API_URL)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 15
+    http.read_timeout = 30
+
+    request = Net::HTTP::Post.new(uri.path)
+    request['Content-Type'] = 'application/json'
+    request['x-api-key'] = ENV['ANTHROPIC_API_KEY']
+    request['anthropic-version'] = '2023-06-01'
+
+    request.body = {
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    }.to_json
+
+    response = http.request(request)
+
+    if response.is_a?(Net::HTTPSuccess)
+      result = JSON.parse(response.body)
+      text_content = result.dig('content', 0, 'text')
+
+      Rails.logger.info "LLM PDF extraction response received, parsing..."
+
+      # Extract JSON from response
+      json_text = text_content.strip
+
+      # If wrapped in markdown code blocks, extract content
+      if json_text.match?(/```/)
+        json_match = json_text.match(/```(?:json)?\s*\n?(.*?)\n?```/m)
+        json_text = json_match[1] if json_match
+      end
+
+      # Extract only the JSON object
+      json_start = json_text.index('{')
+      json_end = json_text.rindex('}')
+
+      if json_start && json_end && json_end > json_start
+        json_text = json_text[json_start..json_end]
+      end
+
+      metadata = JSON.parse(json_text)
+
+      if metadata.empty? || !metadata['title']
+        Rails.logger.warn "LLM extraction returned empty or invalid metadata"
+        return nil
+      end
+
+      Rails.logger.info "Successfully extracted metadata from PDF text using LLM: #{metadata['title']}"
+      metadata
+    else
+      Rails.logger.error "LLM API request failed: #{response.code}"
+      nil
+    end
+  rescue JSON::ParserError => e
+    Rails.logger.error "Failed to parse LLM response JSON: #{e.message}"
+    nil
+  rescue => e
+    Rails.logger.error "LLM PDF extraction error: #{e.class} - #{e.message}"
+    nil
+  end
+
   def extract
     # If input is a bare DOI (e.g., "10.1234/abc"), convert to doi.org URL
     if @url.match?(/^10\.\d{4,}\//) && !@url.match?(/^https?:\/\//i)
@@ -19,8 +129,8 @@ class ArticleMetadataExtractor
     # First, try to extract DOI from URL (fastest)
     doi = extract_doi_from_url(@url)
     if doi
-      Rails.logger.info "Found DOI in URL: #{doi}, using CrossRef API"
-      metadata = extract_from_crossref(doi)
+      Rails.logger.info "Found DOI in URL: #{doi}, trying metadata APIs"
+      metadata = extract_from_doi_with_fallbacks(doi)
       return metadata if metadata
     end
 
@@ -37,8 +147,8 @@ class ArticleMetadataExtractor
         doi ||= extract_doi_from_html(page_content)
 
         if doi
-          Rails.logger.info "Found DOI in HTML: #{doi}, using CrossRef API"
-          metadata = extract_from_crossref(doi)
+          Rails.logger.info "Found DOI in HTML: #{doi}, trying metadata APIs"
+          metadata = extract_from_doi_with_fallbacks(doi)
           return metadata if metadata
         end
       rescue => e
@@ -215,7 +325,7 @@ class ArticleMetadataExtractor
       data = JSON.parse(response.body)
       message = data['message']
 
-      # Extract authors
+      # Extract authors - both display string and structured data
       authors_array = message['author']&.map do |author|
         if author['family'] && author['given']
           "#{author['family']}, #{author['given'][0]}."
@@ -224,6 +334,17 @@ class ArticleMetadataExtractor
         else
           author['name']
         end
+      end || []
+
+      # Structured author data for disambiguation
+      authors_data = message['author']&.each_with_index&.map do |author, idx|
+        {
+          'given' => author['given'],
+          'family' => author['family'],
+          'orcid' => author['ORCID']&.sub('https://orcid.org/', ''),
+          'affiliation' => author['affiliation']&.first&.dig('name'),
+          'sequence' => idx == 0 ? 'first' : 'additional'
+        }.compact
       end || []
 
       # Determine article type
@@ -248,6 +369,7 @@ class ArticleMetadataExtractor
       metadata = {
         'title' => message['title']&.first,
         'authors' => authors_array.join(', '),
+        'authors_data' => authors_data,
         'year' => year,
         'kind' => kind,
         'journal_name' => message['container-title']&.first,
@@ -272,6 +394,266 @@ class ArticleMetadataExtractor
     end
   rescue => e
     Rails.logger.error "CrossRef extraction error: #{e.message}"
+    nil
+  end
+
+  def extract_from_openalex(doi)
+    Rails.logger.info "Trying OpenAlex for DOI: #{doi}"
+    uri = URI("https://api.openalex.org/works/https://doi.org/#{URI.encode_www_form_component(doi)}")
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['User-Agent'] = 'MapMyResearch/1.0 (mailto:research@example.com)'
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 10
+    http.read_timeout = 15
+
+    response = http.request(request)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+
+      # Extract authors
+      authors_array = data['authorships']&.map do |authorship|
+        author = authorship['author']
+        name = author['display_name']
+        if name&.include?(' ')
+          parts = name.split(' ')
+          last = parts.last
+          first_initial = parts.first[0]
+          "#{last}, #{first_initial}."
+        else
+          name
+        end
+      end || []
+
+      # Structured author data
+      authors_data = data['authorships']&.each_with_index&.map do |authorship, idx|
+        author = authorship['author']
+        name_parts = (author['display_name'] || '').split(' ')
+        {
+          'given' => name_parts[0..-2].join(' '),
+          'family' => name_parts.last,
+          'orcid' => author['orcid']&.sub('https://orcid.org/', ''),
+          'affiliation' => authorship.dig('institutions', 0, 'display_name'),
+          'sequence' => idx == 0 ? 'first' : 'additional'
+        }.compact
+      end || []
+
+      # Determine type
+      type = data['type']
+      kind = case type
+      when 'journal-article', 'article' then 'article'
+      when 'book-chapter' then 'book_chapter'
+      when 'book' then 'book'
+      when 'proceedings-article', 'conference-paper' then 'conference'
+      when 'report' then 'report'
+      when 'dissertation' then 'dissertation'
+      else 'article'
+      end
+
+      metadata = {
+        'title' => data['title'],
+        'authors' => authors_array.join(', '),
+        'authors_data' => authors_data,
+        'year' => data['publication_year'],
+        'kind' => kind,
+        'journal_name' => data.dig('primary_location', 'source', 'display_name'),
+        'volume' => data.dig('biblio', 'volume'),
+        'issue' => data.dig('biblio', 'issue'),
+        'pages' => [data.dig('biblio', 'first_page'), data.dig('biblio', 'last_page')].compact.join('-').presence,
+        'doi' => doi,
+        'url' => "https://doi.org/#{doi}",
+        'abstract' => nil, # OpenAlex doesn't always have abstracts in free tier
+        'publisher_or_venue' => data.dig('primary_location', 'source', 'host_organization_name')
+      }
+
+      metadata.compact!
+      Rails.logger.info "Successfully extracted metadata from OpenAlex"
+      metadata
+    else
+      Rails.logger.warn "OpenAlex API failed: #{response.code}"
+      nil
+    end
+  rescue => e
+    Rails.logger.error "OpenAlex extraction error: #{e.message}"
+    nil
+  end
+
+  def extract_from_semantic_scholar(doi)
+    Rails.logger.info "Trying Semantic Scholar for DOI: #{doi}"
+    uri = URI("https://api.semanticscholar.org/graph/v1/paper/DOI:#{URI.encode_www_form_component(doi)}?fields=title,authors,year,venue,publicationTypes,abstract,externalIds")
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['User-Agent'] = 'MapMyResearch/1.0'
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 10
+    http.read_timeout = 15
+
+    response = http.request(request)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+
+      # Extract authors
+      authors_array = data['authors']&.map do |author|
+        name = author['name']
+        if name&.include?(' ')
+          parts = name.split(' ')
+          last = parts.last
+          first_initial = parts.first[0]
+          "#{last}, #{first_initial}."
+        else
+          name
+        end
+      end || []
+
+      # Structured author data
+      authors_data = data['authors']&.each_with_index&.map do |author, idx|
+        name_parts = (author['name'] || '').split(' ')
+        {
+          'given' => name_parts[0..-2].join(' '),
+          'family' => name_parts.last,
+          'sequence' => idx == 0 ? 'first' : 'additional'
+        }.compact
+      end || []
+
+      # Determine type
+      pub_types = data['publicationTypes'] || []
+      kind = if pub_types.include?('JournalArticle')
+        'article'
+      elsif pub_types.include?('Conference')
+        'conference'
+      elsif pub_types.include?('Book')
+        'book'
+      else
+        'article'
+      end
+
+      metadata = {
+        'title' => data['title'],
+        'authors' => authors_array.join(', '),
+        'authors_data' => authors_data,
+        'year' => data['year'],
+        'kind' => kind,
+        'journal_name' => data['venue'],
+        'doi' => doi,
+        'url' => "https://doi.org/#{doi}",
+        'abstract' => data['abstract']
+      }
+
+      metadata.compact!
+      Rails.logger.info "Successfully extracted metadata from Semantic Scholar"
+      metadata
+    else
+      Rails.logger.warn "Semantic Scholar API failed: #{response.code}"
+      nil
+    end
+  rescue => e
+    Rails.logger.error "Semantic Scholar extraction error: #{e.message}"
+    nil
+  end
+
+  def extract_from_datacite(doi)
+    Rails.logger.info "Trying DataCite for DOI: #{doi}"
+    uri = URI("https://api.datacite.org/dois/#{URI.encode_www_form_component(doi)}")
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['Accept'] = 'application/json'
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 10
+    http.read_timeout = 15
+
+    response = http.request(request)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      attrs = data.dig('data', 'attributes') || {}
+
+      # Extract authors
+      creators = attrs['creators'] || []
+      authors_array = creators.map do |creator|
+        if creator['familyName'] && creator['givenName']
+          "#{creator['familyName']}, #{creator['givenName'][0]}."
+        else
+          creator['name']
+        end
+      end
+
+      # Structured author data
+      authors_data = creators.each_with_index.map do |creator, idx|
+        {
+          'given' => creator['givenName'],
+          'family' => creator['familyName'],
+          'orcid' => creator.dig('nameIdentifiers')&.find { |ni| ni['nameIdentifierScheme'] == 'ORCID' }&.dig('nameIdentifier')&.sub('https://orcid.org/', ''),
+          'affiliation' => creator.dig('affiliation', 0, 'name'),
+          'sequence' => idx == 0 ? 'first' : 'additional'
+        }.compact
+      end
+
+      # Determine type
+      resource_type = attrs.dig('types', 'resourceTypeGeneral')
+      kind = case resource_type
+      when 'JournalArticle', 'Text' then 'article'
+      when 'Book' then 'book'
+      when 'BookChapter' then 'book_chapter'
+      when 'ConferencePaper' then 'conference'
+      when 'Report' then 'report'
+      when 'Dissertation' then 'dissertation'
+      when 'Preprint' then 'article'
+      else 'article'
+      end
+
+      metadata = {
+        'title' => attrs.dig('titles', 0, 'title'),
+        'authors' => authors_array.join(', '),
+        'authors_data' => authors_data,
+        'year' => attrs['publicationYear'],
+        'kind' => kind,
+        'doi' => doi,
+        'url' => "https://doi.org/#{doi}",
+        'abstract' => attrs.dig('descriptions')&.find { |d| d['descriptionType'] == 'Abstract' }&.dig('description'),
+        'publisher_or_venue' => attrs['publisher']
+      }
+
+      metadata.compact!
+      Rails.logger.info "Successfully extracted metadata from DataCite"
+      metadata
+    else
+      Rails.logger.warn "DataCite API failed: #{response.code}"
+      nil
+    end
+  rescue => e
+    Rails.logger.error "DataCite extraction error: #{e.message}"
+    nil
+  end
+
+  def extract_from_doi_with_fallbacks(doi)
+    # Try each API in order until one succeeds
+    Rails.logger.info "Attempting DOI lookup with fallback chain for: #{doi}"
+
+    # 1. CrossRef (primary, most comprehensive for journal articles)
+    metadata = extract_from_crossref(doi)
+    return metadata if metadata
+
+    # 2. OpenAlex (very comprehensive, good fallback)
+    metadata = extract_from_openalex(doi)
+    return metadata if metadata
+
+    # 3. Semantic Scholar (good for CS/ML papers)
+    metadata = extract_from_semantic_scholar(doi)
+    return metadata if metadata
+
+    # 4. DataCite (good for preprints, datasets, non-traditional DOIs)
+    metadata = extract_from_datacite(doi)
+    return metadata if metadata
+
+    Rails.logger.warn "All DOI APIs failed for: #{doi}"
     nil
   end
 

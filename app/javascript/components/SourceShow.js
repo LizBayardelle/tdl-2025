@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SourceFormModal from './SourceFormModal';
 import NoteFormModal from './NoteFormModal';
+import AuthorsDisplay from './AuthorsDisplay';
 
 export default function SourceShow({ sourceId }) {
   const [source, setSource] = useState(null);
@@ -341,7 +342,11 @@ function SourceDisplay({ source }) {
             fontFamily: 'var(--font-body)',
             marginBottom: 'var(--space-1)'
           }}>
-            {source.authors}
+            <AuthorsDisplay
+              authors={source.authors}
+              people={source.people}
+              onPersonClick={(personId) => window.location.href = `/people/${personId}`}
+            />
           </p>
         )}
         <p style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', fontFamily: 'var(--font-body)' }}>
@@ -461,7 +466,7 @@ function SourceDisplay({ source }) {
         )}
 
         {/* Metadata Tags */}
-        {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0)) && (
+        {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0) || (source.keywords && source.keywords.length > 0)) && (
           <div style={{ paddingTop: 'var(--space-6)', borderTop: '1px solid var(--neutral-200)' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
               {source.concepts?.map((concept) => (
@@ -517,6 +522,28 @@ function SourceDisplay({ source }) {
                 >
                   {tag.name}
                 </a>
+              ))}
+              {source.keywords?.map((keyword, idx) => (
+                <span
+                  key={`kw-${idx}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: 'var(--text-xs)',
+                    background: 'var(--neutral-100)',
+                    color: 'var(--neutral-600)',
+                    padding: 'var(--space-1) var(--space-3)',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 400,
+                    border: '1px solid var(--neutral-200)'
+                  }}
+                  title="Author keyword"
+                >
+                  <i className="fas fa-key" style={{ fontSize: '8px', opacity: 0.6 }}></i>
+                  {keyword}
+                </span>
               ))}
             </div>
           </div>

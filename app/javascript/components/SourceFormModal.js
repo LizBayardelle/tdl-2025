@@ -47,7 +47,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState('');
   const [showAuthorModal, setShowAuthorModal] = useState(false);
+  const [authorModalMode, setAuthorModalMode] = useState('check'); // 'check' or 'save'
   const [parsedAuthors, setParsedAuthors] = useState([]);
+  const [authorsData, setAuthorsData] = useState(null);
+  const [processedAuthorsData, setProcessedAuthorsData] = useState(null);
   const [titleDuplicate, setTitleDuplicate] = useState(null);
   const [urlDuplicate, setUrlDuplicate] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -223,6 +226,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       isInitialMount.current = true;
       setTitleDuplicate(null);
       setUrlDuplicate(null);
+      setProcessedAuthorsData(null); // Reset author check state
       fetchCollections();
       setCollectionFilter('');
       if (item) {
@@ -304,8 +308,17 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     setError('');
 
     const authors = parseAuthors(formData.authors);
+
+    // If we already have processed author data from the Check button, use it
+    if (processedAuthorsData) {
+      await performSave(processedAuthorsData);
+      return;
+    }
+
+    // Otherwise, if there are authors, show the modal in save mode
     if (authors.length > 0) {
       setParsedAuthors(authors);
+      setAuthorModalMode('save');
       setShowAuthorModal(true);
     } else {
       await performSave();
@@ -314,7 +327,93 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
   const handleAuthorConfirm = async (processedAuthors) => {
     setShowAuthorModal(false);
-    await performSave(processedAuthors);
+
+    // Collect all person IDs - both linked and newly created
+    const allPersonIds = [];
+    const updatedProcessedAuthors = [...processedAuthors];
+
+    // Process each author
+    for (let i = 0; i < processedAuthors.length; i++) {
+      const author = processedAuthors[i];
+
+      if ((author.action === 'link' || author.action === 'link_and_update') && author.linkedPersonId) {
+        // Linked to existing person
+        allPersonIds.push(Number(author.linkedPersonId));
+
+        // If merging ORCID, update the person now
+        if (author.action === 'link_and_update' && author.mergeOrcid) {
+          try {
+            await fetch(`/people/${author.linkedPersonId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+              },
+              body: JSON.stringify({ person: { orcid: author.mergeOrcid } }),
+            });
+          } catch (error) {
+            console.error('Error updating person ORCID:', error);
+          }
+        }
+      } else if (author.action === 'create') {
+        // Create new person immediately so they appear in the selector
+        try {
+          const response = await fetch('/people', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({
+              person: {
+                first_name: [author.firstName, author.middleName].filter(Boolean).join(' ') || null,
+                last_name: author.lastName,
+                orcid: author.orcid || null,
+                role: 'researcher'
+              }
+            }),
+          });
+
+          if (response.ok) {
+            const newPerson = await response.json();
+            allPersonIds.push(Number(newPerson.id));
+            // Update the processed author with the new ID so we don't create duplicates on save
+            updatedProcessedAuthors[i] = {
+              ...author,
+              action: 'link',
+              linkedPersonId: newPerson.id
+            };
+          }
+        } catch (error) {
+          console.error('Error creating person:', error);
+        }
+      }
+    }
+
+    // Update form with all person IDs
+    if (allPersonIds.length > 0) {
+      const existingIds = (formData.person_ids || []).map(id => Number(id));
+      const newIds = [...new Set([...existingIds, ...allPersonIds])];
+      setFormData(prev => ({ ...prev, person_ids: newIds }));
+    }
+
+    if (authorModalMode === 'save') {
+      // Triggered from submit - save immediately
+      await performSave(updatedProcessedAuthors);
+    } else {
+      // Triggered from Check button - store updated data for later
+      setProcessedAuthorsData(updatedProcessedAuthors);
+    }
+  };
+
+  // Open author modal manually for checking
+  const handleCheckAuthors = () => {
+    const authors = parseAuthors(formData.authors);
+    if (authors.length > 0) {
+      setParsedAuthors(authors);
+      setAuthorModalMode('check');
+      setShowAuthorModal(true);
+    }
   };
 
   const performSave = async (processedAuthors = null) => {
@@ -409,27 +508,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       if (response.ok) {
         const metadata = await response.json();
 
-        // Convert keywords to concepts (find or create)
-        let conceptIds = [...formData.concept_ids];
-        if (metadata.keywords && metadata.keywords.length > 0) {
-          try {
-            const conceptResponse = await fetch('/concepts/find_or_create_from_keywords', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-              },
-              body: JSON.stringify({ keywords: metadata.keywords }),
-            });
-            if (conceptResponse.ok) {
-              const conceptData = await conceptResponse.json();
-              conceptIds = [...new Set([...conceptIds, ...conceptData.concept_ids])];
-            }
-          } catch (err) {
-            console.error('Error creating concepts from keywords:', err);
-          }
-        }
-
+        // Keywords are stored as read-only metadata from the source
+        // Concepts remain user-curated and unchanged by extraction
         setFormData({
           ...formData,
           title: metadata.title || '',
@@ -450,8 +530,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           isbn: metadata.isbn || '',
           website_name: metadata.website_name || '',
           summary: metadata.abstract || metadata.summary || '',
-          concept_ids: conceptIds
         });
+
+        // Store structured author data for disambiguation modal
+        setAuthorsData(metadata.authors_data || null);
 
         setExtractUrl('');
       } else {
@@ -1014,26 +1096,68 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                       )}
                     </div>
 
+                    {/* Authors */}
                     <div>
-                      <label className="form-label">
-                        Authors String <span style={{ fontSize: 'var(--text-xs)', fontWeight: 400, color: 'var(--neutral-500)' }}>(optional - or use selector below)</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.authors}
-                        onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
-                        className="form-input"
-                        placeholder="Last, F., Last, F."
-                      />
-                    </div>
-
-                    <div>
-                      <label className="form-label">Authors (select or create)</label>
-                      <div style={{ height: '16rem' }}>
+                      <div style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: 'var(--text-base)',
+                        fontWeight: 700,
+                        color: 'var(--accent-gold)',
+                        marginBottom: 'var(--space-2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                          <i className="fas fa-users" style={{ fontSize: 'var(--text-sm)' }}></i>
+                          Authors
+                        </div>
+                        {formData.authors && parseAuthors(formData.authors).length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleCheckAuthors}
+                            style={{
+                              padding: 'var(--space-1) var(--space-2)',
+                              background: processedAuthorsData ? 'var(--accent-green-light)' : 'var(--accent-gold-light)',
+                              color: processedAuthorsData ? 'var(--accent-green)' : 'var(--accent-gold)',
+                              border: `1px solid ${processedAuthorsData ? 'var(--accent-green)' : 'var(--accent-gold)'}`,
+                              borderRadius: '4px',
+                              fontSize: 'var(--text-xs)',
+                              fontFamily: 'var(--font-body)',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 'var(--space-1)',
+                              transition: 'all 0.15s'
+                            }}
+                          >
+                            <i className={processedAuthorsData ? "fas fa-check-circle" : "fas fa-search"}></i>
+                            {processedAuthorsData ? 'Authors Checked' : 'Check Author Data'}
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ marginBottom: 'var(--space-3)' }}>
+                        <label className="form-label" style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-600)' }}>
+                          Citation String <span style={{ fontWeight: 400, color: 'var(--neutral-500)' }}>(for display)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.authors}
+                          onChange={(e) => {
+                            setFormData({ ...formData, authors: e.target.value });
+                            // Clear processed data when authors string changes
+                            setProcessedAuthorsData(null);
+                          }}
+                          className="form-input"
+                          placeholder="Last, F., Last, F."
+                        />
+                      </div>
+                      <div style={{ height: formData.person_ids.length > 0 ? '280px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <PeopleSelector
                           selectedPersonIds={formData.person_ids}
                           onChange={(person_ids) => setFormData({ ...formData, person_ids })}
-                          themeColor="var(--accent-blue)"
+                          themeColor="var(--accent-gold)"
                         />
                       </div>
                     </div>
@@ -1184,16 +1308,42 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                           </div>
                         </div>
 
-                        <div>
-                          <label className="form-label">Keywords (one per line)</label>
-                          <textarea
-                            value={formData.keywords.join('\n')}
-                            onChange={(e) => handleArrayInput('keywords', e.target.value)}
-                            rows="3"
-                            className="form-textarea"
-                            placeholder="machine learning&#10;neural networks&#10;cognitive therapy"
-                          />
-                        </div>
+                        {/* Keywords (read-only from source metadata) */}
+                        {formData.keywords.length > 0 && (
+                          <div>
+                            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                              <i className="fas fa-key" style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}></i>
+                              Author Keywords
+                              <span style={{ fontWeight: 400, fontSize: 'var(--text-xs)', color: 'var(--neutral-500)' }}>(from source)</span>
+                            </label>
+                            <div style={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              gap: 'var(--space-2)',
+                              padding: 'var(--space-3)',
+                              background: 'var(--neutral-50)',
+                              borderRadius: '6px',
+                              border: '1px solid var(--neutral-200)',
+                            }}>
+                              {formData.keywords.map((keyword, idx) => (
+                                <span
+                                  key={idx}
+                                  style={{
+                                    padding: '4px 10px',
+                                    background: 'white',
+                                    border: '1px solid var(--neutral-300)',
+                                    borderRadius: '4px',
+                                    fontSize: 'var(--text-xs)',
+                                    fontFamily: 'var(--font-body)',
+                                    color: 'var(--neutral-600)',
+                                  }}
+                                >
+                                  {keyword}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </>
                     )}
 
@@ -1504,7 +1654,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
                         Concepts
                       </div>
-                      <div style={{ height: '280px' }}>
+                      <div style={{ height: formData.concept_ids.length > 0 ? '360px' : '280px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <ConceptSelector
                           selectedConceptIds={formData.concept_ids}
                           onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
@@ -1528,7 +1678,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         <i className="fas fa-user" style={{ fontSize: 'var(--text-sm)' }}></i>
                         People
                       </div>
-                      <div style={{ height: '280px' }}>
+                      <div style={{ height: formData.person_ids.length > 0 ? '360px' : '280px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <PeopleSelector
                           selectedPersonIds={formData.person_ids}
                           onChange={(person_ids) => setFormData({ ...formData, person_ids })}
@@ -1555,7 +1705,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         <i className="fas fa-tag" style={{ fontSize: 'var(--text-sm)' }}></i>
                         Tags
                       </div>
-                      <div style={{ height: '280px' }}>
+                      <div style={{ height: formData.tags.length > 0 ? '360px' : '280px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <TagSelector
                           selectedTags={formData.tags}
                           onChange={(tags) => setFormData({ ...formData, tags })}
@@ -1579,7 +1729,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         <i className="fas fa-folder" style={{ fontSize: 'var(--text-sm)' }}></i>
                         Collections
                       </div>
-                      <div style={{ height: '280px', position: 'relative' }}>
+                      <div style={{ height: (item ? itemCollections.length > 0 : formData.collection_ids.length > 0) ? '360px' : '280px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <CollectionSelector
                           itemType="Source"
                           itemId={item?.id}
@@ -1659,6 +1809,8 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         isOpen={showAuthorModal}
         onClose={() => setShowAuthorModal(false)}
         authors={parsedAuthors}
+        authorsData={authorsData}
+        doi={formData.doi}
         onConfirm={handleAuthorConfirm}
       />
     </>

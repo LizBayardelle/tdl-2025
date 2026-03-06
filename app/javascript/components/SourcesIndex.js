@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SourceFormModal from './SourceFormModal';
+import PdfUploadModal from './PdfUploadModal';
+import AuthorsDisplay from './AuthorsDisplay';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -10,7 +12,7 @@ export default function SourcesIndex() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedKinds, setSelectedKinds] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -850,50 +852,50 @@ export default function SourcesIndex() {
                   <i className="fas fa-list"></i>
                 </button>
               </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              style={{
-                width: '48px',
-                height: '48px',
-                minWidth: '48px',
-                minHeight: '48px',
-                flexShrink: 0,
-                borderRadius: '50%',
-                background: 'var(--accent-blue)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--text-xl)',
-                transition: 'all 0.15s',
-                boxShadow: 'var(--shadow-md)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--accent-blue-dark)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--accent-blue)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }}
-              title="New Source"
-            >
-              <i className="fas fa-plus"></i>
-            </button>
+              <button
+                onClick={() => setShowPdfModal(true)}
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  background: 'var(--accent-blue)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 'var(--text-xl)',
+                  transition: 'all 0.15s',
+                  boxShadow: 'var(--shadow-md)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-blue-dark)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-blue)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                }}
+                title="Add New Source"
+              >
+                <i className="fas fa-plus"></i>
+              </button>
             </div>
           </div>
         </div>
 
-        <SourceFormModal
-          isOpen={showForm}
-          onClose={() => setShowForm(false)}
+        <PdfUploadModal
+          isOpen={showPdfModal}
+          onClose={() => setShowPdfModal(false)}
           onSuccess={() => {
             fetchSources();
-            setShowForm(false);
+            setShowPdfModal(false);
           }}
         />
 
@@ -1473,7 +1475,11 @@ function SourceCard({ source, onUpdate }) {
                   color: 'var(--neutral-700)',
                   marginBottom: 'var(--space-1)',
                 }}>
-                  {source.authors}
+                  <AuthorsDisplay
+                    authors={source.authors}
+                    people={source.people}
+                    onPersonClick={(personId) => window.location.href = `/people/${personId}`}
+                  />
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', fontSize: 'var(--text-xs)' }}>
@@ -1546,8 +1552,8 @@ function SourceCard({ source, onUpdate }) {
             </div>
           )}
 
-          {/* Tags */}
-          {(source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0 || source.collections?.length > 0) && (
+          {/* Tags & Keywords */}
+          {(source.concepts?.length > 0 || source.tags?.length > 0 || source.people?.length > 0 || source.collections?.length > 0 || source.keywords?.length > 0) && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
               {source.collections?.map((collection) => (
                 <a
@@ -1598,6 +1604,28 @@ function SourceCard({ source, onUpdate }) {
                 >
                   {person.full_name}
                 </a>
+              ))}
+              {source.keywords?.map((keyword, idx) => (
+                <span
+                  key={`kw-${idx}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 8px',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 400,
+                    background: 'var(--neutral-100)',
+                    color: 'var(--neutral-600)',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-body)',
+                    border: '1px solid var(--neutral-200)',
+                  }}
+                  title="Author keyword"
+                >
+                  <i className="fas fa-key" style={{ fontSize: '8px', opacity: 0.6 }}></i>
+                  {keyword}
+                </span>
               ))}
             </div>
           )}
