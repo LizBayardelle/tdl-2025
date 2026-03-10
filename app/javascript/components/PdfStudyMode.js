@@ -172,7 +172,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           <>
           <aside style={{
             width: `${sidebarWidth}px`,
-            background: 'var(--sidebar-bg)',
+            background: '#e2e2e2',
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
@@ -399,16 +399,16 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
             style={{
               width: '6px',
               cursor: 'col-resize',
-              background: isDragging ? 'var(--accent-blue)' : '#d4cfc4',
+              background: 'var(--accent-blue)',
               transition: 'background 0.15s',
               flexShrink: 0,
               zIndex: 10
             }}
             onMouseEnter={(e) => {
-              if (!isDragging) e.currentTarget.style.background = '#c4bfb4';
+              if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue-dark)';
             }}
             onMouseLeave={(e) => {
-              if (!isDragging) e.currentTarget.style.background = '#d4cfc4';
+              if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue)';
             }}
           />
           </>
@@ -445,9 +445,15 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
         {/* Main Content - PDF Viewer or Notes-Only Mode */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', overflow: 'hidden' }}>
           {/* Fixed Header Section */}
-          <div style={{ flexShrink: 0, background: 'white', zIndex: 5 }}>
+          <div style={{
+            flexShrink: 0,
+            background: 'color-mix(in srgb, var(--accent-blue) 15%, white)',
+            boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+            position: 'relative',
+            zIndex: 5
+          }}>
             {/* Breadcrumbs */}
-            <div style={{ padding: 'var(--space-4) var(--space-6) var(--space-4) 48px', borderBottom: '1px solid var(--neutral-200)' }}>
+            <div style={{ padding: 'var(--space-3) var(--space-6) 0 48px' }}>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'auto auto 1fr',
@@ -467,9 +473,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
 
             {/* Main Header */}
             <div style={{
-              padding: 'var(--space-4) var(--space-6) var(--space-4) 48px',
-              background: 'white',
-              borderBottom: '1px solid var(--neutral-200)',
+              padding: 'var(--space-2) var(--space-6) var(--space-4) 48px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -550,7 +554,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               flexDirection: 'column',
               alignItems: 'center',
               gap: 'var(--space-4)',
-              background: 'var(--neutral-100)'
+              background: 'white'
             }}>
               <Document
                 file={pdfUrl}
@@ -595,7 +599,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               alignItems: 'center',
               justifyContent: 'center',
               minHeight: '400px',
-              background: 'var(--neutral-100)',
+              background: 'white',
               textAlign: 'center'
             }}>
               <div style={{

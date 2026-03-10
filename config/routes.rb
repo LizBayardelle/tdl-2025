@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :concepts, only: [:index, :show, :create, :update, :destroy] do
     collection do
       post :find_or_create_from_keywords
+      post :suggest_from_metadata
     end
   end
   resources :connections, only: [:index, :show, :create, :update, :destroy]

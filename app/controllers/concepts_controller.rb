@@ -131,6 +131,36 @@ class ConceptsController < ApplicationController
     render json: { concept_ids: concept_ids }
   end
 
+  # POST /concepts/suggest_from_metadata
+  # Uses LLM to suggest concepts based on article metadata
+  def suggest_from_metadata
+    title = params[:title]
+    abstract = params[:abstract]
+    keywords = params[:keywords] || []
+
+    if title.blank?
+      render json: { error: 'Title is required' }, status: :unprocessable_entity
+      return
+    end
+
+    service = ConceptSuggestionService.new(
+      title: title,
+      abstract: abstract,
+      keywords: keywords
+    )
+
+    suggestions = service.suggest
+
+    # Find potential matches for each suggestion
+    suggestions_with_matches = suggestions.map do |suggestion|
+      label = suggestion['label'] || suggestion[:label]
+      matches = find_concept_matches(label)
+      suggestion.merge('potential_matches' => matches)
+    end
+
+    render json: { suggestions: suggestions_with_matches }
+  end
+
   private
 
   def set_concept
@@ -190,5 +220,27 @@ class ConceptsController < ApplicationController
 
     # Create the connection with normalized params
     current_user.connections.create(normalized)
+  end
+
+  def find_concept_matches(label)
+    return [] if label.blank?
+
+    # Exact match (case-insensitive)
+    exact = current_user.concepts.where('LOWER(label) = LOWER(?)', label).first
+    if exact
+      return [{ id: exact.id, label: exact.label, node_type: exact.node_type, match_type: 'exact' }]
+    end
+
+    # Partial matches
+    words = label.split
+    partial = current_user.concepts.where(
+      'label ILIKE ? OR label ILIKE ?',
+      "#{words.first}%",
+      "%#{label}%"
+    ).limit(5).map do |c|
+      { id: c.id, label: c.label, node_type: c.node_type, match_type: 'partial' }
+    end
+
+    partial
   end
 end

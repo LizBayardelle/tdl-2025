@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function ConceptSelector({ selectedConceptIds = [], onChange, themeColor = 'var(--accent-green)' }) {
+export default function ConceptSelector({ selectedConceptIds = [], onChange, themeColor = 'var(--accent-green)', newConcepts = [] }) {
   const [allConcepts, setAllConcepts] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -8,6 +8,20 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
   useEffect(() => {
     fetchConcepts();
   }, []);
+
+  // Merge in any newly created concepts from external sources (e.g., disambiguation modal)
+  useEffect(() => {
+    if (newConcepts.length > 0) {
+      setAllConcepts(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const conceptsToAdd = newConcepts.filter(c => !existingIds.has(c.id));
+        if (conceptsToAdd.length > 0) {
+          return [...prev, ...conceptsToAdd];
+        }
+        return prev;
+      });
+    }
+  }, [newConcepts]);
 
   const fetchConcepts = async () => {
     try {

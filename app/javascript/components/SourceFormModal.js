@@ -5,6 +5,7 @@ import ConceptSelector from './ConceptSelector';
 import PeopleSelector from './PeopleSelector';
 import CollectionSelector from './CollectionSelector';
 import AuthorDisambiguationModal from './AuthorDisambiguationModal';
+import ConceptDisambiguationModal from './ConceptDisambiguationModal';
 import RichTextEditor from './RichTextEditor';
 
 export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
@@ -54,6 +55,13 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   const [titleDuplicate, setTitleDuplicate] = useState(null);
   const [urlDuplicate, setUrlDuplicate] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Concept suggestion
+  const [showConceptModal, setShowConceptModal] = useState(false);
+  const [conceptSuggestions, setConceptSuggestions] = useState([]);
+  const [processedConceptsData, setProcessedConceptsData] = useState(null);
+  const [loadingConceptSuggestions, setLoadingConceptSuggestions] = useState(false);
+  const [newlyCreatedConcepts, setNewlyCreatedConcepts] = useState([]); // Track concepts created via modal
 
   // Collections state
   const [collections, setCollections] = useState([]);
@@ -227,6 +235,9 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       setTitleDuplicate(null);
       setUrlDuplicate(null);
       setProcessedAuthorsData(null); // Reset author check state
+      setProcessedConceptsData(null); // Reset concept check state
+      setConceptSuggestions([]);
+      setNewlyCreatedConcepts([]);
       fetchCollections();
       setCollectionFilter('');
       if (item) {
@@ -414,6 +425,85 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       setAuthorModalMode('check');
       setShowAuthorModal(true);
     }
+  };
+
+  // Concept suggestion handlers
+  const handleCheckConcepts = async () => {
+    if (!formData.title) return;
+    setLoadingConceptSuggestions(true);
+    try {
+      const response = await fetch('/concepts/suggest_from_metadata', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          abstract: formData.abstract,
+          keywords: formData.keywords
+        }),
+      });
+      const data = await response.json();
+      if (data.suggestions?.length > 0) {
+        setConceptSuggestions(data.suggestions);
+        setShowConceptModal(true);
+      } else {
+        setConceptSuggestions([]);
+        setShowConceptModal(true); // Show modal with "no suggestions" message
+      }
+    } catch (error) {
+      console.error('Error fetching concept suggestions:', error);
+    } finally {
+      setLoadingConceptSuggestions(false);
+    }
+  };
+
+  const handleConceptConfirm = async (processedConcepts) => {
+    setShowConceptModal(false);
+    const allConceptIds = [];
+    const createdConcepts = [];
+
+    for (const concept of processedConcepts) {
+      if (concept.action === 'skip') continue;
+
+      if (concept.action === 'link' && concept.linkedConceptId) {
+        allConceptIds.push(Number(concept.linkedConceptId));
+      } else if (concept.action === 'create') {
+        try {
+          const response = await fetch('/concepts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({
+              concept: {
+                label: concept.editedLabel,
+                node_type: concept.editedNodeType || 'subject'
+              }
+            }),
+          });
+          if (response.ok) {
+            const newConcept = await response.json();
+            allConceptIds.push(Number(newConcept.id));
+            createdConcepts.push(newConcept);
+          }
+        } catch (error) {
+          console.error('Error creating concept:', error);
+        }
+      }
+    }
+
+    // Track newly created concepts so ConceptSelector can display them
+    if (createdConcepts.length > 0) {
+      setNewlyCreatedConcepts(prev => [...prev, ...createdConcepts]);
+    }
+
+    const existingIds = (formData.concept_ids || []).map(id => Number(id));
+    const newIds = [...new Set([...existingIds, ...allConceptIds])];
+    setFormData(prev => ({ ...prev, concept_ids: newIds }));
+    setProcessedConceptsData(processedConcepts);
   };
 
   const performSave = async (processedAuthors = null) => {
@@ -1649,16 +1739,59 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                         marginBottom: 'var(--space-2)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 'var(--space-2)',
+                        justifyContent: 'space-between',
                       }}>
-                        <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
-                        Concepts
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                          <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
+                          Concepts
+                        </div>
+                        {formData.title && (
+                          <button
+                            type="button"
+                            onClick={handleCheckConcepts}
+                            disabled={loadingConceptSuggestions}
+                            style={{
+                              padding: 'var(--space-1) var(--space-2)',
+                              background: processedConceptsData ? 'var(--accent-green-light)' : 'var(--accent-green-light)',
+                              color: processedConceptsData ? 'var(--accent-green)' : 'var(--accent-green)',
+                              border: `1px solid ${processedConceptsData ? 'var(--accent-green)' : 'var(--accent-green)'}`,
+                              borderRadius: '4px',
+                              fontSize: 'var(--text-xs)',
+                              fontFamily: 'var(--font-body)',
+                              fontWeight: 500,
+                              cursor: loadingConceptSuggestions ? 'wait' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 'var(--space-1)',
+                              transition: 'all 0.15s',
+                              opacity: loadingConceptSuggestions ? 0.7 : 1,
+                            }}
+                          >
+                            {loadingConceptSuggestions ? (
+                              <>
+                                <i className="fas fa-spinner fa-spin"></i>
+                                Analyzing...
+                              </>
+                            ) : processedConceptsData ? (
+                              <>
+                                <i className="fas fa-check-circle"></i>
+                                Concepts Checked
+                              </>
+                            ) : (
+                              <>
+                                <i className="fas fa-magic"></i>
+                                Check Concepts
+                              </>
+                            )}
+                          </button>
+                        )}
                       </div>
                       <div style={{ height: formData.concept_ids.length > 0 ? '360px' : '280px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                         <ConceptSelector
                           selectedConceptIds={formData.concept_ids}
                           onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
                           themeColor="var(--accent-green)"
+                          newConcepts={newlyCreatedConcepts}
                         />
                       </div>
                     </div>
@@ -1812,6 +1945,13 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         authorsData={authorsData}
         doi={formData.doi}
         onConfirm={handleAuthorConfirm}
+      />
+
+      <ConceptDisambiguationModal
+        isOpen={showConceptModal}
+        onClose={() => setShowConceptModal(false)}
+        suggestions={conceptSuggestions}
+        onConfirm={handleConceptConfirm}
       />
     </>
   );
