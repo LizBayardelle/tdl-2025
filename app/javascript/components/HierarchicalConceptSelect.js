@@ -37,7 +37,7 @@ export default function HierarchicalConceptSelect({
       <option value="">{placeholder}</option>
       {flatConcepts.map(({ concept, depth }) => (
         <option key={concept.id} value={concept.id}>
-          {getIndentPrefix(depth)}{concept.label} ({concept.node_type})
+          {getIndentPrefix(depth)}{concept.label} ({concept.concept_type})
         </option>
       ))}
     </select>

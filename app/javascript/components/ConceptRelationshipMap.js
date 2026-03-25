@@ -63,9 +63,8 @@ export default function ConceptRelationshipMap() {
         .map(concept => ({
           id: concept.id,
           label: concept.label,
-          type: concept.node_type,
+          type: concept.concept_type,
           slug: concept.slug,
-          level_status: concept.level_status || 'mapped',
           // Count connections for node sizing
           connectionCount: connections.filter(c =>
             c.src_concept_id === concept.id || c.dst_concept_id === concept.id

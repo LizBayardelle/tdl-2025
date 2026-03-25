@@ -9,4 +9,8 @@ class HomeController < ApplicationController
   def sharing
     authenticate_user!
   end
+
+  def uploads
+    authenticate_user!
+  end
 end

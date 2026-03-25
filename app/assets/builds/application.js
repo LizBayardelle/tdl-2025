@@ -922,10 +922,10 @@ var require_react_development = __commonJS({
       exports.use = function(usable) {
         return resolveDispatcher().use(usable);
       };
-      exports.useActionState = function(action, initialState, permalink) {
+      exports.useActionState = function(action, initialState2, permalink) {
         return resolveDispatcher().useActionState(
           action,
-          initialState,
+          initialState2,
           permalink
         );
       };
@@ -975,17 +975,17 @@ var require_react_development = __commonJS({
       exports.useMemo = function(create2, deps) {
         return resolveDispatcher().useMemo(create2, deps);
       };
-      exports.useOptimistic = function(passthrough, reducer2) {
-        return resolveDispatcher().useOptimistic(passthrough, reducer2);
+      exports.useOptimistic = function(passthrough, reducer3) {
+        return resolveDispatcher().useOptimistic(passthrough, reducer3);
       };
-      exports.useReducer = function(reducer2, initialArg, init6) {
-        return resolveDispatcher().useReducer(reducer2, initialArg, init6);
+      exports.useReducer = function(reducer3, initialArg, init6) {
+        return resolveDispatcher().useReducer(reducer3, initialArg, init6);
       };
       exports.useRef = function(initialValue) {
         return resolveDispatcher().useRef(initialValue);
       };
-      exports.useState = function(initialState) {
-        return resolveDispatcher().useState(initialState);
+      exports.useState = function(initialState2) {
+        return resolveDispatcher().useState(initialState2);
       };
       exports.useSyncExternalStore = function(subscribe, getSnapshot, getServerSnapshot) {
         return resolveDispatcher().useSyncExternalStore(
@@ -1335,7 +1335,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React50 = require_react(), Internals = {
+      var React64 = require_react(), Internals = {
         d: {
           f: noop7,
           r: function() {
@@ -1353,7 +1353,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React50.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React64.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -1518,8 +1518,8 @@ var require_react_dom_development = __commonJS({
       exports.unstable_batchedUpdates = function(fn, a5) {
         return fn(a5);
       };
-      exports.useFormState = function(action, initialState, permalink) {
-        return resolveDispatcher().useFormState(action, initialState, permalink);
+      exports.useFormState = function(action, initialState2, permalink) {
+        return resolveDispatcher().useFormState(action, initialState2, permalink);
       };
       exports.useFormStatus = function() {
         return resolveDispatcher().useHostTransitionStatus();
@@ -2888,7 +2888,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React50.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React64.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -7117,10 +7117,10 @@ var require_react_dom_client_development = __commonJS({
       function basicStateReducer(state, action) {
         return "function" === typeof action ? action(state) : action;
       }
-      function mountReducer(reducer2, initialArg, init6) {
+      function mountReducer(reducer3, initialArg, init6) {
         var hook = mountWorkInProgressHook();
         if (void 0 !== init6) {
-          var initialState = init6(initialArg);
+          var initialState2 = init6(initialArg);
           if (shouldDoubleInvokeUserFnsInHooksDEV) {
             setIsStrictModeForDevtools(true);
             try {
@@ -7129,34 +7129,34 @@ var require_react_dom_client_development = __commonJS({
               setIsStrictModeForDevtools(false);
             }
           }
-        } else initialState = initialArg;
-        hook.memoizedState = hook.baseState = initialState;
-        reducer2 = {
+        } else initialState2 = initialArg;
+        hook.memoizedState = hook.baseState = initialState2;
+        reducer3 = {
           pending: null,
           lanes: 0,
           dispatch: null,
-          lastRenderedReducer: reducer2,
-          lastRenderedState: initialState
+          lastRenderedReducer: reducer3,
+          lastRenderedState: initialState2
         };
-        hook.queue = reducer2;
-        reducer2 = reducer2.dispatch = dispatchReducerAction.bind(
+        hook.queue = reducer3;
+        reducer3 = reducer3.dispatch = dispatchReducerAction.bind(
           null,
           currentlyRenderingFiber,
-          reducer2
+          reducer3
         );
-        return [hook.memoizedState, reducer2];
+        return [hook.memoizedState, reducer3];
       }
-      function updateReducer(reducer2) {
+      function updateReducer(reducer3) {
         var hook = updateWorkInProgressHook();
-        return updateReducerImpl(hook, currentHook, reducer2);
+        return updateReducerImpl(hook, currentHook, reducer3);
       }
-      function updateReducerImpl(hook, current2, reducer2) {
+      function updateReducerImpl(hook, current2, reducer3) {
         var queue = hook.queue;
         if (null === queue)
           throw Error(
             "Should have a queue. You are likely calling Hooks conditionally, which is not allowed. (https://react.dev/link/invalid-hook-call)"
           );
-        queue.lastRenderedReducer = reducer2;
+        queue.lastRenderedReducer = reducer3;
         var baseQueue = hook.baseQueue, pendingQueue = queue.pending;
         if (null !== pendingQueue) {
           if (null !== baseQueue) {
@@ -7204,8 +7204,8 @@ var require_react_dom_client_development = __commonJS({
                   next: null
                 }, null === newBaseQueueLast ? (newBaseQueueFirst = newBaseQueueLast = updateLane, baseFirst = pendingQueue) : newBaseQueueLast = newBaseQueueLast.next = updateLane, currentlyRenderingFiber.lanes |= revertLane, workInProgressRootSkippedLanes |= revertLane;
               updateLane = update4.action;
-              shouldDoubleInvokeUserFnsInHooksDEV && reducer2(pendingQueue, updateLane);
-              pendingQueue = update4.hasEagerState ? update4.eagerState : reducer2(pendingQueue, updateLane);
+              shouldDoubleInvokeUserFnsInHooksDEV && reducer3(pendingQueue, updateLane);
+              pendingQueue = update4.hasEagerState ? update4.eagerState : reducer3(pendingQueue, updateLane);
             } else
               revertLane = {
                 lane: updateLane,
@@ -7219,8 +7219,8 @@ var require_react_dom_client_development = __commonJS({
             update4 = update4.next;
           } while (null !== update4 && update4 !== current2);
           null === newBaseQueueLast ? baseFirst = pendingQueue : newBaseQueueLast.next = newBaseQueueFirst;
-          if (!objectIs(pendingQueue, hook.memoizedState) && (didReceiveUpdate = true, didReadFromEntangledAsyncAction2 && (reducer2 = currentEntangledActionThenable, null !== reducer2)))
-            throw reducer2;
+          if (!objectIs(pendingQueue, hook.memoizedState) && (didReceiveUpdate = true, didReadFromEntangledAsyncAction2 && (reducer3 = currentEntangledActionThenable, null !== reducer3)))
+            throw reducer3;
           hook.memoizedState = pendingQueue;
           hook.baseState = baseFirst;
           hook.baseQueue = newBaseQueueLast;
@@ -7229,19 +7229,19 @@ var require_react_dom_client_development = __commonJS({
         null === baseQueue && (queue.lanes = 0);
         return [hook.memoizedState, queue.dispatch];
       }
-      function rerenderReducer(reducer2) {
+      function rerenderReducer(reducer3) {
         var hook = updateWorkInProgressHook(), queue = hook.queue;
         if (null === queue)
           throw Error(
             "Should have a queue. You are likely calling Hooks conditionally, which is not allowed. (https://react.dev/link/invalid-hook-call)"
           );
-        queue.lastRenderedReducer = reducer2;
+        queue.lastRenderedReducer = reducer3;
         var dispatch2 = queue.dispatch, lastRenderPhaseUpdate = queue.pending, newState = hook.memoizedState;
         if (null !== lastRenderPhaseUpdate) {
           queue.pending = null;
           var update4 = lastRenderPhaseUpdate = lastRenderPhaseUpdate.next;
           do
-            newState = reducer2(newState, update4.action), update4 = update4.next;
+            newState = reducer3(newState, update4.action), update4 = update4.next;
           while (update4 !== lastRenderPhaseUpdate);
           objectIs(newState, hook.memoizedState) || (didReceiveUpdate = true);
           hook.memoizedState = newState;
@@ -7368,11 +7368,11 @@ var require_react_dom_client_development = __commonJS({
         var root4 = enqueueConcurrentRenderForLane(fiber, 2);
         null !== root4 && scheduleUpdateOnFiber(root4, fiber, 2);
       }
-      function mountStateImpl(initialState) {
+      function mountStateImpl(initialState2) {
         var hook = mountWorkInProgressHook();
-        if ("function" === typeof initialState) {
-          var initialStateInitializer = initialState;
-          initialState = initialStateInitializer();
+        if ("function" === typeof initialState2) {
+          var initialStateInitializer = initialState2;
+          initialState2 = initialStateInitializer();
           if (shouldDoubleInvokeUserFnsInHooksDEV) {
             setIsStrictModeForDevtools(true);
             try {
@@ -7382,21 +7382,21 @@ var require_react_dom_client_development = __commonJS({
             }
           }
         }
-        hook.memoizedState = hook.baseState = initialState;
+        hook.memoizedState = hook.baseState = initialState2;
         hook.queue = {
           pending: null,
           lanes: 0,
           dispatch: null,
           lastRenderedReducer: basicStateReducer,
-          lastRenderedState: initialState
+          lastRenderedState: initialState2
         };
         return hook;
       }
-      function mountState(initialState) {
-        initialState = mountStateImpl(initialState);
-        var queue = initialState.queue, dispatch2 = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
+      function mountState(initialState2) {
+        initialState2 = mountStateImpl(initialState2);
+        var queue = initialState2.queue, dispatch2 = dispatchSetState.bind(null, currentlyRenderingFiber, queue);
         queue.dispatch = dispatch2;
-        return [initialState.memoizedState, dispatch2];
+        return [initialState2.memoizedState, dispatch2];
       }
       function mountOptimistic(passthrough) {
         var hook = mountWorkInProgressHook();
@@ -7418,22 +7418,22 @@ var require_react_dom_client_development = __commonJS({
         queue.dispatch = hook;
         return [passthrough, hook];
       }
-      function updateOptimistic(passthrough, reducer2) {
+      function updateOptimistic(passthrough, reducer3) {
         var hook = updateWorkInProgressHook();
-        return updateOptimisticImpl(hook, currentHook, passthrough, reducer2);
+        return updateOptimisticImpl(hook, currentHook, passthrough, reducer3);
       }
-      function updateOptimisticImpl(hook, current2, passthrough, reducer2) {
+      function updateOptimisticImpl(hook, current2, passthrough, reducer3) {
         hook.baseState = passthrough;
         return updateReducerImpl(
           hook,
           currentHook,
-          "function" === typeof reducer2 ? reducer2 : basicStateReducer
+          "function" === typeof reducer3 ? reducer3 : basicStateReducer
         );
       }
-      function rerenderOptimistic(passthrough, reducer2) {
+      function rerenderOptimistic(passthrough, reducer3) {
         var hook = updateWorkInProgressHook();
         if (null !== currentHook)
-          return updateOptimisticImpl(hook, currentHook, passthrough, reducer2);
+          return updateOptimisticImpl(hook, currentHook, passthrough, reducer3);
         hook.baseState = passthrough;
         return [passthrough, hook.queue.dispatch];
       }
@@ -18520,14 +18520,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React50 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React64 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React50.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React64.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -19975,13 +19975,13 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           mountHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountReducer(reducer2, initialArg, init6);
+            return mountReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -19991,13 +19991,13 @@ var require_react_dom_client_development = __commonJS({
           mountHookTypesDev();
           return mountRef(initialValue);
         },
-        useState: function(initialState) {
+        useState: function(initialState2) {
           currentHookNameInDev = "useState";
           mountHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountState(initialState);
+            return mountState(initialState2);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20030,16 +20030,16 @@ var require_react_dom_client_development = __commonJS({
           mountHookTypesDev();
           return mountId();
         },
-        useFormState: function(action, initialState) {
+        useFormState: function(action, initialState2) {
           currentHookNameInDev = "useFormState";
           mountHookTypesDev();
           warnOnUseFormStateInDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
-        useActionState: function(action, initialState) {
+        useActionState: function(action, initialState2) {
           currentHookNameInDev = "useActionState";
           mountHookTypesDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
         useOptimistic: function(passthrough) {
           currentHookNameInDev = "useOptimistic";
@@ -20105,13 +20105,13 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountReducer(reducer2, initialArg, init6);
+            return mountReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20121,13 +20121,13 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return mountRef(initialValue);
         },
-        useState: function(initialState) {
+        useState: function(initialState2) {
           currentHookNameInDev = "useState";
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountState(initialState);
+            return mountState(initialState2);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20160,16 +20160,16 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return mountId();
         },
-        useActionState: function(action, initialState) {
+        useActionState: function(action, initialState2) {
           currentHookNameInDev = "useActionState";
           updateHookTypesDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
-        useFormState: function(action, initialState) {
+        useFormState: function(action, initialState2) {
           currentHookNameInDev = "useFormState";
           updateHookTypesDev();
           warnOnUseFormStateInDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
         useOptimistic: function(passthrough) {
           currentHookNameInDev = "useOptimistic";
@@ -20235,13 +20235,13 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnUpdateInDEV;
           try {
-            return updateReducer(reducer2, initialArg, init6);
+            return updateReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20301,10 +20301,10 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return updateActionState(action);
         },
-        useOptimistic: function(passthrough, reducer2) {
+        useOptimistic: function(passthrough, reducer3) {
           currentHookNameInDev = "useOptimistic";
           updateHookTypesDev();
-          return updateOptimistic(passthrough, reducer2);
+          return updateOptimistic(passthrough, reducer3);
         },
         useHostTransitionStatus,
         useMemoCache,
@@ -20365,13 +20365,13 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnRerenderInDEV;
           try {
-            return rerenderReducer(reducer2, initialArg, init6);
+            return rerenderReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20431,10 +20431,10 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return rerenderActionState(action);
         },
-        useOptimistic: function(passthrough, reducer2) {
+        useOptimistic: function(passthrough, reducer3) {
           currentHookNameInDev = "useOptimistic";
           updateHookTypesDev();
-          return rerenderOptimistic(passthrough, reducer2);
+          return rerenderOptimistic(passthrough, reducer3);
         },
         useHostTransitionStatus,
         useMemoCache,
@@ -20506,14 +20506,14 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           warnInvalidHookAccess();
           mountHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountReducer(reducer2, initialArg, init6);
+            return mountReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20524,14 +20524,14 @@ var require_react_dom_client_development = __commonJS({
           mountHookTypesDev();
           return mountRef(initialValue);
         },
-        useState: function(initialState) {
+        useState: function(initialState2) {
           currentHookNameInDev = "useState";
           warnInvalidHookAccess();
           mountHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnMountInDEV;
           try {
-            return mountState(initialState);
+            return mountState(initialState2);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20569,17 +20569,17 @@ var require_react_dom_client_development = __commonJS({
           mountHookTypesDev();
           return mountId();
         },
-        useFormState: function(action, initialState) {
+        useFormState: function(action, initialState2) {
           currentHookNameInDev = "useFormState";
           warnInvalidHookAccess();
           mountHookTypesDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
-        useActionState: function(action, initialState) {
+        useActionState: function(action, initialState2) {
           currentHookNameInDev = "useActionState";
           warnInvalidHookAccess();
           mountHookTypesDev();
-          return mountActionState(action, initialState);
+          return mountActionState(action, initialState2);
         },
         useOptimistic: function(passthrough) {
           currentHookNameInDev = "useOptimistic";
@@ -20661,14 +20661,14 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           warnInvalidHookAccess();
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnUpdateInDEV;
           try {
-            return updateReducer(reducer2, initialArg, init6);
+            return updateReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20736,11 +20736,11 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return updateActionState(action);
         },
-        useOptimistic: function(passthrough, reducer2) {
+        useOptimistic: function(passthrough, reducer3) {
           currentHookNameInDev = "useOptimistic";
           warnInvalidHookAccess();
           updateHookTypesDev();
-          return updateOptimistic(passthrough, reducer2);
+          return updateOptimistic(passthrough, reducer3);
         },
         useMemoCache: function(size) {
           warnInvalidHookAccess();
@@ -20816,14 +20816,14 @@ var require_react_dom_client_development = __commonJS({
             ReactSharedInternals.H = prevDispatcher;
           }
         },
-        useReducer: function(reducer2, initialArg, init6) {
+        useReducer: function(reducer3, initialArg, init6) {
           currentHookNameInDev = "useReducer";
           warnInvalidHookAccess();
           updateHookTypesDev();
           var prevDispatcher = ReactSharedInternals.H;
           ReactSharedInternals.H = InvalidNestedHooksDispatcherOnUpdateInDEV;
           try {
-            return rerenderReducer(reducer2, initialArg, init6);
+            return rerenderReducer(reducer3, initialArg, init6);
           } finally {
             ReactSharedInternals.H = prevDispatcher;
           }
@@ -20891,11 +20891,11 @@ var require_react_dom_client_development = __commonJS({
           updateHookTypesDev();
           return rerenderActionState(action);
         },
-        useOptimistic: function(passthrough, reducer2) {
+        useOptimistic: function(passthrough, reducer3) {
           currentHookNameInDev = "useOptimistic";
           warnInvalidHookAccess();
           updateHookTypesDev();
-          return rerenderOptimistic(passthrough, reducer2);
+          return rerenderOptimistic(passthrough, reducer3);
         },
         useMemoCache: function(size) {
           warnInvalidHookAccess();
@@ -21315,7 +21315,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React50.version;
+        var isomorphicReactPackageVersion = React64.version;
         if ("19.2.4" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.4\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21464,7 +21464,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React50.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React64.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState42({
+        cachedValue = useState51({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect48(
+        useEffect53(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,8 +21512,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React50 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState42 = React50.useState, useEffect48 = React50.useEffect, useLayoutEffect4 = React50.useLayoutEffect, useDebugValue3 = React50.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React50.useSyncExternalStore ? React50.useSyncExternalStore : shim;
+      var React64 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState51 = React64.useState, useEffect53 = React64.useEffect, useLayoutEffect4 = React64.useLayoutEffect, useDebugValue3 = React64.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React64.useSyncExternalStore ? React64.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21745,18 +21745,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React50 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React50.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React64 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React64.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React50 = {
+      React64 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React50.react_stack_bottom_frame.bind(
-        React50,
+      var unknownOwnerDebugStack = React64.react_stack_bottom_frame.bind(
+        React64,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21809,14 +21809,14 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React50 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef22 = React50.useRef, useEffect48 = React50.useEffect, useMemo14 = React50.useMemo, useDebugValue3 = React50.useDebugValue;
+      var React64 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef25 = React64.useRef, useEffect53 = React64.useEffect, useMemo15 = React64.useMemo, useDebugValue3 = React64.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef22(null);
+        var instRef = useRef25(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
         } else inst = instRef.current;
-        instRef = useMemo14(
+        instRef = useMemo15(
           function() {
             function memoizedSelector(nextSnapshot) {
               if (!hasMemo) {
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect48(
+        useEffect53(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -23871,7 +23871,7 @@ var require_warning = __commonJS({
 });
 
 // app/javascript/application.js
-var import_react71 = __toESM(require_react());
+var import_react85 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -24209,7 +24209,7 @@ function ConceptSearchSelect({
       flex: 1,
       color: selectedConcept ? "var(--neutral-900)" : "var(--neutral-400)",
       fontSize: "var(--text-sm)"
-    } }, selectedConcept ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, selectedConcept.label, /* @__PURE__ */ import_react2.default.createElement("span", { style: { color: "var(--neutral-500)", marginLeft: "var(--space-1)" } }, "(", selectedConcept.node_type, ")")) : placeholder),
+    } }, selectedConcept ? /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, selectedConcept.label, /* @__PURE__ */ import_react2.default.createElement("span", { style: { color: "var(--neutral-500)", marginLeft: "var(--space-1)" } }, "(", selectedConcept.concept_type, ")")) : placeholder),
     selectedConcept && !isOpen && /* @__PURE__ */ import_react2.default.createElement(
       "button",
       {
@@ -24275,11 +24275,11 @@ function ConceptSearchSelect({
       },
       /* @__PURE__ */ import_react2.default.createElement("span", { style: { whiteSpace: "pre" } }, getIndentPrefix(depth)),
       /* @__PURE__ */ import_react2.default.createElement("span", null, concept.label),
-      concept.node_type && /* @__PURE__ */ import_react2.default.createElement("span", { style: {
+      concept.concept_type && /* @__PURE__ */ import_react2.default.createElement("span", { style: {
         fontSize: "var(--text-xs)",
         color: "var(--neutral-500)",
         marginLeft: "auto"
-      } }, concept.node_type)
+      } }, concept.concept_type)
     )),
     canCreate && onCreateConcept && /* @__PURE__ */ import_react2.default.createElement(
       "div",
@@ -24748,49 +24748,59 @@ function TagSelector({ selectedTags = [], onChange: onChange16, themeColor = "va
 // app/javascript/config/nodeTypes.js
 var NODE_TYPES = [
   {
-    value: "undeclared",
-    label: "Undeclared",
-    description: "Not yet categorized. Choose a type to better organize your research."
+    value: "research_method",
+    label: "Research Method",
+    description: "A research, clinical, or analytical procedure or approach (e.g., fMRI, randomized controlled trial, grounded theory)."
   },
   {
-    value: "concept",
-    label: "Concept",
-    description: "An abstract idea, construct, or phenomenon studied in research (e.g., internalized racism, working memory, fear conditioning)."
-  },
-  {
-    value: "theory",
-    label: "Theory / Model",
-    description: "A formal explanatory framework describing how concepts relate or operate (e.g., Minority Stress Theory, Dual Process Model)."
-  },
-  {
-    value: "method",
-    label: "Method",
-    description: "A research, clinical, or analytical procedure or approach (e.g., fMRI, CBT, randomized controlled trial)."
-  },
-  {
-    value: "measure",
-    label: "Measure / Instrument",
+    value: "measurement",
+    label: "Measurement",
     description: "A tool used to assess, quantify, or operationalize a concept (e.g., PHQ-9, Stroop Task, ACEs questionnaire)."
   },
   {
-    value: "entity",
-    label: "Entity",
-    description: "A concrete or bounded thing, including anatomical structures, populations, or named systems (e.g., amygdala, HPA axis, adolescents)."
+    value: "intervention",
+    label: "Intervention",
+    description: "A treatment, therapy, or deliberate action applied to influence an outcome (e.g., CBT, mindfulness training, pharmacotherapy)."
   },
   {
-    value: "category",
-    label: "Category",
-    description: 'A grouping used to organize related concepts via "is-a" relationships (e.g., brain areas, affective disorders, imaging techniques).'
+    value: "pathology",
+    label: "Pathology",
+    description: "A disease, disorder, or dysfunctional condition (e.g., major depressive disorder, PTSD, schizophrenia)."
   },
   {
-    value: "subject",
-    label: "Subject",
-    description: "A field, domain, or area of study that provides context rather than content (e.g., social psychology, cognitive neuroscience)."
+    value: "emotion",
+    label: "Emotion",
+    description: "An affective state or feeling (e.g., fear, joy, anger, sadness)."
   },
   {
-    value: "other",
-    label: "Other",
-    description: "Anything that doesn't fit the above or is intentionally left uncategorized."
+    value: "symptom",
+    label: "Symptom",
+    description: "A sign or manifestation of a condition (e.g., anhedonia, insomnia, hypervigilance)."
+  },
+  {
+    value: "school_of_thought",
+    label: "School of Thought",
+    description: "A theoretical tradition, paradigm, or intellectual movement (e.g., behaviorism, psychoanalysis, constructivism)."
+  },
+  {
+    value: "physical_entity",
+    label: "Physical Entity",
+    description: "A concrete or bounded physical thing, including anatomical structures, organisms, or systems (e.g., amygdala, HPA axis, neuron)."
+  },
+  {
+    value: "physical_process",
+    label: "Physical Process",
+    description: "A measurable biological or physical process (e.g., neurogenesis, synaptic pruning, cortisol release)."
+  },
+  {
+    value: "non_physical_process",
+    label: "Non-Physical Process",
+    description: "A psychological, cognitive, or social process (e.g., memory consolidation, social learning, cognitive reappraisal)."
+  },
+  {
+    value: "non_physical_concept",
+    label: "Non-Physical Concept",
+    description: "An abstract idea, construct, or phenomenon (e.g., working memory, self-efficacy, attachment style)."
   }
 ];
 var getNodeTypeLabel = (value) => {
@@ -51095,9 +51105,9 @@ function getIconName(cssPrefix, cls) {
   }
 }
 var build = function build2() {
-  var lookup = function lookup2(reducer2) {
+  var lookup = function lookup2(reducer3) {
     return reduce(styles, function(o$$1, style2, prefix2) {
-      o$$1[prefix2] = reduce(style2, reducer2, {});
+      o$$1[prefix2] = reduce(style2, reducer3, {});
       return o$$1;
     }, {});
   };
@@ -53460,18 +53470,59 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
   const typeDropdownTriggerRef = (0, import_react16.useRef)(null);
   const [formData, setFormData] = (0, import_react16.useState)({
     label: "",
-    node_type: "undeclared",
-    level_status: "mapped",
-    summary_top: "",
-    summary_mid: "",
-    summary_deep: "",
+    concept_type: "non_physical_concept",
+    summary: "",
+    description: "",
+    location: "",
+    examples: "",
+    etymology: "",
+    school_of_thought: "",
+    history: "",
+    controversy: "",
+    clinical_relevance: "",
+    misconceptions: "",
+    mnemonic: "",
+    developmental_notes: "",
+    measurement_notes: "",
+    aliases: [],
     tags: [],
     new_relationship_dst_concept_id: "",
     new_relationship_rel_type: "related_to"
   });
+  const [aliasInput, setAliasInput] = (0, import_react16.useState)("");
+  const [hasDraft, setHasDraft] = (0, import_react16.useState)(false);
   const [error, setError] = (0, import_react16.useState)("");
   const [saveStatus, setSaveStatus] = (0, import_react16.useState)("idle");
   const saveTimeoutRef = (0, import_react16.useRef)(null);
+  const draftTimeoutRef = (0, import_react16.useRef)(null);
+  const DRAFT_KEY = "concept_draft";
+  const saveDraft = (0, import_react16.useCallback)((data) => {
+    try {
+      const draftData = { ...data };
+      delete draftData.new_relationship_dst_concept_id;
+      delete draftData.new_relationship_rel_type;
+      if (draftData.label || draftData.summary || draftData.description) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+        setSaveStatus("draft");
+      }
+    } catch (e3) {
+    }
+  }, []);
+  const loadDraft = (0, import_react16.useCallback)(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e3) {
+    }
+    return null;
+  }, []);
+  const clearDraft = (0, import_react16.useCallback)(() => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch (e3) {
+    }
+    setHasDraft(false);
+  }, []);
   const isInitialMount = (0, import_react16.useRef)(true);
   const lastSavedData = (0, import_react16.useRef)(null);
   const [collections, setCollections] = (0, import_react16.useState)([]);
@@ -53490,25 +53541,32 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       HTMLAttributes: { class: "text-primary underline" }
     })
   ];
-  const editorTop = useEditor({
+  const editorSummary = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_top,
+    content: formData.summary,
     onUpdate: ({ editor }) => {
-      setFormData((prev) => ({ ...prev, summary_top: editor.getHTML() }));
+      setFormData((prev) => ({ ...prev, summary: editor.getHTML() }));
     }
   });
-  const editorMid = useEditor({
+  const editorDescription = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_mid,
+    content: formData.description,
     onUpdate: ({ editor }) => {
-      setFormData((prev) => ({ ...prev, summary_mid: editor.getHTML() }));
+      setFormData((prev) => ({ ...prev, description: editor.getHTML() }));
     }
   });
-  const editorDeep = useEditor({
+  const editorExamples = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_deep,
+    content: formData.examples,
     onUpdate: ({ editor }) => {
-      setFormData((prev) => ({ ...prev, summary_deep: editor.getHTML() }));
+      setFormData((prev) => ({ ...prev, examples: editor.getHTML() }));
+    }
+  });
+  const editorHistory = useEditor({
+    extensions: editorExtensions,
+    content: formData.history,
+    onUpdate: ({ editor }) => {
+      setFormData((prev) => ({ ...prev, history: editor.getHTML() }));
     }
   });
   const toolbarButtonStyle = (isActive2) => ({
@@ -53554,6 +53612,17 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
     }
   }, [item?.id]);
   (0, import_react16.useEffect)(() => {
+    if (!isOpen || item?.id) return;
+    if (isInitialMount.current) return;
+    if (draftTimeoutRef.current) clearTimeout(draftTimeoutRef.current);
+    draftTimeoutRef.current = setTimeout(() => {
+      saveDraft(formData);
+    }, 500);
+    return () => {
+      if (draftTimeoutRef.current) clearTimeout(draftTimeoutRef.current);
+    };
+  }, [formData, isOpen, item?.id, saveDraft]);
+  (0, import_react16.useEffect)(() => {
     if (!isOpen || !item?.id) return;
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -53598,42 +53667,70 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
         fetchItemCollections(item.id);
         const newFormData = {
           label: item.label || "",
-          node_type: item.node_type || "undeclared",
-          level_status: item.level_status || "mapped",
-          summary_top: item.summary_top || "",
-          summary_mid: item.summary_mid || "",
-          summary_deep: item.summary_deep || "",
+          concept_type: item.concept_type || "non_physical_concept",
+          summary: item.summary || "",
+          description: item.description || "",
+          location: item.location || "",
+          examples: item.examples || "",
+          etymology: item.etymology || "",
+          school_of_thought: item.school_of_thought || "",
+          history: item.history || "",
+          controversy: item.controversy || "",
+          clinical_relevance: item.clinical_relevance || "",
+          misconceptions: item.misconceptions || "",
+          mnemonic: item.mnemonic || "",
+          developmental_notes: item.developmental_notes || "",
+          measurement_notes: item.measurement_notes || "",
+          aliases: item.aliases || [],
           tags: item.tags || [],
           new_relationship_dst_concept_id: "",
           new_relationship_rel_type: "related_to"
         };
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
-        if (editorTop) editorTop.commands.setContent(newFormData.summary_top);
-        if (editorMid) editorMid.commands.setContent(newFormData.summary_mid);
-        if (editorDeep) editorDeep.commands.setContent(newFormData.summary_deep);
+        setAliasInput("");
+        if (editorSummary) editorSummary.commands.setContent(newFormData.summary);
+        if (editorDescription) editorDescription.commands.setContent(newFormData.description);
+        if (editorExamples) editorExamples.commands.setContent(newFormData.examples);
+        if (editorHistory) editorHistory.commands.setContent(newFormData.history);
       } else {
-        const newFormData = {
+        const draft = loadDraft();
+        const emptyFormData = {
           label: "",
-          node_type: "undeclared",
-          level_status: "mapped",
-          summary_top: "",
-          summary_mid: "",
-          summary_deep: "",
+          concept_type: "non_physical_concept",
+          summary: "",
+          description: "",
+          location: "",
+          examples: "",
+          etymology: "",
+          school_of_thought: "",
+          history: "",
+          controversy: "",
+          clinical_relevance: "",
+          misconceptions: "",
+          mnemonic: "",
+          developmental_notes: "",
+          measurement_notes: "",
+          aliases: [],
           tags: [],
           new_relationship_dst_concept_id: "",
           new_relationship_rel_type: "related_to"
         };
+        const newFormData = draft ? { ...emptyFormData, ...draft, new_relationship_dst_concept_id: "", new_relationship_rel_type: "related_to" } : emptyFormData;
         setFormData(newFormData);
+        setHasDraft(!!draft);
+        if (draft) setSaveStatus("draft");
         lastSavedData.current = null;
         setItemCollections([]);
-        if (editorTop) editorTop.commands.setContent("");
-        if (editorMid) editorMid.commands.setContent("");
-        if (editorDeep) editorDeep.commands.setContent("");
+        setAliasInput("");
+        if (editorSummary) editorSummary.commands.setContent(newFormData.summary);
+        if (editorDescription) editorDescription.commands.setContent(newFormData.description);
+        if (editorExamples) editorExamples.commands.setContent(newFormData.examples);
+        if (editorHistory) editorHistory.commands.setContent(newFormData.history);
       }
       setError("");
     }
-  }, [isOpen, item, initialTab, editorTop, editorMid, editorDeep]);
+  }, [isOpen, item, initialTab, editorSummary, editorDescription, editorExamples, editorHistory]);
   const fetchConcepts = async () => {
     try {
       const response = await fetch("/concepts.json");
@@ -53844,6 +53941,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       });
       if (response.ok) {
         const data = await response.json();
+        clearDraft();
         onSuccess(data);
         onClose();
       } else {
@@ -53863,7 +53961,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
           "Content-Type": "application/json",
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ concept: { label, node_type: "concept" } })
+        body: JSON.stringify({ concept: { label, concept_type: "non_physical_concept" } })
       });
       if (response.ok) {
         const newConcept = await response.json();
@@ -53884,7 +53982,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
     } else if (saveStatus === "saving") {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
-    if (newRelationships.length > 0 || deletedRelationshipIds.length > 0 || Object.keys(updatedRelationships).length > 0) {
+    if (item?.id) {
       onSuccess();
     }
     onClose();
@@ -53947,7 +54045,7 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       background: "rgba(255,255,255,0.2)",
       padding: "2px 8px",
       borderRadius: "10px"
-    } }, "Level ", stackDepth + 1)), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, item && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+    } }, "Level ", stackDepth + 1)), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, (item || saveStatus === "draft") && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       gap: "var(--space-2)",
@@ -53956,7 +54054,45 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       borderRadius: "var(--radius)",
       fontSize: "var(--text-xs)",
       fontFamily: "var(--font-body)"
-    } }, saveStatus === "pending" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-save on")), /* @__PURE__ */ import_react16.default.createElement(
+    } }, saveStatus === "draft" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-file-alt", style: { color: "var(--neutral-500)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Draft saved"), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
+      clearDraft();
+      const empty3 = {
+        label: "",
+        concept_type: "non_physical_concept",
+        summary: "",
+        description: "",
+        location: "",
+        examples: "",
+        etymology: "",
+        school_of_thought: "",
+        history: "",
+        controversy: "",
+        clinical_relevance: "",
+        misconceptions: "",
+        mnemonic: "",
+        developmental_notes: "",
+        measurement_notes: "",
+        aliases: [],
+        tags: [],
+        new_relationship_dst_concept_id: "",
+        new_relationship_rel_type: "related_to"
+      };
+      setFormData(empty3);
+      setSaveStatus("idle");
+      if (editorSummary) editorSummary.commands.setContent("");
+      if (editorDescription) editorDescription.commands.setContent("");
+      if (editorExamples) editorExamples.commands.setContent("");
+      if (editorHistory) editorHistory.commands.setContent("");
+    }, style: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      color: "var(--neutral-400)",
+      fontSize: "var(--text-xs)",
+      textDecoration: "underline",
+      padding: 0,
+      fontFamily: "var(--font-body)"
+    } }, "discard")), saveStatus === "pending" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-400)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "Save Pending...")), saveStatus === "saving" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saving...")), saveStatus === "saved" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-check", style: { color: "var(--accent-green)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--accent-green)" } }, "Saved")), saveStatus === "error" && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--error)" } }), /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--error)" } }, "Error")), saveStatus === "idle" && item && /* @__PURE__ */ import_react16.default.createElement("span", { style: { color: "var(--neutral-400)" } }, "Auto-save on")), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -54032,115 +54168,83 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       },
       /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-info-circle", style: { width: "16px" } }),
       /* @__PURE__ */ import_react16.default.createElement("span", { className: "hidden md:inline" }, "Basics")
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => setActiveTab("summaries"),
-        className: "justify-center md:justify-start",
-        style: {
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          padding: "var(--space-2)",
-          borderRadius: "var(--radius)",
-          cursor: "pointer",
-          fontSize: "var(--text-sm)",
-          color: "var(--neutral-700)",
-          background: activeTab === "summaries" ? "#c8c8c8" : "transparent",
-          border: "none",
-          transition: "background 0.15s",
-          marginBottom: "0.25rem",
-          textAlign: "left",
-          fontFamily: "var(--font-body)"
-        },
-        onMouseEnter: (e3) => {
-          if (activeTab !== "summaries") e3.currentTarget.style.background = "#d8d8d8";
-        },
-        onMouseLeave: (e3) => {
-          if (activeTab !== "summaries") e3.currentTarget.style.background = "transparent";
-        },
-        title: "Summaries"
-      },
-      /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-align-left", style: { width: "16px" } }),
-      /* @__PURE__ */ import_react16.default.createElement("span", { className: "hidden md:inline" }, "Summaries")
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: async () => {
-          if (!item?.id && formData.label.trim()) {
-            try {
-              const response = await fetch("/concepts", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ concept: formData })
-              });
-              if (response.ok) {
-                const newConcept = await response.json();
-                onSuccess(newConcept, "relationships");
-              } else {
-                const data = await response.json();
-                setError(data.errors?.join(", ") || "Failed to save concept");
-              }
-            } catch (error2) {
-              console.error("Error saving concept:", error2);
-              setError("An error occurred while saving the concept");
+    ), ["context", "clinical", "relationships"].map((tab) => {
+      const tabConfig = {
+        context: { icon: "fas fa-map-marker-alt", label: "Context" },
+        clinical: { icon: "fas fa-stethoscope", label: "Clinical & Research" },
+        relationships: { icon: "fas fa-project-diagram", label: "Relationships" }
+      }[tab];
+      const handleTabClick = async () => {
+        if (tab === "relationships" && !item?.id && formData.label.trim()) {
+          try {
+            const response = await fetch("/concepts", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+              },
+              body: JSON.stringify({ concept: formData })
+            });
+            if (response.ok) {
+              const newConcept = await response.json();
+              clearDraft();
+              onSuccess(newConcept, "relationships");
+            } else {
+              const data = await response.json();
+              setError(data.errors?.join(", ") || "Failed to save concept");
             }
-          } else if (!item?.id && !formData.label.trim()) {
-            setError("Please enter a label before adding relationships");
-            setActiveTab("basics");
-          } else {
-            setActiveTab("relationships");
+          } catch (error2) {
+            console.error("Error saving concept:", error2);
+            setError("An error occurred while saving the concept");
           }
+        } else if (tab === "relationships" && !item?.id && !formData.label.trim()) {
+          setError("Please enter a label before adding relationships");
+          setActiveTab("basics");
+        } else {
+          setActiveTab(tab);
+        }
+      };
+      return /* @__PURE__ */ import_react16.default.createElement(
+        "button",
+        {
+          key: tab,
+          type: "button",
+          onClick: handleTabClick,
+          className: "justify-center md:justify-start",
+          style: {
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            padding: "var(--space-2)",
+            borderRadius: "var(--radius)",
+            cursor: "pointer",
+            fontSize: "var(--text-sm)",
+            color: "var(--neutral-700)",
+            background: activeTab === tab ? "#c8c8c8" : "transparent",
+            border: "none",
+            transition: "background 0.15s",
+            marginBottom: "0.25rem",
+            textAlign: "left",
+            fontFamily: "var(--font-body)"
+          },
+          onMouseEnter: (e3) => {
+            if (activeTab !== tab) e3.currentTarget.style.background = "#d8d8d8";
+          },
+          onMouseLeave: (e3) => {
+            if (activeTab !== tab) e3.currentTarget.style.background = "transparent";
+          },
+          title: tabConfig.label
         },
-        className: "justify-center md:justify-start",
-        style: {
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-2)",
-          padding: "var(--space-2)",
-          borderRadius: "var(--radius)",
-          cursor: "pointer",
-          fontSize: "var(--text-sm)",
-          color: "var(--neutral-700)",
-          background: activeTab === "relationships" ? "#c8c8c8" : "transparent",
-          border: "none",
-          transition: "background 0.15s",
-          marginBottom: "0.25rem",
-          textAlign: "left",
-          fontFamily: "var(--font-body)"
-        },
-        onMouseEnter: (e3) => {
-          if (activeTab !== "relationships") e3.currentTarget.style.background = "#d8d8d8";
-        },
-        onMouseLeave: (e3) => {
-          if (activeTab !== "relationships") e3.currentTarget.style.background = "transparent";
-        },
-        title: "Relationships"
-      },
-      /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-project-diagram", style: { width: "16px" } }),
-      /* @__PURE__ */ import_react16.default.createElement("span", { className: "hidden md:inline" }, "Relationships")
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+        /* @__PURE__ */ import_react16.default.createElement("i", { className: tabConfig.icon, style: { width: "16px" } }),
+        /* @__PURE__ */ import_react16.default.createElement("span", { className: "hidden md:inline" }, tabConfig.label)
+      );
+    })), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
       flex: 1,
       overflowY: "auto",
       background: "white",
       padding: "var(--space-6)"
-    } }, activeTab === "basics" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label required" }, "Label"), /* @__PURE__ */ import_react16.default.createElement(
-      "input",
-      {
-        type: "text",
-        value: formData.label,
-        onChange: (e3) => setFormData({ ...formData, label: e3.target.value }),
-        className: "form-input",
-        required: true
-      }
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react16.default.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label required" }, "Type"), /* @__PURE__ */ import_react16.default.createElement(
+    } }, activeTab === "basics" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label required" }, "Label"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "The canonical name as it would appear in a textbook index."), /* @__PURE__ */ import_react16.default.createElement("input", { type: "text", value: formData.label, onChange: (e3) => setFormData({ ...formData, label: e3.target.value }), className: "form-input", required: true })), /* @__PURE__ */ import_react16.default.createElement("div", { className: "grid grid-cols-2 gap-4" }, /* @__PURE__ */ import_react16.default.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Type"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "What this fundamentally is, not what field it belongs to."), /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
@@ -54177,22 +54281,9 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
           fontSize: "var(--text-sm)"
         }
       },
-      /* @__PURE__ */ import_react16.default.createElement("span", null, NODE_TYPES.find((t4) => t4.value === formData.node_type)?.label || formData.node_type),
+      /* @__PURE__ */ import_react16.default.createElement("span", null, NODE_TYPES.find((t4) => t4.value === formData.concept_type)?.label || formData.concept_type || "Select type..."),
       /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-chevron-down", style: { fontSize: "10px", color: "var(--neutral-400)" } })
-    ), typeDropdownOpen && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement(
-      "div",
-      {
-        style: {
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 9998
-        },
-        onClick: () => setTypeDropdownOpen(false)
-      }
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+    ), typeDropdownOpen && /* @__PURE__ */ import_react16.default.createElement(import_react16.default.Fragment, null, /* @__PURE__ */ import_react16.default.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }, onClick: () => setTypeDropdownOpen(false) }), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
       position: "fixed",
       top: typeDropdownPos.top,
       left: typeDropdownPos.left,
@@ -54209,337 +54300,71 @@ function ConceptFormModal({ isOpen, onClose, onSuccess, item, onEditRelatedConce
       {
         key: opt.value,
         onClick: () => {
-          setFormData({ ...formData, node_type: opt.value });
+          setFormData({ ...formData, concept_type: opt.value });
           setTypeDropdownOpen(false);
         },
-        style: {
-          padding: "var(--space-3)",
-          cursor: "pointer",
-          borderBottom: "1px solid var(--neutral-100)",
-          background: formData.node_type === opt.value ? "var(--accent-green-light)" : "transparent"
-        },
+        style: { padding: "var(--space-3)", cursor: "pointer", borderBottom: "1px solid var(--neutral-100)", background: formData.concept_type === opt.value ? "var(--accent-green-light)" : "transparent" },
         onMouseEnter: (e3) => {
-          if (formData.node_type !== opt.value) {
-            e3.currentTarget.style.background = "var(--neutral-50)";
-          }
+          if (formData.concept_type !== opt.value) e3.currentTarget.style.background = "var(--neutral-50)";
         },
         onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = formData.node_type === opt.value ? "var(--accent-green-light)" : "transparent";
+          e3.currentTarget.style.background = formData.concept_type === opt.value ? "var(--accent-green-light)" : "transparent";
         }
       },
-      /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-        fontWeight: 600,
-        fontSize: "var(--text-sm)",
-        color: "var(--neutral-900)",
-        marginBottom: "2px"
-      } }, opt.label),
-      /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-        fontSize: "var(--text-xs)",
-        color: "var(--neutral-500)",
-        lineHeight: 1.4
-      } }, opt.description)
-    )))), formData.node_type && /* @__PURE__ */ import_react16.default.createElement("p", { style: {
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-500)",
-      marginTop: "var(--space-1)",
-      lineHeight: 1.4
-    } }, NODE_TYPES.find((t4) => t4.value === formData.node_type)?.description)), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Status"), /* @__PURE__ */ import_react16.default.createElement(
-      "select",
-      {
-        value: formData.level_status,
-        onChange: (e3) => setFormData({ ...formData, level_status: e3.target.value }),
-        className: "form-select"
-      },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "mapped" }, "Mapped"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "basic" }, "Basic"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "deep" }, "Deep")
-    ))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Summary Top"), /* @__PURE__ */ import_react16.default.createElement("div", { className: "form-helper" }, "2-3 sentences"), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      border: "1px solid var(--neutral-300)",
-      borderRadius: "var(--radius)",
-      background: "white",
-      overflow: "hidden"
-    } }, editorTop && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      borderBottom: "1px solid var(--neutral-200)",
-      padding: "var(--space-1) var(--space-2)",
-      display: "flex",
-      gap: "2px",
-      flexWrap: "wrap",
-      background: "var(--neutral-50)"
-    } }, /* @__PURE__ */ import_react16.default.createElement(
+      /* @__PURE__ */ import_react16.default.createElement("div", { style: { fontWeight: 600, fontSize: "var(--text-sm)", color: "var(--neutral-900)", marginBottom: "2px" } }, opt.label),
+      /* @__PURE__ */ import_react16.default.createElement("div", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)", lineHeight: 1.4 } }, opt.description)
+    )))))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Aliases"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Any other name this concept might be called."), formData.aliases.length > 0 && /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-1)", marginBottom: "var(--space-2)" } }, formData.aliases.map((alias, idx) => /* @__PURE__ */ import_react16.default.createElement("span", { key: idx, style: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "3px 10px", background: "var(--neutral-100)", borderRadius: "12px", fontSize: "var(--text-sm)", color: "var(--neutral-700)" } }, alias, /* @__PURE__ */ import_react16.default.createElement(
       "button",
       {
         type: "button",
-        onClick: () => editorTop.chain().focus().toggleBold().run(),
-        style: toolbarButtonStyle(editorTop.isActive("bold")),
-        ...toolbarHover(editorTop.isActive("bold")),
-        title: "Bold"
+        onClick: () => setFormData({ ...formData, aliases: formData.aliases.filter((_3, i3) => i3 !== idx) }),
+        style: { background: "none", border: "none", cursor: "pointer", padding: 0, color: "var(--neutral-400)", fontSize: "10px", lineHeight: 1 }
       },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
+      /* @__PURE__ */ import_react16.default.createElement("i", { className: "fas fa-times" })
+    )))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react16.default.createElement(
+      "input",
       {
-        type: "button",
-        onClick: () => editorTop.chain().focus().toggleItalic().run(),
-        style: toolbarButtonStyle(editorTop.isActive("italic")),
-        ...toolbarHover(editorTop.isActive("italic")),
-        title: "Italic"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorTop.chain().focus().toggleUnderline().run(),
-        style: toolbarButtonStyle(editorTop.isActive("underline")),
-        ...toolbarHover(editorTop.isActive("underline")),
-        title: "Underline"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorTop.chain().focus().toggleBulletList().run(),
-        style: toolbarButtonStyle(editorTop.isActive("bulletList")),
-        ...toolbarHover(editorTop.isActive("bulletList")),
-        title: "Bullet List"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })
-    ), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
-      const url = window.prompt("Enter URL:");
-      if (url) editorTop.chain().focus().setLink({ href: url }).run();
-    }, style: toolbarButtonStyle(editorTop.isActive("link")), ...toolbarHover(editorTop.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "120px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(
-      EditorContent,
-      {
-        editor: editorTop,
-        className: "px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4"
-      }
-    ))))), activeTab === "summaries" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Summary Mid"), /* @__PURE__ */ import_react16.default.createElement("div", { className: "form-helper" }, "~200 words"), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      border: "1px solid var(--neutral-300)",
-      borderRadius: "var(--radius)",
-      background: "white",
-      overflow: "hidden"
-    } }, editorMid && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      borderBottom: "1px solid var(--neutral-200)",
-      padding: "var(--space-1) var(--space-2)",
-      display: "flex",
-      gap: "2px",
-      flexWrap: "wrap",
-      background: "var(--neutral-50)"
-    } }, /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleBold().run(),
-        style: toolbarButtonStyle(editorMid.isActive("bold")),
-        ...toolbarHover(editorMid.isActive("bold")),
-        title: "Bold"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleItalic().run(),
-        style: toolbarButtonStyle(editorMid.isActive("italic")),
-        ...toolbarHover(editorMid.isActive("italic")),
-        title: "Italic"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleUnderline().run(),
-        style: toolbarButtonStyle(editorMid.isActive("underline")),
-        ...toolbarHover(editorMid.isActive("underline")),
-        title: "Underline"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleStrike().run(),
-        style: toolbarButtonStyle(editorMid.isActive("strike")),
-        ...toolbarHover(editorMid.isActive("strike")),
-        title: "Strikethrough"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: { width: "1px", height: "20px", background: "var(--neutral-300)", margin: "0 4px" } }), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleBulletList().run(),
-        style: toolbarButtonStyle(editorMid.isActive("bulletList")),
-        ...toolbarHover(editorMid.isActive("bulletList")),
-        title: "Bullet List"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleOrderedList().run(),
-        style: toolbarButtonStyle(editorMid.isActive("orderedList")),
-        ...toolbarHover(editorMid.isActive("orderedList")),
-        title: "Numbered List"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListOl })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().toggleBlockquote().run(),
-        style: toolbarButtonStyle(editorMid.isActive("blockquote")),
-        ...toolbarHover(editorMid.isActive("blockquote")),
-        title: "Quote"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: { width: "1px", height: "20px", background: "var(--neutral-300)", margin: "0 4px" } }), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
-      const url = window.prompt("Enter URL:");
-      if (url) editorMid.chain().focus().setLink({ href: url }).run();
-    }, style: toolbarButtonStyle(editorMid.isActive("link")), ...toolbarHover(editorMid.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink })), editorMid.isActive("link") && /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorMid.chain().focus().unsetLink().run(),
-        style: toolbarButtonStyle(false),
-        ...toolbarHover(false),
-        title: "Remove Link"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnlink })
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(
-      EditorContent,
-      {
-        editor: editorMid,
-        className: "px-3 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[130px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
-      }
-    )))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Summary Deep"), /* @__PURE__ */ import_react16.default.createElement("div", { className: "form-helper" }, "~600 words"), /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      border: "1px solid var(--neutral-300)",
-      borderRadius: "var(--radius)",
-      background: "white",
-      overflow: "hidden"
-    } }, editorDeep && /* @__PURE__ */ import_react16.default.createElement("div", { style: {
-      borderBottom: "1px solid var(--neutral-200)",
-      padding: "var(--space-1) var(--space-2)",
-      display: "flex",
-      gap: "2px",
-      flexWrap: "wrap",
-      background: "var(--neutral-50)"
-    } }, /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleBold().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("bold")),
-        ...toolbarHover(editorDeep.isActive("bold")),
-        title: "Bold"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleItalic().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("italic")),
-        ...toolbarHover(editorDeep.isActive("italic")),
-        title: "Italic"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleUnderline().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("underline")),
-        ...toolbarHover(editorDeep.isActive("underline")),
-        title: "Underline"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleStrike().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("strike")),
-        ...toolbarHover(editorDeep.isActive("strike")),
-        title: "Strikethrough"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faStrikethrough })
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: { width: "1px", height: "20px", background: "var(--neutral-300)", margin: "0 4px" } }), /* @__PURE__ */ import_react16.default.createElement(
-      "select",
-      {
-        onChange: (e3) => {
-          const level = parseInt(e3.target.value);
-          if (level) editorDeep.chain().focus().toggleHeading({ level }).run();
-          else editorDeep.chain().focus().setParagraph().run();
+        type: "text",
+        value: aliasInput,
+        onChange: (e3) => setAliasInput(e3.target.value),
+        onKeyDown: (e3) => {
+          if ((e3.key === "Enter" || e3.key === ",") && aliasInput.trim()) {
+            e3.preventDefault();
+            const val = aliasInput.replace(/,$/, "").trim();
+            if (val && !formData.aliases.includes(val)) setFormData({ ...formData, aliases: [...formData.aliases, val] });
+            setAliasInput("");
+          }
         },
-        style: {
-          padding: "2px 4px",
-          borderRadius: "4px",
-          fontSize: "var(--text-xs)",
-          color: "var(--primary)",
-          border: "1px solid var(--neutral-300)",
-          background: "white",
-          cursor: "pointer"
-        },
-        value: editorDeep.isActive("heading", { level: 2 }) ? "2" : editorDeep.isActive("heading", { level: 3 }) ? "3" : editorDeep.isActive("heading", { level: 4 }) ? "4" : ""
-      },
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "" }, "Paragraph"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "2" }, "Heading 2"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "3" }, "Heading 3"),
-      /* @__PURE__ */ import_react16.default.createElement("option", { value: "4" }, "Heading 4")
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: { width: "1px", height: "20px", background: "var(--neutral-300)", margin: "0 4px" } }), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleBulletList().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("bulletList")),
-        ...toolbarHover(editorDeep.isActive("bulletList")),
-        title: "Bullet List"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleOrderedList().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("orderedList")),
-        ...toolbarHover(editorDeep.isActive("orderedList")),
-        title: "Numbered List"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListOl })
-    ), /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().toggleBlockquote().run(),
-        style: toolbarButtonStyle(editorDeep.isActive("blockquote")),
-        ...toolbarHover(editorDeep.isActive("blockquote")),
-        title: "Quote"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faQuoteLeft })
-    ), /* @__PURE__ */ import_react16.default.createElement("div", { style: { width: "1px", height: "20px", background: "var(--neutral-300)", margin: "0 4px" } }), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
-      const url = window.prompt("Enter URL:");
-      if (url) editorDeep.chain().focus().setLink({ href: url }).run();
-    }, style: toolbarButtonStyle(editorDeep.isActive("link")), ...toolbarHover(editorDeep.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink })), editorDeep.isActive("link") && /* @__PURE__ */ import_react16.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => editorDeep.chain().focus().unsetLink().run(),
-        style: toolbarButtonStyle(false),
-        ...toolbarHover(false),
-        title: "Remove Link"
-      },
-      /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnlink })
-    )), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "350px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(
-      EditorContent,
-      {
-        editor: editorDeep,
-        className: "px-3 py-2 min-h-[250px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[230px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-base [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1"
+        className: "form-input",
+        placeholder: "Type an alias, then press Enter or comma to add",
+        style: { flex: 1 }
       }
-    ))))), activeTab === "relationships" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", { style: {
+    ), /* @__PURE__ */ import_react16.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => {
+          const val = aliasInput.trim();
+          if (val && !formData.aliases.includes(val)) setFormData({ ...formData, aliases: [...formData.aliases, val] });
+          setAliasInput("");
+        },
+        disabled: !aliasInput.trim(),
+        style: { padding: "var(--space-2) var(--space-3)", background: aliasInput.trim() ? "var(--accent-green)" : "var(--neutral-200)", color: aliasInput.trim() ? "white" : "var(--neutral-400)", border: "none", borderRadius: "var(--radius)", cursor: aliasInput.trim() ? "pointer" : "default", fontSize: "var(--text-sm)", fontFamily: "var(--font-body)", whiteSpace: "nowrap" }
+      },
+      "Add"
+    ))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Summary"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Quick, 1-3 sentence, top-level summary."), /* @__PURE__ */ import_react16.default.createElement("div", { style: { border: "1px solid var(--neutral-300)", borderRadius: "var(--radius)", background: "white", overflow: "hidden" } }, editorSummary && /* @__PURE__ */ import_react16.default.createElement("div", { style: { borderBottom: "1px solid var(--neutral-200)", padding: "var(--space-1) var(--space-2)", display: "flex", gap: "2px", flexWrap: "wrap", background: "var(--neutral-50)" } }, /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorSummary.chain().focus().toggleBold().run(), style: toolbarButtonStyle(editorSummary.isActive("bold")), ...toolbarHover(editorSummary.isActive("bold")), title: "Bold" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorSummary.chain().focus().toggleItalic().run(), style: toolbarButtonStyle(editorSummary.isActive("italic")), ...toolbarHover(editorSummary.isActive("italic")), title: "Italic" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorSummary.chain().focus().toggleUnderline().run(), style: toolbarButtonStyle(editorSummary.isActive("underline")), ...toolbarHover(editorSummary.isActive("underline")), title: "Underline" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorSummary.chain().focus().toggleBulletList().run(), style: toolbarButtonStyle(editorSummary.isActive("bulletList")), ...toolbarHover(editorSummary.isActive("bulletList")), title: "Bullet List" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
+      const url = window.prompt("Enter URL:");
+      if (url) editorSummary.chain().focus().setLink({ href: url }).run();
+    }, style: toolbarButtonStyle(editorSummary.isActive("link")), ...toolbarHover(editorSummary.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(EditorContent, { editor: editorSummary, className: "px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" })))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Description"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Full explanation of what this is, how it works, and what defines it."), /* @__PURE__ */ import_react16.default.createElement("div", { style: { border: "1px solid var(--neutral-300)", borderRadius: "var(--radius)", background: "white", overflow: "hidden" } }, editorDescription && /* @__PURE__ */ import_react16.default.createElement("div", { style: { borderBottom: "1px solid var(--neutral-200)", padding: "var(--space-1) var(--space-2)", display: "flex", gap: "2px", flexWrap: "wrap", background: "var(--neutral-50)" } }, /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorDescription.chain().focus().toggleBold().run(), style: toolbarButtonStyle(editorDescription.isActive("bold")), ...toolbarHover(editorDescription.isActive("bold")), title: "Bold" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorDescription.chain().focus().toggleItalic().run(), style: toolbarButtonStyle(editorDescription.isActive("italic")), ...toolbarHover(editorDescription.isActive("italic")), title: "Italic" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorDescription.chain().focus().toggleUnderline().run(), style: toolbarButtonStyle(editorDescription.isActive("underline")), ...toolbarHover(editorDescription.isActive("underline")), title: "Underline" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorDescription.chain().focus().toggleBulletList().run(), style: toolbarButtonStyle(editorDescription.isActive("bulletList")), ...toolbarHover(editorDescription.isActive("bulletList")), title: "Bullet List" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
+      const url = window.prompt("Enter URL:");
+      if (url) editorDescription.chain().focus().setLink({ href: url }).run();
+    }, style: toolbarButtonStyle(editorDescription.isActive("link")), ...toolbarHover(editorDescription.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "300px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(EditorContent, { editor: editorDescription, className: "px-3 py-2 min-h-[100px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[80px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" })))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Mnemonic"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "A memory device to recall key features: acronym, visual association, or phrase."), /* @__PURE__ */ import_react16.default.createElement("input", { type: "text", value: formData.mnemonic, onChange: (e3) => setFormData({ ...formData, mnemonic: e3.target.value }), className: "form-input" }))), activeTab === "context" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Location"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Where this exists: anatomical region, neural circuit, diagnostic system, or theoretical framework."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.location, onChange: (e3) => setFormData({ ...formData, location: e3.target.value }), className: "form-input", rows: 3 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Etymology"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Word origins and how the name connects to its meaning or function."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.etymology, onChange: (e3) => setFormData({ ...formData, etymology: e3.target.value }), className: "form-input", rows: 3 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "School of Thought"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "The intellectual tradition(s) this concept emerged from or is most closely tied to."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.school_of_thought, onChange: (e3) => setFormData({ ...formData, school_of_thought: e3.target.value }), className: "form-input", rows: 2 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Examples"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Concrete instances, case illustrations, or real-world scenarios where this concept applies."), /* @__PURE__ */ import_react16.default.createElement("div", { style: { border: "1px solid var(--neutral-300)", borderRadius: "var(--radius)", background: "white", overflow: "hidden" } }, editorExamples && /* @__PURE__ */ import_react16.default.createElement("div", { style: { borderBottom: "1px solid var(--neutral-200)", padding: "var(--space-1) var(--space-2)", display: "flex", gap: "2px", flexWrap: "wrap", background: "var(--neutral-50)" } }, /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorExamples.chain().focus().toggleBold().run(), style: toolbarButtonStyle(editorExamples.isActive("bold")), ...toolbarHover(editorExamples.isActive("bold")), title: "Bold" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorExamples.chain().focus().toggleItalic().run(), style: toolbarButtonStyle(editorExamples.isActive("italic")), ...toolbarHover(editorExamples.isActive("italic")), title: "Italic" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorExamples.chain().focus().toggleUnderline().run(), style: toolbarButtonStyle(editorExamples.isActive("underline")), ...toolbarHover(editorExamples.isActive("underline")), title: "Underline" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorExamples.chain().focus().toggleBulletList().run(), style: toolbarButtonStyle(editorExamples.isActive("bulletList")), ...toolbarHover(editorExamples.isActive("bulletList")), title: "Bullet List" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
+      const url = window.prompt("Enter URL:");
+      if (url) editorExamples.chain().focus().setLink({ href: url }).run();
+    }, style: toolbarButtonStyle(editorExamples.isActive("link")), ...toolbarHover(editorExamples.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(EditorContent, { editor: editorExamples, className: "px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" })))), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "History"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Key milestones: who introduced it, when, and how understanding has evolved."), /* @__PURE__ */ import_react16.default.createElement("div", { style: { border: "1px solid var(--neutral-300)", borderRadius: "var(--radius)", background: "white", overflow: "hidden" } }, editorHistory && /* @__PURE__ */ import_react16.default.createElement("div", { style: { borderBottom: "1px solid var(--neutral-200)", padding: "var(--space-1) var(--space-2)", display: "flex", gap: "2px", flexWrap: "wrap", background: "var(--neutral-50)" } }, /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorHistory.chain().focus().toggleBold().run(), style: toolbarButtonStyle(editorHistory.isActive("bold")), ...toolbarHover(editorHistory.isActive("bold")), title: "Bold" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faBold })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorHistory.chain().focus().toggleItalic().run(), style: toolbarButtonStyle(editorHistory.isActive("italic")), ...toolbarHover(editorHistory.isActive("italic")), title: "Italic" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faItalic })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorHistory.chain().focus().toggleUnderline().run(), style: toolbarButtonStyle(editorHistory.isActive("underline")), ...toolbarHover(editorHistory.isActive("underline")), title: "Underline" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faUnderline })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => editorHistory.chain().focus().toggleBulletList().run(), style: toolbarButtonStyle(editorHistory.isActive("bulletList")), ...toolbarHover(editorHistory.isActive("bulletList")), title: "Bullet List" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faListUl })), /* @__PURE__ */ import_react16.default.createElement("button", { type: "button", onClick: () => {
+      const url = window.prompt("Enter URL:");
+      if (url) editorHistory.chain().focus().setLink({ href: url }).run();
+    }, style: toolbarButtonStyle(editorHistory.isActive("link")), ...toolbarHover(editorHistory.isActive("link")), title: "Add Link" }, /* @__PURE__ */ import_react16.default.createElement(FontAwesomeIcon, { icon: faLink }))), /* @__PURE__ */ import_react16.default.createElement("div", { style: { maxHeight: "200px", overflowY: "auto" } }, /* @__PURE__ */ import_react16.default.createElement(EditorContent, { editor: editorHistory, className: "px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" }))))), activeTab === "clinical" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Clinical Relevance"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "How this shows up in practice: diagnosis, treatment planning, patient presentation, or clinical decision-making."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.clinical_relevance, onChange: (e3) => setFormData({ ...formData, clinical_relevance: e3.target.value }), className: "form-input", rows: 3 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Controversy"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Active debates, contested validity, or conflicting findings across studies or traditions."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.controversy, onChange: (e3) => setFormData({ ...formData, controversy: e3.target.value }), className: "form-input", rows: 2 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Misconceptions"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "Common errors in how this is understood or applied, even among trained professionals."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.misconceptions, onChange: (e3) => setFormData({ ...formData, misconceptions: e3.target.value }), className: "form-input", rows: 2 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Developmental Notes"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "How this changes across the lifespan: onset, maturation, aging, or critical periods."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.developmental_notes, onChange: (e3) => setFormData({ ...formData, developmental_notes: e3.target.value }), className: "form-input", rows: 2 })), /* @__PURE__ */ import_react16.default.createElement("div", null, /* @__PURE__ */ import_react16.default.createElement("label", { className: "form-label" }, "Measurement Notes"), /* @__PURE__ */ import_react16.default.createElement("p", { className: "form-hint" }, "How this is operationalized: scales, biomarkers, imaging modalities, or behavioral indicators."), /* @__PURE__ */ import_react16.default.createElement("textarea", { value: formData.measurement_notes, onChange: (e3) => setFormData({ ...formData, measurement_notes: e3.target.value }), className: "form-input", rows: 2 }))), activeTab === "relationships" && /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react16.default.createElement("div", { style: {
       fontFamily: "var(--font-display)",
       fontSize: "var(--text-xl)",
       fontWeight: 700,
@@ -55077,8 +54902,8 @@ function ConceptsIndex() {
       setLoading(false);
     }
   };
-  const conceptTypes = [...new Set(concepts.map((c5) => c5.node_type))].filter(Boolean).sort();
-  const filteredConcepts = selectedTypes.length === 0 ? concepts : concepts.filter((concept) => selectedTypes.includes(concept.node_type));
+  const conceptTypes = [...new Set(concepts.map((c5) => c5.concept_type))].filter(Boolean).sort();
+  const filteredConcepts = selectedTypes.length === 0 ? concepts : concepts.filter((concept) => selectedTypes.includes(concept.concept_type));
   const toggleType = (type) => {
     setSelectedTypes(
       (prev) => prev.includes(type) ? prev.filter((t4) => t4 !== type) : [...prev, type]
@@ -55100,11 +54925,8 @@ function ConceptsIndex() {
         aVal = a5.label.toLowerCase();
         bVal = b2.label.toLowerCase();
       } else if (sortField === "type") {
-        aVal = a5.node_type;
-        bVal = b2.node_type;
-      } else if (sortField === "status") {
-        aVal = a5.level_status || "";
-        bVal = b2.level_status || "";
+        aVal = a5.concept_type;
+        bVal = b2.concept_type;
       } else if (sortField === "relationships") {
         const getRelCount = (concept) => {
           const outgoing = concept.outgoing_connections?.length || 0;
@@ -55183,7 +55005,7 @@ function ConceptsIndex() {
       selectedTypes.length,
       ")"
     ), conceptTypes.map((type) => {
-      const count = concepts.filter((n3) => n3.node_type === type).length;
+      const count = concepts.filter((n3) => n3.concept_type === type).length;
       const isSelected = selectedTypes.includes(type);
       return /* @__PURE__ */ import_react18.default.createElement(
         "label",
@@ -55501,7 +55323,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
   };
   const handleTypeChange = async (newType) => {
     setEditingType(false);
-    if (newType === concept.node_type) return;
+    if (newType === concept.concept_type) return;
     try {
       const response = await fetch(`/concepts/${concept.id}`, {
         method: "PATCH",
@@ -55510,7 +55332,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
           "Accept": "application/json",
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ concept: { node_type: newType } })
+        body: JSON.stringify({ concept: { concept_type: newType } })
       });
       if (response.ok) {
         onUpdate();
@@ -55654,7 +55476,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
         },
         title: "Click to change type"
       },
-      getNodeTypeLabel(concept.node_type)
+      getNodeTypeLabel(concept.concept_type)
     ), editingType && /* @__PURE__ */ import_react18.default.createElement(
       "div",
       {
@@ -55682,16 +55504,16 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
             padding: "var(--space-3)",
             cursor: "pointer",
             borderBottom: "1px solid var(--neutral-100)",
-            background: concept.node_type === opt.value ? "var(--accent-green-light)" : "white",
+            background: concept.concept_type === opt.value ? "var(--accent-green-light)" : "white",
             transition: "background 0.15s"
           },
           onMouseEnter: (e3) => {
-            if (concept.node_type !== opt.value) {
+            if (concept.concept_type !== opt.value) {
               e3.currentTarget.style.background = "var(--neutral-50)";
             }
           },
           onMouseLeave: (e3) => {
-            e3.currentTarget.style.background = concept.node_type === opt.value ? "var(--accent-green-light)" : "white";
+            e3.currentTarget.style.background = concept.concept_type === opt.value ? "var(--accent-green-light)" : "white";
           }
         },
         /* @__PURE__ */ import_react18.default.createElement("div", { style: {
@@ -55812,7 +55634,7 @@ function HierarchicalConceptSelect({
       required
     },
     /* @__PURE__ */ import_react20.default.createElement("option", { value: "" }, placeholder),
-    flatConcepts.map(({ concept, depth }) => /* @__PURE__ */ import_react20.default.createElement("option", { key: concept.id, value: concept.id }, getIndentPrefix(depth), concept.label, " (", concept.node_type, ")"))
+    flatConcepts.map(({ concept, depth }) => /* @__PURE__ */ import_react20.default.createElement("option", { key: concept.id, value: concept.id }, getIndentPrefix(depth), concept.label, " (", concept.concept_type, ")"))
   );
 }
 
@@ -58630,7 +58452,7 @@ function ConceptSelector({ selectedConceptIds = [], onChange: onChange16, themeC
           body: JSON.stringify({
             concept: {
               label: filter2.trim(),
-              node_type: "construct"
+              concept_type: "non_physical_concept"
             }
           })
         });
@@ -62392,14 +62214,18 @@ function AuthorDisambiguationModal({ isOpen, onClose, authors, authorsData, doi,
 
 // app/javascript/components/ConceptDisambiguationModal.js
 var import_react31 = __toESM(require_react());
-var NODE_TYPE_OPTIONS = [
-  { value: "concept", label: "Concept" },
-  { value: "theory", label: "Theory" },
-  { value: "method", label: "Method" },
-  { value: "measure", label: "Measure" },
-  { value: "entity", label: "Entity" },
-  { value: "category", label: "Category" },
-  { value: "subject", label: "Subject" }
+var CONCEPT_TYPE_OPTIONS = [
+  { value: "research_method", label: "Research Method" },
+  { value: "measurement", label: "Measurement" },
+  { value: "intervention", label: "Intervention" },
+  { value: "pathology", label: "Pathology" },
+  { value: "emotion", label: "Emotion" },
+  { value: "symptom", label: "Symptom" },
+  { value: "school_of_thought", label: "School of Thought" },
+  { value: "physical_entity", label: "Physical Entity" },
+  { value: "physical_process", label: "Physical Process" },
+  { value: "non_physical_process", label: "Non-Physical Process" },
+  { value: "non_physical_concept", label: "Non-Physical Concept" }
 ];
 var CONFIDENCE_COLORS = {
   high: { bg: "var(--accent-green-light)", border: "var(--accent-green)", text: "var(--accent-green)" },
@@ -62414,23 +62240,23 @@ var CONFIDENCE_LABELS = {
 function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm }) {
   const [conceptData, setConceptData] = (0, import_react31.useState)([]);
   const [newConceptLabel, setNewConceptLabel] = (0, import_react31.useState)("");
-  const [newConceptType, setNewConceptType] = (0, import_react31.useState)("subject");
+  const [newConceptType, setNewConceptType] = (0, import_react31.useState)("non_physical_concept");
   (0, import_react31.useEffect)(() => {
     if (isOpen) {
       setNewConceptLabel("");
-      setNewConceptType("subject");
+      setNewConceptType("non_physical_concept");
       if (suggestions && suggestions.length > 0) {
         const initialData = suggestions.map((suggestion) => ({
           originalSuggestion: {
             label: suggestion.label,
-            node_type: suggestion.node_type,
+            concept_type: suggestion.concept_type,
             confidence: suggestion.confidence,
             rationale: suggestion.rationale
           },
           action: suggestion.potential_matches?.length > 0 && suggestion.potential_matches[0].match_type === "exact" ? "link" : "create",
           linkedConceptId: suggestion.potential_matches?.length > 0 && suggestion.potential_matches[0].match_type === "exact" ? suggestion.potential_matches[0].id : null,
           editedLabel: suggestion.label,
-          editedNodeType: suggestion.node_type || "subject",
+          editedConceptType: suggestion.concept_type || "non_physical_concept",
           potentialMatches: suggestion.potential_matches || [],
           isCustom: false
         }));
@@ -62488,19 +62314,19 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
       action: "create",
       linkedConceptId: null,
       editedLabel: newConceptLabel.trim(),
-      editedNodeType: newConceptType,
+      editedConceptType: newConceptType,
       potentialMatches: [],
       isCustom: true
     }]);
     setNewConceptLabel("");
-    setNewConceptType("subject");
+    setNewConceptType("non_physical_concept");
   };
   const handleConfirm = () => {
     const processedConcepts = conceptData.map((concept) => ({
       action: concept.action,
       linkedConceptId: concept.linkedConceptId,
       editedLabel: concept.editedLabel,
-      editedNodeType: concept.editedNodeType,
+      editedConceptType: concept.editedConceptType,
       originalSuggestion: concept.originalSuggestion,
       isCustom: concept.isCustom
     }));
@@ -62556,7 +62382,7 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
       borderRadius: "4px",
       fontWeight: 500,
       textTransform: "capitalize"
-    } }, concept.originalSuggestion?.node_type), /* @__PURE__ */ import_react31.default.createElement("span", { style: {
+    } }, concept.originalSuggestion?.concept_type), /* @__PURE__ */ import_react31.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       padding: "2px 8px",
       background: getConfidenceStyle(concept.originalSuggestion?.confidence).bg,
@@ -62661,7 +62487,7 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
         background: "white",
         borderRadius: "3px",
         color: "var(--neutral-600)"
-      } }, linkedConcept.node_type))), /* @__PURE__ */ import_react31.default.createElement(
+      } }, linkedConcept.concept_type))), /* @__PURE__ */ import_react31.default.createElement(
         "button",
         {
           type: "button",
@@ -62722,8 +62548,8 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
       } }, "Type"), /* @__PURE__ */ import_react31.default.createElement(
         "select",
         {
-          value: concept.editedNodeType,
-          onChange: (e3) => handleFieldChange(index8, "editedNodeType", e3.target.value),
+          value: concept.editedConceptType,
+          onChange: (e3) => handleFieldChange(index8, "editedConceptType", e3.target.value),
           className: "form-select",
           style: {
             width: "100%",
@@ -62735,7 +62561,7 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
             height: "38px"
           }
         },
-        NODE_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react31.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
+        CONCEPT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react31.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
       ))), hasPotentialMatches && /* @__PURE__ */ import_react31.default.createElement("div", { style: {
         paddingTop: "var(--space-3)",
         borderTop: "1px solid var(--neutral-200)"
@@ -62791,7 +62617,7 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
           fontSize: "var(--text-xs)",
           color: "var(--neutral-500)",
           marginLeft: "auto"
-        } }, match.node_type))
+        } }, match.concept_type))
       )))))
     )));
   })), /* @__PURE__ */ import_react31.default.createElement("div", { style: {
@@ -62864,7 +62690,7 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
         background: "white"
       }
     },
-    NODE_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react31.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
+    CONCEPT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react31.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
   )), /* @__PURE__ */ import_react31.default.createElement(
     "button",
     {
@@ -63363,7 +63189,7 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             body: JSON.stringify({
               concept: {
                 label: concept.editedLabel,
-                node_type: concept.editedNodeType || "subject"
+                concept_type: concept.editedConceptType || "non_physical_concept"
               }
             })
           });
@@ -64490,7 +64316,7 @@ var ConceptSidebar = import_react33.default.memo(({
     let filtered = allConcepts.filter((c5) => {
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
-      return c5.label?.toLowerCase().includes(query) || c5.node_type?.toLowerCase().includes(query);
+      return c5.label?.toLowerCase().includes(query) || c5.concept_type?.toLowerCase().includes(query);
     });
     if (showRelationships && !searchQuery) {
       const hierarchy = buildConceptHierarchy(filtered);
@@ -64500,7 +64326,7 @@ var ConceptSidebar = import_react33.default.memo(({
       if (sortBy === "alphabetical") {
         return (a5.label || "").localeCompare(b2.label || "");
       } else if (sortBy === "type") {
-        return (a5.node_type || "").localeCompare(b2.node_type || "");
+        return (a5.concept_type || "").localeCompare(b2.concept_type || "");
       } else {
         return new Date(b2.updated_at) - new Date(a5.updated_at);
       }
@@ -64923,7 +64749,7 @@ function ConceptDisplay({ concept }) {
     lineHeight: 1.2,
     marginBottom: "var(--space-3)",
     textAlign: "center"
-  } }, concept.label), /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap", justifyContent: "center" } }, concept.node_type && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+  } }, concept.label), /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap", justifyContent: "center" } }, concept.concept_type && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
     fontSize: "var(--text-xs)",
     textTransform: "uppercase",
     letterSpacing: "0.05em",
@@ -64933,7 +64759,7 @@ function ConceptDisplay({ concept }) {
     borderRadius: "4px",
     fontFamily: "var(--font-body)",
     fontWeight: 600
-  } }, concept.node_type.replace(/_/g, " ")), concept.level_status && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
+  } }, concept.concept_type.replace(/_/g, " ")), concept.effective_concept_type && concept.effective_concept_type !== concept.concept_type && /* @__PURE__ */ import_react33.default.createElement("span", { style: {
     fontSize: "var(--text-xs)",
     textTransform: "uppercase",
     letterSpacing: "0.05em",
@@ -64943,88 +64769,59 @@ function ConceptDisplay({ concept }) {
     borderRadius: "4px",
     fontFamily: "var(--font-body)",
     fontWeight: 500
-  } }, concept.level_status))), /* @__PURE__ */ import_react33.default.createElement("div", null, concept.summary_top && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
+  } }, "effective: ", concept.effective_concept_type.replace(/_/g, " ")), concept.domains && concept.domains.length > 0 && concept.domains.map((domain2) => /* @__PURE__ */ import_react33.default.createElement("span", { key: domain2, style: {
+    fontSize: "var(--text-xs)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    background: "color-mix(in srgb, var(--accent-purple) 15%, white)",
+    color: "var(--accent-purple)",
+    padding: "var(--space-1) var(--space-2)",
+    borderRadius: "4px",
+    fontFamily: "var(--font-body)",
+    fontWeight: 500
+  } }, domain2.replace(/_/g, " "))))), concept.summary && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
     fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
     color: "var(--accent-green)",
     marginBottom: "var(--space-3)"
-  } }, "Summary (Top-level)"), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
+  } }, "Summary"), /* @__PURE__ */ import_react33.default.createElement("div", { style: {
     fontFamily: "var(--font-body)",
     fontSize: "var(--text-sm)",
     lineHeight: 1.6,
-    color: "var(--neutral-700)",
-    whiteSpace: "pre-wrap"
-  } }, concept.summary_top)), concept.summary_mid && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
-    fontSize: "var(--text-lg)",
-    fontWeight: 600,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-green)",
-    marginBottom: "var(--space-3)"
-  } }, "Summary (Mid-level)"), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-sm)",
-    lineHeight: 1.6,
-    color: "var(--neutral-700)",
-    whiteSpace: "pre-wrap"
-  } }, concept.summary_mid)), concept.summary_deep && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
-    fontSize: "var(--text-lg)",
-    fontWeight: 600,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-green)",
-    marginBottom: "var(--space-3)"
-  } }, "Summary (Deep)"), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-sm)",
-    lineHeight: 1.6,
-    color: "var(--neutral-700)",
-    whiteSpace: "pre-wrap"
-  } }, concept.summary_deep))), /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "var(--space-6)", marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Mechanisms", items: concept.mechanisms }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Signature Techniques", items: concept.signature_techniques }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Strengths", items: concept.strengths }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Weaknesses", items: concept.weaknesses }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Adjacent Models", items: concept.adjacent_models }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Contrasts With", items: concept.contrasts_with }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Integrates With", items: concept.integrates_with }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Intake Questions", items: concept.intake_questions }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Micro Skills", items: concept.micro_skills }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Practice Prompts", items: concept.practice_prompts }), /* @__PURE__ */ import_react33.default.createElement(ArraySection, { title: "Assessment Links", items: concept.assessment_links })), concept.evidence_brief && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
-    fontSize: "var(--text-lg)",
-    fontWeight: 600,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-green)",
-    marginBottom: "var(--space-3)"
-  } }, "Evidence Brief"), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-sm)",
-    lineHeight: 1.6,
-    color: "var(--neutral-700)",
-    whiteSpace: "pre-wrap"
-  } }, concept.evidence_brief)), concept.confidence_note && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
-    fontSize: "var(--text-lg)",
-    fontWeight: 600,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-green)",
-    marginBottom: "var(--space-3)"
-  } }, "Confidence Note"), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-sm)",
-    lineHeight: 1.6,
-    color: "var(--neutral-700)",
-    whiteSpace: "pre-wrap"
-  } }, concept.confidence_note)));
+    color: "var(--neutral-700)"
+  }, dangerouslySetInnerHTML: { __html: concept.summary } })), concept.aliases && concept.aliases.length > 0 && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } }, /* @__PURE__ */ import_react33.default.createElement("span", { style: { fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--neutral-500)", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Also known as:"), concept.aliases.map((alias, idx) => /* @__PURE__ */ import_react33.default.createElement("span", { key: idx, style: { fontSize: "var(--text-sm)", fontFamily: "var(--font-body)", color: "var(--neutral-600)", fontStyle: "italic" } }, alias, idx < concept.aliases.length - 1 ? "," : ""))), /* @__PURE__ */ import_react33.default.createElement(RichTextSection, { title: "Description", content: concept.description }), (concept.location || concept.school_of_thought || concept.etymology) && /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "var(--space-4)", marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Location", content: concept.location }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "School of Thought", content: concept.school_of_thought }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Etymology", content: concept.etymology })), /* @__PURE__ */ import_react33.default.createElement(RichTextSection, { title: "Examples", content: concept.examples }), /* @__PURE__ */ import_react33.default.createElement(RichTextSection, { title: "History", content: concept.history }), (concept.clinical_relevance || concept.controversy || concept.misconceptions || concept.developmental_notes || concept.measurement_notes) && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: { fontSize: "var(--text-lg)", fontWeight: 600, fontFamily: "var(--font-display)", color: "var(--accent-green)", marginBottom: "var(--space-3)" } }, "Clinical & Research"), /* @__PURE__ */ import_react33.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Clinical Relevance", content: concept.clinical_relevance }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Controversy", content: concept.controversy }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Misconceptions", content: concept.misconceptions }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Developmental Notes", content: concept.developmental_notes }), /* @__PURE__ */ import_react33.default.createElement(TextSection, { title: "Measurement Notes", content: concept.measurement_notes }))), concept.mnemonic && /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)", padding: "var(--space-4)", background: "var(--neutral-50)", borderRadius: "var(--radius)", border: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: { fontSize: "var(--text-sm)", fontWeight: 600, fontFamily: "var(--font-display)", color: "var(--neutral-500)", marginBottom: "var(--space-1)", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Mnemonic"), /* @__PURE__ */ import_react33.default.createElement("p", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-base)", color: "var(--neutral-800)", fontStyle: "italic" } }, concept.mnemonic)));
 }
-function ArraySection({ title, items }) {
-  if (!items || items.length === 0) return null;
-  return /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
-    fontSize: "var(--text-base)",
+function RichTextSection({ title, content }) {
+  if (!content) return null;
+  return /* @__PURE__ */ import_react33.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react33.default.createElement("h3", { style: {
+    fontSize: "var(--text-lg)",
     fontWeight: 600,
     fontFamily: "var(--font-display)",
-    color: "var(--neutral-900)",
-    marginBottom: "var(--space-2)"
-  } }, title), /* @__PURE__ */ import_react33.default.createElement("ul", { style: {
-    listStyle: "disc",
-    paddingLeft: "var(--space-5)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "var(--space-1)"
-  } }, items.map((item, idx) => /* @__PURE__ */ import_react33.default.createElement("li", { key: idx, style: {
+    color: "var(--accent-green)",
+    marginBottom: "var(--space-3)"
+  } }, title), /* @__PURE__ */ import_react33.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    lineHeight: 1.6,
+    color: "var(--neutral-700)"
+  }, dangerouslySetInnerHTML: { __html: content } }));
+}
+function TextSection({ title, content }) {
+  if (!content) return null;
+  return /* @__PURE__ */ import_react33.default.createElement("div", null, /* @__PURE__ */ import_react33.default.createElement("h4", { style: {
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    fontFamily: "var(--font-display)",
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-1)"
+  } }, title), /* @__PURE__ */ import_react33.default.createElement("p", { style: {
     fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
     color: "var(--neutral-700)",
-    lineHeight: 1.6
-  } }, item))));
+    lineHeight: 1.6,
+    whiteSpace: "pre-wrap"
+  } }, content));
 }
 function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
   const [connections, setConnections] = (0, import_react33.useState)([]);
@@ -65171,7 +64968,7 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
         fontSize: "var(--text-xs)",
         color: "var(--neutral-400)",
         fontFamily: "var(--font-body)"
-      } }, otherConcept.node_type?.replace(/_/g, " ")), /* @__PURE__ */ import_react33.default.createElement(
+      } }, otherConcept.concept_type?.replace(/_/g, " ")), /* @__PURE__ */ import_react33.default.createElement(
         "button",
         {
           onClick: () => handleDeleteConnection(connection.id),
@@ -65956,7 +65753,7 @@ function PdfUploadModal({ isOpen, onClose, onSuccess }) {
             body: JSON.stringify({
               concept: {
                 label: concept.editedLabel,
-                node_type: concept.editedNodeType || "subject"
+                concept_type: concept.editedConceptType || "non_physical_concept"
               }
             })
           });
@@ -67039,6 +66836,44 @@ function SourcesIndex() {
           padding: "var(--space-2)"
         }
       }
+    )), /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--neutral-500)",
+          marginBottom: "var(--space-3)"
+        }
+      },
+      "Sort By"
+    ), /* @__PURE__ */ import_react36.default.createElement(
+      "select",
+      {
+        value: sortColumn ? `${sortColumn}-${sortDirection}` : "created_at-desc",
+        onChange: (e3) => {
+          const [col, dir] = e3.target.value.split("-");
+          setSortColumn(col);
+          setSortDirection(dir);
+        },
+        className: "form-input",
+        style: {
+          width: "100%",
+          fontSize: "var(--text-sm)",
+          padding: "var(--space-2)",
+          cursor: "pointer"
+        }
+      },
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "created_at-desc" }, "Recently Added"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "title-asc" }, "Title (A-Z)"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "title-desc" }, "Title (Z-A)"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "year-desc" }, "Year (Newest)"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "year-asc" }, "Year (Oldest)"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "notes_count-desc" }, "Most Notes"),
+      /* @__PURE__ */ import_react36.default.createElement("option", { value: "notes_count-asc" }, "Fewest Notes")
     )), /* @__PURE__ */ import_react36.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react36.default.createElement(
       "label",
       {
@@ -68312,12 +68147,12 @@ function SourceShow({ sourceId }) {
       return new Date(b2.updated_at) - new Date(a5.updated_at);
     }
   });
-  return /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", height: "100vh", overflow: "hidden" } }, /* @__PURE__ */ import_react37.default.createElement(
+  return /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)", overflow: "hidden" } }, /* @__PURE__ */ import_react37.default.createElement(
     "aside",
     {
       style: {
         width: sidebarOpen ? "280px" : "0",
-        background: "var(--sidebar-bg)",
+        background: "#e2e2e2",
         overflowY: "auto",
         overflowX: "hidden",
         transition: "width 0.3s ease",
@@ -68397,7 +68232,7 @@ function SourceShow({ sourceId }) {
         },
         onMouseEnter: (e3) => {
           if (s3.id !== parseInt(sourceId)) {
-            e3.currentTarget.style.background = "var(--neutral-100)";
+            e3.currentTarget.style.background = "#d5d5d5";
           }
         },
         onMouseLeave: (e3) => {
@@ -68604,7 +68439,7 @@ function SourceDisplay({ source }) {
     },
     /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-file-pdf" }),
     "View PDF"
-  )), (source.concepts && source.concepts.length > 0 || source.tags && source.tags.length > 0 || source.keywords && source.keywords.length > 0) && /* @__PURE__ */ import_react37.default.createElement("div", { style: { paddingTop: "var(--space-6)", borderTop: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, source.concepts?.map((concept) => /* @__PURE__ */ import_react37.default.createElement(
+  )), (source.concepts && source.concepts.length > 0 || source.tags && source.tags.length > 0) && /* @__PURE__ */ import_react37.default.createElement("div", { style: { paddingTop: "var(--space-6)", borderTop: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react37.default.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: "var(--space-2)" } }, source.concepts?.map((concept) => /* @__PURE__ */ import_react37.default.createElement(
     "a",
     {
       key: concept.id,
@@ -68656,27 +68491,6 @@ function SourceDisplay({ source }) {
       }
     },
     tag.name
-  )), source.keywords?.map((keyword, idx) => /* @__PURE__ */ import_react37.default.createElement(
-    "span",
-    {
-      key: `kw-${idx}`,
-      style: {
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "4px",
-        fontSize: "var(--text-xs)",
-        background: "var(--neutral-100)",
-        color: "var(--neutral-600)",
-        padding: "var(--space-1) var(--space-3)",
-        borderRadius: "4px",
-        fontFamily: "var(--font-body)",
-        fontWeight: 400,
-        border: "1px solid var(--neutral-200)"
-      },
-      title: "Author keyword"
-    },
-    /* @__PURE__ */ import_react37.default.createElement("i", { className: "fas fa-key", style: { fontSize: "8px", opacity: 0.6 } }),
-    keyword
   )))), source.people && source.people.length > 0 && /* @__PURE__ */ import_react37.default.createElement("div", { style: { marginTop: "var(--space-8)" } }, /* @__PURE__ */ import_react37.default.createElement("h3", { style: {
     fontSize: "var(--text-2xl)",
     fontWeight: 700,
@@ -70777,14 +70591,14 @@ function PersonShow({ personId: initialPersonId }) {
       fontWeight: 600,
       color: "var(--neutral-900)",
       fontFamily: "var(--font-body)",
-      marginBottom: concept.node_type ? "var(--space-1)" : "0"
+      marginBottom: concept.concept_type ? "var(--space-1)" : "0"
     } }, concept.label),
-    concept.node_type && /* @__PURE__ */ import_react40.default.createElement("div", { style: {
+    concept.concept_type && /* @__PURE__ */ import_react40.default.createElement("div", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       textTransform: "capitalize",
       fontFamily: "var(--font-body)"
-    } }, concept.node_type)
+    } }, concept.concept_type)
   ))) : /* @__PURE__ */ import_react40.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No related concepts")), /* @__PURE__ */ import_react40.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react40.default.createElement("div", { style: {
     display: "flex",
     justifyContent: "space-between",
@@ -71258,15 +71072,15 @@ function ConnectionVisualization() {
       setLoading(false);
     }
   };
-  const filteredConcepts = selectedType === "all" ? concepts : concepts.filter((n3) => n3.node_type === selectedType);
+  const filteredConcepts = selectedType === "all" ? concepts : concepts.filter((n3) => n3.concept_type === selectedType);
   const filteredConnections = connections.filter((connection) => {
     const hasConcept = filteredConcepts.some((n3) => n3.id === connection.src_concept.id || n3.id === connection.dst_concept.id);
     const matchesRelType = selectedRelType === "all" || connection.rel_type === selectedRelType;
     return hasConcept && matchesRelType;
   });
   const conceptsByType = filteredConcepts.reduce((acc, concept) => {
-    if (!acc[concept.node_type]) acc[concept.node_type] = [];
-    acc[concept.node_type].push(concept);
+    if (!acc[concept.concept_type]) acc[concept.concept_type] = [];
+    acc[concept.concept_type].push(concept);
     return acc;
   }, {});
   const relTypeLabels = {
@@ -71354,12 +71168,17 @@ function ConnectionVisualization() {
       className: "px-4 py-2 border border-gray-300 rounded bg-white"
     },
     /* @__PURE__ */ import_react41.default.createElement("option", { value: "all" }, "All Types"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "model" }, "Model"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "technique" }, "Technique"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "mechanism" }, "Mechanism"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "construct" }, "Construct"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "measure" }, "Measure"),
-    /* @__PURE__ */ import_react41.default.createElement("option", { value: "population" }, "Population")
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "research_method" }, "Research Method"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "measurement" }, "Measurement"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "intervention" }, "Intervention"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "pathology" }, "Pathology"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "emotion" }, "Emotion"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "symptom" }, "Symptom"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "school_of_thought" }, "School of Thought"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "physical_entity" }, "Physical Entity"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "physical_process" }, "Physical Process"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "non_physical_process" }, "Non-Physical Process"),
+    /* @__PURE__ */ import_react41.default.createElement("option", { value: "non_physical_concept" }, "Non-Physical Concept")
   )), /* @__PURE__ */ import_react41.default.createElement("div", null, /* @__PURE__ */ import_react41.default.createElement("label", { className: "block text-sm font-medium mb-1" }, "Filter by Relationship"), /* @__PURE__ */ import_react41.default.createElement(
     "select",
     {
@@ -71384,7 +71203,7 @@ function ConnectionVisualization() {
         className: "text-lg font-medium hover:text-primary"
       },
       concept.label
-    ), concept.summary_top && /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary_top)), /* @__PURE__ */ import_react41.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react41.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
+    ), concept.summary && /* @__PURE__ */ import_react41.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, concept.summary)), /* @__PURE__ */ import_react41.default.createElement("span", { className: "text-xs text-gray-500 ml-4" }, conceptConnections.length, " ", conceptConnections.length === 1 ? "connection" : "connections")), conceptConnections.length > 0 && /* @__PURE__ */ import_react41.default.createElement("div", { className: "grid md:grid-cols-2 gap-2 mt-3" }, conceptConnections.map((connection) => {
       const isSource = connection.src_concept.id === concept.id;
       const otherConcept = isSource ? connection.dst_concept : connection.src_concept;
       const direction = isSource ? "\u2192" : "\u2190";
@@ -74137,18 +73956,18 @@ function TagDetail({ tag, onDelete, onUpdate }) {
       fontWeight: 600,
       fontFamily: "var(--font-body)",
       color: "var(--neutral-900)"
-    } }, concept.label), concept.node_type && /* @__PURE__ */ import_react47.default.createElement("span", { style: {
+    } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react47.default.createElement("span", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)"
-    } }, concept.node_type)),
-    concept.summary_top && /* @__PURE__ */ import_react47.default.createElement("p", { style: {
+    } }, concept.concept_type)),
+    concept.summary && /* @__PURE__ */ import_react47.default.createElement("p", { style: {
       fontSize: "var(--text-xs)",
       color: "var(--neutral-600)",
       fontFamily: "var(--font-body)",
       margin: 0,
       lineHeight: 1.4
-    } }, concept.summary_top)
+    } }, concept.summary)
   ))), !tag.concepts || tag.concepts.length === 0 && /* @__PURE__ */ import_react47.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "var(--text-sm)", fontStyle: "italic" } }, "No concepts tagged")), /* @__PURE__ */ import_react47.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react47.default.createElement("div", { style: {
     display: "flex",
     justifyContent: "space-between",
@@ -86080,9 +85899,8 @@ function ConceptRelationshipMap() {
       const nodes = concepts.map((concept) => ({
         id: concept.id,
         label: concept.label,
-        type: concept.node_type,
+        type: concept.concept_type,
         slug: concept.slug,
-        level_status: concept.level_status || "mapped",
         // Count connections for node sizing
         connectionCount: connections.filter(
           (c5) => c5.src_concept_id === concept.id || c5.dst_concept_id === concept.id
@@ -86670,12 +86488,7 @@ function Dashboard() {
       const sourcesPdfCount = sourcesData.filters?.pdf_count || sources.filter((s3) => s3.pdf_url).length;
       const collections = Array.isArray(collectionsData) ? collectionsData : collectionsData.collections || collectionsData;
       const conceptsByType = concepts.reduce((acc, concept) => {
-        acc[concept.node_type] = (acc[concept.node_type] || 0) + 1;
-        return acc;
-      }, {});
-      const conceptsByStatus = concepts.reduce((acc, concept) => {
-        const status = concept.level_status || "mapped";
-        acc[status] = (acc[status] || 0) + 1;
+        acc[concept.concept_type] = (acc[concept.concept_type] || 0) + 1;
         return acc;
       }, {});
       const needsReview = concepts.filter((c5) => {
@@ -86694,7 +86507,6 @@ function Dashboard() {
         totalCollections: Array.isArray(collections) ? collections.length : 0,
         totalPdfs: sourcesPdfCount,
         conceptsByType,
-        conceptsByStatus,
         needsReview,
         pinnedNotes: notes.filter((n3) => n3.pinned).length
       });
@@ -87273,7 +87085,7 @@ function SearchResultItem({ item, type }) {
     return "";
   };
   const getSubtitle = () => {
-    if (type === "concept") return item.summary_top;
+    if (type === "concept") return item.summary;
     if (type === "source") return item.authors;
     if (type === "person") return item.role;
     if (type === "note" && item.concept) return `\u2192 ${item.concept.label}`;
@@ -87281,7 +87093,7 @@ function SearchResultItem({ item, type }) {
     return "";
   };
   const getBadge = () => {
-    if (type === "concept") return item.node_type;
+    if (type === "concept") return item.concept_type;
     if (type === "source") return item.kind;
     if (type === "person") return item.role;
     if (type === "note") return item.note_type;
@@ -115467,67 +115279,5203 @@ function CollectionManager({ isOpen, onClose, itemToAdd = null }) {
   )))));
 }
 
+// app/javascript/components/BulkUploadPage.js
+var import_react76 = __toESM(require_react());
+
+// app/javascript/components/BulkUploadDropzone.js
+var import_react71 = __toESM(require_react());
+function BulkUploadDropzone({ onUploadComplete }) {
+  const [isDragging, setIsDragging] = (0, import_react71.useState)(false);
+  const [uploading, setUploading] = (0, import_react71.useState)(false);
+  const [uploadProgress, setUploadProgress] = (0, import_react71.useState)({ current: 0, total: 0 });
+  const [error, setError] = (0, import_react71.useState)("");
+  const fileInputRef = (0, import_react71.useRef)(null);
+  const folderInputRef = (0, import_react71.useRef)(null);
+  const handleDragEnter = (0, import_react71.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(true);
+  }, []);
+  const handleDragLeave = (0, import_react71.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(false);
+  }, []);
+  const handleDragOver = (0, import_react71.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+  }, []);
+  const collectPdfFiles = async (items) => {
+    const pdfFiles = [];
+    const processEntry = async (entry) => {
+      if (entry.isFile) {
+        return new Promise((resolve) => {
+          entry.file((file) => {
+            if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+              pdfFiles.push(file);
+            }
+            resolve();
+          });
+        });
+      } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        return new Promise((resolve) => {
+          reader.readEntries(async (entries) => {
+            for (const subEntry of entries) {
+              await processEntry(subEntry);
+            }
+            resolve();
+          });
+        });
+      }
+    };
+    for (const item of items) {
+      if (item.webkitGetAsEntry) {
+        const entry = item.webkitGetAsEntry();
+        if (entry) {
+          await processEntry(entry);
+        }
+      } else if (item.getAsFile) {
+        const file = item.getAsFile();
+        if (file && (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
+          pdfFiles.push(file);
+        }
+      }
+    }
+    return pdfFiles;
+  };
+  const handleDrop2 = (0, import_react71.useCallback)(async (e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(false);
+    setError("");
+    const items = e3.dataTransfer.items;
+    if (!items || items.length === 0) return;
+    const pdfFiles = await collectPdfFiles(items);
+    if (pdfFiles.length === 0) {
+      setError("No PDF files found in the dropped items.");
+      return;
+    }
+    await uploadFiles(pdfFiles);
+  }, []);
+  const handleFileSelect = (0, import_react71.useCallback)(async (e3) => {
+    const files = Array.from(e3.target.files).filter(
+      (file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
+    );
+    if (files.length === 0) {
+      setError("No PDF files selected.");
+      return;
+    }
+    await uploadFiles(files);
+  }, []);
+  const uploadFiles = async (files) => {
+    setUploading(true);
+    setUploadProgress({ current: 0, total: files.length });
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("name", `Upload ${(/* @__PURE__ */ new Date()).toLocaleString()}`);
+      files.forEach((file, idx) => {
+        formData.append("files[]", file);
+        setUploadProgress({ current: idx + 1, total: files.length });
+      });
+      const response = await fetch("/batch_uploads", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: formData
+      });
+      if (response.ok) {
+        const batch = await response.json();
+        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
+        if (fullResponse.ok) {
+          const fullBatch = await fullResponse.json();
+          onUploadComplete(fullBatch);
+        } else {
+          onUploadComplete(batch);
+        }
+      } else {
+        const data = await response.json();
+        setError(data.errors?.join(", ") || "Upload failed");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError("An error occurred during upload");
+    } finally {
+      setUploading(false);
+    }
+  };
+  if (uploading) {
+    return /* @__PURE__ */ import_react71.default.createElement("div", { style: {
+      background: "white",
+      borderRadius: "12px",
+      border: "1px solid var(--neutral-200)",
+      padding: "var(--space-12)",
+      textAlign: "center",
+      minHeight: "400px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center"
+    } }, /* @__PURE__ */ import_react71.default.createElement("div", { style: {
+      width: "80px",
+      height: "80px",
+      borderRadius: "50%",
+      background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      margin: "0 auto var(--space-4)"
+    } }, /* @__PURE__ */ import_react71.default.createElement("i", { className: "fas fa-cloud-upload-alt fa-spin", style: { fontSize: "2.5rem", color: "var(--accent-blue)" } })), /* @__PURE__ */ import_react71.default.createElement("h2", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-xl)",
+      fontWeight: 600,
+      color: "var(--neutral-700)",
+      marginBottom: "var(--space-2)"
+    } }, "Uploading PDFs..."), /* @__PURE__ */ import_react71.default.createElement("p", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-base)",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-4)"
+    } }, uploadProgress.current, " of ", uploadProgress.total, " files"), /* @__PURE__ */ import_react71.default.createElement("div", { style: {
+      width: "200px",
+      height: "8px",
+      background: "var(--neutral-200)",
+      borderRadius: "4px",
+      margin: "0 auto",
+      overflow: "hidden"
+    } }, /* @__PURE__ */ import_react71.default.createElement("div", { style: {
+      width: `${uploadProgress.current / uploadProgress.total * 100}%`,
+      height: "100%",
+      background: "var(--accent-blue)",
+      transition: "width 0.3s ease"
+    } })));
+  }
+  return /* @__PURE__ */ import_react71.default.createElement("div", null, error && /* @__PURE__ */ import_react71.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react71.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), /* @__PURE__ */ import_react71.default.createElement(
+    "div",
+    {
+      onDragEnter: handleDragEnter,
+      onDragLeave: handleDragLeave,
+      onDragOver: handleDragOver,
+      onDrop: handleDrop2,
+      style: {
+        background: isDragging ? "color-mix(in srgb, var(--accent-blue) 10%, white)" : "white",
+        border: `3px dashed ${isDragging ? "var(--accent-blue)" : "var(--neutral-300)"}`,
+        borderRadius: "12px",
+        padding: "var(--space-12)",
+        textAlign: "center",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        minHeight: "400px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      onClick: () => fileInputRef.current?.click()
+    },
+    /* @__PURE__ */ import_react71.default.createElement(
+      "i",
+      {
+        className: "fas fa-folder-open",
+        style: {
+          fontSize: "5rem",
+          color: isDragging ? "var(--accent-blue)" : "var(--neutral-400)",
+          marginBottom: "var(--space-6)",
+          transition: "color 0.2s ease"
+        }
+      }
+    ),
+    /* @__PURE__ */ import_react71.default.createElement("h2", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-2xl)",
+      fontWeight: 700,
+      color: "var(--neutral-700)",
+      marginBottom: "var(--space-2)"
+    } }, isDragging ? "Drop your PDFs here" : "Drop a folder or PDFs here"),
+    /* @__PURE__ */ import_react71.default.createElement("p", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-base)",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-6)",
+      maxWidth: "400px"
+    } }, "Drag and drop a folder containing PDFs, or multiple PDF files. We'll extract DOIs and fetch metadata automatically."),
+    /* @__PURE__ */ import_react71.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react71.default.createElement(
+      "button",
+      {
+        type: "button",
+        className: "btn-source",
+        onClick: (e3) => {
+          e3.stopPropagation();
+          fileInputRef.current?.click();
+        },
+        style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+      },
+      /* @__PURE__ */ import_react71.default.createElement("i", { className: "fas fa-file-pdf" }),
+      "Select PDFs"
+    ), /* @__PURE__ */ import_react71.default.createElement(
+      "button",
+      {
+        type: "button",
+        className: "btn-outline-source",
+        onClick: (e3) => {
+          e3.stopPropagation();
+          folderInputRef.current?.click();
+        },
+        style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+      },
+      /* @__PURE__ */ import_react71.default.createElement("i", { className: "fas fa-folder" }),
+      "Select Folder"
+    )),
+    /* @__PURE__ */ import_react71.default.createElement(
+      "input",
+      {
+        ref: fileInputRef,
+        type: "file",
+        accept: ".pdf",
+        multiple: true,
+        onChange: handleFileSelect,
+        style: { display: "none" }
+      }
+    ),
+    /* @__PURE__ */ import_react71.default.createElement(
+      "input",
+      {
+        ref: folderInputRef,
+        type: "file",
+        webkitdirectory: "",
+        directory: "",
+        multiple: true,
+        onChange: handleFileSelect,
+        style: { display: "none" }
+      }
+    )
+  ), /* @__PURE__ */ import_react71.default.createElement("div", { style: {
+    marginTop: "var(--space-4)",
+    padding: "var(--space-4)",
+    background: "#e2e2e2",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)"
+  } }, /* @__PURE__ */ import_react71.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    marginBottom: "var(--space-2)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react71.default.createElement("i", { className: "fas fa-info-circle", style: { color: "var(--accent-blue)" } }), "How it works"), /* @__PURE__ */ import_react71.default.createElement("ol", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    paddingLeft: "var(--space-5)",
+    margin: 0
+  } }, /* @__PURE__ */ import_react71.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "Upload your PDFs (up to 300+ at once)"), /* @__PURE__ */ import_react71.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "We extract DOIs and fetch metadata from CrossRef, OpenAlex, and more"), /* @__PURE__ */ import_react71.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "Review and edit any items that need attention"), /* @__PURE__ */ import_react71.default.createElement("li", null, "Approve to create sources with PDFs attached"))));
+}
+
+// app/javascript/components/BulkUploadProgress.js
+var import_react72 = __toESM(require_react());
+function BulkUploadProgress({ batch }) {
+  const stats = batch.stats || {};
+  const progress = batch.progress_percentage || 0;
+  const statusCounts = [
+    { key: "pending", label: "Pending", icon: "fas fa-clock", color: "var(--neutral-400)" },
+    { key: "extracting", label: "Extracting", icon: "fas fa-cog fa-spin", color: "var(--accent-blue)" },
+    { key: "extracted", label: "Extracted", icon: "fas fa-check", color: "var(--accent-blue)" },
+    { key: "review_needed", label: "Needs Review", icon: "fas fa-exclamation-triangle", color: "var(--accent-blue)" },
+    { key: "failed", label: "Failed", icon: "fas fa-times", color: "var(--accent-red, #dc2626)" }
+  ];
+  return /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "12px",
+    border: "1px solid var(--neutral-200)",
+    padding: "var(--space-6)"
+  } }, /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-6)"
+  } }, /* @__PURE__ */ import_react72.default.createElement("div", null, /* @__PURE__ */ import_react72.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-1)"
+  } }, /* @__PURE__ */ import_react72.default.createElement("i", { className: "fas fa-cog fa-spin", style: { marginRight: "var(--space-2)", color: "var(--accent-blue)" } }), "Processing ", batch.total_count, " PDFs"), /* @__PURE__ */ import_react72.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, "Extracting metadata and checking for duplicates...")), /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    textAlign: "right"
+  } }, /* @__PURE__ */ import_react72.default.createElement("span", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-3xl)",
+    fontWeight: 700,
+    color: "var(--accent-blue)"
+  } }, progress, "%"))), /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    width: "100%",
+    height: "12px",
+    background: "var(--neutral-200)",
+    borderRadius: "6px",
+    overflow: "hidden",
+    marginBottom: "var(--space-6)"
+  } }, /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    width: `${progress}%`,
+    height: "100%",
+    background: "var(--accent-blue)",
+    transition: "width 0.5s ease",
+    borderRadius: "6px"
+  } })), /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "var(--space-4)"
+  } }, statusCounts.map(({ key, label, icon: icon3, color: color2 }) => {
+    const count = stats[key] || 0;
+    if (count === 0 && key !== "extracting") return null;
+    return /* @__PURE__ */ import_react72.default.createElement(
+      "div",
+      {
+        key,
+        style: {
+          padding: "var(--space-4)",
+          background: "#e2e2e2",
+          borderRadius: "8px",
+          textAlign: "center"
+        }
+      },
+      /* @__PURE__ */ import_react72.default.createElement("i", { className: icon3, style: { fontSize: "1.5rem", color: color2, marginBottom: "var(--space-2)", display: "block" } }),
+      /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-2xl)",
+        fontWeight: 700,
+        color: "var(--neutral-800)"
+      } }, count),
+      /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em"
+      } }, label)
+    );
+  })), batch.items && /* @__PURE__ */ import_react72.default.createElement("div", { style: { marginTop: "var(--space-6)" } }, /* @__PURE__ */ import_react72.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-3)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  } }, "Recent Activity"), /* @__PURE__ */ import_react72.default.createElement("div", { style: {
+    maxHeight: "250px",
+    overflowY: "auto",
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "8px"
+  } }, batch.items.slice(-10).reverse().map((item, idx) => /* @__PURE__ */ import_react72.default.createElement(
+    "div",
+    {
+      key: item.id,
+      style: {
+        padding: "var(--space-3) var(--space-4)",
+        borderBottom: idx < 9 ? "1px solid var(--neutral-100)" : "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)"
+      }
+    },
+    /* @__PURE__ */ import_react72.default.createElement(StatusIcon, { status: item.status }),
+    /* @__PURE__ */ import_react72.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-700)",
+      flex: 1,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    } }, item.extracted_metadata?.title || item.original_filename),
+    /* @__PURE__ */ import_react72.default.createElement(StatusBadge, { status: item.status })
+  )))));
+}
+function StatusIcon({ status }) {
+  const icons = {
+    pending: { icon: "fas fa-clock", color: "var(--neutral-400)" },
+    uploading: { icon: "fas fa-upload", color: "var(--accent-blue)" },
+    extracting: { icon: "fas fa-cog fa-spin", color: "var(--accent-blue)" },
+    extracted: { icon: "fas fa-check-circle", color: "var(--accent-blue)" },
+    review_needed: { icon: "fas fa-exclamation-triangle", color: "var(--accent-blue)" },
+    approved: { icon: "fas fa-thumbs-up", color: "var(--accent-blue)" },
+    created: { icon: "fas fa-check-double", color: "var(--accent-blue)" },
+    failed: { icon: "fas fa-times-circle", color: "var(--accent-red, #dc2626)" }
+  };
+  const { icon: icon3, color: color2 } = icons[status] || icons.pending;
+  return /* @__PURE__ */ import_react72.default.createElement("i", { className: icon3, style: { color: color2, width: "20px", textAlign: "center" } });
+}
+function StatusBadge({ status }) {
+  const badges = {
+    pending: { label: "Pending", bg: "var(--neutral-100)", color: "var(--neutral-600)" },
+    uploading: { label: "Uploading", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    extracting: { label: "Extracting", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    extracted: { label: "Ready", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    review_needed: { label: "Review", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    approved: { label: "Approved", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    created: { label: "Created", bg: "color-mix(in srgb, var(--accent-blue) 15%, white)", color: "var(--accent-blue)" },
+    failed: { label: "Failed", bg: "#fecaca", color: "#dc2626" }
+  };
+  const { label, bg, color: color2 } = badges[status] || badges.pending;
+  return /* @__PURE__ */ import_react72.default.createElement("span", { style: {
+    padding: "2px 8px",
+    background: bg,
+    color: color2,
+    borderRadius: "4px",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    fontWeight: 500
+  } }, label);
+}
+
+// app/javascript/components/BulkUploadItemList.js
+var import_react75 = __toESM(require_react());
+
+// app/javascript/components/BulkUploadItemCard.js
+var import_react73 = __toESM(require_react());
+function BulkUploadItemCard({ item, isExpanded, onToggle, onApproved }) {
+  const [saving, setSaving] = (0, import_react73.useState)(false);
+  const [error, setError] = (0, import_react73.useState)("");
+  const [editedMetadata, setEditedMetadata] = (0, import_react73.useState)(item.extracted_metadata || {});
+  const [authorDecisions, setAuthorDecisions] = (0, import_react73.useState)({});
+  const [conceptDecisions, setConceptDecisions] = (0, import_react73.useState)({});
+  const metadata = item.extracted_metadata || {};
+  const canApprove = item.status === "extracted" || item.status === "review_needed";
+  const canRetry = item.status === "failed";
+  const handleApprove = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          decisions: {
+            ...item.user_decisions,
+            metadata: editedMetadata,
+            authors: authorDecisions,
+            concepts: conceptDecisions
+          }
+        })
+      });
+      if (response.ok) {
+        onApproved();
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to approve");
+      }
+    } catch (err) {
+      setError("Failed to approve item");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const handleRetry = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      const response = await fetch(`/batch_upload_items/${item.id}/retry`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        onApproved();
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to retry");
+      }
+    } catch (err) {
+      setError("Failed to retry item");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const getStatusInfo = () => {
+    switch (item.status) {
+      case "pending":
+        return { icon: "fas fa-clock", color: "var(--neutral-400)", label: "Pending" };
+      case "extracting":
+        return { icon: "fas fa-cog fa-spin", color: "var(--accent-blue)", label: "Extracting" };
+      case "extracted":
+        return { icon: "fas fa-check-circle", color: "var(--accent-blue)", label: "Review Details" };
+      case "review_needed":
+        return { icon: "fas fa-exclamation-triangle", color: "var(--accent-blue)", label: "Needs Review" };
+      case "approved":
+        return { icon: "fas fa-thumbs-up", color: "var(--accent-blue)", label: "Approved" };
+      case "created":
+        return { icon: "fas fa-check-double", color: "var(--accent-blue)", label: "Source Created" };
+      case "failed":
+        return { icon: "fas fa-times-circle", color: "#dc2626", label: "Failed" };
+      default:
+        return { icon: "fas fa-question", color: "var(--neutral-400)", label: item.status };
+    }
+  };
+  const statusInfo = getStatusInfo();
+  return /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "8px",
+    border: `1px solid ${item.status === "failed" ? "#fecaca" : "var(--neutral-200)"}`,
+    overflow: "hidden"
+  } }, /* @__PURE__ */ import_react73.default.createElement(
+    "div",
+    {
+      onClick: onToggle,
+      style: {
+        padding: "var(--space-4)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        background: isExpanded ? "color-mix(in srgb, var(--accent-blue) 12%, white)" : "white"
+      }
+    },
+    /* @__PURE__ */ import_react73.default.createElement("i", { className: statusInfo.icon, style: { color: statusInfo.color, width: "20px", textAlign: "center" } }),
+    /* @__PURE__ */ import_react73.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-base)",
+      fontWeight: 600,
+      color: "var(--neutral-800)",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    } }, metadata.title || item.original_filename), /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-500)",
+      display: "flex",
+      gap: "var(--space-3)",
+      alignItems: "center"
+    } }, metadata.authors && /* @__PURE__ */ import_react73.default.createElement("span", null, metadata.authors.substring(0, 50), metadata.authors.length > 50 ? "..." : ""), metadata.year && /* @__PURE__ */ import_react73.default.createElement("span", null, metadata.year), item.extracted_doi && /* @__PURE__ */ import_react73.default.createElement("span", { style: { color: "var(--accent-blue)" } }, "DOI: ", item.extracted_doi.substring(0, 30), item.extracted_doi.length > 30 ? "..." : ""))),
+    /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", alignItems: "center" } }, item.has_duplicates && /* @__PURE__ */ import_react73.default.createElement("span", { title: "Possible duplicate", style: {
+      padding: "2px 8px",
+      background: "#fef3c7",
+      color: "#d97706",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-copy" })), item.needs_author_review && /* @__PURE__ */ import_react73.default.createElement("span", { title: "Author disambiguation needed", style: {
+      padding: "2px 8px",
+      background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+      color: "var(--accent-blue)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-users" }))),
+    /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "4px 12px",
+      background: item.status === "failed" ? "#fecaca" : "#e2e2e2",
+      color: statusInfo.color,
+      borderRadius: "4px",
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500
+    } }, statusInfo.label),
+    /* @__PURE__ */ import_react73.default.createElement(
+      "i",
+      {
+        className: `fas fa-chevron-${isExpanded ? "up" : "down"}`,
+        style: { color: "var(--neutral-400)", transition: "transform 0.2s" }
+      }
+    )
+  ), isExpanded && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-4)",
+    borderTop: "1px solid var(--neutral-200)"
+  } }, error && /* @__PURE__ */ import_react73.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), item.status === "failed" && item.error_message && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
+    borderRadius: "8px",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "#dc2626",
+    marginBottom: "var(--space-1)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-exclamation-triangle" }), " Error"), /* @__PURE__ */ import_react73.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "#7f1d1d",
+    margin: 0
+  } }, item.error_message)), item.duplicate_candidates && item.duplicate_candidates.length > 0 && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    background: "#fef3c7",
+    border: "1px solid #d97706",
+    borderRadius: "8px",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "#92400e",
+    marginBottom: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-copy" }), " Possible Duplicates"), item.duplicate_candidates.map((dup, idx) => /* @__PURE__ */ import_react73.default.createElement("div", { key: idx, style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "#92400e"
+  } }, /* @__PURE__ */ import_react73.default.createElement("strong", null, dup.type, ":"), " ", /* @__PURE__ */ import_react73.default.createElement(
+    "a",
+    {
+      href: `/sources/${dup.source_id}`,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: { color: "var(--accent-blue)" }
+    },
+    dup.source_title
+  )))), (item.status === "extracted" || item.status === "review_needed") && /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "grid", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Title"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.title || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, title: e3.target.value }),
+      className: "form-input"
+    }
+  )), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Authors"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.authors || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, authors: e3.target.value }),
+      className: "form-input",
+      placeholder: "Last, F., Last, F."
+    }
+  )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Year"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "number",
+      value: editedMetadata.year || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, year: e3.target.value }),
+      className: "form-input"
+    }
+  ))), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "var(--space-4)" } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Journal"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.journal_name || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, journal_name: e3.target.value }),
+      className: "form-input"
+    }
+  )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Volume"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.volume || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, volume: e3.target.value }),
+      className: "form-input"
+    }
+  )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Issue"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.issue || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, issue: e3.target.value }),
+      className: "form-input"
+    }
+  )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "Pages"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: editedMetadata.pages || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, pages: e3.target.value }),
+      className: "form-input"
+    }
+  ))), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { className: "form-label" }, "DOI"), /* @__PURE__ */ import_react73.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: item.extracted_doi || editedMetadata.doi || "",
+      onChange: (e3) => setEditedMetadata({ ...editedMetadata, doi: e3.target.value }),
+      className: "form-input"
+    }
+  )), item.detected_authors && item.detected_authors.length > 0 && /* @__PURE__ */ import_react73.default.createElement(
+    AuthorMatchSection,
+    {
+      authors: item.detected_authors,
+      decisions: authorDecisions,
+      onDecisionsChange: setAuthorDecisions,
+      doi: item.extracted_doi
+    }
+  ), /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    background: "#e2e2e2",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-file-pdf", style: { color: "var(--accent-blue)", fontSize: "1.5rem" } }), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 500,
+    color: "var(--neutral-700)"
+  } }, item.original_filename), /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)"
+  } }, (item.file_size / 1024 / 1024).toFixed(2), " MB", item.extraction_method && ` | Extracted via ${item.extraction_method}`)))), item.status === "created" && item.source_id && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-4)",
+    background: "color-mix(in srgb, var(--accent-blue) 10%, white)",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-base)",
+    fontWeight: 600,
+    color: "var(--accent-blue)",
+    marginBottom: "var(--space-1)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-check-circle" }), " Source Created"), /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)"
+  } }, metadata.title || item.original_filename)), /* @__PURE__ */ import_react73.default.createElement(
+    "a",
+    {
+      href: `/sources/${item.source_id}`,
+      className: "btn-success",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)", textDecoration: "none" }
+    },
+    /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-external-link-alt" }),
+    "View Source"
+  )), (canApprove || canRetry) && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    marginTop: "var(--space-4)",
+    paddingTop: "var(--space-4)",
+    borderTop: "1px solid var(--neutral-200)",
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "var(--space-3)"
+  } }, canRetry && /* @__PURE__ */ import_react73.default.createElement(
+    "button",
+    {
+      onClick: handleRetry,
+      disabled: saving,
+      className: "btn-secondary",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+    },
+    saving ? /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-spinner fa-spin" }) : /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-redo" }),
+    "Retry"
+  ), canApprove && /* @__PURE__ */ import_react73.default.createElement(
+    "button",
+    {
+      onClick: handleApprove,
+      disabled: saving || !editedMetadata.title,
+      className: "btn-success",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+    },
+    saving ? /* @__PURE__ */ import_react73.default.createElement(import_react73.default.Fragment, null, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Approving...") : /* @__PURE__ */ import_react73.default.createElement(import_react73.default.Fragment, null, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-check" }), " Approve & Create Source")
+  ))));
+}
+function AuthorMatchSection({ authors, decisions, onDecisionsChange, doi }) {
+  const [expandedAuthor, setExpandedAuthor] = (0, import_react73.useState)(null);
+  const [searchQuery, setSearchQuery] = (0, import_react73.useState)("");
+  const [searchResults, setSearchResults] = (0, import_react73.useState)([]);
+  const [searching, setSearching] = (0, import_react73.useState)(false);
+  const [orcidSuggestions, setOrcidSuggestions] = (0, import_react73.useState)({});
+  const [loadingOrcid, setLoadingOrcid] = (0, import_react73.useState)({});
+  const searchPeople = async (query) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const response = await fetch(`/people/search?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data.slice(0, 10));
+      }
+    } catch (err) {
+      console.error("Search failed:", err);
+    } finally {
+      setSearching(false);
+    }
+  };
+  const searchOrcidRegistry = async (idx, author) => {
+    if (!author.family) return;
+    setLoadingOrcid((prev) => ({ ...prev, [idx]: true }));
+    try {
+      const params = new URLSearchParams({ family_name: author.family });
+      if (author.given) params.append("given_name", author.given);
+      if (doi) params.append("doi", doi);
+      const response = await fetch(`/people/search_orcid?${params}`);
+      if (response.ok) {
+        const suggestions = await response.json();
+        setOrcidSuggestions((prev) => ({ ...prev, [idx]: suggestions }));
+      }
+    } catch (err) {
+      console.error("ORCID search failed:", err);
+    } finally {
+      setLoadingOrcid((prev) => ({ ...prev, [idx]: false }));
+    }
+  };
+  const getDecision = (idx) => decisions[idx] || null;
+  const updateDecision = (idx, decision) => {
+    onDecisionsChange({ ...decisions, [idx]: decision });
+  };
+  const handleExpand = (idx, author) => {
+    const isExpanding = expandedAuthor !== idx;
+    setExpandedAuthor(isExpanding ? idx : null);
+    setSearchQuery("");
+    setSearchResults([]);
+    if (isExpanding && !author.auto_linked && (!author.potential_matches || author.potential_matches.length === 0)) {
+      if (!orcidSuggestions[idx]) {
+        searchOrcidRegistry(idx, author);
+      }
+    }
+  };
+  const useOrcidSuggestion = (idx, suggestion, author) => {
+    updateDecision(idx, {
+      action: "create",
+      first_name: suggestion.given_name || author.given,
+      last_name: suggestion.family_name || author.family,
+      orcid: suggestion.orcid
+    });
+  };
+  return /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+    padding: "var(--space-4)",
+    background: "color-mix(in srgb, var(--accent-blue) 10%, white)",
+    borderRadius: "8px"
+  } }, /* @__PURE__ */ import_react73.default.createElement("h4", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--accent-blue)",
+    marginBottom: "var(--space-3)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-users" }), "Author Matching"), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, authors.map((author, idx) => {
+    const decision = getDecision(idx);
+    const isExpanded = expandedAuthor === idx;
+    const isSkipped = decision?.action === "skip";
+    const hasMatches = author.potential_matches && author.potential_matches.length > 0;
+    const suggestions = orcidSuggestions[idx] || [];
+    return /* @__PURE__ */ import_react73.default.createElement("div", { key: idx, style: {
+      background: "white",
+      borderRadius: "6px",
+      border: isSkipped ? "1px dashed var(--neutral-300)" : "1px solid var(--neutral-200)",
+      opacity: isSkipped ? 0.6 : 1
+    } }, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      padding: "var(--space-2) var(--space-3)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "var(--space-2)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)",
+      fontWeight: 500,
+      color: isSkipped ? "var(--neutral-400)" : "var(--neutral-700)",
+      textDecoration: isSkipped ? "line-through" : "none"
+    } }, author.original), author.orcid && /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      marginLeft: "var(--space-2)",
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--accent-green)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fab fa-orcid" }), " ", author.orcid)), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, isSkipped ? /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--neutral-100)",
+      color: "var(--neutral-500)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, "Skipped") : decision?.action === "link" ? /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--accent-green-light)",
+      color: "var(--accent-green)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)",
+      fontWeight: 500
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-link" }), " ", decision.person_name || "Linked") : author.auto_linked ? /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--accent-green-light)",
+      color: "var(--accent-green)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)",
+      fontWeight: 500
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-check-circle" }), " ", author.linked_person_name) : decision?.action === "create" ? /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--accent-gold-light)",
+      color: "var(--accent-gold)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)",
+      fontWeight: 500
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-user-plus" }), " Create: ", decision.first_name, " ", decision.last_name) : hasMatches ? /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--accent-gold-light)",
+      color: "var(--accent-gold)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)",
+      fontWeight: 500
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-question-circle" }), " ", author.potential_matches.length, " possible match", author.potential_matches.length > 1 ? "es" : "") : /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+      padding: "2px 8px",
+      background: "var(--neutral-100)",
+      color: "var(--neutral-500)",
+      borderRadius: "4px",
+      fontSize: "var(--text-xs)",
+      fontFamily: "var(--font-body)"
+    } }, "Not in Database"), /* @__PURE__ */ import_react73.default.createElement(
+      "button",
+      {
+        onClick: () => handleExpand(idx, author),
+        className: isExpanded ? "btn-source" : "btn-outline-source",
+        style: {
+          padding: "4px 10px",
+          fontSize: "var(--text-xs)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-1)"
+        }
+      },
+      isExpanded ? /* @__PURE__ */ import_react73.default.createElement(import_react73.default.Fragment, null, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-times" }), " Close") : /* @__PURE__ */ import_react73.default.createElement(import_react73.default.Fragment, null, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-search" }), " Review")
+    ))), isExpanded && /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      padding: "var(--space-3)",
+      borderTop: "1px solid var(--neutral-200)",
+      background: "var(--neutral-50)",
+      display: "flex",
+      flexDirection: "column",
+      gap: "var(--space-3)"
+    } }, author.auto_linked && /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react73.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          updateDecision(idx, null);
+          setExpandedAuthor(null);
+        },
+        className: "btn-source",
+        style: {
+          padding: "6px 12px",
+          fontSize: "var(--text-xs)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-1)"
+        }
+      },
+      /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-check" }),
+      " Keep: ",
+      author.linked_person_name
+    )), hasMatches && /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500,
+      color: "var(--neutral-700)",
+      marginBottom: "var(--space-2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-1)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-database", style: { color: "var(--accent-blue)" } }), "Found in your database:"), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, author.potential_matches.map((match) => /* @__PURE__ */ import_react73.default.createElement(
+      "div",
+      {
+        key: match.id,
+        style: {
+          padding: "var(--space-2) var(--space-3)",
+          background: decision?.person_id === match.id ? "color-mix(in srgb, var(--accent-blue) 15%, white)" : "white",
+          border: decision?.person_id === match.id ? "2px solid var(--accent-blue)" : "1px solid var(--neutral-200)",
+          borderRadius: "4px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between"
+        }
+      },
+      /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("span", { style: { fontWeight: 500, fontSize: "var(--text-sm)", fontFamily: "var(--font-body)" } }, match.name), match.orcid && /* @__PURE__ */ import_react73.default.createElement("span", { style: { marginLeft: "var(--space-2)", fontSize: "var(--text-xs)", color: "var(--accent-green)" } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fab fa-orcid" }), " ", match.orcid)),
+      /* @__PURE__ */ import_react73.default.createElement(
+        "button",
+        {
+          onClick: () => {
+            updateDecision(idx, {
+              action: "link",
+              person_id: match.id,
+              person_name: match.name
+            });
+            setExpandedAuthor(null);
+          },
+          className: "btn-source",
+          style: {
+            padding: "4px 10px",
+            fontSize: "var(--text-xs)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-1)"
+          }
+        },
+        /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-link" }),
+        " Link"
+      )
+    )))), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500,
+      color: "var(--neutral-700)",
+      marginBottom: "var(--space-2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-1)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-user-plus", style: { color: "var(--accent-blue)" } }), hasMatches ? "Or create new person:" : "Create new person:"), /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      marginBottom: "2px",
+      display: "block"
+    } }, "First Name"), /* @__PURE__ */ import_react73.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: decision?.action === "create" ? decision.first_name || "" : author.given || "",
+        onChange: (e3) => updateDecision(idx, {
+          action: "create",
+          first_name: e3.target.value,
+          last_name: decision?.last_name || author.family || "",
+          orcid: decision?.orcid || author.orcid || ""
+        }),
+        style: {
+          width: "100%",
+          padding: "6px 10px",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)"
+        }
+      }
+    )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      marginBottom: "2px",
+      display: "block"
+    } }, "Last Name"), /* @__PURE__ */ import_react73.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: decision?.action === "create" ? decision.last_name || "" : author.family || "",
+        onChange: (e3) => updateDecision(idx, {
+          action: "create",
+          first_name: decision?.first_name || author.given || "",
+          last_name: e3.target.value,
+          orcid: decision?.orcid || author.orcid || ""
+        }),
+        style: {
+          width: "100%",
+          padding: "6px 10px",
+          border: "1px solid var(--neutral-300)",
+          borderRadius: "4px",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)"
+        }
+      }
+    )), /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("label", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      marginBottom: "2px",
+      display: "block"
+    } }, "ORCID"), /* @__PURE__ */ import_react73.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: decision?.action === "create" ? decision.orcid || "" : author.orcid || "",
+        onChange: (e3) => updateDecision(idx, {
+          action: "create",
+          first_name: decision?.first_name || author.given || "",
+          last_name: decision?.last_name || author.family || "",
+          orcid: e3.target.value
+        }),
+        placeholder: "0000-0000-0000-0000",
+        style: {
+          width: "100%",
+          padding: "6px 10px",
+          border: decision?.orcid || author.orcid ? "1px solid var(--accent-green)" : "1px solid var(--neutral-300)",
+          background: decision?.orcid || author.orcid ? "var(--accent-green-light)" : "white",
+          borderRadius: "4px",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)"
+        }
+      }
+    )))), !author.auto_linked && /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      fontWeight: 500,
+      color: "var(--accent-green)",
+      marginBottom: "var(--space-2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-1)"
+    } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fab fa-orcid" }), "Find ORCID:", !orcidSuggestions[idx] && !loadingOrcid[idx] && /* @__PURE__ */ import_react73.default.createElement(
+      "button",
+      {
+        onClick: () => searchOrcidRegistry(idx, author),
+        className: "btn-source",
+        style: {
+          marginLeft: "var(--space-2)",
+          padding: "2px 8px",
+          fontSize: "var(--text-xs)"
+        }
+      },
+      "Search Registry"
+    )), loadingOrcid[idx] && /* @__PURE__ */ import_react73.default.createElement("div", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)" } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Searching ORCID registry..."), suggestions.length > 0 && /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } }, suggestions.slice(0, 5).map((suggestion, suggIdx) => /* @__PURE__ */ import_react73.default.createElement(
+      "div",
+      {
+        key: suggIdx,
+        style: {
+          padding: "var(--space-2) var(--space-3)",
+          background: suggestion.doi_verified ? "var(--accent-green-light)" : "white",
+          border: suggestion.doi_verified ? "2px solid var(--accent-green)" : "1px dashed var(--accent-green)",
+          borderRadius: "4px"
+        }
+      },
+      /* @__PURE__ */ import_react73.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react73.default.createElement("div", null, /* @__PURE__ */ import_react73.default.createElement("span", { style: { fontWeight: 500, fontSize: "var(--text-sm)", fontFamily: "var(--font-body)" } }, suggestion.full_name), suggestion.doi_verified && /* @__PURE__ */ import_react73.default.createElement("span", { style: {
+        marginLeft: "var(--space-2)",
+        fontSize: "10px",
+        background: "var(--accent-blue)",
+        color: "white",
+        padding: "1px 6px",
+        borderRadius: "3px"
+      } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-check-circle" }), " Has this article"), /* @__PURE__ */ import_react73.default.createElement("div", { style: { fontSize: "var(--text-xs)", color: "var(--accent-green)" } }, suggestion.orcid), suggestion.affiliations && suggestion.affiliations.length > 0 && /* @__PURE__ */ import_react73.default.createElement("div", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)", marginTop: "2px" } }, /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-building", style: { marginRight: "4px" } }), suggestion.affiliations[0])), /* @__PURE__ */ import_react73.default.createElement(
+        "button",
+        {
+          onClick: () => useOrcidSuggestion(idx, suggestion, author),
+          className: "btn-source",
+          style: {
+            padding: "4px 10px",
+            fontSize: "var(--text-xs)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-1)"
+          }
+        },
+        /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-arrow-up" }),
+        " Use"
+      ))
+    ))), orcidSuggestions[idx] && suggestions.length === 0 && !loadingOrcid[idx] && /* @__PURE__ */ import_react73.default.createElement("div", { style: { fontSize: "var(--text-xs)", color: "var(--neutral-500)", fontStyle: "italic" } }, "No matches found in ORCID registry")), /* @__PURE__ */ import_react73.default.createElement("div", { style: {
+      borderTop: "1px solid var(--neutral-200)",
+      paddingTop: "var(--space-3)",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    } }, /* @__PURE__ */ import_react73.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          updateDecision(idx, { action: "skip" });
+          setExpandedAuthor(null);
+        },
+        className: "btn-outline-source",
+        style: {
+          padding: "8px 16px",
+          fontSize: "var(--text-sm)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-2)"
+        }
+      },
+      /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-ban" }),
+      "Skip Author"
+    ), /* @__PURE__ */ import_react73.default.createElement(
+      "button",
+      {
+        onClick: () => {
+          const firstName = decision?.first_name || author.given || "";
+          const lastName = decision?.last_name || author.family || "";
+          if (firstName && lastName) {
+            updateDecision(idx, {
+              action: "create",
+              first_name: firstName,
+              last_name: lastName,
+              orcid: decision?.orcid || author.orcid || ""
+            });
+            setExpandedAuthor(null);
+          }
+        },
+        className: "btn-source",
+        style: {
+          padding: "8px 16px",
+          fontSize: "var(--text-sm)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-2)"
+        }
+      },
+      /* @__PURE__ */ import_react73.default.createElement("i", { className: "fas fa-user-plus" }),
+      "Create New Person"
+    ))));
+  })));
+}
+
+// app/javascript/components/BulkActionBar.js
+var import_react74 = __toESM(require_react());
+function BulkActionBar({ reviewCount, failedCount, onBulkApprove, onRetryFailed }) {
+  const [approvingAll, setApprovingAll] = (0, import_react74.useState)(false);
+  const [retrying, setRetrying] = (0, import_react74.useState)(false);
+  const handleApproveAll = async () => {
+    if (!confirm(`Approve all ${reviewCount} items and create sources? This will use the auto-extracted metadata.`)) {
+      return;
+    }
+    setApprovingAll(true);
+    await onBulkApprove();
+    setApprovingAll(false);
+  };
+  const handleRetryAll = async () => {
+    if (!confirm(`Retry all ${failedCount} failed items?`)) {
+      return;
+    }
+    setRetrying(true);
+    await onRetryFailed();
+    setRetrying(false);
+  };
+  return /* @__PURE__ */ import_react74.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)",
+    padding: "var(--space-4)",
+    marginBottom: "var(--space-4)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between"
+  } }, /* @__PURE__ */ import_react74.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)"
+  } }, /* @__PURE__ */ import_react74.default.createElement("i", { className: "fas fa-tasks", style: { marginRight: "var(--space-2)" } }), "Bulk Actions"), /* @__PURE__ */ import_react74.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, failedCount > 0 && /* @__PURE__ */ import_react74.default.createElement(
+    "button",
+    {
+      onClick: handleRetryAll,
+      disabled: retrying,
+      className: "btn-secondary",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+    },
+    retrying ? /* @__PURE__ */ import_react74.default.createElement(import_react74.default.Fragment, null, /* @__PURE__ */ import_react74.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Retrying...") : /* @__PURE__ */ import_react74.default.createElement(import_react74.default.Fragment, null, /* @__PURE__ */ import_react74.default.createElement("i", { className: "fas fa-redo" }), " Retry All Failed (", failedCount, ")")
+  ), reviewCount > 0 && /* @__PURE__ */ import_react74.default.createElement(
+    "button",
+    {
+      onClick: handleApproveAll,
+      disabled: approvingAll,
+      className: "btn-success",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+    },
+    approvingAll ? /* @__PURE__ */ import_react74.default.createElement(import_react74.default.Fragment, null, /* @__PURE__ */ import_react74.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Approving...") : /* @__PURE__ */ import_react74.default.createElement(import_react74.default.Fragment, null, /* @__PURE__ */ import_react74.default.createElement("i", { className: "fas fa-check-double" }), " Approve All (", reviewCount, ")")
+  )));
+}
+
+// app/javascript/components/BulkUploadItemList.js
+function BulkUploadItemList({ batch, onItemApproved, onBulkApprove, onRetryFailed, onNewBatch }) {
+  const [filter2, setFilter] = (0, import_react75.useState)("all");
+  const [expandedItemId, setExpandedItemId] = (0, import_react75.useState)(null);
+  const items = batch.items || [];
+  const stats = batch.stats || {};
+  const filteredItems = items.filter((item) => {
+    switch (filter2) {
+      case "review":
+        return item.status === "review_needed" || item.status === "extracted";
+      case "created":
+        return item.status === "created" || item.status === "approved";
+      case "failed":
+        return item.status === "failed";
+      default:
+        return true;
+    }
+  });
+  const reviewCount = items.filter((i3) => i3.status === "review_needed" || i3.status === "extracted").length;
+  const createdCount = items.filter((i3) => i3.status === "created" || i3.status === "approved").length;
+  const failedCount = items.filter((i3) => i3.status === "failed").length;
+  return /* @__PURE__ */ import_react75.default.createElement("div", null, /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "12px",
+    border: "1px solid var(--neutral-200)",
+    padding: "var(--space-6)",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react75.default.createElement("div", null, /* @__PURE__ */ import_react75.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-1)"
+  } }, batch.status === "completed" ? /* @__PURE__ */ import_react75.default.createElement(import_react75.default.Fragment, null, /* @__PURE__ */ import_react75.default.createElement("i", { className: "fas fa-check-circle", style: { marginRight: "var(--space-2)", color: "var(--accent-blue)" } }), "Processing Complete") : /* @__PURE__ */ import_react75.default.createElement(import_react75.default.Fragment, null, /* @__PURE__ */ import_react75.default.createElement("i", { className: "fas fa-exclamation-triangle", style: { marginRight: "var(--space-2)", color: "var(--accent-blue)" } }), "Processing Finished with Issues")), /* @__PURE__ */ import_react75.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, createdCount, " created, ", reviewCount, " need review, ", failedCount, " failed")), /* @__PURE__ */ import_react75.default.createElement(
+    "button",
+    {
+      onClick: onNewBatch,
+      className: "btn-outline-primary",
+      style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+    },
+    /* @__PURE__ */ import_react75.default.createElement("i", { className: "fas fa-plus" }),
+    "New Upload"
+  )), /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react75.default.createElement(
+    StatCard,
+    {
+      label: "Total",
+      count: batch.total_count,
+      icon: "fas fa-file-pdf",
+      color: "var(--accent-blue)"
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    StatCard,
+    {
+      label: "Created",
+      count: createdCount,
+      icon: "fas fa-check-double",
+      color: "var(--accent-blue)"
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    StatCard,
+    {
+      label: "Need Review",
+      count: reviewCount,
+      icon: "fas fa-edit",
+      color: "var(--accent-blue)"
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    StatCard,
+    {
+      label: "Failed",
+      count: failedCount,
+      icon: "fas fa-times",
+      color: "#dc2626"
+    }
+  ))), (reviewCount > 0 || failedCount > 0) && /* @__PURE__ */ import_react75.default.createElement(
+    BulkActionBar,
+    {
+      reviewCount,
+      failedCount,
+      onBulkApprove,
+      onRetryFailed
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    display: "flex",
+    gap: "var(--space-2)",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react75.default.createElement(
+    FilterTab,
+    {
+      active: filter2 === "all",
+      onClick: () => setFilter("all"),
+      label: "All",
+      count: items.length
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    FilterTab,
+    {
+      active: filter2 === "review",
+      onClick: () => setFilter("review"),
+      label: "Needs Review",
+      count: reviewCount,
+      color: "var(--accent-blue)"
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    FilterTab,
+    {
+      active: filter2 === "created",
+      onClick: () => setFilter("created"),
+      label: "Created",
+      count: createdCount,
+      color: "var(--accent-blue)"
+    }
+  ), /* @__PURE__ */ import_react75.default.createElement(
+    FilterTab,
+    {
+      active: filter2 === "failed",
+      onClick: () => setFilter("failed"),
+      label: "Failed",
+      count: failedCount,
+      color: "#dc2626"
+    }
+  )), /* @__PURE__ */ import_react75.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, filteredItems.map((item) => /* @__PURE__ */ import_react75.default.createElement(
+    BulkUploadItemCard,
+    {
+      key: item.id,
+      item,
+      isExpanded: expandedItemId === item.id,
+      onToggle: () => setExpandedItemId(expandedItemId === item.id ? null : item.id),
+      onApproved: () => onItemApproved(item.id)
+    }
+  )), filteredItems.length === 0 && /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    padding: "var(--space-8)",
+    textAlign: "center",
+    color: "var(--neutral-500)",
+    fontFamily: "var(--font-body)"
+  } }, "No items match this filter.")));
+}
+function StatCard({ label, count, icon: icon3, color: color2 }) {
+  return /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    padding: "var(--space-4)",
+    background: "#e2e2e2",
+    borderRadius: "8px",
+    textAlign: "center"
+  } }, /* @__PURE__ */ import_react75.default.createElement("i", { className: icon3, style: { fontSize: "1.5rem", color: color2, marginBottom: "var(--space-2)", display: "block" } }), /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-2xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)"
+  } }, count), /* @__PURE__ */ import_react75.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  } }, label));
+}
+function FilterTab({ active, onClick, label, count, color: color2 }) {
+  return /* @__PURE__ */ import_react75.default.createElement(
+    "button",
+    {
+      onClick,
+      style: {
+        padding: "var(--space-2) var(--space-4)",
+        background: active ? color2 || "var(--accent-blue)" : "white",
+        color: active ? "white" : "var(--neutral-700)",
+        border: `1px solid ${active ? color2 || "var(--accent-blue)" : "var(--neutral-300)"}`,
+        borderRadius: "20px",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        transition: "all 0.15s"
+      }
+    },
+    label,
+    /* @__PURE__ */ import_react75.default.createElement("span", { style: {
+      background: active ? "rgba(255,255,255,0.3)" : "#e2e2e2",
+      padding: "2px 8px",
+      borderRadius: "10px",
+      fontSize: "var(--text-xs)"
+    } }, count)
+  );
+}
+
+// app/javascript/components/BulkUploadPage.js
+function BulkUploadPage() {
+  const [activeBatch, setActiveBatch] = (0, import_react76.useState)(null);
+  const [loading, setLoading] = (0, import_react76.useState)(true);
+  const [error, setError] = (0, import_react76.useState)("");
+  const fetchActiveBatch = (0, import_react76.useCallback)(async () => {
+    try {
+      const response = await fetch("/batch_uploads/active.json");
+      if (response.ok) {
+        const data = await response.json();
+        setActiveBatch(data);
+      }
+    } catch (err) {
+      console.error("Error fetching active batch:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  (0, import_react76.useEffect)(() => {
+    fetchActiveBatch();
+  }, [fetchActiveBatch]);
+  (0, import_react76.useEffect)(() => {
+    if (!activeBatch || activeBatch.status !== "processing") return;
+    const interval2 = setInterval(async () => {
+      try {
+        const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          setActiveBatch(data);
+          if (data.status === "completed" || data.status === "failed") {
+            clearInterval(interval2);
+          }
+        }
+      } catch (err) {
+        console.error("Error polling batch status:", err);
+      }
+    }, 3e3);
+    return () => clearInterval(interval2);
+  }, [activeBatch?.id, activeBatch?.status]);
+  const handleUploadComplete = (batch) => {
+    setActiveBatch(batch);
+    setError("");
+  };
+  const handleStartProcessing = async () => {
+    if (!activeBatch) return;
+    try {
+      const response = await fetch(`/batch_uploads/${activeBatch.id}/start_processing`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setActiveBatch(data);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to start processing");
+      }
+    } catch (err) {
+      setError("Failed to start processing");
+    }
+  };
+  const handleCancelBatch = async () => {
+    if (!activeBatch) return;
+    if (!confirm("Are you sure you want to cancel this upload batch? All uploaded files will be removed.")) {
+      return;
+    }
+    try {
+      const response = await fetch(`/batch_uploads/${activeBatch.id}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        setActiveBatch(null);
+      }
+    } catch (err) {
+      setError("Failed to cancel batch");
+    }
+  };
+  const handleItemApproved = async (itemId) => {
+    if (!activeBatch) return;
+    try {
+      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        setActiveBatch(data);
+      }
+    } catch (err) {
+      console.error("Error refreshing batch:", err);
+    }
+  };
+  const handleBulkApprove = async () => {
+    if (!activeBatch) return;
+    const itemsToApprove = activeBatch.items.filter(
+      (item) => item.status === "extracted" || item.status === "review_needed"
+    );
+    for (const item of itemsToApprove) {
+      try {
+        await fetch(`/batch_upload_items/${item.id}/approve`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+          },
+          body: JSON.stringify({ decisions: item.user_decisions })
+        });
+      } catch (err) {
+        console.error(`Failed to approve item ${item.id}:`, err);
+      }
+    }
+    try {
+      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        setActiveBatch(data);
+      }
+    } catch (err) {
+      console.error("Error refreshing batch:", err);
+    }
+  };
+  const handleRetryFailed = async () => {
+    if (!activeBatch) return;
+    const failedItems = activeBatch.items.filter((item) => item.status === "failed");
+    for (const item of failedItems) {
+      try {
+        await fetch(`/batch_upload_items/${item.id}/retry`, {
+          method: "POST",
+          headers: {
+            "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+          }
+        });
+      } catch (err) {
+        console.error(`Failed to retry item ${item.id}:`, err);
+      }
+    }
+    try {
+      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        setActiveBatch(data);
+      }
+    } catch (err) {
+      console.error("Error refreshing batch:", err);
+    }
+  };
+  if (loading) {
+    return /* @__PURE__ */ import_react76.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react76.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "400px",
+      padding: "var(--space-6)",
+      background: "white",
+      borderRadius: "12px",
+      border: "1px solid var(--neutral-200)"
+    } }, /* @__PURE__ */ import_react76.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { fontSize: "2rem", color: "var(--accent-blue)" } })));
+  }
+  return /* @__PURE__ */ import_react76.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react76.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-6)"
+  } }, /* @__PURE__ */ import_react76.default.createElement("div", null, /* @__PURE__ */ import_react76.default.createElement("h1", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-3xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react76.default.createElement("i", { className: "fas fa-upload", style: { marginRight: "var(--space-3)", color: "var(--accent-blue)" } }), "Bulk Upload"), /* @__PURE__ */ import_react76.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-600)"
+  } }, "Upload multiple PDFs at once with automatic metadata extraction"))), error && /* @__PURE__ */ import_react76.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react76.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), !activeBatch && /* @__PURE__ */ import_react76.default.createElement(BulkUploadDropzone, { onUploadComplete: handleUploadComplete }), activeBatch && activeBatch.status === "pending" && /* @__PURE__ */ import_react76.default.createElement("div", null, /* @__PURE__ */ import_react76.default.createElement("div", { style: {
+    background: "white",
+    borderRadius: "12px",
+    border: "1px solid var(--neutral-200)",
+    padding: "var(--space-6)",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react76.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react76.default.createElement("div", null, /* @__PURE__ */ import_react76.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)"
+  } }, activeBatch.total_count, " PDFs Ready to Process"), /* @__PURE__ */ import_react76.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, 'Click "Start Processing" to begin extracting metadata')), /* @__PURE__ */ import_react76.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react76.default.createElement("button", { onClick: handleCancelBatch, className: "btn-outline-source" }, "Cancel"), /* @__PURE__ */ import_react76.default.createElement("button", { onClick: handleStartProcessing, className: "btn-source", style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react76.default.createElement("i", { className: "fas fa-play" }), "Start Processing"))), /* @__PURE__ */ import_react76.default.createElement("div", { style: {
+    maxHeight: "300px",
+    overflowY: "auto",
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "8px"
+  } }, activeBatch.items?.map((item, idx) => /* @__PURE__ */ import_react76.default.createElement(
+    "div",
+    {
+      key: item.id,
+      style: {
+        padding: "var(--space-3) var(--space-4)",
+        borderBottom: idx < activeBatch.items.length - 1 ? "1px solid var(--neutral-100)" : "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)"
+      }
+    },
+    /* @__PURE__ */ import_react76.default.createElement("i", { className: "fas fa-file-pdf", style: { color: "var(--accent-blue)" } }),
+    /* @__PURE__ */ import_react76.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-700)",
+      flex: 1
+    } }, item.original_filename),
+    /* @__PURE__ */ import_react76.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)"
+    } }, (item.file_size / 1024 / 1024).toFixed(2), " MB")
+  ))))), activeBatch && activeBatch.status === "processing" && /* @__PURE__ */ import_react76.default.createElement(BulkUploadProgress, { batch: activeBatch }), activeBatch && (activeBatch.status === "completed" || activeBatch.status === "failed") && /* @__PURE__ */ import_react76.default.createElement(
+    BulkUploadItemList,
+    {
+      batch: activeBatch,
+      onItemApproved: handleItemApproved,
+      onBulkApprove: handleBulkApprove,
+      onRetryFailed: handleRetryFailed,
+      onNewBatch: () => setActiveBatch(null)
+    }
+  ));
+}
+
+// app/javascript/components/bulk-upload-v2/BulkUploadWizard.js
+var import_react84 = __toESM(require_react());
+
+// app/javascript/components/bulk-upload-v2/BulkUploadContext.js
+var import_react77 = __toESM(require_react());
+var BulkUploadContext = (0, import_react77.createContext)();
+var initialState = {
+  // Current batch data (from server)
+  batch: null,
+  phase: "upload",
+  // 'upload' | 'processing' | 'review' | 'complete'
+  // Session state (client-side until approved)
+  pendingPeople: [],
+  authorResolutions: {},
+  // { "itemId:authorIdx": { action, tempPersonId?, personId? } }
+  pendingConcepts: [],
+  conceptResolutions: {},
+  // UI state
+  expandedItemId: null,
+  filter: "all",
+  // 'all' | 'ready' | 'needs_review' | 'failed'
+  // Loading/error state
+  loading: false,
+  error: null,
+  // Completion stats
+  completionStats: null
+};
+function generateTempId() {
+  return `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+function findSessionMatches(author, pendingPeople) {
+  if (!author || !pendingPeople.length) return [];
+  return pendingPeople.filter((pending) => {
+    if (author.orcid && pending.orcid && author.orcid === pending.orcid) {
+      return true;
+    }
+    const authorFamily = (author.family || "").toLowerCase().trim();
+    const pendingLast = (pending.lastName || "").toLowerCase().trim();
+    if (pendingLast && authorFamily && pendingLast === authorFamily) {
+      const authorGiven = (author.given || "").toLowerCase().trim();
+      const pendingFirst = (pending.firstName || "").toLowerCase().trim();
+      if (!authorGiven || !pendingFirst) return true;
+      return pendingFirst[0] === authorGiven[0];
+    }
+    return false;
+  });
+}
+function findConceptMatches(concept, pendingConcepts) {
+  if (!concept || !pendingConcepts.length) return [];
+  const keyword = (concept.keyword || concept.label || "").toLowerCase().trim();
+  if (!keyword) return [];
+  return pendingConcepts.filter((pending) => {
+    const pendingLabel = (pending.label || "").toLowerCase().trim();
+    return pendingLabel === keyword || pendingLabel.replace(/[-_\s]/g, "") === keyword.replace(/[-_\s]/g, "");
+  });
+}
+function reducer2(state, action) {
+  switch (action.type) {
+    case "SET_BATCH":
+      return {
+        ...state,
+        batch: action.payload,
+        error: null
+      };
+    case "SET_PHASE":
+      return {
+        ...state,
+        phase: action.payload
+      };
+    case "SET_LOADING":
+      return {
+        ...state,
+        loading: action.payload
+      };
+    case "SET_ERROR":
+      return {
+        ...state,
+        error: action.payload,
+        loading: false
+      };
+    case "CREATE_PENDING_PERSON": {
+      const tempId = generateTempId();
+      const { itemId, authorIdx, firstName, lastName, orcid, createdFromAuthor } = action.payload;
+      const key = `${itemId}:${authorIdx}`;
+      return {
+        ...state,
+        pendingPeople: [
+          ...state.pendingPeople,
+          {
+            tempId,
+            firstName,
+            lastName,
+            orcid: orcid || null,
+            createdFromAuthor,
+            createdInItemId: itemId
+          }
+        ],
+        authorResolutions: {
+          ...state.authorResolutions,
+          [key]: { action: "create", tempPersonId: tempId, firstName, lastName, orcid }
+        }
+      };
+    }
+    case "RESOLVE_AUTHOR": {
+      const { itemId, authorIdx, resolution } = action.payload;
+      const key = `${itemId}:${authorIdx}`;
+      if (resolution === null) {
+        const newResolutions = { ...state.authorResolutions };
+        delete newResolutions[key];
+        return {
+          ...state,
+          authorResolutions: newResolutions
+        };
+      }
+      return {
+        ...state,
+        authorResolutions: {
+          ...state.authorResolutions,
+          [key]: resolution
+        }
+      };
+    }
+    case "CLEAR_AUTHOR_RESOLUTION": {
+      const { itemId, authorIdx } = action.payload;
+      const key = `${itemId}:${authorIdx}`;
+      const newResolutions = { ...state.authorResolutions };
+      delete newResolutions[key];
+      return {
+        ...state,
+        authorResolutions: newResolutions
+      };
+    }
+    case "CREATE_PENDING_CONCEPT": {
+      const tempId = generateTempId();
+      const { itemId, conceptIdx, label, conceptType, createdFromKeyword } = action.payload;
+      const key = `${itemId}:${conceptIdx}`;
+      return {
+        ...state,
+        pendingConcepts: [
+          ...state.pendingConcepts,
+          {
+            tempId,
+            label,
+            conceptType: conceptType || "non_physical_concept",
+            createdFromKeyword,
+            createdInItemId: itemId
+          }
+        ],
+        conceptResolutions: {
+          ...state.conceptResolutions,
+          [key]: { action: "create", tempConceptId: tempId, label, conceptType }
+        }
+      };
+    }
+    case "RESOLVE_CONCEPT": {
+      const { itemId, conceptIdx, resolution } = action.payload;
+      const key = `${itemId}:${conceptIdx}`;
+      if (resolution === null) {
+        const newResolutions = { ...state.conceptResolutions };
+        delete newResolutions[key];
+        return {
+          ...state,
+          conceptResolutions: newResolutions
+        };
+      }
+      return {
+        ...state,
+        conceptResolutions: {
+          ...state.conceptResolutions,
+          [key]: resolution
+        }
+      };
+    }
+    case "CLEAR_CONCEPT_RESOLUTION": {
+      const { itemId, conceptIdx } = action.payload;
+      const key = `${itemId}:${conceptIdx}`;
+      const newResolutions = { ...state.conceptResolutions };
+      delete newResolutions[key];
+      return {
+        ...state,
+        conceptResolutions: newResolutions
+      };
+    }
+    case "REPLACE_TEMP_IDS": {
+      const { personMappings, conceptMappings } = action.payload;
+      const updatedPeople = state.pendingPeople.map((person) => {
+        const realId = personMappings[person.tempId];
+        return realId ? { ...person, realId } : person;
+      });
+      const updatedAuthorResolutions = { ...state.authorResolutions };
+      Object.keys(updatedAuthorResolutions).forEach((key) => {
+        const resolution = updatedAuthorResolutions[key];
+        if (resolution.tempPersonId && personMappings[resolution.tempPersonId]) {
+          updatedAuthorResolutions[key] = {
+            ...resolution,
+            personId: personMappings[resolution.tempPersonId]
+          };
+        }
+      });
+      const updatedConcepts = state.pendingConcepts.map((concept) => {
+        const realId = conceptMappings?.[concept.tempId];
+        return realId ? { ...concept, realId } : concept;
+      });
+      const updatedConceptResolutions = { ...state.conceptResolutions };
+      Object.keys(updatedConceptResolutions).forEach((key) => {
+        const resolution = updatedConceptResolutions[key];
+        if (resolution.tempConceptId && conceptMappings?.[resolution.tempConceptId]) {
+          updatedConceptResolutions[key] = {
+            ...resolution,
+            conceptId: conceptMappings[resolution.tempConceptId]
+          };
+        }
+      });
+      return {
+        ...state,
+        pendingPeople: updatedPeople,
+        authorResolutions: updatedAuthorResolutions,
+        pendingConcepts: updatedConcepts,
+        conceptResolutions: updatedConceptResolutions
+      };
+    }
+    case "EXPAND_ITEM":
+      return {
+        ...state,
+        expandedItemId: action.payload
+      };
+    case "SET_FILTER":
+      return {
+        ...state,
+        filter: action.payload
+      };
+    case "SET_COMPLETION_STATS":
+      return {
+        ...state,
+        completionStats: action.payload
+      };
+    case "RESET":
+      return {
+        ...initialState
+      };
+    default:
+      return state;
+  }
+}
+function BulkUploadProvider({ children: children2 }) {
+  const [state, dispatch2] = (0, import_react77.useReducer)(reducer2, initialState);
+  const enrichedItems = (0, import_react77.useMemo)(() => {
+    if (!state.batch?.items) return [];
+    return state.batch.items.map((item) => {
+      const detectedAuthors = item.detected_authors || [];
+      const detectedConcepts = item.detected_concepts || [];
+      return {
+        ...item,
+        detected_authors: detectedAuthors.map((author, idx) => ({
+          ...author,
+          sessionMatches: findSessionMatches(author, state.pendingPeople),
+          resolution: state.authorResolutions[`${item.id}:${idx}`]
+        })),
+        detected_concepts: detectedConcepts.map((concept, idx) => ({
+          ...concept,
+          sessionMatches: findConceptMatches(concept, state.pendingConcepts),
+          resolution: state.conceptResolutions[`${item.id}:${idx}`]
+        }))
+      };
+    });
+  }, [
+    state.batch,
+    state.pendingPeople,
+    state.pendingConcepts,
+    state.authorResolutions,
+    state.conceptResolutions
+  ]);
+  const stats = (0, import_react77.useMemo)(() => {
+    const items = enrichedItems;
+    if (!items.length) return { ready: 0, needsReview: 0, failed: 0, approved: 0, created: 0, skipped: 0 };
+    let ready = 0;
+    let needsReview = 0;
+    let failed = 0;
+    let approved = 0;
+    let created = 0;
+    let skipped = 0;
+    items.forEach((item) => {
+      if (item.status === "approved") {
+        approved++;
+      } else if (item.status === "created") {
+        created++;
+      } else if (item.status === "skipped") {
+        skipped++;
+      } else if (item.status === "failed") {
+        failed++;
+      } else if (item.status === "extracted") {
+        const allAuthorsResolved = item.detected_authors.every(
+          (author) => author.resolution || author.auto_linked
+        );
+        if (allAuthorsResolved) {
+          ready++;
+        } else {
+          needsReview++;
+        }
+      } else if (item.status === "review_needed") {
+        needsReview++;
+      } else {
+        needsReview++;
+      }
+    });
+    return { ready, needsReview, failed, approved, created, skipped };
+  }, [enrichedItems]);
+  const filteredItems = (0, import_react77.useMemo)(() => {
+    if (state.filter === "all") return enrichedItems;
+    return enrichedItems.filter((item) => {
+      const isDone = ["approved", "created", "skipped"].includes(item.status);
+      if (state.filter === "ready") {
+        if (isDone) return false;
+        if (item.status === "failed") return false;
+        const allAuthorsResolved = item.detected_authors.every(
+          (author) => author.resolution || author.auto_linked
+        );
+        return item.status === "extracted" && allAuthorsResolved;
+      }
+      if (state.filter === "needs_review") {
+        if (isDone) return false;
+        if (item.status === "failed") return false;
+        if (item.status === "review_needed") return true;
+        const allAuthorsResolved = item.detected_authors.every(
+          (author) => author.resolution || author.auto_linked
+        );
+        return !allAuthorsResolved;
+      }
+      if (state.filter === "failed") {
+        return item.status === "failed";
+      }
+      return true;
+    });
+  }, [enrichedItems, state.filter]);
+  const value = (0, import_react77.useMemo)(() => ({
+    state,
+    dispatch: dispatch2,
+    enrichedItems,
+    filteredItems,
+    stats
+  }), [state, enrichedItems, filteredItems, stats]);
+  return /* @__PURE__ */ import_react77.default.createElement(BulkUploadContext.Provider, { value }, children2);
+}
+function useBulkUpload() {
+  const context = (0, import_react77.useContext)(BulkUploadContext);
+  if (!context) {
+    throw new Error("useBulkUpload must be used within a BulkUploadProvider");
+  }
+  return context;
+}
+
+// app/javascript/components/bulk-upload-v2/UploadPhase.js
+var import_react78 = __toESM(require_react());
+function UploadPhase() {
+  const { state, dispatch: dispatch2 } = useBulkUpload();
+  const [isDragging, setIsDragging] = (0, import_react78.useState)(false);
+  const [uploading, setUploading] = (0, import_react78.useState)(false);
+  const [uploadProgress, setUploadProgress] = (0, import_react78.useState)({ current: 0, total: 0 });
+  const [error, setError] = (0, import_react78.useState)("");
+  const fileInputRef = (0, import_react78.useRef)(null);
+  const folderInputRef = (0, import_react78.useRef)(null);
+  const hasPendingBatch = state.batch && state.batch.status === "pending";
+  const handleDragEnter = (0, import_react78.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(true);
+  }, []);
+  const handleDragLeave = (0, import_react78.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(false);
+  }, []);
+  const handleDragOver = (0, import_react78.useCallback)((e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+  }, []);
+  const collectPdfFiles = async (items) => {
+    const pdfFiles = [];
+    const processEntry = async (entry) => {
+      if (entry.isFile) {
+        return new Promise((resolve) => {
+          entry.file((file) => {
+            if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+              pdfFiles.push(file);
+            }
+            resolve();
+          });
+        });
+      } else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        return new Promise((resolve) => {
+          reader.readEntries(async (entries) => {
+            for (const subEntry of entries) {
+              await processEntry(subEntry);
+            }
+            resolve();
+          });
+        });
+      }
+    };
+    for (const item of items) {
+      if (item.webkitGetAsEntry) {
+        const entry = item.webkitGetAsEntry();
+        if (entry) {
+          await processEntry(entry);
+        }
+      } else if (item.getAsFile) {
+        const file = item.getAsFile();
+        if (file && (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"))) {
+          pdfFiles.push(file);
+        }
+      }
+    }
+    return pdfFiles;
+  };
+  const handleDrop2 = (0, import_react78.useCallback)(async (e3) => {
+    e3.preventDefault();
+    e3.stopPropagation();
+    setIsDragging(false);
+    setError("");
+    const items = e3.dataTransfer.items;
+    if (!items || items.length === 0) return;
+    const pdfFiles = await collectPdfFiles(items);
+    if (pdfFiles.length === 0) {
+      setError("No PDF files found in the dropped items.");
+      return;
+    }
+    await uploadFiles(pdfFiles);
+  }, []);
+  const handleFileSelect = (0, import_react78.useCallback)(async (e3) => {
+    const files = Array.from(e3.target.files).filter(
+      (file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
+    );
+    if (files.length === 0) {
+      setError("No PDF files selected.");
+      return;
+    }
+    await uploadFiles(files);
+  }, []);
+  const uploadFiles = async (files) => {
+    setUploading(true);
+    setUploadProgress({ current: 0, total: files.length });
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("name", `Upload ${(/* @__PURE__ */ new Date()).toLocaleString()}`);
+      files.forEach((file, idx) => {
+        formData.append("files[]", file);
+        setUploadProgress({ current: idx + 1, total: files.length });
+      });
+      const response = await fetch("/batch_uploads", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: formData
+      });
+      if (response.ok) {
+        const batch = await response.json();
+        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
+        if (fullResponse.ok) {
+          const fullBatch = await fullResponse.json();
+          dispatch2({ type: "SET_BATCH", payload: fullBatch });
+        } else {
+          dispatch2({ type: "SET_BATCH", payload: batch });
+        }
+      } else {
+        const data = await response.json();
+        setError(data.errors?.join(", ") || "Upload failed");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      setError("An error occurred during upload");
+    } finally {
+      setUploading(false);
+    }
+  };
+  const handleStartProcessing = async () => {
+    if (!state.batch) return;
+    try {
+      const response = await fetch(`/batch_uploads/${state.batch.id}/start_processing`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        dispatch2({ type: "SET_BATCH", payload: data });
+        dispatch2({ type: "SET_PHASE", payload: "processing" });
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to start processing");
+      }
+    } catch (err) {
+      setError("Failed to start processing");
+    }
+  };
+  const handleCancelBatch = async () => {
+    if (!state.batch) return;
+    if (!confirm("Are you sure you want to cancel this upload batch? All uploaded files will be removed.")) {
+      return;
+    }
+    try {
+      const response = await fetch(`/batch_uploads/${state.batch.id}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        dispatch2({ type: "RESET" });
+      }
+    } catch (err) {
+      setError("Failed to cancel batch");
+    }
+  };
+  if (uploading) {
+    return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react78.default.createElement(
+      "div",
+      {
+        style: {
+          padding: "var(--space-12)",
+          textAlign: "center",
+          minHeight: "400px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center"
+        }
+      },
+      /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+        width: "80px",
+        height: "80px",
+        borderRadius: "50%",
+        background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "0 auto var(--space-4)"
+      } }, /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-cloud-upload-alt fa-spin", style: { fontSize: "2.5rem", color: "var(--accent-blue)" } })),
+      /* @__PURE__ */ import_react78.default.createElement("h2", { style: {
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-xl)",
+        fontWeight: 600,
+        color: "var(--neutral-700)",
+        marginBottom: "var(--space-2)"
+      } }, "Uploading PDFs..."),
+      /* @__PURE__ */ import_react78.default.createElement("p", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-base)",
+        color: "var(--neutral-500)",
+        marginBottom: "var(--space-4)"
+      } }, uploadProgress.current, " of ", uploadProgress.total, " files"),
+      /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+        width: "200px",
+        height: "8px",
+        background: "var(--neutral-200)",
+        borderRadius: "4px",
+        margin: "0 auto",
+        overflow: "hidden"
+      } }, /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+        width: `${uploadProgress.current / uploadProgress.total * 100}%`,
+        height: "100%",
+        background: "var(--accent-blue)",
+        transition: "width 0.3s ease"
+      } }))
+    ));
+  }
+  if (hasPendingBatch) {
+    return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react78.default.createElement(
+      "div",
+      {
+        style: {
+          overflow: "hidden"
+        }
+      },
+      /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+        background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+        padding: "var(--space-3) var(--space-4)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid color-mix(in srgb, var(--accent-blue) 25%, white)"
+      } }, /* @__PURE__ */ import_react78.default.createElement("div", null, /* @__PURE__ */ import_react78.default.createElement("h2", { style: {
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-base)",
+        fontWeight: 600,
+        color: "var(--neutral-800)",
+        margin: 0
+      } }, state.batch.total_count, " PDFs Ready to Process"), /* @__PURE__ */ import_react78.default.createElement("p", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        margin: 0
+      } }, 'Click "Start Processing" to begin extracting metadata')), /* @__PURE__ */ import_react78.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react78.default.createElement("button", { onClick: handleCancelBatch, className: "btn-outline-source", style: { padding: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)" } }, "Cancel"), /* @__PURE__ */ import_react78.default.createElement(
+        "button",
+        {
+          onClick: handleStartProcessing,
+          className: "btn-source",
+          style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)" }
+        },
+        /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-play" }),
+        "Start Processing"
+      ))),
+      /* @__PURE__ */ import_react78.default.createElement("div", { style: { padding: "var(--space-4)" } }, /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+        maxHeight: "300px",
+        overflowY: "auto",
+        border: "1px solid var(--neutral-200)",
+        borderRadius: "6px",
+        background: "white"
+      } }, state.batch.items?.map((item, idx) => /* @__PURE__ */ import_react78.default.createElement(
+        "div",
+        {
+          key: item.id,
+          style: {
+            padding: "var(--space-3) var(--space-4)",
+            borderBottom: idx < state.batch.items.length - 1 ? "1px solid var(--neutral-100)" : "none",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3)"
+          }
+        },
+        /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-file-pdf", style: { color: "var(--accent-blue)" } }),
+        /* @__PURE__ */ import_react78.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          color: "var(--neutral-700)",
+          flex: 1
+        } }, item.original_filename),
+        /* @__PURE__ */ import_react78.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-500)"
+        } }, (item.file_size / 1024 / 1024).toFixed(2), " MB")
+      ))))
+    ));
+  }
+  return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, error && /* @__PURE__ */ import_react78.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), /* @__PURE__ */ import_react78.default.createElement(
+    "div",
+    {
+      onDragEnter: handleDragEnter,
+      onDragLeave: handleDragLeave,
+      onDragOver: handleDragOver,
+      onDrop: handleDrop2,
+      style: {
+        background: isDragging ? "color-mix(in srgb, var(--accent-blue) 10%, white)" : "white",
+        border: `3px dashed ${isDragging ? "var(--accent-blue)" : "var(--neutral-300)"}`,
+        borderRadius: "12px",
+        padding: "var(--space-12)",
+        textAlign: "center",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        minHeight: "400px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      },
+      onClick: () => fileInputRef.current?.click()
+    },
+    /* @__PURE__ */ import_react78.default.createElement(
+      "i",
+      {
+        className: "fas fa-folder-open",
+        style: {
+          fontSize: "5rem",
+          color: isDragging ? "var(--accent-blue)" : "var(--neutral-400)",
+          marginBottom: "var(--space-6)",
+          transition: "color 0.2s ease"
+        }
+      }
+    ),
+    /* @__PURE__ */ import_react78.default.createElement("h2", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-2xl)",
+      fontWeight: 700,
+      color: "var(--neutral-700)",
+      marginBottom: "var(--space-2)"
+    } }, isDragging ? "Drop your PDFs here" : "Drop a folder or PDFs here"),
+    /* @__PURE__ */ import_react78.default.createElement("p", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-base)",
+      color: "var(--neutral-500)",
+      marginBottom: "var(--space-6)",
+      maxWidth: "400px"
+    } }, "Drag and drop a folder containing PDFs, or multiple PDF files. We'll extract DOIs and fetch metadata automatically."),
+    /* @__PURE__ */ import_react78.default.createElement("div", { style: { display: "flex", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react78.default.createElement(
+      "button",
+      {
+        type: "button",
+        className: "btn-source",
+        onClick: (e3) => {
+          e3.stopPropagation();
+          fileInputRef.current?.click();
+        },
+        style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+      },
+      /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-file-pdf" }),
+      "Select PDFs"
+    ), /* @__PURE__ */ import_react78.default.createElement(
+      "button",
+      {
+        type: "button",
+        className: "btn-outline-source",
+        onClick: (e3) => {
+          e3.stopPropagation();
+          folderInputRef.current?.click();
+        },
+        style: { display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }
+      },
+      /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-folder" }),
+      "Select Folder"
+    )),
+    /* @__PURE__ */ import_react78.default.createElement(
+      "input",
+      {
+        ref: fileInputRef,
+        type: "file",
+        accept: ".pdf",
+        multiple: true,
+        onChange: handleFileSelect,
+        style: { display: "none" }
+      }
+    ),
+    /* @__PURE__ */ import_react78.default.createElement(
+      "input",
+      {
+        ref: folderInputRef,
+        type: "file",
+        webkitdirectory: "",
+        directory: "",
+        multiple: true,
+        onChange: handleFileSelect,
+        style: { display: "none" }
+      }
+    )
+  ), /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+    marginTop: "var(--space-4)",
+    padding: "var(--space-4)",
+    background: "#e2e2e2",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)"
+  } }, /* @__PURE__ */ import_react78.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    marginBottom: "var(--space-2)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-info-circle", style: { color: "var(--accent-blue)" } }), "How it works"), /* @__PURE__ */ import_react78.default.createElement("ol", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    paddingLeft: "var(--space-5)",
+    margin: 0
+  } }, /* @__PURE__ */ import_react78.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "Upload your PDFs (up to 300+ at once)"), /* @__PURE__ */ import_react78.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "We extract DOIs and fetch metadata from CrossRef, OpenAlex, and more"), /* @__PURE__ */ import_react78.default.createElement("li", { style: { marginBottom: "var(--space-1)" } }, "Review and link authors - create once, link everywhere"), /* @__PURE__ */ import_react78.default.createElement("li", null, "Approve to create sources with PDFs attached"))));
+}
+
+// app/javascript/components/bulk-upload-v2/ProcessingPhase.js
+var import_react79 = __toESM(require_react());
+function ProcessingPhase() {
+  const { state, dispatch: dispatch2 } = useBulkUpload();
+  const { batch } = state;
+  const pollBatch = (0, import_react79.useCallback)(async () => {
+    if (!batch?.id) return;
+    try {
+      const response = await fetch(`/batch_uploads/${batch.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        dispatch2({ type: "SET_BATCH", payload: data });
+        if (data.status === "completed" || data.status === "failed") {
+          dispatch2({ type: "SET_PHASE", payload: "review" });
+        }
+      }
+    } catch (err) {
+      console.error("Error polling batch:", err);
+    }
+  }, [batch?.id, dispatch2]);
+  (0, import_react79.useEffect)(() => {
+    if (!batch || batch.status !== "processing") return;
+    const interval2 = setInterval(pollBatch, 2e3);
+    return () => clearInterval(interval2);
+  }, [batch?.status, pollBatch]);
+  if (!batch) {
+    return /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+      padding: "var(--space-12)",
+      textAlign: "center"
+    } }, /* @__PURE__ */ import_react79.default.createElement("p", null, "No batch data available"));
+  }
+  const items = batch.items || [];
+  const totalCount = batch.total_count || items.length;
+  const processedCount = items.filter(
+    (item) => item.status !== "pending" && item.status !== "processing"
+  ).length;
+  const progress = totalCount > 0 ? processedCount / totalCount * 100 : 0;
+  const statusGroups = {
+    extracted: items.filter((i3) => i3.status === "extracted").length,
+    review_needed: items.filter((i3) => i3.status === "review_needed").length,
+    failed: items.filter((i3) => i3.status === "failed").length,
+    processing: items.filter((i3) => i3.status === "processing" || i3.status === "pending").length
+  };
+  return /* @__PURE__ */ import_react79.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    padding: "var(--space-8)"
+  } }, /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    textAlign: "center",
+    marginBottom: "var(--space-8)"
+  } }, /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    background: "color-mix(in srgb, var(--accent-blue) 10%, white)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto var(--space-4)",
+    position: "relative"
+  } }, /* @__PURE__ */ import_react79.default.createElement("svg", { width: "120", height: "120", style: { position: "absolute", transform: "rotate(-90deg)" } }, /* @__PURE__ */ import_react79.default.createElement(
+    "circle",
+    {
+      cx: "60",
+      cy: "60",
+      r: "54",
+      fill: "none",
+      stroke: "var(--neutral-200)",
+      strokeWidth: "8"
+    }
+  ), /* @__PURE__ */ import_react79.default.createElement(
+    "circle",
+    {
+      cx: "60",
+      cy: "60",
+      r: "54",
+      fill: "none",
+      stroke: "var(--accent-blue)",
+      strokeWidth: "8",
+      strokeDasharray: `${2 * Math.PI * 54}`,
+      strokeDashoffset: `${2 * Math.PI * 54 * (1 - progress / 100)}`,
+      strokeLinecap: "round",
+      style: { transition: "stroke-dashoffset 0.3s ease" }
+    }
+  )), /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    position: "relative",
+    zIndex: 1
+  } }, /* @__PURE__ */ import_react79.default.createElement("span", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-2xl)",
+    fontWeight: 700,
+    color: "var(--accent-blue)"
+  } }, Math.round(progress), "%"))), /* @__PURE__ */ import_react79.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-2)"
+  } }, "Extracting Metadata..."), /* @__PURE__ */ import_react79.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-500)"
+  } }, processedCount, " of ", totalCount, " files processed")), /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "var(--space-4)",
+    marginBottom: "var(--space-6)"
+  } }, /* @__PURE__ */ import_react79.default.createElement(
+    StatusCard,
+    {
+      icon: "fa-check-circle",
+      color: "var(--accent-green)",
+      label: "Extracted",
+      count: statusGroups.extracted
+    }
+  ), /* @__PURE__ */ import_react79.default.createElement(
+    StatusCard,
+    {
+      icon: "fa-exclamation-triangle",
+      color: "var(--accent-orange)",
+      label: "Needs Review",
+      count: statusGroups.review_needed
+    }
+  ), /* @__PURE__ */ import_react79.default.createElement(
+    StatusCard,
+    {
+      icon: "fa-times-circle",
+      color: "var(--accent-red)",
+      label: "Failed",
+      count: statusGroups.failed
+    }
+  ), /* @__PURE__ */ import_react79.default.createElement(
+    StatusCard,
+    {
+      icon: "fa-spinner fa-spin",
+      color: "var(--accent-blue)",
+      label: "Processing",
+      count: statusGroups.processing
+    }
+  )), /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "8px",
+    maxHeight: "200px",
+    overflowY: "auto"
+  } }, /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    padding: "var(--space-3) var(--space-4)",
+    borderBottom: "1px solid var(--neutral-200)",
+    background: "var(--neutral-50)",
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--neutral-600)"
+  } }, "Recent Activity"), items.slice(-10).reverse().map((item) => /* @__PURE__ */ import_react79.default.createElement(
+    "div",
+    {
+      key: item.id,
+      style: {
+        padding: "var(--space-2) var(--space-4)",
+        borderBottom: "1px solid var(--neutral-100)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      }
+    },
+    /* @__PURE__ */ import_react79.default.createElement(StatusIcon2, { status: item.status }),
+    /* @__PURE__ */ import_react79.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-sm)",
+      color: "var(--neutral-700)",
+      flex: 1,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
+    } }, item.extracted_metadata?.title || item.original_filename)
+  ))), statusGroups.processing > 0 && /* @__PURE__ */ import_react79.default.createElement("p", { style: {
+    marginTop: "var(--space-4)",
+    textAlign: "center",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, /* @__PURE__ */ import_react79.default.createElement("i", { className: "fas fa-clock", style: { marginRight: "var(--space-2)" } }), "Estimated time remaining: ~", Math.ceil(statusGroups.processing * 0.5), " minutes")));
+}
+function StatusCard({ icon: icon3, color: color2, label, count }) {
+  return /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    padding: "var(--space-4)",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)",
+    textAlign: "center"
+  } }, /* @__PURE__ */ import_react79.default.createElement(
+    "i",
+    {
+      className: `fas ${icon3}`,
+      style: { fontSize: "var(--text-xl)", color: color2, marginBottom: "var(--space-2)" }
+    }
+  ), /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-2xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)"
+  } }, count), /* @__PURE__ */ import_react79.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, label));
+}
+function StatusIcon2({ status }) {
+  const configs = {
+    extracted: { icon: "fa-check-circle", color: "var(--accent-green)" },
+    review_needed: { icon: "fa-exclamation-triangle", color: "var(--accent-orange)" },
+    failed: { icon: "fa-times-circle", color: "var(--accent-red)" },
+    processing: { icon: "fa-spinner fa-spin", color: "var(--accent-blue)" },
+    pending: { icon: "fa-clock", color: "var(--neutral-400)" },
+    approved: { icon: "fa-check-double", color: "var(--accent-green)" },
+    created: { icon: "fa-check-double", color: "var(--accent-green)" }
+  };
+  const config2 = configs[status] || configs.pending;
+  return /* @__PURE__ */ import_react79.default.createElement(
+    "i",
+    {
+      className: `fas ${config2.icon}`,
+      style: { fontSize: "var(--text-sm)", color: config2.color }
+    }
+  );
+}
+
+// app/javascript/components/bulk-upload-v2/ReviewPhase.js
+var import_react82 = __toESM(require_react());
+
+// app/javascript/components/bulk-upload-v2/AuthorResolutionSection.js
+var import_react80 = __toESM(require_react());
+function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
+  const { state } = useBulkUpload();
+  const [expandedAuthorIdx, setExpandedAuthorIdx] = (0, import_react80.useState)(null);
+  const [searchQuery, setSearchQuery] = (0, import_react80.useState)("");
+  const [searchResults, setSearchResults] = (0, import_react80.useState)([]);
+  const [searching, setSearching] = (0, import_react80.useState)(false);
+  const [orcidResults, setOrcidResults] = (0, import_react80.useState)([]);
+  const [searchingOrcid, setSearchingOrcid] = (0, import_react80.useState)(false);
+  const [orcidSearched, setOrcidSearched] = (0, import_react80.useState)(false);
+  const [createForm, setCreateForm] = (0, import_react80.useState)({ firstName: "", lastName: "", orcid: "" });
+  const [previousForm, setPreviousForm] = (0, import_react80.useState)(null);
+  const authors = item.detected_authors || [];
+  const handleSearch = (0, import_react80.useCallback)(async (query) => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const response = await fetch(`/people/search?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSearchResults(data);
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+  const handleOrcidSearch = (0, import_react80.useCallback)(async (author) => {
+    const familyName = author.family || "";
+    const givenName = author.given || "";
+    if (!familyName) return;
+    setSearchingOrcid(true);
+    setOrcidSearched(false);
+    setOrcidResults([]);
+    try {
+      const params = new URLSearchParams({
+        family_name: familyName,
+        given_name: givenName
+      });
+      const response = await fetch(`/people/search_orcid?${params}`);
+      if (response.ok) {
+        const data = await response.json();
+        setOrcidResults(data || []);
+      }
+    } catch (err) {
+      console.error("ORCID search error:", err);
+    } finally {
+      setSearchingOrcid(false);
+      setOrcidSearched(true);
+    }
+  }, []);
+  const handleExpandAuthor = (0, import_react80.useCallback)((idx, author) => {
+    if (expandedAuthorIdx === idx) {
+      setExpandedAuthorIdx(null);
+      setSearchResults([]);
+      setOrcidResults([]);
+      setOrcidSearched(false);
+      setCreateForm({ firstName: "", lastName: "", orcid: "" });
+      setPreviousForm(null);
+    } else {
+      setExpandedAuthorIdx(idx);
+      setSearchResults([]);
+      setOrcidResults([]);
+      setOrcidSearched(false);
+      setPreviousForm(null);
+      setCreateForm({
+        firstName: author.given || "",
+        lastName: author.family || "",
+        orcid: author.orcid || ""
+      });
+      handleSearch(`${author.family || ""} ${author.given || ""}`.trim());
+    }
+  }, [expandedAuthorIdx, handleSearch]);
+  const handleLinkToDbPerson = (0, import_react80.useCallback)((authorIdx, person) => {
+    onResolutionChange(authorIdx, {
+      action: "link",
+      personId: person.id,
+      personName: person.full_name
+    });
+    setExpandedAuthorIdx(null);
+  }, [onResolutionChange]);
+  const handleLinkToSessionPerson = (0, import_react80.useCallback)((authorIdx, pendingPerson) => {
+    onResolutionChange(authorIdx, {
+      action: "link",
+      tempPersonId: pendingPerson.tempId,
+      personName: `${pendingPerson.firstName} ${pendingPerson.lastName}`
+    });
+    setExpandedAuthorIdx(null);
+  }, [onResolutionChange]);
+  const handleCreateNew = (0, import_react80.useCallback)((authorIdx, author) => {
+    if (!createForm.lastName) return;
+    onCreatePerson(authorIdx, {
+      firstName: createForm.firstName,
+      lastName: createForm.lastName,
+      orcid: createForm.orcid || null,
+      createdFromAuthor: author
+    });
+    setExpandedAuthorIdx(null);
+    setCreateForm({ firstName: "", lastName: "", orcid: "" });
+  }, [createForm, onCreatePerson]);
+  const handleSkip = (0, import_react80.useCallback)((authorIdx) => {
+    onResolutionChange(authorIdx, { action: "skip" });
+    setExpandedAuthorIdx(null);
+  }, [onResolutionChange]);
+  const handleUseOrcid = (0, import_react80.useCallback)((authorIdx, orcidPerson) => {
+    setPreviousForm({ ...createForm });
+    setCreateForm({
+      firstName: orcidPerson.given_name || orcidPerson.given_names || orcidPerson.given || "",
+      lastName: orcidPerson.family_name || orcidPerson.family || "",
+      orcid: orcidPerson.orcid
+    });
+  }, [createForm]);
+  const handleUndoOrcid = (0, import_react80.useCallback)(() => {
+    if (previousForm) {
+      setCreateForm(previousForm);
+      setPreviousForm(null);
+    }
+  }, [previousForm]);
+  const authorsWithMatches = authors.filter(
+    (a5) => !a5.auto_linked && !a5.resolution && (a5.potential_matches?.length > 0 || a5.sessionMatches?.length > 0)
+  ).length;
+  const unresolvedAuthors = authors.filter((a5) => !a5.auto_linked && !a5.resolution);
+  const handleAutoResolveAll = (0, import_react80.useCallback)(() => {
+    authors.forEach((author, idx) => {
+      if (author.auto_linked || author.resolution) return;
+      if (author.potential_matches?.length > 0) {
+        const bestMatch = author.potential_matches[0];
+        onResolutionChange(idx, {
+          action: "link",
+          personId: bestMatch.id,
+          personName: bestMatch.name
+        });
+        return;
+      }
+      const sessionMatch = author.sessionMatches?.find((pending) => {
+        const pendingFirst = (pending.firstName || "").toLowerCase().trim();
+        const pendingLast = (pending.lastName || "").toLowerCase().trim();
+        const authorFirst = (author.given || "").toLowerCase().trim();
+        const authorLast = (author.family || "").toLowerCase().trim();
+        return pendingFirst === authorFirst && pendingLast === authorLast;
+      });
+      if (sessionMatch) {
+        onResolutionChange(idx, {
+          action: "link",
+          tempPersonId: sessionMatch.tempId,
+          personName: `${sessionMatch.firstName} ${sessionMatch.lastName}`
+        });
+      } else {
+        onCreatePerson(idx, {
+          firstName: author.given || "",
+          lastName: author.family || "",
+          orcid: author.orcid || null,
+          createdFromAuthor: author
+        });
+      }
+    });
+  }, [authors, onResolutionChange, onCreatePerson]);
+  const btnYellow = {
+    padding: "4px 12px",
+    fontSize: "var(--text-xs)",
+    background: "var(--accent-gold)",
+    border: "none",
+    borderRadius: "4px",
+    color: "white",
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    fontFamily: "var(--font-body)"
+  };
+  const btnYellowOutline = {
+    padding: "4px 12px",
+    fontSize: "var(--text-xs)",
+    background: "white",
+    border: "1px solid var(--accent-gold)",
+    borderRadius: "4px",
+    color: "var(--accent-gold)",
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    fontFamily: "var(--font-body)"
+  };
+  return /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-6)", marginTop: "var(--space-6)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-2)",
+    paddingBottom: "var(--space-2)",
+    borderBottom: "2px solid var(--accent-gold)"
+  } }, /* @__PURE__ */ import_react80.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-lg)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)",
+    margin: 0
+  } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-users", style: { color: "var(--accent-gold)" } }), "Authors (", authors.length, ")"), unresolvedAuthors.length > 0 && /* @__PURE__ */ import_react80.default.createElement(
+    "button",
+    {
+      onClick: handleAutoResolveAll,
+      style: {
+        padding: "4px 10px",
+        fontSize: "var(--text-xs)",
+        background: "var(--accent-gold-light)",
+        border: "1px solid var(--accent-gold)",
+        borderRadius: "4px",
+        color: "var(--accent-gold)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        fontFamily: "var(--font-body)"
+      }
+    },
+    /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-magic" }),
+    "Auto-resolve all"
+  )), /* @__PURE__ */ import_react80.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    margin: 0,
+    lineHeight: 1.4
+  } }, "The raw author string is saved automatically. To track sources by author in your database, link or create people below."), authorsWithMatches > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+    marginTop: "var(--space-2)",
+    padding: "var(--space-2) var(--space-3)",
+    background: "var(--accent-gold-light)",
+    borderRadius: "6px",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-lightbulb", style: { color: "var(--accent-gold)", fontSize: "var(--text-xs)" } }), /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-700)"
+  } }, /* @__PURE__ */ import_react80.default.createElement("strong", null, authorsWithMatches), " potential ", authorsWithMatches === 1 ? "match" : "matches", " from your database detected"))), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "8px",
+    overflow: "hidden"
+  } }, authors.map((author, idx) => {
+    const isExpanded = expandedAuthorIdx === idx;
+    const resolution = author.resolution;
+    const isResolved = resolution || author.auto_linked;
+    const sessionMatches = author.sessionMatches || [];
+    return /* @__PURE__ */ import_react80.default.createElement(
+      "div",
+      {
+        key: idx,
+        style: {
+          borderBottom: idx < authors.length - 1 ? "1px solid var(--neutral-100)" : "none"
+        }
+      },
+      /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        padding: "var(--space-3) var(--space-4)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        background: isExpanded ? "var(--accent-gold-light)" : "white"
+      } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        width: "24px",
+        height: "24px",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: isResolved ? "var(--accent-gold-light)" : sessionMatches.length > 0 ? "var(--accent-gold-light)" : "var(--neutral-100)"
+      } }, isResolved ? /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-check", style: { fontSize: "10px", color: "var(--accent-gold)" } }) : sessionMatches.length > 0 ? /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-bolt", style: { fontSize: "10px", color: "var(--accent-gold)" } }) : /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-question", style: { fontSize: "10px", color: "var(--neutral-400)" } })), /* @__PURE__ */ import_react80.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-800)"
+      } }, author.given ? `${author.given} ` : "", author.family || "Unknown"), !isResolved && !author.auto_linked && author.potential_matches?.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-gold)",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        marginTop: "2px"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-user-check" }), author.potential_matches.length, " potential ", author.potential_matches.length === 1 ? "match" : "matches", " in database"), resolution && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: resolution.action === "skip" ? "var(--neutral-500)" : "var(--accent-gold)",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+      } }, resolution.action === "link" && /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-link" }), "Linked to ", resolution.personName), resolution.action === "create" && /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-plus-circle" }), "Will create: ", resolution.firstName, " ", resolution.lastName), resolution.action === "skip" && /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-ban" }), "Skipped"), /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: (e3) => {
+            e3.stopPropagation();
+            onResolutionChange(idx, null);
+          },
+          style: {
+            marginLeft: "6px",
+            padding: "2px 6px",
+            background: "transparent",
+            border: "none",
+            color: "var(--neutral-400)",
+            cursor: "pointer",
+            fontSize: "var(--text-xs)",
+            display: "inline-flex",
+            alignItems: "center"
+          },
+          title: "Clear resolution"
+        },
+        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-times" })
+      )), author.auto_linked && !resolution && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-gold)",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-magic" }), "Auto-linked to ", author.linked_person_name), !isResolved && sessionMatches.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-gold)",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-bolt" }), sessionMatches.length, " session match", sessionMatches.length > 1 ? "es" : "", " available")), author.orcid && /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+        padding: "2px 8px",
+        borderRadius: "4px",
+        background: "var(--accent-gold-light)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-gold)"
+      } }, "ORCID"), !author.auto_linked && /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: () => handleExpandAuthor(idx, author),
+          style: isExpanded || isResolved ? btnYellowOutline : btnYellow
+        },
+        isExpanded ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-times" }), " Close") : isResolved ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-edit" }), " Edit") : /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-search" }), " Review")
+      )),
+      isExpanded && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        padding: "var(--space-4)",
+        background: "var(--neutral-50)",
+        borderTop: "1px solid var(--neutral-200)"
+      } }, author.potential_matches?.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: "var(--accent-gold)",
+        marginBottom: "var(--space-2)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-user-check" }), "Detected Matches"), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-2)"
+      } }, author.potential_matches.map((person) => /* @__PURE__ */ import_react80.default.createElement(
+        "div",
+        {
+          key: person.id,
+          style: {
+            padding: "var(--space-2) var(--space-3)",
+            background: "var(--accent-gold-light)",
+            border: "2px solid var(--accent-gold)",
+            borderRadius: "6px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("div", null, /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          color: "var(--neutral-800)"
+        } }, person.name), person.orcid && /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          marginLeft: "var(--space-2)",
+          padding: "2px 6px",
+          borderRadius: "4px",
+          background: "var(--accent-gold)",
+          fontFamily: "var(--font-body)",
+          fontSize: "10px",
+          color: "white"
+        } }, "ORCID")),
+        /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleLinkToDbPerson(idx, { id: person.id, full_name: person.name }),
+            style: btnYellow
+          },
+          "Link"
+        )
+      )))), sessionMatches.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: "var(--accent-gold)",
+        marginBottom: "var(--space-2)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-bolt" }), "Created This Session"), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-2)"
+      } }, sessionMatches.map((person) => /* @__PURE__ */ import_react80.default.createElement(
+        "div",
+        {
+          key: person.tempId,
+          style: {
+            padding: "var(--space-2) var(--space-3)",
+            background: "var(--accent-gold-light)",
+            border: "2px solid var(--accent-gold)",
+            borderRadius: "6px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("div", null, /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          fontWeight: 600,
+          color: "var(--neutral-800)"
+        } }, person.firstName, " ", person.lastName), /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          marginLeft: "var(--space-2)",
+          padding: "2px 6px",
+          borderRadius: "4px",
+          background: "var(--accent-gold)",
+          fontFamily: "var(--font-body)",
+          fontSize: "10px",
+          color: "white"
+        } }, "Just Created")),
+        /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleLinkToSessionPerson(idx, person),
+            style: btnYellow
+          },
+          "Link"
+        )
+      )))), /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: "var(--neutral-600)",
+        marginBottom: "var(--space-2)"
+      } }, "Search Your Database"), /* @__PURE__ */ import_react80.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react80.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: searchQuery,
+          onChange: (e3) => {
+            setSearchQuery(e3.target.value);
+            handleSearch(e3.target.value);
+          },
+          placeholder: "Search by name...",
+          style: {
+            flex: 1,
+            padding: "var(--space-2)",
+            borderRadius: "6px",
+            border: "1px solid var(--neutral-200)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-sm)"
+          }
+        }
+      ), searching && /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { alignSelf: "center" } })), searchResults.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        marginTop: "var(--space-2)",
+        border: "1px solid var(--neutral-200)",
+        borderRadius: "6px",
+        maxHeight: "150px",
+        overflowY: "auto"
+      } }, searchResults.map((person) => /* @__PURE__ */ import_react80.default.createElement(
+        "div",
+        {
+          key: person.id,
+          style: {
+            padding: "var(--space-2) var(--space-3)",
+            borderBottom: "1px solid var(--neutral-100)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            background: "white"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          color: "var(--neutral-700)"
+        } }, person.full_name, person.orcid && /* @__PURE__ */ import_react80.default.createElement("span", { style: { marginLeft: "8px", color: "var(--accent-gold)", fontSize: "10px" } }, "ORCID")),
+        /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleLinkToDbPerson(idx, person),
+            style: { ...btnYellowOutline, padding: "2px 8px" }
+          },
+          "Link"
+        )
+      ))), searchQuery && searchResults.length === 0 && !searching && /* @__PURE__ */ import_react80.default.createElement("p", { style: {
+        marginTop: "var(--space-2)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)"
+      } }, "No matches found in your database")), /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "var(--space-2)"
+      } }, /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: "var(--neutral-600)"
+      } }, "Create New Person"), previousForm && /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: handleUndoOrcid,
+          style: {
+            padding: "2px 8px",
+            fontSize: "var(--text-xs)",
+            background: "transparent",
+            border: "1px solid var(--neutral-300)",
+            borderRadius: "4px",
+            color: "var(--neutral-600)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-undo" }),
+        "Undo ORCID"
+      )), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
+        gap: "var(--space-2)"
+      } }, /* @__PURE__ */ import_react80.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: createForm.firstName,
+          onChange: (e3) => setCreateForm({ ...createForm, firstName: e3.target.value }),
+          placeholder: "First name",
+          style: {
+            padding: "var(--space-2)",
+            borderRadius: "6px",
+            border: "1px solid var(--neutral-200)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-sm)"
+          }
+        }
+      ), /* @__PURE__ */ import_react80.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: createForm.lastName,
+          onChange: (e3) => setCreateForm({ ...createForm, lastName: e3.target.value }),
+          placeholder: "Last name",
+          style: {
+            padding: "var(--space-2)",
+            borderRadius: "6px",
+            border: "1px solid var(--neutral-200)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-sm)"
+          }
+        }
+      ), /* @__PURE__ */ import_react80.default.createElement(
+        "input",
+        {
+          type: "text",
+          value: createForm.orcid,
+          onChange: (e3) => setCreateForm({ ...createForm, orcid: e3.target.value }),
+          placeholder: "ORCID (optional)",
+          style: {
+            padding: "var(--space-2)",
+            borderRadius: "6px",
+            border: "1px solid var(--neutral-200)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-sm)"
+          }
+        }
+      ))), /* @__PURE__ */ import_react80.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        color: "var(--neutral-600)",
+        marginBottom: "var(--space-2)"
+      } }, "Search ORCID Registry"), /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: () => handleOrcidSearch(author),
+          disabled: searchingOrcid,
+          style: btnYellowOutline
+        },
+        searchingOrcid ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-spinner fa-spin" }), "Searching...") : /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fab fa-orcid" }), "Search ORCID")
+      ), searchingOrcid && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        marginTop: "var(--space-2)",
+        padding: "var(--space-3)",
+        background: "var(--neutral-100)",
+        borderRadius: "6px",
+        textAlign: "center"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { color: "var(--accent-gold)", marginRight: "8px" } }), /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-600)"
+      } }, "Searching ORCID registry...")), !searchingOrcid && orcidResults.length > 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        marginTop: "var(--space-2)",
+        border: "1px solid var(--neutral-200)",
+        borderRadius: "6px",
+        maxHeight: "150px",
+        overflowY: "auto"
+      } }, orcidResults.map((person, oidx) => /* @__PURE__ */ import_react80.default.createElement(
+        "div",
+        {
+          key: person.orcid || oidx,
+          style: {
+            padding: "var(--space-2) var(--space-3)",
+            borderBottom: "1px solid var(--neutral-100)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            background: "white"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("div", null, /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          color: "var(--neutral-700)"
+        } }, person.given_name || person.given_names || person.given, " ", person.family_name || person.family), /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+          marginLeft: "8px",
+          fontFamily: "var(--font-body)",
+          fontSize: "10px",
+          color: "var(--accent-gold)"
+        } }, person.orcid)),
+        /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleUseOrcid(idx, person),
+            style: { ...btnYellowOutline, padding: "2px 8px" }
+          },
+          "Use"
+        )
+      ))), !searchingOrcid && orcidSearched && orcidResults.length === 0 && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        marginTop: "var(--space-2)",
+        padding: "var(--space-3)",
+        background: "color-mix(in srgb, var(--accent-orange) 10%, white)",
+        borderRadius: "6px",
+        border: "1px solid color-mix(in srgb, var(--accent-orange) 30%, white)"
+      } }, /* @__PURE__ */ import_react80.default.createElement("span", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-600)"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-info-circle", style: { color: "var(--accent-orange)", marginRight: "8px" } }), 'No results found in ORCID registry for "', author.family, ", ", author.given, '"'))), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      } }, /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: () => handleSkip(idx),
+          style: {
+            padding: "var(--space-2) var(--space-3)",
+            fontSize: "var(--text-xs)",
+            background: "transparent",
+            border: "none",
+            color: "var(--neutral-500)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px"
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-ban" }),
+        "Skip Author"
+      ), /* @__PURE__ */ import_react80.default.createElement(
+        "button",
+        {
+          onClick: () => handleCreateNew(idx, author),
+          disabled: !createForm.lastName,
+          style: {
+            ...btnYellow,
+            opacity: createForm.lastName ? 1 : 0.5
+          }
+        },
+        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-plus-circle", style: { marginRight: "4px" } }),
+        "Create New Person"
+      )))
+    );
+  })));
+}
+
+// app/javascript/components/bulk-upload-v2/ConceptResolutionSection.js
+var import_react81 = __toESM(require_react());
+function toTitleCase(str) {
+  if (!str) return "";
+  return str.toLowerCase().replace(/(?:^|\s)\S/g, (match) => match.toUpperCase());
+}
+function ConceptResolutionSection({ item, onResolutionChange, onCreateConcept }) {
+  const { state } = useBulkUpload();
+  const concepts = item.detected_concepts || [];
+  const [editingIdx, setEditingIdx] = (0, import_react81.useState)(null);
+  const [editValue, setEditValue] = (0, import_react81.useState)("");
+  const [editedLabels, setEditedLabels] = (0, import_react81.useState)({});
+  const editInputRef = (0, import_react81.useRef)(null);
+  const [showNewConceptForm, setShowNewConceptForm] = (0, import_react81.useState)(false);
+  const [newConceptLabel, setNewConceptLabel] = (0, import_react81.useState)("");
+  const [newConceptType, setNewConceptType] = (0, import_react81.useState)("non_physical_concept");
+  const newConceptInputRef = (0, import_react81.useRef)(null);
+  (0, import_react81.useEffect)(() => {
+    if (editingIdx !== null && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingIdx]);
+  (0, import_react81.useEffect)(() => {
+    if (showNewConceptForm && newConceptInputRef.current) {
+      newConceptInputRef.current.focus();
+    }
+  }, [showNewConceptForm]);
+  const handleCreateNewConcept = (0, import_react81.useCallback)(async () => {
+    const label = newConceptLabel.trim();
+    if (!label) return;
+    try {
+      const response = await fetch(`/concepts/search?q=${encodeURIComponent(label.toLowerCase())}`);
+      if (response.ok) {
+        const results = await response.json();
+        const exactMatch = results.find((c5) => c5.label.toLowerCase() === label.toLowerCase());
+        if (exactMatch) {
+          alert(`Concept "${exactMatch.label}" already exists in your database.`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    }
+    onCreateConcept(-1, {
+      label: label.toLowerCase(),
+      conceptType: newConceptType,
+      createdFromKeyword: label
+    });
+    setNewConceptLabel("");
+    setNewConceptType("non_physical_concept");
+    setShowNewConceptForm(false);
+  }, [newConceptLabel, newConceptType, onCreateConcept]);
+  const getDisplayLabel = (0, import_react81.useCallback)((idx, concept) => {
+    if (editedLabels[idx]) {
+      return editedLabels[idx];
+    }
+    return concept.keyword || concept.label || "";
+  }, [editedLabels]);
+  const handleStartEdit = (0, import_react81.useCallback)((idx, currentLabel) => {
+    setEditingIdx(idx);
+    setEditValue(editedLabels[idx] || toTitleCase(currentLabel));
+  }, [editedLabels]);
+  const handleSaveEdit = (0, import_react81.useCallback)((idx) => {
+    const newLabel = editValue.trim();
+    if (newLabel) {
+      setEditedLabels((prev) => ({
+        ...prev,
+        [idx]: newLabel
+      }));
+    }
+    setEditingIdx(null);
+    setEditValue("");
+  }, [editValue]);
+  const handleCancelEdit = (0, import_react81.useCallback)(() => {
+    setEditingIdx(null);
+    setEditValue("");
+  }, []);
+  const handleEditKeyDown = (0, import_react81.useCallback)((e3, idx) => {
+    if (e3.key === "Enter") {
+      handleSaveEdit(idx);
+    } else if (e3.key === "Escape") {
+      handleCancelEdit();
+    }
+  }, [handleSaveEdit, handleCancelEdit]);
+  const handleAccept = (0, import_react81.useCallback)(async (idx, concept) => {
+    const keyword = (editedLabels[idx] || concept.keyword || concept.label || "").toLowerCase().trim();
+    if (!keyword) return;
+    const sessionMatch = concept.sessionMatches?.find((pending) => {
+      return (pending.label || "").toLowerCase().trim() === keyword;
+    });
+    if (sessionMatch) {
+      onResolutionChange(idx, {
+        action: "link",
+        tempConceptId: sessionMatch.tempId,
+        conceptLabel: sessionMatch.label
+      });
+      return;
+    }
+    try {
+      const response = await fetch(`/concepts/search?q=${encodeURIComponent(keyword)}`);
+      if (response.ok) {
+        const results = await response.json();
+        const exactMatch = results.find((c5) => c5.label.toLowerCase() === keyword);
+        if (exactMatch) {
+          onResolutionChange(idx, {
+            action: "link",
+            conceptId: exactMatch.id,
+            conceptLabel: exactMatch.label
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Search error:", err);
+    }
+    onCreateConcept(idx, {
+      label: keyword,
+      conceptType: concept.suggested_type || "non_physical_concept",
+      createdFromKeyword: concept.keyword || concept.label
+    });
+  }, [editedLabels, onResolutionChange, onCreateConcept]);
+  const handleReject = (0, import_react81.useCallback)((idx) => {
+    onResolutionChange(idx, { action: "skip" });
+  }, [onResolutionChange]);
+  const handleClear = (0, import_react81.useCallback)((idx) => {
+    onResolutionChange(idx, null);
+  }, [onResolutionChange]);
+  const handleUnlink = (0, import_react81.useCallback)((idx) => {
+    onResolutionChange(idx, { action: "pending" });
+  }, [onResolutionChange]);
+  const handleAcceptAll = (0, import_react81.useCallback)(async () => {
+    for (let idx = 0; idx < concepts.length; idx++) {
+      const concept = concepts[idx];
+      if (concept.auto_linked || concept.resolution) continue;
+      await handleAccept(idx, concept);
+    }
+  }, [concepts, handleAccept]);
+  const autoLinkedCount = concepts.filter((c5) => c5.auto_linked && !c5.resolution).length;
+  const acceptedCount = concepts.filter((c5) => c5.resolution?.action === "link" || c5.resolution?.action === "create").length;
+  const rejectedCount = concepts.filter((c5) => c5.resolution?.action === "skip").length;
+  const unresolvedCount = concepts.filter((c5) => !c5.auto_linked && !c5.resolution).length;
+  const hasDbMatch = (concept) => {
+    return concept.matched_concept_id && !concept.auto_linked;
+  };
+  if (concepts.length === 0) {
+    return /* @__PURE__ */ import_react81.default.createElement("div", { style: { marginBottom: "var(--space-4)", marginTop: "var(--space-6)" } }, /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      marginBottom: "var(--space-2)",
+      paddingBottom: "var(--space-2)",
+      borderBottom: "2px solid var(--accent-green)"
+    } }, /* @__PURE__ */ import_react81.default.createElement("h3", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-lg)",
+      fontWeight: 600,
+      color: "var(--neutral-800)",
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      margin: 0
+    } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-tags", style: { color: "var(--accent-green)" } }), "Concepts (0)")), /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+      padding: "var(--space-3)",
+      background: "var(--neutral-50)",
+      borderRadius: "6px",
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)"
+    } }, "No keywords detected in metadata"));
+  }
+  return /* @__PURE__ */ import_react81.default.createElement("div", { style: { marginBottom: "var(--space-6)", marginTop: "var(--space-6)" } }, /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "var(--space-2)",
+    paddingBottom: "var(--space-2)",
+    borderBottom: "2px solid var(--accent-green)"
+  } }, /* @__PURE__ */ import_react81.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-lg)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)",
+    margin: 0
+  } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-tags", style: { color: "var(--accent-green)" } }), "Concepts (", concepts.length, ")", autoLinkedCount > 0 && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+    padding: "2px 6px",
+    borderRadius: "4px",
+    background: "var(--accent-green-light)",
+    fontSize: "var(--text-xs)",
+    color: "var(--accent-green)",
+    fontWeight: 500
+  } }, autoLinkedCount, " auto-linked")), unresolvedCount > 0 && /* @__PURE__ */ import_react81.default.createElement(
+    "button",
+    {
+      onClick: handleAcceptAll,
+      style: {
+        padding: "4px 10px",
+        fontSize: "var(--text-xs)",
+        background: "var(--accent-green-light)",
+        border: "1px solid var(--accent-green)",
+        borderRadius: "4px",
+        color: "var(--accent-green)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px",
+        fontFamily: "var(--font-body)"
+      }
+    },
+    /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-check-double" }),
+    "Accept all"
+  )), /* @__PURE__ */ import_react81.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    margin: 0,
+    marginBottom: "var(--space-3)",
+    lineHeight: 1.4
+  } }, "Keywords extracted from the article. Accept to link or create concepts in your database."), /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "8px",
+    overflow: "hidden"
+  } }, concepts.map((concept, idx) => {
+    const resolution = concept.resolution;
+    const isAutoLinked = concept.auto_linked && !resolution;
+    const isAccepted = resolution?.action === "link" || resolution?.action === "create";
+    const isRejected = resolution?.action === "skip";
+    const isResolved = isAutoLinked || resolution;
+    const keyword = getDisplayLabel(idx, concept);
+    const isEditing = editingIdx === idx;
+    const dbMatch = hasDbMatch(concept);
+    return /* @__PURE__ */ import_react81.default.createElement(
+      "div",
+      {
+        key: idx,
+        style: {
+          padding: "var(--space-2) var(--space-3)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-3)",
+          borderBottom: idx < concepts.length - 1 ? "1px solid var(--neutral-100)" : "none",
+          background: isAccepted ? "var(--accent-green-light)" : isRejected ? "var(--neutral-50)" : "white",
+          opacity: isRejected ? 0.6 : 1
+        }
+      },
+      /* @__PURE__ */ import_react81.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: isRejected ? "var(--neutral-400)" : "var(--neutral-800)",
+        textDecoration: isRejected ? "line-through" : "none",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        flexWrap: "wrap"
+      } }, isEditing ? /* @__PURE__ */ import_react81.default.createElement(
+        "input",
+        {
+          ref: editInputRef,
+          type: "text",
+          value: editValue,
+          onChange: (e3) => setEditValue(e3.target.value),
+          onBlur: () => handleSaveEdit(idx),
+          onKeyDown: (e3) => handleEditKeyDown(e3, idx),
+          style: {
+            padding: "2px 6px",
+            fontSize: "var(--text-sm)",
+            fontFamily: "var(--font-body)",
+            border: "1px solid var(--accent-green)",
+            borderRadius: "4px",
+            outline: "none",
+            minWidth: "150px"
+          }
+        }
+      ) : /* @__PURE__ */ import_react81.default.createElement(
+        "span",
+        {
+          onClick: () => handleStartEdit(idx, keyword),
+          style: {
+            cursor: "pointer",
+            borderBottom: "1px dashed var(--neutral-300)",
+            paddingBottom: "1px"
+          },
+          title: "Click to edit"
+        },
+        editedLabels[idx] || toTitleCase(keyword)
+      ), concept.source === "llm" && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+        padding: "1px 5px",
+        borderRadius: "3px",
+        background: "#fff3e0",
+        fontSize: "9px",
+        color: "#e65100",
+        fontWeight: 600
+      } }, "AI Detected"), dbMatch && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+        padding: "1px 5px",
+        borderRadius: "3px",
+        background: "var(--accent-green-light)",
+        fontSize: "9px",
+        color: "var(--accent-green)",
+        fontWeight: 600,
+        display: "flex",
+        alignItems: "center",
+        gap: "3px"
+      } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-database", style: { fontSize: "8px" } }), "exists"), isAutoLinked && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-green)"
+      } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-link", style: { marginRight: "4px" } }), toTitleCase(concept.matched_concept_label)), isAccepted && resolution.action === "link" && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-green)"
+      } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-link", style: { marginRight: "4px" } }), toTitleCase(resolution.conceptLabel)), isAccepted && resolution.action === "create" && /* @__PURE__ */ import_react81.default.createElement("span", { style: {
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-green)"
+      } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "4px" } }), "will create")), concept.rationale && !isResolved && /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "11px",
+        color: "var(--neutral-500)",
+        fontStyle: "italic",
+        marginTop: "2px"
+      } }, concept.rationale)),
+      /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+        display: "flex",
+        gap: "4px",
+        flexShrink: 0
+      } }, isAutoLinked ? (
+        /* Unlink button for auto-linked concepts */
+        /* @__PURE__ */ import_react81.default.createElement(
+          "button",
+          {
+            onClick: () => handleUnlink(idx),
+            style: {
+              padding: "4px 8px",
+              borderRadius: "4px",
+              border: "1px solid var(--neutral-300)",
+              background: "white",
+              color: "var(--neutral-500)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "11px",
+              fontFamily: "var(--font-body)"
+            },
+            title: "Unlink this concept"
+          },
+          /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-unlink" }),
+          "Unlink"
+        )
+      ) : /* @__PURE__ */ import_react81.default.createElement(import_react81.default.Fragment, null, /* @__PURE__ */ import_react81.default.createElement(
+        "button",
+        {
+          onClick: () => isAccepted ? handleClear(idx) : handleAccept(idx, concept),
+          style: {
+            width: "28px",
+            height: "28px",
+            borderRadius: "4px",
+            border: isAccepted ? "none" : isRejected ? "1px solid var(--neutral-300)" : "1px solid var(--accent-green)",
+            background: isAccepted ? "var(--accent-green)" : "white",
+            color: isAccepted ? "white" : isRejected ? "var(--neutral-400)" : "var(--accent-green)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "12px",
+            transition: "all 0.15s ease"
+          },
+          title: isAccepted ? "Undo accept" : "Accept"
+        },
+        /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-thumbs-up" })
+      ), /* @__PURE__ */ import_react81.default.createElement(
+        "button",
+        {
+          onClick: () => isRejected ? handleClear(idx) : handleReject(idx),
+          style: {
+            width: "28px",
+            height: "28px",
+            borderRadius: "4px",
+            border: isRejected ? "none" : isAccepted ? "1px solid var(--neutral-300)" : "1px solid var(--accent-green)",
+            background: isRejected ? "var(--neutral-500)" : "white",
+            color: isRejected ? "white" : isAccepted ? "var(--neutral-400)" : "var(--accent-green)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "12px",
+            transition: "all 0.15s ease"
+          },
+          title: isRejected ? "Undo reject" : "Reject"
+        },
+        /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-thumbs-down" })
+      )))
+    );
+  })), /* @__PURE__ */ import_react81.default.createElement("div", { style: { marginTop: "var(--space-3)" } }, showNewConceptForm ? /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    padding: "var(--space-3)",
+    background: "var(--neutral-50)",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)"
+  } }, /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    fontWeight: 600,
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-2)"
+  } }, "Create New Concept"), /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    display: "flex",
+    gap: "var(--space-2)",
+    alignItems: "center"
+  } }, /* @__PURE__ */ import_react81.default.createElement(
+    "input",
+    {
+      ref: newConceptInputRef,
+      type: "text",
+      value: newConceptLabel,
+      onChange: (e3) => setNewConceptLabel(e3.target.value),
+      onKeyDown: (e3) => {
+        if (e3.key === "Enter") handleCreateNewConcept();
+        if (e3.key === "Escape") setShowNewConceptForm(false);
+      },
+      placeholder: "Concept name...",
+      style: {
+        flex: 1,
+        padding: "var(--space-2)",
+        borderRadius: "6px",
+        border: "1px solid var(--neutral-200)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)"
+      }
+    }
+  ), /* @__PURE__ */ import_react81.default.createElement(
+    "select",
+    {
+      value: newConceptType,
+      onChange: (e3) => setNewConceptType(e3.target.value),
+      style: {
+        padding: "var(--space-2)",
+        borderRadius: "6px",
+        border: "1px solid var(--neutral-200)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        background: "white"
+      }
+    },
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "non_physical_concept" }, "Non-Physical Concept"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "research_method" }, "Research Method"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "measurement" }, "Measurement"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "intervention" }, "Intervention"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "pathology" }, "Pathology"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "emotion" }, "Emotion"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "symptom" }, "Symptom"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "school_of_thought" }, "School of Thought"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "physical_entity" }, "Physical Entity"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "physical_process" }, "Physical Process"),
+    /* @__PURE__ */ import_react81.default.createElement("option", { value: "non_physical_process" }, "Non-Physical Process")
+  ), /* @__PURE__ */ import_react81.default.createElement(
+    "button",
+    {
+      onClick: handleCreateNewConcept,
+      disabled: !newConceptLabel.trim(),
+      style: {
+        padding: "6px 12px",
+        borderRadius: "4px",
+        border: "none",
+        background: newConceptLabel.trim() ? "var(--accent-green)" : "var(--neutral-300)",
+        color: "white",
+        cursor: newConceptLabel.trim() ? "pointer" : "not-allowed",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        display: "flex",
+        alignItems: "center",
+        gap: "4px"
+      }
+    },
+    /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-plus" }),
+    "Add"
+  ), /* @__PURE__ */ import_react81.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewConceptForm(false),
+      style: {
+        padding: "6px 12px",
+        borderRadius: "4px",
+        border: "1px solid var(--neutral-300)",
+        background: "white",
+        color: "var(--neutral-500)",
+        cursor: "pointer",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)"
+      }
+    },
+    "Cancel"
+  ))) : /* @__PURE__ */ import_react81.default.createElement(
+    "button",
+    {
+      onClick: () => setShowNewConceptForm(true),
+      style: {
+        padding: "6px 12px",
+        borderRadius: "4px",
+        border: "1px dashed var(--neutral-300)",
+        background: "transparent",
+        color: "var(--neutral-500)",
+        cursor: "pointer",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        width: "100%",
+        justifyContent: "center"
+      }
+    },
+    /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-plus" }),
+    "Add a concept not in list"
+  )), (acceptedCount > 0 || rejectedCount > 0) && /* @__PURE__ */ import_react81.default.createElement("div", { style: {
+    marginTop: "var(--space-2)",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    display: "flex",
+    gap: "var(--space-3)"
+  } }, acceptedCount > 0 && /* @__PURE__ */ import_react81.default.createElement("span", { style: { color: "var(--accent-green)" } }, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-check", style: { marginRight: "4px" } }), acceptedCount, " accepted"), rejectedCount > 0 && /* @__PURE__ */ import_react81.default.createElement("span", null, /* @__PURE__ */ import_react81.default.createElement("i", { className: "fas fa-times", style: { marginRight: "4px" } }), rejectedCount, " rejected")));
+}
+
+// app/javascript/components/bulk-upload-v2/ReviewPhase.js
+function ReviewPhase() {
+  const { state, dispatch: dispatch2, filteredItems, stats, enrichedItems } = useBulkUpload();
+  const [selectedItemId, setSelectedItemId] = (0, import_react82.useState)(null);
+  const [approving, setApproving] = (0, import_react82.useState)(false);
+  const [skipping, setSkipping] = (0, import_react82.useState)(false);
+  const [metadata, setMetadata] = (0, import_react82.useState)({});
+  const [showPdfModal, setShowPdfModal] = (0, import_react82.useState)(false);
+  const selectedItem = enrichedItems.find((item) => item.id === selectedItemId);
+  (0, import_react82.useEffect)(() => {
+    if (!selectedItemId && filteredItems.length > 0) {
+      setSelectedItemId(filteredItems[0].id);
+    }
+  }, [selectedItemId, filteredItems]);
+  (0, import_react82.useEffect)(() => {
+    if (selectedItem) {
+      setMetadata(selectedItem.extracted_metadata || {});
+    }
+  }, [selectedItemId]);
+  (0, import_react82.useEffect)(() => {
+    const hasApprovedItems = enrichedItems.some((item) => item.status === "approved");
+    if (!hasApprovedItems || !state.batch?.id) return;
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          dispatch2({ type: "SET_BATCH", payload: data });
+          const allDone2 = data.items.every(
+            (item) => ["created", "skipped"].includes(item.status)
+          );
+          if (allDone2) {
+            dispatch2({ type: "SET_PHASE", payload: "complete" });
+          }
+        }
+      } catch (err) {
+        console.error("Error polling batch:", err);
+      }
+    }, 2e3);
+    return () => clearInterval(pollInterval);
+  }, [enrichedItems, state.batch?.id, dispatch2]);
+  const getItemStatus = (item) => {
+    if (item.status === "created") {
+      return { icon: "fa-check-circle", color: "var(--accent-green)", label: "Created" };
+    }
+    if (item.status === "approved") {
+      return { icon: "fa-spinner fa-spin", color: "var(--accent-blue)", label: "Creating..." };
+    }
+    if (item.status === "skipped") {
+      return { icon: "fa-ban", color: "var(--neutral-400)", label: "Skipped" };
+    }
+    if (item.status === "failed") {
+      return { icon: "fa-times-circle", color: "var(--accent-red)", label: "Failed" };
+    }
+    const allAuthorsResolved2 = (item.detected_authors || []).every(
+      (author) => author.resolution || author.auto_linked
+    );
+    if (allAuthorsResolved2) {
+      return { icon: "fa-check", color: "var(--accent-green)", label: "Ready" };
+    }
+    return { icon: "fa-clock", color: "var(--accent-orange)", label: "Needs Review" };
+  };
+  const canApprove = selectedItem && (selectedItem.status === "extracted" || selectedItem.status === "review_needed");
+  const allAuthorsResolved = selectedItem && (selectedItem.detected_authors || []).every(
+    (author) => author.resolution || author.auto_linked
+  );
+  const unresolvedAuthorsCount = selectedItem ? (selectedItem.detected_authors || []).filter((author) => !author.resolution && !author.auto_linked).length : 0;
+  const handleApprove = (0, import_react82.useCallback)(async () => {
+    if (!selectedItem) return;
+    setApproving(true);
+    try {
+      const authorDecisions = {};
+      selectedItem.detected_authors?.forEach((author, idx) => {
+        const resolution = author.resolution;
+        if (resolution) {
+          if (resolution.action === "create") {
+            authorDecisions[idx] = {
+              action: "create",
+              first_name: resolution.firstName,
+              last_name: resolution.lastName,
+              orcid: resolution.orcid,
+              tempPersonId: resolution.tempPersonId
+            };
+          } else if (resolution.action === "link") {
+            if (resolution.personId) {
+              authorDecisions[idx] = { action: "link", person_id: resolution.personId };
+            } else if (resolution.tempPersonId) {
+              const pendingPerson = state.pendingPeople.find((p3) => p3.tempId === resolution.tempPersonId);
+              if (pendingPerson?.realId) {
+                authorDecisions[idx] = { action: "link", person_id: pendingPerson.realId };
+              } else if (pendingPerson) {
+                authorDecisions[idx] = {
+                  action: "create",
+                  first_name: pendingPerson.firstName,
+                  last_name: pendingPerson.lastName,
+                  orcid: pendingPerson.orcid,
+                  tempPersonId: resolution.tempPersonId
+                };
+              }
+            }
+          } else if (resolution.action === "skip") {
+            authorDecisions[idx] = { action: "skip" };
+          }
+        } else if (author.auto_linked && author.linked_person_id) {
+          authorDecisions[idx] = { action: "link", person_id: author.linked_person_id };
+        }
+      });
+      const conceptDecisions = {};
+      selectedItem.detected_concepts?.forEach((concept, idx) => {
+        const resolution = concept.resolution;
+        if (resolution) {
+          if (resolution.action === "create") {
+            const pendingConcept = state.pendingConcepts.find((c5) => c5.tempId === resolution.tempConceptId);
+            conceptDecisions[idx] = {
+              action: "create",
+              label: resolution.label || pendingConcept?.label,
+              concept_type: resolution.conceptType || pendingConcept?.conceptType || "non_physical_concept",
+              tempConceptId: resolution.tempConceptId
+            };
+          } else if (resolution.action === "link") {
+            if (resolution.conceptId) {
+              conceptDecisions[idx] = { action: "link", concept_id: resolution.conceptId };
+            } else if (resolution.tempConceptId) {
+              const pendingConcept = state.pendingConcepts.find((c5) => c5.tempId === resolution.tempConceptId);
+              if (pendingConcept?.realId) {
+                conceptDecisions[idx] = { action: "link", concept_id: pendingConcept.realId };
+              } else if (pendingConcept) {
+                conceptDecisions[idx] = {
+                  action: "create",
+                  label: pendingConcept.label,
+                  concept_type: pendingConcept.conceptType || "non_physical_concept",
+                  tempConceptId: resolution.tempConceptId
+                };
+              }
+            }
+          } else if (resolution.action === "skip") {
+            conceptDecisions[idx] = { action: "skip" };
+          }
+        } else if (concept.auto_linked && concept.matched_concept_id) {
+          conceptDecisions[idx] = { action: "link", concept_id: concept.matched_concept_id };
+        }
+      });
+      const response = await fetch(`/batch_upload_items/${selectedItem.id}/approve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          decisions: { authors: authorDecisions, concepts: conceptDecisions, metadata }
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.created_people?.length > 0) {
+          const personMappings = {};
+          data.created_people.forEach((m5) => {
+            personMappings[m5.tempPersonId] = m5.personId;
+          });
+          dispatch2({ type: "REPLACE_TEMP_IDS", payload: { personMappings, conceptMappings: {} } });
+        }
+        await refreshBatch();
+        selectNextItem();
+      }
+    } catch (err) {
+      console.error("Error approving item:", err);
+    } finally {
+      setApproving(false);
+    }
+  }, [selectedItem, metadata, state.pendingPeople, state.pendingConcepts, dispatch2]);
+  const handleSkip = (0, import_react82.useCallback)(async () => {
+    if (!selectedItem) return;
+    setSkipping(true);
+    try {
+      const response = await fetch(`/batch_upload_items/${selectedItem.id}/skip`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        }
+      });
+      if (response.ok) {
+        await refreshBatch();
+        selectNextItem();
+      }
+    } catch (err) {
+      console.error("Error skipping item:", err);
+    } finally {
+      setSkipping(false);
+    }
+  }, [selectedItem]);
+  const refreshBatch = async () => {
+    try {
+      const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        dispatch2({ type: "SET_BATCH", payload: data });
+        const allDone2 = data.items.every(
+          (item) => ["created", "skipped"].includes(item.status)
+        );
+        if (allDone2) {
+          dispatch2({ type: "SET_PHASE", payload: "complete" });
+        }
+      }
+    } catch (err) {
+      console.error("Error refreshing batch:", err);
+    }
+  };
+  const selectNextItem = () => {
+    const currentIndex = filteredItems.findIndex((i3) => i3.id === selectedItemId);
+    const nextItem = filteredItems.find(
+      (item, idx) => idx > currentIndex && !["approved", "created", "skipped"].includes(item.status)
+    );
+    if (nextItem) {
+      setSelectedItemId(nextItem.id);
+    } else {
+      const firstIncomplete = filteredItems.find(
+        (item) => !["approved", "created", "skipped"].includes(item.status)
+      );
+      if (firstIncomplete) {
+        setSelectedItemId(firstIncomplete.id);
+      }
+    }
+  };
+  const handleBulkApprove = (0, import_react82.useCallback)(async () => {
+    setApproving(true);
+    const readyItems = enrichedItems.filter((item) => {
+      if (item.status !== "extracted" && item.status !== "review_needed") return false;
+      return (item.detected_authors || []).every((a5) => a5.resolution || a5.auto_linked);
+    });
+    const personMappings = {};
+    const conceptMappings = {};
+    for (const item of readyItems) {
+      try {
+        const authorDecisions = {};
+        item.detected_authors?.forEach((author, idx) => {
+          const resolution = author.resolution;
+          if (resolution) {
+            if (resolution.action === "link" && resolution.personId) {
+              authorDecisions[idx] = { action: "link", person_id: resolution.personId };
+            } else if (resolution.action === "link" && resolution.tempPersonId && personMappings[resolution.tempPersonId]) {
+              authorDecisions[idx] = { action: "link", person_id: personMappings[resolution.tempPersonId] };
+            } else if (resolution.action === "create" || resolution.action === "link" && resolution.tempPersonId) {
+              const pendingPerson = state.pendingPeople.find((p3) => p3.tempId === resolution.tempPersonId);
+              if (pendingPerson) {
+                authorDecisions[idx] = {
+                  action: "create",
+                  first_name: pendingPerson.firstName || resolution.firstName,
+                  last_name: pendingPerson.lastName || resolution.lastName,
+                  orcid: pendingPerson.orcid || resolution.orcid,
+                  tempPersonId: resolution.tempPersonId
+                };
+              }
+            } else if (resolution.action === "skip") {
+              authorDecisions[idx] = { action: "skip" };
+            }
+          } else if (author.auto_linked && author.linked_person_id) {
+            authorDecisions[idx] = { action: "link", person_id: author.linked_person_id };
+          }
+        });
+        const conceptDecisions = {};
+        item.detected_concepts?.forEach((concept, idx) => {
+          const resolution = concept.resolution;
+          if (resolution) {
+            if (resolution.action === "link" && resolution.conceptId) {
+              conceptDecisions[idx] = { action: "link", concept_id: resolution.conceptId };
+            } else if (resolution.action === "link" && resolution.tempConceptId && conceptMappings[resolution.tempConceptId]) {
+              conceptDecisions[idx] = { action: "link", concept_id: conceptMappings[resolution.tempConceptId] };
+            } else if (resolution.action === "create" || resolution.action === "link" && resolution.tempConceptId) {
+              const pendingConcept = state.pendingConcepts.find((c5) => c5.tempId === resolution.tempConceptId);
+              if (pendingConcept) {
+                conceptDecisions[idx] = {
+                  action: "create",
+                  label: pendingConcept.label || resolution.label,
+                  concept_type: pendingConcept.conceptType || resolution.conceptType || "non_physical_concept",
+                  tempConceptId: resolution.tempConceptId
+                };
+              }
+            } else if (resolution.action === "skip") {
+              conceptDecisions[idx] = { action: "skip" };
+            }
+          } else if (concept.auto_linked && concept.matched_concept_id) {
+            conceptDecisions[idx] = { action: "link", concept_id: concept.matched_concept_id };
+          }
+        });
+        const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+          },
+          body: JSON.stringify({
+            decisions: {
+              authors: authorDecisions,
+              concepts: conceptDecisions,
+              metadata: item.extracted_metadata || {}
+            }
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          data.created_people?.forEach((m5) => {
+            personMappings[m5.tempPersonId] = m5.personId;
+          });
+          data.created_concepts?.forEach((m5) => {
+            conceptMappings[m5.tempConceptId] = m5.conceptId;
+          });
+        }
+      } catch (err) {
+        console.error(`Failed to approve item ${item.id}:`, err);
+      }
+    }
+    if (Object.keys(personMappings).length > 0 || Object.keys(conceptMappings).length > 0) {
+      dispatch2({ type: "REPLACE_TEMP_IDS", payload: { personMappings, conceptMappings } });
+    }
+    await refreshBatch();
+    setApproving(false);
+  }, [enrichedItems, state.pendingPeople, state.pendingConcepts, dispatch2]);
+  const allDone = enrichedItems.length > 0 && enrichedItems.every(
+    (item) => ["created", "skipped"].includes(item.status)
+  );
+  if (allDone) {
+    dispatch2({ type: "SET_PHASE", payload: "complete" });
+    return null;
+  }
+  return /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 180px)" } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    width: "320px",
+    background: "#e2e2e2",
+    overflowY: "auto",
+    padding: "var(--space-4)",
+    paddingLeft: "var(--space-6)",
+    boxShadow: "inset -4px 0 8px rgba(0, 0, 0, 0.05)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "var(--space-2)",
+    marginBottom: "var(--space-4)",
+    paddingBottom: "var(--space-4)",
+    borderBottom: "1px solid var(--neutral-300)"
+  } }, /* @__PURE__ */ import_react82.default.createElement(
+    StatPill,
+    {
+      count: stats.ready,
+      label: "Ready",
+      color: "var(--accent-green)",
+      active: state.filter === "ready",
+      onClick: () => dispatch2({ type: "SET_FILTER", payload: state.filter === "ready" ? "all" : "ready" })
+    }
+  ), /* @__PURE__ */ import_react82.default.createElement(
+    StatPill,
+    {
+      count: stats.needsReview,
+      label: "Review",
+      color: "var(--accent-orange)",
+      active: state.filter === "needs_review",
+      onClick: () => dispatch2({ type: "SET_FILTER", payload: state.filter === "needs_review" ? "all" : "needs_review" })
+    }
+  ), /* @__PURE__ */ import_react82.default.createElement(
+    StatPill,
+    {
+      count: stats.failed,
+      label: "Failed",
+      color: "var(--accent-red)",
+      active: state.filter === "failed",
+      onClick: () => dispatch2({ type: "SET_FILTER", payload: state.filter === "failed" ? "all" : "failed" })
+    }
+  ), /* @__PURE__ */ import_react82.default.createElement(
+    StatPill,
+    {
+      count: stats.created + stats.skipped,
+      label: "Done",
+      color: "var(--neutral-500)",
+      active: false,
+      onClick: () => {
+      }
+    }
+  ), stats.approved > 0 && /* @__PURE__ */ import_react82.default.createElement(
+    StatPill,
+    {
+      count: stats.approved,
+      label: "Creating...",
+      color: "var(--accent-blue)",
+      active: false,
+      onClick: () => {
+      }
+    }
+  )), stats.ready > 0 && /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: handleBulkApprove,
+      disabled: approving,
+      className: "btn-source",
+      style: {
+        width: "100%",
+        marginBottom: "var(--space-4)",
+        padding: "var(--space-2) var(--space-3)",
+        fontSize: "var(--text-sm)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "var(--space-2)"
+      }
+    },
+    approving ? /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Approving...") : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-check-double" }), " Approve All Ready (", stats.ready, ")")
+  ), state.pendingPeople.length > 0 && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    marginBottom: "var(--space-4)",
+    padding: "var(--space-2) var(--space-3)",
+    background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+    borderRadius: "6px",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-600)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-magic", style: { color: "var(--accent-blue)", marginRight: "6px" } }), /* @__PURE__ */ import_react82.default.createElement("strong", null, state.pendingPeople.length), " new people this session"), /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, filteredItems.map((item) => {
+    const status = getItemStatus(item);
+    const isSelected = item.id === selectedItemId;
+    const isDone = ["approved", "created", "skipped"].includes(item.status);
+    const isFailed = item.status === "failed";
+    return /* @__PURE__ */ import_react82.default.createElement(
+      "div",
+      {
+        key: item.id,
+        onClick: () => setSelectedItemId(item.id),
+        style: {
+          padding: "var(--space-3)",
+          background: isSelected ? "white" : isDone ? "var(--neutral-200)" : isFailed ? "color-mix(in srgb, var(--accent-red) 8%, white)" : "white",
+          borderRadius: "6px",
+          cursor: "pointer",
+          border: isSelected ? "2px solid var(--accent-blue)" : isFailed ? "1px solid color-mix(in srgb, var(--accent-red) 30%, white)" : "1px solid var(--neutral-200)",
+          opacity: isDone ? 0.6 : 1,
+          transition: "all 0.15s ease"
+        }
+      },
+      /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react82.default.createElement(
+        "i",
+        {
+          className: `fas ${status.icon}`,
+          style: {
+            color: status.color,
+            fontSize: "var(--text-sm)",
+            marginTop: "2px"
+          }
+        }
+      ), /* @__PURE__ */ import_react82.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        color: "var(--neutral-800)",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical",
+        lineHeight: "1.3"
+      } }, item.extracted_metadata?.title || item.original_filename), item.extracted_metadata?.year && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)",
+        marginTop: "2px"
+      } }, item.extracted_metadata.year), isFailed && item.error_message && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--accent-red)",
+        marginTop: "4px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-exclamation-circle", style: { marginRight: "4px" } }), item.error_message)))
+    );
+  })), filteredItems.length === 0 && /* @__PURE__ */ import_react82.default.createElement("div", { style: { textAlign: "center", padding: "var(--space-6)", color: "var(--neutral-500)" } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-filter", style: { fontSize: "1.5rem", marginBottom: "var(--space-2)" } }), /* @__PURE__ */ import_react82.default.createElement("p", { style: { fontSize: "var(--text-sm)" } }, "No items match filter"))), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    flex: 1,
+    background: "white",
+    overflowY: "auto",
+    padding: "var(--space-6)",
+    paddingRight: "var(--space-8)"
+  } }, selectedItem ? /* @__PURE__ */ import_react82.default.createElement("div", null, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    position: "sticky",
+    top: "calc(-1 * var(--space-6))",
+    zIndex: 10,
+    background: "white",
+    marginTop: "calc(-1 * var(--space-6))",
+    marginLeft: "calc(-1 * var(--space-6))",
+    marginRight: "calc(-1 * var(--space-8))",
+    paddingLeft: "var(--space-6)",
+    paddingRight: "var(--space-8)",
+    paddingTop: "var(--space-4)",
+    paddingBottom: "var(--space-3)",
+    borderBottom: "1px solid var(--neutral-200)",
+    marginBottom: "var(--space-4)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, selectedItem.pdf_url && /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: () => setShowPdfModal(true),
+      className: "btn-outline-source",
+      style: { padding: "var(--space-2) var(--space-3)", fontSize: "var(--text-sm)" }
+    },
+    /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-file-pdf", style: { marginRight: "6px" } }),
+    "View PDF"
+  )), /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: handleSkip,
+      disabled: skipping || ["approved", "created", "skipped"].includes(selectedItem.status),
+      style: {
+        padding: "var(--space-2) var(--space-3)",
+        fontSize: "var(--text-sm)",
+        background: "transparent",
+        border: "1px solid var(--neutral-300)",
+        borderRadius: "6px",
+        color: "var(--neutral-600)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        opacity: ["approved", "created", "skipped"].includes(selectedItem.status) ? 0.5 : 1
+      }
+    },
+    skipping ? /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Skipping...") : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-forward" }), " Skip")
+  ), /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: handleApprove,
+      disabled: approving || !canApprove,
+      className: "btn-source",
+      style: {
+        padding: "var(--space-2) var(--space-3)",
+        fontSize: "var(--text-sm)",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        opacity: canApprove ? 1 : 0.5
+      }
+    },
+    approving ? /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Approving...") : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-check" }), " Approve")
+  )), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "#e65100",
+    height: "16px",
+    visibility: canApprove && !allAuthorsResolved ? "visible" : "hidden"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-exclamation-triangle", style: { marginRight: "4px" } }), unresolvedAuthorsCount, " unlinked author", unresolvedAuthorsCount !== 1 ? "s" : "")))), /* @__PURE__ */ import_react82.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react82.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-xl)",
+    fontWeight: 600,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-2)"
+  } }, metadata.title || selectedItem.original_filename), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)",
+    display: "flex",
+    gap: "var(--space-4)"
+  } }, metadata.year && /* @__PURE__ */ import_react82.default.createElement("span", null, metadata.year), metadata.journal_name && /* @__PURE__ */ import_react82.default.createElement("span", null, metadata.journal_name), (metadata.doi || selectedItem.extracted_doi) && /* @__PURE__ */ import_react82.default.createElement("span", null, "DOI: ", metadata.doi || selectedItem.extracted_doi))), selectedItem.duplicate_candidates?.length > 0 && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    marginBottom: "var(--space-4)",
+    padding: "var(--space-4)",
+    background: "#fff3e0",
+    borderRadius: "8px",
+    borderLeft: "4px solid #f57c00"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "#f57c00",
+    marginBottom: "var(--space-2)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-exclamation-triangle" }), "Possible Duplicate Detected"), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-3)"
+  } }, "This item may already exist in your library. Consider skipping."), selectedItem.duplicate_candidates.map((dup, idx) => /* @__PURE__ */ import_react82.default.createElement(
+    "div",
+    {
+      key: idx,
+      style: {
+        padding: "var(--space-3)",
+        background: "white",
+        borderRadius: "6px",
+        border: "1px solid var(--neutral-200)",
+        marginBottom: idx < selectedItem.duplicate_candidates.length - 1 ? "var(--space-2)" : 0
+      }
+    },
+    /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-sm)",
+      fontWeight: 600,
+      color: "var(--neutral-800)",
+      marginBottom: "var(--space-1)"
+    } }, dup.title || "Untitled"),
+    /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "var(--space-3)"
+    } }, dup.year && /* @__PURE__ */ import_react82.default.createElement("span", null, dup.year), dup.doi && /* @__PURE__ */ import_react82.default.createElement("span", null, "DOI: ", dup.doi), dup.authors && /* @__PURE__ */ import_react82.default.createElement("span", null, dup.authors)),
+    dup.id && /* @__PURE__ */ import_react82.default.createElement(
+      "a",
+      {
+        href: `/sources/${dup.id}`,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4px",
+          marginTop: "var(--space-2)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          color: "var(--accent-blue)",
+          textDecoration: "none"
+        }
+      },
+      /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-external-link-alt" }),
+      "View in Library"
+    )
+  ))), selectedItem.status === "failed" && selectedItem.error_message && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    marginBottom: "var(--space-4)",
+    padding: "var(--space-3) var(--space-4)",
+    background: "color-mix(in srgb, var(--accent-red) 10%, white)",
+    borderRadius: "8px",
+    border: "1px solid color-mix(in srgb, var(--accent-red) 30%, white)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--accent-red)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-exclamation-circle" }), selectedItem.error_message)), /* @__PURE__ */ import_react82.default.createElement("div", { style: { marginBottom: "var(--space-6)" } }, /* @__PURE__ */ import_react82.default.createElement("h3", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-sm)",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    marginBottom: "var(--space-3)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-file-alt", style: { color: "var(--accent-blue)" } }), "Metadata"), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react82.default.createElement(MetadataField, { label: "Title", value: metadata.title, onChange: (v3) => setMetadata({ ...metadata, title: v3 }), fullWidth: true }), /* @__PURE__ */ import_react82.default.createElement(MetadataField, { label: "Year", value: metadata.year, onChange: (v3) => setMetadata({ ...metadata, year: v3 }) }), /* @__PURE__ */ import_react82.default.createElement(MetadataField, { label: "Journal", value: metadata.journal_name, onChange: (v3) => setMetadata({ ...metadata, journal_name: v3 }) }), /* @__PURE__ */ import_react82.default.createElement(MetadataField, { label: "DOI", value: metadata.doi || selectedItem.extracted_doi, onChange: (v3) => setMetadata({ ...metadata, doi: v3 }) })), /* @__PURE__ */ import_react82.default.createElement("div", { style: { marginTop: "var(--space-3)" } }, /* @__PURE__ */ import_react82.default.createElement("label", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    display: "block",
+    marginBottom: "4px"
+  } }, "Abstract"), /* @__PURE__ */ import_react82.default.createElement(
+    "textarea",
+    {
+      value: metadata.abstract || "",
+      onChange: (e3) => setMetadata({ ...metadata, abstract: e3.target.value }),
+      placeholder: "Abstract (optional)",
+      style: {
+        width: "100%",
+        minHeight: "80px",
+        padding: "var(--space-2)",
+        borderRadius: "6px",
+        border: "1px solid var(--neutral-200)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        resize: "vertical"
+      }
+    }
+  ))), metadata.authors && /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    marginBottom: "var(--space-4)",
+    padding: "var(--space-3)",
+    background: "var(--neutral-50)",
+    borderRadius: "8px",
+    border: "1px solid var(--neutral-200)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    fontWeight: 600,
+    color: "var(--neutral-500)",
+    marginBottom: "var(--space-1)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-quote-left", style: { marginRight: "6px" } }), "Raw Author String"), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-700)",
+    fontStyle: "italic"
+  } }, metadata.authors)), /* @__PURE__ */ import_react82.default.createElement(
+    AuthorResolutionSection,
+    {
+      item: selectedItem,
+      onResolutionChange: (authorIdx, resolution) => {
+        dispatch2({
+          type: "RESOLVE_AUTHOR",
+          payload: { itemId: selectedItem.id, authorIdx, resolution }
+        });
+      },
+      onCreatePerson: (authorIdx, personData) => {
+        dispatch2({
+          type: "CREATE_PENDING_PERSON",
+          payload: { itemId: selectedItem.id, authorIdx, ...personData }
+        });
+      }
+    }
+  ), /* @__PURE__ */ import_react82.default.createElement(
+    ConceptResolutionSection,
+    {
+      item: selectedItem,
+      onResolutionChange: (conceptIdx, resolution) => {
+        dispatch2({
+          type: "RESOLVE_CONCEPT",
+          payload: { itemId: selectedItem.id, conceptIdx, resolution }
+        });
+      },
+      onCreateConcept: (conceptIdx, conceptData) => {
+        dispatch2({
+          type: "CREATE_PENDING_CONCEPT",
+          payload: { itemId: selectedItem.id, conceptIdx, ...conceptData }
+        });
+      }
+    }
+  ), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    marginTop: "var(--space-6)",
+    paddingTop: "var(--space-4)",
+    borderTop: "1px solid var(--neutral-200)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  } }, /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: handleSkip,
+      disabled: skipping,
+      style: {
+        padding: "var(--space-2) var(--space-4)",
+        fontSize: "var(--text-sm)",
+        background: "transparent",
+        border: "1px solid var(--neutral-300)",
+        borderRadius: "6px",
+        color: "var(--neutral-600)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      }
+    },
+    skipping ? /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-spinner fa-spin" }), " Skipping...") : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-ban" }), " Skip Article")
+  ), /* @__PURE__ */ import_react82.default.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" } }, /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick: handleApprove,
+      disabled: approving || !canApprove,
+      className: "btn-source",
+      style: {
+        padding: "var(--space-2) var(--space-4)",
+        fontSize: "var(--text-sm)",
+        opacity: canApprove ? 1 : 0.5
+      }
+    },
+    approving ? /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { marginRight: "6px" } }), " Approving...") : /* @__PURE__ */ import_react82.default.createElement(import_react82.default.Fragment, null, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-check", style: { marginRight: "6px" } }), " Approve")
+  ), /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "#e65100",
+    height: "16px",
+    visibility: canApprove && !allAuthorsResolved ? "visible" : "hidden"
+  } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-exclamation-triangle", style: { marginRight: "4px" } }), unresolvedAuthorsCount, " unlinked author", unresolvedAuthorsCount !== 1 ? "s" : "")))) : /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    color: "var(--neutral-400)"
+  } }, /* @__PURE__ */ import_react82.default.createElement("div", { style: { textAlign: "center" } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-hand-pointer", style: { fontSize: "2rem", marginBottom: "var(--space-4)" } }), /* @__PURE__ */ import_react82.default.createElement("p", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-base)" } }, "Select an article from the sidebar")))), showPdfModal && selectedItem?.pdf_url && /* @__PURE__ */ import_react82.default.createElement(
+    "div",
+    {
+      style: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0, 0, 0, 0.7)",
+        zIndex: 1e3,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "var(--space-6)"
+      },
+      onClick: () => setShowPdfModal(false)
+    },
+    /* @__PURE__ */ import_react82.default.createElement(
+      "div",
+      {
+        style: {
+          background: "white",
+          borderRadius: "12px",
+          width: "90%",
+          maxWidth: "900px",
+          height: "90vh",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden"
+        },
+        onClick: (e3) => e3.stopPropagation()
+      },
+      /* @__PURE__ */ import_react82.default.createElement("div", { style: {
+        padding: "var(--space-4)",
+        borderBottom: "1px solid var(--neutral-200)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      } }, /* @__PURE__ */ import_react82.default.createElement("h3", { style: {
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-lg)",
+        fontWeight: 600,
+        color: "var(--neutral-800)",
+        margin: 0
+      } }, /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-file-pdf", style: { color: "var(--accent-blue)", marginRight: "8px" } }), selectedItem.original_filename), /* @__PURE__ */ import_react82.default.createElement(
+        "button",
+        {
+          onClick: () => setShowPdfModal(false),
+          style: {
+            background: "transparent",
+            border: "none",
+            fontSize: "var(--text-xl)",
+            color: "var(--neutral-500)",
+            cursor: "pointer"
+          }
+        },
+        /* @__PURE__ */ import_react82.default.createElement("i", { className: "fas fa-times" })
+      )),
+      /* @__PURE__ */ import_react82.default.createElement("div", { style: { flex: 1, overflow: "hidden" } }, /* @__PURE__ */ import_react82.default.createElement(
+        "iframe",
+        {
+          src: selectedItem.pdf_url,
+          style: { width: "100%", height: "100%", border: "none" },
+          title: `PDF Preview: ${selectedItem.original_filename}`
+        }
+      ))
+    )
+  ));
+}
+function StatPill({ count, label, color: color2, active, onClick }) {
+  return /* @__PURE__ */ import_react82.default.createElement(
+    "button",
+    {
+      onClick,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        padding: "var(--space-1) var(--space-2)",
+        borderRadius: "12px",
+        border: active ? `2px solid ${color2}` : "1px solid var(--neutral-300)",
+        background: active ? `color-mix(in srgb, ${color2} 15%, white)` : "white",
+        cursor: count > 0 ? "pointer" : "default",
+        opacity: count > 0 ? 1 : 0.5,
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)"
+      }
+    },
+    /* @__PURE__ */ import_react82.default.createElement("span", { style: { fontFamily: "var(--font-display)", fontWeight: 700, color: color2 } }, count),
+    /* @__PURE__ */ import_react82.default.createElement("span", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, label)
+  );
+}
+function MetadataField({ label, value, onChange: onChange16, fullWidth }) {
+  return /* @__PURE__ */ import_react82.default.createElement("div", { style: { gridColumn: fullWidth ? "1 / -1" : "auto" } }, /* @__PURE__ */ import_react82.default.createElement("label", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    display: "block",
+    marginBottom: "4px"
+  } }, label), /* @__PURE__ */ import_react82.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: value || "",
+      onChange: (e3) => onChange16(e3.target.value),
+      style: {
+        width: "100%",
+        padding: "var(--space-2)",
+        borderRadius: "6px",
+        border: "1px solid var(--neutral-200)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)"
+      }
+    }
+  ));
+}
+
+// app/javascript/components/bulk-upload-v2/CompletePhase.js
+var import_react83 = __toESM(require_react());
+function CompletePhase() {
+  const { state, dispatch: dispatch2, enrichedItems } = useBulkUpload();
+  const { completionStats, batch } = state;
+  const stats = completionStats || {
+    sources: enrichedItems.filter((i3) => i3.status === "created").length,
+    skipped: enrichedItems.filter((i3) => i3.status === "skipped").length,
+    people: state.pendingPeople.filter((p3) => p3.realId).length,
+    concepts: state.pendingConcepts?.filter((c5) => c5.realId)?.length || 0
+  };
+  const handleUploadMore = () => {
+    dispatch2({ type: "RESET" });
+  };
+  return /* @__PURE__ */ import_react83.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    padding: "var(--space-12)",
+    textAlign: "center"
+  } }, /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    width: "100px",
+    height: "100px",
+    borderRadius: "50%",
+    background: "color-mix(in srgb, var(--accent-green) 15%, white)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto var(--space-6)"
+  } }, /* @__PURE__ */ import_react83.default.createElement("i", { className: "fas fa-check-circle", style: {
+    fontSize: "3rem",
+    color: "var(--accent-green)"
+  } })), /* @__PURE__ */ import_react83.default.createElement("h2", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-2xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-2)"
+  } }, "Upload Complete!"), /* @__PURE__ */ import_react83.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-base)",
+    color: "var(--neutral-500)",
+    marginBottom: "var(--space-8)"
+  } }, "Your library has been updated with the new sources."), /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "var(--space-8)",
+    marginBottom: "var(--space-8)"
+  } }, /* @__PURE__ */ import_react83.default.createElement(
+    StatCard2,
+    {
+      icon: "fa-book",
+      color: "var(--accent-blue)",
+      count: stats.sources,
+      label: "Sources Created"
+    }
+  ), stats.people > 0 && /* @__PURE__ */ import_react83.default.createElement(
+    StatCard2,
+    {
+      icon: "fa-user-plus",
+      color: "var(--accent-green)",
+      count: stats.people,
+      label: "New People"
+    }
+  ), stats.concepts > 0 && /* @__PURE__ */ import_react83.default.createElement(
+    StatCard2,
+    {
+      icon: "fa-tags",
+      color: "var(--accent-purple)",
+      count: stats.concepts,
+      label: "New Concepts"
+    }
+  ), stats.skipped > 0 && /* @__PURE__ */ import_react83.default.createElement(
+    StatCard2,
+    {
+      icon: "fa-ban",
+      color: "var(--neutral-400)",
+      count: stats.skipped,
+      label: "Skipped"
+    }
+  )), (() => {
+    const createdItems = enrichedItems.filter((i3) => i3.status === "created" && i3.source_id);
+    if (createdItems.length === 0) return null;
+    return /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+      marginBottom: "var(--space-8)",
+      maxWidth: "600px",
+      margin: "0 auto var(--space-8)"
+    } }, /* @__PURE__ */ import_react83.default.createElement("h3", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-sm)",
+      fontWeight: 600,
+      color: "var(--neutral-600)",
+      marginBottom: "var(--space-3)",
+      textAlign: "left"
+    } }, "Recently Created Sources"), /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+      border: "1px solid var(--neutral-200)",
+      borderRadius: "8px",
+      maxHeight: "200px",
+      overflowY: "auto",
+      background: "white"
+    } }, createdItems.slice(0, 10).map((item, idx) => /* @__PURE__ */ import_react83.default.createElement(
+      "div",
+      {
+        key: item.id,
+        style: {
+          padding: "var(--space-3) var(--space-4)",
+          borderBottom: idx < Math.min(createdItems.length, 10) - 1 ? "1px solid var(--neutral-100)" : "none",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-3)",
+          textAlign: "left"
+        }
+      },
+      /* @__PURE__ */ import_react83.default.createElement("i", { className: "fas fa-check-circle", style: { color: "var(--accent-green)" } }),
+      /* @__PURE__ */ import_react83.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        color: "var(--neutral-700)",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      } }, item.extracted_metadata?.title || item.original_filename), item.extracted_metadata?.year && /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-xs)",
+        color: "var(--neutral-500)"
+      } }, item.extracted_metadata.year)),
+      /* @__PURE__ */ import_react83.default.createElement(
+        "a",
+        {
+          href: `/sources/${item.source_id}`,
+          style: {
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-xs)",
+            color: "var(--accent-blue)",
+            textDecoration: "none"
+          }
+        },
+        "View ",
+        /* @__PURE__ */ import_react83.default.createElement("i", { className: "fas fa-arrow-right" })
+      )
+    ))));
+  })(), /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react83.default.createElement(
+    "a",
+    {
+      href: "/sources",
+      className: "btn-outline-source",
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        padding: "var(--space-3) var(--space-4)",
+        textDecoration: "none"
+      }
+    },
+    /* @__PURE__ */ import_react83.default.createElement("i", { className: "fas fa-book" }),
+    "View All Sources"
+  ), /* @__PURE__ */ import_react83.default.createElement(
+    "button",
+    {
+      onClick: handleUploadMore,
+      className: "btn-source",
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        padding: "var(--space-3) var(--space-4)"
+      }
+    },
+    /* @__PURE__ */ import_react83.default.createElement("i", { className: "fas fa-plus" }),
+    "Upload More PDFs"
+  ))));
+}
+function StatCard2({ icon: icon3, color: color2, count, label }) {
+  return /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    textAlign: "center"
+  } }, /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    width: "60px",
+    height: "60px",
+    borderRadius: "50%",
+    background: `color-mix(in srgb, ${color2} 15%, white)`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto var(--space-2)"
+  } }, /* @__PURE__ */ import_react83.default.createElement("i", { className: `fas ${icon3}`, style: { fontSize: "1.5rem", color: color2 } })), /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-3xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)"
+  } }, count), /* @__PURE__ */ import_react83.default.createElement("div", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, label));
+}
+
+// app/javascript/components/bulk-upload-v2/BulkUploadWizard.js
+function WizardHeader() {
+  const { state, stats } = useBulkUpload();
+  const { phase, batch } = state;
+  const steps = [
+    { id: "upload", label: "Upload", icon: "fa-cloud-upload-alt" },
+    { id: "processing", label: "Processing", icon: "fa-cog" },
+    { id: "review", label: "Review", icon: "fa-check-circle" },
+    { id: "complete", label: "Complete", icon: "fa-flag-checkered" }
+  ];
+  const currentIndex = steps.findIndex((s3) => s3.id === phase);
+  return /* @__PURE__ */ import_react84.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "var(--space-6) var(--space-8)",
+    background: "color-mix(in srgb, var(--accent-blue) 15%, white)",
+    boxShadow: "rgba(0, 0, 0, 0.25) 0px 6px 20px",
+    position: "relative",
+    zIndex: 5
+  } }, /* @__PURE__ */ import_react84.default.createElement("div", null, /* @__PURE__ */ import_react84.default.createElement("h1", { style: {
+    fontFamily: "var(--font-display)",
+    fontSize: "var(--text-3xl)",
+    fontWeight: 700,
+    color: "var(--neutral-800)",
+    marginBottom: "var(--space-1)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-3)"
+  } }, /* @__PURE__ */ import_react84.default.createElement("i", { className: "fas fa-upload", style: { color: "var(--accent-blue)" } }), "Bulk Upload"), /* @__PURE__ */ import_react84.default.createElement("p", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-500)"
+  } }, phase === "upload" && "Upload multiple PDFs with automatic metadata extraction", phase === "processing" && `Processing ${batch?.total_count || 0} files...`, phase === "review" && `Review ${batch?.items?.length || 0} items`, phase === "complete" && "Upload complete!")), /* @__PURE__ */ import_react84.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, steps.map((step, idx) => {
+    const isActive2 = step.id === phase;
+    const isComplete = idx < currentIndex;
+    const isFuture = idx > currentIndex;
+    return /* @__PURE__ */ import_react84.default.createElement(import_react84.default.Fragment, { key: step.id }, /* @__PURE__ */ import_react84.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "var(--space-2)",
+      padding: "var(--space-2) var(--space-3)",
+      borderRadius: "20px",
+      background: isActive2 ? "var(--accent-blue)" : isComplete ? "color-mix(in srgb, var(--accent-blue) 15%, white)" : "var(--neutral-100)",
+      color: isActive2 ? "white" : isComplete ? "var(--accent-blue)" : "var(--neutral-400)",
+      transition: "all 0.2s ease"
+    } }, /* @__PURE__ */ import_react84.default.createElement("i", { className: `fas ${isComplete ? "fa-check" : step.icon}`, style: { fontSize: "var(--text-xs)" } }), /* @__PURE__ */ import_react84.default.createElement("span", { style: {
+      fontFamily: "var(--font-body)",
+      fontSize: "var(--text-xs)",
+      fontWeight: isActive2 ? 600 : 400
+    } }, step.label)), idx < steps.length - 1 && /* @__PURE__ */ import_react84.default.createElement("div", { style: {
+      width: "20px",
+      height: "2px",
+      background: idx < currentIndex ? "var(--accent-blue)" : "var(--neutral-200)"
+    } }));
+  })));
+}
+function WizardContent() {
+  const { state, dispatch: dispatch2 } = useBulkUpload();
+  const fetchActiveBatch = (0, import_react84.useCallback)(async () => {
+    dispatch2({ type: "SET_LOADING", payload: true });
+    try {
+      const response = await fetch("/batch_uploads/active.json");
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          dispatch2({ type: "SET_BATCH", payload: data });
+          if (data.status === "pending") {
+            dispatch2({ type: "SET_PHASE", payload: "upload" });
+          } else if (data.status === "processing") {
+            dispatch2({ type: "SET_PHASE", payload: "processing" });
+          } else if (data.status === "completed" || data.status === "failed") {
+            dispatch2({ type: "SET_PHASE", payload: "review" });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching active batch:", err);
+      dispatch2({ type: "SET_ERROR", payload: "Failed to load batch data" });
+    } finally {
+      dispatch2({ type: "SET_LOADING", payload: false });
+    }
+  }, [dispatch2]);
+  (0, import_react84.useEffect)(() => {
+    fetchActiveBatch();
+  }, [fetchActiveBatch]);
+  if (state.loading && !state.batch) {
+    return /* @__PURE__ */ import_react84.default.createElement("div", { style: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "400px"
+    } }, /* @__PURE__ */ import_react84.default.createElement("i", { className: "fas fa-spinner fa-spin", style: { fontSize: "2rem", color: "var(--accent-blue)" } }));
+  }
+  switch (state.phase) {
+    case "upload":
+      return /* @__PURE__ */ import_react84.default.createElement(UploadPhase, null);
+    case "processing":
+      return /* @__PURE__ */ import_react84.default.createElement(ProcessingPhase, null);
+    case "review":
+      return /* @__PURE__ */ import_react84.default.createElement(ReviewPhase, null);
+    case "complete":
+      return /* @__PURE__ */ import_react84.default.createElement(CompletePhase, null);
+    default:
+      return /* @__PURE__ */ import_react84.default.createElement(UploadPhase, null);
+  }
+}
+function BulkUploadWizard() {
+  return /* @__PURE__ */ import_react84.default.createElement(BulkUploadProvider, null, /* @__PURE__ */ import_react84.default.createElement(WizardHeader, null), /* @__PURE__ */ import_react84.default.createElement("div", { style: { background: "white", minHeight: "calc(100vh - 150px)" } }, /* @__PURE__ */ import_react84.default.createElement(WizardContent, null)));
+}
+
 // app/javascript/application.js
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react71.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react85.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(SourcesIndex, null));
   }
   const sourceShowRoot = document.getElementById("source-show-root");
   if (sourceShowRoot) {
     const sourceId = sourceShowRoot.dataset.sourceId;
-    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react71.default.createElement(SourceShow, { sourceId }));
+    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react85.default.createElement(SourceShow, { sourceId }));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
     const personId = personShowRoot.dataset.personId;
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react71.default.createElement(PersonShow, { personId }));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react85.default.createElement(PersonShow, { personId }));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react71.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react85.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react71.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react85.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(TagsIndex, null));
   }
   const collectionsIndexRoot = document.getElementById("collections-index-root");
   if (collectionsIndexRoot) {
-    (0, import_client.createRoot)(collectionsIndexRoot).render(/* @__PURE__ */ import_react71.default.createElement(CollectionsIndex, null));
+    (0, import_client.createRoot)(collectionsIndexRoot).render(/* @__PURE__ */ import_react85.default.createElement(CollectionsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react71.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react85.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react71.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react85.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react71.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react85.default.createElement(UserDropdown, { userEmail }));
   }
   const pdfStudyRoot = document.getElementById("pdf-study-root");
   if (pdfStudyRoot) {
@@ -115535,7 +120483,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
     const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
     (0, import_client.createRoot)(pdfStudyRoot).render(
-      /* @__PURE__ */ import_react71.default.createElement(
+      /* @__PURE__ */ import_react85.default.createElement(
         PdfStudyMode,
         {
           sourceId,
@@ -115547,7 +120495,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const sharingHubRoot = document.getElementById("sharing-hub-root");
   if (sharingHubRoot) {
-    (0, import_client.createRoot)(sharingHubRoot).render(/* @__PURE__ */ import_react71.default.createElement(SharingHub, null));
+    (0, import_client.createRoot)(sharingHubRoot).render(/* @__PURE__ */ import_react85.default.createElement(SharingHub, null));
+  }
+  const bulkUploadWizardRoot = document.getElementById("bulk-upload-wizard-root");
+  if (bulkUploadWizardRoot) {
+    (0, import_client.createRoot)(bulkUploadWizardRoot).render(/* @__PURE__ */ import_react85.default.createElement(BulkUploadWizard, null));
+  }
+  const bulkUploadRoot = document.getElementById("bulk-upload-root");
+  if (bulkUploadRoot) {
+    (0, import_client.createRoot)(bulkUploadRoot).render(/* @__PURE__ */ import_react85.default.createElement(BulkUploadPage, null));
   }
 });
 export {

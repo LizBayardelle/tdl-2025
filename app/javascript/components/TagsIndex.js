@@ -934,17 +934,17 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                       }}>
                         {concept.label}
                       </div>
-                      {concept.node_type && (
+                      {concept.concept_type && (
                         <span style={{
                           fontSize: 'var(--text-xs)',
                           color: 'var(--neutral-600)',
                           fontFamily: 'var(--font-body)'
                         }}>
-                          {concept.node_type}
+                          {concept.concept_type}
                         </span>
                       )}
                     </div>
-                    {concept.summary_top && (
+                    {concept.summary && (
                       <p style={{
                         fontSize: 'var(--text-xs)',
                         color: 'var(--neutral-600)',
@@ -952,7 +952,7 @@ function TagDetail({ tag, onDelete, onUpdate }) {
                         margin: 0,
                         lineHeight: 1.4
                       }}>
-                        {concept.summary_top}
+                        {concept.summary}
                       </p>
                     )}
                   </a>

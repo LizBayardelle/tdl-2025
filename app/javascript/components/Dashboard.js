@@ -54,13 +54,7 @@ export default function Dashboard() {
 
       // Calculate stats
       const conceptsByType = concepts.reduce((acc, concept) => {
-        acc[concept.node_type] = (acc[concept.node_type] || 0) + 1;
-        return acc;
-      }, {});
-
-      const conceptsByStatus = concepts.reduce((acc, concept) => {
-        const status = concept.level_status || 'mapped';
-        acc[status] = (acc[status] || 0) + 1;
+        acc[concept.concept_type] = (acc[concept.concept_type] || 0) + 1;
         return acc;
       }, {});
 
@@ -81,7 +75,6 @@ export default function Dashboard() {
         totalCollections: Array.isArray(collections) ? collections.length : 0,
         totalPdfs: sourcesPdfCount,
         conceptsByType,
-        conceptsByStatus,
         needsReview,
         pinnedNotes: notes.filter(n => n.pinned).length
       });

@@ -1,7 +1,18 @@
 class Concept < ApplicationRecord
   include Shareable
 
+  CONCEPT_TYPES = %w[
+    research_method measurement intervention pathology emotion symptom
+    school_of_thought physical_entity physical_process non_physical_process
+    non_physical_concept
+  ].freeze
+
   belongs_to :user
+  belongs_to :definition, class_name: "ConceptDefinition", optional: true
+
+  has_many :concept_domains, dependent: :destroy
+  has_many :domains, through: :concept_domains
+
   has_many :concept_sources, dependent: :destroy
   has_many :sources, through: :concept_sources
   has_many :people_concepts, class_name: 'PersonConcept', dependent: :destroy
@@ -12,47 +23,24 @@ class Concept < ApplicationRecord
   has_many :outgoing_connections, class_name: 'Connection', foreign_key: 'src_concept_id', dependent: :destroy
   has_many :incoming_connections, class_name: 'Connection', foreign_key: 'dst_concept_id', dependent: :destroy
 
-  # Enums
-  enum :node_type, {
-    undeclared: "undeclared",
-    concept: "concept",
-    theory: "theory",
-    method: "method",
-    measure: "measure",
-    entity: "entity",
-    category: "category",
-    subject: "subject",
-    other: "other",
-    # Legacy values (kept for backwards compatibility)
-    model: "model",
-    technique: "technique",
-    construct: "construct",
-    population: "population",
-    discipline: "discipline",
-    school_of_thought: "school_of_thought",
-    structure: "structure"
-  }, prefix: true
-
-  enum :level_status, {
-    mapped: "mapped",
-    basic: "basic",
-    deep: "deep"
-  }, prefix: true
-
   # Validations
   validates :label, presence: true
   validates :slug, presence: true, uniqueness: true
-  validates :node_type, presence: true
   validates :user_id, presence: true
 
   # Callbacks
   before_validation :generate_slug, if: -> { label.present? && slug.blank? }
+  after_create :auto_classify_type, if: -> { concept_type.blank? }
 
   # Scopes
   scope :recent, -> { order(updated_at: :desc) }
-  scope :by_type, ->(type) { where(node_type: type) }
-  scope :by_status, ->(status) { where(level_status: status) }
+  scope :by_type, ->(type) { where(concept_type: type) }
   scope :needs_review, -> { where("last_reviewed_on IS NULL OR last_reviewed_on < ?", 30.days.ago) }
+
+  # Returns the effective concept_type — from definition if linked, otherwise own field
+  def effective_concept_type
+    definition&.concept_type || concept_type
+  end
 
   # Count methods for JSON serialization
   def sources_count
@@ -79,5 +67,9 @@ class Concept < ApplicationRecord
 
   def generate_slug
     self.slug = label.parameterize
+  end
+
+  def auto_classify_type
+    ClassifyConceptTypeJob.perform_later(id)
   end
 end

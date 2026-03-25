@@ -20,10 +20,19 @@ class SourcesController < ApplicationController
         sort_by = params[:sort_by]
         sort_dir = params[:sort_dir] == 'desc' ? 'DESC' : 'ASC'
 
-        if sort_by == 'title'
+        case sort_by
+        when 'title'
           @sources = @sources.reorder("LOWER(title) #{sort_dir}")
-        elsif sort_by == 'year'
+        when 'year'
           @sources = @sources.reorder("year #{sort_dir} NULLS LAST")
+        when 'created_at'
+          @sources = @sources.reorder("created_at #{sort_dir}")
+        when 'notes_count'
+          # Sort by number of notes (requires a subquery or left join)
+          @sources = @sources
+            .left_joins(:notes)
+            .group('sources.id')
+            .reorder("COUNT(notes.id) #{sort_dir}")
         end
 
         # Get total count before pagination
@@ -113,7 +122,7 @@ class SourcesController < ApplicationController
       format.json {
         render json: @source.as_json(
           include: {
-            concepts: { only: [:id, :label, :node_type, :summary_top] },
+            concepts: { only: [:id, :label, :concept_type, :summary] },
             people: { only: [:id, :full_name, :last_name, :role, :summary] },
             tags: { only: [:id, :name, :slug] },
             collections: { only: [:id, :name, :description] }

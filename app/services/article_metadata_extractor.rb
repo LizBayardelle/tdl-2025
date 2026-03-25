@@ -31,6 +31,7 @@ class ArticleMetadataExtractor
       - Page numbers
       - DOI (if present, format: 10.xxxx/xxxx)
       - Abstract (usually labeled "Abstract" followed by a paragraph)
+      - Keywords (often listed after abstract, labeled "Keywords:" or "Key words:")
 
       Extract and return ONLY a JSON object with these fields:
       - title: Article title
@@ -44,6 +45,7 @@ class ArticleMetadataExtractor
       - pages: Page range (e.g., "123-145")
       - doi: DOI if found
       - abstract: Article abstract
+      - keywords: Array of keywords/key terms from the article
 
       Only include fields that you can confidently extract. Return valid JSON only, no other text.
 
@@ -366,6 +368,9 @@ class ArticleMetadataExtractor
         Date.new(pub_date[0], pub_date[1], pub_date[2]) rescue nil
       end
 
+      # Extract keywords/subjects from CrossRef
+      keywords = message['subject'] || []
+
       metadata = {
         'title' => message['title']&.first,
         'authors' => authors_array.join(', '),
@@ -379,6 +384,7 @@ class ArticleMetadataExtractor
         'doi' => doi,
         'url' => "https://doi.org/#{doi}",
         'abstract' => strip_html_tags(message['abstract']),
+        'keywords' => keywords,
         'publisher_or_venue' => message['publisher'],
         'book_title' => message['container-title']&.first
       }
@@ -453,6 +459,12 @@ class ArticleMetadataExtractor
       else 'article'
       end
 
+      # Extract keywords from OpenAlex concepts (top-level topics with score > 0.3)
+      keywords = data['concepts']&.select { |c| c['score'] && c['score'] > 0.3 }&.map { |c| c['display_name'] } || []
+      # Also include topics if available
+      keywords += data['topics']&.map { |t| t['display_name'] } || []
+      keywords = keywords.uniq.first(10) # Limit to 10 keywords
+
       metadata = {
         'title' => data['title'],
         'authors' => authors_array.join(', '),
@@ -466,6 +478,7 @@ class ArticleMetadataExtractor
         'doi' => doi,
         'url' => "https://doi.org/#{doi}",
         'abstract' => nil, # OpenAlex doesn't always have abstracts in free tier
+        'keywords' => keywords,
         'publisher_or_venue' => data.dig('primary_location', 'source', 'host_organization_name')
       }
 

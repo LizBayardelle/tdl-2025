@@ -304,6 +304,46 @@ export default function SourcesIndex() {
               />
             </div>
 
+            {/* Sort dropdown */}
+            <div style={{ marginBottom: 'var(--space-6)' }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  color: 'var(--neutral-500)',
+                  marginBottom: 'var(--space-3)',
+                }}
+              >
+                Sort By
+              </div>
+              <select
+                value={sortColumn ? `${sortColumn}-${sortDirection}` : 'created_at-desc'}
+                onChange={(e) => {
+                  const [col, dir] = e.target.value.split('-');
+                  setSortColumn(col);
+                  setSortDirection(dir);
+                }}
+                className="form-input"
+                style={{
+                  width: '100%',
+                  fontSize: 'var(--text-sm)',
+                  padding: 'var(--space-2)',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="created_at-desc">Recently Added</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="title-desc">Title (Z-A)</option>
+                <option value="year-desc">Year (Newest)</option>
+                <option value="year-asc">Year (Oldest)</option>
+                <option value="notes_count-desc">Most Notes</option>
+                <option value="notes_count-asc">Fewest Notes</option>
+              </select>
+            </div>
+
             {/* PDF Filter Toggle */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
               <label

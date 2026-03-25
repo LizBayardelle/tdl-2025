@@ -80,12 +80,12 @@ export default function SourceShow({ sourceId }) {
     });
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
       {/* Left Sidebar - Sources List */}
       <aside
         style={{
           width: sidebarOpen ? '280px' : '0',
-          background: 'var(--sidebar-bg)',
+          background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
           transition: 'width 0.3s ease',
@@ -178,7 +178,7 @@ export default function SourceShow({ sourceId }) {
                     }}
                     onMouseEnter={(e) => {
                       if (s.id !== parseInt(sourceId)) {
-                        e.currentTarget.style.background = 'var(--neutral-100)';
+                        e.currentTarget.style.background = '#d5d5d5';
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -465,8 +465,8 @@ function SourceDisplay({ source }) {
           </div>
         )}
 
-        {/* Metadata Tags */}
-        {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0) || (source.keywords && source.keywords.length > 0)) && (
+        {/* Metadata Tags - Concepts and Tags only (keywords are raw API data, concepts are linked) */}
+        {((source.concepts && source.concepts.length > 0) || (source.tags && source.tags.length > 0)) && (
           <div style={{ paddingTop: 'var(--space-6)', borderTop: '1px solid var(--neutral-200)' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
               {source.concepts?.map((concept) => (
@@ -522,28 +522,6 @@ function SourceDisplay({ source }) {
                 >
                   {tag.name}
                 </a>
-              ))}
-              {source.keywords?.map((keyword, idx) => (
-                <span
-                  key={`kw-${idx}`}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontSize: 'var(--text-xs)',
-                    background: 'var(--neutral-100)',
-                    color: 'var(--neutral-600)',
-                    padding: 'var(--space-1) var(--space-3)',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: 400,
-                    border: '1px solid var(--neutral-200)'
-                  }}
-                  title="Author keyword"
-                >
-                  <i className="fas fa-key" style={{ fontSize: '8px', opacity: 0.6 }}></i>
-                  {keyword}
-                </span>
               ))}
             </div>
           </div>

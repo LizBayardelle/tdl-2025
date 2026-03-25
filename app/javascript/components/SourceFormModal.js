@@ -480,7 +480,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
             body: JSON.stringify({
               concept: {
                 label: concept.editedLabel,
-                node_type: concept.editedNodeType || 'subject'
+                concept_type: concept.editedConceptType || 'non_physical_concept'
               }
             }),
           });

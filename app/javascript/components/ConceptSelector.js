@@ -59,7 +59,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
           body: JSON.stringify({
             concept: {
               label: filter.trim(),
-              node_type: 'construct'
+              concept_type: 'non_physical_concept'
             }
           }),
         });

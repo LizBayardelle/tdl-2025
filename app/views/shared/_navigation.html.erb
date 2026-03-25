@@ -82,6 +82,9 @@
               <%= link_to edit_user_registration_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
                 <i class="fas fa-user" style="width: 1.25rem; margin-right: 0.5rem;"></i>Account
               <% end %>
+              <%= link_to uploads_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
+                <i class="fas fa-upload" style="width: 1.25rem; margin-right: 0.5rem;"></i>Bulk Uploads
+              <% end %>
               <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); background: none; border: none; cursor: pointer; transition: background 0.15s;" do %>
                 <i class="fas fa-sign-out-alt" style="width: 1.25rem; margin-right: 0.5rem;"></i>Sign out
               <% end %>
@@ -160,6 +163,9 @@
         <div style="padding-top: 1rem; border-top: 1px solid <%= is_themed ? 'rgba(255, 255, 255, 0.2)' : 'var(--neutral-200)' %>; margin-top: 0.5rem;">
           <div style="padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: <%= is_themed ? 'rgba(255, 255, 255, 0.7)' : 'var(--neutral-600)' %>;"><%= current_user.email %></div>
           <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" %>
+          <%= link_to uploads_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+            <i class="fas fa-upload"></i> Bulk Uploads
+          <% end %>
           <%= button_to destroy_user_session_path, method: :delete, style: "width: 100%; text-align: left; font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; color: #{is_themed ? 'rgba(255, 255, 255, 0.9)' : 'var(--neutral-700)'}; background: none; border: none; cursor: pointer; padding: 0.75rem 1rem; border-radius: var(--radius); transition: all 0.15s; margin-bottom: 0.25rem;" do %>
             Sign out
           <% end %>

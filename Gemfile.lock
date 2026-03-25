@@ -111,6 +111,8 @@ GEM
     drb (2.2.3)
     erb (5.1.1)
     erubi (1.13.1)
+    et-orbi (1.4.0)
+      tzinfo
     ffi (1.17.3-aarch64-linux-gnu)
     ffi (1.17.3-aarch64-linux-musl)
     ffi (1.17.3-arm-linux-gnu)
@@ -119,8 +121,18 @@ GEM
     ffi (1.17.3-x86_64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
     ffi (1.17.3-x86_64-linux-musl)
+    fugit (1.12.1)
+      et-orbi (~> 1.4)
+      raabro (~> 1.4)
     globalid (1.3.0)
       activesupport (>= 6.1)
+    good_job (4.13.3)
+      activejob (>= 6.1.0)
+      activerecord (>= 6.1.0)
+      concurrent-ruby (>= 1.3.1)
+      fugit (>= 1.11.0)
+      railties (>= 6.1.0)
+      thor (>= 1.0.0)
     hashery (2.1.2)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
@@ -215,6 +227,7 @@ GEM
     public_suffix (7.0.2)
     puma (7.0.4)
       nio4r (~> 2.0)
+    raabro (1.4.0)
     racc (1.8.1)
     rack (3.1.18)
     rack-session (2.1.1)
@@ -351,6 +364,7 @@ DEPENDENCIES
   debug
   devise
   dotenv-rails (~> 3.2)
+  good_job (~> 4.0)
   image_processing (~> 1.2)
   jbuilder
   jsbundling-rails

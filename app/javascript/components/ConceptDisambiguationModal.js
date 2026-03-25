@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 
-const NODE_TYPE_OPTIONS = [
-  { value: 'concept', label: 'Concept' },
-  { value: 'theory', label: 'Theory' },
-  { value: 'method', label: 'Method' },
-  { value: 'measure', label: 'Measure' },
-  { value: 'entity', label: 'Entity' },
-  { value: 'category', label: 'Category' },
-  { value: 'subject', label: 'Subject' },
+const CONCEPT_TYPE_OPTIONS = [
+  { value: 'research_method', label: 'Research Method' },
+  { value: 'measurement', label: 'Measurement' },
+  { value: 'intervention', label: 'Intervention' },
+  { value: 'pathology', label: 'Pathology' },
+  { value: 'emotion', label: 'Emotion' },
+  { value: 'symptom', label: 'Symptom' },
+  { value: 'school_of_thought', label: 'School of Thought' },
+  { value: 'physical_entity', label: 'Physical Entity' },
+  { value: 'physical_process', label: 'Physical Process' },
+  { value: 'non_physical_process', label: 'Non-Physical Process' },
+  { value: 'non_physical_concept', label: 'Non-Physical Concept' },
 ];
 
 const CONFIDENCE_COLORS = {
@@ -26,19 +30,19 @@ const CONFIDENCE_LABELS = {
 export default function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm }) {
   const [conceptData, setConceptData] = useState([]);
   const [newConceptLabel, setNewConceptLabel] = useState('');
-  const [newConceptType, setNewConceptType] = useState('subject');
+  const [newConceptType, setNewConceptType] = useState('non_physical_concept');
 
   // Initialize concept data when modal opens
   useEffect(() => {
     if (isOpen) {
       setNewConceptLabel('');
-      setNewConceptType('subject');
+      setNewConceptType('non_physical_concept');
 
       if (suggestions && suggestions.length > 0) {
         const initialData = suggestions.map((suggestion) => ({
           originalSuggestion: {
             label: suggestion.label,
-            node_type: suggestion.node_type,
+            concept_type: suggestion.concept_type,
             confidence: suggestion.confidence,
             rationale: suggestion.rationale,
           },
@@ -49,7 +53,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
             ? suggestion.potential_matches[0].id
             : null,
           editedLabel: suggestion.label,
-          editedNodeType: suggestion.node_type || 'subject',
+          editedConceptType: suggestion.concept_type || 'non_physical_concept',
           potentialMatches: suggestion.potential_matches || [],
           isCustom: false,
         }));
@@ -115,13 +119,13 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
       action: 'create',
       linkedConceptId: null,
       editedLabel: newConceptLabel.trim(),
-      editedNodeType: newConceptType,
+      editedConceptType: newConceptType,
       potentialMatches: [],
       isCustom: true,
     }]);
 
     setNewConceptLabel('');
-    setNewConceptType('subject');
+    setNewConceptType('non_physical_concept');
   };
 
   const handleConfirm = () => {
@@ -129,7 +133,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
       action: concept.action,
       linkedConceptId: concept.linkedConceptId,
       editedLabel: concept.editedLabel,
-      editedNodeType: concept.editedNodeType,
+      editedConceptType: concept.editedConceptType,
       originalSuggestion: concept.originalSuggestion,
       isCustom: concept.isCustom,
     }));
@@ -222,7 +226,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                               fontWeight: 500,
                               textTransform: 'capitalize',
                             }}>
-                              {concept.originalSuggestion?.node_type}
+                              {concept.originalSuggestion?.concept_type}
                             </span>
                             <span style={{
                               fontSize: 'var(--text-xs)',
@@ -357,7 +361,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                                   borderRadius: '3px',
                                   color: 'var(--neutral-600)',
                                 }}>
-                                  {linkedConcept.node_type}
+                                  {linkedConcept.concept_type}
                                 </span>
                               </div>
                             </div>
@@ -430,8 +434,8 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                                 Type
                               </label>
                               <select
-                                value={concept.editedNodeType}
-                                onChange={(e) => handleFieldChange(index, 'editedNodeType', e.target.value)}
+                                value={concept.editedConceptType}
+                                onChange={(e) => handleFieldChange(index, 'editedConceptType', e.target.value)}
                                 className="form-select"
                                 style={{
                                   width: '100%',
@@ -443,7 +447,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                                   height: '38px',
                                 }}
                               >
-                                {NODE_TYPE_OPTIONS.map(opt => (
+                                {CONCEPT_TYPE_OPTIONS.map(opt => (
                                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                                 ))}
                               </select>
@@ -520,7 +524,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                                         color: 'var(--neutral-500)',
                                         marginLeft: 'auto',
                                       }}>
-                                        {match.node_type}
+                                        {match.concept_type}
                                       </span>
                                     </div>
                                   </button>
@@ -619,7 +623,7 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
                     background: 'white',
                   }}
                 >
-                  {NODE_TYPE_OPTIONS.map(opt => (
+                  {CONCEPT_TYPE_OPTIONS.map(opt => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>

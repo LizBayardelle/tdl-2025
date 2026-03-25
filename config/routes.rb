@@ -7,10 +7,29 @@ Rails.application.routes.draw do
   root "home#index"
   get "dashboard", to: "home#dashboard"
   get "sharing", to: "home#sharing", as: :sharing
+  get "uploads", to: "home#uploads", as: :uploads
   get "search", to: "search#index"
+
+  resources :batch_uploads, only: [:index, :show, :create, :destroy] do
+    collection do
+      get :active
+    end
+    member do
+      post :start_processing
+    end
+  end
+
+  resources :batch_upload_items, only: [:show, :update] do
+    member do
+      post :approve
+      post :retry
+      post :skip
+    end
+  end
 
   resources :concepts, only: [:index, :show, :create, :update, :destroy] do
     collection do
+      get :search
       post :find_or_create_from_keywords
       post :suggest_from_metadata
     end

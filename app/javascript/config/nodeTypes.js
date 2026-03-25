@@ -1,52 +1,62 @@
-// Single source of truth for concept node types
-// Used in ConceptsIndex, ConceptFormModal, and anywhere else node types are displayed
+// Single source of truth for concept types
+// Used in ConceptsIndex, ConceptFormModal, and anywhere else concept types are displayed
 
 export const NODE_TYPES = [
   {
-    value: 'undeclared',
-    label: 'Undeclared',
-    description: 'Not yet categorized. Choose a type to better organize your research.'
+    value: 'research_method',
+    label: 'Research Method',
+    description: 'A research, clinical, or analytical procedure or approach (e.g., fMRI, randomized controlled trial, grounded theory).'
   },
   {
-    value: 'concept',
-    label: 'Concept',
-    description: 'An abstract idea, construct, or phenomenon studied in research (e.g., internalized racism, working memory, fear conditioning).'
-  },
-  {
-    value: 'theory',
-    label: 'Theory / Model',
-    description: 'A formal explanatory framework describing how concepts relate or operate (e.g., Minority Stress Theory, Dual Process Model).'
-  },
-  {
-    value: 'method',
-    label: 'Method',
-    description: 'A research, clinical, or analytical procedure or approach (e.g., fMRI, CBT, randomized controlled trial).'
-  },
-  {
-    value: 'measure',
-    label: 'Measure / Instrument',
+    value: 'measurement',
+    label: 'Measurement',
     description: 'A tool used to assess, quantify, or operationalize a concept (e.g., PHQ-9, Stroop Task, ACEs questionnaire).'
   },
   {
-    value: 'entity',
-    label: 'Entity',
-    description: 'A concrete or bounded thing, including anatomical structures, populations, or named systems (e.g., amygdala, HPA axis, adolescents).'
+    value: 'intervention',
+    label: 'Intervention',
+    description: 'A treatment, therapy, or deliberate action applied to influence an outcome (e.g., CBT, mindfulness training, pharmacotherapy).'
   },
   {
-    value: 'category',
-    label: 'Category',
-    description: 'A grouping used to organize related concepts via "is-a" relationships (e.g., brain areas, affective disorders, imaging techniques).'
+    value: 'pathology',
+    label: 'Pathology',
+    description: 'A disease, disorder, or dysfunctional condition (e.g., major depressive disorder, PTSD, schizophrenia).'
   },
   {
-    value: 'subject',
-    label: 'Subject',
-    description: 'A field, domain, or area of study that provides context rather than content (e.g., social psychology, cognitive neuroscience).'
+    value: 'emotion',
+    label: 'Emotion',
+    description: 'An affective state or feeling (e.g., fear, joy, anger, sadness).'
   },
   {
-    value: 'other',
-    label: 'Other',
-    description: "Anything that doesn't fit the above or is intentionally left uncategorized."
-  }
+    value: 'symptom',
+    label: 'Symptom',
+    description: 'A sign or manifestation of a condition (e.g., anhedonia, insomnia, hypervigilance).'
+  },
+  {
+    value: 'school_of_thought',
+    label: 'School of Thought',
+    description: 'A theoretical tradition, paradigm, or intellectual movement (e.g., behaviorism, psychoanalysis, constructivism).'
+  },
+  {
+    value: 'physical_entity',
+    label: 'Physical Entity',
+    description: 'A concrete or bounded physical thing, including anatomical structures, organisms, or systems (e.g., amygdala, HPA axis, neuron).'
+  },
+  {
+    value: 'physical_process',
+    label: 'Physical Process',
+    description: 'A measurable biological or physical process (e.g., neurogenesis, synaptic pruning, cortisol release).'
+  },
+  {
+    value: 'non_physical_process',
+    label: 'Non-Physical Process',
+    description: 'A psychological, cognitive, or social process (e.g., memory consolidation, social learning, cognitive reappraisal).'
+  },
+  {
+    value: 'non_physical_concept',
+    label: 'Non-Physical Concept',
+    description: 'An abstract idea, construct, or phenomenon (e.g., working memory, self-efficacy, attachment style).'
+  },
 ];
 
 // Helper to get label for a value

@@ -71,7 +71,7 @@ class PeopleController < ApplicationController
       format.json {
         render json: @person.as_json(
           include: {
-            concepts: { only: [:id, :label, :node_type] },
+            concepts: { only: [:id, :label, :concept_type] },
             sources: { only: [:id, :title, :authors, :year] },
             collections: { only: [:id, :name, :description] }
           }

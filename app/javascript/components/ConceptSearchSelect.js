@@ -201,7 +201,7 @@ export default function ConceptSearchSelect({
               <>
                 {selectedConcept.label}
                 <span style={{ color: 'var(--neutral-500)', marginLeft: 'var(--space-1)' }}>
-                  ({selectedConcept.node_type})
+                  ({selectedConcept.concept_type})
                 </span>
               </>
             ) : placeholder}
@@ -278,13 +278,13 @@ export default function ConceptSearchSelect({
             >
               <span style={{ whiteSpace: 'pre' }}>{getIndentPrefix(depth)}</span>
               <span>{concept.label}</span>
-              {concept.node_type && (
+              {concept.concept_type && (
                 <span style={{
                   fontSize: 'var(--text-xs)',
                   color: 'var(--neutral-500)',
                   marginLeft: 'auto',
                 }}>
-                  {concept.node_type}
+                  {concept.concept_type}
                 </span>
               )}
             </div>

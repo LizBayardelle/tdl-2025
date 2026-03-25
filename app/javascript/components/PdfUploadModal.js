@@ -491,7 +491,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
             body: JSON.stringify({
               concept: {
                 label: concept.editedLabel,
-                node_type: concept.editedNodeType || 'subject'
+                concept_type: concept.editedConceptType || 'non_physical_concept'
               }
             }),
           });

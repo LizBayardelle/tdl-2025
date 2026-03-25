@@ -666,18 +666,18 @@ export default function PersonShow({ personId: initialPersonId }) {
                         fontWeight: 600,
                         color: 'var(--neutral-900)',
                         fontFamily: 'var(--font-body)',
-                        marginBottom: concept.node_type ? 'var(--space-1)' : '0'
+                        marginBottom: concept.concept_type ? 'var(--space-1)' : '0'
                       }}>
                         {concept.label}
                       </div>
-                      {concept.node_type && (
+                      {concept.concept_type && (
                         <div style={{
                           fontSize: 'var(--text-xs)',
                           color: 'var(--neutral-600)',
                           textTransform: 'capitalize',
                           fontFamily: 'var(--font-body)',
                         }}>
-                          {concept.node_type}
+                          {concept.concept_type}
                         </div>
                       )}
                     </a>

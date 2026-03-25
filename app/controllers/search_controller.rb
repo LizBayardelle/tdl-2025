@@ -11,7 +11,7 @@ class SearchController < ApplicationController
 
     # Search across all entities
     concepts = current_user.concepts.where(
-      "label ILIKE ? OR summary_top ILIKE ? OR summary_mid ILIKE ?",
+      "label ILIKE ? OR summary ILIKE ? OR description ILIKE ?",
       "%#{query}%", "%#{query}%", "%#{query}%"
     ).limit(10)
 
@@ -37,7 +37,7 @@ class SearchController < ApplicationController
 
     render json: {
       query: query,
-      concepts: concepts.as_json(only: [:id, :label, :node_type, :summary_top]),
+      concepts: concepts.as_json(only: [:id, :label, :concept_type, :summary]),
       sources: sources.as_json(only: [:id, :title, :kind, :authors]),
       people: people.as_json(only: [:id, :full_name, :role]),
       notes: notes.as_json(

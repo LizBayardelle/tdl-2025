@@ -29,18 +29,61 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
   const typeDropdownTriggerRef = useRef(null);
   const [formData, setFormData] = useState({
     label: '',
-    node_type: 'undeclared',
-    level_status: 'mapped',
-    summary_top: '',
-    summary_mid: '',
-    summary_deep: '',
+    concept_type: 'non_physical_concept',
+    summary: '',
+    description: '',
+    location: '',
+    examples: '',
+    etymology: '',
+    school_of_thought: '',
+    history: '',
+    controversy: '',
+    clinical_relevance: '',
+    misconceptions: '',
+    mnemonic: '',
+    developmental_notes: '',
+    measurement_notes: '',
+    aliases: [],
     tags: [],
     new_relationship_dst_concept_id: '',
     new_relationship_rel_type: 'related_to'
   });
+  const [aliasInput, setAliasInput] = useState('');
+  const [hasDraft, setHasDraft] = useState(false);
   const [error, setError] = useState('');
-  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error', 'draft'
   const saveTimeoutRef = useRef(null);
+  const draftTimeoutRef = useRef(null);
+
+  const DRAFT_KEY = 'concept_draft';
+
+  const saveDraft = useCallback((data) => {
+    try {
+      const draftData = { ...data };
+      delete draftData.new_relationship_dst_concept_id;
+      delete draftData.new_relationship_rel_type;
+      // Only save if there's meaningful content
+      if (draftData.label || draftData.summary || draftData.description) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+        setSaveStatus('draft');
+      }
+    } catch (e) {
+      // localStorage full or unavailable — silent fail
+    }
+  }, []);
+
+  const loadDraft = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) { /* ignore */ }
+    return null;
+  }, []);
+
+  const clearDraft = useCallback(() => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ }
+    setHasDraft(false);
+  }, []);
   const isInitialMount = useRef(true);
   const lastSavedData = useRef(null);
 
@@ -64,28 +107,36 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
     }),
   ];
 
-  // WYSIWYG editors for summary fields
-  const editorTop = useEditor({
+  // WYSIWYG editors for rich text fields
+  const editorSummary = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_top,
+    content: formData.summary,
     onUpdate: ({ editor }) => {
-      setFormData(prev => ({ ...prev, summary_top: editor.getHTML() }));
+      setFormData(prev => ({ ...prev, summary: editor.getHTML() }));
     },
   });
 
-  const editorMid = useEditor({
+  const editorDescription = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_mid,
+    content: formData.description,
     onUpdate: ({ editor }) => {
-      setFormData(prev => ({ ...prev, summary_mid: editor.getHTML() }));
+      setFormData(prev => ({ ...prev, description: editor.getHTML() }));
     },
   });
 
-  const editorDeep = useEditor({
+  const editorExamples = useEditor({
     extensions: editorExtensions,
-    content: formData.summary_deep,
+    content: formData.examples,
     onUpdate: ({ editor }) => {
-      setFormData(prev => ({ ...prev, summary_deep: editor.getHTML() }));
+      setFormData(prev => ({ ...prev, examples: editor.getHTML() }));
+    },
+  });
+
+  const editorHistory = useEditor({
+    extensions: editorExtensions,
+    content: formData.history,
+    onUpdate: ({ editor }) => {
+      setFormData(prev => ({ ...prev, history: editor.getHTML() }));
     },
   });
 
@@ -138,6 +189,23 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
       setSaveStatus('error');
     }
   }, [item?.id]);
+
+  // Draft save effect for new (unsaved) concepts
+  useEffect(() => {
+    if (!isOpen || item?.id) return;
+
+    if (isInitialMount.current) return;
+
+    if (draftTimeoutRef.current) clearTimeout(draftTimeoutRef.current);
+
+    draftTimeoutRef.current = setTimeout(() => {
+      saveDraft(formData);
+    }, 500);
+
+    return () => {
+      if (draftTimeoutRef.current) clearTimeout(draftTimeoutRef.current);
+    };
+  }, [formData, isOpen, item?.id, saveDraft]);
 
   // Debounced autosave effect
   useEffect(() => {
@@ -199,44 +267,72 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         fetchItemCollections(item.id);
         const newFormData = {
           label: item.label || '',
-          node_type: item.node_type || 'undeclared',
-          level_status: item.level_status || 'mapped',
-          summary_top: item.summary_top || '',
-          summary_mid: item.summary_mid || '',
-          summary_deep: item.summary_deep || '',
+          concept_type: item.concept_type || 'non_physical_concept',
+          summary: item.summary || '',
+          description: item.description || '',
+          location: item.location || '',
+          examples: item.examples || '',
+          etymology: item.etymology || '',
+          school_of_thought: item.school_of_thought || '',
+          history: item.history || '',
+          controversy: item.controversy || '',
+          clinical_relevance: item.clinical_relevance || '',
+          misconceptions: item.misconceptions || '',
+          mnemonic: item.mnemonic || '',
+          developmental_notes: item.developmental_notes || '',
+          measurement_notes: item.measurement_notes || '',
+          aliases: item.aliases || [],
           tags: item.tags || [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
-        // Set editor content
-        if (editorTop) editorTop.commands.setContent(newFormData.summary_top);
-        if (editorMid) editorMid.commands.setContent(newFormData.summary_mid);
-        if (editorDeep) editorDeep.commands.setContent(newFormData.summary_deep);
+        setAliasInput('');
+        if (editorSummary) editorSummary.commands.setContent(newFormData.summary);
+        if (editorDescription) editorDescription.commands.setContent(newFormData.description);
+        if (editorExamples) editorExamples.commands.setContent(newFormData.examples);
+        if (editorHistory) editorHistory.commands.setContent(newFormData.history);
       } else {
-        const newFormData = {
+        const draft = loadDraft();
+        const emptyFormData = {
           label: '',
-          node_type: 'undeclared',
-          level_status: 'mapped',
-          summary_top: '',
-          summary_mid: '',
-          summary_deep: '',
+          concept_type: 'non_physical_concept',
+          summary: '',
+          description: '',
+          location: '',
+          examples: '',
+          etymology: '',
+          school_of_thought: '',
+          history: '',
+          controversy: '',
+          clinical_relevance: '',
+          misconceptions: '',
+          mnemonic: '',
+          developmental_notes: '',
+          measurement_notes: '',
+          aliases: [],
           tags: [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
+        const newFormData = draft
+          ? { ...emptyFormData, ...draft, new_relationship_dst_concept_id: '', new_relationship_rel_type: 'related_to' }
+          : emptyFormData;
         setFormData(newFormData);
+        setHasDraft(!!draft);
+        if (draft) setSaveStatus('draft');
         lastSavedData.current = null;
         setItemCollections([]);
-        // Clear editor content
-        if (editorTop) editorTop.commands.setContent('');
-        if (editorMid) editorMid.commands.setContent('');
-        if (editorDeep) editorDeep.commands.setContent('');
+        setAliasInput('');
+        if (editorSummary) editorSummary.commands.setContent(newFormData.summary);
+        if (editorDescription) editorDescription.commands.setContent(newFormData.description);
+        if (editorExamples) editorExamples.commands.setContent(newFormData.examples);
+        if (editorHistory) editorHistory.commands.setContent(newFormData.history);
       }
       setError('');
     }
-  }, [isOpen, item, initialTab, editorTop, editorMid, editorDeep]);
+  }, [isOpen, item, initialTab, editorSummary, editorDescription, editorExamples, editorHistory]);
 
   const fetchConcepts = async () => {
     try {
@@ -483,6 +579,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
 
       if (response.ok) {
         const data = await response.json();
+        clearDraft();
         onSuccess(data);
         onClose();
       } else {
@@ -503,7 +600,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ concept: { label, node_type: 'concept' } }),
+        body: JSON.stringify({ concept: { label, concept_type: 'non_physical_concept' } }),
       });
 
       if (response.ok) {
@@ -531,8 +628,8 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
     else if (saveStatus === 'saving') {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    // If we added, deleted, or updated relationships, refresh the parent
-    if (newRelationships.length > 0 || deletedRelationshipIds.length > 0 || Object.keys(updatedRelationships).length > 0) {
+    // Refresh parent when closing an existing item (to reflect autosaved changes)
+    if (item?.id) {
       onSuccess();
     }
     onClose();
@@ -612,8 +709,8 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
             )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            {/* Save Status - only show for editing */}
-            {item && (
+            {/* Save Status */}
+            {(item || saveStatus === 'draft') && (
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -624,6 +721,31 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 fontSize: 'var(--text-xs)',
                 fontFamily: 'var(--font-body)',
               }}>
+                {saveStatus === 'draft' && (
+                  <>
+                    <i className="fas fa-file-alt" style={{ color: 'var(--neutral-500)' }}></i>
+                    <span style={{ color: 'var(--neutral-500)' }}>Draft saved</span>
+                    <button type="button" onClick={() => {
+                      clearDraft();
+                      const empty = {
+                        label: '', concept_type: 'non_physical_concept', summary: '', description: '', location: '',
+                        examples: '', etymology: '', school_of_thought: '', history: '', controversy: '',
+                        clinical_relevance: '', misconceptions: '', mnemonic: '', developmental_notes: '',
+                        measurement_notes: '', aliases: [], tags: [],
+                        new_relationship_dst_concept_id: '', new_relationship_rel_type: 'related_to'
+                      };
+                      setFormData(empty);
+                      setSaveStatus('idle');
+                      if (editorSummary) editorSummary.commands.setContent('');
+                      if (editorDescription) editorDescription.commands.setContent('');
+                      if (editorExamples) editorExamples.commands.setContent('');
+                      if (editorHistory) editorHistory.commands.setContent('');
+                    }} style={{
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'var(--neutral-400)',
+                      fontSize: 'var(--text-xs)', textDecoration: 'underline', padding: 0, fontFamily: 'var(--font-body)',
+                    }}>discard</button>
+                  </>
+                )}
                 {saveStatus === 'pending' && (
                   <>
                     <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
@@ -648,7 +770,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                     <span style={{ color: 'var(--error)' }}>Error</span>
                   </>
                 )}
-                {saveStatus === 'idle' && (
+                {saveStatus === 'idle' && item && (
                   <span style={{ color: 'var(--neutral-400)' }}>Auto-save on</span>
                 )}
               </div>
@@ -747,44 +869,15 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
               <span className="hidden md:inline">Basics</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('summaries')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'summaries' ? '#c8c8c8' : 'transparent',
-                border: 'none',
-                transition: 'background 0.15s',
-                marginBottom: '0.25rem',
-                textAlign: 'left',
-                fontFamily: 'var(--font-body)',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'summaries') e.currentTarget.style.background = '#d8d8d8';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'summaries') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Summaries"
-            >
-              <i className="fas fa-align-left" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Summaries</span>
-            </button>
+            {['context', 'clinical', 'relationships'].map(tab => {
+              const tabConfig = {
+                context: { icon: 'fas fa-map-marker-alt', label: 'Context' },
+                clinical: { icon: 'fas fa-stethoscope', label: 'Clinical & Research' },
+                relationships: { icon: 'fas fa-project-diagram', label: 'Relationships' },
+              }[tab];
 
-            <button
-              type="button"
-              onClick={async () => {
-                // If creating new concept and has a label, save first then switch to relationships
-                if (!item?.id && formData.label.trim()) {
+              const handleTabClick = async () => {
+                if (tab === 'relationships' && !item?.id && formData.label.trim()) {
                   try {
                     const response = await fetch('/concepts', {
                       method: 'POST',
@@ -794,11 +887,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                       },
                       body: JSON.stringify({ concept: formData }),
                     });
-
                     if (response.ok) {
                       const newConcept = await response.json();
-                      // Call onSuccess which should reopen in edit mode
-                      // Pass a flag to indicate we want to go to relationships tab
+                      clearDraft();
                       onSuccess(newConcept, 'relationships');
                     } else {
                       const data = await response.json();
@@ -808,43 +899,50 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                     console.error('Error saving concept:', error);
                     setError('An error occurred while saving the concept');
                   }
-                } else if (!item?.id && !formData.label.trim()) {
-                  // No label yet, show a message
+                } else if (tab === 'relationships' && !item?.id && !formData.label.trim()) {
                   setError('Please enter a label before adding relationships');
                   setActiveTab('basics');
                 } else {
-                  setActiveTab('relationships');
+                  setActiveTab(tab);
                 }
-              }}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'relationships' ? '#c8c8c8' : 'transparent',
-                border: 'none',
-                transition: 'background 0.15s',
-                marginBottom: '0.25rem',
-                textAlign: 'left',
-                fontFamily: 'var(--font-body)',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'relationships') e.currentTarget.style.background = '#d8d8d8';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'relationships') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Relationships"
-            >
-              <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Relationships</span>
-            </button>
+              };
+
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={handleTabClick}
+                  className="justify-center md:justify-start"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    padding: 'var(--space-2)',
+                    borderRadius: 'var(--radius)',
+                    cursor: 'pointer',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--neutral-700)',
+                    background: activeTab === tab ? '#c8c8c8' : 'transparent',
+                    border: 'none',
+                    transition: 'background 0.15s',
+                    marginBottom: '0.25rem',
+                    textAlign: 'left',
+                    fontFamily: 'var(--font-body)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab) e.currentTarget.style.background = '#d8d8d8';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab) e.currentTarget.style.background = 'transparent';
+                  }}
+                  title={tabConfig.label}
+                >
+                  <i className={tabConfig.icon} style={{ width: '16px' }}></i>
+                  <span className="hidden md:inline">{tabConfig.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Content Area */}
@@ -858,18 +956,14 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
             <div className="space-y-4">
               <div>
                 <label className="form-label required">Label</label>
-                <input
-                  type="text"
-                  value={formData.label}
-                  onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                  className="form-input"
-                  required
-                />
+                <p className="form-hint">The canonical name as it would appear in a textbook index.</p>
+                <input type="text" value={formData.label} onChange={(e) => setFormData({ ...formData, label: e.target.value })} className="form-input" required />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div style={{ position: 'relative' }}>
-                  <label className="form-label required">Type</label>
+                  <label className="form-label">Type</label>
+                  <p className="form-hint">What this fundamentally is, not what field it belongs to.</p>
                   <button
                     type="button"
                     ref={typeDropdownTriggerRef}
@@ -905,327 +999,200 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                       fontSize: 'var(--text-sm)',
                     }}
                   >
-                    <span>{NODE_TYPES.find(t => t.value === formData.node_type)?.label || formData.node_type}</span>
+                    <span>{NODE_TYPES.find(t => t.value === formData.concept_type)?.label || formData.concept_type || 'Select type...'}</span>
                     <i className="fas fa-chevron-down" style={{ fontSize: '10px', color: 'var(--neutral-400)' }}></i>
                   </button>
                   {typeDropdownOpen && (
                     <>
-                      <div
-                        style={{
-                          position: 'fixed',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          zIndex: 9998,
-                        }}
-                        onClick={() => setTypeDropdownOpen(false)}
-                      />
+                      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} onClick={() => setTypeDropdownOpen(false)} />
                       <div style={{
-                        position: 'fixed',
-                        top: typeDropdownPos.top,
-                        left: typeDropdownPos.left,
-                        width: '320px',
-                        maxHeight: '400px',
-                        overflowY: 'auto',
-                        background: 'white',
-                        border: '1px solid var(--neutral-300)',
-                        borderRadius: 'var(--radius)',
-                        boxShadow: 'var(--shadow-lg)',
-                        zIndex: 9999,
+                        position: 'fixed', top: typeDropdownPos.top, left: typeDropdownPos.left,
+                        width: '320px', maxHeight: '400px', overflowY: 'auto', background: 'white',
+                        border: '1px solid var(--neutral-300)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)', zIndex: 9999,
                       }}>
                         {NODE_TYPES.map(opt => (
-                          <div
-                            key={opt.value}
-                            onClick={() => {
-                              setFormData({ ...formData, node_type: opt.value });
-                              setTypeDropdownOpen(false);
-                            }}
-                            style={{
-                              padding: 'var(--space-3)',
-                              cursor: 'pointer',
-                              borderBottom: '1px solid var(--neutral-100)',
-                              background: formData.node_type === opt.value ? 'var(--accent-green-light)' : 'transparent',
-                            }}
-                            onMouseEnter={(e) => {
-                              if (formData.node_type !== opt.value) {
-                                e.currentTarget.style.background = 'var(--neutral-50)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = formData.node_type === opt.value ? 'var(--accent-green-light)' : 'transparent';
-                            }}
+                          <div key={opt.value}
+                            onClick={() => { setFormData({ ...formData, concept_type: opt.value }); setTypeDropdownOpen(false); }}
+                            style={{ padding: 'var(--space-3)', cursor: 'pointer', borderBottom: '1px solid var(--neutral-100)', background: formData.concept_type === opt.value ? 'var(--accent-green-light)' : 'transparent' }}
+                            onMouseEnter={(e) => { if (formData.concept_type !== opt.value) e.currentTarget.style.background = 'var(--neutral-50)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = formData.concept_type === opt.value ? 'var(--accent-green-light)' : 'transparent'; }}
                           >
-                            <div style={{
-                              fontWeight: 600,
-                              fontSize: 'var(--text-sm)',
-                              color: 'var(--neutral-900)',
-                              marginBottom: '2px',
-                            }}>
-                              {opt.label}
-                            </div>
-                            <div style={{
-                              fontSize: 'var(--text-xs)',
-                              color: 'var(--neutral-500)',
-                              lineHeight: 1.4,
-                            }}>
-                              {opt.description}
-                            </div>
+                            <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--neutral-900)', marginBottom: '2px' }}>{opt.label}</div>
+                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', lineHeight: 1.4 }}>{opt.description}</div>
                           </div>
                         ))}
                       </div>
                     </>
                   )}
-                  {formData.node_type && (
-                    <p style={{
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--neutral-500)',
-                      marginTop: 'var(--space-1)',
-                      lineHeight: 1.4,
-                    }}>
-                      {NODE_TYPES.find(t => t.value === formData.node_type)?.description}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="form-label">Status</label>
-                  <select
-                    value={formData.level_status}
-                    onChange={(e) => setFormData({ ...formData, level_status: e.target.value })}
-                    className="form-select"
-                  >
-                    <option value="mapped">Mapped</option>
-                    <option value="basic">Basic</option>
-                    <option value="deep">Deep</option>
-                  </select>
                 </div>
               </div>
 
+              {/* Aliases */}
               <div>
-                <label className="form-label">
-                  Summary Top
-                </label>
-                <div className="form-helper">2-3 sentences</div>
-                <div style={{
-                  border: '1px solid var(--neutral-300)',
-                  borderRadius: 'var(--radius)',
-                  background: 'white',
-                  overflow: 'hidden'
-                }}>
-                  {editorTop && (
-                    <div style={{
-                      borderBottom: '1px solid var(--neutral-200)',
-                      padding: 'var(--space-1) var(--space-2)',
-                      display: 'flex',
-                      gap: '2px',
-                      flexWrap: 'wrap',
-                      background: 'var(--neutral-50)'
-                    }}>
-                      <button type="button" onClick={() => editorTop.chain().focus().toggleBold().run()}
-                        style={toolbarButtonStyle(editorTop.isActive('bold'))} {...toolbarHover(editorTop.isActive('bold'))} title="Bold">
-                        <FontAwesomeIcon icon={faBold} />
-                      </button>
-                      <button type="button" onClick={() => editorTop.chain().focus().toggleItalic().run()}
-                        style={toolbarButtonStyle(editorTop.isActive('italic'))} {...toolbarHover(editorTop.isActive('italic'))} title="Italic">
-                        <FontAwesomeIcon icon={faItalic} />
-                      </button>
-                      <button type="button" onClick={() => editorTop.chain().focus().toggleUnderline().run()}
-                        style={toolbarButtonStyle(editorTop.isActive('underline'))} {...toolbarHover(editorTop.isActive('underline'))} title="Underline">
-                        <FontAwesomeIcon icon={faUnderline} />
-                      </button>
-                      <button type="button" onClick={() => editorTop.chain().focus().toggleBulletList().run()}
-                        style={toolbarButtonStyle(editorTop.isActive('bulletList'))} {...toolbarHover(editorTop.isActive('bulletList'))} title="Bullet List">
-                        <FontAwesomeIcon icon={faListUl} />
-                      </button>
-                      <button type="button" onClick={() => {
-                        const url = window.prompt('Enter URL:');
-                        if (url) editorTop.chain().focus().setLink({ href: url }).run();
-                      }} style={toolbarButtonStyle(editorTop.isActive('link'))} {...toolbarHover(editorTop.isActive('link'))} title="Add Link">
-                        <FontAwesomeIcon icon={faLink} />
-                      </button>
+                <label className="form-label">Aliases</label>
+                <p className="form-hint">Any other name this concept might be called.</p>
+                {formData.aliases.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)', marginBottom: 'var(--space-2)' }}>
+                    {formData.aliases.map((alias, idx) => (
+                      <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', background: 'var(--neutral-100)', borderRadius: '12px', fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+                        {alias}
+                        <button type="button" onClick={() => setFormData({ ...formData, aliases: formData.aliases.filter((_, i) => i !== idx) })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'var(--neutral-400)', fontSize: '10px', lineHeight: 1 }}>
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  <input type="text" value={aliasInput} onChange={(e) => setAliasInput(e.target.value)}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ',') && aliasInput.trim()) { e.preventDefault(); const val = aliasInput.replace(/,$/,'').trim(); if (val && !formData.aliases.includes(val)) setFormData({ ...formData, aliases: [...formData.aliases, val] }); setAliasInput(''); } }}
+                    className="form-input" placeholder="Type an alias, then press Enter or comma to add" style={{ flex: 1 }} />
+                  <button type="button"
+                    onClick={() => { const val = aliasInput.trim(); if (val && !formData.aliases.includes(val)) setFormData({ ...formData, aliases: [...formData.aliases, val] }); setAliasInput(''); }}
+                    disabled={!aliasInput.trim()}
+                    style={{ padding: 'var(--space-2) var(--space-3)', background: aliasInput.trim() ? 'var(--accent-green)' : 'var(--neutral-200)', color: aliasInput.trim() ? 'white' : 'var(--neutral-400)', border: 'none', borderRadius: 'var(--radius)', cursor: aliasInput.trim() ? 'pointer' : 'default', fontSize: 'var(--text-sm)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}
+                  >Add</button>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div>
+                <label className="form-label">Summary</label>
+                <p className="form-hint">Quick, 1-3 sentence, top-level summary.</p>
+                <div style={{ border: '1px solid var(--neutral-300)', borderRadius: 'var(--radius)', background: 'white', overflow: 'hidden' }}>
+                  {editorSummary && (
+                    <div style={{ borderBottom: '1px solid var(--neutral-200)', padding: 'var(--space-1) var(--space-2)', display: 'flex', gap: '2px', flexWrap: 'wrap', background: 'var(--neutral-50)' }}>
+                      <button type="button" onClick={() => editorSummary.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editorSummary.isActive('bold'))} {...toolbarHover(editorSummary.isActive('bold'))} title="Bold"><FontAwesomeIcon icon={faBold} /></button>
+                      <button type="button" onClick={() => editorSummary.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editorSummary.isActive('italic'))} {...toolbarHover(editorSummary.isActive('italic'))} title="Italic"><FontAwesomeIcon icon={faItalic} /></button>
+                      <button type="button" onClick={() => editorSummary.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editorSummary.isActive('underline'))} {...toolbarHover(editorSummary.isActive('underline'))} title="Underline"><FontAwesomeIcon icon={faUnderline} /></button>
+                      <button type="button" onClick={() => editorSummary.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editorSummary.isActive('bulletList'))} {...toolbarHover(editorSummary.isActive('bulletList'))} title="Bullet List"><FontAwesomeIcon icon={faListUl} /></button>
+                      <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) editorSummary.chain().focus().setLink({ href: url }).run(); }} style={toolbarButtonStyle(editorSummary.isActive('link'))} {...toolbarHover(editorSummary.isActive('link'))} title="Add Link"><FontAwesomeIcon icon={faLink} /></button>
                     </div>
                   )}
-                  <div style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                    <EditorContent
-                      editor={editorTop}
-                      className="px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4"
-                    />
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    <EditorContent editor={editorSummary} className="px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="form-label">Description</label>
+                <p className="form-hint">Full explanation of what this is, how it works, and what defines it.</p>
+                <div style={{ border: '1px solid var(--neutral-300)', borderRadius: 'var(--radius)', background: 'white', overflow: 'hidden' }}>
+                  {editorDescription && (
+                    <div style={{ borderBottom: '1px solid var(--neutral-200)', padding: 'var(--space-1) var(--space-2)', display: 'flex', gap: '2px', flexWrap: 'wrap', background: 'var(--neutral-50)' }}>
+                      <button type="button" onClick={() => editorDescription.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editorDescription.isActive('bold'))} {...toolbarHover(editorDescription.isActive('bold'))} title="Bold"><FontAwesomeIcon icon={faBold} /></button>
+                      <button type="button" onClick={() => editorDescription.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editorDescription.isActive('italic'))} {...toolbarHover(editorDescription.isActive('italic'))} title="Italic"><FontAwesomeIcon icon={faItalic} /></button>
+                      <button type="button" onClick={() => editorDescription.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editorDescription.isActive('underline'))} {...toolbarHover(editorDescription.isActive('underline'))} title="Underline"><FontAwesomeIcon icon={faUnderline} /></button>
+                      <button type="button" onClick={() => editorDescription.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editorDescription.isActive('bulletList'))} {...toolbarHover(editorDescription.isActive('bulletList'))} title="Bullet List"><FontAwesomeIcon icon={faListUl} /></button>
+                      <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) editorDescription.chain().focus().setLink({ href: url }).run(); }} style={toolbarButtonStyle(editorDescription.isActive('link'))} {...toolbarHover(editorDescription.isActive('link'))} title="Add Link"><FontAwesomeIcon icon={faLink} /></button>
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                    <EditorContent editor={editorDescription} className="px-3 py-2 min-h-[100px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[80px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mnemonic */}
+              <div>
+                <label className="form-label">Mnemonic</label>
+                <p className="form-hint">A memory device to recall key features: acronym, visual association, or phrase.</p>
+                <input type="text" value={formData.mnemonic} onChange={(e) => setFormData({ ...formData, mnemonic: e.target.value })} className="form-input" />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'context' && (
+            <div className="space-y-4">
+              <div>
+                <label className="form-label">Location</label>
+                <p className="form-hint">Where this exists: anatomical region, neural circuit, diagnostic system, or theoretical framework.</p>
+                <textarea value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className="form-input" rows={3} />
+              </div>
+
+              <div>
+                <label className="form-label">Etymology</label>
+                <p className="form-hint">Word origins and how the name connects to its meaning or function.</p>
+                <textarea value={formData.etymology} onChange={(e) => setFormData({ ...formData, etymology: e.target.value })} className="form-input" rows={3} />
+              </div>
+
+              <div>
+                <label className="form-label">School of Thought</label>
+                <p className="form-hint">The intellectual tradition(s) this concept emerged from or is most closely tied to.</p>
+                <textarea value={formData.school_of_thought} onChange={(e) => setFormData({ ...formData, school_of_thought: e.target.value })} className="form-input" rows={2} />
+              </div>
+
+              {/* Examples */}
+              <div>
+                <label className="form-label">Examples</label>
+                <p className="form-hint">Concrete instances, case illustrations, or real-world scenarios where this concept applies.</p>
+                <div style={{ border: '1px solid var(--neutral-300)', borderRadius: 'var(--radius)', background: 'white', overflow: 'hidden' }}>
+                  {editorExamples && (
+                    <div style={{ borderBottom: '1px solid var(--neutral-200)', padding: 'var(--space-1) var(--space-2)', display: 'flex', gap: '2px', flexWrap: 'wrap', background: 'var(--neutral-50)' }}>
+                      <button type="button" onClick={() => editorExamples.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editorExamples.isActive('bold'))} {...toolbarHover(editorExamples.isActive('bold'))} title="Bold"><FontAwesomeIcon icon={faBold} /></button>
+                      <button type="button" onClick={() => editorExamples.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editorExamples.isActive('italic'))} {...toolbarHover(editorExamples.isActive('italic'))} title="Italic"><FontAwesomeIcon icon={faItalic} /></button>
+                      <button type="button" onClick={() => editorExamples.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editorExamples.isActive('underline'))} {...toolbarHover(editorExamples.isActive('underline'))} title="Underline"><FontAwesomeIcon icon={faUnderline} /></button>
+                      <button type="button" onClick={() => editorExamples.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editorExamples.isActive('bulletList'))} {...toolbarHover(editorExamples.isActive('bulletList'))} title="Bullet List"><FontAwesomeIcon icon={faListUl} /></button>
+                      <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) editorExamples.chain().focus().setLink({ href: url }).run(); }} style={toolbarButtonStyle(editorExamples.isActive('link'))} {...toolbarHover(editorExamples.isActive('link'))} title="Add Link"><FontAwesomeIcon icon={faLink} /></button>
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    <EditorContent editor={editorExamples} className="px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* History */}
+              <div>
+                <label className="form-label">History</label>
+                <p className="form-hint">Key milestones: who introduced it, when, and how understanding has evolved.</p>
+                <div style={{ border: '1px solid var(--neutral-300)', borderRadius: 'var(--radius)', background: 'white', overflow: 'hidden' }}>
+                  {editorHistory && (
+                    <div style={{ borderBottom: '1px solid var(--neutral-200)', padding: 'var(--space-1) var(--space-2)', display: 'flex', gap: '2px', flexWrap: 'wrap', background: 'var(--neutral-50)' }}>
+                      <button type="button" onClick={() => editorHistory.chain().focus().toggleBold().run()} style={toolbarButtonStyle(editorHistory.isActive('bold'))} {...toolbarHover(editorHistory.isActive('bold'))} title="Bold"><FontAwesomeIcon icon={faBold} /></button>
+                      <button type="button" onClick={() => editorHistory.chain().focus().toggleItalic().run()} style={toolbarButtonStyle(editorHistory.isActive('italic'))} {...toolbarHover(editorHistory.isActive('italic'))} title="Italic"><FontAwesomeIcon icon={faItalic} /></button>
+                      <button type="button" onClick={() => editorHistory.chain().focus().toggleUnderline().run()} style={toolbarButtonStyle(editorHistory.isActive('underline'))} {...toolbarHover(editorHistory.isActive('underline'))} title="Underline"><FontAwesomeIcon icon={faUnderline} /></button>
+                      <button type="button" onClick={() => editorHistory.chain().focus().toggleBulletList().run()} style={toolbarButtonStyle(editorHistory.isActive('bulletList'))} {...toolbarHover(editorHistory.isActive('bulletList'))} title="Bullet List"><FontAwesomeIcon icon={faListUl} /></button>
+                      <button type="button" onClick={() => { const url = window.prompt('Enter URL:'); if (url) editorHistory.chain().focus().setLink({ href: url }).run(); }} style={toolbarButtonStyle(editorHistory.isActive('link'))} {...toolbarHover(editorHistory.isActive('link'))} title="Add Link"><FontAwesomeIcon icon={faLink} /></button>
+                    </div>
+                  )}
+                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                    <EditorContent editor={editorHistory} className="px-3 py-2 min-h-[80px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[60px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4" />
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {activeTab === 'summaries' && (
+          {activeTab === 'clinical' && (
             <div className="space-y-4">
               <div>
-                <label className="form-label">Summary Mid</label>
-                <div className="form-helper">~200 words</div>
-                <div style={{
-                  border: '1px solid var(--neutral-300)',
-                  borderRadius: 'var(--radius)',
-                  background: 'white',
-                  overflow: 'hidden'
-                }}>
-                  {editorMid && (
-                    <div style={{
-                      borderBottom: '1px solid var(--neutral-200)',
-                      padding: 'var(--space-1) var(--space-2)',
-                      display: 'flex',
-                      gap: '2px',
-                      flexWrap: 'wrap',
-                      background: 'var(--neutral-50)'
-                    }}>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleBold().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('bold'))} {...toolbarHover(editorMid.isActive('bold'))} title="Bold">
-                        <FontAwesomeIcon icon={faBold} />
-                      </button>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleItalic().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('italic'))} {...toolbarHover(editorMid.isActive('italic'))} title="Italic">
-                        <FontAwesomeIcon icon={faItalic} />
-                      </button>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleUnderline().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('underline'))} {...toolbarHover(editorMid.isActive('underline'))} title="Underline">
-                        <FontAwesomeIcon icon={faUnderline} />
-                      </button>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleStrike().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('strike'))} {...toolbarHover(editorMid.isActive('strike'))} title="Strikethrough">
-                        <FontAwesomeIcon icon={faStrikethrough} />
-                      </button>
-                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleBulletList().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('bulletList'))} {...toolbarHover(editorMid.isActive('bulletList'))} title="Bullet List">
-                        <FontAwesomeIcon icon={faListUl} />
-                      </button>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleOrderedList().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('orderedList'))} {...toolbarHover(editorMid.isActive('orderedList'))} title="Numbered List">
-                        <FontAwesomeIcon icon={faListOl} />
-                      </button>
-                      <button type="button" onClick={() => editorMid.chain().focus().toggleBlockquote().run()}
-                        style={toolbarButtonStyle(editorMid.isActive('blockquote'))} {...toolbarHover(editorMid.isActive('blockquote'))} title="Quote">
-                        <FontAwesomeIcon icon={faQuoteLeft} />
-                      </button>
-                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
-                      <button type="button" onClick={() => {
-                        const url = window.prompt('Enter URL:');
-                        if (url) editorMid.chain().focus().setLink({ href: url }).run();
-                      }} style={toolbarButtonStyle(editorMid.isActive('link'))} {...toolbarHover(editorMid.isActive('link'))} title="Add Link">
-                        <FontAwesomeIcon icon={faLink} />
-                      </button>
-                      {editorMid.isActive('link') && (
-                        <button type="button" onClick={() => editorMid.chain().focus().unsetLink().run()}
-                          style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Remove Link">
-                          <FontAwesomeIcon icon={faUnlink} />
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                    <EditorContent
-                      editor={editorMid}
-                      className="px-3 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[130px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic"
-                    />
-                  </div>
-                </div>
+                <label className="form-label">Clinical Relevance</label>
+                <p className="form-hint">How this shows up in practice: diagnosis, treatment planning, patient presentation, or clinical decision-making.</p>
+                <textarea value={formData.clinical_relevance} onChange={(e) => setFormData({ ...formData, clinical_relevance: e.target.value })} className="form-input" rows={3} />
               </div>
-
               <div>
-                <label className="form-label">Summary Deep</label>
-                <div className="form-helper">~600 words</div>
-                <div style={{
-                  border: '1px solid var(--neutral-300)',
-                  borderRadius: 'var(--radius)',
-                  background: 'white',
-                  overflow: 'hidden'
-                }}>
-                  {editorDeep && (
-                    <div style={{
-                      borderBottom: '1px solid var(--neutral-200)',
-                      padding: 'var(--space-1) var(--space-2)',
-                      display: 'flex',
-                      gap: '2px',
-                      flexWrap: 'wrap',
-                      background: 'var(--neutral-50)'
-                    }}>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBold().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('bold'))} {...toolbarHover(editorDeep.isActive('bold'))} title="Bold">
-                        <FontAwesomeIcon icon={faBold} />
-                      </button>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleItalic().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('italic'))} {...toolbarHover(editorDeep.isActive('italic'))} title="Italic">
-                        <FontAwesomeIcon icon={faItalic} />
-                      </button>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleUnderline().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('underline'))} {...toolbarHover(editorDeep.isActive('underline'))} title="Underline">
-                        <FontAwesomeIcon icon={faUnderline} />
-                      </button>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleStrike().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('strike'))} {...toolbarHover(editorDeep.isActive('strike'))} title="Strikethrough">
-                        <FontAwesomeIcon icon={faStrikethrough} />
-                      </button>
-                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
-                      <select
-                        onChange={(e) => {
-                          const level = parseInt(e.target.value);
-                          if (level) editorDeep.chain().focus().toggleHeading({ level }).run();
-                          else editorDeep.chain().focus().setParagraph().run();
-                        }}
-                        style={{
-                          padding: '2px 4px',
-                          borderRadius: '4px',
-                          fontSize: 'var(--text-xs)',
-                          color: 'var(--primary)',
-                          border: '1px solid var(--neutral-300)',
-                          background: 'white',
-                          cursor: 'pointer',
-                        }}
-                        value={
-                          editorDeep.isActive('heading', { level: 2 }) ? '2' :
-                          editorDeep.isActive('heading', { level: 3 }) ? '3' :
-                          editorDeep.isActive('heading', { level: 4 }) ? '4' : ''
-                        }
-                      >
-                        <option value="">Paragraph</option>
-                        <option value="2">Heading 2</option>
-                        <option value="3">Heading 3</option>
-                        <option value="4">Heading 4</option>
-                      </select>
-                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBulletList().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('bulletList'))} {...toolbarHover(editorDeep.isActive('bulletList'))} title="Bullet List">
-                        <FontAwesomeIcon icon={faListUl} />
-                      </button>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleOrderedList().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('orderedList'))} {...toolbarHover(editorDeep.isActive('orderedList'))} title="Numbered List">
-                        <FontAwesomeIcon icon={faListOl} />
-                      </button>
-                      <button type="button" onClick={() => editorDeep.chain().focus().toggleBlockquote().run()}
-                        style={toolbarButtonStyle(editorDeep.isActive('blockquote'))} {...toolbarHover(editorDeep.isActive('blockquote'))} title="Quote">
-                        <FontAwesomeIcon icon={faQuoteLeft} />
-                      </button>
-                      <div style={{ width: '1px', height: '20px', background: 'var(--neutral-300)', margin: '0 4px' }}></div>
-                      <button type="button" onClick={() => {
-                        const url = window.prompt('Enter URL:');
-                        if (url) editorDeep.chain().focus().setLink({ href: url }).run();
-                      }} style={toolbarButtonStyle(editorDeep.isActive('link'))} {...toolbarHover(editorDeep.isActive('link'))} title="Add Link">
-                        <FontAwesomeIcon icon={faLink} />
-                      </button>
-                      {editorDeep.isActive('link') && (
-                        <button type="button" onClick={() => editorDeep.chain().focus().unsetLink().run()}
-                          style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Remove Link">
-                          <FontAwesomeIcon icon={faUnlink} />
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
-                    <EditorContent
-                      editor={editorDeep}
-                      className="px-3 py-2 min-h-[250px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[230px] [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h4]:text-base [&_h4]:font-bold [&_h4]:mt-2 [&_h4]:mb-1"
-                    />
-                  </div>
-                </div>
+                <label className="form-label">Controversy</label>
+                <p className="form-hint">Active debates, contested validity, or conflicting findings across studies or traditions.</p>
+                <textarea value={formData.controversy} onChange={(e) => setFormData({ ...formData, controversy: e.target.value })} className="form-input" rows={2} />
+              </div>
+              <div>
+                <label className="form-label">Misconceptions</label>
+                <p className="form-hint">Common errors in how this is understood or applied, even among trained professionals.</p>
+                <textarea value={formData.misconceptions} onChange={(e) => setFormData({ ...formData, misconceptions: e.target.value })} className="form-input" rows={2} />
+              </div>
+              <div>
+                <label className="form-label">Developmental Notes</label>
+                <p className="form-hint">How this changes across the lifespan: onset, maturation, aging, or critical periods.</p>
+                <textarea value={formData.developmental_notes} onChange={(e) => setFormData({ ...formData, developmental_notes: e.target.value })} className="form-input" rows={2} />
+              </div>
+              <div>
+                <label className="form-label">Measurement Notes</label>
+                <p className="form-hint">How this is operationalized: scales, biomarkers, imaging modalities, or behavioral indicators.</p>
+                <textarea value={formData.measurement_notes} onChange={(e) => setFormData({ ...formData, measurement_notes: e.target.value })} className="form-input" rows={2} />
               </div>
             </div>
           )}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_18_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -56,6 +56,46 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
     t.index ["user_id"], name: "index_authors_on_user_id"
   end
 
+  create_table "batch_upload_items", force: :cascade do |t|
+    t.bigint "batch_upload_id", null: false
+    t.bigint "source_id"
+    t.string "status", default: "pending", null: false
+    t.string "original_filename"
+    t.bigint "file_size"
+    t.jsonb "extracted_metadata", default: {}
+    t.string "extracted_doi"
+    t.string "extraction_method"
+    t.jsonb "detected_authors", default: []
+    t.jsonb "detected_concepts", default: []
+    t.jsonb "duplicate_candidates", default: []
+    t.jsonb "user_decisions", default: {}
+    t.text "error_message"
+    t.integer "retry_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["batch_upload_id", "status"], name: "index_batch_upload_items_on_batch_upload_id_and_status"
+    t.index ["batch_upload_id"], name: "index_batch_upload_items_on_batch_upload_id"
+    t.index ["extracted_doi"], name: "index_batch_upload_items_on_extracted_doi"
+    t.index ["source_id"], name: "index_batch_upload_items_on_source_id"
+    t.index ["status"], name: "index_batch_upload_items_on_status"
+  end
+
+  create_table "batch_uploads", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.string "status", default: "pending", null: false
+    t.integer "total_count", default: 0
+    t.integer "completed_count", default: 0
+    t.integer "failed_count", default: 0
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_batch_uploads_on_status"
+    t.index ["user_id", "status"], name: "index_batch_uploads_on_user_id_and_status"
+    t.index ["user_id"], name: "index_batch_uploads_on_user_id"
+  end
+
   create_table "collection_items", force: :cascade do |t|
     t.bigint "collection_id", null: false
     t.string "collectable_type", null: false
@@ -79,6 +119,50 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
     t.datetime "updated_at", null: false
     t.index ["user_id", "slug"], name: "index_collections_on_user_id_and_slug", unique: true
     t.index ["user_id"], name: "index_collections_on_user_id"
+  end
+
+  create_table "concept_definition_domains", id: false, force: :cascade do |t|
+    t.bigint "concept_definition_id", null: false
+    t.bigint "domain_id", null: false
+    t.index ["concept_definition_id", "domain_id"], name: "idx_concept_def_domains_unique", unique: true
+    t.index ["concept_definition_id"], name: "index_concept_definition_domains_on_concept_definition_id"
+    t.index ["domain_id"], name: "index_concept_definition_domains_on_domain_id"
+  end
+
+  create_table "concept_definitions", force: :cascade do |t|
+    t.string "label", null: false
+    t.text "aliases", default: [], array: true
+    t.string "concept_type"
+    t.text "summary"
+    t.text "description"
+    t.text "location"
+    t.text "examples"
+    t.text "etymology"
+    t.text "school_of_thought"
+    t.text "history"
+    t.text "controversy"
+    t.text "clinical_relevance"
+    t.text "misconceptions"
+    t.text "mnemonic"
+    t.text "developmental_notes"
+    t.text "measurement_notes"
+    t.jsonb "external_refs", default: []
+    t.text "attribution"
+    t.bigint "pack_id"
+    t.string "pack_version"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concept_type"], name: "index_concept_definitions_on_concept_type"
+    t.index ["label"], name: "index_concept_definitions_on_label"
+    t.index ["pack_id"], name: "index_concept_definitions_on_pack_id"
+  end
+
+  create_table "concept_domains", id: false, force: :cascade do |t|
+    t.bigint "concept_id", null: false
+    t.bigint "domain_id", null: false
+    t.index ["concept_id", "domain_id"], name: "index_concept_domains_on_concept_id_and_domain_id", unique: true
+    t.index ["concept_id"], name: "index_concept_domains_on_concept_id"
+    t.index ["domain_id"], name: "index_concept_domains_on_domain_id"
   end
 
   create_table "concept_notes", force: :cascade do |t|
@@ -105,19 +189,31 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
 
   create_table "concepts", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.string "node_type", null: false
     t.string "label", null: false
     t.string "slug", null: false
-    t.text "summary_top"
-    t.text "summary_mid"
-    t.text "summary_deep"
     t.text "tags", default: [], array: true
-    t.string "level_status"
     t.date "last_reviewed_on"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["level_status"], name: "index_concepts_on_level_status"
-    t.index ["node_type"], name: "index_concepts_on_node_type"
+    t.bigint "definition_id"
+    t.string "concept_type"
+    t.text "aliases", default: [], array: true
+    t.text "summary"
+    t.text "description"
+    t.text "location"
+    t.text "examples"
+    t.text "etymology"
+    t.text "school_of_thought"
+    t.text "history"
+    t.text "controversy"
+    t.text "clinical_relevance"
+    t.text "misconceptions"
+    t.text "mnemonic"
+    t.text "developmental_notes"
+    t.text "measurement_notes"
+    t.jsonb "external_refs", default: []
+    t.index ["concept_type"], name: "index_concepts_on_concept_type"
+    t.index ["definition_id"], name: "index_concepts_on_definition_id"
     t.index ["slug"], name: "index_concepts_on_slug", unique: true
     t.index ["user_id"], name: "index_concepts_on_user_id"
   end
@@ -138,6 +234,108 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
     t.index ["src_concept_id", "dst_concept_id"], name: "index_connections_on_src_concept_id_and_dst_concept_id", unique: true
     t.index ["src_concept_id"], name: "index_connections_on_src_concept_id"
     t.index ["user_id"], name: "index_connections_on_user_id"
+  end
+
+  create_table "domains", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "parent_id"
+    t.boolean "is_default", default: false
+    t.boolean "system_generated", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_domains_on_name", unique: true
+    t.index ["parent_id"], name: "index_domains_on_parent_id"
+  end
+
+  create_table "good_job_batches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "description"
+    t.jsonb "serialized_properties"
+    t.text "on_finish"
+    t.text "on_success"
+    t.text "on_discard"
+    t.text "callback_queue_name"
+    t.integer "callback_priority"
+    t.datetime "enqueued_at"
+    t.datetime "discarded_at"
+    t.datetime "finished_at"
+    t.datetime "jobs_finished_at"
+  end
+
+  create_table "good_job_executions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "active_job_id", null: false
+    t.text "job_class"
+    t.text "queue_name"
+    t.jsonb "serialized_params"
+    t.datetime "scheduled_at"
+    t.datetime "finished_at"
+    t.text "error"
+    t.integer "error_event", limit: 2
+    t.text "error_backtrace", array: true
+    t.uuid "process_id"
+    t.interval "duration"
+    t.index ["active_job_id", "created_at"], name: "index_good_job_executions_on_active_job_id_and_created_at"
+    t.index ["process_id", "created_at"], name: "index_good_job_executions_on_process_id_and_created_at"
+  end
+
+  create_table "good_job_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "state"
+    t.integer "lock_type", limit: 2
+  end
+
+  create_table "good_job_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "key"
+    t.jsonb "value"
+    t.index ["key"], name: "index_good_job_settings_on_key", unique: true
+  end
+
+  create_table "good_jobs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "queue_name"
+    t.integer "priority"
+    t.jsonb "serialized_params"
+    t.datetime "scheduled_at"
+    t.datetime "performed_at"
+    t.datetime "finished_at"
+    t.text "error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "active_job_id"
+    t.text "concurrency_key"
+    t.text "cron_key"
+    t.uuid "retried_good_job_id"
+    t.datetime "cron_at"
+    t.uuid "batch_id"
+    t.uuid "batch_callback_id"
+    t.boolean "is_discrete"
+    t.integer "executions_count"
+    t.text "job_class"
+    t.integer "error_event", limit: 2
+    t.text "labels", array: true
+    t.uuid "locked_by_id"
+    t.datetime "locked_at"
+    t.index ["active_job_id", "created_at"], name: "index_good_jobs_on_active_job_id_and_created_at"
+    t.index ["batch_callback_id"], name: "index_good_jobs_on_batch_callback_id", where: "(batch_callback_id IS NOT NULL)"
+    t.index ["batch_id"], name: "index_good_jobs_on_batch_id", where: "(batch_id IS NOT NULL)"
+    t.index ["concurrency_key", "created_at"], name: "index_good_jobs_on_concurrency_key_and_created_at"
+    t.index ["concurrency_key"], name: "index_good_jobs_on_concurrency_key_when_unfinished", where: "(finished_at IS NULL)"
+    t.index ["cron_key", "created_at"], name: "index_good_jobs_on_cron_key_and_created_at_cond", where: "(cron_key IS NOT NULL)"
+    t.index ["cron_key", "cron_at"], name: "index_good_jobs_on_cron_key_and_cron_at_cond", unique: true, where: "(cron_key IS NOT NULL)"
+    t.index ["finished_at"], name: "index_good_jobs_jobs_on_finished_at_only", where: "(finished_at IS NOT NULL)"
+    t.index ["job_class"], name: "index_good_jobs_on_job_class"
+    t.index ["labels"], name: "index_good_jobs_on_labels", where: "(labels IS NOT NULL)", using: :gin
+    t.index ["locked_by_id"], name: "index_good_jobs_on_locked_by_id", where: "(locked_by_id IS NOT NULL)"
+    t.index ["priority", "created_at"], name: "index_good_job_jobs_for_candidate_lookup", where: "(finished_at IS NULL)"
+    t.index ["priority", "created_at"], name: "index_good_jobs_jobs_on_priority_created_at_when_unfinished", order: { priority: "DESC NULLS LAST" }, where: "(finished_at IS NULL)"
+    t.index ["priority", "scheduled_at"], name: "index_good_jobs_on_priority_scheduled_at_unfinished_unlocked", where: "((finished_at IS NULL) AND (locked_by_id IS NULL))"
+    t.index ["queue_name", "scheduled_at"], name: "index_good_jobs_on_queue_name_and_scheduled_at", where: "(finished_at IS NULL)"
+    t.index ["scheduled_at"], name: "index_good_jobs_on_scheduled_at", where: "(finished_at IS NULL)"
   end
 
   create_table "highlight_colors", force: :cascade do |t|
@@ -199,6 +397,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
     t.index ["pinned"], name: "index_notes_on_pinned"
     t.index ["source_id"], name: "index_notes_on_source_id"
     t.index ["user_id"], name: "index_notes_on_user_id"
+  end
+
+  create_table "packs", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "price_cents", default: 0, null: false
+    t.string "currency", default: "usd"
+    t.integer "concept_count", default: 0
+    t.boolean "published", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "people", force: :cascade do |t|
@@ -360,6 +569,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
     t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
+  create_table "user_packs", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "pack_id", null: false
+    t.datetime "purchased_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pack_id"], name: "index_user_packs_on_pack_id"
+    t.index ["user_id", "pack_id"], name: "index_user_packs_on_user_id_and_pack_id", unique: true
+    t.index ["user_id"], name: "index_user_packs_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -375,17 +595,27 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "authors", "users"
+  add_foreign_key "batch_upload_items", "batch_uploads"
+  add_foreign_key "batch_upload_items", "sources"
+  add_foreign_key "batch_uploads", "users"
   add_foreign_key "collection_items", "collections"
   add_foreign_key "collection_items", "users", column: "added_by_id"
   add_foreign_key "collections", "users"
+  add_foreign_key "concept_definition_domains", "concept_definitions"
+  add_foreign_key "concept_definition_domains", "domains"
+  add_foreign_key "concept_definitions", "packs"
+  add_foreign_key "concept_domains", "concepts"
+  add_foreign_key "concept_domains", "domains"
   add_foreign_key "concept_notes", "concepts"
   add_foreign_key "concept_notes", "notes"
   add_foreign_key "concept_sources", "concepts"
   add_foreign_key "concept_sources", "sources"
+  add_foreign_key "concepts", "concept_definitions", column: "definition_id"
   add_foreign_key "concepts", "users"
   add_foreign_key "connections", "concepts", column: "dst_concept_id"
   add_foreign_key "connections", "concepts", column: "src_concept_id"
   add_foreign_key "connections", "users"
+  add_foreign_key "domains", "domains", column: "parent_id"
   add_foreign_key "highlight_colors", "users"
   add_foreign_key "highlights", "sources"
   add_foreign_key "highlights", "users"
@@ -407,4 +637,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_06_175556) do
   add_foreign_key "sources", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "users"
+  add_foreign_key "user_packs", "packs"
+  add_foreign_key "user_packs", "users"
 end

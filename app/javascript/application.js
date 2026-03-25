@@ -21,6 +21,8 @@ import PdfStudyMode from './components/PdfStudyMode';
 import SharingHub from './components/SharingHub';
 import CollectionManager from './components/CollectionManager';
 import ShareModal from './components/ShareModal';
+import BulkUploadPage from './components/BulkUploadPage';
+import BulkUploadWizard from './components/bulk-upload-v2/BulkUploadWizard';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,6 +117,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const sharingHubRoot = document.getElementById('sharing-hub-root');
   if (sharingHubRoot) {
     createRoot(sharingHubRoot).render(<SharingHub />);
+  }
+
+  // New bulk upload wizard (v2)
+  const bulkUploadWizardRoot = document.getElementById('bulk-upload-wizard-root');
+  if (bulkUploadWizardRoot) {
+    createRoot(bulkUploadWizardRoot).render(<BulkUploadWizard />);
+  }
+
+  // Legacy bulk upload page
+  const bulkUploadRoot = document.getElementById('bulk-upload-root');
+  if (bulkUploadRoot) {
+    createRoot(bulkUploadRoot).render(<BulkUploadPage />);
   }
 });
 

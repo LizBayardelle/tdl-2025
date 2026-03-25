@@ -47,12 +47,12 @@ export default function ConceptsIndex() {
   };
 
   // Get unique types from actual data
-  const conceptTypes = [...new Set(concepts.map(c => c.node_type))].filter(Boolean).sort();
+  const conceptTypes = [...new Set(concepts.map(c => c.concept_type))].filter(Boolean).sort();
 
   // Filter concepts based on selected types
   const filteredConcepts = selectedTypes.length === 0
     ? concepts
-    : concepts.filter(concept => selectedTypes.includes(concept.node_type));
+    : concepts.filter(concept => selectedTypes.includes(concept.concept_type));
 
   // Toggle type selection
   const toggleType = (type) => {
@@ -85,11 +85,8 @@ export default function ConceptsIndex() {
         aVal = a.label.toLowerCase();
         bVal = b.label.toLowerCase();
       } else if (sortField === 'type') {
-        aVal = a.node_type;
-        bVal = b.node_type;
-      } else if (sortField === 'status') {
-        aVal = a.level_status || '';
-        bVal = b.level_status || '';
+        aVal = a.concept_type;
+        bVal = b.concept_type;
       } else if (sortField === 'relationships') {
         const getRelCount = (concept) => {
           const outgoing = concept.outgoing_connections?.length || 0;
@@ -185,7 +182,7 @@ export default function ConceptsIndex() {
 
               {/* Type filters */}
               {conceptTypes.map(type => {
-                const count = concepts.filter(n => n.node_type === type).length;
+                const count = concepts.filter(n => n.concept_type === type).length;
                 const isSelected = selectedTypes.includes(type);
                 return (
                   <label
@@ -575,7 +572,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
 
   const handleTypeChange = async (newType) => {
     setEditingType(false);
-    if (newType === concept.node_type) return;
+    if (newType === concept.concept_type) return;
 
     try {
       const response = await fetch(`/concepts/${concept.id}`, {
@@ -585,7 +582,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
           'Accept': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ concept: { node_type: newType } }),
+        body: JSON.stringify({ concept: { concept_type: newType } }),
       });
 
       if (response.ok) {
@@ -743,7 +740,7 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
           onMouseLeave={(e) => { e.currentTarget.style.outline = 'none'; }}
           title="Click to change type"
         >
-          {getNodeTypeLabel(concept.node_type)}
+          {getNodeTypeLabel(concept.concept_type)}
         </span>
         {editingType && (
           <div
@@ -769,16 +766,16 @@ function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
                   padding: 'var(--space-3)',
                   cursor: 'pointer',
                   borderBottom: '1px solid var(--neutral-100)',
-                  background: concept.node_type === opt.value ? 'var(--accent-green-light)' : 'white',
+                  background: concept.concept_type === opt.value ? 'var(--accent-green-light)' : 'white',
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={(e) => {
-                  if (concept.node_type !== opt.value) {
+                  if (concept.concept_type !== opt.value) {
                     e.currentTarget.style.background = 'var(--neutral-50)';
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = concept.node_type === opt.value ? 'var(--accent-green-light)' : 'white';
+                  e.currentTarget.style.background = concept.concept_type === opt.value ? 'var(--accent-green-light)' : 'white';
                 }}
               >
                 <div style={{

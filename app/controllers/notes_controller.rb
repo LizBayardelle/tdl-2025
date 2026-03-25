@@ -33,7 +33,7 @@ class NotesController < ApplicationController
         render json: @notes.map { |note|
           is_owner = note.user_id == current_user.id
           note.as_json(include: {
-            concepts: { only: [:id, :label, :node_type] },
+            concepts: { only: [:id, :label, :concept_type] },
             source: { only: [:id, :title, :authors, :year] },
             people: { only: [:id, :full_name, :role] },
             tags: is_owner ? { only: [:id, :name] } : { only: [] },
@@ -63,7 +63,7 @@ class NotesController < ApplicationController
       format.html
       format.json {
         render json: @note.as_json(include: {
-          concepts: { only: [:id, :label, :node_type, :summary_top] },
+          concepts: { only: [:id, :label, :concept_type, :summary] },
           source: { only: [:id, :title, :authors, :year] },
           people: { only: [:id, :full_name, :role] },
           tags: { only: [:id, :name] }
@@ -111,7 +111,7 @@ class NotesController < ApplicationController
         format.html { redirect_to notes_path, notice: 'Note created successfully.' }
         format.json {
           render json: @note.as_json(include: {
-            concepts: { only: [:id, :label, :node_type] }
+            concepts: { only: [:id, :label, :concept_type] }
           }), status: :created
         }
       end
@@ -159,7 +159,7 @@ class NotesController < ApplicationController
         format.html { redirect_to notes_path, notice: 'Note updated successfully.' }
         format.json {
           render json: @note.as_json(include: {
-            concepts: { only: [:id, :label, :node_type] },
+            concepts: { only: [:id, :label, :concept_type] },
             source: { only: [:id, :title, :authors, :year] },
             people: { only: [:id, :full_name, :role] },
             tags: { only: [:id, :name] }

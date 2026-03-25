@@ -163,7 +163,7 @@ function SearchResultItem({ item, type }) {
   };
 
   const getSubtitle = () => {
-    if (type === 'concept') return item.summary_top;
+    if (type === 'concept') return item.summary;
     if (type === 'source') return item.authors;
     if (type === 'person') return item.role;
     if (type === 'note' && item.concept) return `→ ${item.concept.label}`;
@@ -172,7 +172,7 @@ function SearchResultItem({ item, type }) {
   };
 
   const getBadge = () => {
-    if (type === 'concept') return item.node_type;
+    if (type === 'concept') return item.concept_type;
     if (type === 'source') return item.kind;
     if (type === 'person') return item.role;
     if (type === 'note') return item.note_type;

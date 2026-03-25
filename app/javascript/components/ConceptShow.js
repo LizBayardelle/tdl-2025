@@ -29,7 +29,7 @@ const ConceptSidebar = React.memo(({
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return c.label?.toLowerCase().includes(query) ||
-             c.node_type?.toLowerCase().includes(query);
+             c.concept_type?.toLowerCase().includes(query);
     });
 
     // If showing relationships, build hierarchy
@@ -43,7 +43,7 @@ const ConceptSidebar = React.memo(({
       if (sortBy === 'alphabetical') {
         return (a.label || '').localeCompare(b.label || '');
       } else if (sortBy === 'type') {
-        return (a.node_type || '').localeCompare(b.node_type || '');
+        return (a.concept_type || '').localeCompare(b.concept_type || '');
       } else {
         return new Date(b.updated_at) - new Date(a.updated_at);
       }
@@ -548,7 +548,7 @@ function ConceptDisplay({ concept }) {
         </h1>
         {/* Type and status badges centered below title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {concept.node_type && (
+          {concept.concept_type && (
             <span style={{
               fontSize: 'var(--text-xs)',
               textTransform: 'uppercase',
@@ -560,10 +560,10 @@ function ConceptDisplay({ concept }) {
               fontFamily: 'var(--font-body)',
               fontWeight: 600
             }}>
-              {concept.node_type.replace(/_/g, ' ')}
+              {concept.concept_type.replace(/_/g, ' ')}
             </span>
           )}
-          {concept.level_status && (
+          {concept.effective_concept_type && concept.effective_concept_type !== concept.concept_type && (
             <span style={{
               fontSize: 'var(--text-xs)',
               textTransform: 'uppercase',
@@ -575,99 +575,29 @@ function ConceptDisplay({ concept }) {
               fontFamily: 'var(--font-body)',
               fontWeight: 500
             }}>
-              {concept.level_status}
+              effective: {concept.effective_concept_type.replace(/_/g, ' ')}
             </span>
           )}
+          {concept.domains && concept.domains.length > 0 && concept.domains.map(domain => (
+            <span key={domain} style={{
+              fontSize: 'var(--text-xs)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: 'color-mix(in srgb, var(--accent-purple) 15%, white)',
+              color: 'var(--accent-purple)',
+              padding: 'var(--space-1) var(--space-2)',
+              borderRadius: '4px',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 500
+            }}>
+              {domain.replace(/_/g, ' ')}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* Three-level mastery summaries */}
-      <div>
-        {concept.summary_top && (
-          <div style={{ marginBottom: 'var(--space-6)' }}>
-            <h3 style={{
-              fontSize: 'var(--text-lg)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: 'var(--accent-green)',
-              marginBottom: 'var(--space-3)'
-            }}>
-              Summary (Top-level)
-            </h3>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              lineHeight: 1.6,
-              color: 'var(--neutral-700)',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {concept.summary_top}
-            </p>
-          </div>
-        )}
-        {concept.summary_mid && (
-          <div style={{ marginBottom: 'var(--space-6)' }}>
-            <h3 style={{
-              fontSize: 'var(--text-lg)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: 'var(--accent-green)',
-              marginBottom: 'var(--space-3)'
-            }}>
-              Summary (Mid-level)
-            </h3>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              lineHeight: 1.6,
-              color: 'var(--neutral-700)',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {concept.summary_mid}
-            </p>
-          </div>
-        )}
-        {concept.summary_deep && (
-          <div style={{ marginBottom: 'var(--space-6)' }}>
-            <h3 style={{
-              fontSize: 'var(--text-lg)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              color: 'var(--accent-green)',
-              marginBottom: 'var(--space-3)'
-            }}>
-              Summary (Deep)
-            </h3>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              lineHeight: 1.6,
-              color: 'var(--neutral-700)',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {concept.summary_deep}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Array fields */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-6)' }}>
-        <ArraySection title="Mechanisms" items={concept.mechanisms} />
-        <ArraySection title="Signature Techniques" items={concept.signature_techniques} />
-        <ArraySection title="Strengths" items={concept.strengths} />
-        <ArraySection title="Weaknesses" items={concept.weaknesses} />
-        <ArraySection title="Adjacent Models" items={concept.adjacent_models} />
-        <ArraySection title="Contrasts With" items={concept.contrasts_with} />
-        <ArraySection title="Integrates With" items={concept.integrates_with} />
-        <ArraySection title="Intake Questions" items={concept.intake_questions} />
-        <ArraySection title="Micro Skills" items={concept.micro_skills} />
-        <ArraySection title="Practice Prompts" items={concept.practice_prompts} />
-        <ArraySection title="Assessment Links" items={concept.assessment_links} />
-      </div>
-
-      {/* Evidence and reflection */}
-      {concept.evidence_brief && (
+      {/* Summary */}
+      {concept.summary && (
         <div style={{ marginBottom: 'var(--space-6)' }}>
           <h3 style={{
             fontSize: 'var(--text-lg)',
@@ -676,38 +606,71 @@ function ConceptDisplay({ concept }) {
             color: 'var(--accent-green)',
             marginBottom: 'var(--space-3)'
           }}>
-            Evidence Brief
+            Summary
           </h3>
-          <p style={{
+          <div style={{
             fontFamily: 'var(--font-body)',
             fontSize: 'var(--text-sm)',
             lineHeight: 1.6,
             color: 'var(--neutral-700)',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {concept.evidence_brief}
-          </p>
+          }} dangerouslySetInnerHTML={{ __html: concept.summary }} />
         </div>
       )}
-      {concept.confidence_note && (
+
+      {/* Aliases */}
+      {concept.aliases && concept.aliases.length > 0 && (
+        <div style={{ marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--neutral-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Also known as:</span>
+          {concept.aliases.map((alias, idx) => (
+            <span key={idx} style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--font-body)', color: 'var(--neutral-600)', fontStyle: 'italic' }}>
+              {alias}{idx < concept.aliases.length - 1 ? ',' : ''}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Description */}
+      <RichTextSection title="Description" content={concept.description} />
+
+      {/* Context row */}
+      {(concept.location || concept.school_of_thought || concept.etymology) && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
+          <TextSection title="Location" content={concept.location} />
+          <TextSection title="School of Thought" content={concept.school_of_thought} />
+          <TextSection title="Etymology" content={concept.etymology} />
+        </div>
+      )}
+
+      {/* Examples */}
+      <RichTextSection title="Examples" content={concept.examples} />
+
+      {/* History */}
+      <RichTextSection title="History" content={concept.history} />
+
+      {/* Clinical & Research */}
+      {(concept.clinical_relevance || concept.controversy || concept.misconceptions || concept.developmental_notes || concept.measurement_notes) && (
         <div style={{ marginBottom: 'var(--space-6)' }}>
-          <h3 style={{
-            fontSize: 'var(--text-lg)',
-            fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            color: 'var(--accent-green)',
-            marginBottom: 'var(--space-3)'
-          }}>
-            Confidence Note
+          <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--accent-green)', marginBottom: 'var(--space-3)' }}>
+            Clinical & Research
           </h3>
-          <p style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            lineHeight: 1.6,
-            color: 'var(--neutral-700)',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {concept.confidence_note}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--space-4)' }}>
+            <TextSection title="Clinical Relevance" content={concept.clinical_relevance} />
+            <TextSection title="Controversy" content={concept.controversy} />
+            <TextSection title="Misconceptions" content={concept.misconceptions} />
+            <TextSection title="Developmental Notes" content={concept.developmental_notes} />
+            <TextSection title="Measurement Notes" content={concept.measurement_notes} />
+          </div>
+        </div>
+      )}
+
+      {/* Mnemonic */}
+      {concept.mnemonic && (
+        <div style={{ marginBottom: 'var(--space-6)', padding: 'var(--space-4)', background: 'var(--neutral-50)', borderRadius: 'var(--radius)', border: '1px solid var(--neutral-200)' }}>
+          <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--neutral-500)', marginBottom: 'var(--space-1)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Mnemonic
+          </h3>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-base)', color: 'var(--neutral-800)', fontStyle: 'italic' }}>
+            {concept.mnemonic}
           </p>
         </div>
       )}
@@ -716,38 +679,53 @@ function ConceptDisplay({ concept }) {
   );
 }
 
-function ArraySection({ title, items }) {
-  if (!items || items.length === 0) return null;
+function RichTextSection({ title, content }) {
+  if (!content) return null;
 
   return (
-    <div>
+    <div style={{ marginBottom: 'var(--space-6)' }}>
       <h3 style={{
-        fontSize: 'var(--text-base)',
+        fontSize: 'var(--text-lg)',
         fontWeight: 600,
         fontFamily: 'var(--font-display)',
-        color: 'var(--neutral-900)',
-        marginBottom: 'var(--space-2)'
+        color: 'var(--accent-green)',
+        marginBottom: 'var(--space-3)'
       }}>
         {title}
       </h3>
-      <ul style={{
-        listStyle: 'disc',
-        paddingLeft: 'var(--space-5)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-1)'
+      <div style={{
+        fontFamily: 'var(--font-body)',
+        fontSize: 'var(--text-sm)',
+        lineHeight: 1.6,
+        color: 'var(--neutral-700)',
+      }} dangerouslySetInnerHTML={{ __html: content }} />
+    </div>
+  );
+}
+
+function TextSection({ title, content }) {
+  if (!content) return null;
+
+  return (
+    <div>
+      <h4 style={{
+        fontSize: 'var(--text-sm)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-display)',
+        color: 'var(--neutral-600)',
+        marginBottom: 'var(--space-1)'
       }}>
-        {items.map((item, idx) => (
-          <li key={idx} style={{
-            fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-body)',
-            color: 'var(--neutral-700)',
-            lineHeight: 1.6
-          }}>
-            {item}
-          </li>
-        ))}
-      </ul>
+        {title}
+      </h4>
+      <p style={{
+        fontSize: 'var(--text-sm)',
+        fontFamily: 'var(--font-body)',
+        color: 'var(--neutral-700)',
+        lineHeight: 1.6,
+        whiteSpace: 'pre-wrap'
+      }}>
+        {content}
+      </p>
     </div>
   );
 }
@@ -938,7 +916,7 @@ function ConnectionManager({ conceptId, allConcepts, onConceptClick }) {
                               color: 'var(--neutral-400)',
                               fontFamily: 'var(--font-body)',
                             }}>
-                              {otherConcept.node_type?.replace(/_/g, ' ')}
+                              {otherConcept.concept_type?.replace(/_/g, ' ')}
                             </span>
                             <button
                               onClick={() => handleDeleteConnection(connection.id)}

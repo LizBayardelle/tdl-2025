@@ -30,7 +30,7 @@ export default function ConnectionVisualization() {
 
   const filteredConcepts = selectedType === 'all'
     ? concepts
-    : concepts.filter(n => n.node_type === selectedType);
+    : concepts.filter(n => n.concept_type === selectedType);
 
   const filteredConnections = connections.filter(connection => {
     const hasConcept = filteredConcepts.some(n => n.id === connection.src_concept.id || n.id === connection.dst_concept.id);
@@ -40,8 +40,8 @@ export default function ConnectionVisualization() {
 
   // Group concepts by type
   const conceptsByType = filteredConcepts.reduce((acc, concept) => {
-    if (!acc[concept.node_type]) acc[concept.node_type] = [];
-    acc[concept.node_type].push(concept);
+    if (!acc[concept.concept_type]) acc[concept.concept_type] = [];
+    acc[concept.concept_type].push(concept);
     return acc;
   }, {});
 
@@ -146,12 +146,17 @@ export default function ConnectionVisualization() {
               className="px-4 py-2 border border-gray-300 rounded bg-white"
             >
               <option value="all">All Types</option>
-              <option value="model">Model</option>
-              <option value="technique">Technique</option>
-              <option value="mechanism">Mechanism</option>
-              <option value="construct">Construct</option>
-              <option value="measure">Measure</option>
-              <option value="population">Population</option>
+              <option value="research_method">Research Method</option>
+              <option value="measurement">Measurement</option>
+              <option value="intervention">Intervention</option>
+              <option value="pathology">Pathology</option>
+              <option value="emotion">Emotion</option>
+              <option value="symptom">Symptom</option>
+              <option value="school_of_thought">School of Thought</option>
+              <option value="physical_entity">Physical Entity</option>
+              <option value="physical_process">Physical Process</option>
+              <option value="non_physical_process">Non-Physical Process</option>
+              <option value="non_physical_concept">Non-Physical Concept</option>
             </select>
           </div>
 
@@ -207,8 +212,8 @@ export default function ConnectionVisualization() {
                         >
                           {concept.label}
                         </a>
-                        {concept.summary_top && (
-                          <p className="text-sm text-gray-600 mt-1">{concept.summary_top}</p>
+                        {concept.summary && (
+                          <p className="text-sm text-gray-600 mt-1">{concept.summary}</p>
                         )}
                       </div>
                       <span className="text-xs text-gray-500 ml-4">

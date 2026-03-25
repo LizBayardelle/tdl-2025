@@ -33,8 +33,8 @@ class ConnectionsController < ApplicationController
       format.html # render index.html.erb for visualization
       format.json {
         render json: @connections.as_json(include: {
-          src_concept: { only: [:id, :label, :node_type] },
-          dst_concept: { only: [:id, :label, :node_type] }
+          src_concept: { only: [:id, :label, :concept_type] },
+          dst_concept: { only: [:id, :label, :concept_type] }
         })
       }
     end
@@ -43,8 +43,8 @@ class ConnectionsController < ApplicationController
   # GET /connections/:id
   def show
     render json: @connection.as_json(include: {
-      src_concept: { only: [:id, :label, :node_type, :summary_top] },
-      dst_concept: { only: [:id, :label, :node_type, :summary_top] }
+      src_concept: { only: [:id, :label, :concept_type, :summary] },
+      dst_concept: { only: [:id, :label, :concept_type, :summary] }
     })
   end
 
@@ -64,8 +64,8 @@ class ConnectionsController < ApplicationController
 
     if @connection.save
       render json: @connection.as_json(include: {
-        src_concept: { only: [:id, :label, :node_type] },
-        dst_concept: { only: [:id, :label, :node_type] }
+        src_concept: { only: [:id, :label, :concept_type] },
+        dst_concept: { only: [:id, :label, :concept_type] }
       }), status: :created
     else
       render json: { errors: @connection.errors.full_messages }, status: :unprocessable_entity
@@ -83,8 +83,8 @@ class ConnectionsController < ApplicationController
 
     if @connection.update(connection_params.except(:src_concept_id, :dst_concept_id, :rel_type).merge(normalized))
       render json: @connection.as_json(include: {
-        src_concept: { only: [:id, :label, :node_type] },
-        dst_concept: { only: [:id, :label, :node_type] }
+        src_concept: { only: [:id, :label, :concept_type] },
+        dst_concept: { only: [:id, :label, :concept_type] }
       })
     else
       render json: { errors: @connection.errors.full_messages }, status: :unprocessable_entity

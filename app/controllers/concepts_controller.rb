@@ -7,7 +7,7 @@ class ConceptsController < ApplicationController
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Concept)
     @concepts = Concept.where(id: accessible_ids)
-      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :collections)
+      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :collections, :definition, :domains)
       .recent
 
     respond_to do |format|
@@ -15,20 +15,21 @@ class ConceptsController < ApplicationController
       format.json {
         render json: @concepts.map { |concept|
           concept.as_json(
-            methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count],
+            methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count, :effective_concept_type],
             include: {
               outgoing_connections: {
                 only: [:id, :rel_type, :relationship_label],
                 include: {
-                  dst_concept: { only: [:id, :label, :node_type] }
+                  dst_concept: { only: [:id, :label, :concept_type] }
                 }
               },
               incoming_connections: {
                 only: [:id, :rel_type, :relationship_label],
                 include: {
-                  src_concept: { only: [:id, :label, :node_type] }
+                  src_concept: { only: [:id, :label, :concept_type] }
                 }
-              }
+              },
+              domains: { only: [:id, :name] }
             }
           ).merge(
             collections: concept.collections.map { |c| { id: c.id, name: c.name } },
@@ -45,21 +46,23 @@ class ConceptsController < ApplicationController
       format.html
       format.json {
         render json: @concept.as_json(
-          methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count],
+          methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count, :effective_concept_type],
           include: {
             people: { only: [:id, :full_name, :role, :summary] },
             sources: { only: [:id, :title, :authors, :year, :kind] },
             collections: { only: [:id, :name, :description] },
+            domains: { only: [:id, :name] },
+            definition: { only: [:id, :label, :concept_type, :summary, :description] },
             outgoing_connections: {
               only: [:id, :rel_type, :relationship_label],
               include: {
-                dst_concept: { only: [:id, :label, :node_type] }
+                dst_concept: { only: [:id, :label, :concept_type] }
               }
             },
             incoming_connections: {
               only: [:id, :rel_type, :relationship_label],
               include: {
-                src_concept: { only: [:id, :label, :node_type] }
+                src_concept: { only: [:id, :label, :concept_type] }
               }
             }
           }
@@ -69,13 +72,11 @@ class ConceptsController < ApplicationController
   end
 
   def create
-    @concept = current_user.concepts.build(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type))
+    @concept = current_user.concepts.build(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type, :domain_ids))
 
     if @concept.save
-      # Create associations
+      update_domains(@concept, params[:concept][:domain_ids]) if params[:concept][:domain_ids]
       update_people_associations(@concept, params[:concept][:people_ids]) if params[:concept][:people_ids]
-
-      # Create relationship if specified
       create_relationship(@concept, params[:concept][:new_relationship_dst_concept_id], params[:concept][:new_relationship_rel_type]) if params[:concept][:new_relationship_dst_concept_id].present?
 
       render json: @concept, status: :created
@@ -85,11 +86,9 @@ class ConceptsController < ApplicationController
   end
 
   def update
-    if @concept.update(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type))
-      # Update associations
+    if @concept.update(concept_params.except(:people_ids, :new_relationship_dst_concept_id, :new_relationship_rel_type, :domain_ids))
+      update_domains(@concept, params[:concept][:domain_ids]) if params[:concept][:domain_ids]
       update_people_associations(@concept, params[:concept][:people_ids]) if params[:concept][:people_ids]
-
-      # Create relationship if specified
       create_relationship(@concept, params[:concept][:new_relationship_dst_concept_id], params[:concept][:new_relationship_rel_type]) if params[:concept][:new_relationship_dst_concept_id].present?
 
       render json: @concept
@@ -103,8 +102,23 @@ class ConceptsController < ApplicationController
     head :no_content
   end
 
+  # GET /concepts/search
+  def search
+    query = params[:q].to_s.strip
+    if query.length < 2
+      render json: []
+      return
+    end
+
+    concepts = current_user.concepts
+      .where('label ILIKE ? OR label ILIKE ?', "#{query}%", "%#{query}%")
+      .limit(10)
+      .map { |c| { id: c.id, label: c.label, concept_type: c.effective_concept_type } }
+
+    render json: concepts
+  end
+
   # POST /concepts/find_or_create_from_keywords
-  # Takes an array of keywords and returns concept IDs (finding existing or creating new)
   def find_or_create_from_keywords
     keywords = params[:keywords] || []
     concept_ids = []
@@ -113,16 +127,10 @@ class ConceptsController < ApplicationController
       next if keyword.blank?
       keyword = keyword.strip
 
-      # Try to find existing concept by label (case-insensitive)
       concept = current_user.concepts.where('LOWER(label) = LOWER(?)', keyword).first
 
       unless concept
-        # Create new concept with 'subject' type (research topic/keyword)
-        concept = current_user.concepts.create(
-          label: keyword.titleize,
-          node_type: 'subject',
-          level_status: 'mapped'
-        )
+        concept = current_user.concepts.create(label: keyword.titleize)
       end
 
       concept_ids << concept.id if concept.persisted?
@@ -132,7 +140,6 @@ class ConceptsController < ApplicationController
   end
 
   # POST /concepts/suggest_from_metadata
-  # Uses LLM to suggest concepts based on article metadata
   def suggest_from_metadata
     title = params[:title]
     abstract = params[:abstract]
@@ -151,7 +158,6 @@ class ConceptsController < ApplicationController
 
     suggestions = service.suggest
 
-    # Find potential matches for each suggestion
     suggestions_with_matches = suggestions.map do |suggestion|
       label = suggestion['label'] || suggestion[:label]
       matches = find_concept_matches(label)
@@ -164,7 +170,6 @@ class ConceptsController < ApplicationController
   private
 
   def set_concept
-    # Try to find by slug first, fall back to ID
     @concept = Concept.find_by(slug: params[:id]) || Concept.find(params[:id])
     head :forbidden unless @concept.shared_with?(current_user)
   end
@@ -175,28 +180,47 @@ class ConceptsController < ApplicationController
 
   def concept_params
     params.require(:concept).permit(
-      :node_type,
+      :concept_type,
       :label,
       :slug,
-      :summary_top,
-      :summary_mid,
-      :summary_deep,
-      :level_status,
+      :definition_id,
+      :summary,
+      :description,
+      :location,
+      :examples,
+      :etymology,
+      :school_of_thought,
+      :history,
+      :controversy,
+      :clinical_relevance,
+      :misconceptions,
+      :mnemonic,
+      :developmental_notes,
+      :measurement_notes,
       :last_reviewed_on,
       :new_relationship_dst_concept_id,
       :new_relationship_rel_type,
       tags: [],
-      people_ids: []
+      aliases: [],
+      external_refs: [],
+      people_ids: [],
+      domain_ids: []
     )
+  end
+
+  def update_domains(concept, domain_ids)
+    return unless domain_ids.is_a?(Array)
+    concept.concept_domains.destroy_all
+    domain_ids.each do |domain_id|
+      next if domain_id.blank?
+      domain = Domain.find_by(id: domain_id)
+      concept.concept_domains.create(domain: domain) if domain
+    end
   end
 
   def update_people_associations(concept, people_ids)
     return unless people_ids.is_a?(Array)
-
-    # Clear existing associations
     concept.people_concepts.destroy_all
-
-    # Create new associations
     people_ids.each do |person_id|
       next if person_id.blank?
       person = current_user.people.find_by(id: person_id)
@@ -206,39 +230,33 @@ class ConceptsController < ApplicationController
 
   def create_relationship(concept, dst_concept_id, rel_type)
     return if dst_concept_id.blank?
-
-    # Find the destination concept
     dst_concept = current_user.concepts.find_by(id: dst_concept_id)
     return unless dst_concept
 
-    # Normalize the relationship to canonical form
     normalized = Connection.normalize_relationship_params(
       concept.id,
       dst_concept_id,
       rel_type || 'related_to'
     )
 
-    # Create the connection with normalized params
     current_user.connections.create(normalized)
   end
 
   def find_concept_matches(label)
     return [] if label.blank?
 
-    # Exact match (case-insensitive)
     exact = current_user.concepts.where('LOWER(label) = LOWER(?)', label).first
     if exact
-      return [{ id: exact.id, label: exact.label, node_type: exact.node_type, match_type: 'exact' }]
+      return [{ id: exact.id, label: exact.label, concept_type: exact.effective_concept_type, match_type: 'exact' }]
     end
 
-    # Partial matches
     words = label.split
     partial = current_user.concepts.where(
       'label ILIKE ? OR label ILIKE ?',
       "#{words.first}%",
       "%#{label}%"
     ).limit(5).map do |c|
-      { id: c.id, label: c.label, node_type: c.node_type, match_type: 'partial' }
+      { id: c.id, label: c.label, concept_type: c.effective_concept_type, match_type: 'partial' }
     end
 
     partial
