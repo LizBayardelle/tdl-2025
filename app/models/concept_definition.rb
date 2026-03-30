@@ -10,6 +10,8 @@ class ConceptDefinition < ApplicationRecord
 
   has_many :concept_definition_domains, dependent: :destroy
   has_many :domains, through: :concept_definition_domains
+  has_many :linkings, as: :linkable, dependent: :destroy
+  has_many :links, through: :linkings
 
   validates :label, presence: true
 end

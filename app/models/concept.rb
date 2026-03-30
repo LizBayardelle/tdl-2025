@@ -22,6 +22,8 @@ class Concept < ApplicationRecord
   has_many :linked_notes, through: :concept_notes, source: :note  # Many-to-many notes
   has_many :outgoing_connections, class_name: 'Connection', foreign_key: 'src_concept_id', dependent: :destroy
   has_many :incoming_connections, class_name: 'Connection', foreign_key: 'dst_concept_id', dependent: :destroy
+  has_many :linkings, as: :linkable, dependent: :destroy
+  has_many :links, through: :linkings
 
   # Validations
   validates :label, presence: true

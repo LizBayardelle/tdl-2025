@@ -10,6 +10,35 @@ Rails.application.routes.draw do
   get "uploads", to: "home#uploads", as: :uploads
   get "search", to: "search#index"
 
+  # Packs & purchasing
+  resources :packs, only: [:index, :show] do
+    collection do
+      get :owned
+    end
+  end
+  post "checkout/:pack_id", to: "checkouts#create", as: :checkout
+
+  # Stripe webhooks
+  post "webhooks/stripe", to: "webhooks#stripe"
+
+  # Admin
+  namespace :admin do
+    get "/", to: "dashboard#index", as: :dashboard
+    resources :packs do
+      member do
+        post :sync_stripe
+      end
+      resources :concept_definitions, only: [:create, :update, :destroy] do
+        collection do
+          get :search_concepts
+          post :import_from_concept
+        end
+        resources :links, only: [:create, :destroy], controller: 'concept_definition_links'
+      end
+    end
+    resources :users, only: [:index, :update]
+  end
+
   resources :batch_uploads, only: [:index, :show, :create, :destroy] do
     collection do
       get :active
@@ -33,6 +62,7 @@ Rails.application.routes.draw do
       post :find_or_create_from_keywords
       post :suggest_from_metadata
     end
+    resources :links, only: [:index, :create, :destroy], controller: 'concept_links'
   end
   resources :connections, only: [:index, :show, :create, :update, :destroy]
   resources :sources, only: [:index, :show, :create, :update, :destroy] do
