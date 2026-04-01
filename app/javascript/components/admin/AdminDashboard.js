@@ -18,29 +18,30 @@ export default function AdminDashboard() {
   const StatCard = ({ label, value, icon }) => (
     <div style={{
       background: 'white',
-      padding: '24px',
+      padding: '16px',
       borderRadius: '8px',
       border: '1px solid #e0e0e0',
       display: 'flex',
       alignItems: 'center',
-      gap: '16px',
+      gap: '12px',
     }}>
       <div style={{
-        width: '48px',
-        height: '48px',
+        width: '44px',
+        height: '44px',
         borderRadius: '8px',
         background: '#333',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         color: 'white',
-        fontSize: '18px',
+        fontSize: '16px',
+        flexShrink: 0,
       }}>
         <i className={`fas ${icon}`}></i>
       </div>
-      <div>
+      <div style={{ minWidth: 0 }}>
         <div style={{
-          fontSize: '28px',
+          fontSize: '24px',
           fontWeight: 700,
           fontFamily: 'Inter, -apple-system, sans-serif',
           color: '#111',
@@ -48,7 +49,7 @@ export default function AdminDashboard() {
           {value}
         </div>
         <div style={{
-          fontSize: '14px',
+          fontSize: '13px',
           color: '#666',
           fontFamily: 'Inter, -apple-system, sans-serif',
         }}>
@@ -60,13 +61,13 @@ export default function AdminDashboard() {
 
   return (
     <AdminLayout currentPage="dashboard">
-      <div style={{ padding: '32px' }}>
+      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1 style={{
-          fontSize: '28px',
+          fontSize: '24px',
           fontWeight: 700,
           fontFamily: 'Inter, -apple-system, sans-serif',
           color: '#111',
-          marginBottom: '24px',
+          marginBottom: '20px',
         }}>
           Dashboard
         </h1>
@@ -77,9 +78,9 @@ export default function AdminDashboard() {
           <>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-              gap: '16px',
-              marginBottom: '32px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '12px',
+              marginBottom: '24px',
             }}>
               <StatCard label="Total Users" value={stats.total_users} icon="fa-users" />
               <StatCard label="Users This Month" value={stats.users_this_month} icon="fa-user-plus" />
@@ -88,7 +89,7 @@ export default function AdminDashboard() {
             </div>
 
             <h2 style={{
-              fontSize: '20px',
+              fontSize: '18px',
               fontWeight: 600,
               fontFamily: 'Inter, -apple-system, sans-serif',
               color: '#111',
@@ -99,8 +100,8 @@ export default function AdminDashboard() {
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '16px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '12px',
             }}>
               <StatCard label="Total Concepts" value={stats.total_concepts} icon="fa-lightbulb" />
               <StatCard label="Total Sources" value={stats.total_sources} icon="fa-book" />

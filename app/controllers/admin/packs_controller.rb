@@ -121,7 +121,7 @@ module Admin
     end
 
     def pack_params
-      params.require(:pack).permit(:name, :description, :price_cents, :currency, :published)
+      params.require(:pack).permit(:name, :description, :price_cents, :currency, :published, :stripe_product_id, :stripe_price_id)
     end
   end
 end

@@ -52,13 +52,13 @@ export default function AdminUsers() {
 
   return (
     <AdminLayout currentPage="users">
-      <div style={{ padding: '32px' }}>
+      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
         <h1 style={{
-          fontSize: '28px',
+          fontSize: '24px',
           fontWeight: 700,
           fontFamily: 'Inter, -apple-system, sans-serif',
           color: '#111',
-          marginBottom: '24px',
+          marginBottom: '20px',
         }}>
           Users
         </h1>
@@ -80,56 +80,85 @@ export default function AdminUsers() {
         {loading ? (
           <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#666' }}>Loading...</p>
         ) : (
-          <div style={{
-            background: 'white',
-            borderRadius: '8px',
-            border: '1px solid #e0e0e0',
-            overflow: 'hidden',
-          }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'Inter, -apple-system, sans-serif' }}>
-              <thead>
-                <tr style={{ background: '#fafafa', borderBottom: '1px solid #e0e0e0' }}>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Concepts</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Packs</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admin</th>
-                  <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#666', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(user => (
-                  <tr key={user.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#111' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {users.map(user => (
+              <div
+                key={user.id}
+                style={{
+                  background: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #e0e0e0',
+                  padding: '16px',
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: '12px',
+                  marginBottom: '8px',
+                  flexWrap: 'wrap',
+                }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{
+                      fontWeight: 500,
+                      fontSize: '15px',
+                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      color: '#111',
+                      wordBreak: 'break-word',
+                    }}>
                       {user.email}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
-                      {user.concepts_count}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
-                      {user.packs_count}
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <button
-                        onClick={() => toggleAdmin(user)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: user.admin ? '#111' : '#ccc',
-                          fontSize: '18px',
-                        }}
-                        title={user.admin ? 'Remove admin' : 'Make admin'}
-                      >
-                        <i className={user.admin ? 'fas fa-toggle-on' : 'fas fa-toggle-off'}></i>
-                      </button>
-                    </td>
-                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#888' }}>
-                      {formatDate(user.created_at)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <div style={{
+                      fontSize: '12px',
+                      color: '#888',
+                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      marginTop: '4px',
+                    }}>
+                      Joined {formatDate(user.created_at)}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleAdmin(user)}
+                    style={{
+                      background: user.admin ? '#111' : '#e0e0e0',
+                      color: user.admin ? 'white' : '#666',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
+                    <i className={`fas ${user.admin ? 'fa-shield-alt' : 'fa-user'}`}></i>
+                    {user.admin ? 'Admin' : 'User'}
+                  </button>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '16px',
+                  fontSize: '13px',
+                  fontFamily: 'Inter, -apple-system, sans-serif',
+                  color: '#666',
+                }}>
+                  <span>
+                    <i className="fas fa-lightbulb" style={{ marginRight: '4px', color: '#999' }}></i>
+                    {user.concepts_count} concepts
+                  </span>
+                  <span>
+                    <i className="fas fa-box" style={{ marginRight: '4px', color: '#999' }}></i>
+                    {user.packs_count} packs
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

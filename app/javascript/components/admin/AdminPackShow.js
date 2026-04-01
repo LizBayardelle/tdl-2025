@@ -258,7 +258,7 @@ export default function AdminPackShow({ packId }) {
 
   return (
     <AdminLayout currentPage="packs">
-      <div style={{ padding: '32px' }}>
+      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
         <a
           href="/admin/packs"
           style={{
@@ -299,14 +299,15 @@ export default function AdminPackShow({ packId }) {
           padding: '24px',
           marginBottom: '24px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
               <h1 style={{
-                fontSize: '24px',
+                fontSize: '20px',
                 fontWeight: 700,
                 fontFamily: 'Inter, -apple-system, sans-serif',
                 color: '#111',
                 margin: 0,
+                wordBreak: 'break-word',
               }}>
                 {pack.name}
               </h1>
@@ -327,6 +328,7 @@ export default function AdminPackShow({ packId }) {
               fontFamily: 'Inter, -apple-system, sans-serif',
               background: pack.published ? '#111' : '#e0e0e0',
               color: pack.published ? 'white' : '#666',
+              flexShrink: 0,
             }}>
               {pack.published ? 'Published' : 'Draft'}
             </span>
@@ -376,6 +378,98 @@ export default function AdminPackShow({ packId }) {
             />
           </div>
 
+          {/* Stripe Settings */}
+          <div style={{
+            background: '#fafafa',
+            borderRadius: '4px',
+            padding: '16px',
+            marginBottom: '16px',
+            border: '1px solid #e0e0e0',
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '12px',
+            }}>
+              <i className="fab fa-stripe" style={{ fontSize: '20px', color: '#635bff' }}></i>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter, -apple-system, sans-serif',
+                color: '#333',
+              }}>
+                Stripe Integration
+              </span>
+              {pack.stripe_price_id && (
+                <span style={{
+                  background: '#111',
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  fontFamily: 'Inter, -apple-system, sans-serif',
+                }}>
+                  Connected
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, color: '#666', marginBottom: '4px', fontFamily: 'Inter, -apple-system, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Product ID
+                </label>
+                <input
+                  type="text"
+                  value={pack.stripe_product_id || ''}
+                  onChange={(e) => setPack(prev => ({ ...prev, stripe_product_id: e.target.value }))}
+                  onBlur={() => handleUpdate({ stripe_product_id: pack.stripe_product_id || null })}
+                  placeholder="prod_..."
+                  style={{ ...inputStyle, fontSize: '13px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 500, color: '#666', marginBottom: '4px', fontFamily: 'Inter, -apple-system, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Price ID
+                </label>
+                <input
+                  type="text"
+                  value={pack.stripe_price_id || ''}
+                  onChange={(e) => setPack(prev => ({ ...prev, stripe_price_id: e.target.value }))}
+                  onBlur={() => handleUpdate({ stripe_price_id: pack.stripe_price_id || null })}
+                  placeholder="price_..."
+                  style={{ ...inputStyle, fontSize: '13px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={handleSyncStripe}
+                disabled={syncing || pack.price_cents === 0}
+                style={{
+                  background: 'white',
+                  color: '#333',
+                  border: '1px solid #ccc',
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  fontFamily: 'Inter, -apple-system, sans-serif',
+                  fontWeight: 500,
+                  fontSize: '13px',
+                  cursor: syncing || pack.price_cents === 0 ? 'not-allowed' : 'pointer',
+                  opacity: pack.price_cents === 0 ? 0.5 : 1,
+                }}
+              >
+                {syncing ? 'Syncing...' : 'Auto-sync to Stripe'}
+              </button>
+              <span style={{ fontSize: '12px', color: '#888', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+                or paste IDs from Stripe Dashboard
+              </span>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               onClick={() => handleUpdate({ published: !pack.published })}
@@ -394,40 +488,6 @@ export default function AdminPackShow({ packId }) {
             >
               {pack.published ? 'Unpublish' : 'Publish'}
             </button>
-
-            <button
-              onClick={handleSyncStripe}
-              disabled={syncing || pack.price_cents === 0}
-              style={{
-                background: 'white',
-                color: '#333',
-                border: '1px solid #ccc',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                fontFamily: 'Inter, -apple-system, sans-serif',
-                fontWeight: 500,
-                fontSize: '14px',
-                cursor: syncing || pack.price_cents === 0 ? 'not-allowed' : 'pointer',
-                opacity: pack.price_cents === 0 ? 0.5 : 1,
-              }}
-            >
-              <i className="fab fa-stripe" style={{ marginRight: '8px' }}></i>
-              {syncing ? 'Syncing...' : (pack.stripe_price_id ? 'Re-sync Stripe' : 'Sync to Stripe')}
-            </button>
-
-            {pack.stripe_price_id && (
-              <span style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '14px',
-                color: '#333',
-                fontFamily: 'Inter, -apple-system, sans-serif',
-              }}>
-                <i className="fas fa-check-circle"></i>
-                Stripe synced
-              </span>
-            )}
           </div>
         </div>
 
@@ -438,7 +498,7 @@ export default function AdminPackShow({ packId }) {
           border: '1px solid #e0e0e0',
           padding: '24px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
             <h2 style={{
               fontSize: '18px',
               fontWeight: 600,
@@ -448,7 +508,7 @@ export default function AdminPackShow({ packId }) {
             }}>
               Concepts ({pack.concept_definitions?.length || 0})
             </h2>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => setShowImport(!showImport)}
                 style={{
@@ -463,7 +523,7 @@ export default function AdminPackShow({ packId }) {
                 }}
               >
                 <i className="fas fa-search" style={{ marginRight: '6px' }}></i>
-                Import Existing
+                Import
               </button>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -479,7 +539,7 @@ export default function AdminPackShow({ packId }) {
                 }}
               >
                 <i className="fas fa-plus" style={{ marginRight: '6px' }}></i>
-                Create New
+                Create
               </button>
             </div>
           </div>
@@ -591,85 +651,85 @@ export default function AdminPackShow({ packId }) {
                 <div
                   key={def.id}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
                     padding: '12px',
                     background: '#fafafa',
                     borderRadius: '4px',
                     border: '1px solid #e0e0e0',
                   }}
                 >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontWeight: 500, fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', color: '#111' }}>{def.label}</span>
-                      {def.concept_type && (
-                        <span style={{
-                          fontSize: '11px',
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 500, fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', color: '#111', wordBreak: 'break-word' }}>{def.label}</span>
+                        {def.concept_type && (
+                          <span style={{
+                            fontSize: '11px',
+                            color: '#666',
+                            background: '#e0e0e0',
+                            padding: '1px 6px',
+                            borderRadius: '3px',
+                            fontFamily: 'Inter, -apple-system, sans-serif',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            {def.concept_type.replace(/_/g, ' ')}
+                          </span>
+                        )}
+                        {def.links && def.links.length > 0 && (
+                          <span style={{
+                            fontSize: '11px',
+                            color: '#888',
+                            fontFamily: 'Inter, -apple-system, sans-serif',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            <i className="fas fa-link" style={{ fontSize: '10px' }}></i>
+                            {def.links.length}
+                          </span>
+                        )}
+                      </div>
+                      {def.summary && (
+                        <p style={{
+                          fontSize: '13px',
                           color: '#666',
-                          background: '#e0e0e0',
-                          padding: '1px 6px',
-                          borderRadius: '3px',
+                          margin: '4px 0 0 0',
                           fontFamily: 'Inter, -apple-system, sans-serif',
                         }}>
-                          {def.concept_type.replace(/_/g, ' ')}
-                        </span>
-                      )}
-                      {def.links && def.links.length > 0 && (
-                        <span style={{
-                          fontSize: '11px',
-                          color: '#888',
-                          fontFamily: 'Inter, -apple-system, sans-serif',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '3px',
-                        }}>
-                          <i className="fas fa-link" style={{ fontSize: '10px' }}></i>
-                          {def.links.length}
-                        </span>
+                          {def.summary}
+                        </p>
                       )}
                     </div>
-                    {def.summary && (
-                      <p style={{
-                        fontSize: '13px',
-                        color: '#666',
-                        margin: '4px 0 0 0',
-                        fontFamily: 'Inter, -apple-system, sans-serif',
-                      }}>
-                        {def.summary}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button
-                      onClick={() => setEditingDef(def)}
-                      style={{
-                        background: 'white',
-                        border: '1px solid #ccc',
-                        color: '#333',
-                        padding: '4px 10px',
-                        borderRadius: '4px',
-                        fontFamily: 'Inter, -apple-system, sans-serif',
-                        fontSize: '12px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <i className="fas fa-pen" style={{ marginRight: '4px' }}></i>
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteDefinition(def.id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#999',
-                        cursor: 'pointer',
-                        padding: '4px 8px',
-                        fontFamily: 'Inter, -apple-system, sans-serif',
-                      }}
-                    >
-                      <i className="fas fa-times"></i>
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                      <button
+                        onClick={() => setEditingDef(def)}
+                        style={{
+                          background: 'white',
+                          border: '1px solid #ccc',
+                          color: '#333',
+                          padding: '4px 10px',
+                          borderRadius: '4px',
+                          fontFamily: 'Inter, -apple-system, sans-serif',
+                          fontSize: '12px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <i className="fas fa-pen"></i>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDefinition(def.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#999',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          fontFamily: 'Inter, -apple-system, sans-serif',
+                        }}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -819,9 +879,12 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         bottom: 0,
         background: 'rgba(0,0,0,0.5)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         zIndex: 1000,
+        padding: '16px',
+        boxSizing: 'border-box',
+        overflow: 'auto',
       }}
     >
       <div
@@ -829,11 +892,12 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         style={{
           background: 'white',
           borderRadius: '8px',
-          width: '90%',
+          width: '100%',
           maxWidth: '800px',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          padding: '24px',
+          overflow: 'visible',
+          padding: '16px',
+          margin: '16px 0',
+          boxSizing: 'border-box',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -861,7 +925,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div style={fieldStyle}>
               <label style={labelStyle}>Label *</label>
               <input
@@ -869,7 +933,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                 value={form.label || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, label: e.target.value }))}
                 required
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
               />
             </div>
             <div style={fieldStyle}>
@@ -877,7 +941,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
               <select
                 value={form.concept_type || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, concept_type: e.target.value }))}
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
               >
                 <option value="">Select type...</option>
                 {conceptTypes.map(t => (
@@ -907,14 +971,14 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div style={fieldStyle}>
               <label style={labelStyle}>Location</label>
               <input
                 type="text"
                 value={form.location || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, location: e.target.value }))}
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
                 placeholder="e.g., brain region, anatomical location"
               />
             </div>
@@ -924,7 +988,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                 type="text"
                 value={form.etymology || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, etymology: e.target.value }))}
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
                 placeholder="Word origin"
               />
             </div>
@@ -950,14 +1014,14 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div style={fieldStyle}>
               <label style={labelStyle}>School of Thought</label>
               <input
                 type="text"
                 value={form.school_of_thought || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, school_of_thought: e.target.value }))}
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
               />
             </div>
             <div style={fieldStyle}>
@@ -966,7 +1030,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                 type="text"
                 value={form.attribution || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, attribution: e.target.value }))}
-                style={inputStyle}
+                style={{ ...inputStyle, boxSizing: 'border-box' }}
                 placeholder="Original source/author"
               />
             </div>
@@ -1013,14 +1077,14 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
             <div style={fieldStyle}>
               <label style={labelStyle}>Developmental Notes</label>
               <textarea
                 value={form.developmental_notes || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, developmental_notes: e.target.value }))}
                 rows={2}
-                style={{ ...inputStyle, resize: 'vertical' }}
+                style={{ ...inputStyle, resize: 'vertical', boxSizing: 'border-box' }}
               />
             </div>
             <div style={fieldStyle}>
@@ -1029,7 +1093,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                 value={form.measurement_notes || ''}
                 onChange={(e) => setForm(prev => ({ ...prev, measurement_notes: e.target.value }))}
                 rows={2}
-                style={{ ...inputStyle, resize: 'vertical' }}
+                style={{ ...inputStyle, resize: 'vertical', boxSizing: 'border-box' }}
               />
             </div>
           </div>
@@ -1066,20 +1130,20 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                   marginBottom: '12px',
                   border: '1px solid #e0e0e0',
                 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '8px' }}>
                     <input
                       type="text"
                       placeholder="Link name"
                       value={newLink.name}
                       onChange={(e) => setNewLink(prev => ({ ...prev, name: e.target.value }))}
-                      style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px' }}
+                      style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px', boxSizing: 'border-box' }}
                     />
                     <input
                       type="url"
                       placeholder="URL"
                       value={newLink.url}
                       onChange={(e) => setNewLink(prev => ({ ...prev, url: e.target.value }))}
-                      style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px' }}
+                      style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px', boxSizing: 'border-box' }}
                     />
                   </div>
                   <input
@@ -1087,9 +1151,9 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
                     placeholder="Description (optional)"
                     value={newLink.description}
                     onChange={(e) => setNewLink(prev => ({ ...prev, description: e.target.value }))}
-                    style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px', marginBottom: '8px' }}
+                    style={{ ...inputStyle, fontSize: '13px', padding: '6px 10px', marginBottom: '8px', boxSizing: 'border-box' }}
                   />
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                     <button
                       type="button"
                       onClick={() => { setShowAddLink(false); setNewLink({ name: '', url: '', description: '' }); }}
@@ -1202,7 +1266,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e0e0e0' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e0e0e0', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={onClose}

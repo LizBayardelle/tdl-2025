@@ -21,33 +21,40 @@ class PacksController < ApplicationController
 
   # GET /packs/:id - show pack details
   def show
+    owned = current_user.packs.include?(@pack)
+
     respond_to do |format|
       format.html
       format.json {
+        if owned
+          # Full content for owned packs
+          definitions = @pack.concept_definitions.includes(:links).map do |defn|
+            defn.as_json.merge(links: defn.links.select(:id, :name, :url, :description))
+          end
+        else
+          # Limited preview for unpurchased - NO full content sent
+          definitions = @pack.concept_definitions.map do |defn|
+            {
+              id: defn.id,
+              label: defn.label,
+              concept_type: defn.concept_type,
+              school_of_thought: defn.school_of_thought,
+              summary_preview: defn.summary.present? ? defn.summary.truncate(60) : nil
+            }
+          end
+        end
+
         render json: @pack.as_json.merge(
-          owned: current_user.packs.include?(@pack),
-          concept_definitions: @pack.concept_definitions.as_json(only: [:id, :label, :concept_type, :summary])
+          owned: owned,
+          concept_definitions: definitions
         )
       }
     end
   end
 
-  # GET /packs/owned - user's purchased packs
+  # GET /packs/owned - redirect to unified packs page
   def owned
-    @packs = current_user.packs.includes(:concept_definitions)
-
-    respond_to do |format|
-      format.html
-      format.json {
-        render json: @packs.map { |pack|
-          user_pack = current_user.user_packs.find_by(pack: pack)
-          pack.as_json.merge(
-            purchased_at: user_pack&.purchased_at,
-            concepts_preview: pack.concept_definitions.limit(5).pluck(:label)
-          )
-        }
-      }
-    end
+    redirect_to packs_path
   end
 
   private

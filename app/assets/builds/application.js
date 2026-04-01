@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState58({
+        cachedValue = useState59({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect60(
+        useEffect61(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,7 +21512,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React72 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState58 = React72.useState, useEffect60 = React72.useEffect, useLayoutEffect4 = React72.useLayoutEffect, useDebugValue3 = React72.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      var React72 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState59 = React72.useState, useEffect61 = React72.useEffect, useLayoutEffect4 = React72.useLayoutEffect, useDebugValue3 = React72.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
       exports.useSyncExternalStore = void 0 !== React72.useSyncExternalStore ? React72.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
@@ -21809,7 +21809,7 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React72 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef25 = React72.useRef, useEffect60 = React72.useEffect, useMemo15 = React72.useMemo, useDebugValue3 = React72.useDebugValue;
+      var React72 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef25 = React72.useRef, useEffect61 = React72.useEffect, useMemo15 = React72.useMemo, useDebugValue3 = React72.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef25(null);
         if (null === instRef.current) {
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect60(
+        useEffect61(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -120417,10 +120417,13 @@ function BulkUploadWizard() {
 
 // app/javascript/components/PacksIndex.js
 var import_react85 = __toESM(require_react());
+var ACCENT_GREEN = "#556B2F";
+var ACCENT_GREEN_LIGHT = "#e8ebe0";
 function PacksIndex() {
   const [packs, setPacks] = (0, import_react85.useState)([]);
   const [loading, setLoading] = (0, import_react85.useState)(true);
   const [error, setError] = (0, import_react85.useState)("");
+  const [filter2, setFilter] = (0, import_react85.useState)("all");
   (0, import_react85.useEffect)(() => {
     fetchPacks();
   }, []);
@@ -120443,156 +120446,302 @@ function PacksIndex() {
     if (priceCents === 0) return "Free";
     return `$${(priceCents / 100).toFixed(2)}`;
   };
+  const filteredPacks = packs.filter((pack) => {
+    if (filter2 === "owned") return pack.owned;
+    if (filter2 === "available") return !pack.owned;
+    return true;
+  });
+  const ownedCount = packs.filter((p3) => p3.owned).length;
+  const availableCount = packs.filter((p3) => !p3.owned).length;
   if (loading) {
-    return /* @__PURE__ */ import_react85.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react85.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading packs..."));
+    return /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%)"
+    } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+      width: "40px",
+      height: "40px",
+      border: "3px solid #e0e0e0",
+      borderTopColor: ACCENT_GREEN,
+      borderRadius: "50%",
+      animation: "spin 1s linear infinite"
+    } }), /* @__PURE__ */ import_react85.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
   }
-  return /* @__PURE__ */ import_react85.default.createElement("div", { style: { minHeight: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
-    padding: "var(--space-6) var(--space-8)",
-    background: "color-mix(in srgb, var(--accent-maroon) 15%, white)",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.25)"
-  } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react85.default.createElement("div", null, /* @__PURE__ */ import_react85.default.createElement("h1", { style: {
-    fontSize: "var(--text-4xl)",
+  return /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)"
+  } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    background: "linear-gradient(135deg, #111 0%, #333 100%)",
+    padding: "64px 32px",
+    position: "relative",
+    overflow: "hidden"
+  } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)",
+    backgroundSize: "32px 32px"
+  } }), /* @__PURE__ */ import_react85.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", position: "relative" } }, /* @__PURE__ */ import_react85.default.createElement("h1", { style: {
+    fontSize: "48px",
     fontWeight: 700,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-maroon)",
-    margin: 0
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "white",
+    margin: 0,
+    letterSpacing: "-0.02em"
   } }, "Concept Packs"), /* @__PURE__ */ import_react85.default.createElement("p", { style: {
-    fontSize: "var(--text-base)",
-    color: "var(--neutral-600)",
-    fontFamily: "var(--font-body)",
-    marginTop: "var(--space-1)"
-  } }, "Pre-built concept collections to accelerate your learning")), /* @__PURE__ */ import_react85.default.createElement(
-    "a",
+    fontSize: "18px",
+    color: "rgba(255,255,255,0.7)",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    marginTop: "12px",
+    maxWidth: "500px",
+    lineHeight: 1.5
+  } }, ownedCount > 0 ? `You own ${ownedCount} pack${ownedCount !== 1 ? "s" : ""}. Browse ${availableCount} more available.` : "Curated collections of research concepts to accelerate your learning"))), /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    background: "white",
+    borderBottom: "1px solid #e5e5e5",
+    position: "sticky",
+    top: 0,
+    zIndex: 100
+  } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "0 32px",
+    display: "flex",
+    gap: "0"
+  } }, [
+    { key: "all", label: "All Packs", count: packs.length },
+    { key: "owned", label: "My Library", count: ownedCount, icon: "fa-unlock" },
+    { key: "available", label: "Available", count: availableCount, icon: "fa-lock" }
+  ].map((tab) => /* @__PURE__ */ import_react85.default.createElement(
+    "button",
     {
-      href: "/packs/owned",
+      key: tab.key,
+      onClick: () => setFilter(tab.key),
       style: {
-        background: "var(--accent-maroon)",
-        color: "white",
-        padding: "var(--space-2) var(--space-4)",
-        borderRadius: "4px",
-        textDecoration: "none",
-        fontFamily: "var(--font-body)",
+        background: "none",
+        border: "none",
+        padding: "16px 24px",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontSize: "14px",
         fontWeight: 500,
-        fontSize: "var(--text-sm)"
-      }
-    },
-    "My Packs"
-  )))), /* @__PURE__ */ import_react85.default.createElement("div", { style: { padding: "var(--space-8)", maxWidth: "1200px", margin: "0 auto" } }, error && /* @__PURE__ */ import_react85.default.createElement("div", { style: {
-    padding: "var(--space-3)",
-    backgroundColor: "#fee",
-    color: "#c00",
-    borderRadius: "4px",
-    marginBottom: "var(--space-4)",
-    fontFamily: "var(--font-body)"
-  } }, error), packs.length === 0 ? /* @__PURE__ */ import_react85.default.createElement("div", { style: {
-    textAlign: "center",
-    padding: "var(--space-12)",
-    color: "var(--neutral-500)",
-    fontFamily: "var(--font-body)"
-  } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "3rem", marginBottom: "var(--space-4)", display: "block" } }), "No packs available yet") : /* @__PURE__ */ import_react85.default.createElement("div", { style: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-    gap: "var(--space-6)"
-  } }, packs.map((pack) => /* @__PURE__ */ import_react85.default.createElement(
-    "div",
-    {
-      key: pack.id,
-      className: "card",
-      style: {
-        padding: "var(--space-6)",
+        color: filter2 === tab.key ? ACCENT_GREEN : "#666",
+        cursor: "pointer",
+        borderBottom: filter2 === tab.key ? `2px solid ${ACCENT_GREEN}` : "2px solid transparent",
+        marginBottom: "-1px",
         display: "flex",
-        flexDirection: "column",
+        alignItems: "center",
+        gap: "8px",
         transition: "all 0.2s"
       }
     },
-    /* @__PURE__ */ import_react85.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: { display: "flex", alignItems: "start", justifyContent: "space-between", marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react85.default.createElement("h2", { style: {
-      fontSize: "var(--text-xl)",
-      fontWeight: 600,
-      fontFamily: "var(--font-display)",
-      color: "var(--accent-maroon)",
-      margin: 0
-    } }, pack.name), pack.owned && /* @__PURE__ */ import_react85.default.createElement("span", { style: {
-      background: "var(--accent-green)",
-      color: "white",
+    tab.icon && /* @__PURE__ */ import_react85.default.createElement("i", { className: `fas ${tab.icon}`, style: { fontSize: "12px" } }),
+    tab.label,
+    /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      background: filter2 === tab.key ? ACCENT_GREEN_LIGHT : "#f0f0f0",
+      color: filter2 === tab.key ? ACCENT_GREEN : "#888",
       padding: "2px 8px",
-      borderRadius: "4px",
-      fontSize: "var(--text-xs)",
+      borderRadius: "10px",
+      fontSize: "12px",
+      fontWeight: 600
+    } }, tab.count)
+  )))), /* @__PURE__ */ import_react85.default.createElement("div", { style: { padding: "48px 32px", maxWidth: "1200px", margin: "0 auto" } }, error && /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    padding: "16px 20px",
+    backgroundColor: "#fef2f2",
+    color: "#dc2626",
+    borderRadius: "12px",
+    marginBottom: "24px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontSize: "14px",
+    border: "1px solid #fecaca"
+  } }, error), filteredPacks.length === 0 ? /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    textAlign: "center",
+    padding: "80px 32px",
+    background: "white",
+    borderRadius: "16px",
+    border: "1px solid #e5e5e5"
+  } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    width: "80px",
+    height: "80px",
+    background: "#f5f5f5",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 24px"
+  } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: `fas ${filter2 === "owned" ? "fa-box-open" : "fa-check-circle"}`, style: { fontSize: "32px", color: "#999" } })), /* @__PURE__ */ import_react85.default.createElement("h2", { style: {
+    fontSize: "24px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: "0 0 8px 0"
+  } }, filter2 === "owned" ? "No packs yet" : "All caught up!"), /* @__PURE__ */ import_react85.default.createElement("p", { style: {
+    fontSize: "16px",
+    color: "#666",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    margin: 0
+  } }, filter2 === "owned" ? "Browse available packs to start your collection" : "You own all available packs"), filter2 === "owned" && availableCount > 0 && /* @__PURE__ */ import_react85.default.createElement(
+    "button",
+    {
+      onClick: () => setFilter("available"),
+      style: {
+        marginTop: "24px",
+        background: ACCENT_GREEN,
+        color: "white",
+        padding: "12px 24px",
+        borderRadius: "10px",
+        border: "none",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontWeight: 500,
+        fontSize: "14px",
+        cursor: "pointer"
+      }
+    },
+    "Browse Available Packs"
+  )) : /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+    gap: "24px"
+  } }, filteredPacks.map((pack) => /* @__PURE__ */ import_react85.default.createElement(PackCard, { key: pack.id, pack, formatPrice })))), /* @__PURE__ */ import_react85.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
+}
+function PackCard({ pack, formatPrice }) {
+  const isOwned = pack.owned;
+  return /* @__PURE__ */ import_react85.default.createElement(
+    "div",
+    {
+      style: {
+        background: "white",
+        borderRadius: "16px",
+        border: `1px solid ${isOwned ? ACCENT_GREEN : "#e5e5e5"}`,
+        padding: "0",
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.2s ease",
+        cursor: "pointer",
+        overflow: "hidden",
+        position: "relative"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "translateY(-4px)";
+        e3.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "none";
+      },
+      onClick: () => window.location.href = `/packs/${pack.id}`
+    },
+    /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+      background: isOwned ? ACCENT_GREEN : "#f5f5f5",
+      color: isOwned ? "white" : "#666",
+      padding: "8px 20px",
+      fontSize: "12px",
       fontWeight: 600,
-      fontFamily: "var(--font-body)"
-    } }, "Owned")), pack.description && /* @__PURE__ */ import_react85.default.createElement("p", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-600)",
-      fontFamily: "var(--font-body)",
-      marginBottom: "var(--space-4)",
-      lineHeight: 1.5
+      fontFamily: "Inter, -apple-system, sans-serif",
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      textTransform: "uppercase",
+      letterSpacing: "0.05em"
+    } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: `fas ${isOwned ? "fa-unlock" : "fa-lock"}`, style: { fontSize: "10px" } }), isOwned ? "In Your Library" : "Available"),
+    /* @__PURE__ */ import_react85.default.createElement("div", { style: { padding: "24px", flex: 1, display: "flex", flexDirection: "column" } }, /* @__PURE__ */ import_react85.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react85.default.createElement("h2", { style: {
+      fontSize: "22px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      margin: "0 0 12px 0",
+      letterSpacing: "-0.01em"
+    } }, pack.name), pack.description && /* @__PURE__ */ import_react85.default.createElement("p", { style: {
+      fontSize: "15px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginBottom: "16px",
+      lineHeight: 1.6
     } }, pack.description), /* @__PURE__ */ import_react85.default.createElement("div", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-500)",
-      fontFamily: "var(--font-body)",
-      marginBottom: "var(--space-4)"
-    } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: "fas fa-lightbulb", style: { marginRight: "var(--space-2)" } }), pack.concept_count, " concepts"), pack.concepts_preview && pack.concepts_preview.length > 0 && /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      fontSize: "14px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginBottom: "16px"
+    } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: "fas fa-cubes", style: { fontSize: "12px", color: ACCENT_GREEN } }), /* @__PURE__ */ import_react85.default.createElement("span", null, pack.concept_count, " concepts")), pack.concepts_preview && pack.concepts_preview.length > 0 && /* @__PURE__ */ import_react85.default.createElement("div", { style: {
       display: "flex",
       flexWrap: "wrap",
-      gap: "var(--space-1)",
-      marginBottom: "var(--space-4)"
-    } }, pack.concepts_preview.map((label, idx) => /* @__PURE__ */ import_react85.default.createElement(
+      gap: "6px"
+    } }, pack.concepts_preview.slice(0, 4).map((label, idx) => /* @__PURE__ */ import_react85.default.createElement(
       "span",
       {
         key: idx,
         style: {
-          background: "var(--neutral-100)",
-          color: "var(--neutral-600)",
-          padding: "2px 8px",
-          borderRadius: "4px",
-          fontSize: "var(--text-xs)",
-          fontFamily: "var(--font-body)"
+          background: ACCENT_GREEN_LIGHT,
+          color: ACCENT_GREEN,
+          padding: "4px 10px",
+          borderRadius: "6px",
+          fontSize: "12px",
+          fontFamily: "Inter, -apple-system, sans-serif",
+          fontWeight: 500
         }
       },
       label
-    )), pack.concept_count > 5 && /* @__PURE__ */ import_react85.default.createElement("span", { style: {
-      color: "var(--neutral-400)",
-      fontSize: "var(--text-xs)",
-      fontFamily: "var(--font-body)",
-      padding: "2px 4px"
-    } }, "+", pack.concept_count - 5, " more"))),
-    /* @__PURE__ */ import_react85.default.createElement("div", { style: {
+    )), pack.concept_count > 4 && /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      color: "#999",
+      fontSize: "12px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      padding: "4px 6px"
+    } }, "+", pack.concept_count - 4, " more"))), /* @__PURE__ */ import_react85.default.createElement("div", { style: {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingTop: "var(--space-4)",
-      borderTop: "1px solid var(--neutral-200)"
-    } }, /* @__PURE__ */ import_react85.default.createElement("span", { style: {
-      fontSize: "var(--text-xl)",
+      paddingTop: "20px",
+      marginTop: "20px",
+      borderTop: "1px solid #f0f0f0"
+    } }, isOwned ? /* @__PURE__ */ import_react85.default.createElement(import_react85.default.Fragment, null, /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      fontSize: "14px",
+      color: ACCENT_GREEN,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      fontWeight: 500,
+      display: "flex",
+      alignItems: "center",
+      gap: "6px"
+    } }, /* @__PURE__ */ import_react85.default.createElement("i", { className: "fas fa-check-circle" }), "Owned"), /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      background: ACCENT_GREEN_LIGHT,
+      color: ACCENT_GREEN,
+      padding: "10px 20px",
+      borderRadius: "8px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      fontWeight: 500,
+      fontSize: "14px"
+    } }, "View Pack")) : /* @__PURE__ */ import_react85.default.createElement(import_react85.default.Fragment, null, /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      fontSize: "28px",
       fontWeight: 700,
-      fontFamily: "var(--font-display)",
-      color: pack.price_cents === 0 ? "var(--accent-green)" : "var(--neutral-900)"
-    } }, formatPrice(pack.price_cents)), /* @__PURE__ */ import_react85.default.createElement(
-      "a",
-      {
-        href: `/packs/${pack.id}`,
-        style: {
-          background: pack.owned ? "var(--neutral-200)" : "var(--accent-maroon)",
-          color: pack.owned ? "var(--neutral-700)" : "white",
-          padding: "var(--space-2) var(--space-4)",
-          borderRadius: "4px",
-          textDecoration: "none",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500,
-          fontSize: "var(--text-sm)"
-        }
-      },
-      pack.owned ? "View" : "Learn More"
-    ))
-  )))));
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: pack.price_cents === 0 ? ACCENT_GREEN : "#111",
+      letterSpacing: "-0.02em"
+    } }, formatPrice(pack.price_cents)), /* @__PURE__ */ import_react85.default.createElement("span", { style: {
+      background: ACCENT_GREEN,
+      color: "white",
+      padding: "10px 20px",
+      borderRadius: "8px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      fontWeight: 500,
+      fontSize: "14px"
+    } }, pack.price_cents === 0 ? "Get Free" : "Purchase"))))
+  );
 }
 
 // app/javascript/components/PackShow.js
 var import_react86 = __toESM(require_react());
+var ACCENT_GREEN2 = "#556B2F";
+var ACCENT_GREEN_LIGHT2 = "#e8ebe0";
 function PackShow({ packId }) {
   const [pack, setPack] = (0, import_react86.useState)(null);
   const [loading, setLoading] = (0, import_react86.useState)(true);
   const [error, setError] = (0, import_react86.useState)("");
   const [purchasing, setPurchasing] = (0, import_react86.useState)(false);
+  const [selectedConcept, setSelectedConcept] = (0, import_react86.useState)(null);
   (0, import_react86.useEffect)(() => {
     fetchPack();
     const params = new URLSearchParams(window.location.search);
@@ -120606,6 +120755,9 @@ function PackShow({ packId }) {
       if (response.ok) {
         const data = await response.json();
         setPack(data);
+        if (data.owned && data.concept_definitions?.length > 0) {
+          setSelectedConcept(data.concept_definitions[0]);
+        }
       } else {
         setError("Failed to load pack");
       }
@@ -120634,149 +120786,590 @@ function PackShow({ packId }) {
     return `$${(priceCents / 100).toFixed(2)}`;
   };
   if (loading) {
-    return /* @__PURE__ */ import_react86.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react86.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading..."));
+    return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#f5f5f5"
+    } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      width: "40px",
+      height: "40px",
+      border: "3px solid #e0e0e0",
+      borderTopColor: ACCENT_GREEN2,
+      borderRadius: "50%",
+      animation: "spin 1s linear infinite"
+    } }), /* @__PURE__ */ import_react86.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
   }
   if (error || !pack) {
-    return /* @__PURE__ */ import_react86.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react86.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "#c00" } }, error || "Pack not found"));
+    return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#f5f5f5"
+    } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      textAlign: "center",
+      padding: "48px",
+      background: "white",
+      borderRadius: "16px",
+      border: "1px solid #e5e5e5"
+    } }, /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#dc2626",
+      fontSize: "16px",
+      margin: "0 0 20px 0"
+    } }, error || "Pack not found"), /* @__PURE__ */ import_react86.default.createElement("a", { href: "/packs", style: {
+      color: "#666",
+      textDecoration: "none",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      fontSize: "14px"
+    } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-arrow-left", style: { marginRight: "8px" } }), "Back to Packs")));
   }
-  return /* @__PURE__ */ import_react86.default.createElement("div", { style: { minHeight: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
-    padding: "var(--space-6) var(--space-8)",
-    background: "color-mix(in srgb, var(--accent-maroon) 15%, white)",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.25)"
-  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: { maxWidth: "900px", margin: "0 auto" } }, /* @__PURE__ */ import_react86.default.createElement(
+  if (pack.owned) {
+    return /* @__PURE__ */ import_react86.default.createElement(OwnedPackView, { pack, selectedConcept, setSelectedConcept });
+  }
+  return /* @__PURE__ */ import_react86.default.createElement(UnownedPackView, { pack, formatPrice, handlePurchase, purchasing });
+}
+function OwnedPackView({ pack, selectedConcept, setSelectedConcept }) {
+  return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#f5f5f5"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    width: "320px",
+    background: "white",
+    borderRight: "1px solid #e5e5e5",
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    padding: "20px",
+    borderBottom: "1px solid #e5e5e5"
+  } }, /* @__PURE__ */ import_react86.default.createElement(
     "a",
     {
       href: "/packs",
       style: {
-        color: "var(--neutral-600)",
+        color: "#888",
         textDecoration: "none",
-        fontFamily: "var(--font-body)",
-        fontSize: "var(--text-sm)",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontSize: "13px",
         display: "inline-flex",
         alignItems: "center",
-        gap: "var(--space-2)",
-        marginBottom: "var(--space-4)"
+        gap: "6px",
+        marginBottom: "16px"
       }
     },
     /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-arrow-left" }),
     "Back to Packs"
-  ), /* @__PURE__ */ import_react86.default.createElement("div", { style: { display: "flex", alignItems: "start", justifyContent: "space-between", gap: "var(--space-6)" } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginBottom: "var(--space-2)" } }, /* @__PURE__ */ import_react86.default.createElement("h1", { style: {
-    fontSize: "var(--text-4xl)",
+  ), /* @__PURE__ */ import_react86.default.createElement("h1", { style: {
+    fontSize: "20px",
     fontWeight: 700,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-maroon)",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
     margin: 0
-  } }, pack.name), pack.owned && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
-    background: "var(--accent-green)",
-    color: "white",
-    padding: "4px 12px",
-    borderRadius: "4px",
-    fontSize: "var(--text-sm)",
-    fontWeight: 600,
-    fontFamily: "var(--font-body)"
-  } }, "Owned")), pack.description && /* @__PURE__ */ import_react86.default.createElement("p", { style: {
-    fontSize: "var(--text-lg)",
-    color: "var(--neutral-600)",
-    fontFamily: "var(--font-body)",
+  } }, pack.name), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    marginTop: "8px",
+    fontSize: "13px",
+    color: ACCENT_GREEN2,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontWeight: 500
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-unlock" }), pack.concept_definitions?.length || 0, " concepts")), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    flex: 1,
+    overflow: "auto",
+    padding: "12px"
+  } }, pack.concept_definitions?.map((concept, index8) => /* @__PURE__ */ import_react86.default.createElement(
+    "button",
+    {
+      key: concept.id,
+      onClick: () => setSelectedConcept(concept),
+      style: {
+        width: "100%",
+        textAlign: "left",
+        background: selectedConcept?.id === concept.id ? ACCENT_GREEN_LIGHT2 : "transparent",
+        border: "none",
+        borderRadius: "8px",
+        padding: "12px 14px",
+        marginBottom: "4px",
+        cursor: "pointer",
+        transition: "all 0.15s",
+        borderLeft: selectedConcept?.id === concept.id ? `3px solid ${ACCENT_GREEN2}` : "3px solid transparent"
+      }
+    },
+    /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px"
+    } }, /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+      width: "24px",
+      height: "24px",
+      background: selectedConcept?.id === concept.id ? ACCENT_GREEN2 : "#e5e5e5",
+      color: selectedConcept?.id === concept.id ? "white" : "#888",
+      borderRadius: "6px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "11px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      flexShrink: 0
+    } }, index8 + 1), /* @__PURE__ */ import_react86.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      fontSize: "14px",
+      fontWeight: 500,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis"
+    } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      fontSize: "11px",
+      color: "#888",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginTop: "2px",
+      textTransform: "capitalize"
+    } }, concept.concept_type.replace(/_/g, " "))))
+  )))), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    flex: 1,
+    overflow: "auto",
+    padding: "32px"
+  } }, selectedConcept ? /* @__PURE__ */ import_react86.default.createElement(ConceptContent, { concept: selectedConcept }) : /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    color: "#888",
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, "Select a concept from the sidebar")), /* @__PURE__ */ import_react86.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
+}
+function ConceptContent({ concept }) {
+  const Section = ({ title, content, icon: icon3 }) => {
+    if (!content) return null;
+    return /* @__PURE__ */ import_react86.default.createElement("div", { style: { marginBottom: "28px" } }, /* @__PURE__ */ import_react86.default.createElement("h3", { style: {
+      fontSize: "14px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: ACCENT_GREEN2,
+      textTransform: "uppercase",
+      letterSpacing: "0.05em",
+      marginBottom: "10px",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px"
+    } }, icon3 && /* @__PURE__ */ import_react86.default.createElement("i", { className: `fas ${icon3}`, style: { fontSize: "12px" } }), title), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      fontSize: "15px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#333",
+      lineHeight: 1.7,
+      whiteSpace: "pre-wrap"
+    } }, content));
+  };
+  return /* @__PURE__ */ import_react86.default.createElement("div", { style: { maxWidth: "800px" } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: { marginBottom: "24px" } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react86.default.createElement("h2", { style: {
+    fontSize: "32px",
+    fontWeight: 700,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
     margin: 0,
-    lineHeight: 1.5
-  } }, pack.description)), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    letterSpacing: "-0.02em"
+  } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+    background: ACCENT_GREEN_LIGHT2,
+    color: ACCENT_GREEN2,
+    padding: "4px 12px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontWeight: 500,
+    textTransform: "capitalize"
+  } }, concept.concept_type.replace(/_/g, " ")), concept.school_of_thought && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+    background: "#f0f0f0",
+    color: "#666",
+    padding: "4px 12px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontWeight: 500
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-university", style: { marginRight: "6px", fontSize: "10px" } }), concept.school_of_thought)), concept.aliases && concept.aliases.length > 0 && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "14px",
+    color: "#666",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    marginBottom: "12px"
+  } }, "Also known as: ", concept.aliases.join(", ")), concept.summary && /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+    fontSize: "17px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#555",
+    lineHeight: 1.6,
+    margin: 0
+  } }, concept.summary)), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
     background: "white",
-    padding: "var(--space-6)",
-    borderRadius: "8px",
-    boxShadow: "var(--shadow-md)",
-    minWidth: "200px",
+    borderRadius: "16px",
+    border: "1px solid #e5e5e5",
+    padding: "32px"
+  } }, /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Description", content: concept.description, icon: "fa-file-alt" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Examples", content: concept.examples, icon: "fa-lightbulb" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Location", content: concept.location, icon: "fa-map-marker-alt" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Etymology", content: concept.etymology, icon: "fa-language" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "History", content: concept.history, icon: "fa-history" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Clinical Relevance", content: concept.clinical_relevance, icon: "fa-heartbeat" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Controversy", content: concept.controversy, icon: "fa-exclamation-triangle" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Misconceptions", content: concept.misconceptions, icon: "fa-times-circle" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Developmental Notes", content: concept.developmental_notes, icon: "fa-child" }), /* @__PURE__ */ import_react86.default.createElement(Section, { title: "Measurement Notes", content: concept.measurement_notes, icon: "fa-ruler" }), concept.attribution && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    marginTop: "24px",
+    paddingTop: "24px",
+    borderTop: "1px solid #e5e5e5",
+    fontSize: "13px",
+    color: "#888",
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-quote-left", style: { marginRight: "8px" } }), "Attribution: ", concept.attribution), concept.links && concept.links.length > 0 && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    marginTop: "28px",
+    paddingTop: "28px",
+    borderTop: "1px solid #e5e5e5"
+  } }, /* @__PURE__ */ import_react86.default.createElement("h3", { style: {
+    fontSize: "14px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: ACCENT_GREEN2,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    marginBottom: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-link", style: { fontSize: "12px" } }), "Related Links"), /* @__PURE__ */ import_react86.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "8px" } }, concept.links.map((link) => {
+    let faviconUrl = null;
+    try {
+      const domain2 = new URL(link.url).hostname;
+      faviconUrl = `https://www.google.com/s2/favicons?domain=${domain2}&sz=32`;
+    } catch (e3) {
+    }
+    return /* @__PURE__ */ import_react86.default.createElement(
+      "a",
+      {
+        key: link.id,
+        href: link.url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 14px",
+          background: "#fafafa",
+          borderRadius: "8px",
+          textDecoration: "none",
+          transition: "background 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.background = "#f0f0f0",
+        onMouseLeave: (e3) => e3.currentTarget.style.background = "#fafafa"
+      },
+      faviconUrl ? /* @__PURE__ */ import_react86.default.createElement(
+        "img",
+        {
+          src: faviconUrl,
+          alt: "",
+          style: {
+            width: "20px",
+            height: "20px",
+            borderRadius: "4px",
+            flexShrink: 0
+          }
+        }
+      ) : /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-external-link-alt", style: { color: ACCENT_GREEN2, fontSize: "14px" } }),
+      /* @__PURE__ */ import_react86.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+        fontSize: "14px",
+        fontWeight: 500,
+        fontFamily: "Inter, -apple-system, sans-serif",
+        color: "#111"
+      } }, link.name), link.description && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+        fontSize: "12px",
+        color: "#888",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        marginTop: "2px"
+      } }, link.description)),
+      /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-external-link-alt", style: { color: "#ccc", fontSize: "11px", flexShrink: 0 } })
+    );
+  })))), concept.mnemonic && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    marginTop: "24px",
+    background: "linear-gradient(135deg, #fdfcfa 0%, #f9f7f4 100%)",
+    borderRadius: "16px",
+    border: "1px solid #e8e4dc",
+    padding: "24px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "12px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    width: "36px",
+    height: "36px",
+    background: ACCENT_GREEN_LIGHT2,
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-brain", style: { color: ACCENT_GREEN2, fontSize: "16px" } })), /* @__PURE__ */ import_react86.default.createElement("h3", { style: {
+    fontSize: "14px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: ACCENT_GREEN2,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    margin: 0
+  } }, "Memory Aid")), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "16px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#444",
+    lineHeight: 1.6,
+    fontStyle: "italic"
+  } }, concept.mnemonic), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "12px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#999",
+    fontStyle: "italic",
+    marginTop: "12px"
+  } }, "Custom mnemonic created for this pack \u2014 not from standard educational materials.")));
+}
+function UnownedPackView({ pack, formatPrice, handlePurchase, purchasing }) {
+  const [hoveredConcept, setHoveredConcept] = (0, import_react86.useState)(null);
+  return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#f5f5f5"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    width: "320px",
+    background: "white",
+    borderRight: "1px solid #e5e5e5",
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    padding: "20px",
+    borderBottom: "1px solid #e5e5e5"
+  } }, /* @__PURE__ */ import_react86.default.createElement(
+    "a",
+    {
+      href: "/packs",
+      style: {
+        color: "#888",
+        textDecoration: "none",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontSize: "13px",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        marginBottom: "16px"
+      }
+    },
+    /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-arrow-left" }),
+    "Back to Packs"
+  ), /* @__PURE__ */ import_react86.default.createElement("h1", { style: {
+    fontSize: "20px",
+    fontWeight: 700,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: 0
+  } }, pack.name), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    marginTop: "8px",
+    fontSize: "13px",
+    color: "#888",
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-lock" }), pack.concept_definitions?.length || 0, " concepts")), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    flex: 1,
+    overflow: "auto",
+    padding: "12px"
+  } }, pack.concept_definitions?.map((concept, index8) => /* @__PURE__ */ import_react86.default.createElement(
+    "div",
+    {
+      key: concept.id,
+      onMouseEnter: () => setHoveredConcept(concept),
+      onMouseLeave: () => setHoveredConcept(null),
+      style: {
+        width: "100%",
+        textAlign: "left",
+        background: hoveredConcept?.id === concept.id ? "#fafafa" : "transparent",
+        border: "none",
+        borderRadius: "8px",
+        padding: "12px 14px",
+        marginBottom: "4px",
+        borderLeft: "3px solid transparent"
+      }
+    },
+    /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px"
+    } }, /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+      width: "24px",
+      height: "24px",
+      background: "#e5e5e5",
+      color: "#aaa",
+      borderRadius: "6px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "11px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      flexShrink: 0
+    } }, index8 + 1), /* @__PURE__ */ import_react86.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      fontSize: "14px",
+      fontWeight: 500,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis"
+    } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      fontSize: "11px",
+      color: "#aaa",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginTop: "2px",
+      textTransform: "capitalize"
+    } }, concept.concept_type.replace(/_/g, " "))), /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-lock", style: { color: "#ccc", fontSize: "11px" } }))
+  )))), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    flex: 1,
+    padding: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    maxWidth: "500px",
     textAlign: "center"
   } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
-    fontSize: "var(--text-3xl)",
+    width: "80px",
+    height: "80px",
+    background: "linear-gradient(135deg, #f0f0f0 0%, #e5e5e5 100%)",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 24px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-lock", style: { fontSize: "32px", color: "#999" } })), /* @__PURE__ */ import_react86.default.createElement("h2", { style: {
+    fontSize: "28px",
     fontWeight: 700,
-    fontFamily: "var(--font-display)",
-    color: pack.price_cents === 0 ? "var(--accent-green)" : "var(--neutral-900)",
-    marginBottom: "var(--space-2)"
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: "0 0 12px 0",
+    letterSpacing: "-0.02em"
+  } }, pack.name), pack.description && /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+    fontSize: "16px",
+    color: "#666",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    lineHeight: 1.6,
+    margin: "0 0 24px 0"
+  } }, pack.description), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "32px",
+    marginBottom: "32px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", null, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "32px",
+    fontWeight: 700,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111"
+  } }, pack.concept_definitions?.length || 0), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "13px",
+    color: "#888",
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, "Concepts")), /* @__PURE__ */ import_react86.default.createElement("div", { style: { width: "1px", background: "#e5e5e5" } }), /* @__PURE__ */ import_react86.default.createElement("div", null, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "32px",
+    fontWeight: 700,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: pack.price_cents === 0 ? ACCENT_GREEN2 : "#111"
   } }, formatPrice(pack.price_cents)), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
-    fontSize: "var(--text-sm)",
-    color: "var(--neutral-500)",
-    fontFamily: "var(--font-body)",
-    marginBottom: "var(--space-4)"
-  } }, pack.concept_count, " concepts"), pack.owned ? /* @__PURE__ */ import_react86.default.createElement("div", { style: {
-    background: "var(--neutral-100)",
-    color: "var(--neutral-600)",
-    padding: "var(--space-3) var(--space-6)",
-    borderRadius: "4px",
-    fontFamily: "var(--font-body)",
-    fontWeight: 500
-  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-check", style: { marginRight: "var(--space-2)" } }), "In Your Library") : /* @__PURE__ */ import_react86.default.createElement(
+    fontSize: "13px",
+    color: "#888",
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, pack.price_cents === 0 ? "Get it free" : "One-time"))), /* @__PURE__ */ import_react86.default.createElement(
     "button",
     {
       onClick: handlePurchase,
       disabled: purchasing,
       style: {
-        width: "100%",
-        background: purchasing ? "var(--neutral-300)" : "var(--accent-maroon)",
+        background: purchasing ? "#ccc" : ACCENT_GREEN2,
         color: "white",
-        padding: "var(--space-3) var(--space-6)",
-        borderRadius: "4px",
+        padding: "16px 48px",
+        borderRadius: "12px",
         border: "none",
-        fontFamily: "var(--font-body)",
+        fontFamily: "Inter, -apple-system, sans-serif",
         fontWeight: 600,
-        fontSize: "var(--text-base)",
-        cursor: purchasing ? "not-allowed" : "pointer"
+        fontSize: "16px",
+        cursor: purchasing ? "not-allowed" : "pointer",
+        transition: "all 0.2s",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "10px"
       }
     },
-    purchasing ? "Processing..." : pack.price_cents === 0 ? "Add to Library" : "Purchase"
-  ))))), /* @__PURE__ */ import_react86.default.createElement("div", { style: { padding: "var(--space-8)", maxWidth: "900px", margin: "0 auto" } }, /* @__PURE__ */ import_react86.default.createElement("h2", { style: {
-    fontSize: "var(--text-2xl)",
+    purchasing ? /* @__PURE__ */ import_react86.default.createElement(import_react86.default.Fragment, null, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      width: "16px",
+      height: "16px",
+      border: "2px solid rgba(255,255,255,0.3)",
+      borderTopColor: "white",
+      borderRadius: "50%",
+      animation: "spin 1s linear infinite"
+    } }), "Processing...") : /* @__PURE__ */ import_react86.default.createElement(import_react86.default.Fragment, null, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-unlock" }), pack.price_cents === 0 ? "Unlock Pack" : `Purchase for ${formatPrice(pack.price_cents)}`)
+  ), /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+    fontSize: "13px",
+    color: "#999",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    marginTop: "16px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-shield-alt", style: { marginRight: "6px" } }), "Secure checkout via Stripe"))), hoveredConcept && /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    borderTop: "1px solid #e5e5e5",
+    background: "white",
+    padding: "24px 32px"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "8px",
+    flexWrap: "wrap"
+  } }, /* @__PURE__ */ import_react86.default.createElement("h3", { style: {
+    fontSize: "18px",
     fontWeight: 600,
-    fontFamily: "var(--font-display)",
-    color: "var(--neutral-900)",
-    marginBottom: "var(--space-6)"
-  } }, "Included Concepts (", pack.concept_definitions?.length || 0, ")"), pack.concept_definitions && pack.concept_definitions.length > 0 ? /* @__PURE__ */ import_react86.default.createElement("div", { style: {
-    display: "grid",
-    gap: "var(--space-3)"
-  } }, pack.concept_definitions.map((def) => /* @__PURE__ */ import_react86.default.createElement(
-    "div",
-    {
-      key: def.id,
-      className: "card",
-      style: {
-        padding: "var(--space-4)",
-        borderLeft: "3px solid var(--accent-green)"
-      }
-    },
-    /* @__PURE__ */ import_react86.default.createElement("div", { style: { display: "flex", alignItems: "start", justifyContent: "space-between" } }, /* @__PURE__ */ import_react86.default.createElement("div", null, /* @__PURE__ */ import_react86.default.createElement("h3", { style: {
-      fontSize: "var(--text-base)",
-      fontWeight: 600,
-      fontFamily: "var(--font-body)",
-      color: "var(--neutral-900)",
-      margin: 0,
-      marginBottom: "var(--space-1)"
-    } }, def.label), def.summary && /* @__PURE__ */ import_react86.default.createElement("p", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-600)",
-      fontFamily: "var(--font-body)",
-      margin: 0,
-      lineHeight: 1.4
-    } }, def.summary)), def.concept_type && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
-      background: "var(--neutral-100)",
-      color: "var(--neutral-600)",
-      padding: "2px 8px",
-      borderRadius: "4px",
-      fontSize: "var(--text-xs)",
-      fontFamily: "var(--font-body)",
-      whiteSpace: "nowrap"
-    } }, def.concept_type.replace(/_/g, " ")))
-  ))) : /* @__PURE__ */ import_react86.default.createElement("p", { style: {
-    color: "var(--neutral-500)",
-    fontFamily: "var(--font-body)",
-    textAlign: "center",
-    padding: "var(--space-8)"
-  } }, "No concepts in this pack yet")));
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: 0
+  } }, hoveredConcept.label), hoveredConcept.concept_type && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+    background: ACCENT_GREEN_LIGHT2,
+    color: ACCENT_GREEN2,
+    padding: "3px 10px",
+    borderRadius: "6px",
+    fontSize: "11px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontWeight: 500,
+    textTransform: "capitalize"
+  } }, hoveredConcept.concept_type.replace(/_/g, " ")), hoveredConcept.school_of_thought && /* @__PURE__ */ import_react86.default.createElement("span", { style: {
+    background: "#f0f0f0",
+    color: "#666",
+    padding: "3px 10px",
+    borderRadius: "6px",
+    fontSize: "11px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontWeight: 500
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-university", style: { marginRight: "5px", fontSize: "9px" } }), hoveredConcept.school_of_thought)), hoveredConcept.summary_preview ? /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+    fontSize: "14px",
+    color: "#666",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    margin: 0,
+    lineHeight: 1.5
+  } }, hoveredConcept.summary_preview, /* @__PURE__ */ import_react86.default.createElement("span", { style: { color: "#999" } }, " ...")) : /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+    fontSize: "14px",
+    color: "#999",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontStyle: "italic",
+    margin: 0
+  } }, "Full content available after purchase"))), /* @__PURE__ */ import_react86.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
 }
 
 // app/javascript/components/PacksOwned.js
 var import_react87 = __toESM(require_react());
+var ACCENT_GREEN3 = "#556B2F";
+var ACCENT_GREEN_LIGHT3 = "#e8ebe0";
 function PacksOwned() {
-  const [packs, setPacks] = (0, import_react87.useState)([]);
+  const [ownedPacks, setOwnedPacks] = (0, import_react87.useState)([]);
+  const [availablePacks, setAvailablePacks] = (0, import_react87.useState)([]);
   const [loading, setLoading] = (0, import_react87.useState)(true);
   const [error, setError] = (0, import_react87.useState)("");
   (0, import_react87.useEffect)(() => {
@@ -120784,15 +121377,21 @@ function PacksOwned() {
   }, []);
   const fetchPacks = async () => {
     try {
-      const response = await fetch("/packs/owned.json");
-      if (response.ok) {
-        const data = await response.json();
-        setPacks(data);
+      const [ownedRes, allRes] = await Promise.all([
+        fetch("/packs/owned.json"),
+        fetch("/packs.json")
+      ]);
+      if (ownedRes.ok && allRes.ok) {
+        const owned = await ownedRes.json();
+        const all = await allRes.json();
+        setOwnedPacks(owned);
+        const ownedIds = new Set(owned.map((p3) => p3.id));
+        setAvailablePacks(all.filter((p3) => !ownedIds.has(p3.id)));
       } else {
-        setError("Failed to load your packs");
+        setError("Failed to load packs");
       }
     } catch (err) {
-      setError("Failed to load your packs");
+      setError("Failed to load packs");
     } finally {
       setLoading(false);
     }
@@ -120805,131 +121404,325 @@ function PacksOwned() {
       day: "numeric"
     });
   };
+  const formatPrice = (priceCents) => {
+    if (priceCents === 0) return "Free";
+    return `$${(priceCents / 100).toFixed(2)}`;
+  };
   if (loading) {
-    return /* @__PURE__ */ import_react87.default.createElement("div", { style: { padding: "var(--space-8)", textAlign: "center" } }, /* @__PURE__ */ import_react87.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-600)" } }, "Loading your packs..."));
+    return /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%)"
+    } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+      width: "40px",
+      height: "40px",
+      border: "3px solid #e0e0e0",
+      borderTopColor: ACCENT_GREEN3,
+      borderRadius: "50%",
+      animation: "spin 1s linear infinite"
+    } }), /* @__PURE__ */ import_react87.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
   }
-  return /* @__PURE__ */ import_react87.default.createElement("div", { style: { minHeight: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
-    padding: "var(--space-6) var(--space-8)",
-    background: "color-mix(in srgb, var(--accent-maroon) 15%, white)",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.25)"
-  } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react87.default.createElement("div", null, /* @__PURE__ */ import_react87.default.createElement("h1", { style: {
-    fontSize: "var(--text-4xl)",
+  return /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)"
+  } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    background: "linear-gradient(135deg, #111 0%, #333 100%)",
+    padding: "64px 32px",
+    position: "relative",
+    overflow: "hidden"
+  } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0)",
+    backgroundSize: "32px 32px"
+  } }), /* @__PURE__ */ import_react87.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", position: "relative" } }, /* @__PURE__ */ import_react87.default.createElement("h1", { style: {
+    fontSize: "48px",
     fontWeight: 700,
-    fontFamily: "var(--font-display)",
-    color: "var(--accent-maroon)",
-    margin: 0
-  } }, "My Packs"), /* @__PURE__ */ import_react87.default.createElement("p", { style: {
-    fontSize: "var(--text-base)",
-    color: "var(--neutral-600)",
-    fontFamily: "var(--font-body)",
-    marginTop: "var(--space-1)"
-  } }, packs.length, " pack", packs.length !== 1 ? "s" : "", " in your library")), /* @__PURE__ */ import_react87.default.createElement(
-    "a",
-    {
-      href: "/packs",
-      style: {
-        background: "white",
-        color: "var(--accent-maroon)",
-        padding: "var(--space-2) var(--space-4)",
-        borderRadius: "4px",
-        textDecoration: "none",
-        fontFamily: "var(--font-body)",
-        fontWeight: 500,
-        fontSize: "var(--text-sm)",
-        border: "1px solid var(--accent-maroon)"
-      }
-    },
-    "Browse Packs"
-  )))), /* @__PURE__ */ import_react87.default.createElement("div", { style: { padding: "var(--space-8)", maxWidth: "1200px", margin: "0 auto" } }, error && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
-    padding: "var(--space-3)",
-    backgroundColor: "#fee",
-    color: "#c00",
-    borderRadius: "4px",
-    marginBottom: "var(--space-4)",
-    fontFamily: "var(--font-body)"
-  } }, error), packs.length === 0 ? /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "white",
+    margin: 0,
+    letterSpacing: "-0.02em"
+  } }, "My Library"), /* @__PURE__ */ import_react87.default.createElement("p", { style: {
+    fontSize: "18px",
+    color: "rgba(255,255,255,0.7)",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    marginTop: "12px"
+  } }, ownedPacks.length === 0 ? "Your concept pack collection" : `${ownedPacks.length} pack${ownedPacks.length !== 1 ? "s" : ""} in your collection`))), /* @__PURE__ */ import_react87.default.createElement("div", { style: { padding: "48px 32px", maxWidth: "1200px", margin: "0 auto" } }, error && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    padding: "16px 20px",
+    backgroundColor: "#fef2f2",
+    color: "#dc2626",
+    borderRadius: "12px",
+    marginBottom: "24px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    fontSize: "14px",
+    border: "1px solid #fecaca"
+  } }, error), ownedPacks.length === 0 ? /* @__PURE__ */ import_react87.default.createElement("div", { style: {
     textAlign: "center",
-    padding: "var(--space-12)",
-    color: "var(--neutral-500)",
-    fontFamily: "var(--font-body)"
-  } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "3rem", marginBottom: "var(--space-4)", display: "block" } }), /* @__PURE__ */ import_react87.default.createElement("p", { style: { marginBottom: "var(--space-4)" } }, "You don't have any packs yet"), /* @__PURE__ */ import_react87.default.createElement(
-    "a",
-    {
-      href: "/packs",
-      style: {
-        background: "var(--accent-maroon)",
-        color: "white",
-        padding: "var(--space-3) var(--space-6)",
-        borderRadius: "4px",
-        textDecoration: "none",
-        fontWeight: 500
-      }
-    },
-    "Browse Available Packs"
-  )) : /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    padding: "60px 32px",
+    background: "white",
+    borderRadius: "16px",
+    border: "1px solid #e5e5e5",
+    marginBottom: "48px"
+  } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    width: "80px",
+    height: "80px",
+    background: ACCENT_GREEN_LIGHT3,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 24px"
+  } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "32px", color: ACCENT_GREEN3 } })), /* @__PURE__ */ import_react87.default.createElement("h2", { style: {
+    fontSize: "24px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: "0 0 8px 0"
+  } }, "Your library is empty"), /* @__PURE__ */ import_react87.default.createElement("p", { style: {
+    fontSize: "16px",
+    color: "#666",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    margin: 0
+  } }, "Browse packs below to start building your collection")) : /* @__PURE__ */ import_react87.default.createElement(import_react87.default.Fragment, null, /* @__PURE__ */ import_react87.default.createElement("div", { style: { marginBottom: "32px" } }, /* @__PURE__ */ import_react87.default.createElement("h2", { style: {
+    fontSize: "20px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: "0 0 20px 0",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
+  } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-book", style: { color: ACCENT_GREEN3 } }), "Your Packs"), /* @__PURE__ */ import_react87.default.createElement("div", { style: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-    gap: "var(--space-6)"
-  } }, packs.map((pack) => /* @__PURE__ */ import_react87.default.createElement(
-    "a",
+    gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+    gap: "20px"
+  } }, ownedPacks.map((pack) => /* @__PURE__ */ import_react87.default.createElement(
+    "div",
     {
       key: pack.id,
-      href: `/packs/${pack.id}`,
-      className: "card",
       style: {
-        padding: "var(--space-6)",
-        textDecoration: "none",
+        background: "white",
+        borderRadius: "16px",
+        border: "1px solid #e5e5e5",
+        padding: "24px",
         display: "flex",
         flexDirection: "column",
-        transition: "all 0.2s"
-      }
+        transition: "all 0.2s ease",
+        cursor: "pointer"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "translateY(-4px)";
+        e3.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)";
+        e3.currentTarget.style.borderColor = ACCENT_GREEN3;
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "none";
+        e3.currentTarget.style.borderColor = "#e5e5e5";
+      },
+      onClick: () => window.location.href = `/packs/${pack.id}`
     },
-    /* @__PURE__ */ import_react87.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react87.default.createElement("h2", { style: {
-      fontSize: "var(--text-xl)",
+    /* @__PURE__ */ import_react87.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react87.default.createElement("h3", { style: {
+      fontSize: "20px",
       fontWeight: 600,
-      fontFamily: "var(--font-display)",
-      color: "var(--accent-maroon)",
-      margin: 0,
-      marginBottom: "var(--space-3)"
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      margin: "0 0 12px 0",
+      letterSpacing: "-0.01em"
     } }, pack.name), pack.description && /* @__PURE__ */ import_react87.default.createElement("p", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-600)",
-      fontFamily: "var(--font-body)",
-      marginBottom: "var(--space-4)",
-      lineHeight: 1.5
+      fontSize: "14px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginBottom: "16px",
+      lineHeight: 1.6
     } }, pack.description), /* @__PURE__ */ import_react87.default.createElement("div", { style: {
-      fontSize: "var(--text-sm)",
-      color: "var(--neutral-500)",
-      fontFamily: "var(--font-body)",
-      marginBottom: "var(--space-3)"
-    } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-lightbulb", style: { marginRight: "var(--space-2)" } }), pack.concept_count, " concepts"), pack.concepts_preview && pack.concepts_preview.length > 0 && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      fontSize: "14px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginBottom: "12px"
+    } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-cubes", style: { fontSize: "12px", color: ACCENT_GREEN3 } }), /* @__PURE__ */ import_react87.default.createElement("span", null, pack.concept_count, " concepts")), pack.concepts_preview && pack.concepts_preview.length > 0 && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
       display: "flex",
       flexWrap: "wrap",
-      gap: "var(--space-1)"
-    } }, pack.concepts_preview.map((label, idx) => /* @__PURE__ */ import_react87.default.createElement(
+      gap: "6px"
+    } }, pack.concepts_preview.slice(0, 3).map((label, idx) => /* @__PURE__ */ import_react87.default.createElement(
       "span",
       {
         key: idx,
         style: {
-          background: "var(--neutral-100)",
-          color: "var(--neutral-600)",
-          padding: "2px 8px",
-          borderRadius: "4px",
-          fontSize: "var(--text-xs)",
-          fontFamily: "var(--font-body)"
+          background: ACCENT_GREEN_LIGHT3,
+          color: ACCENT_GREEN3,
+          padding: "4px 10px",
+          borderRadius: "6px",
+          fontSize: "12px",
+          fontFamily: "Inter, -apple-system, sans-serif",
+          fontWeight: 500
         }
       },
       label
-    )))),
+    )), pack.concept_count > 3 && /* @__PURE__ */ import_react87.default.createElement("span", { style: {
+      color: "#999",
+      fontSize: "12px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      padding: "4px 6px"
+    } }, "+", pack.concept_count - 3, " more"))),
     pack.purchased_at && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
-      paddingTop: "var(--space-4)",
-      marginTop: "var(--space-4)",
-      borderTop: "1px solid var(--neutral-200)",
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-400)",
-      fontFamily: "var(--font-body)"
+      paddingTop: "16px",
+      marginTop: "16px",
+      borderTop: "1px solid #f0f0f0",
+      fontSize: "12px",
+      color: "#999",
+      fontFamily: "Inter, -apple-system, sans-serif"
     } }, "Added ", formatDate(pack.purchased_at))
-  )))));
+  ))))), availablePacks.length > 0 && /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    marginTop: ownedPacks.length > 0 ? "48px" : "0",
+    paddingTop: ownedPacks.length > 0 ? "48px" : "0",
+    borderTop: ownedPacks.length > 0 ? "1px solid #e5e5e5" : "none"
+  } }, /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: "16px"
+  } }, /* @__PURE__ */ import_react87.default.createElement("h2", { style: {
+    fontSize: "20px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#111",
+    margin: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
+  } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-compass", style: { color: ACCENT_GREEN3 } }), "Discover More Packs"), /* @__PURE__ */ import_react87.default.createElement(
+    "a",
+    {
+      href: "/packs",
+      style: {
+        color: ACCENT_GREEN3,
+        textDecoration: "none",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontSize: "14px",
+        fontWeight: 500,
+        display: "flex",
+        alignItems: "center",
+        gap: "6px"
+      }
+    },
+    "View all packs",
+    /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-arrow-right", style: { fontSize: "12px" } })
+  )), /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+    gap: "20px"
+  } }, availablePacks.slice(0, 3).map((pack) => /* @__PURE__ */ import_react87.default.createElement(
+    "div",
+    {
+      key: pack.id,
+      style: {
+        background: "white",
+        borderRadius: "16px",
+        border: "1px solid #e5e5e5",
+        padding: "24px",
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.2s ease",
+        cursor: "pointer"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "translateY(-4px)";
+        e3.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.08)";
+        e3.currentTarget.style.borderColor = "#ccc";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "none";
+        e3.currentTarget.style.borderColor = "#e5e5e5";
+      },
+      onClick: () => window.location.href = `/packs/${pack.id}`
+    },
+    /* @__PURE__ */ import_react87.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react87.default.createElement("h3", { style: {
+      fontSize: "18px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      margin: "0 0 8px 0"
+    } }, pack.name), /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      fontSize: "13px",
+      color: "#888",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginBottom: "12px"
+    } }, /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-cubes", style: { fontSize: "11px", color: ACCENT_GREEN3 } }), /* @__PURE__ */ import_react87.default.createElement("span", null, pack.concept_count, " concepts")), pack.description && /* @__PURE__ */ import_react87.default.createElement("p", { style: {
+      fontSize: "14px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      margin: 0,
+      lineHeight: 1.5
+    } }, pack.description.length > 80 ? pack.description.substring(0, 80) + "..." : pack.description)),
+    /* @__PURE__ */ import_react87.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingTop: "16px",
+      marginTop: "16px",
+      borderTop: "1px solid #f0f0f0"
+    } }, /* @__PURE__ */ import_react87.default.createElement("span", { style: {
+      fontSize: "20px",
+      fontWeight: 700,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: pack.price_cents === 0 ? ACCENT_GREEN3 : "#111"
+    } }, formatPrice(pack.price_cents)), /* @__PURE__ */ import_react87.default.createElement("span", { style: {
+      background: ACCENT_GREEN3,
+      color: "white",
+      padding: "8px 16px",
+      borderRadius: "8px",
+      fontSize: "13px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      fontWeight: 500
+    } }, "View Pack"))
+  ))), availablePacks.length > 3 && /* @__PURE__ */ import_react87.default.createElement("div", { style: { textAlign: "center", marginTop: "24px" } }, /* @__PURE__ */ import_react87.default.createElement(
+    "a",
+    {
+      href: "/packs",
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        background: "white",
+        color: ACCENT_GREEN3,
+        padding: "12px 24px",
+        borderRadius: "10px",
+        textDecoration: "none",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontWeight: 500,
+        fontSize: "14px",
+        border: `1px solid ${ACCENT_GREEN3}`,
+        transition: "all 0.2s"
+      },
+      onMouseEnter: (e3) => {
+        e3.target.style.background = ACCENT_GREEN3;
+        e3.target.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.target.style.background = "white";
+        e3.target.style.color = ACCENT_GREEN3;
+      }
+    },
+    "Browse All ",
+    availablePacks.length,
+    " Available Packs",
+    /* @__PURE__ */ import_react87.default.createElement("i", { className: "fas fa-arrow-right" })
+  )))), /* @__PURE__ */ import_react87.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
 }
 
 // app/javascript/components/admin/AdminDashboard.js
@@ -120938,17 +121731,82 @@ var import_react89 = __toESM(require_react());
 // app/javascript/components/admin/AdminLayout.js
 var import_react88 = __toESM(require_react());
 function AdminLayout({ children: children2, currentPage }) {
+  const [sidebarOpen, setSidebarOpen] = (0, import_react88.useState)(false);
+  const [isMobile, setIsMobile] = (0, import_react88.useState)(false);
+  (0, import_react88.useEffect)(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false);
+      }
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: "fa-tachometer-alt" },
     { href: "/admin/packs", label: "Packs", icon: "fa-box" },
     { href: "/admin/users", label: "Users", icon: "fa-users" }
   ];
-  return /* @__PURE__ */ import_react88.default.createElement("div", { style: { display: "flex", minHeight: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react88.default.createElement("aside", { style: {
+  return /* @__PURE__ */ import_react88.default.createElement("div", { style: { minHeight: "calc(100vh - 64px)" } }, isMobile && /* @__PURE__ */ import_react88.default.createElement("div", { style: {
+    background: "#1a1a1a",
+    padding: "12px 16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    position: "sticky",
+    top: 0,
+    zIndex: 100
+  } }, /* @__PURE__ */ import_react88.default.createElement("div", { style: {
+    fontSize: "14px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "white"
+  } }, "Admin"), /* @__PURE__ */ import_react88.default.createElement(
+    "button",
+    {
+      onClick: () => setSidebarOpen(!sidebarOpen),
+      style: {
+        background: "none",
+        border: "none",
+        color: "white",
+        fontSize: "20px",
+        cursor: "pointer",
+        padding: "4px 8px"
+      }
+    },
+    /* @__PURE__ */ import_react88.default.createElement("i", { className: `fas ${sidebarOpen ? "fa-times" : "fa-bars"}` })
+  )), /* @__PURE__ */ import_react88.default.createElement("div", { style: { display: "flex" } }, isMobile && sidebarOpen && /* @__PURE__ */ import_react88.default.createElement(
+    "div",
+    {
+      onClick: () => setSidebarOpen(false),
+      style: {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0,0,0,0.5)",
+        zIndex: 199
+      }
+    }
+  ), /* @__PURE__ */ import_react88.default.createElement("aside", { style: {
     width: "220px",
     background: "#1a1a1a",
     padding: "16px",
-    flexShrink: 0
-  } }, /* @__PURE__ */ import_react88.default.createElement("div", { style: {
+    flexShrink: 0,
+    // Mobile styles
+    ...isMobile ? {
+      position: "fixed",
+      top: 0,
+      left: sidebarOpen ? 0 : "-220px",
+      bottom: 0,
+      zIndex: 200,
+      transition: "left 0.2s ease",
+      paddingTop: "60px"
+    } : {}
+  } }, !isMobile && /* @__PURE__ */ import_react88.default.createElement("div", { style: {
     fontSize: "11px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
@@ -120964,11 +121822,12 @@ function AdminLayout({ children: children2, currentPage }) {
       {
         key: item.href,
         href: item.href,
+        onClick: () => isMobile && setSidebarOpen(false),
         style: {
           display: "flex",
           alignItems: "center",
           gap: "12px",
-          padding: "8px 12px",
+          padding: "10px 12px",
           borderRadius: "4px",
           textDecoration: "none",
           fontFamily: "Inter, -apple-system, sans-serif",
@@ -120993,7 +121852,7 @@ function AdminLayout({ children: children2, currentPage }) {
         display: "flex",
         alignItems: "center",
         gap: "12px",
-        padding: "8px 12px",
+        padding: "10px 12px",
         textDecoration: "none",
         fontFamily: "Inter, -apple-system, sans-serif",
         fontSize: "14px",
@@ -121002,7 +121861,12 @@ function AdminLayout({ children: children2, currentPage }) {
     },
     /* @__PURE__ */ import_react88.default.createElement("i", { className: "fas fa-arrow-left", style: { width: "16px", textAlign: "center" } }),
     "Back to App"
-  ))), /* @__PURE__ */ import_react88.default.createElement("main", { style: { flex: 1, background: "#f5f5f5", overflow: "auto" } }, children2));
+  ))), /* @__PURE__ */ import_react88.default.createElement("main", { style: {
+    flex: 1,
+    background: "#f5f5f5",
+    overflow: "auto",
+    minHeight: isMobile ? "calc(100vh - 64px - 48px)" : "calc(100vh - 64px)"
+  } }, children2)));
 }
 
 // app/javascript/components/admin/AdminDashboard.js
@@ -121017,53 +121881,54 @@ function AdminDashboard() {
   }, []);
   const StatCard3 = ({ label, value, icon: icon3 }) => /* @__PURE__ */ import_react89.default.createElement("div", { style: {
     background: "white",
-    padding: "24px",
+    padding: "16px",
     borderRadius: "8px",
     border: "1px solid #e0e0e0",
     display: "flex",
     alignItems: "center",
-    gap: "16px"
+    gap: "12px"
   } }, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    width: "48px",
-    height: "48px",
+    width: "44px",
+    height: "44px",
     borderRadius: "8px",
     background: "#333",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     color: "white",
-    fontSize: "18px"
-  } }, /* @__PURE__ */ import_react89.default.createElement("i", { className: `fas ${icon3}` })), /* @__PURE__ */ import_react89.default.createElement("div", null, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    fontSize: "28px",
+    fontSize: "16px",
+    flexShrink: 0
+  } }, /* @__PURE__ */ import_react89.default.createElement("i", { className: `fas ${icon3}` })), /* @__PURE__ */ import_react89.default.createElement("div", { style: { minWidth: 0 } }, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
+    fontSize: "24px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111"
   } }, value), /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    fontSize: "14px",
+    fontSize: "13px",
     color: "#666",
     fontFamily: "Inter, -apple-system, sans-serif"
   } }, label)));
-  return /* @__PURE__ */ import_react89.default.createElement(AdminLayout, { currentPage: "dashboard" }, /* @__PURE__ */ import_react89.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react89.default.createElement("h1", { style: {
-    fontSize: "28px",
+  return /* @__PURE__ */ import_react89.default.createElement(AdminLayout, { currentPage: "dashboard" }, /* @__PURE__ */ import_react89.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react89.default.createElement("h1", { style: {
+    fontSize: "24px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
-    marginBottom: "24px"
+    marginBottom: "20px"
   } }, "Dashboard"), loading ? /* @__PURE__ */ import_react89.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : stats ? /* @__PURE__ */ import_react89.default.createElement(import_react89.default.Fragment, null, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-    gap: "16px",
-    marginBottom: "32px"
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+    gap: "12px",
+    marginBottom: "24px"
   } }, /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Users", value: stats.total_users, icon: "fa-users" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Users This Month", value: stats.users_this_month, icon: "fa-user-plus" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Published Packs", value: stats.published_packs, icon: "fa-box" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Purchases", value: stats.total_purchases, icon: "fa-shopping-cart" })), /* @__PURE__ */ import_react89.default.createElement("h2", { style: {
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
     marginBottom: "16px"
   } }, "Content Stats"), /* @__PURE__ */ import_react89.default.createElement("div", { style: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-    gap: "16px"
+    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+    gap: "12px"
   } }, /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Concepts", value: stats.total_concepts, icon: "fa-lightbulb" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Sources", value: stats.total_sources, icon: "fa-book" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Purchases This Month", value: stats.purchases_this_month, icon: "fa-chart-line" }))) : /* @__PURE__ */ import_react89.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#c00" } }, "Failed to load stats")));
 }
 
@@ -121141,17 +122006,26 @@ function AdminPacks() {
   };
   const inputStyle = {
     width: "100%",
-    padding: "8px 12px",
+    padding: "10px 12px",
     border: "1px solid #ccc",
     borderRadius: "4px",
-    fontSize: "14px",
-    fontFamily: "Inter, -apple-system, sans-serif"
+    fontSize: "16px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    boxSizing: "border-box"
   };
-  return /* @__PURE__ */ import_react90.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" } }, /* @__PURE__ */ import_react90.default.createElement("h1", { style: {
-    fontSize: "28px",
+  return /* @__PURE__ */ import_react90.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react90.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: "12px"
+  } }, /* @__PURE__ */ import_react90.default.createElement("h1", { style: {
+    fontSize: "24px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111"
+    color: "#111",
+    margin: 0
   } }, "Packs"), /* @__PURE__ */ import_react90.default.createElement(
     "button",
     {
@@ -121160,7 +122034,7 @@ function AdminPacks() {
         background: "#111",
         color: "white",
         border: "none",
-        padding: "8px 16px",
+        padding: "10px 16px",
         borderRadius: "4px",
         fontFamily: "Inter, -apple-system, sans-serif",
         fontWeight: 500,
@@ -121183,17 +122057,17 @@ function AdminPacks() {
     fontSize: "14px"
   } }, error), showForm && /* @__PURE__ */ import_react90.default.createElement("div", { style: {
     background: "white",
-    padding: "24px",
+    padding: "20px",
     borderRadius: "8px",
     border: "1px solid #e0e0e0",
-    marginBottom: "24px"
+    marginBottom: "20px"
   } }, /* @__PURE__ */ import_react90.default.createElement("h2", { style: {
     fontSize: "18px",
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     marginBottom: "16px",
     color: "#111"
-  } }, "Create New Pack"), /* @__PURE__ */ import_react90.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Name *"), /* @__PURE__ */ import_react90.default.createElement(
+  } }, "Create New Pack"), /* @__PURE__ */ import_react90.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Name *"), /* @__PURE__ */ import_react90.default.createElement(
     "input",
     {
       type: "text",
@@ -121202,7 +122076,7 @@ function AdminPacks() {
       required: true,
       style: inputStyle
     }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Description"), /* @__PURE__ */ import_react90.default.createElement(
+  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Description"), /* @__PURE__ */ import_react90.default.createElement(
     "textarea",
     {
       value: formData.description,
@@ -121210,16 +122084,16 @@ function AdminPacks() {
       rows: 3,
       style: { ...inputStyle, resize: "vertical" }
     }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Price (cents, 0 = free)"), /* @__PURE__ */ import_react90.default.createElement(
+  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Price (cents, 0 = free)"), /* @__PURE__ */ import_react90.default.createElement(
     "input",
     {
       type: "number",
       value: formData.price_cents,
       onChange: (e3) => setFormData({ ...formData, price_cents: parseInt(e3.target.value) || 0 }),
       min: "0",
-      style: { ...inputStyle, width: "150px" }
+      style: { ...inputStyle, maxWidth: "150px" }
     }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", gap: "8px" } }, /* @__PURE__ */ import_react90.default.createElement(
+  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react90.default.createElement(
     "button",
     {
       type: "submit",
@@ -121228,7 +122102,7 @@ function AdminPacks() {
         background: saving ? "#ccc" : "#111",
         color: "white",
         border: "none",
-        padding: "8px 16px",
+        padding: "10px 20px",
         borderRadius: "4px",
         fontFamily: "Inter, -apple-system, sans-serif",
         fontWeight: 500,
@@ -121246,7 +122120,7 @@ function AdminPacks() {
         background: "#e0e0e0",
         color: "#333",
         border: "none",
-        padding: "8px 16px",
+        padding: "10px 20px",
         borderRadius: "4px",
         fontFamily: "Inter, -apple-system, sans-serif",
         fontSize: "14px",
@@ -121262,58 +122136,95 @@ function AdminPacks() {
     color: "#666",
     fontFamily: "Inter, -apple-system, sans-serif",
     border: "1px solid #e0e0e0"
-  } }, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "32px", marginBottom: "12px", display: "block", color: "#999" } }), "No packs yet. Create your first pack above.") : /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-    background: "white",
-    borderRadius: "8px",
-    border: "1px solid #e0e0e0",
-    overflow: "hidden"
-  } }, /* @__PURE__ */ import_react90.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontFamily: "Inter, -apple-system, sans-serif" } }, /* @__PURE__ */ import_react90.default.createElement("thead", null, /* @__PURE__ */ import_react90.default.createElement("tr", { style: { background: "#fafafa", borderBottom: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Name"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Concepts"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Purchases"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Status"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Stripe"), /* @__PURE__ */ import_react90.default.createElement("th", { style: { padding: "12px 16px", textAlign: "right", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Actions"))), /* @__PURE__ */ import_react90.default.createElement("tbody", null, packs.map((pack) => /* @__PURE__ */ import_react90.default.createElement("tr", { key: pack.id, style: { borderBottom: "1px solid #f0f0f0" } }, /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px" } }, /* @__PURE__ */ import_react90.default.createElement(
-    "a",
+  } }, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "32px", marginBottom: "12px", display: "block", color: "#999" } }), "No packs yet. Create your first pack above.") : /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } }, packs.map((pack) => /* @__PURE__ */ import_react90.default.createElement(
+    "div",
     {
-      href: `/admin/packs/${pack.id}`,
+      key: pack.id,
       style: {
-        color: "#111",
-        textDecoration: "none",
-        fontWeight: 500,
-        fontSize: "14px"
+        background: "white",
+        borderRadius: "8px",
+        border: "1px solid #e0e0e0",
+        padding: "16px"
       }
     },
-    pack.name
-  ), pack.description && /* @__PURE__ */ import_react90.default.createElement("p", { style: { fontSize: "12px", color: "#888", margin: "4px 0 0 0" } }, pack.description.substring(0, 60), pack.description.length > 60 ? "..." : "")), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", fontSize: "14px", color: "#333" } }, formatPrice(pack.price_cents)), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center", fontSize: "14px", color: "#666" } }, pack.concept_definitions_count || 0), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center", fontSize: "14px", color: "#666" } }, pack.purchases_count || 0), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center" } }, /* @__PURE__ */ import_react90.default.createElement("span", { style: {
-    padding: "2px 8px",
-    borderRadius: "4px",
-    fontSize: "11px",
-    fontWeight: 600,
-    background: pack.published ? "#111" : "#e0e0e0",
-    color: pack.published ? "white" : "#666"
-  } }, pack.published ? "Published" : "Draft")), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center" } }, pack.stripe_price_id ? /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-check-circle", style: { color: "#333" }, title: "Synced" }) : /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "#ccc" }, title: "Not synced" })), /* @__PURE__ */ import_react90.default.createElement("td", { style: { padding: "12px 16px", textAlign: "right" } }, /* @__PURE__ */ import_react90.default.createElement(
-    "a",
-    {
-      href: `/admin/packs/${pack.id}`,
-      style: {
-        color: "#666",
-        marginRight: "12px",
-        fontSize: "14px",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        textDecoration: "none"
-      }
-    },
-    "Edit"
-  ), /* @__PURE__ */ import_react90.default.createElement(
-    "button",
-    {
-      onClick: () => handleDelete2(pack.id),
-      style: {
-        background: "none",
-        border: "none",
-        color: "#999",
-        cursor: "pointer",
-        fontSize: "14px",
-        fontFamily: "Inter, -apple-system, sans-serif"
-      }
-    },
-    "Delete"
-  )))))))));
+    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: "12px",
+      marginBottom: "12px",
+      flexWrap: "wrap"
+    } }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react90.default.createElement(
+      "a",
+      {
+        href: `/admin/packs/${pack.id}`,
+        style: {
+          color: "#111",
+          textDecoration: "none",
+          fontWeight: 600,
+          fontSize: "16px",
+          fontFamily: "Inter, -apple-system, sans-serif"
+        }
+      },
+      pack.name
+    ), pack.description && /* @__PURE__ */ import_react90.default.createElement("p", { style: {
+      fontSize: "13px",
+      color: "#888",
+      margin: "4px 0 0 0",
+      fontFamily: "Inter, -apple-system, sans-serif"
+    } }, pack.description.substring(0, 80), pack.description.length > 80 ? "..." : "")), /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center" } }, /* @__PURE__ */ import_react90.default.createElement("span", { style: {
+      padding: "4px 10px",
+      borderRadius: "4px",
+      fontSize: "12px",
+      fontWeight: 600,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      background: pack.published ? "#111" : "#e0e0e0",
+      color: pack.published ? "white" : "#666"
+    } }, pack.published ? "Published" : "Draft"))),
+    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "16px",
+      fontSize: "13px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#666",
+      marginBottom: "12px"
+    } }, /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("strong", { style: { color: "#333" } }, formatPrice(pack.price_cents))), /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-cubes", style: { marginRight: "4px", color: "#999" } }), pack.concept_definitions_count || 0, " concepts"), /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-shopping-cart", style: { marginRight: "4px", color: "#999" } }), pack.purchases_count || 0, " purchases"), /* @__PURE__ */ import_react90.default.createElement("span", null, pack.stripe_price_id ? /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-check-circle", style: { color: "#333", marginRight: "4px" } }), "Stripe") : /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "#ccc", marginRight: "4px" } }), "No Stripe"))),
+    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
+      display: "flex",
+      gap: "12px",
+      paddingTop: "12px",
+      borderTop: "1px solid #f0f0f0"
+    } }, /* @__PURE__ */ import_react90.default.createElement(
+      "a",
+      {
+        href: `/admin/packs/${pack.id}`,
+        style: {
+          color: "#111",
+          fontSize: "14px",
+          fontFamily: "Inter, -apple-system, sans-serif",
+          textDecoration: "none",
+          fontWeight: 500
+        }
+      },
+      "Edit"
+    ), /* @__PURE__ */ import_react90.default.createElement(
+      "button",
+      {
+        onClick: () => handleDelete2(pack.id),
+        style: {
+          background: "none",
+          border: "none",
+          color: "#999",
+          cursor: "pointer",
+          fontSize: "14px",
+          fontFamily: "Inter, -apple-system, sans-serif",
+          padding: 0
+        }
+      },
+      "Delete"
+    ))
+  )))));
 }
 
 // app/javascript/components/admin/AdminPackShow.js
@@ -121543,7 +122454,7 @@ function AdminPackShow({ packId }) {
   if (!pack) {
     return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#c00" } }, "Pack not found")));
   }
-  return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react91.default.createElement(
+  return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react91.default.createElement(
     "a",
     {
       href: "/admin/packs",
@@ -121574,12 +122485,13 @@ function AdminPackShow({ packId }) {
     border: "1px solid #e0e0e0",
     padding: "24px",
     marginBottom: "24px"
-  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "start", justifyContent: "space-between", marginBottom: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("h1", { style: {
-    fontSize: "24px",
+  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react91.default.createElement("h1", { style: {
+    fontSize: "20px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
-    margin: 0
+    margin: 0,
+    wordBreak: "break-word"
   } }, pack.name), /* @__PURE__ */ import_react91.default.createElement("p", { style: {
     fontSize: "14px",
     color: "#666",
@@ -121592,7 +122504,8 @@ function AdminPackShow({ packId }) {
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     background: pack.published ? "#111" : "#e0e0e0",
-    color: pack.published ? "white" : "#666"
+    color: pack.published ? "white" : "#666",
+    flexShrink: 0
   } }, pack.published ? "Published" : "Draft")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Name"), /* @__PURE__ */ import_react91.default.createElement(
     "input",
     {
@@ -121621,7 +122534,70 @@ function AdminPackShow({ packId }) {
       rows: 3,
       style: { ...inputStyle, resize: "vertical" }
     }
-  )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ import_react91.default.createElement(
+  )), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+    background: "#fafafa",
+    borderRadius: "4px",
+    padding: "16px",
+    marginBottom: "16px",
+    border: "1px solid #e0e0e0"
+  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "12px"
+  } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fab fa-stripe", style: { fontSize: "20px", color: "#635bff" } }), /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    fontSize: "14px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif",
+    color: "#333"
+  } }, "Stripe Integration"), pack.stripe_price_id && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    background: "#111",
+    color: "white",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    fontSize: "11px",
+    fontWeight: 500,
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, "Connected")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Product ID"), /* @__PURE__ */ import_react91.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: pack.stripe_product_id || "",
+      onChange: (e3) => setPack((prev) => ({ ...prev, stripe_product_id: e3.target.value })),
+      onBlur: () => handleUpdate({ stripe_product_id: pack.stripe_product_id || null }),
+      placeholder: "prod_...",
+      style: { ...inputStyle, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
+    }
+  )), /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price ID"), /* @__PURE__ */ import_react91.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: pack.stripe_price_id || "",
+      onChange: (e3) => setPack((prev) => ({ ...prev, stripe_price_id: e3.target.value })),
+      onBlur: () => handleUpdate({ stripe_price_id: pack.stripe_price_id || null }),
+      placeholder: "price_...",
+      style: { ...inputStyle, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
+    }
+  ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+    "button",
+    {
+      onClick: handleSyncStripe,
+      disabled: syncing || pack.price_cents === 0,
+      style: {
+        background: "white",
+        color: "#333",
+        border: "1px solid #ccc",
+        padding: "6px 12px",
+        borderRadius: "4px",
+        fontFamily: "Inter, -apple-system, sans-serif",
+        fontWeight: 500,
+        fontSize: "13px",
+        cursor: syncing || pack.price_cents === 0 ? "not-allowed" : "pointer",
+        opacity: pack.price_cents === 0 ? 0.5 : 1
+      }
+    },
+    syncing ? "Syncing..." : "Auto-sync to Stripe"
+  ), /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontSize: "12px", color: "#888", fontFamily: "Inter, -apple-system, sans-serif" } }, "or paste IDs from Stripe Dashboard"))), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ import_react91.default.createElement(
     "button",
     {
       onClick: () => handleUpdate({ published: !pack.published }),
@@ -121639,45 +122615,18 @@ function AdminPackShow({ packId }) {
       }
     },
     pack.published ? "Unpublish" : "Publish"
-  ), /* @__PURE__ */ import_react91.default.createElement(
-    "button",
-    {
-      onClick: handleSyncStripe,
-      disabled: syncing || pack.price_cents === 0,
-      style: {
-        background: "white",
-        color: "#333",
-        border: "1px solid #ccc",
-        padding: "8px 16px",
-        borderRadius: "4px",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontWeight: 500,
-        fontSize: "14px",
-        cursor: syncing || pack.price_cents === 0 ? "not-allowed" : "pointer",
-        opacity: pack.price_cents === 0 ? 0.5 : 1
-      }
-    },
-    /* @__PURE__ */ import_react91.default.createElement("i", { className: "fab fa-stripe", style: { marginRight: "8px" } }),
-    syncing ? "Syncing..." : pack.stripe_price_id ? "Re-sync Stripe" : "Sync to Stripe"
-  ), pack.stripe_price_id && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    fontSize: "14px",
-    color: "#333",
-    fontFamily: "Inter, -apple-system, sans-serif"
-  } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-check-circle" }), "Stripe synced"))), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
     background: "white",
     borderRadius: "8px",
     border: "1px solid #e0e0e0",
     padding: "24px"
-  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("h2", { style: {
+  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("h2", { style: {
     fontSize: "18px",
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
     margin: 0
-  } }, "Concepts (", pack.concept_definitions?.length || 0, ")"), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement(
+  } }, "Concepts (", pack.concept_definitions?.length || 0, ")"), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
     "button",
     {
       onClick: () => setShowImport(!showImport),
@@ -121693,7 +122642,7 @@ function AdminPackShow({ packId }) {
       }
     },
     /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-search", style: { marginRight: "6px" } }),
-    "Import Existing"
+    "Import"
   ), /* @__PURE__ */ import_react91.default.createElement(
     "button",
     {
@@ -121710,7 +122659,7 @@ function AdminPackShow({ packId }) {
       }
     },
     /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "6px" } }),
-    "Create New"
+    "Create"
   ))), showImport && /* @__PURE__ */ import_react91.default.createElement("div", { style: {
     background: "#fafafa",
     padding: "16px",
@@ -121777,36 +122726,34 @@ function AdminPackShow({ packId }) {
     {
       key: def.id,
       style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
         padding: "12px",
         background: "#fafafa",
         borderRadius: "4px",
         border: "1px solid #e0e0e0"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111" } }, def.label), def.concept_type && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111", wordBreak: "break-word" } }, def.label), def.concept_type && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
       fontSize: "11px",
       color: "#666",
       background: "#e0e0e0",
       padding: "1px 6px",
       borderRadius: "3px",
-      fontFamily: "Inter, -apple-system, sans-serif"
+      fontFamily: "Inter, -apple-system, sans-serif",
+      whiteSpace: "nowrap"
     } }, def.concept_type.replace(/_/g, " ")), def.links && def.links.length > 0 && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
       fontSize: "11px",
       color: "#888",
       fontFamily: "Inter, -apple-system, sans-serif",
       display: "flex",
       alignItems: "center",
-      gap: "3px"
+      gap: "3px",
+      whiteSpace: "nowrap"
     } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-link", style: { fontSize: "10px" } }), def.links.length)), def.summary && /* @__PURE__ */ import_react91.default.createElement("p", { style: {
       fontSize: "13px",
       color: "#666",
       margin: "4px 0 0 0",
       fontFamily: "Inter, -apple-system, sans-serif"
-    } }, def.summary)),
-    /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center" } }, /* @__PURE__ */ import_react91.default.createElement(
+    } }, def.summary)), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ import_react91.default.createElement(
       "button",
       {
         onClick: () => setEditingDef(def),
@@ -121821,8 +122768,7 @@ function AdminPackShow({ packId }) {
           cursor: "pointer"
         }
       },
-      /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-pen", style: { marginRight: "4px" } }),
-      "Edit"
+      /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-pen" })
     ), /* @__PURE__ */ import_react91.default.createElement(
       "button",
       {
@@ -121837,7 +122783,7 @@ function AdminPackShow({ packId }) {
         }
       },
       /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-times" })
-    ))
+    )))
   ))) : /* @__PURE__ */ import_react91.default.createElement("p", { style: {
     textAlign: "center",
     color: "#888",
@@ -121961,9 +122907,12 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         bottom: 0,
         background: "rgba(0,0,0,0.5)",
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
-        zIndex: 1e3
+        zIndex: 1e3,
+        padding: "16px",
+        boxSizing: "border-box",
+        overflow: "auto"
       }
     },
     /* @__PURE__ */ import_react91.default.createElement(
@@ -121973,11 +122922,12 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         style: {
           background: "white",
           borderRadius: "8px",
-          width: "90%",
+          width: "100%",
           maxWidth: "800px",
-          maxHeight: "90vh",
-          overflow: "auto",
-          padding: "24px"
+          overflow: "visible",
+          padding: "16px",
+          margin: "16px 0",
+          boxSizing: "border-box"
         }
       },
       /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" } }, /* @__PURE__ */ import_react91.default.createElement("h2", { style: {
@@ -122000,21 +122950,21 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         },
         "\xD7"
       )),
-      /* @__PURE__ */ import_react91.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Label *"), /* @__PURE__ */ import_react91.default.createElement(
+      /* @__PURE__ */ import_react91.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Label *"), /* @__PURE__ */ import_react91.default.createElement(
         "input",
         {
           type: "text",
           value: form.label || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, label: e3.target.value })),
           required: true,
-          style: inputStyle
+          style: { ...inputStyle, boxSizing: "border-box" }
         }
       )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Type"), /* @__PURE__ */ import_react91.default.createElement(
         "select",
         {
           value: form.concept_type || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, concept_type: e3.target.value })),
-          style: inputStyle
+          style: { ...inputStyle, boxSizing: "border-box" }
         },
         /* @__PURE__ */ import_react91.default.createElement("option", { value: "" }, "Select type..."),
         conceptTypes.map((t4) => /* @__PURE__ */ import_react91.default.createElement("option", { key: t4, value: t4 }, t4.replace(/_/g, " ")))
@@ -122034,13 +122984,13 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           rows: 4,
           style: { ...inputStyle, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Location"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Location"), /* @__PURE__ */ import_react91.default.createElement(
         "input",
         {
           type: "text",
           value: form.location || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, location: e3.target.value })),
-          style: inputStyle,
+          style: { ...inputStyle, boxSizing: "border-box" },
           placeholder: "e.g., brain region, anatomical location"
         }
       )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Etymology"), /* @__PURE__ */ import_react91.default.createElement(
@@ -122049,7 +122999,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           type: "text",
           value: form.etymology || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, etymology: e3.target.value })),
-          style: inputStyle,
+          style: { ...inputStyle, boxSizing: "border-box" },
           placeholder: "Word origin"
         }
       ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Examples"), /* @__PURE__ */ import_react91.default.createElement(
@@ -122068,13 +123018,13 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           rows: 2,
           style: { ...inputStyle, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "School of Thought"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "School of Thought"), /* @__PURE__ */ import_react91.default.createElement(
         "input",
         {
           type: "text",
           value: form.school_of_thought || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, school_of_thought: e3.target.value })),
-          style: inputStyle
+          style: { ...inputStyle, boxSizing: "border-box" }
         }
       )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Attribution"), /* @__PURE__ */ import_react91.default.createElement(
         "input",
@@ -122082,7 +123032,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           type: "text",
           value: form.attribution || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, attribution: e3.target.value })),
-          style: inputStyle,
+          style: { ...inputStyle, boxSizing: "border-box" },
           placeholder: "Original source/author"
         }
       ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Clinical Relevance"), /* @__PURE__ */ import_react91.default.createElement(
@@ -122118,13 +123068,13 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           style: inputStyle,
           placeholder: "Memory aid"
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Developmental Notes"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Developmental Notes"), /* @__PURE__ */ import_react91.default.createElement(
         "textarea",
         {
           value: form.developmental_notes || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, developmental_notes: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle, resize: "vertical", boxSizing: "border-box" }
         }
       )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Measurement Notes"), /* @__PURE__ */ import_react91.default.createElement(
         "textarea",
@@ -122132,7 +123082,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           value: form.measurement_notes || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, measurement_notes: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle, resize: "vertical", boxSizing: "border-box" }
         }
       ))), definition.id && /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("label", { style: { ...labelStyle, marginBottom: 0 } }, "Links (", links.length, ")"), /* @__PURE__ */ import_react91.default.createElement(
         "button",
@@ -122158,14 +123108,14 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         borderRadius: "4px",
         marginBottom: "12px",
         border: "1px solid #e0e0e0"
-      } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "8px" } }, /* @__PURE__ */ import_react91.default.createElement(
+      } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "8px", marginBottom: "8px" } }, /* @__PURE__ */ import_react91.default.createElement(
         "input",
         {
           type: "text",
           placeholder: "Link name",
           value: newLink.name,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, name: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px" }
+          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
         }
       ), /* @__PURE__ */ import_react91.default.createElement(
         "input",
@@ -122174,7 +123124,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           placeholder: "URL",
           value: newLink.url,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, url: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px" }
+          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
         }
       )), /* @__PURE__ */ import_react91.default.createElement(
         "input",
@@ -122183,9 +123133,9 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           placeholder: "Description (optional)",
           value: newLink.description,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, description: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", marginBottom: "8px" }
+          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", marginBottom: "8px", boxSizing: "border-box" }
         }
-      ), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end" } }, /* @__PURE__ */ import_react91.default.createElement(
+      ), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
         "button",
         {
           type: "button",
@@ -122280,7 +123230,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         fontFamily: "Inter, -apple-system, sans-serif",
         textAlign: "center",
         padding: "12px"
-      } }, "No links yet")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react91.default.createElement(
+      } }, "No links yet")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
         "button",
         {
           type: "button",
@@ -122365,12 +123315,12 @@ function AdminUsers() {
       day: "numeric"
     });
   };
-  return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "users" }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react92.default.createElement("h1", { style: {
-    fontSize: "28px",
+  return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "users" }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react92.default.createElement("h1", { style: {
+    fontSize: "24px",
     fontWeight: 700,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
-    marginBottom: "24px"
+    marginBottom: "20px"
   } }, "Users"), error && /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     padding: "12px",
     background: "#fee",
@@ -122379,26 +123329,66 @@ function AdminUsers() {
     marginBottom: "16px",
     fontFamily: "Inter, -apple-system, sans-serif",
     fontSize: "14px"
-  } }, error), loading ? /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-    background: "white",
-    borderRadius: "8px",
-    border: "1px solid #e0e0e0",
-    overflow: "hidden"
-  } }, /* @__PURE__ */ import_react92.default.createElement("table", { style: { width: "100%", borderCollapse: "collapse", fontFamily: "Inter, -apple-system, sans-serif" } }, /* @__PURE__ */ import_react92.default.createElement("thead", null, /* @__PURE__ */ import_react92.default.createElement("tr", { style: { background: "#fafafa", borderBottom: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react92.default.createElement("th", { style: { padding: "12px 16px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Email"), /* @__PURE__ */ import_react92.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Concepts"), /* @__PURE__ */ import_react92.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Packs"), /* @__PURE__ */ import_react92.default.createElement("th", { style: { padding: "12px 16px", textAlign: "center", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Admin"), /* @__PURE__ */ import_react92.default.createElement("th", { style: { padding: "12px 16px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Joined"))), /* @__PURE__ */ import_react92.default.createElement("tbody", null, users.map((user) => /* @__PURE__ */ import_react92.default.createElement("tr", { key: user.id, style: { borderBottom: "1px solid #f0f0f0" } }, /* @__PURE__ */ import_react92.default.createElement("td", { style: { padding: "12px 16px", fontSize: "14px", color: "#111" } }, user.email), /* @__PURE__ */ import_react92.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center", fontSize: "14px", color: "#666" } }, user.concepts_count), /* @__PURE__ */ import_react92.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center", fontSize: "14px", color: "#666" } }, user.packs_count), /* @__PURE__ */ import_react92.default.createElement("td", { style: { padding: "12px 16px", textAlign: "center" } }, /* @__PURE__ */ import_react92.default.createElement(
-    "button",
+  } }, error), loading ? /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } }, users.map((user) => /* @__PURE__ */ import_react92.default.createElement(
+    "div",
     {
-      onClick: () => toggleAdmin(user),
+      key: user.id,
       style: {
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        color: user.admin ? "#111" : "#ccc",
-        fontSize: "18px"
-      },
-      title: user.admin ? "Remove admin" : "Make admin"
+        background: "white",
+        borderRadius: "8px",
+        border: "1px solid #e0e0e0",
+        padding: "16px"
+      }
     },
-    /* @__PURE__ */ import_react92.default.createElement("i", { className: user.admin ? "fas fa-toggle-on" : "fas fa-toggle-off" })
-  )), /* @__PURE__ */ import_react92.default.createElement("td", { style: { padding: "12px 16px", fontSize: "14px", color: "#888" } }, formatDate(user.created_at)))))))));
+    /* @__PURE__ */ import_react92.default.createElement("div", { style: {
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-between",
+      gap: "12px",
+      marginBottom: "8px",
+      flexWrap: "wrap"
+    } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: {
+      fontWeight: 500,
+      fontSize: "15px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      wordBreak: "break-word"
+    } }, user.email), /* @__PURE__ */ import_react92.default.createElement("div", { style: {
+      fontSize: "12px",
+      color: "#888",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      marginTop: "4px"
+    } }, "Joined ", formatDate(user.created_at))), /* @__PURE__ */ import_react92.default.createElement(
+      "button",
+      {
+        onClick: () => toggleAdmin(user),
+        style: {
+          background: user.admin ? "#111" : "#e0e0e0",
+          color: user.admin ? "white" : "#666",
+          border: "none",
+          padding: "6px 12px",
+          borderRadius: "4px",
+          fontSize: "12px",
+          fontWeight: 500,
+          fontFamily: "Inter, -apple-system, sans-serif",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px"
+        }
+      },
+      /* @__PURE__ */ import_react92.default.createElement("i", { className: `fas ${user.admin ? "fa-shield-alt" : "fa-user"}` }),
+      user.admin ? "Admin" : "User"
+    )),
+    /* @__PURE__ */ import_react92.default.createElement("div", { style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "16px",
+      fontSize: "13px",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#666"
+    } }, /* @__PURE__ */ import_react92.default.createElement("span", null, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-lightbulb", style: { marginRight: "4px", color: "#999" } }), user.concepts_count, " concepts"), /* @__PURE__ */ import_react92.default.createElement("span", null, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-box", style: { marginRight: "4px", color: "#999" } }), user.packs_count, " packs"))
+  )))));
 }
 
 // app/javascript/application.js
