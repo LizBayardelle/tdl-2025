@@ -26,24 +26,26 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [conceptsRes, sourcesRes, peopleRes, connectionsRes, notesRes, tagsRes, collectionsRes] = await Promise.all([
+      const [conceptsRes, sourcesRes, peopleRes, connectionsRes, notesRes, tagsRes, collectionsRes, packsRes] = await Promise.all([
         fetch('/concepts.json'),
         fetch('/sources.json'),
         fetch('/people.json'),
         fetch('/connections.json'),
         fetch('/notes.json'),
         fetch('/tags.json'),
-        fetch('/collections.json')
+        fetch('/collections.json'),
+        fetch('/packs.json')
       ]);
 
-      const [concepts, sourcesData, people, connections, notes, tags, collectionsData] = await Promise.all([
+      const [concepts, sourcesData, people, connections, notes, tags, collectionsData, packsData] = await Promise.all([
         conceptsRes.json(),
         sourcesRes.json(),
         peopleRes.json(),
         connectionsRes.json(),
         notesRes.json(),
         tagsRes.json(),
-        collectionsRes.json()
+        collectionsRes.json(),
+        packsRes.json()
       ]);
 
       // Handle paginated responses
@@ -51,6 +53,8 @@ export default function Dashboard() {
       const sourcesTotal = sourcesData.pagination?.total_count || sources.length;
       const sourcesPdfCount = sourcesData.filters?.pdf_count || sources.filter(s => s.pdf_url).length;
       const collections = Array.isArray(collectionsData) ? collectionsData : (collectionsData.collections || collectionsData);
+      const packs = Array.isArray(packsData) ? packsData : [];
+      const ownedPacks = packs.filter(p => p.owned).length;
 
       // Calculate stats
       const conceptsByType = concepts.reduce((acc, concept) => {
@@ -76,7 +80,9 @@ export default function Dashboard() {
         totalPdfs: sourcesPdfCount,
         conceptsByType,
         needsReview,
-        pinnedNotes: notes.filter(n => n.pinned).length
+        pinnedNotes: notes.filter(n => n.pinned).length,
+        ownedPacks: ownedPacks,
+        totalPacks: packs.length
       });
 
       // Combine recent activity
@@ -131,7 +137,7 @@ export default function Dashboard() {
     );
   }
 
-  const totalItems = stats.totalConcepts + stats.totalSources + stats.totalPeople + stats.totalNotes + stats.totalTags;
+  const totalItems = stats.totalConcepts + stats.totalSources + stats.totalPeople + stats.totalNotes + stats.totalTags + stats.ownedPacks;
 
   return (
     <div style={{
@@ -202,6 +208,15 @@ export default function Dashboard() {
             onAdd={() => setShowTagModal(true)}
             color="var(--accent-purple)"
             icon="fa-tag"
+          />
+          <DossierCard
+            label="Packs"
+            code="Packs"
+            value={stats.ownedPacks}
+            link="/packs"
+            color="var(--accent-green)"
+            icon="fa-box"
+            subtitle={stats.totalPacks > stats.ownedPacks ? `${stats.totalPacks - stats.ownedPacks} available` : null}
           />
         </div>
 
@@ -287,7 +302,7 @@ export default function Dashboard() {
   );
 }
 
-function DossierCard({ label, code, value, link, onAdd, color, icon }) {
+function DossierCard({ label, code, value, link, onAdd, color, icon, subtitle }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -373,6 +388,18 @@ function DossierCard({ label, code, value, link, onAdd, color, icon }) {
               {label}
             </span>
           </div>
+          {subtitle && (
+            <div style={{
+              fontSize: 'var(--text-xs)',
+              color: color,
+              fontFamily: 'var(--font-body)',
+              paddingLeft: 'var(--space-2)',
+              marginTop: 'var(--space-1)',
+              fontWeight: 500,
+            }}>
+              {subtitle}
+            </div>
+          )}
         </div>
       </a>
 
@@ -495,7 +522,7 @@ const DashboardStyles = () => (
 
     .dashboard-cards-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 16px;
       margin-bottom: 32px;
       padding-top: 24px;

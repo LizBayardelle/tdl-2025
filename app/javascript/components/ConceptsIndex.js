@@ -298,6 +298,37 @@ export default function ConceptsIndex() {
                 Theories, Constructs, Structures, and Research Topics
               </p>
             </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <a
+                href="/packs"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-2)',
+                  padding: 'var(--space-2) var(--space-4)',
+                  background: 'white',
+                  border: '1px solid var(--accent-green)',
+                  borderRadius: 'var(--radius)',
+                  color: 'var(--accent-green)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-green)';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.color = 'var(--accent-green)';
+                }}
+              >
+                <i className="fas fa-box"></i>
+                Browse Packs
+              </a>
             <button
               onClick={() => setShowForm(!showForm)}
               style={{
@@ -332,6 +363,7 @@ export default function ConceptsIndex() {
             >
               <i className="fas fa-plus"></i>
             </button>
+            </div>
           </div>
         </div>
 

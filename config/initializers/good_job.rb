@@ -6,6 +6,7 @@ Rails.application.configure do
   config.good_job.on_thread_error = ->(exception) { Rails.logger.error(exception) }
 
   # Heroku-friendly settings
+  config.good_job.execution_mode = :async # Jobs processed in web process background threads
   config.good_job.shutdown_timeout = 25 # seconds before Heroku's 30s kill
   config.good_job.max_threads = 2 # Keep memory usage low on Standard-1X dyno
 

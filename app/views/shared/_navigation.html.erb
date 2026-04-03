@@ -85,6 +85,9 @@
               <%= link_to uploads_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
                 <i class="fas fa-upload" style="width: 1.25rem; margin-right: 0.5rem;"></i>Bulk Uploads
               <% end %>
+              <%= link_to packs_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
+                <i class="fas fa-box" style="width: 1.25rem; margin-right: 0.5rem;"></i>Packs Store
+              <% end %>
               <% if current_user.admin? %>
                 <%= link_to admin_dashboard_path, style: "display: block; padding: 0.75rem 1rem; font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700); text-decoration: none; transition: background 0.15s; border-bottom: 1px solid var(--neutral-200);" do %>
                   <i class="fas fa-cog" style="width: 1.25rem; margin-right: 0.5rem;"></i>Admin
@@ -170,6 +173,9 @@
           <%= link_to "Account", edit_user_registration_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" %>
           <%= link_to uploads_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
             <i class="fas fa-upload"></i> Bulk Uploads
+          <% end %>
+          <%= link_to packs_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" do %>
+            <i class="fas fa-box"></i> Packs Store
           <% end %>
           <% if current_user.admin? %>
             <%= link_to admin_dashboard_path, class: "mobile-nav-link #{is_themed ? '' : 'mobile-nav-link--light'}" do %>

@@ -9,23 +9,76 @@ export default function PackShow({ packId }) {
   const [error, setError] = useState('');
   const [purchasing, setPurchasing] = useState(false);
   const [selectedConcept, setSelectedConcept] = useState(null);
+  const [justPurchased, setJustPurchased] = useState(false);
+  const [purchaseProcessing, setPurchaseProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    fetchPack();
     const params = new URLSearchParams(window.location.search);
-    if (params.get('purchased') === 'true') {
+    const purchased = params.get('purchased') === 'true';
+
+    if (purchased) {
+      setPurchaseProcessing(true);
+      setJustPurchased(true);
       window.history.replaceState({}, '', window.location.pathname);
     }
+
+    fetchPack(purchased);
   }, [packId]);
 
-  const fetchPack = async () => {
+  // Poll for ownership after purchase
+  useEffect(() => {
+    if (!purchaseProcessing || !pack) return;
+
+    if (pack.owned) {
+      setPurchaseProcessing(false);
+      setShowSuccess(true);
+      // Auto-hide success after 5 seconds
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+
+    // Poll every 2 seconds for up to 30 seconds
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/packs/${packId}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          setPack(data);
+          if (data.owned) {
+            setPurchaseProcessing(false);
+            setShowSuccess(true);
+            clearInterval(pollInterval);
+            if (data.concept_definitions?.length > 0) {
+              setSelectedConcept(data.concept_definitions[0]);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 2000);
+
+    // Stop polling after 30 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(pollInterval);
+      setPurchaseProcessing(false);
+    }, 30000);
+
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(timeout);
+    };
+  }, [purchaseProcessing, pack, packId]);
+
+  const fetchPack = async (isPurchased = false) => {
     try {
       const response = await fetch(`/packs/${packId}.json`);
       if (response.ok) {
         const data = await response.json();
         setPack(data);
-        // Auto-select first concept if owned
-        if (data.owned && data.concept_definitions?.length > 0) {
+        // Auto-select first concept if owned (and not just purchased - let success show first)
+        if (data.owned && data.concept_definitions?.length > 0 && !isPurchased) {
           setSelectedConcept(data.concept_definitions[0]);
         }
       } else {
@@ -118,9 +171,73 @@ export default function PackShow({ packId }) {
     );
   }
 
+  // Processing purchase - show loading state
+  if (purchaseProcessing && !pack.owned) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#f5f5f5',
+      }}>
+        <div style={{
+          textAlign: 'center',
+          padding: '48px',
+          background: 'white',
+          borderRadius: '16px',
+          border: '1px solid #e5e5e5',
+          maxWidth: '400px',
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            border: '4px solid #e0e0e0',
+            borderTopColor: ACCENT_GREEN,
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 24px',
+          }} />
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            color: '#111',
+            margin: '0 0 12px 0',
+          }}>
+            Processing Purchase
+          </h2>
+          <p style={{
+            fontSize: '15px',
+            color: '#666',
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            margin: '0 0 8px 0',
+            lineHeight: 1.5,
+          }}>
+            Please wait while we unlock your content...
+          </p>
+          <p style={{
+            fontSize: '13px',
+            color: '#999',
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            margin: 0,
+          }}>
+            This usually takes just a few seconds
+          </p>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
   // Owned view - sidebar + content
   if (pack.owned) {
-    return <OwnedPackView pack={pack} selectedConcept={selectedConcept} setSelectedConcept={setSelectedConcept} />;
+    return (
+      <>
+        {showSuccess && <PurchaseSuccessBanner pack={pack} onClose={() => setShowSuccess(false)} />}
+        <OwnedPackView pack={pack} selectedConcept={selectedConcept} setSelectedConcept={setSelectedConcept} />
+      </>
+    );
   }
 
   // Not owned view - preview with purchase CTA
@@ -947,6 +1064,84 @@ function UnownedPackView({ pack, formatPrice, handlePurchase, purchasing }) {
       </div>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+// ============ PURCHASE SUCCESS BANNER ============
+function PurchaseSuccessBanner({ pack, onClose }) {
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      background: `linear-gradient(135deg, ${ACCENT_GREEN} 0%, #3d4f23 100%)`,
+      color: 'white',
+      padding: '16px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '16px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+      animation: 'slideDown 0.3s ease-out',
+    }}>
+      <div style={{
+        width: '40px',
+        height: '40px',
+        background: 'rgba(255,255,255,0.2)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        <i className="fas fa-check" style={{ fontSize: '20px' }}></i>
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 600,
+          fontFamily: 'Inter, -apple-system, sans-serif',
+        }}>
+          Purchase Complete!
+        </div>
+        <div style={{
+          fontSize: '14px',
+          fontFamily: 'Inter, -apple-system, sans-serif',
+          opacity: 0.9,
+        }}>
+          {pack.name} has been added to your library with {pack.concept_definitions?.length || 0} concepts
+        </div>
+      </div>
+      <button
+        onClick={onClose}
+        style={{
+          background: 'rgba(255,255,255,0.2)',
+          border: 'none',
+          color: 'white',
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+      >
+        <i className="fas fa-times"></i>
+      </button>
+      <style>{`
+        @keyframes slideDown {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -55115,7 +55115,38 @@ function ConceptsIndex() {
       }
     },
     "Theories, Constructs, Structures, and Research Topics"
-  )), /* @__PURE__ */ import_react18.default.createElement(
+  )), /* @__PURE__ */ import_react18.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)" } }, /* @__PURE__ */ import_react18.default.createElement(
+    "a",
+    {
+      href: "/packs",
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-2)",
+        padding: "var(--space-2) var(--space-4)",
+        background: "white",
+        border: "1px solid var(--accent-green)",
+        borderRadius: "var(--radius)",
+        color: "var(--accent-green)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        fontWeight: 500,
+        textDecoration: "none",
+        transition: "all 0.15s",
+        whiteSpace: "nowrap"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-green)";
+        e3.currentTarget.style.color = "white";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-green)";
+      }
+    },
+    /* @__PURE__ */ import_react18.default.createElement("i", { className: "fas fa-box" }),
+    "Browse Packs"
+  ), /* @__PURE__ */ import_react18.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
@@ -55150,7 +55181,7 @@ function ConceptsIndex() {
       title: "New Construct"
     },
     /* @__PURE__ */ import_react18.default.createElement("i", { className: "fas fa-plus" })
-  ))), /* @__PURE__ */ import_react18.default.createElement(
+  )))), /* @__PURE__ */ import_react18.default.createElement(
     ConceptFormModal,
     {
       isOpen: showForm,
@@ -86465,28 +86496,32 @@ function Dashboard() {
   }, []);
   const fetchDashboardData = async () => {
     try {
-      const [conceptsRes, sourcesRes, peopleRes, connectionsRes, notesRes, tagsRes, collectionsRes] = await Promise.all([
+      const [conceptsRes, sourcesRes, peopleRes, connectionsRes, notesRes, tagsRes, collectionsRes, packsRes] = await Promise.all([
         fetch("/concepts.json"),
         fetch("/sources.json"),
         fetch("/people.json"),
         fetch("/connections.json"),
         fetch("/notes.json"),
         fetch("/tags.json"),
-        fetch("/collections.json")
+        fetch("/collections.json"),
+        fetch("/packs.json")
       ]);
-      const [concepts, sourcesData, people, connections, notes, tags, collectionsData] = await Promise.all([
+      const [concepts, sourcesData, people, connections, notes, tags, collectionsData, packsData] = await Promise.all([
         conceptsRes.json(),
         sourcesRes.json(),
         peopleRes.json(),
         connectionsRes.json(),
         notesRes.json(),
         tagsRes.json(),
-        collectionsRes.json()
+        collectionsRes.json(),
+        packsRes.json()
       ]);
       const sources = Array.isArray(sourcesData) ? sourcesData : sourcesData.sources || [];
       const sourcesTotal = sourcesData.pagination?.total_count || sources.length;
       const sourcesPdfCount = sourcesData.filters?.pdf_count || sources.filter((s3) => s3.pdf_url).length;
       const collections = Array.isArray(collectionsData) ? collectionsData : collectionsData.collections || collectionsData;
+      const packs = Array.isArray(packsData) ? packsData : [];
+      const ownedPacks = packs.filter((p3) => p3.owned).length;
       const conceptsByType = concepts.reduce((acc, concept) => {
         acc[concept.concept_type] = (acc[concept.concept_type] || 0) + 1;
         return acc;
@@ -86508,7 +86543,9 @@ function Dashboard() {
         totalPdfs: sourcesPdfCount,
         conceptsByType,
         needsReview,
-        pinnedNotes: notes.filter((n3) => n3.pinned).length
+        pinnedNotes: notes.filter((n3) => n3.pinned).length,
+        ownedPacks,
+        totalPacks: packs.length
       });
       const activity = [
         ...concepts.slice(0, 5).map((c5) => ({ type: "concept", item: c5, date: c5.updated_at })),
@@ -86550,7 +86587,7 @@ function Dashboard() {
       letterSpacing: "0.1em"
     } }, "LOADING ARCHIVES...");
   }
-  const totalItems = stats.totalConcepts + stats.totalSources + stats.totalPeople + stats.totalNotes + stats.totalTags;
+  const totalItems = stats.totalConcepts + stats.totalSources + stats.totalPeople + stats.totalNotes + stats.totalTags + stats.ownedPacks;
   return /* @__PURE__ */ import_react52.default.createElement("div", { style: {
     minHeight: "calc(100vh - 64px)",
     background: "#e2e2e2"
@@ -86608,6 +86645,17 @@ function Dashboard() {
       onAdd: () => setShowTagModal(true),
       color: "var(--accent-purple)",
       icon: "fa-tag"
+    }
+  ), /* @__PURE__ */ import_react52.default.createElement(
+    DossierCard,
+    {
+      label: "Packs",
+      code: "Packs",
+      value: stats.ownedPacks,
+      link: "/packs",
+      color: "var(--accent-green)",
+      icon: "fa-box",
+      subtitle: stats.totalPacks > stats.ownedPacks ? `${stats.totalPacks - stats.ownedPacks} available` : null
     }
   )), /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats" }, /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats-left" }, /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Pinned Notes", value: stats.pinnedNotes }), /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Total Connections", value: stats.totalConnections }), /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Collections", value: stats.totalCollections })), /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats-right" }, "USER SINCE: ", currentTime.toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase())), /* @__PURE__ */ import_react52.default.createElement(
     ConceptFormModal,
@@ -86676,7 +86724,7 @@ function Dashboard() {
     alignItems: "center"
   } }, /* @__PURE__ */ import_react52.default.createElement("span", null, "RELATIONSHIP MATRIX"), /* @__PURE__ */ import_react52.default.createElement("span", { style: { color: "var(--neutral-500)" } }, "INTERACTIVE")), /* @__PURE__ */ import_react52.default.createElement(ConceptRelationshipMap, null))));
 }
-function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, icon: icon3 }) {
+function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, icon: icon3, subtitle }) {
   const [isHovered, setIsHovered] = (0, import_react52.useState)(false);
   return /* @__PURE__ */ import_react52.default.createElement(
     "div",
@@ -86748,7 +86796,14 @@ function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, i
         fontWeight: 600,
         fontFamily: "var(--font-body)",
         color: "var(--neutral-700)"
-      } }, label)))
+      } }, label)), subtitle && /* @__PURE__ */ import_react52.default.createElement("div", { style: {
+        fontSize: "var(--text-xs)",
+        color: color2,
+        fontFamily: "var(--font-body)",
+        paddingLeft: "var(--space-2)",
+        marginTop: "var(--space-1)",
+        fontWeight: 500
+      } }, subtitle))
     ),
     onAdd2 && /* @__PURE__ */ import_react52.default.createElement(
       "button",
@@ -86854,7 +86909,7 @@ var DashboardStyles = () => /* @__PURE__ */ import_react52.default.createElement
 
     .dashboard-cards-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 16px;
       margin-bottom: 32px;
       padding-top: 24px;
@@ -120742,20 +120797,62 @@ function PackShow({ packId }) {
   const [error, setError] = (0, import_react86.useState)("");
   const [purchasing, setPurchasing] = (0, import_react86.useState)(false);
   const [selectedConcept, setSelectedConcept] = (0, import_react86.useState)(null);
+  const [justPurchased, setJustPurchased] = (0, import_react86.useState)(false);
+  const [purchaseProcessing, setPurchaseProcessing] = (0, import_react86.useState)(false);
+  const [showSuccess, setShowSuccess] = (0, import_react86.useState)(false);
   (0, import_react86.useEffect)(() => {
-    fetchPack();
     const params = new URLSearchParams(window.location.search);
-    if (params.get("purchased") === "true") {
+    const purchased = params.get("purchased") === "true";
+    if (purchased) {
+      setPurchaseProcessing(true);
+      setJustPurchased(true);
       window.history.replaceState({}, "", window.location.pathname);
     }
+    fetchPack(purchased);
   }, [packId]);
-  const fetchPack = async () => {
+  (0, import_react86.useEffect)(() => {
+    if (!purchaseProcessing || !pack) return;
+    if (pack.owned) {
+      setPurchaseProcessing(false);
+      setShowSuccess(true);
+      const timer2 = setTimeout(() => setShowSuccess(false), 5e3);
+      return () => clearTimeout(timer2);
+    }
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`/packs/${packId}.json`);
+        if (response.ok) {
+          const data = await response.json();
+          setPack(data);
+          if (data.owned) {
+            setPurchaseProcessing(false);
+            setShowSuccess(true);
+            clearInterval(pollInterval);
+            if (data.concept_definitions?.length > 0) {
+              setSelectedConcept(data.concept_definitions[0]);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+    }, 2e3);
+    const timeout2 = setTimeout(() => {
+      clearInterval(pollInterval);
+      setPurchaseProcessing(false);
+    }, 3e4);
+    return () => {
+      clearInterval(pollInterval);
+      clearTimeout(timeout2);
+    };
+  }, [purchaseProcessing, pack, packId]);
+  const fetchPack = async (isPurchased = false) => {
     try {
       const response = await fetch(`/packs/${packId}.json`);
       if (response.ok) {
         const data = await response.json();
         setPack(data);
-        if (data.owned && data.concept_definitions?.length > 0) {
+        if (data.owned && data.concept_definitions?.length > 0 && !isPurchased) {
           setSelectedConcept(data.concept_definitions[0]);
         }
       } else {
@@ -120826,8 +120923,49 @@ function PackShow({ packId }) {
       fontSize: "14px"
     } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-arrow-left", style: { marginRight: "8px" } }), "Back to Packs")));
   }
+  if (purchaseProcessing && !pack.owned) {
+    return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#f5f5f5"
+    } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      textAlign: "center",
+      padding: "48px",
+      background: "white",
+      borderRadius: "16px",
+      border: "1px solid #e5e5e5",
+      maxWidth: "400px"
+    } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+      width: "64px",
+      height: "64px",
+      border: "4px solid #e0e0e0",
+      borderTopColor: ACCENT_GREEN2,
+      borderRadius: "50%",
+      animation: "spin 1s linear infinite",
+      margin: "0 auto 24px"
+    } }), /* @__PURE__ */ import_react86.default.createElement("h2", { style: {
+      fontSize: "24px",
+      fontWeight: 700,
+      fontFamily: "Inter, -apple-system, sans-serif",
+      color: "#111",
+      margin: "0 0 12px 0"
+    } }, "Processing Purchase"), /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+      fontSize: "15px",
+      color: "#666",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      margin: "0 0 8px 0",
+      lineHeight: 1.5
+    } }, "Please wait while we unlock your content..."), /* @__PURE__ */ import_react86.default.createElement("p", { style: {
+      fontSize: "13px",
+      color: "#999",
+      fontFamily: "Inter, -apple-system, sans-serif",
+      margin: 0
+    } }, "This usually takes just a few seconds")), /* @__PURE__ */ import_react86.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
+  }
   if (pack.owned) {
-    return /* @__PURE__ */ import_react86.default.createElement(OwnedPackView, { pack, selectedConcept, setSelectedConcept });
+    return /* @__PURE__ */ import_react86.default.createElement(import_react86.default.Fragment, null, showSuccess && /* @__PURE__ */ import_react86.default.createElement(PurchaseSuccessBanner, { pack, onClose: () => setShowSuccess(false) }), /* @__PURE__ */ import_react86.default.createElement(OwnedPackView, { pack, selectedConcept, setSelectedConcept }));
   }
   return /* @__PURE__ */ import_react86.default.createElement(UnownedPackView, { pack, formatPrice, handlePurchase, purchasing });
 }
@@ -121361,6 +121499,68 @@ function UnownedPackView({ pack, formatPrice, handlePurchase, purchasing }) {
     fontStyle: "italic",
     margin: 0
   } }, "Full content available after purchase"))), /* @__PURE__ */ import_react86.default.createElement("style", null, `@keyframes spin { to { transform: rotate(360deg); } }`));
+}
+function PurchaseSuccessBanner({ pack, onClose }) {
+  return /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1e3,
+    background: `linear-gradient(135deg, ${ACCENT_GREEN2} 0%, #3d4f23 100%)`,
+    color: "white",
+    padding: "16px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "16px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+    animation: "slideDown 0.3s ease-out"
+  } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    width: "40px",
+    height: "40px",
+    background: "rgba(255,255,255,0.2)",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0
+  } }, /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-check", style: { fontSize: "20px" } })), /* @__PURE__ */ import_react86.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "16px",
+    fontWeight: 600,
+    fontFamily: "Inter, -apple-system, sans-serif"
+  } }, "Purchase Complete!"), /* @__PURE__ */ import_react86.default.createElement("div", { style: {
+    fontSize: "14px",
+    fontFamily: "Inter, -apple-system, sans-serif",
+    opacity: 0.9
+  } }, pack.name, " has been added to your library with ", pack.concept_definitions?.length || 0, " concepts")), /* @__PURE__ */ import_react86.default.createElement(
+    "button",
+    {
+      onClick: onClose,
+      style: {
+        background: "rgba(255,255,255,0.2)",
+        border: "none",
+        color: "white",
+        width: "32px",
+        height: "32px",
+        borderRadius: "50%",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        transition: "background 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.background = "rgba(255,255,255,0.3)",
+      onMouseLeave: (e3) => e3.currentTarget.style.background = "rgba(255,255,255,0.2)"
+    },
+    /* @__PURE__ */ import_react86.default.createElement("i", { className: "fas fa-times" })
+  ), /* @__PURE__ */ import_react86.default.createElement("style", null, `
+        @keyframes slideDown {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `));
 }
 
 // app/javascript/components/PacksOwned.js
