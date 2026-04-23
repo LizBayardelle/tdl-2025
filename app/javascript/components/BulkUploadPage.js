@@ -11,7 +11,7 @@ export default function BulkUploadPage() {
   // Fetch active batch on mount
   const fetchActiveBatch = useCallback(async () => {
     try {
-      const response = await fetch('/batch_uploads/active.json');
+      const response = await fetch('/upload_batches/active.json');
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -33,7 +33,7 @@ export default function BulkUploadPage() {
 
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+        const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
         if (response.ok) {
           const data = await response.json();
           setActiveBatch(data);
@@ -60,7 +60,7 @@ export default function BulkUploadPage() {
     if (!activeBatch) return;
 
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}/start_processing`, {
+      const response = await fetch(`/upload_batches/${activeBatch.id}/start_processing`, {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -87,7 +87,7 @@ export default function BulkUploadPage() {
     }
 
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}`, {
+      const response = await fetch(`/upload_batches/${activeBatch.id}`, {
         method: 'DELETE',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -107,7 +107,7 @@ export default function BulkUploadPage() {
     if (!activeBatch) return;
 
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -126,7 +126,7 @@ export default function BulkUploadPage() {
 
     for (const item of itemsToApprove) {
       try {
-        await fetch(`/batch_upload_items/${item.id}/approve`, {
+        await fetch(`/upload_batch_items/${item.id}/approve`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default function BulkUploadPage() {
 
     // Refresh the current batch
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -158,7 +158,7 @@ export default function BulkUploadPage() {
 
     for (const item of failedItems) {
       try {
-        await fetch(`/batch_upload_items/${item.id}/retry`, {
+        await fetch(`/upload_batch_items/${item.id}/retry`, {
           method: 'POST',
           headers: {
             'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -171,7 +171,7 @@ export default function BulkUploadPage() {
 
     // Refresh the current batch
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);

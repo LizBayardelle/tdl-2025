@@ -75,7 +75,7 @@ export default function ReviewItemCard({ item, isExpanded, onToggleExpand, onApp
         }
       });
 
-      const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+      const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

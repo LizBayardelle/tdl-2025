@@ -16,7 +16,7 @@ export default function BulkUploadItemCard({ item, isExpanded, onToggle, onAppro
     setError('');
 
     try {
-      const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+      const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export default function BulkUploadItemCard({ item, isExpanded, onToggle, onAppro
     setError('');
 
     try {
-      const response = await fetch(`/batch_upload_items/${item.id}/retry`, {
+      const response = await fetch(`/upload_batch_items/${item.id}/retry`, {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,

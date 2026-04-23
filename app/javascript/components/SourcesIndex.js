@@ -892,6 +892,43 @@ export default function SourcesIndex() {
                   <i className="fas fa-list"></i>
                 </button>
               </div>
+              <a
+                href="/uploads"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  minWidth: '48px',
+                  minHeight: '48px',
+                  flexShrink: 0,
+                  borderRadius: '50%',
+                  background: 'white',
+                  color: 'var(--accent-blue)',
+                  border: '2px solid var(--accent-blue)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 'var(--text-lg)',
+                  transition: 'all 0.15s',
+                  boxShadow: 'var(--shadow-sm)',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--accent-blue)';
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white';
+                  e.currentTarget.style.color = 'var(--accent-blue)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                }}
+                title="Bulk upload"
+              >
+                <i className="fas fa-layer-group"></i>
+              </a>
               <button
                 onClick={() => setShowPdfModal(true)}
                 style={{

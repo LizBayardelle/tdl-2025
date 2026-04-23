@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
+import AdminPageHeader from './AdminPageHeader';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -7,8 +8,8 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetch('/admin.json')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setStats(data);
         setLoading(false);
       })
@@ -16,100 +17,125 @@ export default function AdminDashboard() {
   }, []);
 
   const StatCard = ({ label, value, icon }) => (
-    <div style={{
-      background: 'white',
-      padding: '16px',
-      borderRadius: '8px',
-      border: '1px solid #e0e0e0',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-    }}>
-      <div style={{
-        width: '44px',
-        height: '44px',
-        borderRadius: '8px',
-        background: '#333',
+    <div
+      style={{
+        background: 'white',
+        padding: 'var(--space-4)',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--neutral-200)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        fontSize: '16px',
-        flexShrink: 0,
-      }}>
+        gap: 'var(--space-3)',
+        transition: 'box-shadow 0.15s, transform 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+    >
+      <div
+        style={{
+          width: '44px',
+          height: '44px',
+          borderRadius: 'var(--radius)',
+          background: 'var(--neutral-800)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: '16px',
+          flexShrink: 0,
+        }}
+      >
         <i className={`fas ${icon}`}></i>
       </div>
       <div style={{ minWidth: 0 }}>
-        <div style={{
-          fontSize: '24px',
-          fontWeight: 700,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          color: '#111',
-        }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'var(--text-2xl)',
+            fontWeight: 700,
+            color: 'var(--neutral-900)',
+            lineHeight: 1.1,
+          }}
+        >
           {value}
         </div>
-        <div style={{
-          fontSize: '13px',
-          color: '#666',
-          fontFamily: 'Inter, -apple-system, sans-serif',
-        }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--neutral-500)',
+            marginTop: '2px',
+          }}
+        >
           {label}
         </div>
       </div>
     </div>
   );
 
+  const SectionLabel = ({ children }) => (
+    <div
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: 'var(--text-xs)',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        color: 'var(--neutral-700)',
+        marginBottom: 'var(--space-3)',
+        paddingBottom: 'var(--space-2)',
+        borderBottom: '1px solid var(--neutral-200)',
+      }}
+    >
+      {children}
+    </div>
+  );
+
   return (
     <AdminLayout currentPage="dashboard">
-      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{
-          fontSize: '24px',
-          fontWeight: 700,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          color: '#111',
-          marginBottom: '20px',
-        }}>
-          Dashboard
-        </h1>
+      <AdminPageHeader title="Dashboard" subtitle="System overview and key metrics" />
 
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
         {loading ? (
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#666' }}>Loading...</p>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
         ) : stats ? (
           <>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: '12px',
-              marginBottom: '24px',
-            }}>
+            <SectionLabel>Users &amp; Purchases</SectionLabel>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: 'var(--space-3)',
+                marginBottom: 'var(--space-8)',
+              }}
+            >
               <StatCard label="Total Users" value={stats.total_users} icon="fa-users" />
               <StatCard label="Users This Month" value={stats.users_this_month} icon="fa-user-plus" />
               <StatCard label="Published Packs" value={stats.published_packs} icon="fa-box" />
               <StatCard label="Total Purchases" value={stats.total_purchases} icon="fa-shopping-cart" />
             </div>
 
-            <h2 style={{
-              fontSize: '18px',
-              fontWeight: 600,
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              color: '#111',
-              marginBottom: '16px',
-            }}>
-              Content Stats
-            </h2>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: '12px',
-            }}>
+            <SectionLabel>Content</SectionLabel>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: 'var(--space-3)',
+              }}
+            >
               <StatCard label="Total Concepts" value={stats.total_concepts} icon="fa-lightbulb" />
               <StatCard label="Total Sources" value={stats.total_sources} icon="fa-book" />
               <StatCard label="Purchases This Month" value={stats.purchases_this_month} icon="fa-chart-line" />
             </div>
           </>
         ) : (
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#c00' }}>Failed to load stats</p>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--error)' }}>Failed to load stats</p>
         )}
       </div>
     </AdminLayout>

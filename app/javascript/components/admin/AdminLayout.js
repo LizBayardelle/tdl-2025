@@ -1,178 +1,159 @@
 import React, { useState, useEffect } from 'react';
 
 export default function AdminLayout({ children, currentPage }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
         setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
       }
     };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: 'fa-tachometer-alt' },
-    { href: '/admin/packs', label: 'Packs', icon: 'fa-box' },
-    { href: '/admin/users', label: 'Users', icon: 'fa-users' },
+    { href: '/admin', label: 'Dashboard', icon: 'fa-tachometer-alt', key: 'dashboard' },
+    { href: '/admin/packs', label: 'Packs', icon: 'fa-box', key: 'packs' },
+    { href: '/admin/concept_generations', label: 'Generate Concepts', icon: 'fa-wand-magic-sparkles', key: 'concept_generations' },
+    { href: '/admin/users', label: 'Users', icon: 'fa-users', key: 'users' },
   ];
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 64px)' }}>
-      {/* Mobile Header */}
-      {isMobile && (
-        <div style={{
-          background: '#1a1a1a',
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            color: 'white',
-          }}>
-            Admin
-          </div>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              fontSize: '20px',
-              cursor: 'pointer',
-              padding: '4px 8px',
-            }}
-          >
-            <i className={`fas ${sidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
-          </button>
-        </div>
-      )}
-
-      <div style={{ display: 'flex' }}>
-        {/* Sidebar Overlay (mobile) */}
-        {isMobile && sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0,0,0,0.5)',
-              zIndex: 199,
-            }}
-          />
-        )}
-
-        {/* Sidebar */}
-        <aside style={{
-          width: '220px',
-          background: '#1a1a1a',
-          padding: '16px',
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: sidebarOpen ? '260px' : '0',
+          background: '#e2e2e2',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: sidebarOpen ? 'var(--space-6)' : '0',
+          boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
+          transition: 'all 0.3s ease',
           flexShrink: 0,
-          // Mobile styles
-          ...(isMobile ? {
-            position: 'fixed',
-            top: 0,
-            left: sidebarOpen ? 0 : '-220px',
-            bottom: 0,
-            zIndex: 200,
-            transition: 'left 0.2s ease',
-            paddingTop: '60px',
-          } : {}),
-        }}>
-          {!isMobile && (
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#888',
-              marginBottom: '16px',
-              padding: '0 12px',
-            }}>
-              Admin
-            </div>
-          )}
-
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {navItems.map(item => {
-              const isActive = currentPage === item.label.toLowerCase();
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => isMobile && setSidebarOpen(false)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '10px 12px',
-                    borderRadius: '4px',
-                    textDecoration: 'none',
-                    fontFamily: 'Inter, -apple-system, sans-serif',
-                    fontSize: '14px',
-                    color: isActive ? 'white' : '#999',
-                    background: isActive ? '#333' : 'transparent',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center' }}></i>
-                  {item.label}
-                </a>
-              );
-            })}
-          </nav>
-
-          <div style={{
-            paddingTop: '24px',
-            borderTop: '1px solid #333',
-            marginTop: '24px',
-          }}>
-            <a
-              href="/"
+        }}
+      >
+        {sidebarOpen && (
+          <>
+            <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '10px 12px',
-                textDecoration: 'none',
-                fontFamily: 'Inter, -apple-system, sans-serif',
-                fontSize: '14px',
-                color: '#666',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'var(--neutral-500)',
+                marginBottom: 'var(--space-4)',
+                padding: '0 var(--space-2)',
               }}
             >
-              <i className="fas fa-arrow-left" style={{ width: '16px', textAlign: 'center' }}></i>
-              Back to App
-            </a>
-          </div>
-        </aside>
+              Admin
+            </div>
 
-        {/* Main content */}
-        <main style={{
-          flex: 1,
-          background: '#f5f5f5',
-          overflow: 'auto',
-          minHeight: isMobile ? 'calc(100vh - 64px - 48px)' : 'calc(100vh - 64px)',
-        }}>
-          {children}
-        </main>
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: 'var(--space-6)' }}>
+              {navItems.map((item) => {
+                const isActive = currentPage === item.key;
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-3)',
+                      padding: 'var(--space-2) var(--space-3)',
+                      borderRadius: 'var(--radius)',
+                      textDecoration: 'none',
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? 'var(--neutral-900)' : 'var(--neutral-700)',
+                      background: isActive ? 'var(--neutral-200)' : 'transparent',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'var(--neutral-100)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+                    {item.label}
+                  </a>
+                );
+              })}
+            </nav>
+
+            <div style={{ paddingTop: 'var(--space-4)', borderTop: '1px solid var(--neutral-200)' }}>
+              <a
+                href="/"
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  textDecoration: 'none',
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--neutral-500)',
+                  transition: 'color 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--neutral-800)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--neutral-500)')}
+              >
+                <i className="fas fa-arrow-left" style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+                Back to App
+              </a>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Toggle tab */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        style={{
+          position: 'absolute',
+          left: sidebarOpen ? '260px' : '0',
+          top: '164px',
+          width: '24px',
+          height: '48px',
+          background: 'var(--neutral-800)',
+          border: 'none',
+          color: 'white',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderTopRightRadius: '4px',
+          borderBottomRightRadius: '4px',
+          transition: 'left 0.3s ease',
+          zIndex: 10,
+          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
+        }}
+        title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+      >
+        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
+      </button>
+
+      {/* Main content */}
+      <main
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          background: 'white',
+        }}
+      >
+        {children}
+      </main>
     </div>
   );
 }

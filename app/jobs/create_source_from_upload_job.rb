@@ -3,7 +3,7 @@ class CreateSourceFromUploadJob < ApplicationJob
   queue_as :default
 
   def perform(item_id)
-    item = BatchUploadItem.find_by(id: item_id)
+    item = UploadBatchItem.find_by(id: item_id)
     return unless item
     return unless item.status_approved?
 

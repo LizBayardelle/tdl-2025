@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
+import AdminPageHeader from './AdminPageHeader';
 
 export default function AdminPacks() {
   const [packs, setPacks] = useState([]);
@@ -35,9 +36,9 @@ export default function AdminPacks() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ pack: formData })
+        body: JSON.stringify({ pack: formData }),
       });
 
       if (res.ok) {
@@ -62,11 +63,11 @@ export default function AdminPacks() {
     try {
       const res = await fetch(`/admin/packs/${id}`, {
         method: 'DELETE',
-        headers: { 'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content }
+        headers: { 'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content },
       });
 
       if (res.ok) {
-        setPacks(packs.filter(p => p.id !== id));
+        setPacks(packs.filter((p) => p.id !== id));
       } else {
         const data = await res.json();
         alert(data.errors?.join(', ') || 'Failed to delete');
@@ -83,90 +84,106 @@ export default function AdminPacks() {
 
   const inputStyle = {
     width: '100%',
-    padding: '10px 12px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    fontSize: '16px',
-    fontFamily: 'Inter, -apple-system, sans-serif',
+    padding: 'var(--space-2) var(--space-3)',
+    border: '1px solid var(--neutral-300)',
+    borderRadius: 'var(--radius)',
+    fontSize: 'var(--text-sm)',
+    fontFamily: 'var(--font-body)',
     boxSizing: 'border-box',
+    background: 'white',
   };
+
+  const actions = (
+    <button
+      onClick={() => setShowForm(!showForm)}
+      style={{
+        width: '48px',
+        height: '48px',
+        borderRadius: '50%',
+        background: 'white',
+        color: 'var(--neutral-900)',
+        border: 'none',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 'var(--text-xl)',
+        transition: 'all 0.15s',
+        boxShadow: 'var(--shadow-md)',
+        flexShrink: 0,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+      }}
+      title="New Pack"
+    >
+      <i className={`fas ${showForm ? 'fa-times' : 'fa-plus'}`}></i>
+    </button>
+  );
 
   return (
     <AdminLayout currentPage="packs">
-      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}>
-          <h1 style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            color: '#111',
-            margin: 0,
-          }}>
-            Packs
-          </h1>
-          <button
-            onClick={() => setShowForm(!showForm)}
+      <AdminPageHeader title="Packs" subtitle="Manage concept packs and Stripe integration" actions={actions} />
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+        {error && (
+          <div
             style={{
-              background: '#111',
-              color: 'white',
-              border: 'none',
-              padding: '10px 16px',
-              borderRadius: '4px',
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
+              padding: 'var(--space-3)',
+              background: 'var(--accent-red-light)',
+              color: 'var(--accent-red)',
+              borderRadius: 'var(--radius)',
+              marginBottom: 'var(--space-4)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
             }}
           >
-            <i className="fas fa-plus"></i>
-            New Pack
-          </button>
-        </div>
-
-        {error && (
-          <div style={{
-            padding: '12px',
-            background: '#fee',
-            color: '#c00',
-            borderRadius: '4px',
-            marginBottom: '16px',
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            fontSize: '14px',
-          }}>
             {error}
           </div>
         )}
 
         {showForm && (
-          <div style={{
-            background: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            border: '1px solid #e0e0e0',
-            marginBottom: '20px',
-          }}>
-            <h2 style={{
-              fontSize: '18px',
-              fontWeight: 600,
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              marginBottom: '16px',
-              color: '#111',
-            }}>
+          <div
+            style={{
+              background: 'white',
+              padding: 'var(--space-6)',
+              borderRadius: 'var(--radius)',
+              border: '1px solid var(--neutral-200)',
+              marginBottom: 'var(--space-6)',
+              boxShadow: 'var(--shadow-sm)',
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                color: 'var(--neutral-900)',
+                marginTop: 0,
+                marginBottom: 'var(--space-4)',
+              }}
+            >
               Create New Pack
             </h2>
             <form onSubmit={handleCreate}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', fontWeight: 500, color: '#333' }}>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 'var(--space-1)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 600,
+                    color: 'var(--neutral-600)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   Name *
                 </label>
                 <input
@@ -177,8 +194,19 @@ export default function AdminPacks() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', fontWeight: 500, color: '#333' }}>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 'var(--space-1)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 600,
+                    color: 'var(--neutral-600)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   Description
                 </label>
                 <textarea
@@ -188,8 +216,19 @@ export default function AdminPacks() {
                   style={{ ...inputStyle, resize: 'vertical' }}
                 />
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', fontWeight: 500, color: '#333' }}>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    marginBottom: 'var(--space-1)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 600,
+                    color: 'var(--neutral-600)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
                   Price (cents, 0 = free)
                 </label>
                 <input
@@ -200,19 +239,19 @@ export default function AdminPacks() {
                   style={{ ...inputStyle, maxWidth: '150px' }}
                 />
               </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
                 <button
                   type="submit"
                   disabled={saving}
                   style={{
-                    background: saving ? '#ccc' : '#111',
+                    background: saving ? 'var(--neutral-300)' : 'var(--neutral-800)',
                     color: 'white',
                     border: 'none',
-                    padding: '10px 20px',
-                    borderRadius: '4px',
-                    fontFamily: 'Inter, -apple-system, sans-serif',
+                    padding: 'var(--space-2) var(--space-4)',
+                    borderRadius: 'var(--radius)',
+                    fontFamily: 'var(--font-display)',
                     fontWeight: 500,
-                    fontSize: '14px',
+                    fontSize: 'var(--text-sm)',
                     cursor: saving ? 'not-allowed' : 'pointer',
                   }}
                 >
@@ -222,13 +261,13 @@ export default function AdminPacks() {
                   type="button"
                   onClick={() => setShowForm(false)}
                   style={{
-                    background: '#e0e0e0',
-                    color: '#333',
-                    border: 'none',
-                    padding: '10px 20px',
-                    borderRadius: '4px',
-                    fontFamily: 'Inter, -apple-system, sans-serif',
-                    fontSize: '14px',
+                    background: 'white',
+                    color: 'var(--neutral-700)',
+                    border: '1px solid var(--neutral-300)',
+                    padding: 'var(--space-2) var(--space-4)',
+                    borderRadius: 'var(--radius)',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--text-sm)',
                     cursor: 'pointer',
                   }}
                 >
@@ -240,120 +279,146 @@ export default function AdminPacks() {
         )}
 
         {loading ? (
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#666' }}>Loading...</p>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
         ) : packs.length === 0 ? (
-          <div style={{
-            background: 'white',
-            padding: '32px',
-            borderRadius: '8px',
-            textAlign: 'center',
-            color: '#666',
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            border: '1px solid #e0e0e0',
-          }}>
-            <i className="fas fa-box-open" style={{ fontSize: '32px', marginBottom: '12px', display: 'block', color: '#999' }}></i>
+          <div
+            style={{
+              background: 'white',
+              padding: 'var(--space-8)',
+              borderRadius: 'var(--radius)',
+              textAlign: 'center',
+              color: 'var(--neutral-500)',
+              fontFamily: 'var(--font-body)',
+              border: '1px solid var(--neutral-200)',
+            }}
+          >
+            <i
+              className="fas fa-box-open"
+              style={{ fontSize: '32px', marginBottom: 'var(--space-3)', display: 'block', color: 'var(--neutral-300)' }}
+            ></i>
             No packs yet. Create your first pack above.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {packs.map(pack => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            {packs.map((pack) => (
               <div
                 key={pack.id}
                 style={{
                   background: 'white',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  padding: '16px',
+                  borderRadius: 'var(--radius)',
+                  border: '1px solid var(--neutral-200)',
+                  padding: 'var(--space-4)',
+                  transition: 'box-shadow 0.15s',
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-sm)')}
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  justifyContent: 'space-between',
-                  gap: '12px',
-                  marginBottom: '12px',
-                  flexWrap: 'wrap',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 'var(--space-3)',
+                    marginBottom: 'var(--space-3)',
+                    flexWrap: 'wrap',
+                  }}
+                >
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <a
                       href={`/admin/packs/${pack.id}`}
                       style={{
-                        color: '#111',
+                        fontFamily: 'var(--font-display)',
+                        color: 'var(--neutral-900)',
                         textDecoration: 'none',
                         fontWeight: 600,
-                        fontSize: '16px',
-                        fontFamily: 'Inter, -apple-system, sans-serif',
+                        fontSize: 'var(--text-lg)',
                       }}
                     >
                       {pack.name}
                     </a>
                     {pack.description && (
-                      <p style={{
-                        fontSize: '13px',
-                        color: '#888',
-                        margin: '4px 0 0 0',
-                        fontFamily: 'Inter, -apple-system, sans-serif',
-                      }}>
-                        {pack.description.substring(0, 80)}{pack.description.length > 80 ? '...' : ''}
+                      <p
+                        style={{
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-500)',
+                          margin: '4px 0 0 0',
+                          fontFamily: 'var(--font-body)',
+                        }}
+                      >
+                        {pack.description.substring(0, 120)}
+                        {pack.description.length > 120 ? '...' : ''}
                       </p>
                     )}
                   </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <span style={{
+                  <span
+                    style={{
                       padding: '4px 10px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
+                      borderRadius: 'var(--radius)',
+                      fontSize: 'var(--text-xs)',
                       fontWeight: 600,
-                      fontFamily: 'Inter, -apple-system, sans-serif',
-                      background: pack.published ? '#111' : '#e0e0e0',
-                      color: pack.published ? 'white' : '#666',
-                    }}>
-                      {pack.published ? 'Published' : 'Draft'}
-                    </span>
-                  </div>
+                      fontFamily: 'var(--font-display)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      background: pack.published ? 'var(--neutral-800)' : 'var(--neutral-100)',
+                      color: pack.published ? 'white' : 'var(--neutral-600)',
+                      border: pack.published ? 'none' : '1px solid var(--neutral-300)',
+                    }}
+                  >
+                    {pack.published ? 'Published' : 'Draft'}
+                  </span>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '16px',
-                  fontSize: '13px',
-                  fontFamily: 'Inter, -apple-system, sans-serif',
-                  color: '#666',
-                  marginBottom: '12px',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-4)',
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-600)',
+                    marginBottom: 'var(--space-3)',
+                  }}
+                >
                   <span>
-                    <strong style={{ color: '#333' }}>{formatPrice(pack.price_cents)}</strong>
+                    <strong style={{ color: 'var(--neutral-900)' }}>{formatPrice(pack.price_cents)}</strong>
                   </span>
                   <span>
-                    <i className="fas fa-cubes" style={{ marginRight: '4px', color: '#999' }}></i>
+                    <i className="fas fa-cubes" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
                     {pack.concept_definitions_count || 0} concepts
                   </span>
                   <span>
-                    <i className="fas fa-shopping-cart" style={{ marginRight: '4px', color: '#999' }}></i>
+                    <i className="fas fa-shopping-cart" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
                     {pack.purchases_count || 0} purchases
                   </span>
                   <span>
                     {pack.stripe_price_id ? (
-                      <><i className="fas fa-check-circle" style={{ color: '#333', marginRight: '4px' }}></i>Stripe</>
+                      <>
+                        <i className="fas fa-check-circle" style={{ color: 'var(--neutral-800)', marginRight: '4px' }}></i>
+                        Stripe
+                      </>
                     ) : (
-                      <><i className="fas fa-exclamation-circle" style={{ color: '#ccc', marginRight: '4px' }}></i>No Stripe</>
+                      <>
+                        <i className="fas fa-exclamation-circle" style={{ color: 'var(--neutral-300)', marginRight: '4px' }}></i>
+                        No Stripe
+                      </>
                     )}
                   </span>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  gap: '12px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid #f0f0f0',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: 'var(--space-4)',
+                    paddingTop: 'var(--space-3)',
+                    borderTop: '1px solid var(--neutral-100)',
+                  }}
+                >
                   <a
                     href={`/admin/packs/${pack.id}`}
                     style={{
-                      color: '#111',
-                      fontSize: '14px',
-                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      color: 'var(--neutral-900)',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
                       textDecoration: 'none',
                       fontWeight: 500,
                     }}
@@ -365,12 +430,14 @@ export default function AdminPacks() {
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#999',
+                      color: 'var(--neutral-500)',
                       cursor: 'pointer',
-                      fontSize: '14px',
-                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      fontSize: 'var(--text-sm)',
+                      fontFamily: 'var(--font-body)',
                       padding: 0,
                     }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-red)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--neutral-500)')}
                   >
                     Delete
                   </button>

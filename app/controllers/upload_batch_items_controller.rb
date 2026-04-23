@@ -1,4 +1,4 @@
-class BatchUploadItemsController < ApplicationController
+class UploadBatchItemsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_item
 
@@ -7,7 +7,6 @@ class BatchUploadItemsController < ApplicationController
   end
 
   def update
-    # Update metadata and decisions
     if params[:extracted_metadata].present?
       @item.extracted_metadata = @item.extracted_metadata.merge(params[:extracted_metadata].to_unsafe_h)
     end
@@ -55,15 +54,15 @@ class BatchUploadItemsController < ApplicationController
   private
 
   def set_item
-    @item = BatchUploadItem.joins(:batch_upload)
-                           .where(batch_uploads: { user_id: current_user.id })
+    @item = UploadBatchItem.joins(:upload_batch)
+                           .where(upload_batches: { user_id: current_user.id })
                            .find(params[:id])
   end
 
   def item_json(item)
     {
       id: item.id,
-      batch_upload_id: item.batch_upload_id,
+      upload_batch_id: item.upload_batch_id,
       status: item.status,
       original_filename: item.original_filename,
       file_size: item.file_size,

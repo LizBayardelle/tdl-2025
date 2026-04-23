@@ -118,7 +118,7 @@ function WizardContent() {
   const fetchActiveBatch = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const response = await fetch('/batch_uploads/active.json');
+      const response = await fetch('/upload_batches/active.json');
       if (response.ok) {
         const data = await response.json();
         if (data) {

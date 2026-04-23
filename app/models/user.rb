@@ -14,7 +14,7 @@ class User < ApplicationRecord
   has_many :tags, dependent: :destroy
   has_many :highlight_colors, dependent: :destroy
   has_many :highlights, dependent: :destroy
-  has_many :batch_uploads, dependent: :destroy
+  has_many :upload_batches, dependent: :destroy
   has_many :user_packs, dependent: :destroy
   has_many :packs, through: :user_packs
 

@@ -39,3 +39,30 @@ domain_tree.each do |parent_name, config|
 end
 
 puts "Seeded #{Domain.count} domains"
+
+# === Allowed Domains (for AI concept generation web search) ===
+allowed_domains = [
+  { domain: 'wikipedia.org',            category: 'reference',     notes: 'General reference with source citations' },
+  { domain: 'nih.gov',                  category: 'medical',       notes: 'National Institutes of Health — umbrella' },
+  { domain: 'ncbi.nlm.nih.gov',         category: 'research',      notes: 'PubMed/NCBI — peer-reviewed biomedical literature' },
+  { domain: 'pubmed.ncbi.nlm.nih.gov',  category: 'research',      notes: 'PubMed direct' },
+  { domain: 'mayoclinic.org',           category: 'medical',       notes: 'Mayo Clinic clinical summaries' },
+  { domain: 'my.clevelandclinic.org',   category: 'medical',       notes: 'Cleveland Clinic patient/clinical resources' },
+  { domain: 'sciencedirect.com',        category: 'research',      notes: 'Elsevier — peer-reviewed journals' },
+  { domain: 'nimh.nih.gov',             category: 'mental_health', notes: 'National Institute of Mental Health' },
+  { domain: 'psychiatry.org',           category: 'mental_health', notes: 'American Psychiatric Association (APA)' },
+  { domain: 'who.int',                  category: 'medical',       notes: 'World Health Organization' },
+  { domain: 'mentalhealth.va.gov',      category: 'mental_health', notes: 'US VA mental health' },
+  { domain: 'apa.org',                  category: 'mental_health', notes: 'American Psychological Association' },
+  { domain: 'merriam-webster.com',      category: 'reference',     notes: 'Etymology lookups' }
+]
+
+allowed_domains.each do |attrs|
+  AllowedDomain.find_or_create_by!(domain: attrs[:domain]) do |d|
+    d.category = attrs[:category]
+    d.notes = attrs[:notes]
+    d.active = true
+  end
+end
+
+puts "Seeded #{AllowedDomain.count} allowed domains"

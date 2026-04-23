@@ -11,7 +11,7 @@ class ProcessBulkUploadItemJob < ApplicationJob
   retry_on StandardError, wait: :polynomially_longer, attempts: 3
 
   def perform(item_id)
-    item = BatchUploadItem.find_by(id: item_id)
+    item = UploadBatchItem.find_by(id: item_id)
     return unless item
     return unless item.pdf.attached?
 

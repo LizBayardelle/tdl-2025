@@ -1,14 +1,82 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useBulkUpload } from './BulkUploadContext';
 
+const UPLOAD_CONCURRENCY = 3;
+const FILE_TIMEOUT_MS = 120000;
+
 export default function UploadPhase() {
   const { state, dispatch } = useBulkUpload();
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [failedFiles, setFailedFiles] = useState([]);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
   const folderInputRef = useRef(null);
+
+  const csrfToken = () => document.querySelector('[name="csrf-token"]')?.content;
+
+  const uploadOneFile = async (batchId, file) => {
+    const fd = new FormData();
+    fd.append('files[]', file);
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FILE_TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`/upload_batches/${batchId}/add_files`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken() },
+        body: fd,
+        signal: controller.signal,
+      });
+
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const data = await res.json();
+          msg = data.error || data.errors?.join(', ') || msg;
+        } catch (_) {}
+        return { ok: false, file, error: msg };
+      }
+
+      const data = await res.json();
+      const failedFromServer = data.failed_files?.[0];
+      if (failedFromServer) {
+        return { ok: false, file, error: failedFromServer.error };
+      }
+      return { ok: true, file, item: data.items?.[0], batch: data.batch };
+    } catch (err) {
+      const msg = err.name === 'AbortError'
+        ? 'Upload timed out — file may be too large or your connection is slow'
+        : (err.message || 'Network error');
+      return { ok: false, file, error: msg };
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const runWithConcurrency = async (items, limit, worker) => {
+    const queue = items.slice();
+    const inflight = [];
+
+    const startNext = () => {
+      const next = queue.shift();
+      if (!next) return null;
+      const p = worker(next).finally(() => {
+        const idx = inflight.indexOf(p);
+        if (idx >= 0) inflight.splice(idx, 1);
+      });
+      inflight.push(p);
+      return p;
+    };
+
+    while (queue.length > 0 || inflight.length > 0) {
+      while (inflight.length < limit && queue.length > 0) startNext();
+      if (inflight.length === 0) break;
+      await Promise.race(inflight);
+    }
+  };
 
   // If we have a pending batch, show it
   const hasPendingBatch = state.batch && state.batch.status === 'pending';
@@ -108,52 +176,74 @@ export default function UploadPhase() {
   const uploadFiles = async (files) => {
     setUploading(true);
     setUploadProgress({ current: 0, total: files.length });
+    setFailedFiles([]);
     setError('');
 
+    let batchId;
     try {
-      const formData = new FormData();
-      formData.append('name', `Upload ${new Date().toLocaleString()}`);
-
-      files.forEach((file, idx) => {
-        formData.append('files[]', file);
-        setUploadProgress({ current: idx + 1, total: files.length });
-      });
-
-      const response = await fetch('/batch_uploads', {
+      const createRes = await fetch('/upload_batches', {
         method: 'POST',
         headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'X-CSRF-Token': csrfToken(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({ name: `Upload ${new Date().toLocaleString()}` }),
       });
 
-      if (response.ok) {
-        const batch = await response.json();
-        // Fetch full batch with items
-        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
-        if (fullResponse.ok) {
-          const fullBatch = await fullResponse.json();
-          dispatch({ type: 'SET_BATCH', payload: fullBatch });
-        } else {
-          dispatch({ type: 'SET_BATCH', payload: batch });
-        }
-      } else {
-        const data = await response.json();
-        setError(data.errors?.join(', ') || 'Upload failed');
+      if (!createRes.ok) {
+        const data = await createRes.json().catch(() => ({}));
+        setError(data.errors?.join(', ') || 'Failed to create upload batch');
+        setUploading(false);
+        return;
+      }
+      const created = await createRes.json();
+      batchId = created.id;
+    } catch (err) {
+      console.error('Batch create error:', err);
+      setError('Could not start upload — check your connection and try again');
+      setUploading(false);
+      return;
+    }
+
+    let completed = 0;
+    const failures = [];
+
+    await runWithConcurrency(files, UPLOAD_CONCURRENCY, async (file) => {
+      const result = await uploadOneFile(batchId, file);
+      completed += 1;
+      setUploadProgress({ current: completed, total: files.length });
+      if (!result.ok) {
+        failures.push({ name: file.name, error: result.error });
+      }
+    });
+
+    setFailedFiles(failures);
+
+    try {
+      const fullResponse = await fetch(`/upload_batches/${batchId}.json`);
+      if (fullResponse.ok) {
+        const fullBatch = await fullResponse.json();
+        dispatch({ type: 'SET_BATCH', payload: fullBatch });
       }
     } catch (err) {
-      console.error('Upload error:', err);
-      setError('An error occurred during upload');
-    } finally {
-      setUploading(false);
+      console.error('Failed to refresh batch:', err);
     }
+
+    if (failures.length === files.length) {
+      setError('All uploads failed. See details below.');
+    } else if (failures.length > 0) {
+      setError(`${failures.length} of ${files.length} files failed to upload.`);
+    }
+
+    setUploading(false);
   };
 
   const handleStartProcessing = async () => {
     if (!state.batch) return;
 
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}/start_processing`, {
+      const response = await fetch(`/upload_batches/${state.batch.id}/start_processing`, {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -181,7 +271,7 @@ export default function UploadPhase() {
     }
 
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}`, {
+      const response = await fetch(`/upload_batches/${state.batch.id}`, {
         method: 'DELETE',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -194,6 +284,46 @@ export default function UploadPhase() {
     } catch (err) {
       setError('Failed to cancel batch');
     }
+  };
+
+  const renderFailedFiles = () => {
+    if (!failedFiles.length) return null;
+    return (
+      <div style={{
+        marginBottom: 'var(--space-4)',
+        padding: 'var(--space-3) var(--space-4)',
+        background: '#fff5f5',
+        border: '1px solid #fed7d7',
+        borderRadius: '8px',
+      }}>
+        <div style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: 600,
+          color: '#c53030',
+          marginBottom: 'var(--space-2)',
+        }}>
+          {failedFiles.length} file{failedFiles.length === 1 ? '' : 's'} failed to upload
+        </div>
+        <ul style={{
+          listStyle: 'none',
+          padding: 0,
+          margin: 0,
+          maxHeight: '200px',
+          overflowY: 'auto',
+        }}>
+          {failedFiles.map((f, i) => (
+            <li key={i} style={{
+              fontSize: 'var(--text-xs)',
+              color: 'var(--neutral-700)',
+              padding: 'var(--space-1) 0',
+            }}>
+              <strong>{f.name}</strong>: {f.error}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   // Uploading state
@@ -264,6 +394,7 @@ export default function UploadPhase() {
   if (hasPendingBatch) {
     return (
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: 'var(--space-6)' }}>
+      {renderFailedFiles()}
       <div
         style={{
           overflow: 'hidden',
@@ -365,6 +496,7 @@ export default function UploadPhase() {
           <i className="fas fa-exclamation-circle"></i> {error}
         </div>
       )}
+      {renderFailedFiles()}
 
       <div
         onDragEnter={handleDragEnter}

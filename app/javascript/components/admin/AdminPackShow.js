@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
+import AdminPageHeader from './AdminPageHeader';
 
 export default function AdminPackShow({ packId }) {
   const [pack, setPack] = useState(null);
@@ -239,8 +240,9 @@ export default function AdminPackShow({ packId }) {
   if (loading) {
     return (
       <AdminLayout currentPage="packs">
-        <div style={{ padding: '32px' }}>
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#666' }}>Loading...</p>
+        <AdminPageHeader title="Loading..." backHref="/admin/packs" backLabel="Back to Packs" />
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
         </div>
       </AdminLayout>
     );
@@ -249,33 +251,43 @@ export default function AdminPackShow({ packId }) {
   if (!pack) {
     return (
       <AdminLayout currentPage="packs">
-        <div style={{ padding: '32px' }}>
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#c00' }}>Pack not found</p>
+        <AdminPageHeader title="Pack not found" backHref="/admin/packs" backLabel="Back to Packs" />
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--accent-red)' }}>The pack could not be loaded.</p>
         </div>
       </AdminLayout>
     );
   }
 
+  const headerActions = (
+    <span
+      style={{
+        padding: '6px 12px',
+        borderRadius: 'var(--radius)',
+        fontSize: 'var(--text-xs)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-display)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.05em',
+        background: pack.published ? 'white' : 'transparent',
+        color: pack.published ? 'var(--neutral-900)' : 'rgba(255,255,255,0.8)',
+        border: pack.published ? 'none' : '1px solid rgba(255,255,255,0.3)',
+      }}
+    >
+      {pack.published ? 'Published' : 'Draft'}
+    </span>
+  );
+
   return (
     <AdminLayout currentPage="packs">
-      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
-        <a
-          href="/admin/packs"
-          style={{
-            color: '#666',
-            textDecoration: 'none',
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            fontSize: '14px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '16px',
-          }}
-        >
-          <i className="fas fa-arrow-left"></i>
-          Back to Packs
-        </a>
-
+      <AdminPageHeader
+        title={pack.name}
+        subtitle={`${pack.concept_definitions?.length || 0} concepts · ${pack.purchases_count || 0} purchases`}
+        actions={headerActions}
+        backHref="/admin/packs"
+        backLabel="Back to Packs"
+      />
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
         {error && (
           <div style={{
             padding: '12px',
@@ -299,41 +311,6 @@ export default function AdminPackShow({ packId }) {
           padding: '24px',
           marginBottom: '24px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <h1 style={{
-                fontSize: '20px',
-                fontWeight: 700,
-                fontFamily: 'Inter, -apple-system, sans-serif',
-                color: '#111',
-                margin: 0,
-                wordBreak: 'break-word',
-              }}>
-                {pack.name}
-              </h1>
-              <p style={{
-                fontSize: '14px',
-                color: '#666',
-                fontFamily: 'Inter, -apple-system, sans-serif',
-                marginTop: '4px',
-              }}>
-                {pack.concept_definitions?.length || 0} concepts · {pack.purchases_count || 0} purchases
-              </p>
-            </div>
-            <span style={{
-              padding: '4px 12px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              background: pack.published ? '#111' : '#e0e0e0',
-              color: pack.published ? 'white' : '#666',
-              flexShrink: 0,
-            }}>
-              {pack.published ? 'Published' : 'Draft'}
-            </span>
-          </div>
-
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, color: '#666', marginBottom: '4px', fontFamily: 'Inter, -apple-system, sans-serif', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

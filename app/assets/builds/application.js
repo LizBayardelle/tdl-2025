@@ -1335,7 +1335,7 @@ var require_react_dom_development = __commonJS({
         return dispatcher;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React72 = require_react(), Internals = {
+      var React76 = require_react(), Internals = {
         d: {
           f: noop7,
           r: function() {
@@ -1353,7 +1353,7 @@ var require_react_dom_development = __commonJS({
         },
         p: 0,
         findDOMNode: null
-      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React72.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      }, REACT_PORTAL_TYPE = Symbol.for("react.portal"), ReactSharedInternals = React76.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
         "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
       );
@@ -2888,7 +2888,7 @@ var require_react_dom_client_development = __commonJS({
         "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
       }
       function validateOptionProps(element, props) {
-        null == props.value && ("object" === typeof props.children && null !== props.children ? React72.Children.forEach(props.children, function(child) {
+        null == props.value && ("object" === typeof props.children && null !== props.children ? React76.Children.forEach(props.children, function(child) {
           null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
             "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
           ));
@@ -18520,14 +18520,14 @@ var require_react_dom_client_development = __commonJS({
         ));
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var Scheduler = require_scheduler(), React72 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
+      var Scheduler = require_scheduler(), React76 = require_react(), ReactDOM2 = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = Symbol.for("react.element"), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy");
       Symbol.for("react.scope");
       var REACT_ACTIVITY_TYPE = Symbol.for("react.activity");
       Symbol.for("react.legacy_hidden");
       Symbol.for("react.tracing_marker");
       var REACT_MEMO_CACHE_SENTINEL = Symbol.for("react.memo_cache_sentinel");
       Symbol.for("react.view_transition");
-      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React72.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+      var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React76.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM2.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
         pending: false,
         data: null,
         method: null,
@@ -21315,7 +21315,7 @@ var require_react_dom_client_development = __commonJS({
         }
       };
       (function() {
-        var isomorphicReactPackageVersion = React72.version;
+        var isomorphicReactPackageVersion = React76.version;
         if ("19.2.4" !== isomorphicReactPackageVersion)
           throw Error(
             'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.4\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21464,7 +21464,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        didWarnOld18Alpha || void 0 === React72.startTransition || (didWarnOld18Alpha = true, console.error(
+        didWarnOld18Alpha || void 0 === React76.startTransition || (didWarnOld18Alpha = true, console.error(
           "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
         ));
         var value = getSnapshot();
@@ -21474,7 +21474,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
             "The result of getSnapshot should be cached to avoid an infinite loop"
           ), didWarnUncachedGetSnapshot = true);
         }
-        cachedValue = useState59({
+        cachedValue = useState62({
           inst: { value, getSnapshot }
         });
         var inst = cachedValue[0].inst, forceUpdate = cachedValue[1];
@@ -21486,7 +21486,7 @@ var require_use_sync_external_store_shim_development = __commonJS({
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect61(
+        useEffect64(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -21512,8 +21512,8 @@ var require_use_sync_external_store_shim_development = __commonJS({
         return getSnapshot();
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React72 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState59 = React72.useState, useEffect61 = React72.useEffect, useLayoutEffect4 = React72.useLayoutEffect, useDebugValue3 = React72.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React72.useSyncExternalStore ? React72.useSyncExternalStore : shim;
+      var React76 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is, useState62 = React76.useState, useEffect64 = React76.useEffect, useLayoutEffect4 = React76.useLayoutEffect, useDebugValue3 = React76.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+      exports.useSyncExternalStore = void 0 !== React76.useSyncExternalStore ? React76.useSyncExternalStore : shim;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
     })();
   }
@@ -21745,18 +21745,18 @@ var require_react_jsx_runtime_development = __commonJS({
       function isValidElement(object) {
         return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
       }
-      var React72 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React72.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+      var React76 = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React76.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty3 = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
         return null;
       };
-      React72 = {
+      React76 = {
         react_stack_bottom_frame: function(callStackForError) {
           return callStackForError();
         }
       };
       var specialPropKeyWarningShown;
       var didWarnAboutElementRef = {};
-      var unknownOwnerDebugStack = React72.react_stack_bottom_frame.bind(
-        React72,
+      var unknownOwnerDebugStack = React76.react_stack_bottom_frame.bind(
+        React76,
         UnknownOwner
       )();
       var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React72 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef25 = React72.useRef, useEffect61 = React72.useEffect, useMemo15 = React72.useMemo, useDebugValue3 = React72.useDebugValue;
+      var React76 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef27 = React76.useRef, useEffect64 = React76.useEffect, useMemo15 = React76.useMemo, useDebugValue3 = React76.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef25(null);
+        var instRef = useRef27(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -21852,7 +21852,7 @@ var require_with_selector_development = __commonJS({
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore3(subscribe, instRef[0], instRef[1]);
-        useEffect61(
+        useEffect64(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -23871,7 +23871,7 @@ var require_warning = __commonJS({
 });
 
 // app/javascript/application.js
-var import_react93 = __toESM(require_react());
+var import_react97 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // app/javascript/components/ConceptsIndex.js
@@ -65508,18 +65508,41 @@ function PdfUploadModal({ isOpen, onClose, onSuccess }) {
     e3.preventDefault();
     e3.stopPropagation();
   }, []);
-  const handleDrop2 = (0, import_react34.useCallback)((e3) => {
+  const handleDrop2 = (0, import_react34.useCallback)(async (e3) => {
     e3.preventDefault();
     e3.stopPropagation();
     setIsDragging(false);
-    const files = e3.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type === "application/pdf") {
-        handleFileSelected(file);
-      } else {
-        setError("Please drop a PDF file.");
+    const pdfs = Array.from(e3.dataTransfer.files).filter(
+      (f3) => f3.type === "application/pdf"
+    );
+    if (pdfs.length === 0) {
+      setError("Please drop a PDF file.");
+      return;
+    }
+    if (pdfs.length === 1) {
+      handleFileSelected(pdfs[0]);
+      return;
+    }
+    try {
+      const formData2 = new FormData();
+      formData2.append("name", `Upload ${(/* @__PURE__ */ new Date()).toLocaleString()}`);
+      pdfs.forEach((f3) => formData2.append("files[]", f3));
+      const response = await fetch("/upload_batches", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+        },
+        body: formData2
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.errors?.join(", ") || "Bulk upload failed.");
+        return;
       }
+      window.location.href = "/uploads";
+    } catch (err) {
+      console.error("Bulk upload error:", err);
+      setError("An error occurred starting the bulk upload.");
     }
   }, []);
   const handleFileSelected = async (file) => {
@@ -67439,6 +67462,44 @@ function SourcesIndex() {
     },
     /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-list" })
   )), /* @__PURE__ */ import_react36.default.createElement(
+    "a",
+    {
+      href: "/uploads",
+      style: {
+        width: "48px",
+        height: "48px",
+        minWidth: "48px",
+        minHeight: "48px",
+        flexShrink: 0,
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--accent-blue)",
+        border: "2px solid var(--accent-blue)",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-lg)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-sm)",
+        textDecoration: "none"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.background = "var(--accent-blue)";
+        e3.currentTarget.style.color = "white";
+        e3.currentTarget.style.transform = "translateY(-2px)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-lg)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.background = "white";
+        e3.currentTarget.style.color = "var(--accent-blue)";
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-sm)";
+      },
+      title: "Bulk upload"
+    },
+    /* @__PURE__ */ import_react36.default.createElement("i", { className: "fas fa-layer-group" })
+  ), /* @__PURE__ */ import_react36.default.createElement(
     "button",
     {
       onClick: () => setShowPdfModal(true),
@@ -86651,11 +86712,10 @@ function Dashboard() {
     {
       label: "Packs",
       code: "Packs",
-      value: stats.ownedPacks,
+      value: Math.max(stats.totalPacks - stats.ownedPacks, 0),
       link: "/packs",
       color: "var(--accent-green)",
-      icon: "fa-box",
-      subtitle: stats.totalPacks > stats.ownedPacks ? `${stats.totalPacks - stats.ownedPacks} available` : null
+      icon: "fa-box"
     }
   )), /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats" }, /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats-left" }, /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Pinned Notes", value: stats.pinnedNotes }), /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Total Connections", value: stats.totalConnections }), /* @__PURE__ */ import_react52.default.createElement(QuickStat, { label: "Collections", value: stats.totalCollections })), /* @__PURE__ */ import_react52.default.createElement("div", { className: "dashboard-quick-stats-right" }, "USER SINCE: ", currentTime.toLocaleDateString("en-US", { month: "long", year: "numeric" }).toUpperCase())), /* @__PURE__ */ import_react52.default.createElement(
     ConceptFormModal,
@@ -86732,7 +86792,10 @@ function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, i
       style: {
         position: "relative",
         transition: "transform 0.2s",
-        transform: isHovered ? "translateY(-4px)" : "translateY(0)"
+        transform: isHovered ? "translateY(-4px)" : "translateY(0)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%"
       },
       onMouseEnter: () => setIsHovered(true),
       onMouseLeave: () => setIsHovered(false)
@@ -86753,7 +86816,8 @@ function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, i
         href: link,
         style: {
           textDecoration: "none",
-          display: "block"
+          display: "flex",
+          flex: 1
         }
       },
       /* @__PURE__ */ import_react52.default.createElement("div", { style: {
@@ -86767,7 +86831,9 @@ function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, i
         transition: "box-shadow 0.2s",
         position: "relative",
         zIndex: 1,
-        minHeight: "120px"
+        minHeight: "120px",
+        flex: 1,
+        width: "100%"
       } }, /* @__PURE__ */ import_react52.default.createElement("div", { style: {
         position: "absolute",
         top: 0,
@@ -86829,7 +86895,8 @@ function DossierCard({ label, code, value, link, onAdd: onAdd2, color: color2, i
           cursor: "pointer",
           transition: "all 0.15s",
           fontSize: "var(--text-sm)",
-          boxShadow: "var(--shadow-sm)"
+          boxShadow: "var(--shadow-sm)",
+          zIndex: 3
         },
         onMouseEnter: (e3) => {
           e3.currentTarget.style.background = color2;
@@ -115434,7 +115501,7 @@ function BulkUploadDropzone({ onUploadComplete }) {
         formData.append("files[]", file);
         setUploadProgress({ current: idx + 1, total: files.length });
       });
-      const response = await fetch("/batch_uploads", {
+      const response = await fetch("/upload_batches", {
         method: "POST",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -115443,7 +115510,7 @@ function BulkUploadDropzone({ onUploadComplete }) {
       });
       if (response.ok) {
         const batch = await response.json();
-        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
+        const fullResponse = await fetch(`/upload_batches/${batch.id}.json`);
         if (fullResponse.ok) {
           const fullBatch = await fullResponse.json();
           onUploadComplete(fullBatch);
@@ -115808,7 +115875,7 @@ function BulkUploadItemCard({ item, isExpanded, onToggle, onApproved }) {
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+      const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115839,7 +115906,7 @@ function BulkUploadItemCard({ item, isExpanded, onToggle, onApproved }) {
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(`/batch_upload_items/${item.id}/retry`, {
+      const response = await fetch(`/upload_batch_items/${item.id}/retry`, {
         method: "POST",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -116833,7 +116900,7 @@ function BulkUploadPage() {
   const [error, setError] = (0, import_react76.useState)("");
   const fetchActiveBatch = (0, import_react76.useCallback)(async () => {
     try {
-      const response = await fetch("/batch_uploads/active.json");
+      const response = await fetch("/upload_batches/active.json");
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -116851,7 +116918,7 @@ function BulkUploadPage() {
     if (!activeBatch || activeBatch.status !== "processing") return;
     const interval2 = setInterval(async () => {
       try {
-        const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+        const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
         if (response.ok) {
           const data = await response.json();
           setActiveBatch(data);
@@ -116872,7 +116939,7 @@ function BulkUploadPage() {
   const handleStartProcessing = async () => {
     if (!activeBatch) return;
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}/start_processing`, {
+      const response = await fetch(`/upload_batches/${activeBatch.id}/start_processing`, {
         method: "POST",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -116895,7 +116962,7 @@ function BulkUploadPage() {
       return;
     }
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}`, {
+      const response = await fetch(`/upload_batches/${activeBatch.id}`, {
         method: "DELETE",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -116911,7 +116978,7 @@ function BulkUploadPage() {
   const handleItemApproved = async (itemId) => {
     if (!activeBatch) return;
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -116927,7 +116994,7 @@ function BulkUploadPage() {
     );
     for (const item of itemsToApprove) {
       try {
-        await fetch(`/batch_upload_items/${item.id}/approve`, {
+        await fetch(`/upload_batch_items/${item.id}/approve`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -116940,7 +117007,7 @@ function BulkUploadPage() {
       }
     }
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -116954,7 +117021,7 @@ function BulkUploadPage() {
     const failedItems = activeBatch.items.filter((item) => item.status === "failed");
     for (const item of failedItems) {
       try {
-        await fetch(`/batch_upload_items/${item.id}/retry`, {
+        await fetch(`/upload_batch_items/${item.id}/retry`, {
           method: "POST",
           headers: {
             "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -116965,7 +117032,7 @@ function BulkUploadPage() {
       }
     }
     try {
-      const response = await fetch(`/batch_uploads/${activeBatch.id}.json`);
+      const response = await fetch(`/upload_batches/${activeBatch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         setActiveBatch(data);
@@ -117415,14 +117482,71 @@ function useBulkUpload() {
 
 // app/javascript/components/bulk-upload-v2/UploadPhase.js
 var import_react78 = __toESM(require_react());
+var UPLOAD_CONCURRENCY = 3;
+var FILE_TIMEOUT_MS = 12e4;
 function UploadPhase() {
   const { state, dispatch: dispatch2 } = useBulkUpload();
   const [isDragging, setIsDragging] = (0, import_react78.useState)(false);
   const [uploading, setUploading] = (0, import_react78.useState)(false);
   const [uploadProgress, setUploadProgress] = (0, import_react78.useState)({ current: 0, total: 0 });
+  const [failedFiles, setFailedFiles] = (0, import_react78.useState)([]);
   const [error, setError] = (0, import_react78.useState)("");
   const fileInputRef = (0, import_react78.useRef)(null);
   const folderInputRef = (0, import_react78.useRef)(null);
+  const csrfToken = () => document.querySelector('[name="csrf-token"]')?.content;
+  const uploadOneFile = async (batchId, file) => {
+    const fd = new FormData();
+    fd.append("files[]", file);
+    const controller = new AbortController();
+    const timer2 = setTimeout(() => controller.abort(), FILE_TIMEOUT_MS);
+    try {
+      const res = await fetch(`/upload_batches/${batchId}/add_files`, {
+        method: "POST",
+        headers: { "X-CSRF-Token": csrfToken() },
+        body: fd,
+        signal: controller.signal
+      });
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+          const data2 = await res.json();
+          msg = data2.error || data2.errors?.join(", ") || msg;
+        } catch (_3) {
+        }
+        return { ok: false, file, error: msg };
+      }
+      const data = await res.json();
+      const failedFromServer = data.failed_files?.[0];
+      if (failedFromServer) {
+        return { ok: false, file, error: failedFromServer.error };
+      }
+      return { ok: true, file, item: data.items?.[0], batch: data.batch };
+    } catch (err) {
+      const msg = err.name === "AbortError" ? "Upload timed out \u2014 file may be too large or your connection is slow" : err.message || "Network error";
+      return { ok: false, file, error: msg };
+    } finally {
+      clearTimeout(timer2);
+    }
+  };
+  const runWithConcurrency = async (items, limit, worker) => {
+    const queue = items.slice();
+    const inflight = [];
+    const startNext = () => {
+      const next = queue.shift();
+      if (!next) return null;
+      const p3 = worker(next).finally(() => {
+        const idx = inflight.indexOf(p3);
+        if (idx >= 0) inflight.splice(idx, 1);
+      });
+      inflight.push(p3);
+      return p3;
+    };
+    while (queue.length > 0 || inflight.length > 0) {
+      while (inflight.length < limit && queue.length > 0) startNext();
+      if (inflight.length === 0) break;
+      await Promise.race(inflight);
+    }
+  };
   const hasPendingBatch = state.batch && state.batch.status === "pending";
   const handleDragEnter = (0, import_react78.useCallback)((e3) => {
     e3.preventDefault();
@@ -117504,45 +117628,64 @@ function UploadPhase() {
   const uploadFiles = async (files) => {
     setUploading(true);
     setUploadProgress({ current: 0, total: files.length });
+    setFailedFiles([]);
     setError("");
+    let batchId;
     try {
-      const formData = new FormData();
-      formData.append("name", `Upload ${(/* @__PURE__ */ new Date()).toLocaleString()}`);
-      files.forEach((file, idx) => {
-        formData.append("files[]", file);
-        setUploadProgress({ current: idx + 1, total: files.length });
-      });
-      const response = await fetch("/batch_uploads", {
+      const createRes = await fetch("/upload_batches", {
         method: "POST",
         headers: {
-          "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
+          "X-CSRF-Token": csrfToken(),
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
-        body: formData
+        body: JSON.stringify({ name: `Upload ${(/* @__PURE__ */ new Date()).toLocaleString()}` })
       });
-      if (response.ok) {
-        const batch = await response.json();
-        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
-        if (fullResponse.ok) {
-          const fullBatch = await fullResponse.json();
-          dispatch2({ type: "SET_BATCH", payload: fullBatch });
-        } else {
-          dispatch2({ type: "SET_BATCH", payload: batch });
-        }
-      } else {
-        const data = await response.json();
-        setError(data.errors?.join(", ") || "Upload failed");
+      if (!createRes.ok) {
+        const data = await createRes.json().catch(() => ({}));
+        setError(data.errors?.join(", ") || "Failed to create upload batch");
+        setUploading(false);
+        return;
+      }
+      const created = await createRes.json();
+      batchId = created.id;
+    } catch (err) {
+      console.error("Batch create error:", err);
+      setError("Could not start upload \u2014 check your connection and try again");
+      setUploading(false);
+      return;
+    }
+    let completed = 0;
+    const failures = [];
+    await runWithConcurrency(files, UPLOAD_CONCURRENCY, async (file) => {
+      const result = await uploadOneFile(batchId, file);
+      completed += 1;
+      setUploadProgress({ current: completed, total: files.length });
+      if (!result.ok) {
+        failures.push({ name: file.name, error: result.error });
+      }
+    });
+    setFailedFiles(failures);
+    try {
+      const fullResponse = await fetch(`/upload_batches/${batchId}.json`);
+      if (fullResponse.ok) {
+        const fullBatch = await fullResponse.json();
+        dispatch2({ type: "SET_BATCH", payload: fullBatch });
       }
     } catch (err) {
-      console.error("Upload error:", err);
-      setError("An error occurred during upload");
-    } finally {
-      setUploading(false);
+      console.error("Failed to refresh batch:", err);
     }
+    if (failures.length === files.length) {
+      setError("All uploads failed. See details below.");
+    } else if (failures.length > 0) {
+      setError(`${failures.length} of ${files.length} files failed to upload.`);
+    }
+    setUploading(false);
   };
   const handleStartProcessing = async () => {
     if (!state.batch) return;
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}/start_processing`, {
+      const response = await fetch(`/upload_batches/${state.batch.id}/start_processing`, {
         method: "POST",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -117566,7 +117709,7 @@ function UploadPhase() {
       return;
     }
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}`, {
+      const response = await fetch(`/upload_batches/${state.batch.id}`, {
         method: "DELETE",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -117578,6 +117721,32 @@ function UploadPhase() {
     } catch (err) {
       setError("Failed to cancel batch");
     }
+  };
+  const renderFailedFiles = () => {
+    if (!failedFiles.length) return null;
+    return /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+      marginBottom: "var(--space-4)",
+      padding: "var(--space-3) var(--space-4)",
+      background: "#fff5f5",
+      border: "1px solid #fed7d7",
+      borderRadius: "8px"
+    } }, /* @__PURE__ */ import_react78.default.createElement("div", { style: {
+      fontFamily: "var(--font-display)",
+      fontSize: "var(--text-sm)",
+      fontWeight: 600,
+      color: "#c53030",
+      marginBottom: "var(--space-2)"
+    } }, failedFiles.length, " file", failedFiles.length === 1 ? "" : "s", " failed to upload"), /* @__PURE__ */ import_react78.default.createElement("ul", { style: {
+      listStyle: "none",
+      padding: 0,
+      margin: 0,
+      maxHeight: "200px",
+      overflowY: "auto"
+    } }, failedFiles.map((f3, i3) => /* @__PURE__ */ import_react78.default.createElement("li", { key: i3, style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-700)",
+      padding: "var(--space-1) 0"
+    } }, /* @__PURE__ */ import_react78.default.createElement("strong", null, f3.name), ": ", f3.error))));
   };
   if (uploading) {
     return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react78.default.createElement(
@@ -117632,7 +117801,7 @@ function UploadPhase() {
     ));
   }
   if (hasPendingBatch) {
-    return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react78.default.createElement(
+    return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, renderFailedFiles(), /* @__PURE__ */ import_react78.default.createElement(
       "div",
       {
         style: {
@@ -117700,7 +117869,7 @@ function UploadPhase() {
       ))))
     ));
   }
-  return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, error && /* @__PURE__ */ import_react78.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), /* @__PURE__ */ import_react78.default.createElement(
+  return /* @__PURE__ */ import_react78.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, error && /* @__PURE__ */ import_react78.default.createElement("div", { className: "alert alert-error", style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react78.default.createElement("i", { className: "fas fa-exclamation-circle" }), " ", error), renderFailedFiles(), /* @__PURE__ */ import_react78.default.createElement(
     "div",
     {
       onDragEnter: handleDragEnter,
@@ -117831,7 +118000,7 @@ function ProcessingPhase() {
   const pollBatch = (0, import_react79.useCallback)(async () => {
     if (!batch?.id) return;
     try {
-      const response = await fetch(`/batch_uploads/${batch.id}.json`);
+      const response = await fetch(`/upload_batches/${batch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         dispatch2({ type: "SET_BATCH", payload: data });
@@ -117854,17 +118023,16 @@ function ProcessingPhase() {
       textAlign: "center"
     } }, /* @__PURE__ */ import_react79.default.createElement("p", null, "No batch data available"));
   }
+  const IN_PROGRESS = ["pending", "uploading", "extracting"];
   const items = batch.items || [];
   const totalCount = batch.total_count || items.length;
-  const processedCount = items.filter(
-    (item) => item.status !== "pending" && item.status !== "processing"
-  ).length;
+  const processedCount = items.filter((item) => !IN_PROGRESS.includes(item.status)).length;
   const progress = totalCount > 0 ? processedCount / totalCount * 100 : 0;
   const statusGroups = {
     extracted: items.filter((i3) => i3.status === "extracted").length,
     review_needed: items.filter((i3) => i3.status === "review_needed").length,
     failed: items.filter((i3) => i3.status === "failed").length,
-    processing: items.filter((i3) => i3.status === "processing" || i3.status === "pending").length
+    processing: items.filter((i3) => IN_PROGRESS.includes(i3.status)).length
   };
   return /* @__PURE__ */ import_react79.default.createElement("div", { style: { maxWidth: "1200px", margin: "0 auto", padding: "var(--space-6)" } }, /* @__PURE__ */ import_react79.default.createElement("div", { style: {
     padding: "var(--space-8)"
@@ -118066,28 +118234,36 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
   const [createForm, setCreateForm] = (0, import_react80.useState)({ firstName: "", lastName: "", orcid: "" });
   const [previousForm, setPreviousForm] = (0, import_react80.useState)(null);
   const authors = item.detected_authors || [];
+  const latestDbSearchRef = (0, import_react80.useRef)(null);
+  const latestOrcidSearchRef = (0, import_react80.useRef)(null);
   const handleSearch = (0, import_react80.useCallback)(async (query) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
       return;
     }
+    const token = {};
+    latestDbSearchRef.current = token;
     setSearching(true);
     try {
       const response = await fetch(`/people/search?q=${encodeURIComponent(query)}`);
+      if (latestDbSearchRef.current !== token) return;
       if (response.ok) {
         const data = await response.json();
+        if (latestDbSearchRef.current !== token) return;
         setSearchResults(data);
       }
     } catch (err) {
       console.error("Search error:", err);
     } finally {
-      setSearching(false);
+      if (latestDbSearchRef.current === token) setSearching(false);
     }
   }, []);
   const handleOrcidSearch = (0, import_react80.useCallback)(async (author) => {
     const familyName = author.family || "";
     const givenName = author.given || "";
     if (!familyName) return;
+    const token = {};
+    latestOrcidSearchRef.current = token;
     setSearchingOrcid(true);
     setOrcidSearched(false);
     setOrcidResults([]);
@@ -118097,15 +118273,19 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
         given_name: givenName
       });
       const response = await fetch(`/people/search_orcid?${params}`);
+      if (latestOrcidSearchRef.current !== token) return;
       if (response.ok) {
         const data = await response.json();
+        if (latestOrcidSearchRef.current !== token) return;
         setOrcidResults(data || []);
       }
     } catch (err) {
       console.error("ORCID search error:", err);
     } finally {
-      setSearchingOrcid(false);
-      setOrcidSearched(true);
+      if (latestOrcidSearchRef.current === token) {
+        setSearchingOrcid(false);
+        setOrcidSearched(true);
+      }
     }
   }, []);
   const handleExpandAuthor = (0, import_react80.useCallback)((idx, author) => {
@@ -118128,8 +118308,9 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
         orcid: author.orcid || ""
       });
       handleSearch(`${author.family || ""} ${author.given || ""}`.trim());
+      handleOrcidSearch(author);
     }
-  }, [expandedAuthorIdx, handleSearch]);
+  }, [expandedAuthorIdx, handleSearch, handleOrcidSearch]);
   const handleLinkToDbPerson = (0, import_react80.useCallback)((authorIdx, person) => {
     onResolutionChange(authorIdx, {
       action: "link",
@@ -118160,6 +118341,44 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
   const handleSkip = (0, import_react80.useCallback)((authorIdx) => {
     onResolutionChange(authorIdx, { action: "skip" });
     setExpandedAuthorIdx(null);
+  }, [onResolutionChange]);
+  const handleAcceptAuthor = (0, import_react80.useCallback)((authorIdx, author) => {
+    if (author.potential_matches?.length > 0) {
+      const bestMatch = author.potential_matches[0];
+      onResolutionChange(authorIdx, {
+        action: "link",
+        personId: bestMatch.id,
+        personName: bestMatch.name
+      });
+      return;
+    }
+    const sessionMatch = (author.sessionMatches || []).find((pending) => {
+      const pendingFirst = (pending.firstName || "").toLowerCase().trim();
+      const pendingLast = (pending.lastName || "").toLowerCase().trim();
+      const authorFirst = (author.given || "").toLowerCase().trim();
+      const authorLast = (author.family || "").toLowerCase().trim();
+      return pendingFirst === authorFirst && pendingLast === authorLast;
+    });
+    if (sessionMatch) {
+      onResolutionChange(authorIdx, {
+        action: "link",
+        tempPersonId: sessionMatch.tempId,
+        personName: `${sessionMatch.firstName} ${sessionMatch.lastName}`
+      });
+      return;
+    }
+    onCreatePerson(authorIdx, {
+      firstName: author.given || "",
+      lastName: author.family || "",
+      orcid: author.orcid || null,
+      createdFromAuthor: author
+    });
+  }, [onResolutionChange, onCreatePerson]);
+  const handleClearResolution = (0, import_react80.useCallback)((authorIdx) => {
+    onResolutionChange(authorIdx, null);
+  }, [onResolutionChange]);
+  const handleUnlinkAuthor = (0, import_react80.useCallback)((authorIdx) => {
+    onResolutionChange(authorIdx, { action: "pending" });
   }, [onResolutionChange]);
   const handleUseOrcid = (0, import_react80.useCallback)((authorIdx, orcidPerson) => {
     setPreviousForm({ ...createForm });
@@ -118214,6 +118433,45 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
       }
     });
   }, [authors, onResolutionChange, onCreatePerson]);
+  const prefilteredItemIdRef = (0, import_react80.useRef)(null);
+  (0, import_react80.useEffect)(() => {
+    if (prefilteredItemIdRef.current === item.id) return;
+    prefilteredItemIdRef.current = item.id;
+    if (!authors || authors.length === 0) return;
+    let firstAmbiguousIdx = null;
+    authors.forEach((author, idx) => {
+      if (author.auto_linked || author.resolution) return;
+      const hasDbMatches = author.potential_matches?.length > 0;
+      const hasSessionMatches = author.sessionMatches?.length > 0;
+      if (!hasDbMatches && !hasSessionMatches) {
+        onCreatePerson(idx, {
+          firstName: author.given || "",
+          lastName: author.family || "",
+          orcid: author.orcid || null,
+          createdFromAuthor: author
+        });
+        return;
+      }
+      if (firstAmbiguousIdx === null) {
+        firstAmbiguousIdx = idx;
+      }
+    });
+    if (firstAmbiguousIdx !== null) {
+      const author = authors[firstAmbiguousIdx];
+      setExpandedAuthorIdx(firstAmbiguousIdx);
+      setSearchResults([]);
+      setOrcidResults([]);
+      setOrcidSearched(false);
+      setPreviousForm(null);
+      setCreateForm({
+        firstName: author.given || "",
+        lastName: author.family || "",
+        orcid: author.orcid || ""
+      });
+      handleSearch(`${author.family || ""} ${author.given || ""}`.trim());
+      handleOrcidSearch(author);
+    }
+  }, [item.id]);
   const btnYellow = {
     padding: "4px 12px",
     fontSize: "var(--text-xs)",
@@ -118386,14 +118644,98 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
         fontFamily: "var(--font-body)",
         fontSize: "var(--text-xs)",
         color: "var(--accent-gold)"
-      } }, "ORCID"), !author.auto_linked && /* @__PURE__ */ import_react80.default.createElement(
-        "button",
-        {
-          onClick: () => handleExpandAuthor(idx, author),
-          style: isExpanded || isResolved ? btnYellowOutline : btnYellow
-        },
-        isExpanded ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-times" }), " Close") : isResolved ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-edit" }), " Edit") : /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-search" }), " Review")
-      )),
+      } }, "ORCID"), /* @__PURE__ */ import_react80.default.createElement("div", { style: { display: "flex", gap: "4px", flexShrink: 0 } }, author.auto_linked && !resolution ? (
+        /* Unlink button for auto-linked authors */
+        /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleUnlinkAuthor(idx),
+            style: {
+              padding: "4px 8px",
+              borderRadius: "4px",
+              border: "1px solid var(--neutral-300)",
+              background: "white",
+              color: "var(--neutral-500)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              fontSize: "11px",
+              fontFamily: "var(--font-body)"
+            },
+            title: "Unlink this author"
+          },
+          /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-unlink" }),
+          "Unlink"
+        )
+      ) : /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, (() => {
+        const isAccepted = resolution && resolution.action !== "skip" && resolution.action !== "pending";
+        const isRejected = resolution?.action === "skip";
+        return /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => isAccepted ? handleClearResolution(idx) : handleAcceptAuthor(idx, author),
+            style: {
+              width: "28px",
+              height: "28px",
+              borderRadius: "4px",
+              border: isAccepted ? "none" : isRejected ? "1px solid var(--neutral-300)" : "1px solid var(--accent-gold)",
+              background: isAccepted ? "var(--accent-gold)" : "white",
+              color: isAccepted ? "white" : isRejected ? "var(--neutral-400)" : "var(--accent-gold)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              transition: "all 0.15s ease"
+            },
+            title: isAccepted ? "Undo accept" : "Accept best match (or create)"
+          },
+          /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-thumbs-up" })
+        ), /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => isRejected ? handleClearResolution(idx) : handleSkip(idx),
+            style: {
+              width: "28px",
+              height: "28px",
+              borderRadius: "4px",
+              border: isRejected ? "none" : isAccepted ? "1px solid var(--neutral-300)" : "1px solid var(--accent-gold)",
+              background: isRejected ? "var(--neutral-500)" : "white",
+              color: isRejected ? "white" : isAccepted ? "var(--neutral-400)" : "var(--accent-gold)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              transition: "all 0.15s ease"
+            },
+            title: isRejected ? "Undo skip" : "Skip this author"
+          },
+          /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-thumbs-down" })
+        ), /* @__PURE__ */ import_react80.default.createElement(
+          "button",
+          {
+            onClick: () => handleExpandAuthor(idx, author),
+            style: {
+              width: "28px",
+              height: "28px",
+              borderRadius: "4px",
+              border: "1px solid var(--neutral-300)",
+              background: isExpanded ? "var(--neutral-100)" : "white",
+              color: "var(--neutral-500)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              transition: "all 0.15s ease"
+            },
+            title: isExpanded ? "Close details" : "More options (search DB, ORCID, custom)"
+          },
+          /* @__PURE__ */ import_react80.default.createElement("i", { className: isExpanded ? "fas fa-chevron-up" : "fas fa-chevron-down" })
+        ));
+      })()))),
       isExpanded && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
         padding: "var(--space-4)",
         background: "var(--neutral-50)",
@@ -118641,16 +118983,11 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
         fontSize: "var(--text-xs)",
         fontWeight: 600,
         color: "var(--neutral-600)",
-        marginBottom: "var(--space-2)"
-      } }, "Search ORCID Registry"), /* @__PURE__ */ import_react80.default.createElement(
-        "button",
-        {
-          onClick: () => handleOrcidSearch(author),
-          disabled: searchingOrcid,
-          style: btnYellowOutline
-        },
-        searchingOrcid ? /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-spinner fa-spin" }), "Searching...") : /* @__PURE__ */ import_react80.default.createElement(import_react80.default.Fragment, null, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fab fa-orcid" }), "Search ORCID")
-      ), searchingOrcid && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        marginBottom: "var(--space-2)",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px"
+      } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fab fa-orcid", style: { color: "var(--accent-gold)" } }), "ORCID Registry"), searchingOrcid && /* @__PURE__ */ import_react80.default.createElement("div", { style: {
         marginTop: "var(--space-2)",
         padding: "var(--space-3)",
         background: "var(--neutral-100)",
@@ -118708,39 +119045,33 @@ function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
         fontSize: "var(--text-sm)",
         color: "var(--neutral-600)"
       } }, /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-info-circle", style: { color: "var(--accent-orange)", marginRight: "8px" } }), 'No results found in ORCID registry for "', author.family, ", ", author.given, '"'))), /* @__PURE__ */ import_react80.default.createElement("div", { style: {
+        paddingTop: "var(--space-3)",
+        borderTop: "1px solid var(--neutral-200)",
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
+        justifyContent: "flex-end"
       } }, /* @__PURE__ */ import_react80.default.createElement(
-        "button",
-        {
-          onClick: () => handleSkip(idx),
-          style: {
-            padding: "var(--space-2) var(--space-3)",
-            fontSize: "var(--text-xs)",
-            background: "transparent",
-            border: "none",
-            color: "var(--neutral-500)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px"
-          }
-        },
-        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-ban" }),
-        "Skip Author"
-      ), /* @__PURE__ */ import_react80.default.createElement(
         "button",
         {
           onClick: () => handleCreateNew(idx, author),
           disabled: !createForm.lastName,
           style: {
-            ...btnYellow,
+            padding: "var(--space-2) var(--space-3)",
+            fontSize: "var(--text-sm)",
+            background: "var(--accent-gold)",
+            border: "1px solid var(--accent-gold)",
+            borderRadius: "6px",
+            color: "white",
+            cursor: createForm.lastName ? "pointer" : "not-allowed",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontFamily: "var(--font-body)",
             opacity: createForm.lastName ? 1 : 0.5
-          }
+          },
+          title: "Create with the details you've entered above"
         },
-        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-plus-circle", style: { marginRight: "4px" } }),
-        "Create New Person"
+        /* @__PURE__ */ import_react80.default.createElement("i", { className: "fas fa-plus-circle" }),
+        "Create with these details"
       )))
     );
   })));
@@ -119293,7 +119624,7 @@ function ReviewPhase() {
     if (!hasApprovedItems || !state.batch?.id) return;
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+        const response = await fetch(`/upload_batches/${state.batch.id}.json`);
         if (response.ok) {
           const data = await response.json();
           dispatch2({ type: "SET_BATCH", payload: data });
@@ -119411,7 +119742,7 @@ function ReviewPhase() {
           conceptDecisions[idx] = { action: "link", concept_id: concept.matched_concept_id };
         }
       });
-      const response = await fetch(`/batch_upload_items/${selectedItem.id}/approve`, {
+      const response = await fetch(`/upload_batch_items/${selectedItem.id}/approve`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119443,7 +119774,7 @@ function ReviewPhase() {
     if (!selectedItem) return;
     setSkipping(true);
     try {
-      const response = await fetch(`/batch_upload_items/${selectedItem.id}/skip`, {
+      const response = await fetch(`/upload_batch_items/${selectedItem.id}/skip`, {
         method: "POST",
         headers: {
           "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
@@ -119461,7 +119792,7 @@ function ReviewPhase() {
   }, [selectedItem]);
   const refreshBatch = async () => {
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+      const response = await fetch(`/upload_batches/${state.batch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         dispatch2({ type: "SET_BATCH", payload: data });
@@ -119553,7 +119884,7 @@ function ReviewPhase() {
             conceptDecisions[idx] = { action: "link", concept_id: concept.matched_concept_id };
           }
         });
-        const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+        const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -120421,7 +120752,7 @@ function WizardContent() {
   const fetchActiveBatch = (0, import_react84.useCallback)(async () => {
     dispatch2({ type: "SET_LOADING", payload: true });
     try {
-      const response = await fetch("/batch_uploads/active.json");
+      const response = await fetch("/upload_batches/active.json");
       if (response.ok) {
         const data = await response.json();
         if (data) {
@@ -121926,222 +122257,350 @@ function PacksOwned() {
 }
 
 // app/javascript/components/admin/AdminDashboard.js
-var import_react89 = __toESM(require_react());
+var import_react90 = __toESM(require_react());
 
 // app/javascript/components/admin/AdminLayout.js
 var import_react88 = __toESM(require_react());
 function AdminLayout({ children: children2, currentPage }) {
-  const [sidebarOpen, setSidebarOpen] = (0, import_react88.useState)(false);
-  const [isMobile, setIsMobile] = (0, import_react88.useState)(false);
+  const [sidebarOpen, setSidebarOpen] = (0, import_react88.useState)(true);
   (0, import_react88.useEffect)(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
         setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
       }
     };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "fa-tachometer-alt" },
-    { href: "/admin/packs", label: "Packs", icon: "fa-box" },
-    { href: "/admin/users", label: "Users", icon: "fa-users" }
+    { href: "/admin", label: "Dashboard", icon: "fa-tachometer-alt", key: "dashboard" },
+    { href: "/admin/packs", label: "Packs", icon: "fa-box", key: "packs" },
+    { href: "/admin/concept_generations", label: "Generate Concepts", icon: "fa-wand-magic-sparkles", key: "concept_generations" },
+    { href: "/admin/users", label: "Users", icon: "fa-users", key: "users" }
   ];
-  return /* @__PURE__ */ import_react88.default.createElement("div", { style: { minHeight: "calc(100vh - 64px)" } }, isMobile && /* @__PURE__ */ import_react88.default.createElement("div", { style: {
-    background: "#1a1a1a",
-    padding: "12px 16px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    position: "sticky",
-    top: 0,
-    zIndex: 100
-  } }, /* @__PURE__ */ import_react88.default.createElement("div", { style: {
-    fontSize: "14px",
-    fontWeight: 600,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "white"
-  } }, "Admin"), /* @__PURE__ */ import_react88.default.createElement(
+  return /* @__PURE__ */ import_react88.default.createElement("div", { style: { display: "flex", height: "calc(100vh - 64px)" } }, /* @__PURE__ */ import_react88.default.createElement(
+    "div",
+    {
+      style: {
+        width: sidebarOpen ? "260px" : "0",
+        background: "#e2e2e2",
+        overflowY: "auto",
+        overflowX: "hidden",
+        padding: sidebarOpen ? "var(--space-6)" : "0",
+        boxShadow: sidebarOpen ? "var(--shadow-sidebar)" : "none",
+        transition: "all 0.3s ease",
+        flexShrink: 0
+      }
+    },
+    sidebarOpen && /* @__PURE__ */ import_react88.default.createElement(import_react88.default.Fragment, null, /* @__PURE__ */ import_react88.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          color: "var(--neutral-500)",
+          marginBottom: "var(--space-4)",
+          padding: "0 var(--space-2)"
+        }
+      },
+      "Admin"
+    ), /* @__PURE__ */ import_react88.default.createElement("nav", { style: { display: "flex", flexDirection: "column", gap: "2px", marginBottom: "var(--space-6)" } }, navItems.map((item) => {
+      const isActive2 = currentPage === item.key;
+      return /* @__PURE__ */ import_react88.default.createElement(
+        "a",
+        {
+          key: item.href,
+          href: item.href,
+          style: {
+            fontFamily: "var(--font-body)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+            padding: "var(--space-2) var(--space-3)",
+            borderRadius: "var(--radius)",
+            textDecoration: "none",
+            fontSize: "var(--text-sm)",
+            fontWeight: isActive2 ? 600 : 400,
+            color: isActive2 ? "var(--neutral-900)" : "var(--neutral-700)",
+            background: isActive2 ? "var(--neutral-200)" : "transparent",
+            transition: "background 0.15s"
+          },
+          onMouseEnter: (e3) => {
+            if (!isActive2) e3.currentTarget.style.background = "var(--neutral-100)";
+          },
+          onMouseLeave: (e3) => {
+            if (!isActive2) e3.currentTarget.style.background = "transparent";
+          }
+        },
+        /* @__PURE__ */ import_react88.default.createElement("i", { className: `fas ${item.icon}`, style: { width: "16px", textAlign: "center", fontSize: "13px" } }),
+        item.label
+      );
+    })), /* @__PURE__ */ import_react88.default.createElement("div", { style: { paddingTop: "var(--space-4)", borderTop: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react88.default.createElement(
+      "a",
+      {
+        href: "/",
+        style: {
+          fontFamily: "var(--font-body)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-3)",
+          padding: "var(--space-2) var(--space-3)",
+          textDecoration: "none",
+          fontSize: "var(--text-sm)",
+          color: "var(--neutral-500)",
+          transition: "color 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--neutral-800)",
+        onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-500)"
+      },
+      /* @__PURE__ */ import_react88.default.createElement("i", { className: "fas fa-arrow-left", style: { width: "16px", textAlign: "center", fontSize: "13px" } }),
+      "Back to App"
+    )))
+  ), /* @__PURE__ */ import_react88.default.createElement(
     "button",
     {
       onClick: () => setSidebarOpen(!sidebarOpen),
       style: {
-        background: "none",
+        position: "absolute",
+        left: sidebarOpen ? "260px" : "0",
+        top: "164px",
+        width: "24px",
+        height: "48px",
+        background: "var(--neutral-800)",
         border: "none",
         color: "white",
-        fontSize: "20px",
         cursor: "pointer",
-        padding: "4px 8px"
-      }
-    },
-    /* @__PURE__ */ import_react88.default.createElement("i", { className: `fas ${sidebarOpen ? "fa-times" : "fa-bars"}` })
-  )), /* @__PURE__ */ import_react88.default.createElement("div", { style: { display: "flex" } }, isMobile && sidebarOpen && /* @__PURE__ */ import_react88.default.createElement(
-    "div",
-    {
-      onClick: () => setSidebarOpen(false),
-      style: {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.5)",
-        zIndex: 199
-      }
-    }
-  ), /* @__PURE__ */ import_react88.default.createElement("aside", { style: {
-    width: "220px",
-    background: "#1a1a1a",
-    padding: "16px",
-    flexShrink: 0,
-    // Mobile styles
-    ...isMobile ? {
-      position: "fixed",
-      top: 0,
-      left: sidebarOpen ? 0 : "-220px",
-      bottom: 0,
-      zIndex: 200,
-      transition: "left 0.2s ease",
-      paddingTop: "60px"
-    } : {}
-  } }, !isMobile && /* @__PURE__ */ import_react88.default.createElement("div", { style: {
-    fontSize: "11px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    textTransform: "uppercase",
-    letterSpacing: "0.1em",
-    color: "#888",
-    marginBottom: "16px",
-    padding: "0 12px"
-  } }, "Admin"), /* @__PURE__ */ import_react88.default.createElement("nav", { style: { display: "flex", flexDirection: "column", gap: "4px" } }, navItems.map((item) => {
-    const isActive2 = currentPage === item.label.toLowerCase();
-    return /* @__PURE__ */ import_react88.default.createElement(
-      "a",
-      {
-        key: item.href,
-        href: item.href,
-        onClick: () => isMobile && setSidebarOpen(false),
-        style: {
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          padding: "10px 12px",
-          borderRadius: "4px",
-          textDecoration: "none",
-          fontFamily: "Inter, -apple-system, sans-serif",
-          fontSize: "14px",
-          color: isActive2 ? "white" : "#999",
-          background: isActive2 ? "#333" : "transparent",
-          transition: "all 0.15s"
-        }
-      },
-      /* @__PURE__ */ import_react88.default.createElement("i", { className: `fas ${item.icon}`, style: { width: "16px", textAlign: "center" } }),
-      item.label
-    );
-  })), /* @__PURE__ */ import_react88.default.createElement("div", { style: {
-    paddingTop: "24px",
-    borderTop: "1px solid #333",
-    marginTop: "24px"
-  } }, /* @__PURE__ */ import_react88.default.createElement(
-    "a",
-    {
-      href: "/",
-      style: {
         display: "flex",
         alignItems: "center",
-        gap: "12px",
-        padding: "10px 12px",
-        textDecoration: "none",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontSize: "14px",
-        color: "#666"
+        justifyContent: "center",
+        borderTopRightRadius: "4px",
+        borderBottomRightRadius: "4px",
+        transition: "left 0.3s ease",
+        zIndex: 10,
+        boxShadow: "2px 0 4px rgba(0, 0, 0, 0.2)"
+      },
+      title: sidebarOpen ? "Hide sidebar" : "Show sidebar"
+    },
+    /* @__PURE__ */ import_react88.default.createElement("i", { className: `fas fa-chevron-${sidebarOpen ? "left" : "right"}`, style: { fontSize: "12px" } })
+  ), /* @__PURE__ */ import_react88.default.createElement(
+    "main",
+    {
+      style: {
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        background: "white"
       }
     },
-    /* @__PURE__ */ import_react88.default.createElement("i", { className: "fas fa-arrow-left", style: { width: "16px", textAlign: "center" } }),
-    "Back to App"
-  ))), /* @__PURE__ */ import_react88.default.createElement("main", { style: {
-    flex: 1,
-    background: "#f5f5f5",
-    overflow: "auto",
-    minHeight: isMobile ? "calc(100vh - 64px - 48px)" : "calc(100vh - 64px)"
-  } }, children2)));
+    children2
+  ));
+}
+
+// app/javascript/components/admin/AdminPageHeader.js
+var import_react89 = __toESM(require_react());
+function AdminPageHeader({ title, subtitle, actions, backHref, backLabel }) {
+  return /* @__PURE__ */ import_react89.default.createElement(
+    "div",
+    {
+      style: {
+        padding: "var(--space-6) var(--space-8)",
+        background: "var(--neutral-600)",
+        boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
+        position: "relative",
+        zIndex: 5
+      }
+    },
+    backHref && /* @__PURE__ */ import_react89.default.createElement(
+      "a",
+      {
+        href: backHref,
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          color: "rgba(255,255,255,0.6)",
+          textDecoration: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "var(--space-2)",
+          marginBottom: "var(--space-2)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          fontWeight: 600
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.color = "white",
+        onMouseLeave: (e3) => e3.currentTarget.style.color = "rgba(255,255,255,0.6)"
+      },
+      /* @__PURE__ */ import_react89.default.createElement("i", { className: "fas fa-arrow-left" }),
+      backLabel || "Back"
+    ),
+    /* @__PURE__ */ import_react89.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-4)", flexWrap: "wrap" } }, /* @__PURE__ */ import_react89.default.createElement("div", { style: { minWidth: 0, flex: 1 } }, /* @__PURE__ */ import_react89.default.createElement(
+      "h1",
+      {
+        style: {
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--text-3xl)",
+          fontWeight: 700,
+          color: "white",
+          letterSpacing: "-0.02em",
+          marginBottom: "var(--space-1)",
+          marginTop: 0,
+          wordBreak: "break-word"
+        }
+      },
+      title
+    ), subtitle && /* @__PURE__ */ import_react89.default.createElement(
+      "p",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-sm)",
+          color: "rgba(255,255,255,0.65)",
+          margin: 0
+        }
+      },
+      subtitle
+    )), actions && /* @__PURE__ */ import_react89.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", flexShrink: 0 } }, actions))
+  );
 }
 
 // app/javascript/components/admin/AdminDashboard.js
 function AdminDashboard() {
-  const [stats, setStats] = (0, import_react89.useState)(null);
-  const [loading, setLoading] = (0, import_react89.useState)(true);
-  (0, import_react89.useEffect)(() => {
+  const [stats, setStats] = (0, import_react90.useState)(null);
+  const [loading, setLoading] = (0, import_react90.useState)(true);
+  (0, import_react90.useEffect)(() => {
     fetch("/admin.json").then((res) => res.json()).then((data) => {
       setStats(data);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
-  const StatCard3 = ({ label, value, icon: icon3 }) => /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    background: "white",
-    padding: "16px",
-    borderRadius: "8px",
-    border: "1px solid #e0e0e0",
-    display: "flex",
-    alignItems: "center",
-    gap: "12px"
-  } }, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    width: "44px",
-    height: "44px",
-    borderRadius: "8px",
-    background: "#333",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "white",
-    fontSize: "16px",
-    flexShrink: 0
-  } }, /* @__PURE__ */ import_react89.default.createElement("i", { className: `fas ${icon3}` })), /* @__PURE__ */ import_react89.default.createElement("div", { style: { minWidth: 0 } }, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    fontSize: "24px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111"
-  } }, value), /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    fontSize: "13px",
-    color: "#666",
-    fontFamily: "Inter, -apple-system, sans-serif"
-  } }, label)));
-  return /* @__PURE__ */ import_react89.default.createElement(AdminLayout, { currentPage: "dashboard" }, /* @__PURE__ */ import_react89.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react89.default.createElement("h1", { style: {
-    fontSize: "24px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111",
-    marginBottom: "20px"
-  } }, "Dashboard"), loading ? /* @__PURE__ */ import_react89.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : stats ? /* @__PURE__ */ import_react89.default.createElement(import_react89.default.Fragment, null, /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: "12px",
-    marginBottom: "24px"
-  } }, /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Users", value: stats.total_users, icon: "fa-users" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Users This Month", value: stats.users_this_month, icon: "fa-user-plus" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Published Packs", value: stats.published_packs, icon: "fa-box" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Purchases", value: stats.total_purchases, icon: "fa-shopping-cart" })), /* @__PURE__ */ import_react89.default.createElement("h2", { style: {
-    fontSize: "18px",
-    fontWeight: 600,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111",
-    marginBottom: "16px"
-  } }, "Content Stats"), /* @__PURE__ */ import_react89.default.createElement("div", { style: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-    gap: "12px"
-  } }, /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Concepts", value: stats.total_concepts, icon: "fa-lightbulb" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Total Sources", value: stats.total_sources, icon: "fa-book" }), /* @__PURE__ */ import_react89.default.createElement(StatCard3, { label: "Purchases This Month", value: stats.purchases_this_month, icon: "fa-chart-line" }))) : /* @__PURE__ */ import_react89.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#c00" } }, "Failed to load stats")));
+  const StatCard3 = ({ label, value, icon: icon3 }) => /* @__PURE__ */ import_react90.default.createElement(
+    "div",
+    {
+      style: {
+        background: "white",
+        padding: "var(--space-4)",
+        borderRadius: "var(--radius)",
+        border: "1px solid var(--neutral-200)",
+        display: "flex",
+        alignItems: "center",
+        gap: "var(--space-3)",
+        transition: "box-shadow 0.15s, transform 0.15s"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+        e3.currentTarget.style.transform = "translateY(-1px)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.boxShadow = "none";
+        e3.currentTarget.style.transform = "translateY(0)";
+      }
+    },
+    /* @__PURE__ */ import_react90.default.createElement(
+      "div",
+      {
+        style: {
+          width: "44px",
+          height: "44px",
+          borderRadius: "var(--radius)",
+          background: "var(--neutral-800)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          fontSize: "16px",
+          flexShrink: 0
+        }
+      },
+      /* @__PURE__ */ import_react90.default.createElement("i", { className: `fas ${icon3}` })
+    ),
+    /* @__PURE__ */ import_react90.default.createElement("div", { style: { minWidth: 0 } }, /* @__PURE__ */ import_react90.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--text-2xl)",
+          fontWeight: 700,
+          color: "var(--neutral-900)",
+          lineHeight: 1.1
+        }
+      },
+      value
+    ), /* @__PURE__ */ import_react90.default.createElement(
+      "div",
+      {
+        style: {
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          color: "var(--neutral-500)",
+          marginTop: "2px"
+        }
+      },
+      label
+    ))
+  );
+  const SectionLabel = ({ children: children2 }) => /* @__PURE__ */ import_react90.default.createElement(
+    "div",
+    {
+      style: {
+        fontFamily: "var(--font-display)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        color: "var(--neutral-700)",
+        marginBottom: "var(--space-3)",
+        paddingBottom: "var(--space-2)",
+        borderBottom: "1px solid var(--neutral-200)"
+      }
+    },
+    children2
+  );
+  return /* @__PURE__ */ import_react90.default.createElement(AdminLayout, { currentPage: "dashboard" }, /* @__PURE__ */ import_react90.default.createElement(AdminPageHeader, { title: "Dashboard", subtitle: "System overview and key metrics" }), /* @__PURE__ */ import_react90.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, loading ? /* @__PURE__ */ import_react90.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading...") : stats ? /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, /* @__PURE__ */ import_react90.default.createElement(SectionLabel, null, "Users & Purchases"), /* @__PURE__ */ import_react90.default.createElement(
+    "div",
+    {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: "var(--space-3)",
+        marginBottom: "var(--space-8)"
+      }
+    },
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Total Users", value: stats.total_users, icon: "fa-users" }),
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Users This Month", value: stats.users_this_month, icon: "fa-user-plus" }),
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Published Packs", value: stats.published_packs, icon: "fa-box" }),
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Total Purchases", value: stats.total_purchases, icon: "fa-shopping-cart" })
+  ), /* @__PURE__ */ import_react90.default.createElement(SectionLabel, null, "Content"), /* @__PURE__ */ import_react90.default.createElement(
+    "div",
+    {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: "var(--space-3)"
+      }
+    },
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Total Concepts", value: stats.total_concepts, icon: "fa-lightbulb" }),
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Total Sources", value: stats.total_sources, icon: "fa-book" }),
+    /* @__PURE__ */ import_react90.default.createElement(StatCard3, { label: "Purchases This Month", value: stats.purchases_this_month, icon: "fa-chart-line" })
+  )) : /* @__PURE__ */ import_react90.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--error)" } }, "Failed to load stats")));
 }
 
 // app/javascript/components/admin/AdminPacks.js
-var import_react90 = __toESM(require_react());
+var import_react91 = __toESM(require_react());
 function AdminPacks() {
-  const [packs, setPacks] = (0, import_react90.useState)([]);
-  const [loading, setLoading] = (0, import_react90.useState)(true);
-  const [showForm, setShowForm] = (0, import_react90.useState)(false);
-  const [formData, setFormData] = (0, import_react90.useState)({ name: "", description: "", price_cents: 0 });
-  const [saving, setSaving] = (0, import_react90.useState)(false);
-  const [error, setError] = (0, import_react90.useState)("");
-  (0, import_react90.useEffect)(() => {
+  const [packs, setPacks] = (0, import_react91.useState)([]);
+  const [loading, setLoading] = (0, import_react91.useState)(true);
+  const [showForm, setShowForm] = (0, import_react91.useState)(false);
+  const [formData, setFormData] = (0, import_react91.useState)({ name: "", description: "", price_cents: 0 });
+  const [saving, setSaving] = (0, import_react91.useState)(false);
+  const [error, setError] = (0, import_react91.useState)("");
+  (0, import_react91.useEffect)(() => {
     fetchPacks();
   }, []);
   const fetchPacks = async () => {
@@ -122204,244 +122663,366 @@ function AdminPacks() {
     if (cents === 0) return "Free";
     return `$${(cents / 100).toFixed(2)}`;
   };
-  const inputStyle = {
+  const inputStyle3 = {
     width: "100%",
-    padding: "10px 12px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    fontSize: "16px",
-    fontFamily: "Inter, -apple-system, sans-serif",
-    boxSizing: "border-box"
+    padding: "var(--space-2) var(--space-3)",
+    border: "1px solid var(--neutral-300)",
+    borderRadius: "var(--radius)",
+    fontSize: "var(--text-sm)",
+    fontFamily: "var(--font-body)",
+    boxSizing: "border-box",
+    background: "white"
   };
-  return /* @__PURE__ */ import_react90.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "20px",
-    flexWrap: "wrap",
-    gap: "12px"
-  } }, /* @__PURE__ */ import_react90.default.createElement("h1", { style: {
-    fontSize: "24px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111",
-    margin: 0
-  } }, "Packs"), /* @__PURE__ */ import_react90.default.createElement(
+  const actions = /* @__PURE__ */ import_react91.default.createElement(
     "button",
     {
       onClick: () => setShowForm(!showForm),
       style: {
-        background: "#111",
-        color: "white",
+        width: "48px",
+        height: "48px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--neutral-900)",
         border: "none",
-        padding: "10px 16px",
-        borderRadius: "4px",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontWeight: 500,
-        fontSize: "14px",
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
-        gap: "8px"
-      }
+        justifyContent: "center",
+        fontSize: "var(--text-xl)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-md)",
+        flexShrink: 0
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "translateY(-2px)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-lg)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      title: "New Pack"
     },
-    /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-plus" }),
-    "New Pack"
-  )), error && /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-    padding: "12px",
-    background: "#fee",
-    color: "#c00",
-    borderRadius: "4px",
-    marginBottom: "16px",
-    fontFamily: "Inter, -apple-system, sans-serif",
-    fontSize: "14px"
-  } }, error), showForm && /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-    background: "white",
-    padding: "20px",
-    borderRadius: "8px",
-    border: "1px solid #e0e0e0",
-    marginBottom: "20px"
-  } }, /* @__PURE__ */ import_react90.default.createElement("h2", { style: {
-    fontSize: "18px",
-    fontWeight: 600,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    marginBottom: "16px",
-    color: "#111"
-  } }, "Create New Pack"), /* @__PURE__ */ import_react90.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Name *"), /* @__PURE__ */ import_react90.default.createElement(
-    "input",
+    /* @__PURE__ */ import_react91.default.createElement("i", { className: `fas ${showForm ? "fa-times" : "fa-plus"}` })
+  );
+  return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement(AdminPageHeader, { title: "Packs", subtitle: "Manage concept packs and Stripe integration", actions }), /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, error && /* @__PURE__ */ import_react91.default.createElement(
+    "div",
     {
-      type: "text",
-      value: formData.name,
-      onChange: (e3) => setFormData({ ...formData, name: e3.target.value }),
-      required: true,
-      style: inputStyle
-    }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Description"), /* @__PURE__ */ import_react90.default.createElement(
-    "textarea",
-    {
-      value: formData.description,
-      onChange: (e3) => setFormData({ ...formData, description: e3.target.value }),
-      rows: 3,
-      style: { ...inputStyle, resize: "vertical" }
-    }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react90.default.createElement("label", { style: { display: "block", marginBottom: "6px", fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", fontWeight: 500, color: "#333" } }, "Price (cents, 0 = free)"), /* @__PURE__ */ import_react90.default.createElement(
-    "input",
-    {
-      type: "number",
-      value: formData.price_cents,
-      onChange: (e3) => setFormData({ ...formData, price_cents: parseInt(e3.target.value) || 0 }),
-      min: "0",
-      style: { ...inputStyle, maxWidth: "150px" }
-    }
-  )), /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react90.default.createElement(
-    "button",
-    {
-      type: "submit",
-      disabled: saving,
       style: {
-        background: saving ? "#ccc" : "#111",
-        color: "white",
-        border: "none",
-        padding: "10px 20px",
-        borderRadius: "4px",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontWeight: 500,
-        fontSize: "14px",
-        cursor: saving ? "not-allowed" : "pointer"
+        padding: "var(--space-3)",
+        background: "var(--accent-red-light)",
+        color: "var(--accent-red)",
+        borderRadius: "var(--radius)",
+        marginBottom: "var(--space-4)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)"
       }
     },
-    saving ? "Creating..." : "Create Pack"
-  ), /* @__PURE__ */ import_react90.default.createElement(
-    "button",
+    error
+  ), showForm && /* @__PURE__ */ import_react91.default.createElement(
+    "div",
     {
-      type: "button",
-      onClick: () => setShowForm(false),
       style: {
-        background: "#e0e0e0",
-        color: "#333",
-        border: "none",
-        padding: "10px 20px",
-        borderRadius: "4px",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontSize: "14px",
-        cursor: "pointer"
+        background: "white",
+        padding: "var(--space-6)",
+        borderRadius: "var(--radius)",
+        border: "1px solid var(--neutral-200)",
+        marginBottom: "var(--space-6)",
+        boxShadow: "var(--shadow-sm)"
       }
     },
-    "Cancel"
-  )))), loading ? /* @__PURE__ */ import_react90.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : packs.length === 0 ? /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-    background: "white",
-    padding: "32px",
-    borderRadius: "8px",
-    textAlign: "center",
-    color: "#666",
-    fontFamily: "Inter, -apple-system, sans-serif",
-    border: "1px solid #e0e0e0"
-  } }, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-box-open", style: { fontSize: "32px", marginBottom: "12px", display: "block", color: "#999" } }), "No packs yet. Create your first pack above.") : /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } }, packs.map((pack) => /* @__PURE__ */ import_react90.default.createElement(
+    /* @__PURE__ */ import_react91.default.createElement(
+      "h2",
+      {
+        style: {
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--text-lg)",
+          fontWeight: 600,
+          color: "var(--neutral-900)",
+          marginTop: 0,
+          marginBottom: "var(--space-4)"
+        }
+      },
+      "Create New Pack"
+    ),
+    /* @__PURE__ */ import_react91.default.createElement("form", { onSubmit: handleCreate }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react91.default.createElement(
+      "label",
+      {
+        style: {
+          display: "block",
+          marginBottom: "var(--space-1)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 600,
+          color: "var(--neutral-600)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em"
+        }
+      },
+      "Name *"
+    ), /* @__PURE__ */ import_react91.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: formData.name,
+        onChange: (e3) => setFormData({ ...formData, name: e3.target.value }),
+        required: true,
+        style: inputStyle3
+      }
+    )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react91.default.createElement(
+      "label",
+      {
+        style: {
+          display: "block",
+          marginBottom: "var(--space-1)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 600,
+          color: "var(--neutral-600)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em"
+        }
+      },
+      "Description"
+    ), /* @__PURE__ */ import_react91.default.createElement(
+      "textarea",
+      {
+        value: formData.description,
+        onChange: (e3) => setFormData({ ...formData, description: e3.target.value }),
+        rows: 3,
+        style: { ...inputStyle3, resize: "vertical" }
+      }
+    )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react91.default.createElement(
+      "label",
+      {
+        style: {
+          display: "block",
+          marginBottom: "var(--space-1)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-xs)",
+          fontWeight: 600,
+          color: "var(--neutral-600)",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em"
+        }
+      },
+      "Price (cents, 0 = free)"
+    ), /* @__PURE__ */ import_react91.default.createElement(
+      "input",
+      {
+        type: "number",
+        value: formData.price_cents,
+        onChange: (e3) => setFormData({ ...formData, price_cents: parseInt(e3.target.value) || 0 }),
+        min: "0",
+        style: { ...inputStyle3, maxWidth: "150px" }
+      }
+    )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+      "button",
+      {
+        type: "submit",
+        disabled: saving,
+        style: {
+          background: saving ? "var(--neutral-300)" : "var(--neutral-800)",
+          color: "white",
+          border: "none",
+          padding: "var(--space-2) var(--space-4)",
+          borderRadius: "var(--radius)",
+          fontFamily: "var(--font-display)",
+          fontWeight: 500,
+          fontSize: "var(--text-sm)",
+          cursor: saving ? "not-allowed" : "pointer"
+        }
+      },
+      saving ? "Creating..." : "Create Pack"
+    ), /* @__PURE__ */ import_react91.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setShowForm(false),
+        style: {
+          background: "white",
+          color: "var(--neutral-700)",
+          border: "1px solid var(--neutral-300)",
+          padding: "var(--space-2) var(--space-4)",
+          borderRadius: "var(--radius)",
+          fontFamily: "var(--font-display)",
+          fontSize: "var(--text-sm)",
+          cursor: "pointer"
+        }
+      },
+      "Cancel"
+    )))
+  ), loading ? /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading...") : packs.length === 0 ? /* @__PURE__ */ import_react91.default.createElement(
+    "div",
+    {
+      style: {
+        background: "white",
+        padding: "var(--space-8)",
+        borderRadius: "var(--radius)",
+        textAlign: "center",
+        color: "var(--neutral-500)",
+        fontFamily: "var(--font-body)",
+        border: "1px solid var(--neutral-200)"
+      }
+    },
+    /* @__PURE__ */ import_react91.default.createElement(
+      "i",
+      {
+        className: "fas fa-box-open",
+        style: { fontSize: "32px", marginBottom: "var(--space-3)", display: "block", color: "var(--neutral-300)" }
+      }
+    ),
+    "No packs yet. Create your first pack above."
+  ) : /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, packs.map((pack) => /* @__PURE__ */ import_react91.default.createElement(
     "div",
     {
       key: pack.id,
       style: {
         background: "white",
-        borderRadius: "8px",
-        border: "1px solid #e0e0e0",
-        padding: "16px"
-      }
+        borderRadius: "var(--radius)",
+        border: "1px solid var(--neutral-200)",
+        padding: "var(--space-4)",
+        transition: "box-shadow 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-sm)",
+      onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "none"
     },
-    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-      display: "flex",
-      alignItems: "flex-start",
-      justifyContent: "space-between",
-      gap: "12px",
-      marginBottom: "12px",
-      flexWrap: "wrap"
-    } }, /* @__PURE__ */ import_react90.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react90.default.createElement(
-      "a",
+    /* @__PURE__ */ import_react91.default.createElement(
+      "div",
       {
-        href: `/admin/packs/${pack.id}`,
         style: {
-          color: "#111",
-          textDecoration: "none",
-          fontWeight: 600,
-          fontSize: "16px",
-          fontFamily: "Inter, -apple-system, sans-serif"
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-3)",
+          flexWrap: "wrap"
         }
       },
-      pack.name
-    ), pack.description && /* @__PURE__ */ import_react90.default.createElement("p", { style: {
-      fontSize: "13px",
-      color: "#888",
-      margin: "4px 0 0 0",
-      fontFamily: "Inter, -apple-system, sans-serif"
-    } }, pack.description.substring(0, 80), pack.description.length > 80 ? "..." : "")), /* @__PURE__ */ import_react90.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center" } }, /* @__PURE__ */ import_react90.default.createElement("span", { style: {
-      padding: "4px 10px",
-      borderRadius: "4px",
-      fontSize: "12px",
-      fontWeight: 600,
-      fontFamily: "Inter, -apple-system, sans-serif",
-      background: pack.published ? "#111" : "#e0e0e0",
-      color: pack.published ? "white" : "#666"
-    } }, pack.published ? "Published" : "Draft"))),
-    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: "16px",
-      fontSize: "13px",
-      fontFamily: "Inter, -apple-system, sans-serif",
-      color: "#666",
-      marginBottom: "12px"
-    } }, /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("strong", { style: { color: "#333" } }, formatPrice(pack.price_cents))), /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-cubes", style: { marginRight: "4px", color: "#999" } }), pack.concept_definitions_count || 0, " concepts"), /* @__PURE__ */ import_react90.default.createElement("span", null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-shopping-cart", style: { marginRight: "4px", color: "#999" } }), pack.purchases_count || 0, " purchases"), /* @__PURE__ */ import_react90.default.createElement("span", null, pack.stripe_price_id ? /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-check-circle", style: { color: "#333", marginRight: "4px" } }), "Stripe") : /* @__PURE__ */ import_react90.default.createElement(import_react90.default.Fragment, null, /* @__PURE__ */ import_react90.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "#ccc", marginRight: "4px" } }), "No Stripe"))),
-    /* @__PURE__ */ import_react90.default.createElement("div", { style: {
-      display: "flex",
-      gap: "12px",
-      paddingTop: "12px",
-      borderTop: "1px solid #f0f0f0"
-    } }, /* @__PURE__ */ import_react90.default.createElement(
-      "a",
+      /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react91.default.createElement(
+        "a",
+        {
+          href: `/admin/packs/${pack.id}`,
+          style: {
+            fontFamily: "var(--font-display)",
+            color: "var(--neutral-900)",
+            textDecoration: "none",
+            fontWeight: 600,
+            fontSize: "var(--text-lg)"
+          }
+        },
+        pack.name
+      ), pack.description && /* @__PURE__ */ import_react91.default.createElement(
+        "p",
+        {
+          style: {
+            fontSize: "var(--text-sm)",
+            color: "var(--neutral-500)",
+            margin: "4px 0 0 0",
+            fontFamily: "var(--font-body)"
+          }
+        },
+        pack.description.substring(0, 120),
+        pack.description.length > 120 ? "..." : ""
+      )),
+      /* @__PURE__ */ import_react91.default.createElement(
+        "span",
+        {
+          style: {
+            padding: "4px 10px",
+            borderRadius: "var(--radius)",
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            fontFamily: "var(--font-display)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            background: pack.published ? "var(--neutral-800)" : "var(--neutral-100)",
+            color: pack.published ? "white" : "var(--neutral-600)",
+            border: pack.published ? "none" : "1px solid var(--neutral-300)"
+          }
+        },
+        pack.published ? "Published" : "Draft"
+      )
+    ),
+    /* @__PURE__ */ import_react91.default.createElement(
+      "div",
       {
-        href: `/admin/packs/${pack.id}`,
         style: {
-          color: "#111",
-          fontSize: "14px",
-          fontFamily: "Inter, -apple-system, sans-serif",
-          textDecoration: "none",
-          fontWeight: 500
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "var(--space-4)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          color: "var(--neutral-600)",
+          marginBottom: "var(--space-3)"
         }
       },
-      "Edit"
-    ), /* @__PURE__ */ import_react90.default.createElement(
-      "button",
+      /* @__PURE__ */ import_react91.default.createElement("span", null, /* @__PURE__ */ import_react91.default.createElement("strong", { style: { color: "var(--neutral-900)" } }, formatPrice(pack.price_cents))),
+      /* @__PURE__ */ import_react91.default.createElement("span", null, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-cubes", style: { marginRight: "4px", color: "var(--neutral-400)" } }), pack.concept_definitions_count || 0, " concepts"),
+      /* @__PURE__ */ import_react91.default.createElement("span", null, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-shopping-cart", style: { marginRight: "4px", color: "var(--neutral-400)" } }), pack.purchases_count || 0, " purchases"),
+      /* @__PURE__ */ import_react91.default.createElement("span", null, pack.stripe_price_id ? /* @__PURE__ */ import_react91.default.createElement(import_react91.default.Fragment, null, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-check-circle", style: { color: "var(--neutral-800)", marginRight: "4px" } }), "Stripe") : /* @__PURE__ */ import_react91.default.createElement(import_react91.default.Fragment, null, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-exclamation-circle", style: { color: "var(--neutral-300)", marginRight: "4px" } }), "No Stripe"))
+    ),
+    /* @__PURE__ */ import_react91.default.createElement(
+      "div",
       {
-        onClick: () => handleDelete2(pack.id),
         style: {
-          background: "none",
-          border: "none",
-          color: "#999",
-          cursor: "pointer",
-          fontSize: "14px",
-          fontFamily: "Inter, -apple-system, sans-serif",
-          padding: 0
+          display: "flex",
+          gap: "var(--space-4)",
+          paddingTop: "var(--space-3)",
+          borderTop: "1px solid var(--neutral-100)"
         }
       },
-      "Delete"
-    ))
+      /* @__PURE__ */ import_react91.default.createElement(
+        "a",
+        {
+          href: `/admin/packs/${pack.id}`,
+          style: {
+            color: "var(--neutral-900)",
+            fontSize: "var(--text-sm)",
+            fontFamily: "var(--font-body)",
+            textDecoration: "none",
+            fontWeight: 500
+          }
+        },
+        "Edit"
+      ),
+      /* @__PURE__ */ import_react91.default.createElement(
+        "button",
+        {
+          onClick: () => handleDelete2(pack.id),
+          style: {
+            background: "none",
+            border: "none",
+            color: "var(--neutral-500)",
+            cursor: "pointer",
+            fontSize: "var(--text-sm)",
+            fontFamily: "var(--font-body)",
+            padding: 0
+          },
+          onMouseEnter: (e3) => e3.currentTarget.style.color = "var(--accent-red)",
+          onMouseLeave: (e3) => e3.currentTarget.style.color = "var(--neutral-500)"
+        },
+        "Delete"
+      )
+    )
   )))));
 }
 
 // app/javascript/components/admin/AdminPackShow.js
-var import_react91 = __toESM(require_react());
+var import_react92 = __toESM(require_react());
 function AdminPackShow({ packId }) {
-  const [pack, setPack] = (0, import_react91.useState)(null);
-  const [loading, setLoading] = (0, import_react91.useState)(true);
-  const [saving, setSaving] = (0, import_react91.useState)(false);
-  const [syncing, setSyncing] = (0, import_react91.useState)(false);
-  const [error, setError] = (0, import_react91.useState)("");
-  const [showCreateModal, setShowCreateModal] = (0, import_react91.useState)(false);
-  const [showImport, setShowImport] = (0, import_react91.useState)(false);
-  const [searchQuery, setSearchQuery] = (0, import_react91.useState)("");
-  const [searchResults, setSearchResults] = (0, import_react91.useState)([]);
-  const [searching, setSearching] = (0, import_react91.useState)(false);
-  const [editingDef, setEditingDef] = (0, import_react91.useState)(null);
-  (0, import_react91.useEffect)(() => {
+  const [pack, setPack] = (0, import_react92.useState)(null);
+  const [loading, setLoading] = (0, import_react92.useState)(true);
+  const [saving, setSaving] = (0, import_react92.useState)(false);
+  const [syncing, setSyncing] = (0, import_react92.useState)(false);
+  const [error, setError] = (0, import_react92.useState)("");
+  const [showCreateModal, setShowCreateModal] = (0, import_react92.useState)(false);
+  const [showImport, setShowImport] = (0, import_react92.useState)(false);
+  const [searchQuery, setSearchQuery] = (0, import_react92.useState)("");
+  const [searchResults, setSearchResults] = (0, import_react92.useState)([]);
+  const [searching, setSearching] = (0, import_react92.useState)(false);
+  const [editingDef, setEditingDef] = (0, import_react92.useState)(null);
+  (0, import_react92.useEffect)(() => {
     fetchPack();
   }, [packId]);
   const fetchPack = async () => {
@@ -122640,7 +123221,7 @@ function AdminPackShow({ packId }) {
     "non_physical_process",
     "non_physical_concept"
   ];
-  const inputStyle = {
+  const inputStyle3 = {
     width: "100%",
     padding: "8px 12px",
     border: "1px solid #ccc",
@@ -122649,29 +123230,39 @@ function AdminPackShow({ packId }) {
     fontFamily: "Inter, -apple-system, sans-serif"
   };
   if (loading) {
-    return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...")));
+    return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react92.default.createElement(AdminPageHeader, { title: "Loading...", backHref: "/admin/packs", backLabel: "Back to Packs" }), /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading...")));
   }
   if (!pack) {
-    return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "32px" } }, /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#c00" } }, "Pack not found")));
+    return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react92.default.createElement(AdminPageHeader, { title: "Pack not found", backHref: "/admin/packs", backLabel: "Back to Packs" }), /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--accent-red)" } }, "The pack could not be loaded.")));
   }
-  return /* @__PURE__ */ import_react91.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react91.default.createElement(
-    "a",
+  const headerActions = /* @__PURE__ */ import_react92.default.createElement(
+    "span",
     {
-      href: "/admin/packs",
       style: {
-        color: "#666",
-        textDecoration: "none",
-        fontFamily: "Inter, -apple-system, sans-serif",
-        fontSize: "14px",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        marginBottom: "16px"
+        padding: "6px 12px",
+        borderRadius: "var(--radius)",
+        fontSize: "var(--text-xs)",
+        fontWeight: 600,
+        fontFamily: "var(--font-display)",
+        textTransform: "uppercase",
+        letterSpacing: "0.05em",
+        background: pack.published ? "white" : "transparent",
+        color: pack.published ? "var(--neutral-900)" : "rgba(255,255,255,0.8)",
+        border: pack.published ? "none" : "1px solid rgba(255,255,255,0.3)"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-arrow-left" }),
-    "Back to Packs"
-  ), error && /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+    pack.published ? "Published" : "Draft"
+  );
+  return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "packs" }, /* @__PURE__ */ import_react92.default.createElement(
+    AdminPageHeader,
+    {
+      title: pack.name,
+      subtitle: `${pack.concept_definitions?.length || 0} concepts \xB7 ${pack.purchases_count || 0} purchases`,
+      actions: headerActions,
+      backHref: "/admin/packs",
+      backLabel: "Back to Packs"
+    }
+  ), /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, error && /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     padding: "12px",
     background: "#fee",
     color: "#c00",
@@ -122679,43 +123270,22 @@ function AdminPackShow({ packId }) {
     marginBottom: "16px",
     fontFamily: "Inter, -apple-system, sans-serif",
     fontSize: "14px"
-  } }, error, /* @__PURE__ */ import_react91.default.createElement("button", { onClick: () => setError(""), style: { float: "right", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, -apple-system, sans-serif" } }, "\xD7")), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  } }, error, /* @__PURE__ */ import_react92.default.createElement("button", { onClick: () => setError(""), style: { float: "right", background: "none", border: "none", cursor: "pointer", fontFamily: "Inter, -apple-system, sans-serif" } }, "\xD7")), /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     background: "white",
     borderRadius: "8px",
     border: "1px solid #e0e0e0",
     padding: "24px",
     marginBottom: "24px"
-  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react91.default.createElement("h1", { style: {
-    fontSize: "20px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111",
-    margin: 0,
-    wordBreak: "break-word"
-  } }, pack.name), /* @__PURE__ */ import_react91.default.createElement("p", { style: {
-    fontSize: "14px",
-    color: "#666",
-    fontFamily: "Inter, -apple-system, sans-serif",
-    marginTop: "4px"
-  } }, pack.concept_definitions?.length || 0, " concepts \xB7 ", pack.purchases_count || 0, " purchases")), /* @__PURE__ */ import_react91.default.createElement("span", { style: {
-    padding: "4px 12px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontWeight: 600,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    background: pack.published ? "#111" : "#e0e0e0",
-    color: pack.published ? "white" : "#666",
-    flexShrink: 0
-  } }, pack.published ? "Published" : "Draft")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Name"), /* @__PURE__ */ import_react91.default.createElement(
+  } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("div", null, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Name"), /* @__PURE__ */ import_react92.default.createElement(
     "input",
     {
       type: "text",
       value: pack.name,
       onChange: (e3) => setPack((prev) => ({ ...prev, name: e3.target.value })),
       onBlur: () => handleUpdate({ name: pack.name }),
-      style: inputStyle
+      style: inputStyle3
     }
-  )), /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price (cents)"), /* @__PURE__ */ import_react91.default.createElement(
+  )), /* @__PURE__ */ import_react92.default.createElement("div", null, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price (cents)"), /* @__PURE__ */ import_react92.default.createElement(
     "input",
     {
       type: "number",
@@ -122723,34 +123293,34 @@ function AdminPackShow({ packId }) {
       onChange: (e3) => setPack((prev) => ({ ...prev, price_cents: parseInt(e3.target.value) || 0 })),
       onBlur: () => handleUpdate({ price_cents: pack.price_cents }),
       min: "0",
-      style: inputStyle
+      style: inputStyle3
     }
-  ), /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontSize: "12px", color: "#888", fontFamily: "Inter, -apple-system, sans-serif" } }, "= ", formatPrice(pack.price_cents)))), /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Description"), /* @__PURE__ */ import_react91.default.createElement(
+  ), /* @__PURE__ */ import_react92.default.createElement("span", { style: { fontSize: "12px", color: "#888", fontFamily: "Inter, -apple-system, sans-serif" } }, "= ", formatPrice(pack.price_cents)))), /* @__PURE__ */ import_react92.default.createElement("div", { style: { marginBottom: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Description"), /* @__PURE__ */ import_react92.default.createElement(
     "textarea",
     {
       value: pack.description || "",
       onChange: (e3) => setPack((prev) => ({ ...prev, description: e3.target.value })),
       onBlur: () => handleUpdate({ description: pack.description }),
       rows: 3,
-      style: { ...inputStyle, resize: "vertical" }
+      style: { ...inputStyle3, resize: "vertical" }
     }
-  )), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  )), /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     background: "#fafafa",
     borderRadius: "4px",
     padding: "16px",
     marginBottom: "16px",
     border: "1px solid #e0e0e0"
-  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
     marginBottom: "12px"
-  } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fab fa-stripe", style: { fontSize: "20px", color: "#635bff" } }), /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+  } }, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fab fa-stripe", style: { fontSize: "20px", color: "#635bff" } }), /* @__PURE__ */ import_react92.default.createElement("span", { style: {
     fontSize: "14px",
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#333"
-  } }, "Stripe Integration"), pack.stripe_price_id && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+  } }, "Stripe Integration"), pack.stripe_price_id && /* @__PURE__ */ import_react92.default.createElement("span", { style: {
     background: "#111",
     color: "white",
     padding: "2px 8px",
@@ -122758,7 +123328,7 @@ function AdminPackShow({ packId }) {
     fontSize: "11px",
     fontWeight: 500,
     fontFamily: "Inter, -apple-system, sans-serif"
-  } }, "Connected")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Product ID"), /* @__PURE__ */ import_react91.default.createElement(
+  } }, "Connected")), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", marginBottom: "12px" } }, /* @__PURE__ */ import_react92.default.createElement("div", null, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Product ID"), /* @__PURE__ */ import_react92.default.createElement(
     "input",
     {
       type: "text",
@@ -122766,9 +123336,9 @@ function AdminPackShow({ packId }) {
       onChange: (e3) => setPack((prev) => ({ ...prev, stripe_product_id: e3.target.value })),
       onBlur: () => handleUpdate({ stripe_product_id: pack.stripe_product_id || null }),
       placeholder: "prod_...",
-      style: { ...inputStyle, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
+      style: { ...inputStyle3, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
     }
-  )), /* @__PURE__ */ import_react91.default.createElement("div", null, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price ID"), /* @__PURE__ */ import_react91.default.createElement(
+  )), /* @__PURE__ */ import_react92.default.createElement("div", null, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "11px", fontWeight: 500, color: "#666", marginBottom: "4px", fontFamily: "Inter, -apple-system, sans-serif", textTransform: "uppercase", letterSpacing: "0.05em" } }, "Price ID"), /* @__PURE__ */ import_react92.default.createElement(
     "input",
     {
       type: "text",
@@ -122776,9 +123346,9 @@ function AdminPackShow({ packId }) {
       onChange: (e3) => setPack((prev) => ({ ...prev, stripe_price_id: e3.target.value })),
       onBlur: () => handleUpdate({ stripe_price_id: pack.stripe_price_id || null }),
       placeholder: "price_...",
-      style: { ...inputStyle, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
+      style: { ...inputStyle3, fontSize: "13px", fontFamily: "monospace", boxSizing: "border-box" }
     }
-  ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+  ))), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" } }, /* @__PURE__ */ import_react92.default.createElement(
     "button",
     {
       onClick: handleSyncStripe,
@@ -122797,7 +123367,7 @@ function AdminPackShow({ packId }) {
       }
     },
     syncing ? "Syncing..." : "Auto-sync to Stripe"
-  ), /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontSize: "12px", color: "#888", fontFamily: "Inter, -apple-system, sans-serif" } }, "or paste IDs from Stripe Dashboard"))), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ import_react91.default.createElement(
+  ), /* @__PURE__ */ import_react92.default.createElement("span", { style: { fontSize: "12px", color: "#888", fontFamily: "Inter, -apple-system, sans-serif" } }, "or paste IDs from Stripe Dashboard"))), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ import_react92.default.createElement(
     "button",
     {
       onClick: () => handleUpdate({ published: !pack.published }),
@@ -122815,18 +123385,18 @@ function AdminPackShow({ packId }) {
       }
     },
     pack.published ? "Unpublish" : "Publish"
-  ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  ))), /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     background: "white",
     borderRadius: "8px",
     border: "1px solid #e0e0e0",
     padding: "24px"
-  } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("h2", { style: {
+  } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" } }, /* @__PURE__ */ import_react92.default.createElement("h2", { style: {
     fontSize: "18px",
     fontWeight: 600,
     fontFamily: "Inter, -apple-system, sans-serif",
     color: "#111",
     margin: 0
-  } }, "Concepts (", pack.concept_definitions?.length || 0, ")"), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+  } }, "Concepts (", pack.concept_definitions?.length || 0, ")"), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react92.default.createElement(
     "button",
     {
       onClick: () => setShowImport(!showImport),
@@ -122841,9 +123411,9 @@ function AdminPackShow({ packId }) {
         cursor: "pointer"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-search", style: { marginRight: "6px" } }),
+    /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-search", style: { marginRight: "6px" } }),
     "Import"
-  ), /* @__PURE__ */ import_react91.default.createElement(
+  ), /* @__PURE__ */ import_react92.default.createElement(
     "button",
     {
       onClick: () => setShowCreateModal(true),
@@ -122858,24 +123428,24 @@ function AdminPackShow({ packId }) {
         cursor: "pointer"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "6px" } }),
+    /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "6px" } }),
     "Create"
-  ))), showImport && /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+  ))), showImport && /* @__PURE__ */ import_react92.default.createElement("div", { style: {
     background: "#fafafa",
     padding: "16px",
     borderRadius: "4px",
     marginBottom: "16px",
     border: "1px solid #e0e0e0"
-  } }, /* @__PURE__ */ import_react91.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, marginBottom: "8px", fontFamily: "Inter, -apple-system, sans-serif", color: "#333" } }, "Search your concepts"), /* @__PURE__ */ import_react91.default.createElement(
+  } }, /* @__PURE__ */ import_react92.default.createElement("label", { style: { display: "block", fontSize: "12px", fontWeight: 500, marginBottom: "8px", fontFamily: "Inter, -apple-system, sans-serif", color: "#333" } }, "Search your concepts"), /* @__PURE__ */ import_react92.default.createElement(
     "input",
     {
       type: "text",
       value: searchQuery,
       onChange: (e3) => handleSearchConcepts(e3.target.value),
       placeholder: "Type to search...",
-      style: inputStyle
+      style: inputStyle3
     }
-  ), searching && /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontSize: "13px", color: "#888", marginTop: "8px", fontFamily: "Inter, -apple-system, sans-serif" } }, "Searching..."), searchResults.length > 0 && /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginTop: "12px", display: "flex", flexDirection: "column", gap: "6px" } }, searchResults.map((concept) => /* @__PURE__ */ import_react91.default.createElement(
+  ), searching && /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontSize: "13px", color: "#888", marginTop: "8px", fontFamily: "Inter, -apple-system, sans-serif" } }, "Searching..."), searchResults.length > 0 && /* @__PURE__ */ import_react92.default.createElement("div", { style: { marginTop: "12px", display: "flex", flexDirection: "column", gap: "6px" } }, searchResults.map((concept) => /* @__PURE__ */ import_react92.default.createElement(
     "div",
     {
       key: concept.id,
@@ -122889,20 +123459,20 @@ function AdminPackShow({ packId }) {
         border: "1px solid #e0e0e0"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111" } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px" } }, /* @__PURE__ */ import_react92.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111" } }, concept.label), concept.concept_type && /* @__PURE__ */ import_react92.default.createElement("span", { style: {
       fontSize: "11px",
       color: "#666",
       background: "#e0e0e0",
       padding: "1px 6px",
       borderRadius: "3px",
       fontFamily: "Inter, -apple-system, sans-serif"
-    } }, concept.concept_type.replace(/_/g, " "))), concept.summary && /* @__PURE__ */ import_react91.default.createElement("p", { style: {
+    } }, concept.concept_type.replace(/_/g, " "))), concept.summary && /* @__PURE__ */ import_react92.default.createElement("p", { style: {
       fontSize: "12px",
       color: "#888",
       margin: "2px 0 0 0",
       fontFamily: "Inter, -apple-system, sans-serif"
     } }, concept.summary.substring(0, 80), concept.summary.length > 80 ? "..." : "")),
-    /* @__PURE__ */ import_react91.default.createElement(
+    /* @__PURE__ */ import_react92.default.createElement(
       "button",
       {
         onClick: () => handleImportConcept(concept.id),
@@ -122921,7 +123491,7 @@ function AdminPackShow({ packId }) {
       },
       "Add"
     )
-  ))), searchQuery.length >= 2 && !searching && searchResults.length === 0 && /* @__PURE__ */ import_react91.default.createElement("p", { style: { fontSize: "13px", color: "#888", marginTop: "8px", fontFamily: "Inter, -apple-system, sans-serif" } }, "No matching concepts found (or already added to pack)")), pack.concept_definitions && pack.concept_definitions.length > 0 ? /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "8px" } }, pack.concept_definitions.map((def) => /* @__PURE__ */ import_react91.default.createElement(
+  ))), searchQuery.length >= 2 && !searching && searchResults.length === 0 && /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontSize: "13px", color: "#888", marginTop: "8px", fontFamily: "Inter, -apple-system, sans-serif" } }, "No matching concepts found (or already added to pack)")), pack.concept_definitions && pack.concept_definitions.length > 0 ? /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "8px" } }, pack.concept_definitions.map((def) => /* @__PURE__ */ import_react92.default.createElement(
     "div",
     {
       key: def.id,
@@ -122932,7 +123502,7 @@ function AdminPackShow({ packId }) {
         border: "1px solid #e0e0e0"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111", wordBreak: "break-word" } }, def.label), def.concept_type && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" } }, /* @__PURE__ */ import_react92.default.createElement("span", { style: { fontWeight: 500, fontFamily: "Inter, -apple-system, sans-serif", fontSize: "14px", color: "#111", wordBreak: "break-word" } }, def.label), def.concept_type && /* @__PURE__ */ import_react92.default.createElement("span", { style: {
       fontSize: "11px",
       color: "#666",
       background: "#e0e0e0",
@@ -122940,7 +123510,7 @@ function AdminPackShow({ packId }) {
       borderRadius: "3px",
       fontFamily: "Inter, -apple-system, sans-serif",
       whiteSpace: "nowrap"
-    } }, def.concept_type.replace(/_/g, " ")), def.links && def.links.length > 0 && /* @__PURE__ */ import_react91.default.createElement("span", { style: {
+    } }, def.concept_type.replace(/_/g, " ")), def.links && def.links.length > 0 && /* @__PURE__ */ import_react92.default.createElement("span", { style: {
       fontSize: "11px",
       color: "#888",
       fontFamily: "Inter, -apple-system, sans-serif",
@@ -122948,12 +123518,12 @@ function AdminPackShow({ packId }) {
       alignItems: "center",
       gap: "3px",
       whiteSpace: "nowrap"
-    } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-link", style: { fontSize: "10px" } }), def.links.length)), def.summary && /* @__PURE__ */ import_react91.default.createElement("p", { style: {
+    } }, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-link", style: { fontSize: "10px" } }), def.links.length)), def.summary && /* @__PURE__ */ import_react92.default.createElement("p", { style: {
       fontSize: "13px",
       color: "#666",
       margin: "4px 0 0 0",
       fontFamily: "Inter, -apple-system, sans-serif"
-    } }, def.summary)), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ import_react91.default.createElement(
+    } }, def.summary)), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ import_react92.default.createElement(
       "button",
       {
         onClick: () => setEditingDef(def),
@@ -122968,8 +123538,8 @@ function AdminPackShow({ packId }) {
           cursor: "pointer"
         }
       },
-      /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-pen" })
-    ), /* @__PURE__ */ import_react91.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-pen" })
+    ), /* @__PURE__ */ import_react92.default.createElement(
       "button",
       {
         onClick: () => handleDeleteDefinition(def.id),
@@ -122982,15 +123552,15 @@ function AdminPackShow({ packId }) {
           fontFamily: "Inter, -apple-system, sans-serif"
         }
       },
-      /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-times" })
+      /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-times" })
     )))
-  ))) : /* @__PURE__ */ import_react91.default.createElement("p", { style: {
+  ))) : /* @__PURE__ */ import_react92.default.createElement("p", { style: {
     textAlign: "center",
     color: "#888",
     fontFamily: "Inter, -apple-system, sans-serif",
     padding: "24px",
     fontSize: "14px"
-  } }, "No concepts in this pack yet. Add some above."))), editingDef && /* @__PURE__ */ import_react91.default.createElement(
+  } }, "No concepts in this pack yet. Add some above."))), editingDef && /* @__PURE__ */ import_react92.default.createElement(
     ConceptDefinitionModal,
     {
       definition: editingDef,
@@ -123009,7 +123579,7 @@ function AdminPackShow({ packId }) {
         }));
       }
     }
-  ), showCreateModal && /* @__PURE__ */ import_react91.default.createElement(
+  ), showCreateModal && /* @__PURE__ */ import_react92.default.createElement(
     ConceptDefinitionModal,
     {
       definition: {},
@@ -123022,12 +123592,12 @@ function AdminPackShow({ packId }) {
   ));
 }
 function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, saving, title, packId, onLinksChange }) {
-  const [form, setForm] = (0, import_react91.useState)({ ...definition });
-  const [links, setLinks] = (0, import_react91.useState)(definition.links || []);
-  const [showAddLink, setShowAddLink] = (0, import_react91.useState)(false);
-  const [newLink, setNewLink] = (0, import_react91.useState)({ name: "", url: "", description: "" });
-  const [addingLink, setAddingLink] = (0, import_react91.useState)(false);
-  const inputStyle = {
+  const [form, setForm] = (0, import_react92.useState)({ ...definition });
+  const [links, setLinks] = (0, import_react92.useState)(definition.links || []);
+  const [showAddLink, setShowAddLink] = (0, import_react92.useState)(false);
+  const [newLink, setNewLink] = (0, import_react92.useState)({ name: "", url: "", description: "" });
+  const [addingLink, setAddingLink] = (0, import_react92.useState)(false);
+  const inputStyle3 = {
     width: "100%",
     padding: "8px 12px",
     border: "1px solid #ccc",
@@ -123035,7 +123605,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
     fontSize: "14px",
     fontFamily: "Inter, -apple-system, sans-serif"
   };
-  const labelStyle = {
+  const labelStyle2 = {
     display: "block",
     fontSize: "12px",
     fontWeight: 500,
@@ -123095,7 +123665,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
       console.error("Failed to remove link:", err);
     }
   };
-  return /* @__PURE__ */ import_react91.default.createElement(
+  return /* @__PURE__ */ import_react92.default.createElement(
     "div",
     {
       onClick: onClose,
@@ -123115,7 +123685,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         overflow: "auto"
       }
     },
-    /* @__PURE__ */ import_react91.default.createElement(
+    /* @__PURE__ */ import_react92.default.createElement(
       "div",
       {
         onClick: (e3) => e3.stopPropagation(),
@@ -123130,13 +123700,13 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           boxSizing: "border-box"
         }
       },
-      /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" } }, /* @__PURE__ */ import_react91.default.createElement("h2", { style: {
+      /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" } }, /* @__PURE__ */ import_react92.default.createElement("h2", { style: {
         fontSize: "20px",
         fontWeight: 600,
         fontFamily: "Inter, -apple-system, sans-serif",
         color: "#111",
         margin: 0
-      } }, title || "Concept Definition"), /* @__PURE__ */ import_react91.default.createElement(
+      } }, title || "Concept Definition"), /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           onClick: onClose,
@@ -123150,141 +123720,141 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
         },
         "\xD7"
       )),
-      /* @__PURE__ */ import_react91.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Label *"), /* @__PURE__ */ import_react91.default.createElement(
+      /* @__PURE__ */ import_react92.default.createElement("form", { onSubmit: handleSubmit }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Label *"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.label || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, label: e3.target.value })),
           required: true,
-          style: { ...inputStyle, boxSizing: "border-box" }
+          style: { ...inputStyle3, boxSizing: "border-box" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Type"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Type"), /* @__PURE__ */ import_react92.default.createElement(
         "select",
         {
           value: form.concept_type || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, concept_type: e3.target.value })),
-          style: { ...inputStyle, boxSizing: "border-box" }
+          style: { ...inputStyle3, boxSizing: "border-box" }
         },
-        /* @__PURE__ */ import_react91.default.createElement("option", { value: "" }, "Select type..."),
-        conceptTypes.map((t4) => /* @__PURE__ */ import_react91.default.createElement("option", { key: t4, value: t4 }, t4.replace(/_/g, " ")))
-      ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Summary"), /* @__PURE__ */ import_react91.default.createElement(
+        /* @__PURE__ */ import_react92.default.createElement("option", { value: "" }, "Select type..."),
+        conceptTypes.map((t4) => /* @__PURE__ */ import_react92.default.createElement("option", { key: t4, value: t4 }, t4.replace(/_/g, " ")))
+      ))), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Summary"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.summary || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, summary: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Description"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Description"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.description || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, description: e3.target.value })),
           rows: 4,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Location"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Location"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.location || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, location: e3.target.value })),
-          style: { ...inputStyle, boxSizing: "border-box" },
+          style: { ...inputStyle3, boxSizing: "border-box" },
           placeholder: "e.g., brain region, anatomical location"
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Etymology"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Etymology"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.etymology || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, etymology: e3.target.value })),
-          style: { ...inputStyle, boxSizing: "border-box" },
+          style: { ...inputStyle3, boxSizing: "border-box" },
           placeholder: "Word origin"
         }
-      ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Examples"), /* @__PURE__ */ import_react91.default.createElement(
+      ))), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Examples"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.examples || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, examples: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "History"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "History"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.history || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, history: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "School of Thought"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "School of Thought"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.school_of_thought || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, school_of_thought: e3.target.value })),
-          style: { ...inputStyle, boxSizing: "border-box" }
+          style: { ...inputStyle3, boxSizing: "border-box" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Attribution"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Attribution"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.attribution || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, attribution: e3.target.value })),
-          style: { ...inputStyle, boxSizing: "border-box" },
+          style: { ...inputStyle3, boxSizing: "border-box" },
           placeholder: "Original source/author"
         }
-      ))), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Clinical Relevance"), /* @__PURE__ */ import_react91.default.createElement(
+      ))), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Clinical Relevance"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.clinical_relevance || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, clinical_relevance: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Controversy"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Controversy"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.controversy || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, controversy: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Misconceptions"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Misconceptions"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.misconceptions || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, misconceptions: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical" }
+          style: { ...inputStyle3, resize: "vertical" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Mnemonic"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Mnemonic"), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           value: form.mnemonic || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, mnemonic: e3.target.value })),
-          style: inputStyle,
+          style: inputStyle3,
           placeholder: "Memory aid"
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Developmental Notes"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Developmental Notes"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.developmental_notes || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, developmental_notes: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical", boxSizing: "border-box" }
+          style: { ...inputStyle3, resize: "vertical", boxSizing: "border-box" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react91.default.createElement("label", { style: labelStyle }, "Measurement Notes"), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement("div", { style: fieldStyle }, /* @__PURE__ */ import_react92.default.createElement("label", { style: labelStyle2 }, "Measurement Notes"), /* @__PURE__ */ import_react92.default.createElement(
         "textarea",
         {
           value: form.measurement_notes || "",
           onChange: (e3) => setForm((prev) => ({ ...prev, measurement_notes: e3.target.value })),
           rows: 2,
-          style: { ...inputStyle, resize: "vertical", boxSizing: "border-box" }
+          style: { ...inputStyle3, resize: "vertical", boxSizing: "border-box" }
         }
-      ))), definition.id && /* @__PURE__ */ import_react91.default.createElement("div", { style: { marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" } }, /* @__PURE__ */ import_react91.default.createElement("label", { style: { ...labelStyle, marginBottom: 0 } }, "Links (", links.length, ")"), /* @__PURE__ */ import_react91.default.createElement(
+      ))), definition.id && /* @__PURE__ */ import_react92.default.createElement("div", { style: { marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" } }, /* @__PURE__ */ import_react92.default.createElement("label", { style: { ...labelStyle2, marginBottom: 0 } }, "Links (", links.length, ")"), /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           type: "button",
@@ -123300,42 +123870,42 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             cursor: "pointer"
           }
         },
-        /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "4px" } }),
+        /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "4px" } }),
         "Add Link"
-      )), showAddLink && /* @__PURE__ */ import_react91.default.createElement("div", { style: {
+      )), showAddLink && /* @__PURE__ */ import_react92.default.createElement("div", { style: {
         background: "#fafafa",
         padding: "12px",
         borderRadius: "4px",
         marginBottom: "12px",
         border: "1px solid #e0e0e0"
-      } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "8px", marginBottom: "8px" } }, /* @__PURE__ */ import_react91.default.createElement(
+      } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "8px", marginBottom: "8px" } }, /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           placeholder: "Link name",
           value: newLink.name,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, name: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
+          style: { ...inputStyle3, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
         }
-      ), /* @__PURE__ */ import_react91.default.createElement(
+      ), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "url",
           placeholder: "URL",
           value: newLink.url,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, url: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
+          style: { ...inputStyle3, fontSize: "13px", padding: "6px 10px", boxSizing: "border-box" }
         }
-      )), /* @__PURE__ */ import_react91.default.createElement(
+      )), /* @__PURE__ */ import_react92.default.createElement(
         "input",
         {
           type: "text",
           placeholder: "Description (optional)",
           value: newLink.description,
           onChange: (e3) => setNewLink((prev) => ({ ...prev, description: e3.target.value })),
-          style: { ...inputStyle, fontSize: "13px", padding: "6px 10px", marginBottom: "8px", boxSizing: "border-box" }
+          style: { ...inputStyle3, fontSize: "13px", padding: "6px 10px", marginBottom: "8px", boxSizing: "border-box" }
         }
-      ), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+      ), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap" } }, /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           type: "button",
@@ -123355,7 +123925,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           }
         },
         "Cancel"
-      ), /* @__PURE__ */ import_react91.default.createElement(
+      ), /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           type: "button",
@@ -123373,7 +123943,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           }
         },
         addingLink ? "Adding..." : "Add"
-      ))), links.length > 0 ? /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "6px" } }, links.map((link) => /* @__PURE__ */ import_react91.default.createElement(
+      ))), links.length > 0 ? /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "6px" } }, links.map((link) => /* @__PURE__ */ import_react92.default.createElement(
         "div",
         {
           key: link.id,
@@ -123387,7 +123957,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             border: "1px solid #e0e0e0"
           }
         },
-        /* @__PURE__ */ import_react91.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px" } }, /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-link", style: { color: "#999", fontSize: "12px" } }), /* @__PURE__ */ import_react91.default.createElement(
+        /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "8px" } }, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-link", style: { color: "#999", fontSize: "12px" } }), /* @__PURE__ */ import_react92.default.createElement(
           "a",
           {
             href: link.url,
@@ -123402,13 +123972,13 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             }
           },
           link.name
-        )), link.description && /* @__PURE__ */ import_react91.default.createElement("p", { style: {
+        )), link.description && /* @__PURE__ */ import_react92.default.createElement("p", { style: {
           fontSize: "12px",
           color: "#888",
           margin: "2px 0 0 20px",
           fontFamily: "Inter, -apple-system, sans-serif"
         } }, link.description)),
-        /* @__PURE__ */ import_react91.default.createElement(
+        /* @__PURE__ */ import_react92.default.createElement(
           "button",
           {
             type: "button",
@@ -123422,15 +123992,15 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
               fontFamily: "Inter, -apple-system, sans-serif"
             }
           },
-          /* @__PURE__ */ import_react91.default.createElement("i", { className: "fas fa-times" })
+          /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-times" })
         )
-      ))) : /* @__PURE__ */ import_react91.default.createElement("p", { style: {
+      ))) : /* @__PURE__ */ import_react92.default.createElement("p", { style: {
         fontSize: "13px",
         color: "#888",
         fontFamily: "Inter, -apple-system, sans-serif",
         textAlign: "center",
         padding: "12px"
-      } }, "No links yet")), /* @__PURE__ */ import_react91.default.createElement("div", { style: { display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0", flexWrap: "wrap" } }, /* @__PURE__ */ import_react91.default.createElement(
+      } }, "No links yet")), /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", gap: "12px", justifyContent: "flex-end", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e0e0e0", flexWrap: "wrap" } }, /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           type: "button",
@@ -123447,7 +124017,7 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
           }
         },
         "Cancel"
-      ), /* @__PURE__ */ import_react91.default.createElement(
+      ), /* @__PURE__ */ import_react92.default.createElement(
         "button",
         {
           type: "submit",
@@ -123471,12 +124041,12 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
 }
 
 // app/javascript/components/admin/AdminUsers.js
-var import_react92 = __toESM(require_react());
+var import_react93 = __toESM(require_react());
 function AdminUsers() {
-  const [users, setUsers] = (0, import_react92.useState)([]);
-  const [loading, setLoading] = (0, import_react92.useState)(true);
-  const [error, setError] = (0, import_react92.useState)("");
-  (0, import_react92.useEffect)(() => {
+  const [users, setUsers] = (0, import_react93.useState)([]);
+  const [loading, setLoading] = (0, import_react93.useState)(true);
+  const [error, setError] = (0, import_react93.useState)("");
+  (0, import_react93.useEffect)(() => {
     fetchUsers();
   }, []);
   const fetchUsers = async () => {
@@ -123508,150 +124078,733 @@ function AdminUsers() {
       alert("Failed to update user");
     }
   };
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-  };
-  return /* @__PURE__ */ import_react92.default.createElement(AdminLayout, { currentPage: "users" }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { padding: "16px", maxWidth: "1200px", margin: "0 auto" } }, /* @__PURE__ */ import_react92.default.createElement("h1", { style: {
-    fontSize: "24px",
-    fontWeight: 700,
-    fontFamily: "Inter, -apple-system, sans-serif",
-    color: "#111",
-    marginBottom: "20px"
-  } }, "Users"), error && /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-    padding: "12px",
-    background: "#fee",
-    color: "#c00",
-    borderRadius: "4px",
-    marginBottom: "16px",
-    fontFamily: "Inter, -apple-system, sans-serif",
-    fontSize: "14px"
-  } }, error), loading ? /* @__PURE__ */ import_react92.default.createElement("p", { style: { fontFamily: "Inter, -apple-system, sans-serif", color: "#666" } }, "Loading...") : /* @__PURE__ */ import_react92.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "12px" } }, users.map((user) => /* @__PURE__ */ import_react92.default.createElement(
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  return /* @__PURE__ */ import_react93.default.createElement(AdminLayout, { currentPage: "users" }, /* @__PURE__ */ import_react93.default.createElement(AdminPageHeader, { title: "Users", subtitle: "Manage accounts and admin privileges" }), /* @__PURE__ */ import_react93.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, error && /* @__PURE__ */ import_react93.default.createElement(
+    "div",
+    {
+      style: {
+        padding: "var(--space-3)",
+        background: "var(--accent-red-light)",
+        color: "var(--accent-red)",
+        borderRadius: "var(--radius)",
+        marginBottom: "var(--space-4)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)"
+      }
+    },
+    error
+  ), loading ? /* @__PURE__ */ import_react93.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading...") : users.length === 0 ? /* @__PURE__ */ import_react93.default.createElement(
+    "div",
+    {
+      style: {
+        background: "white",
+        padding: "var(--space-8)",
+        borderRadius: "var(--radius)",
+        textAlign: "center",
+        color: "var(--neutral-500)",
+        fontFamily: "var(--font-body)",
+        border: "1px solid var(--neutral-200)"
+      }
+    },
+    "No users yet."
+  ) : /* @__PURE__ */ import_react93.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, users.map((user) => /* @__PURE__ */ import_react93.default.createElement(
     "div",
     {
       key: user.id,
       style: {
         background: "white",
-        borderRadius: "8px",
-        border: "1px solid #e0e0e0",
-        padding: "16px"
-      }
+        borderRadius: "var(--radius)",
+        border: "1px solid var(--neutral-200)",
+        padding: "var(--space-4)",
+        transition: "box-shadow 0.15s"
+      },
+      onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-sm)",
+      onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "none"
     },
-    /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-      display: "flex",
-      alignItems: "flex-start",
-      justifyContent: "space-between",
-      gap: "12px",
-      marginBottom: "8px",
-      flexWrap: "wrap"
-    } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-      fontWeight: 500,
-      fontSize: "15px",
-      fontFamily: "Inter, -apple-system, sans-serif",
-      color: "#111",
-      wordBreak: "break-word"
-    } }, user.email), /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-      fontSize: "12px",
-      color: "#888",
-      fontFamily: "Inter, -apple-system, sans-serif",
-      marginTop: "4px"
-    } }, "Joined ", formatDate(user.created_at))), /* @__PURE__ */ import_react92.default.createElement(
-      "button",
+    /* @__PURE__ */ import_react93.default.createElement(
+      "div",
       {
-        onClick: () => toggleAdmin(user),
         style: {
-          background: user.admin ? "#111" : "#e0e0e0",
-          color: user.admin ? "white" : "#666",
-          border: "none",
-          padding: "6px 12px",
-          borderRadius: "4px",
-          fontSize: "12px",
-          fontWeight: 500,
-          fontFamily: "Inter, -apple-system, sans-serif",
-          cursor: "pointer",
           display: "flex",
-          alignItems: "center",
-          gap: "6px"
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-3)",
+          marginBottom: "var(--space-2)",
+          flexWrap: "wrap"
         }
       },
-      /* @__PURE__ */ import_react92.default.createElement("i", { className: `fas ${user.admin ? "fa-shield-alt" : "fa-user"}` }),
-      user.admin ? "Admin" : "User"
-    )),
-    /* @__PURE__ */ import_react92.default.createElement("div", { style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: "16px",
-      fontSize: "13px",
-      fontFamily: "Inter, -apple-system, sans-serif",
-      color: "#666"
-    } }, /* @__PURE__ */ import_react92.default.createElement("span", null, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-lightbulb", style: { marginRight: "4px", color: "#999" } }), user.concepts_count, " concepts"), /* @__PURE__ */ import_react92.default.createElement("span", null, /* @__PURE__ */ import_react92.default.createElement("i", { className: "fas fa-box", style: { marginRight: "4px", color: "#999" } }), user.packs_count, " packs"))
+      /* @__PURE__ */ import_react93.default.createElement("div", { style: { flex: 1, minWidth: "200px" } }, /* @__PURE__ */ import_react93.default.createElement(
+        "div",
+        {
+          style: {
+            fontFamily: "var(--font-body)",
+            fontWeight: 500,
+            fontSize: "var(--text-base)",
+            color: "var(--neutral-900)",
+            wordBreak: "break-word"
+          }
+        },
+        user.email
+      ), /* @__PURE__ */ import_react93.default.createElement(
+        "div",
+        {
+          style: {
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--text-xs)",
+            color: "var(--neutral-500)",
+            marginTop: "4px"
+          }
+        },
+        "Joined ",
+        formatDate(user.created_at)
+      )),
+      /* @__PURE__ */ import_react93.default.createElement(
+        "button",
+        {
+          onClick: () => toggleAdmin(user),
+          style: {
+            background: user.admin ? "var(--neutral-800)" : "white",
+            color: user.admin ? "white" : "var(--neutral-600)",
+            border: user.admin ? "none" : "1px solid var(--neutral-300)",
+            padding: "6px 12px",
+            borderRadius: "var(--radius)",
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
+            fontFamily: "var(--font-display)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            transition: "all 0.15s"
+          },
+          title: "Toggle admin"
+        },
+        /* @__PURE__ */ import_react93.default.createElement("i", { className: `fas ${user.admin ? "fa-shield-alt" : "fa-user"}` }),
+        user.admin ? "Admin" : "User"
+      )
+    ),
+    /* @__PURE__ */ import_react93.default.createElement(
+      "div",
+      {
+        style: {
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "var(--space-4)",
+          fontSize: "var(--text-sm)",
+          fontFamily: "var(--font-body)",
+          color: "var(--neutral-600)"
+        }
+      },
+      /* @__PURE__ */ import_react93.default.createElement("span", null, /* @__PURE__ */ import_react93.default.createElement("i", { className: "fas fa-lightbulb", style: { marginRight: "4px", color: "var(--neutral-400)" } }), user.concepts_count, " concepts"),
+      /* @__PURE__ */ import_react93.default.createElement("span", null, /* @__PURE__ */ import_react93.default.createElement("i", { className: "fas fa-box", style: { marginRight: "4px", color: "var(--neutral-400)" } }), user.packs_count, " packs")
+    )
   )))));
+}
+
+// app/javascript/components/admin/AdminConceptGenerations.js
+var import_react94 = __toESM(require_react());
+var STATUS_META = {
+  pending: { label: "Pending", color: "var(--neutral-500)", bg: "var(--neutral-100)" },
+  generating: { label: "Generating", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  fact_checking: { label: "Fact-checking", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  enriching: { label: "Enriching", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  ready_for_review: { label: "Ready for Review", color: "white", bg: "var(--neutral-800)" },
+  approved: { label: "Approved", color: "white", bg: "#2d6a3e" },
+  rejected: { label: "Rejected", color: "white", bg: "#7a3030" },
+  failed: { label: "Failed", color: "white", bg: "var(--accent-red, #9c2a2a)" }
+};
+var FILTERS = [
+  { key: "all", label: "All" },
+  { key: "in_progress", label: "In Progress" },
+  { key: "ready_for_review", label: "Ready for Review" },
+  { key: "approved", label: "Approved" },
+  { key: "rejected", label: "Rejected" },
+  { key: "failed", label: "Failed" }
+];
+function matchesFilter(gen, filter2) {
+  if (filter2 === "all") return true;
+  if (filter2 === "in_progress") return ["pending", "generating", "fact_checking", "enriching"].includes(gen.status);
+  return gen.status === filter2;
+}
+function AdminConceptGenerations() {
+  const [generations, setGenerations] = (0, import_react94.useState)([]);
+  const [loading, setLoading] = (0, import_react94.useState)(true);
+  const [filter2, setFilter] = (0, import_react94.useState)("all");
+  const [error, setError] = (0, import_react94.useState)("");
+  (0, import_react94.useEffect)(() => {
+    fetch("/admin/concept_generations.json").then((res) => res.json()).then((data) => {
+      setGenerations(data);
+      setLoading(false);
+    }).catch(() => {
+      setError("Failed to load generations");
+      setLoading(false);
+    });
+  }, []);
+  const filtered = generations.filter((g3) => matchesFilter(g3, filter2));
+  const actions = /* @__PURE__ */ import_react94.default.createElement(
+    "a",
+    {
+      href: "/admin/concept_generations/new",
+      style: {
+        width: "48px",
+        height: "48px",
+        borderRadius: "50%",
+        background: "white",
+        color: "var(--neutral-900)",
+        border: "none",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "var(--text-xl)",
+        transition: "all 0.15s",
+        boxShadow: "var(--shadow-md)",
+        flexShrink: 0,
+        textDecoration: "none"
+      },
+      onMouseEnter: (e3) => {
+        e3.currentTarget.style.transform = "translateY(-2px)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-lg)";
+      },
+      onMouseLeave: (e3) => {
+        e3.currentTarget.style.transform = "translateY(0)";
+        e3.currentTarget.style.boxShadow = "var(--shadow-md)";
+      },
+      title: "New Generation"
+    },
+    /* @__PURE__ */ import_react94.default.createElement("i", { className: "fas fa-plus" })
+  );
+  return /* @__PURE__ */ import_react94.default.createElement(AdminLayout, { currentPage: "concept_generations" }, /* @__PURE__ */ import_react94.default.createElement(AdminPageHeader, { title: "Concept Generations", subtitle: "AI-drafted concept definitions pending review", actions }), /* @__PURE__ */ import_react94.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, error && /* @__PURE__ */ import_react94.default.createElement("div", { style: { padding: "var(--space-3)", background: "var(--accent-red-light, #fde8e8)", color: "var(--accent-red, #9c2a2a)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)" } }, error), /* @__PURE__ */ import_react94.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", flexWrap: "wrap", marginBottom: "var(--space-4)" } }, FILTERS.map((f3) => /* @__PURE__ */ import_react94.default.createElement(
+    "button",
+    {
+      key: f3.key,
+      onClick: () => setFilter(f3.key),
+      style: {
+        padding: "var(--space-1) var(--space-3)",
+        borderRadius: "var(--radius)",
+        border: "1px solid " + (filter2 === f3.key ? "var(--neutral-800)" : "var(--neutral-300)"),
+        background: filter2 === f3.key ? "var(--neutral-800)" : "white",
+        color: filter2 === f3.key ? "white" : "var(--neutral-700)",
+        fontFamily: "var(--font-body)",
+        fontSize: "var(--text-sm)",
+        cursor: "pointer"
+      }
+    },
+    f3.label
+  ))), loading ? /* @__PURE__ */ import_react94.default.createElement("p", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading...") : filtered.length === 0 ? /* @__PURE__ */ import_react94.default.createElement("div", { style: { background: "white", padding: "var(--space-8)", borderRadius: "var(--radius)", textAlign: "center", color: "var(--neutral-500)", fontFamily: "var(--font-body)", border: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react94.default.createElement("i", { className: "fas fa-wand-magic-sparkles", style: { fontSize: "32px", marginBottom: "var(--space-3)", display: "block", color: "var(--neutral-300)" } }), filter2 === "all" ? "No generations yet. Create your first above." : "No generations match this filter.") : /* @__PURE__ */ import_react94.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, filtered.map((gen) => {
+    const meta = STATUS_META[gen.status] || STATUS_META.pending;
+    return /* @__PURE__ */ import_react94.default.createElement(
+      "a",
+      {
+        key: gen.id,
+        href: `/admin/concept_generations/${gen.id}`,
+        style: {
+          background: "white",
+          borderRadius: "var(--radius)",
+          border: "1px solid var(--neutral-200)",
+          padding: "var(--space-3) var(--space-4)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-3)",
+          textDecoration: "none",
+          transition: "box-shadow 0.15s"
+        },
+        onMouseEnter: (e3) => e3.currentTarget.style.boxShadow = "var(--shadow-sm)",
+        onMouseLeave: (e3) => e3.currentTarget.style.boxShadow = "none"
+      },
+      /* @__PURE__ */ import_react94.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react94.default.createElement("div", { style: { fontFamily: "var(--font-display)", color: "var(--neutral-900)", fontWeight: 600, fontSize: "var(--text-base)" } }, gen.concept_name), /* @__PURE__ */ import_react94.default.createElement("div", { style: { fontFamily: "var(--font-body)", color: "var(--neutral-500)", fontSize: "var(--text-xs)", marginTop: "2px" } }, gen.concept_type || "untyped", " \xB7 created ", new Date(gen.created_at).toLocaleString())),
+      /* @__PURE__ */ import_react94.default.createElement("span", { style: { padding: "4px 10px", borderRadius: "var(--radius)", fontSize: "var(--text-xs)", fontWeight: 600, fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.05em", background: meta.bg, color: meta.color } }, meta.label)
+    );
+  }))));
+}
+
+// app/javascript/components/admin/AdminConceptGenerationNew.js
+var import_react95 = __toESM(require_react());
+var CONCEPT_TYPES = [
+  "research_method",
+  "measurement",
+  "intervention",
+  "pathology",
+  "emotion",
+  "symptom",
+  "school_of_thought",
+  "physical_entity",
+  "physical_process",
+  "non_physical_process",
+  "non_physical_concept"
+];
+var inputStyle = {
+  width: "100%",
+  padding: "var(--space-2) var(--space-3)",
+  border: "1px solid var(--neutral-300)",
+  borderRadius: "var(--radius)",
+  fontSize: "var(--text-sm)",
+  fontFamily: "var(--font-body)",
+  boxSizing: "border-box",
+  background: "white"
+};
+var labelStyle = {
+  display: "block",
+  marginBottom: "var(--space-1)",
+  fontFamily: "var(--font-body)",
+  fontSize: "var(--text-xs)",
+  fontWeight: 600,
+  color: "var(--neutral-600)",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em"
+};
+var primaryButton = {
+  background: "var(--neutral-800)",
+  color: "white",
+  border: "none",
+  padding: "var(--space-2) var(--space-4)",
+  borderRadius: "var(--radius)",
+  fontFamily: "var(--font-display)",
+  fontWeight: 500,
+  fontSize: "var(--text-sm)",
+  cursor: "pointer"
+};
+var secondaryButton = {
+  background: "white",
+  color: "var(--neutral-700)",
+  border: "1px solid var(--neutral-300)",
+  padding: "var(--space-2) var(--space-4)",
+  borderRadius: "var(--radius)",
+  fontFamily: "var(--font-display)",
+  fontSize: "var(--text-sm)",
+  cursor: "pointer"
+};
+function AdminConceptGenerationNew() {
+  const [name, setName] = (0, import_react95.useState)("");
+  const [conceptType, setConceptType] = (0, import_react95.useState)("");
+  const [submitting, setSubmitting] = (0, import_react95.useState)(false);
+  const [error, setError] = (0, import_react95.useState)("");
+  const [duplicate, setDuplicate] = (0, import_react95.useState)(null);
+  const csrf = () => document.querySelector('[name="csrf-token"]').content;
+  const submit = async ({ ignore_duplicate = false, target_mode = "create_new", target_id = null } = {}) => {
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch("/admin/concept_generations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf() },
+        body: JSON.stringify({
+          concept_name: name,
+          concept_type: conceptType || null,
+          target_mode,
+          target_concept_definition_id: target_id,
+          ignore_duplicate
+        })
+      });
+      if (res.status === 409) {
+        const data2 = await res.json();
+        setDuplicate(data2.existing_concept_definition);
+        setSubmitting(false);
+        return;
+      }
+      if (!res.ok) {
+        const data2 = await res.json();
+        setError(data2.errors?.join(", ") || "Failed to start generation");
+        setSubmitting(false);
+        return;
+      }
+      const data = await res.json();
+      window.location.href = `/admin/concept_generations/${data.id}`;
+    } catch (err) {
+      setError("Network error");
+      setSubmitting(false);
+    }
+  };
+  const onSubmit = (e3) => {
+    e3.preventDefault();
+    if (!name.trim()) return;
+    submit();
+  };
+  return /* @__PURE__ */ import_react95.default.createElement(AdminLayout, { currentPage: "concept_generations" }, /* @__PURE__ */ import_react95.default.createElement(
+    AdminPageHeader,
+    {
+      title: "New Concept Generation",
+      subtitle: "Kick off a fresh AI-drafted concept definition",
+      backHref: "/admin/concept_generations",
+      backLabel: "Back to generations"
+    }
+  ), /* @__PURE__ */ import_react95.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, /* @__PURE__ */ import_react95.default.createElement("div", { style: { background: "white", padding: "var(--space-6)", borderRadius: "var(--radius)", border: "1px solid var(--neutral-200)", maxWidth: "640px", boxShadow: "var(--shadow-sm)" } }, error && /* @__PURE__ */ import_react95.default.createElement("div", { style: { padding: "var(--space-3)", background: "var(--accent-red-light, #fde8e8)", color: "var(--accent-red, #9c2a2a)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)" } }, error), /* @__PURE__ */ import_react95.default.createElement("form", { onSubmit }, /* @__PURE__ */ import_react95.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react95.default.createElement("label", { style: labelStyle }, "Concept Name *"), /* @__PURE__ */ import_react95.default.createElement(
+    "input",
+    {
+      type: "text",
+      value: name,
+      onChange: (e3) => setName(e3.target.value),
+      required: true,
+      placeholder: "e.g., Frontal Lobe, Working Memory, Cognitive Dissonance",
+      style: inputStyle,
+      autoFocus: true
+    }
+  ), /* @__PURE__ */ import_react95.default.createElement("div", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-xs)", color: "var(--neutral-500)", marginTop: "4px" } }, `This becomes the generation's target concept. Claude may normalize the label (e.g. "frontal lobes" \u2192 "Frontal Lobe").`)), /* @__PURE__ */ import_react95.default.createElement("div", { style: { marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react95.default.createElement("label", { style: labelStyle }, "Concept Type"), /* @__PURE__ */ import_react95.default.createElement("select", { value: conceptType, onChange: (e3) => setConceptType(e3.target.value), style: inputStyle }, /* @__PURE__ */ import_react95.default.createElement("option", { value: "" }, "(let the classifier decide)"), CONCEPT_TYPES.map((t4) => /* @__PURE__ */ import_react95.default.createElement("option", { key: t4, value: t4 }, t4)))), /* @__PURE__ */ import_react95.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react95.default.createElement("button", { type: "submit", disabled: submitting || !name.trim(), style: { ...primaryButton, background: submitting || !name.trim() ? "var(--neutral-300)" : "var(--neutral-800)", cursor: submitting || !name.trim() ? "not-allowed" : "pointer" } }, submitting ? "Starting..." : "Generate"), /* @__PURE__ */ import_react95.default.createElement("a", { href: "/admin/concept_generations", style: { ...secondaryButton, textDecoration: "none", display: "inline-flex", alignItems: "center" } }, "Cancel")))), duplicate && /* @__PURE__ */ import_react95.default.createElement(
+    DuplicateModal,
+    {
+      existing: duplicate,
+      onClose: () => setDuplicate(null),
+      onCreateAnyway: () => {
+        setDuplicate(null);
+        submit({ ignore_duplicate: true });
+      },
+      onRegenerate: () => {
+        setDuplicate(null);
+        submit({ target_mode: "regenerate_existing", target_id: duplicate.id });
+      }
+    }
+  )));
+}
+function DuplicateModal({ existing, onClose, onCreateAnyway, onRegenerate }) {
+  return /* @__PURE__ */ import_react95.default.createElement(
+    "div",
+    {
+      style: {
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.4)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1e3,
+        padding: "var(--space-4)"
+      },
+      onClick: onClose
+    },
+    /* @__PURE__ */ import_react95.default.createElement(
+      "div",
+      {
+        onClick: (e3) => e3.stopPropagation(),
+        style: {
+          background: "white",
+          borderRadius: "var(--radius)",
+          padding: "var(--space-6)",
+          maxWidth: "520px",
+          width: "100%",
+          boxShadow: "var(--shadow-lg)"
+        }
+      },
+      /* @__PURE__ */ import_react95.default.createElement("h2", { style: { fontFamily: "var(--font-display)", fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--neutral-900)", marginTop: 0, marginBottom: "var(--space-3)" } }, "A concept definition already exists"),
+      /* @__PURE__ */ import_react95.default.createElement("p", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "var(--neutral-700)", marginTop: 0 } }, '"', /* @__PURE__ */ import_react95.default.createElement("strong", null, existing.label), '" is already a concept definition (ID ', existing.id, "). What do you want to do?"),
+      existing.summary && /* @__PURE__ */ import_react95.default.createElement("div", { style: { background: "var(--neutral-100)", padding: "var(--space-3)", borderRadius: "var(--radius)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "var(--neutral-700)", marginBottom: "var(--space-4)" } }, existing.summary),
+      /* @__PURE__ */ import_react95.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", flexWrap: "wrap" } }, /* @__PURE__ */ import_react95.default.createElement("button", { onClick: onRegenerate, style: primaryButton }, "Regenerate existing"), /* @__PURE__ */ import_react95.default.createElement("button", { onClick: onCreateAnyway, style: secondaryButton }, "Create new anyway"), /* @__PURE__ */ import_react95.default.createElement("button", { onClick: onClose, style: { ...secondaryButton, marginLeft: "auto" } }, "Cancel"))
+    )
+  );
+}
+
+// app/javascript/components/admin/AdminConceptGenerationShow.js
+var import_react96 = __toESM(require_react());
+var CONTENT_FIELDS = [
+  { key: "label", label: "Label", type: "single" },
+  { key: "aliases", label: "Aliases", type: "array" },
+  { key: "summary", label: "Summary", type: "multi" },
+  { key: "description", label: "Description", type: "multi" },
+  { key: "location", label: "Location", type: "multi" },
+  { key: "examples", label: "Examples", type: "multi" },
+  { key: "etymology", label: "Etymology", type: "multi" },
+  { key: "school_of_thought", label: "School of Thought", type: "single" },
+  { key: "history", label: "History", type: "multi" },
+  { key: "controversy", label: "Controversy", type: "multi" },
+  { key: "clinical_relevance", label: "Clinical Relevance", type: "multi" },
+  { key: "misconceptions", label: "Misconceptions", type: "multi" },
+  { key: "mnemonic", label: "Mnemonic", type: "multi" },
+  { key: "developmental_notes", label: "Developmental Notes", type: "multi" },
+  { key: "measurement_notes", label: "Measurement Notes", type: "multi" }
+];
+var STATUS_META2 = {
+  pending: { label: "Pending", color: "var(--neutral-500)", bg: "var(--neutral-100)" },
+  generating: { label: "Generating", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  fact_checking: { label: "Fact-checking", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  enriching: { label: "Enriching", color: "var(--neutral-700)", bg: "var(--neutral-200)" },
+  ready_for_review: { label: "Ready for Review", color: "white", bg: "var(--neutral-800)" },
+  approved: { label: "Approved", color: "white", bg: "#2d6a3e" },
+  rejected: { label: "Rejected", color: "white", bg: "#7a3030" },
+  failed: { label: "Failed", color: "white", bg: "var(--accent-red, #9c2a2a)" }
+};
+var TERMINAL_STATUSES = ["approved", "rejected", "failed"];
+var IN_PROGRESS_STATUSES = ["pending", "generating", "fact_checking", "enriching"];
+var inputStyle2 = {
+  width: "100%",
+  padding: "var(--space-2) var(--space-3)",
+  border: "1px solid var(--neutral-300)",
+  borderRadius: "var(--radius)",
+  fontSize: "var(--text-sm)",
+  fontFamily: "var(--font-body)",
+  boxSizing: "border-box",
+  background: "white"
+};
+function AdminConceptGenerationShow({ generationId }) {
+  const [gen, setGen] = (0, import_react96.useState)(null);
+  const [loading, setLoading] = (0, import_react96.useState)(true);
+  const [error, setError] = (0, import_react96.useState)("");
+  const [edits, setEdits] = (0, import_react96.useState)({});
+  const [dirty, setDirty] = (0, import_react96.useState)(false);
+  const [saving, setSaving] = (0, import_react96.useState)(false);
+  const [acting, setActing] = (0, import_react96.useState)(false);
+  const pollRef = (0, import_react96.useRef)(null);
+  const editsInitializedRef = (0, import_react96.useRef)(false);
+  const csrf = () => document.querySelector('[name="csrf-token"]').content;
+  const fetchGen = async () => {
+    try {
+      const res = await fetch(`/admin/concept_generations/${generationId}.json`);
+      if (!res.ok) throw new Error("fetch failed");
+      const data = await res.json();
+      setGen(data);
+      setLoading(false);
+      if (!editsInitializedRef.current && data.content) {
+        const initial2 = {};
+        CONTENT_FIELDS.forEach((f3) => {
+          initial2[f3.key] = data.content[f3.key] ?? (f3.type === "array" ? [] : "");
+        });
+        setEdits(initial2);
+        editsInitializedRef.current = true;
+      }
+      return data;
+    } catch (err) {
+      setError("Failed to load generation");
+      setLoading(false);
+      return null;
+    }
+  };
+  (0, import_react96.useEffect)(() => {
+    fetchGen();
+  }, [generationId]);
+  (0, import_react96.useEffect)(() => {
+    if (!gen) return;
+    if (!IN_PROGRESS_STATUSES.includes(gen.status)) {
+      if (pollRef.current) clearInterval(pollRef.current);
+      pollRef.current = null;
+      return;
+    }
+    if (pollRef.current) return;
+    pollRef.current = setInterval(fetchGen, 2e3);
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+      pollRef.current = null;
+    };
+  }, [gen?.status]);
+  const updateEdit = (key, value) => {
+    setEdits((e3) => ({ ...e3, [key]: value }));
+    setDirty(true);
+  };
+  const saveEdits = async () => {
+    setSaving(true);
+    try {
+      const payload = { concept_generation: { ...edits } };
+      const res = await fetch(`/admin/concept_generations/${generationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf() },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.errors?.join(", ") || "Save failed");
+      } else {
+        const data = await res.json();
+        setGen(data);
+        setDirty(false);
+      }
+    } catch (err) {
+      alert("Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const approve = async () => {
+    if (dirty && !confirm("You have unsaved edits. Approve anyway (using last saved version)?")) return;
+    setActing(true);
+    try {
+      const res = await fetch(`/admin/concept_generations/${generationId}/approve`, {
+        method: "POST",
+        headers: { "X-CSRF-Token": csrf() }
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.errors?.join(", ") || "Approve failed");
+      } else {
+        const data = await res.json();
+        setGen(data);
+      }
+    } finally {
+      setActing(false);
+    }
+  };
+  const reject = async () => {
+    const reason = prompt("Reason for rejection (optional):");
+    if (reason === null) return;
+    setActing(true);
+    try {
+      const res = await fetch(`/admin/concept_generations/${generationId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf() },
+        body: JSON.stringify({ reason })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.errors?.join(", ") || "Reject failed");
+      } else {
+        setGen(await res.json());
+      }
+    } finally {
+      setActing(false);
+    }
+  };
+  const retryStage = async (stage) => {
+    setActing(true);
+    try {
+      const res = await fetch(`/admin/concept_generations/${generationId}/retry_stage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf() },
+        body: JSON.stringify({ stage })
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.errors?.join(", ") || "Retry failed");
+      } else {
+        setGen(await res.json());
+      }
+    } finally {
+      setActing(false);
+    }
+  };
+  if (loading) {
+    return /* @__PURE__ */ import_react96.default.createElement(AdminLayout, { currentPage: "concept_generations" }, /* @__PURE__ */ import_react96.default.createElement(AdminPageHeader, { title: "Loading...", backHref: "/admin/concept_generations", backLabel: "Back to generations" }), /* @__PURE__ */ import_react96.default.createElement("div", { style: { padding: "var(--space-6) var(--space-8)", fontFamily: "var(--font-body)", color: "var(--neutral-500)" } }, "Loading..."));
+  }
+  if (!gen) {
+    return /* @__PURE__ */ import_react96.default.createElement(AdminLayout, { currentPage: "concept_generations" }, /* @__PURE__ */ import_react96.default.createElement(AdminPageHeader, { title: "Not found", backHref: "/admin/concept_generations", backLabel: "Back to generations" }), /* @__PURE__ */ import_react96.default.createElement("div", { style: { padding: "var(--space-6) var(--space-8)", fontFamily: "var(--font-body)", color: "var(--accent-red, #9c2a2a)" } }, error || "Generation not found"));
+  }
+  const meta = STATUS_META2[gen.status] || STATUS_META2.pending;
+  const isInProgress = IN_PROGRESS_STATUSES.includes(gen.status);
+  const isReadyForReview = gen.status === "ready_for_review";
+  const isTerminal = TERMINAL_STATUSES.includes(gen.status);
+  const hasContent = gen.content && Object.values(gen.content).some((v3) => v3 && (Array.isArray(v3) ? v3.length : true));
+  const actions = /* @__PURE__ */ import_react96.default.createElement("span", { style: { padding: "6px 14px", borderRadius: "var(--radius)", fontSize: "var(--text-xs)", fontWeight: 600, fontFamily: "var(--font-display)", textTransform: "uppercase", letterSpacing: "0.05em", background: meta.bg, color: meta.color } }, meta.label);
+  return /* @__PURE__ */ import_react96.default.createElement(AdminLayout, { currentPage: "concept_generations" }, /* @__PURE__ */ import_react96.default.createElement(
+    AdminPageHeader,
+    {
+      title: gen.concept_name,
+      subtitle: `${gen.concept_type || "untyped"} \xB7 created ${new Date(gen.created_at).toLocaleString()}`,
+      actions,
+      backHref: "/admin/concept_generations",
+      backLabel: "Back to generations"
+    }
+  ), /* @__PURE__ */ import_react96.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-6) var(--space-8)" } }, isInProgress && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "var(--neutral-100)", border: "1px solid var(--neutral-200)", padding: "var(--space-4)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "var(--neutral-700)" } }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-circle-notch fa-spin", style: { color: "var(--neutral-500)" } }), /* @__PURE__ */ import_react96.default.createElement("span", null, gen.status === "generating" && "Stage 1: Claude (Sonnet) is researching and drafting from authoritative sources. ~3-5 minutes.", gen.status === "fact_checking" && "Stage 2: Claude (Opus) is fact-checking the draft against sources, looking for errors and missing hedging. ~3-5 minutes.", gen.status === "enriching" && "Stage 3: enriching links from search sources.", gen.status === "pending" && "Queued for stage 1 generation.")), gen.status === "failed" && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "var(--accent-red-light, #fde8e8)", border: "1px solid var(--accent-red, #9c2a2a)", padding: "var(--space-4)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "var(--accent-red, #9c2a2a)" } }, /* @__PURE__ */ import_react96.default.createElement("div", { style: { fontWeight: 600, marginBottom: "var(--space-2)" } }, "Generation failed"), Object.entries(gen.stage_errors || {}).map(([stage, info2]) => /* @__PURE__ */ import_react96.default.createElement("div", { key: stage, style: { marginBottom: "var(--space-2)" } }, /* @__PURE__ */ import_react96.default.createElement("strong", null, stage, ":"), " ", info2.message || JSON.stringify(info2))), /* @__PURE__ */ import_react96.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", marginTop: "var(--space-2)" } }, gen.stage_errors?.fact_check && /* @__PURE__ */ import_react96.default.createElement("button", { onClick: () => retryStage("fact_check"), disabled: acting, style: { background: "var(--neutral-800)", color: "white", border: "none", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" } }, acting ? "Retrying..." : "Retry fact-check only"), /* @__PURE__ */ import_react96.default.createElement("button", { onClick: () => retryStage("generate"), disabled: acting, style: { background: gen.stage_errors?.fact_check ? "white" : "var(--neutral-800)", color: gen.stage_errors?.fact_check ? "var(--neutral-700)" : "white", border: gen.stage_errors?.fact_check ? "1px solid var(--neutral-300)" : "none", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" } }, acting ? "Retrying..." : "Restart from generation"))), gen.status === "approved" && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "#e8f4ec", border: "1px solid #2d6a3e", padding: "var(--space-4)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "#1e4a2c" } }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-check-circle", style: { marginRight: "var(--space-2)" } }), "Approved on ", new Date(gen.approved_at).toLocaleString(), ". ConceptDefinition #", gen.approved_concept_definition_id, " created."), gen.status === "rejected" && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "#fbe8e8", border: "1px solid #7a3030", padding: "var(--space-4)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "#5a1f1f" } }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-times-circle", style: { marginRight: "var(--space-2)" } }), "Rejected", gen.rejected_reason ? `: ${gen.rejected_reason}` : "."), isReadyForReview && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", border: "1px solid var(--neutral-200)", padding: "var(--space-3) var(--space-4)", borderRadius: "var(--radius)", marginBottom: "var(--space-4)", display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" } }, /* @__PURE__ */ import_react96.default.createElement("button", { onClick: saveEdits, disabled: !dirty || saving, style: { background: dirty ? "var(--neutral-800)" : "var(--neutral-300)", color: "white", border: "none", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: dirty ? "pointer" : "not-allowed" } }, saving ? "Saving..." : dirty ? "Save edits" : "Saved"), /* @__PURE__ */ import_react96.default.createElement("button", { onClick: approve, disabled: acting, style: { background: "#2d6a3e", color: "white", border: "none", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" } }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-check", style: { marginRight: "var(--space-2)" } }), "Approve & create ConceptDefinition"), /* @__PURE__ */ import_react96.default.createElement("button", { onClick: reject, disabled: acting, style: { background: "white", color: "#7a3030", border: "1px solid #7a3030", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" } }, "Reject"), /* @__PURE__ */ import_react96.default.createElement("div", { style: { marginLeft: "auto", display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react96.default.createElement("button", { onClick: () => retryStage("fact_check"), disabled: acting, style: { background: "white", color: "var(--neutral-700)", border: "1px solid var(--neutral-300)", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" }, title: "Restore original draft and re-run fact-check only" }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-magnifying-glass", style: { marginRight: "var(--space-2)" } }), "Re-fact-check"), /* @__PURE__ */ import_react96.default.createElement("button", { onClick: () => retryStage("generate"), disabled: acting, style: { background: "white", color: "var(--neutral-700)", border: "1px solid var(--neutral-300)", padding: "var(--space-2) var(--space-4)", borderRadius: "var(--radius)", fontFamily: "var(--font-display)", fontSize: "var(--text-sm)", cursor: acting ? "not-allowed" : "pointer" }, title: "Discard current draft and start over from scratch" }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-redo", style: { marginRight: "var(--space-2)" } }), "Regenerate"))), (gen.fact_check_notes || []).length > 0 && /* @__PURE__ */ import_react96.default.createElement(FactCheckNotesPanel, { notes: gen.fact_check_notes }), hasContent ? /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", border: "1px solid var(--neutral-200)", borderRadius: "var(--radius)", padding: "var(--space-6)" } }, CONTENT_FIELDS.map((field) => {
+    const value = edits[field.key] ?? (field.type === "array" ? [] : "");
+    const disabled2 = isTerminal || isInProgress;
+    return /* @__PURE__ */ import_react96.default.createElement("div", { key: field.key, style: { marginBottom: "var(--space-5)" } }, /* @__PURE__ */ import_react96.default.createElement("label", { style: { display: "block", fontFamily: "var(--font-body)", fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--neutral-600)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--space-2)" } }, field.label), field.type === "array" ? /* @__PURE__ */ import_react96.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: (Array.isArray(value) ? value : []).join(", "),
+        onChange: (e3) => updateEdit(field.key, e3.target.value.split(",").map((s3) => s3.trim()).filter(Boolean)),
+        disabled: disabled2,
+        placeholder: "Comma-separated aliases",
+        style: inputStyle2
+      }
+    ) : field.type === "single" ? /* @__PURE__ */ import_react96.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: value || "",
+        onChange: (e3) => updateEdit(field.key, e3.target.value),
+        disabled: disabled2,
+        style: inputStyle2
+      }
+    ) : /* @__PURE__ */ import_react96.default.createElement(
+      "textarea",
+      {
+        value: value || "",
+        onChange: (e3) => updateEdit(field.key, e3.target.value),
+        disabled: disabled2,
+        rows: Math.max(3, Math.min(12, (value || "").split("\n").length + 1)),
+        style: { ...inputStyle2, resize: "vertical", lineHeight: 1.5 }
+      }
+    ));
+  })) : !isInProgress && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", padding: "var(--space-8)", borderRadius: "var(--radius)", textAlign: "center", color: "var(--neutral-500)", fontFamily: "var(--font-body)", border: "1px solid var(--neutral-200)" } }, "No content yet."), (gen.web_search_sources || []).length > 0 && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", border: "1px solid var(--neutral-200)", borderRadius: "var(--radius)", padding: "var(--space-4)", marginTop: "var(--space-4)" } }, /* @__PURE__ */ import_react96.default.createElement("h3", { style: { fontFamily: "var(--font-display)", fontSize: "var(--text-base)", fontWeight: 600, color: "var(--neutral-900)", margin: 0, marginBottom: "var(--space-3)" } }, "Web Search Sources (", gen.web_search_sources.length, ")"), /* @__PURE__ */ import_react96.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)", maxHeight: "300px", overflowY: "auto" } }, gen.web_search_sources.slice(0, 50).map((src, i3) => /* @__PURE__ */ import_react96.default.createElement("a", { key: i3, href: src.url, target: "_blank", rel: "noopener noreferrer", style: { fontFamily: "var(--font-body)", fontSize: "var(--text-xs)", color: "var(--neutral-700)", textDecoration: "none", padding: "var(--space-1) 0", borderBottom: "1px solid var(--neutral-100)" } }, /* @__PURE__ */ import_react96.default.createElement("div", { style: { fontWeight: 600, color: "var(--neutral-900)" } }, src.title || src.url), /* @__PURE__ */ import_react96.default.createElement("div", { style: { color: "var(--neutral-500)", fontSize: "11px", wordBreak: "break-all" } }, src.url))), gen.web_search_sources.length > 50 && /* @__PURE__ */ import_react96.default.createElement("div", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-xs)", color: "var(--neutral-500)", marginTop: "var(--space-2)" } }, "+ ", gen.web_search_sources.length - 50, " more"))), gen.token_usage && Object.keys(gen.token_usage).length > 0 && /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", border: "1px solid var(--neutral-200)", borderRadius: "var(--radius)", padding: "var(--space-4)", marginTop: "var(--space-4)" } }, /* @__PURE__ */ import_react96.default.createElement("h3", { style: { fontFamily: "var(--font-display)", fontSize: "var(--text-base)", fontWeight: 600, color: "var(--neutral-900)", margin: 0, marginBottom: "var(--space-3)" } }, "Token Usage"), /* @__PURE__ */ import_react96.default.createElement("pre", { style: { fontFamily: "var(--font-mono, monospace)", fontSize: "var(--text-xs)", color: "var(--neutral-700)", margin: 0, whiteSpace: "pre-wrap" } }, JSON.stringify(gen.token_usage, null, 2)))));
+}
+function FactCheckNotesPanel({ notes }) {
+  const severityColor = (sev) => {
+    switch ((sev || "").toLowerCase()) {
+      case "major":
+        return { bg: "#fbe8e8", border: "#7a3030", color: "#5a1f1f" };
+      case "moderate":
+        return { bg: "#fff4e0", border: "#9c6a1c", color: "#5e3f0a" };
+      case "minor":
+        return { bg: "#eef2f7", border: "#4a5b73", color: "#1f2937" };
+      default:
+        return { bg: "var(--neutral-100)", border: "var(--neutral-300)", color: "var(--neutral-700)" };
+    }
+  };
+  return /* @__PURE__ */ import_react96.default.createElement("div", { style: { background: "white", border: "1px solid var(--neutral-200)", borderRadius: "var(--radius)", padding: "var(--space-4)", marginBottom: "var(--space-4)" } }, /* @__PURE__ */ import_react96.default.createElement("h3", { style: { fontFamily: "var(--font-display)", fontSize: "var(--text-base)", fontWeight: 600, color: "var(--neutral-900)", margin: 0, marginBottom: "var(--space-3)" } }, /* @__PURE__ */ import_react96.default.createElement("i", { className: "fas fa-magnifying-glass", style: { marginRight: "var(--space-2)", color: "var(--neutral-500)" } }), "Fact-check changes (", notes.length, ")"), /* @__PURE__ */ import_react96.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, notes.map((note, i3) => {
+    const c5 = severityColor(note.severity);
+    return /* @__PURE__ */ import_react96.default.createElement("div", { key: i3, style: { background: c5.bg, border: `1px solid ${c5.border}`, borderRadius: "var(--radius)", padding: "var(--space-3)", fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: c5.color } }, /* @__PURE__ */ import_react96.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-1)" } }, /* @__PURE__ */ import_react96.default.createElement("strong", { style: { fontFamily: "var(--font-display)" } }, note.field || "(field unspecified)"), note.severity && /* @__PURE__ */ import_react96.default.createElement("span", { style: { fontSize: "var(--text-xs)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 600, padding: "2px 6px", background: "rgba(0,0,0,0.06)", borderRadius: "3px" } }, note.severity)), note.issue && /* @__PURE__ */ import_react96.default.createElement("div", { style: { marginBottom: "4px" } }, /* @__PURE__ */ import_react96.default.createElement("strong", null, "Issue:"), " ", note.issue), note.change && /* @__PURE__ */ import_react96.default.createElement("div", null, /* @__PURE__ */ import_react96.default.createElement("strong", null, "Change:"), " ", note.change));
+  })));
 }
 
 // app/javascript/application.js
 document.addEventListener("DOMContentLoaded", () => {
   const conceptsIndexRoot = document.getElementById("concepts-index-root");
   if (conceptsIndexRoot) {
-    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(ConceptsIndex, null));
+    (0, import_client.createRoot)(conceptsIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(ConceptsIndex, null));
   }
   const conceptShowRoot = document.getElementById("concept-show-root");
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
-    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react93.default.createElement(ConceptShow, { conceptId }));
+    (0, import_client.createRoot)(conceptShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(ConceptShow, { conceptId }));
   }
   const sourcesIndexRoot = document.getElementById("sources-index-root");
   if (sourcesIndexRoot) {
-    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(SourcesIndex, null));
+    (0, import_client.createRoot)(sourcesIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(SourcesIndex, null));
   }
   const sourceShowRoot = document.getElementById("source-show-root");
   if (sourceShowRoot) {
     const sourceId = sourceShowRoot.dataset.sourceId;
-    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react93.default.createElement(SourceShow, { sourceId }));
+    (0, import_client.createRoot)(sourceShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(SourceShow, { sourceId }));
   }
   const peopleIndexRoot = document.getElementById("people-index-root");
   if (peopleIndexRoot) {
-    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(PeopleIndex, null));
+    (0, import_client.createRoot)(peopleIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(PeopleIndex, null));
   }
   const personShowRoot = document.getElementById("person-show-root");
   if (personShowRoot) {
     const personId = personShowRoot.dataset.personId;
-    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react93.default.createElement(PersonShow, { personId }));
+    (0, import_client.createRoot)(personShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(PersonShow, { personId }));
   }
   const connectionVisualizationRoot = document.getElementById("connection-visualization-root");
   if (connectionVisualizationRoot) {
-    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react93.default.createElement(ConnectionVisualization, null));
+    (0, import_client.createRoot)(connectionVisualizationRoot).render(/* @__PURE__ */ import_react97.default.createElement(ConnectionVisualization, null));
   }
   const notesIndexRoot = document.getElementById("notes-index-root");
   if (notesIndexRoot) {
-    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(NotesIndex, null));
+    (0, import_client.createRoot)(notesIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(NotesIndex, null));
   }
   const noteFormRoot = document.getElementById("note-form-root");
   if (noteFormRoot) {
-    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react93.default.createElement(NotesForm, null));
+    (0, import_client.createRoot)(noteFormRoot).render(/* @__PURE__ */ import_react97.default.createElement(NotesForm, null));
   }
   const tagsIndexRoot = document.getElementById("tags-index-root");
   if (tagsIndexRoot) {
-    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(TagsIndex, null));
+    (0, import_client.createRoot)(tagsIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(TagsIndex, null));
   }
   const collectionsIndexRoot = document.getElementById("collections-index-root");
   if (collectionsIndexRoot) {
-    (0, import_client.createRoot)(collectionsIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(CollectionsIndex, null));
+    (0, import_client.createRoot)(collectionsIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(CollectionsIndex, null));
   }
   const dashboardRoot = document.getElementById("dashboard-root");
   if (dashboardRoot) {
-    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react93.default.createElement(Dashboard, null));
+    (0, import_client.createRoot)(dashboardRoot).render(/* @__PURE__ */ import_react97.default.createElement(Dashboard, null));
   }
   const globalSearchRoot = document.getElementById("global-search-root");
   if (globalSearchRoot) {
-    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react93.default.createElement(GlobalSearch, null));
+    (0, import_client.createRoot)(globalSearchRoot).render(/* @__PURE__ */ import_react97.default.createElement(GlobalSearch, null));
   }
   const userDropdownRoot = document.getElementById("user-dropdown-root");
   if (userDropdownRoot) {
     const userEmail = userDropdownRoot.dataset.userEmail;
-    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react93.default.createElement(UserDropdown, { userEmail }));
+    (0, import_client.createRoot)(userDropdownRoot).render(/* @__PURE__ */ import_react97.default.createElement(UserDropdown, { userEmail }));
   }
   const pdfStudyRoot = document.getElementById("pdf-study-root");
   if (pdfStudyRoot) {
@@ -123659,7 +124812,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
     const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
     (0, import_client.createRoot)(pdfStudyRoot).render(
-      /* @__PURE__ */ import_react93.default.createElement(
+      /* @__PURE__ */ import_react97.default.createElement(
         PdfStudyMode,
         {
           sourceId,
@@ -123671,45 +124824,58 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const sharingHubRoot = document.getElementById("sharing-hub-root");
   if (sharingHubRoot) {
-    (0, import_client.createRoot)(sharingHubRoot).render(/* @__PURE__ */ import_react93.default.createElement(SharingHub, null));
+    (0, import_client.createRoot)(sharingHubRoot).render(/* @__PURE__ */ import_react97.default.createElement(SharingHub, null));
   }
   const bulkUploadWizardRoot = document.getElementById("bulk-upload-wizard-root");
   if (bulkUploadWizardRoot) {
-    (0, import_client.createRoot)(bulkUploadWizardRoot).render(/* @__PURE__ */ import_react93.default.createElement(BulkUploadWizard, null));
+    (0, import_client.createRoot)(bulkUploadWizardRoot).render(/* @__PURE__ */ import_react97.default.createElement(BulkUploadWizard, null));
   }
   const bulkUploadRoot = document.getElementById("bulk-upload-root");
   if (bulkUploadRoot) {
-    (0, import_client.createRoot)(bulkUploadRoot).render(/* @__PURE__ */ import_react93.default.createElement(BulkUploadPage, null));
+    (0, import_client.createRoot)(bulkUploadRoot).render(/* @__PURE__ */ import_react97.default.createElement(BulkUploadPage, null));
   }
   const packsIndexRoot = document.getElementById("packs-index-root");
   if (packsIndexRoot) {
-    (0, import_client.createRoot)(packsIndexRoot).render(/* @__PURE__ */ import_react93.default.createElement(PacksIndex, null));
+    (0, import_client.createRoot)(packsIndexRoot).render(/* @__PURE__ */ import_react97.default.createElement(PacksIndex, null));
   }
   const packShowRoot = document.getElementById("pack-show-root");
   if (packShowRoot) {
     const packId = packShowRoot.dataset.packId;
-    (0, import_client.createRoot)(packShowRoot).render(/* @__PURE__ */ import_react93.default.createElement(PackShow, { packId }));
+    (0, import_client.createRoot)(packShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(PackShow, { packId }));
   }
   const packsOwnedRoot = document.getElementById("packs-owned-root");
   if (packsOwnedRoot) {
-    (0, import_client.createRoot)(packsOwnedRoot).render(/* @__PURE__ */ import_react93.default.createElement(PacksOwned, null));
+    (0, import_client.createRoot)(packsOwnedRoot).render(/* @__PURE__ */ import_react97.default.createElement(PacksOwned, null));
   }
   const adminDashboardRoot = document.getElementById("admin-dashboard-root");
   if (adminDashboardRoot) {
-    (0, import_client.createRoot)(adminDashboardRoot).render(/* @__PURE__ */ import_react93.default.createElement(AdminDashboard, null));
+    (0, import_client.createRoot)(adminDashboardRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminDashboard, null));
   }
   const adminPacksRoot = document.getElementById("admin-packs-root");
   if (adminPacksRoot) {
-    (0, import_client.createRoot)(adminPacksRoot).render(/* @__PURE__ */ import_react93.default.createElement(AdminPacks, null));
+    (0, import_client.createRoot)(adminPacksRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminPacks, null));
   }
   const adminPackShowRoot = document.getElementById("admin-pack-show-root");
   if (adminPackShowRoot) {
     const packId = adminPackShowRoot.dataset.packId;
-    (0, import_client.createRoot)(adminPackShowRoot).render(/* @__PURE__ */ import_react93.default.createElement(AdminPackShow, { packId }));
+    (0, import_client.createRoot)(adminPackShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminPackShow, { packId }));
   }
   const adminUsersRoot = document.getElementById("admin-users-root");
   if (adminUsersRoot) {
-    (0, import_client.createRoot)(adminUsersRoot).render(/* @__PURE__ */ import_react93.default.createElement(AdminUsers, null));
+    (0, import_client.createRoot)(adminUsersRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminUsers, null));
+  }
+  const adminConceptGenerationsRoot = document.getElementById("admin-concept-generations-root");
+  if (adminConceptGenerationsRoot) {
+    (0, import_client.createRoot)(adminConceptGenerationsRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminConceptGenerations, null));
+  }
+  const adminConceptGenerationNewRoot = document.getElementById("admin-concept-generation-new-root");
+  if (adminConceptGenerationNewRoot) {
+    (0, import_client.createRoot)(adminConceptGenerationNewRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminConceptGenerationNew, null));
+  }
+  const adminConceptGenerationShowRoot = document.getElementById("admin-concept-generation-show-root");
+  if (adminConceptGenerationShowRoot) {
+    const generationId = adminConceptGenerationShowRoot.dataset.generationId;
+    (0, import_client.createRoot)(adminConceptGenerationShowRoot).render(/* @__PURE__ */ import_react97.default.createElement(AdminConceptGenerationShow, { generationId }));
   }
 });
 export {

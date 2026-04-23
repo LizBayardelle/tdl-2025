@@ -114,7 +114,7 @@ export default function BulkUploadDropzone({ onUploadComplete }) {
         setUploadProgress({ current: idx + 1, total: files.length });
       });
 
-      const response = await fetch('/batch_uploads', {
+      const response = await fetch('/upload_batches', {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -125,7 +125,7 @@ export default function BulkUploadDropzone({ onUploadComplete }) {
       if (response.ok) {
         const batch = await response.json();
         // Fetch full batch with items
-        const fullResponse = await fetch(`/batch_uploads/${batch.id}.json`);
+        const fullResponse = await fetch(`/upload_batches/${batch.id}.json`);
         if (fullResponse.ok) {
           const fullBatch = await fullResponse.json();
           onUploadComplete(fullBatch);

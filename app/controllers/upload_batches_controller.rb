@@ -1,14 +1,14 @@
-class BatchUploadsController < ApplicationController
+class UploadBatchesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_batch_upload, only: [:show, :destroy, :start_processing]
+  before_action :set_upload_batch, only: [:show, :destroy, :start_processing, :add_files]
 
   def index
-    @batch_uploads = current_user.batch_uploads.recent
+    @upload_batches = current_user.upload_batches.recent
 
     respond_to do |format|
       format.html
       format.json {
-        render json: @batch_uploads.map { |batch| batch_json(batch) }
+        render json: @upload_batches.map { |batch| batch_json(batch) }
       }
     end
   end
@@ -17,24 +17,23 @@ class BatchUploadsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        render json: batch_json(@batch_upload, include_items: true)
+        render json: batch_json(@upload_batch, include_items: true)
       }
     end
   end
 
   def create
-    @batch_upload = current_user.batch_uploads.build(
+    @upload_batch = current_user.upload_batches.build(
       name: params[:name] || "Upload #{Time.current.strftime('%Y-%m-%d %H:%M')}",
       status: :pending
     )
 
-    if @batch_upload.save
-      # Create items for each uploaded file
+    if @upload_batch.save
       files = params[:files] || []
       files.each do |file|
         next unless file.content_type == 'application/pdf'
 
-        item = @batch_upload.batch_upload_items.create!(
+        item = @upload_batch.upload_batch_items.create!(
           original_filename: file.original_filename,
           file_size: file.size,
           status: :pending
@@ -42,37 +41,70 @@ class BatchUploadsController < ApplicationController
         item.pdf.attach(file)
       end
 
-      @batch_upload.update!(total_count: @batch_upload.batch_upload_items.count)
+      @upload_batch.update!(total_count: @upload_batch.upload_batch_items.count)
 
-      render json: batch_json(@batch_upload), status: :created
+      render json: batch_json(@upload_batch), status: :created
     else
-      render json: { errors: @batch_upload.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @upload_batch.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @batch_upload.batch_upload_items.each do |item|
+    @upload_batch.upload_batch_items.each do |item|
       item.pdf.purge if item.pdf.attached?
     end
-    @batch_upload.destroy
+    @upload_batch.destroy
 
     head :no_content
   end
 
   def active
-    @batch_upload = current_user.batch_uploads.active.first
+    @upload_batch = current_user.upload_batches.active.first
 
-    if @batch_upload
-      render json: batch_json(@batch_upload, include_items: true)
+    if @upload_batch
+      render json: batch_json(@upload_batch, include_items: true)
     else
       render json: nil
     end
   end
 
+  def add_files
+    files = Array(params[:files])
+    created = []
+    failed = []
+
+    files.each do |file|
+      if file.respond_to?(:content_type) && file.content_type != 'application/pdf'
+        failed << { name: file.original_filename, error: 'Not a PDF file' }
+        next
+      end
+
+      begin
+        item = @upload_batch.upload_batch_items.create!(
+          original_filename: file.original_filename,
+          file_size: file.size,
+          status: :pending
+        )
+        item.pdf.attach(file)
+        created << item
+      rescue => e
+        failed << { name: file.try(:original_filename), error: e.message }
+      end
+    end
+
+    @upload_batch.update!(total_count: @upload_batch.upload_batch_items.count)
+
+    render json: {
+      batch: batch_json(@upload_batch),
+      items: created.map { |i| item_json(i) },
+      failed_files: failed
+    }
+  end
+
   def start_processing
-    if @batch_upload.status_pending?
-      @batch_upload.start_processing!
-      render json: batch_json(@batch_upload)
+    if @upload_batch.status_pending?
+      @upload_batch.start_processing!
+      render json: batch_json(@upload_batch)
     else
       render json: { error: 'Batch is not in pending status' }, status: :unprocessable_entity
     end
@@ -80,8 +112,8 @@ class BatchUploadsController < ApplicationController
 
   private
 
-  def set_batch_upload
-    @batch_upload = current_user.batch_uploads.find(params[:id])
+  def set_upload_batch
+    @upload_batch = current_user.upload_batches.find(params[:id])
   end
 
   def batch_json(batch, include_items: false)
@@ -101,7 +133,7 @@ class BatchUploadsController < ApplicationController
     }
 
     if include_items
-      json[:items] = batch.batch_upload_items.order(:id).map { |item| item_json(item) }
+      json[:items] = batch.upload_batch_items.order(:id).map { |item| item_json(item) }
     end
 
     json

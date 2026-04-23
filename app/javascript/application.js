@@ -30,6 +30,9 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import AdminPacks from './components/admin/AdminPacks';
 import AdminPackShow from './components/admin/AdminPackShow';
 import AdminUsers from './components/admin/AdminUsers';
+import AdminConceptGenerations from './components/admin/AdminConceptGenerations';
+import AdminConceptGenerationNew from './components/admin/AdminConceptGenerationNew';
+import AdminConceptGenerationShow from './components/admin/AdminConceptGenerationShow';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -175,6 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminUsersRoot = document.getElementById('admin-users-root');
   if (adminUsersRoot) {
     createRoot(adminUsersRoot).render(<AdminUsers />);
+  }
+
+  const adminConceptGenerationsRoot = document.getElementById('admin-concept-generations-root');
+  if (adminConceptGenerationsRoot) {
+    createRoot(adminConceptGenerationsRoot).render(<AdminConceptGenerations />);
+  }
+
+  const adminConceptGenerationNewRoot = document.getElementById('admin-concept-generation-new-root');
+  if (adminConceptGenerationNewRoot) {
+    createRoot(adminConceptGenerationNewRoot).render(<AdminConceptGenerationNew />);
+  }
+
+  const adminConceptGenerationShowRoot = document.getElementById('admin-concept-generation-show-root');
+  if (adminConceptGenerationShowRoot) {
+    const generationId = adminConceptGenerationShowRoot.dataset.generationId;
+    createRoot(adminConceptGenerationShowRoot).render(<AdminConceptGenerationShow generationId={generationId} />);
   }
 });
 

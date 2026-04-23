@@ -35,7 +35,7 @@ export default function ReviewPhase() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+        const response = await fetch(`/upload_batches/${state.batch.id}.json`);
         if (response.ok) {
           const data = await response.json();
           dispatch({ type: 'SET_BATCH', payload: data });
@@ -175,7 +175,7 @@ export default function ReviewPhase() {
         }
       });
 
-      const response = await fetch(`/batch_upload_items/${selectedItem.id}/approve`, {
+      const response = await fetch(`/upload_batch_items/${selectedItem.id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export default function ReviewPhase() {
     setSkipping(true);
 
     try {
-      const response = await fetch(`/batch_upload_items/${selectedItem.id}/skip`, {
+      const response = await fetch(`/upload_batch_items/${selectedItem.id}/skip`, {
         method: 'POST',
         headers: {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
@@ -229,7 +229,7 @@ export default function ReviewPhase() {
 
   const refreshBatch = async () => {
     try {
-      const response = await fetch(`/batch_uploads/${state.batch.id}.json`);
+      const response = await fetch(`/upload_batches/${state.batch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         dispatch({ type: 'SET_BATCH', payload: data });
@@ -332,7 +332,7 @@ export default function ReviewPhase() {
           }
         });
 
-        const response = await fetch(`/batch_upload_items/${item.id}/approve`, {
+        const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

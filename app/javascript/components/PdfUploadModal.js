@@ -167,19 +167,47 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
     e.stopPropagation();
   }, []);
 
-  const handleDrop = useCallback((e) => {
+  const handleDrop = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type === 'application/pdf') {
-        handleFileSelected(file);
-      } else {
-        setError('Please drop a PDF file.');
+    const pdfs = Array.from(e.dataTransfer.files).filter(
+      (f) => f.type === 'application/pdf'
+    );
+    if (pdfs.length === 0) {
+      setError('Please drop a PDF file.');
+      return;
+    }
+    if (pdfs.length === 1) {
+      handleFileSelected(pdfs[0]);
+      return;
+    }
+
+    // Multiple PDFs → hand off to the bulk upload wizard
+    try {
+      const formData = new FormData();
+      formData.append('name', `Upload ${new Date().toLocaleString()}`);
+      pdfs.forEach((f) => formData.append('files[]', f));
+
+      const response = await fetch('/upload_batches', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.errors?.join(', ') || 'Bulk upload failed.');
+        return;
       }
+
+      window.location.href = '/uploads';
+    } catch (err) {
+      console.error('Bulk upload error:', err);
+      setError('An error occurred starting the bulk upload.');
     }
   }, []);
 

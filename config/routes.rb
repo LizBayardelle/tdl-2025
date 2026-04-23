@@ -37,18 +37,27 @@ Rails.application.routes.draw do
       end
     end
     resources :users, only: [:index, :update]
+
+    resources :concept_generations, only: [:index, :new, :create, :show, :update] do
+      member do
+        post :approve
+        post :reject
+        post :retry_stage
+      end
+    end
   end
 
-  resources :batch_uploads, only: [:index, :show, :create, :destroy] do
+  resources :upload_batches, only: [:index, :show, :create, :destroy] do
     collection do
       get :active
     end
     member do
       post :start_processing
+      post :add_files
     end
   end
 
-  resources :batch_upload_items, only: [:show, :update] do
+  resources :upload_batch_items, only: [:show, :update] do
     member do
       post :approve
       post :retry

@@ -1,5 +1,5 @@
-class BatchUploadItem < ApplicationRecord
-  belongs_to :batch_upload
+class UploadBatchItem < ApplicationRecord
+  belongs_to :upload_batch
   belongs_to :source, optional: true
   has_one_attached :pdf
 
@@ -18,11 +18,9 @@ class BatchUploadItem < ApplicationRecord
     skipped: 'skipped'
   }, prefix: true
 
-  # Validations
-  validates :batch_upload_id, presence: true
+  validates :upload_batch_id, presence: true
   validates :status, presence: true
 
-  # Scopes
   scope :pending_processing, -> { where(status: [:pending, :uploading, :extracting]) }
   scope :needs_review, -> { where(status: :review_needed) }
   scope :ready_for_approval, -> { where(status: [:extracted, :review_needed]) }
@@ -30,13 +28,10 @@ class BatchUploadItem < ApplicationRecord
   scope :skipped, -> { where(status: :skipped) }
   scope :failed, -> { where(status: :failed) }
 
-  # Delegate user to batch_upload
-  delegate :user, to: :batch_upload
+  delegate :user, to: :upload_batch
 
-  # After status change, update parent batch counts
   after_save :update_batch_counts, if: :saved_change_to_status?
 
-  # Start extraction process
   def start_extraction!
     return unless status_pending?
 
@@ -44,7 +39,6 @@ class BatchUploadItem < ApplicationRecord
     ProcessBulkUploadItemJob.perform_later(id)
   end
 
-  # Mark as needing review
   def needs_review!(reason = nil)
     update!(
       status: :review_needed,
@@ -52,7 +46,6 @@ class BatchUploadItem < ApplicationRecord
     )
   end
 
-  # Mark as extracted (auto-approved if no ambiguity)
   def mark_extracted!(metadata: {}, doi: nil, method: nil, authors: [], concepts: [], duplicates: [])
     needs_review = authors.any? { |a| a['ambiguous'] } ||
                    concepts.any? { |c| c['ambiguous'] } ||
@@ -69,7 +62,6 @@ class BatchUploadItem < ApplicationRecord
     )
   end
 
-  # Mark as failed
   def mark_failed!(message)
     increment!(:retry_count)
     update!(
@@ -78,7 +70,6 @@ class BatchUploadItem < ApplicationRecord
     )
   end
 
-  # Approve for source creation
   def approve!(decisions = {})
     return unless status_extracted? || status_review_needed?
 
@@ -89,7 +80,6 @@ class BatchUploadItem < ApplicationRecord
     CreateSourceFromUploadJob.perform_later(id)
   end
 
-  # Retry failed extraction
   def retry!
     return unless status_failed?
 
@@ -100,16 +90,13 @@ class BatchUploadItem < ApplicationRecord
     start_extraction!
   end
 
-  # Skip this item (user chose not to import)
   def skip!
     return if status_approved? || status_created? || status_skipped?
 
     update!(status: :skipped)
-    # Purge the PDF since we're not importing it
     pdf.purge if pdf.attached?
   end
 
-  # Build metadata for display
   def display_metadata
     extracted_metadata.merge(
       'original_filename' => original_filename,
@@ -118,17 +105,14 @@ class BatchUploadItem < ApplicationRecord
     )
   end
 
-  # Check if item has potential duplicates
   def has_duplicates?
     duplicate_candidates.present? && duplicate_candidates.any?
   end
 
-  # Check if item needs author review
   def needs_author_review?
     detected_authors.any? { |a| a['ambiguous'] || a['potential_matches']&.any? }
   end
 
-  # Check if item needs concept review
   def needs_concept_review?
     detected_concepts.any? { |c| c['ambiguous'] || c['suggestions']&.any? }
   end
@@ -136,6 +120,6 @@ class BatchUploadItem < ApplicationRecord
   private
 
   def update_batch_counts
-    batch_upload.update_counts!
+    upload_batch.update_counts!
   end
 end

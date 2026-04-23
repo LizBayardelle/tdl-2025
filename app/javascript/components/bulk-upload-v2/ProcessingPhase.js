@@ -10,7 +10,7 @@ export default function ProcessingPhase() {
     if (!batch?.id) return;
 
     try {
-      const response = await fetch(`/batch_uploads/${batch.id}.json`);
+      const response = await fetch(`/upload_batches/${batch.id}.json`);
       if (response.ok) {
         const data = await response.json();
         dispatch({ type: 'SET_BATCH', payload: data });
@@ -43,12 +43,11 @@ export default function ProcessingPhase() {
     );
   }
 
-  // Calculate progress
+  // Calculate progress — must match backend UploadBatch#progress_percentage
+  const IN_PROGRESS = ['pending', 'uploading', 'extracting'];
   const items = batch.items || [];
   const totalCount = batch.total_count || items.length;
-  const processedCount = items.filter(
-    item => item.status !== 'pending' && item.status !== 'processing'
-  ).length;
+  const processedCount = items.filter(item => !IN_PROGRESS.includes(item.status)).length;
   const progress = totalCount > 0 ? (processedCount / totalCount) * 100 : 0;
 
   // Group items by status for display
@@ -56,7 +55,7 @@ export default function ProcessingPhase() {
     extracted: items.filter(i => i.status === 'extracted').length,
     review_needed: items.filter(i => i.status === 'review_needed').length,
     failed: items.filter(i => i.status === 'failed').length,
-    processing: items.filter(i => i.status === 'processing' || i.status === 'pending').length,
+    processing: items.filter(i => IN_PROGRESS.includes(i.status)).length,
   };
 
   return (

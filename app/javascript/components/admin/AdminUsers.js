@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
+import AdminPageHeader from './AdminPageHeader';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -28,132 +29,150 @@ export default function AdminUsers() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ user: { admin: !user.admin } })
+        body: JSON.stringify({ user: { admin: !user.admin } }),
       });
 
       if (res.ok) {
         const updated = await res.json();
-        setUsers(users.map(u => u.id === user.id ? { ...u, admin: updated.admin } : u));
+        setUsers(users.map((u) => (u.id === user.id ? { ...u, admin: updated.admin } : u)));
       }
     } catch (err) {
       alert('Failed to update user');
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return (
     <AdminLayout currentPage="users">
-      <div style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{
-          fontSize: '24px',
-          fontWeight: 700,
-          fontFamily: 'Inter, -apple-system, sans-serif',
-          color: '#111',
-          marginBottom: '20px',
-        }}>
-          Users
-        </h1>
+      <AdminPageHeader title="Users" subtitle="Manage accounts and admin privileges" />
 
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
         {error && (
-          <div style={{
-            padding: '12px',
-            background: '#fee',
-            color: '#c00',
-            borderRadius: '4px',
-            marginBottom: '16px',
-            fontFamily: 'Inter, -apple-system, sans-serif',
-            fontSize: '14px',
-          }}>
+          <div
+            style={{
+              padding: 'var(--space-3)',
+              background: 'var(--accent-red-light)',
+              color: 'var(--accent-red)',
+              borderRadius: 'var(--radius)',
+              marginBottom: 'var(--space-4)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+            }}
+          >
             {error}
           </div>
         )}
 
         {loading ? (
-          <p style={{ fontFamily: 'Inter, -apple-system, sans-serif', color: '#666' }}>Loading...</p>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
+        ) : users.length === 0 ? (
+          <div
+            style={{
+              background: 'white',
+              padding: 'var(--space-8)',
+              borderRadius: 'var(--radius)',
+              textAlign: 'center',
+              color: 'var(--neutral-500)',
+              fontFamily: 'var(--font-body)',
+              border: '1px solid var(--neutral-200)',
+            }}
+          >
+            No users yet.
+          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {users.map(user => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+            {users.map((user) => (
               <div
                 key={user.id}
                 style={{
                   background: 'white',
-                  borderRadius: '8px',
-                  border: '1px solid #e0e0e0',
-                  padding: '16px',
+                  borderRadius: 'var(--radius)',
+                  border: '1px solid var(--neutral-200)',
+                  padding: 'var(--space-4)',
+                  transition: 'box-shadow 0.15s',
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = 'var(--shadow-sm)')}
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  justifyContent: 'space-between',
-                  gap: '12px',
-                  marginBottom: '8px',
-                  flexWrap: 'wrap',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 'var(--space-3)',
+                    marginBottom: 'var(--space-2)',
+                    flexWrap: 'wrap',
+                  }}
+                >
                   <div style={{ flex: 1, minWidth: '200px' }}>
-                    <div style={{
-                      fontWeight: 500,
-                      fontSize: '15px',
-                      fontFamily: 'Inter, -apple-system, sans-serif',
-                      color: '#111',
-                      wordBreak: 'break-word',
-                    }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500,
+                        fontSize: 'var(--text-base)',
+                        color: 'var(--neutral-900)',
+                        wordBreak: 'break-word',
+                      }}
+                    >
                       {user.email}
                     </div>
-                    <div style={{
-                      fontSize: '12px',
-                      color: '#888',
-                      fontFamily: 'Inter, -apple-system, sans-serif',
-                      marginTop: '4px',
-                    }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                        marginTop: '4px',
+                      }}
+                    >
                       Joined {formatDate(user.created_at)}
                     </div>
                   </div>
                   <button
                     onClick={() => toggleAdmin(user)}
                     style={{
-                      background: user.admin ? '#111' : '#e0e0e0',
-                      color: user.admin ? 'white' : '#666',
-                      border: 'none',
+                      background: user.admin ? 'var(--neutral-800)' : 'white',
+                      color: user.admin ? 'white' : 'var(--neutral-600)',
+                      border: user.admin ? 'none' : '1px solid var(--neutral-300)',
                       padding: '6px 12px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      fontFamily: 'Inter, -apple-system, sans-serif',
+                      borderRadius: 'var(--radius)',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
+                      transition: 'all 0.15s',
                     }}
+                    title="Toggle admin"
                   >
                     <i className={`fas ${user.admin ? 'fa-shield-alt' : 'fa-user'}`}></i>
                     {user.admin ? 'Admin' : 'User'}
                   </button>
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '16px',
-                  fontSize: '13px',
-                  fontFamily: 'Inter, -apple-system, sans-serif',
-                  color: '#666',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 'var(--space-4)',
+                    fontSize: 'var(--text-sm)',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--neutral-600)',
+                  }}
+                >
                   <span>
-                    <i className="fas fa-lightbulb" style={{ marginRight: '4px', color: '#999' }}></i>
+                    <i className="fas fa-lightbulb" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
                     {user.concepts_count} concepts
                   </span>
                   <span>
-                    <i className="fas fa-box" style={{ marginRight: '4px', color: '#999' }}></i>
+                    <i className="fas fa-box" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
                     {user.packs_count} packs
                   </span>
                 </div>

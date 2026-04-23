@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -42,6 +42,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "allowed_domains", force: :cascade do |t|
+    t.string "domain", null: false
+    t.string "category"
+    t.boolean "active", default: true, null: false
+    t.text "notes"
+    t.bigint "added_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_allowed_domains_on_active"
+    t.index ["added_by_id"], name: "index_allowed_domains_on_added_by_id"
+    t.index ["category"], name: "index_allowed_domains_on_category"
+    t.index ["domain"], name: "index_allowed_domains_on_domain", unique: true
+  end
+
   create_table "authors", force: :cascade do |t|
     t.string "last_name"
     t.string "first_name"
@@ -54,46 +68,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
     t.index ["full_name"], name: "index_authors_on_full_name"
     t.index ["orcid"], name: "index_authors_on_orcid", unique: true, where: "(orcid IS NOT NULL)"
     t.index ["user_id"], name: "index_authors_on_user_id"
-  end
-
-  create_table "batch_upload_items", force: :cascade do |t|
-    t.bigint "batch_upload_id", null: false
-    t.bigint "source_id"
-    t.string "status", default: "pending", null: false
-    t.string "original_filename"
-    t.bigint "file_size"
-    t.jsonb "extracted_metadata", default: {}
-    t.string "extracted_doi"
-    t.string "extraction_method"
-    t.jsonb "detected_authors", default: []
-    t.jsonb "detected_concepts", default: []
-    t.jsonb "duplicate_candidates", default: []
-    t.jsonb "user_decisions", default: {}
-    t.text "error_message"
-    t.integer "retry_count", default: 0
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["batch_upload_id", "status"], name: "index_batch_upload_items_on_batch_upload_id_and_status"
-    t.index ["batch_upload_id"], name: "index_batch_upload_items_on_batch_upload_id"
-    t.index ["extracted_doi"], name: "index_batch_upload_items_on_extracted_doi"
-    t.index ["source_id"], name: "index_batch_upload_items_on_source_id"
-    t.index ["status"], name: "index_batch_upload_items_on_status"
-  end
-
-  create_table "batch_uploads", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "name"
-    t.string "status", default: "pending", null: false
-    t.integer "total_count", default: 0
-    t.integer "completed_count", default: 0
-    t.integer "failed_count", default: 0
-    t.datetime "started_at"
-    t.datetime "completed_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["status"], name: "index_batch_uploads_on_status"
-    t.index ["user_id", "status"], name: "index_batch_uploads_on_user_id_and_status"
-    t.index ["user_id"], name: "index_batch_uploads_on_user_id"
   end
 
   create_table "collection_items", force: :cascade do |t|
@@ -163,6 +137,67 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
     t.index ["concept_id", "domain_id"], name: "index_concept_domains_on_concept_id_and_domain_id", unique: true
     t.index ["concept_id"], name: "index_concept_domains_on_concept_id"
     t.index ["domain_id"], name: "index_concept_domains_on_domain_id"
+  end
+
+  create_table "concept_generation_batches", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.string "status", default: "pending", null: false
+    t.integer "total_count", default: 0
+    t.integer "generated_count", default: 0
+    t.integer "approved_count", default: 0
+    t.integer "rejected_count", default: 0
+    t.integer "failed_count", default: 0
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_concept_generation_batches_on_status"
+    t.index ["user_id", "status"], name: "index_concept_generation_batches_on_user_id_and_status"
+    t.index ["user_id"], name: "index_concept_generation_batches_on_user_id"
+  end
+
+  create_table "concept_generations", force: :cascade do |t|
+    t.bigint "concept_generation_batch_id", null: false
+    t.string "concept_name", null: false
+    t.string "concept_type"
+    t.string "target_mode", default: "create_new", null: false
+    t.bigint "target_concept_definition_id"
+    t.string "status", default: "pending", null: false
+    t.text "label"
+    t.text "aliases", default: [], array: true
+    t.text "summary"
+    t.text "description"
+    t.text "location"
+    t.text "examples"
+    t.text "etymology"
+    t.text "school_of_thought"
+    t.text "history"
+    t.text "controversy"
+    t.text "clinical_relevance"
+    t.text "misconceptions"
+    t.text "mnemonic"
+    t.text "developmental_notes"
+    t.text "measurement_notes"
+    t.jsonb "citations", default: {}
+    t.jsonb "web_search_sources", default: []
+    t.jsonb "fact_check_notes", default: []
+    t.jsonb "stage_errors", default: {}
+    t.jsonb "token_usage", default: {}
+    t.jsonb "previous_snapshot", default: {}
+    t.string "generate_job_id"
+    t.string "fact_check_job_id"
+    t.string "enrich_job_id"
+    t.bigint "approved_concept_definition_id"
+    t.datetime "approved_at"
+    t.text "rejected_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approved_concept_definition_id"], name: "index_concept_generations_on_approved_concept_definition_id"
+    t.index ["concept_generation_batch_id", "status"], name: "idx_concept_generations_on_batch_status"
+    t.index ["concept_generation_batch_id"], name: "idx_concept_generations_on_batch"
+    t.index ["status"], name: "index_concept_generations_on_status"
+    t.index ["target_concept_definition_id"], name: "index_concept_generations_on_target_concept_definition_id"
   end
 
   create_table "concept_notes", force: :cascade do |t|
@@ -592,6 +627,46 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
     t.index ["user_id"], name: "index_tags_on_user_id"
   end
 
+  create_table "upload_batch_items", force: :cascade do |t|
+    t.bigint "upload_batch_id", null: false
+    t.bigint "source_id"
+    t.string "status", default: "pending", null: false
+    t.string "original_filename"
+    t.bigint "file_size"
+    t.jsonb "extracted_metadata", default: {}
+    t.string "extracted_doi"
+    t.string "extraction_method"
+    t.jsonb "detected_authors", default: []
+    t.jsonb "detected_concepts", default: []
+    t.jsonb "duplicate_candidates", default: []
+    t.jsonb "user_decisions", default: {}
+    t.text "error_message"
+    t.integer "retry_count", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["extracted_doi"], name: "index_upload_batch_items_on_extracted_doi"
+    t.index ["source_id"], name: "index_upload_batch_items_on_source_id"
+    t.index ["status"], name: "index_upload_batch_items_on_status"
+    t.index ["upload_batch_id", "status"], name: "index_upload_batch_items_on_upload_batch_id_and_status"
+    t.index ["upload_batch_id"], name: "index_upload_batch_items_on_upload_batch_id"
+  end
+
+  create_table "upload_batches", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name"
+    t.string "status", default: "pending", null: false
+    t.integer "total_count", default: 0
+    t.integer "completed_count", default: 0
+    t.integer "failed_count", default: 0
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_upload_batches_on_status"
+    t.index ["user_id", "status"], name: "index_upload_batches_on_user_id_and_status"
+    t.index ["user_id"], name: "index_upload_batches_on_user_id"
+  end
+
   create_table "user_packs", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "pack_id", null: false
@@ -618,10 +693,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "allowed_domains", "users", column: "added_by_id"
   add_foreign_key "authors", "users"
-  add_foreign_key "batch_upload_items", "batch_uploads"
-  add_foreign_key "batch_upload_items", "sources"
-  add_foreign_key "batch_uploads", "users"
   add_foreign_key "collection_items", "collections"
   add_foreign_key "collection_items", "users", column: "added_by_id"
   add_foreign_key "collections", "users"
@@ -630,6 +703,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
   add_foreign_key "concept_definitions", "packs"
   add_foreign_key "concept_domains", "concepts"
   add_foreign_key "concept_domains", "domains"
+  add_foreign_key "concept_generation_batches", "users"
+  add_foreign_key "concept_generations", "concept_definitions", column: "approved_concept_definition_id"
+  add_foreign_key "concept_generations", "concept_definitions", column: "target_concept_definition_id"
+  add_foreign_key "concept_generations", "concept_generation_batches"
   add_foreign_key "concept_notes", "concepts"
   add_foreign_key "concept_notes", "notes"
   add_foreign_key "concept_sources", "concepts"
@@ -662,6 +739,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_28_000002) do
   add_foreign_key "sources", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "users"
+  add_foreign_key "upload_batch_items", "sources"
+  add_foreign_key "upload_batch_items", "upload_batches"
+  add_foreign_key "upload_batches", "users"
   add_foreign_key "user_packs", "packs"
   add_foreign_key "user_packs", "users"
 end

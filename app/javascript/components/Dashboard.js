@@ -212,11 +212,10 @@ export default function Dashboard() {
           <DossierCard
             label="Packs"
             code="Packs"
-            value={stats.ownedPacks}
+            value={Math.max(stats.totalPacks - stats.ownedPacks, 0)}
             link="/packs"
             color="var(--accent-green)"
             icon="fa-box"
-            subtitle={stats.totalPacks > stats.ownedPacks ? `${stats.totalPacks - stats.ownedPacks} available` : null}
           />
         </div>
 
@@ -311,6 +310,9 @@ function DossierCard({ label, code, value, link, onAdd, color, icon, subtitle })
         position: 'relative',
         transition: 'transform 0.2s',
         transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -330,7 +332,8 @@ function DossierCard({ label, code, value, link, onAdd, color, icon, subtitle })
         href={link}
         style={{
           textDecoration: 'none',
-          display: 'block',
+          display: 'flex',
+          flex: 1,
         }}
       >
         <div style={{
@@ -347,6 +350,8 @@ function DossierCard({ label, code, value, link, onAdd, color, icon, subtitle })
           position: 'relative',
           zIndex: 1,
           minHeight: '120px',
+          flex: 1,
+          width: '100%',
         }}>
           {/* Subtle paper lines */}
           <div style={{
@@ -428,6 +433,7 @@ function DossierCard({ label, code, value, link, onAdd, color, icon, subtitle })
             transition: 'all 0.15s',
             fontSize: 'var(--text-sm)',
             boxShadow: 'var(--shadow-sm)',
+            zIndex: 3,
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = color;
