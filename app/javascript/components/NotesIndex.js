@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import NoteFormModal from './NoteFormModal';
 import NoteShowModal from './NoteShowModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 export default function NotesIndex() {
+  const isMobile = useIsMobile();
   const [notes, setNotes] = useState([]);
   const [allSources, setAllSources] = useState([]);
   const [allConcepts, setAllConcepts] = useState([]);
@@ -279,15 +282,16 @@ export default function NotesIndex() {
   return (
     <>
       <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         {/* Sidebar Toggle Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="sidebar-toggle"
           style={{
-            position: 'absolute',
+            position: isMobile ? 'fixed' : 'absolute',
             left: sidebarOpen ? '280px' : '0',
             top: '200px',
-            zIndex: 20,
+            zIndex: 210,
             background: 'var(--accent-teal)',
             color: 'white',
             border: 'none',
@@ -315,7 +319,8 @@ export default function NotesIndex() {
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
-            flexShrink: 0
+            flexShrink: 0,
+            ...(isMobile ? { position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 200 } : {}),
           }}>
             {/* Search */}
             <div style={{ marginBottom: 'var(--space-4)' }}>

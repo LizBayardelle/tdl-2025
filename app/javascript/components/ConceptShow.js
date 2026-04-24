@@ -4,12 +4,15 @@ import ConnectionFormModal from './ConnectionFormModal';
 import NoteFormModal from './NoteFormModal';
 import PersonFormModal from './PersonFormModal';
 import SourceFormModal from './SourceFormModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 import { buildConceptHierarchy, flattenHierarchy, getIndentPrefix } from '../utils/conceptHierarchy';
 import { getInverseRelType, getRelTypeText } from './InlineRelTypeSelect';
 
 // Memoized Sidebar component to prevent re-renders
 const ConceptSidebar = React.memo(({
   sidebarOpen,
+  isMobile,
   allConcepts,
   conceptsLoading,
   currentConceptId,
@@ -56,14 +59,28 @@ const ConceptSidebar = React.memo(({
   return (
     <aside
       style={{
-        width: sidebarOpen ? '280px' : '0',
+        ...(isMobile
+          ? {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: '280px',
+              transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+              transition: 'transform 0.3s ease',
+              zIndex: 200,
+              boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+            }
+          : {
+              width: sidebarOpen ? '280px' : '0',
+              transition: 'width 0.3s ease',
+              boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+              position: 'relative',
+              flexShrink: 0,
+            }),
         background: 'var(--sidebar-bg)',
         overflowY: 'auto',
         overflowX: 'hidden',
-        transition: 'width 0.3s ease',
-        boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
-        position: 'relative',
-        flexShrink: 0
       }}
     >
       {sidebarOpen && (
@@ -255,6 +272,7 @@ const ConceptSidebar = React.memo(({
 });
 
 export default function ConceptShow({ conceptId }) {
+  const isMobile = useIsMobile();
   const [currentConceptId, setCurrentConceptId] = useState(conceptId);
   const [concept, setConcept] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -331,8 +349,10 @@ export default function ConceptShow({ conceptId }) {
       />
 
       {/* Left Sidebar - Concepts List */}
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <ConceptSidebar
         sidebarOpen={sidebarOpen}
+        isMobile={isMobile}
         allConcepts={allConcepts}
         conceptsLoading={conceptsLoading}
         currentConceptId={currentConceptId}
@@ -353,7 +373,7 @@ export default function ConceptShow({ conceptId }) {
           position: 'fixed',
           left: sidebarOpen ? '280px' : '0',
           top: '200px',
-          zIndex: 50,
+          zIndex: 210,
           background: 'var(--accent-green)',
           color: 'white',
           padding: 'var(--space-2)',

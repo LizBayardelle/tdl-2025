@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import ColorSchemeManager from './ColorSchemeManager';
 import NoteFormModal from './NoteFormModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
+  const isMobile = useIsMobile();
   const [numPages, setNumPages] = useState(null);
   const [scale, setScale] = useState(1.0);
   const [notes, setNotes] = useState([]);
@@ -167,16 +170,18 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
   return (
     <>
     <div ref={containerRef} style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         {/* Left Sidebar - Notes */}
         {sidebarOpen && (
           <>
           <aside style={{
-            width: `${sidebarWidth}px`,
+            width: isMobile ? 'min(320px, 85vw)' : `${sidebarWidth}px`,
             background: '#e2e2e2',
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
-            flexShrink: 0
+            flexShrink: 0,
+            ...(isMobile ? { position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 200 } : {}),
           }}>
             {/* Sidebar Section: Create Note */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -393,24 +398,26 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
               )}
             </div>
           </aside>
-          {/* Draggable Divider */}
-          <div
-            onMouseDown={() => setIsDragging(true)}
-            style={{
-              width: '6px',
-              cursor: 'col-resize',
-              background: 'var(--accent-blue)',
-              transition: 'background 0.15s',
-              flexShrink: 0,
-              zIndex: 10
-            }}
-            onMouseEnter={(e) => {
-              if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue-dark)';
-            }}
-            onMouseLeave={(e) => {
-              if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue)';
-            }}
-          />
+          {/* Draggable Divider (desktop only) */}
+          {!isMobile && (
+            <div
+              onMouseDown={() => setIsDragging(true)}
+              style={{
+                width: '6px',
+                cursor: 'col-resize',
+                background: 'var(--accent-blue)',
+                transition: 'background 0.15s',
+                flexShrink: 0,
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue-dark)';
+              }}
+              onMouseLeave={(e) => {
+                if (!isDragging) e.currentTarget.style.background = 'var(--accent-blue)';
+              }}
+            />
+          )}
           </>
         )}
 
@@ -419,10 +426,10 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl }) {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="sidebar-toggle"
           style={{
-            position: 'absolute',
-            left: sidebarOpen ? `${sidebarWidth + 6}px` : '0',
+            position: isMobile ? 'fixed' : 'absolute',
+            left: sidebarOpen ? (isMobile ? 'min(320px, 85vw)' : `${sidebarWidth + 6}px`) : '0',
             top: '100px',
-            zIndex: 20,
+            zIndex: 210,
             background: 'var(--accent-blue)',
             color: 'white',
             border: 'none',

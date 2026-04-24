@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ConceptFormModal from './ConceptFormModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 import { buildConceptHierarchy, flattenHierarchy } from '../utils/conceptHierarchy';
 import { NODE_TYPES, getNodeTypeLabel } from '../config/nodeTypes';
 
 export default function ConceptsIndex() {
+  const isMobile = useIsMobile();
   const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -121,17 +124,34 @@ export default function ConceptsIndex() {
   }
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       {/* Sidebar */}
       <div
         style={{
-          width: sidebarOpen ? '280px' : '0',
+          ...(isMobile
+            ? {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: '280px',
+                padding: 'var(--space-6)',
+                boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease',
+                zIndex: 200,
+              }
+            : {
+                width: sidebarOpen ? '280px' : '0',
+                padding: sidebarOpen ? 'var(--space-6)' : '0',
+                boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
+                transition: 'all 0.3s ease',
+              }),
           background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: sidebarOpen ? 'var(--space-6)' : '0',
-          boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
-          transition: 'all 0.3s ease',
         }}
       >
         {sidebarOpen && (
@@ -239,7 +259,7 @@ export default function ConceptsIndex() {
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
-          position: 'absolute',
+          position: isMobile ? 'fixed' : 'absolute',
           left: sidebarOpen ? '280px' : '0',
           top: '164px',
           width: '24px',
@@ -254,7 +274,7 @@ export default function ConceptsIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 10,
+          zIndex: 210,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"

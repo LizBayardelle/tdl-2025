@@ -8,9 +8,12 @@ import PeopleSelector from './PeopleSelector';
 import ConceptSelector from './ConceptSelector';
 import SourceSelector from './SourceSelector';
 import NoteSelector from './NoteSelector';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 import Modal from './Modal';
 
 export default function TagsIndex() {
+  const isMobile = useIsMobile();
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,15 +105,16 @@ export default function TagsIndex() {
   return (
     <>
       <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         {/* Sidebar Toggle Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="sidebar-toggle"
           style={{
-            position: 'absolute',
+            position: isMobile ? 'fixed' : 'absolute',
             left: sidebarOpen ? '280px' : '0',
             top: '200px',
-            zIndex: 20,
+            zIndex: 210,
             background: 'var(--accent-purple)',
             color: 'white',
             border: 'none',
@@ -138,7 +142,8 @@ export default function TagsIndex() {
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
-            flexShrink: 0
+            flexShrink: 0,
+            ...(isMobile ? { position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 200 } : {}),
           }}>
             {/* Sort and New Tag */}
             <div style={{ marginBottom: 'var(--space-4)' }}>

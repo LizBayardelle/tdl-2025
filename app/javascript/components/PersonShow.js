@@ -7,9 +7,12 @@ import ConceptSelector from './ConceptSelector';
 import SourceSelector from './SourceSelector';
 import TagSelector from './TagSelector';
 import Modal from './Modal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 const PersonSidebar = React.memo(({
   sidebarOpen,
+  isMobile,
   allPeople,
   peopleLoading,
   currentPersonId,
@@ -38,7 +41,7 @@ const PersonSidebar = React.memo(({
       });
   }, [allPeople, searchQuery, sortBy]);
 
-  if (!sidebarOpen) return null;
+  if (!sidebarOpen && !isMobile) return null;
 
   return (
     <div style={{
@@ -48,6 +51,17 @@ const PersonSidebar = React.memo(({
       padding: 'var(--space-4)',
       boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
       flexShrink: 0,
+      ...(isMobile
+        ? {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform 0.3s ease',
+            zIndex: 200,
+          }
+        : {}),
     }}>
       {/* Search */}
       <div style={{ marginBottom: 'var(--space-4)' }}>
@@ -138,6 +152,7 @@ const PersonSidebar = React.memo(({
 });
 
 export default function PersonShow({ personId: initialPersonId }) {
+  const isMobile = useIsMobile();
   const [currentPersonId, setCurrentPersonId] = useState(initialPersonId);
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -424,9 +439,11 @@ export default function PersonShow({ personId: initialPersonId }) {
   };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <PersonSidebar
         sidebarOpen={sidebarOpen}
+        isMobile={isMobile}
         allPeople={allPeople}
         peopleLoading={peopleLoading}
         currentPersonId={currentPersonId}
@@ -441,7 +458,7 @@ export default function PersonShow({ personId: initialPersonId }) {
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
-          position: 'absolute',
+          position: isMobile ? 'fixed' : 'absolute',
           left: sidebarOpen ? '280px' : '0',
           top: '164px',
           width: '24px',
@@ -456,7 +473,7 @@ export default function PersonShow({ personId: initialPersonId }) {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 5,
+          zIndex: 210,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}

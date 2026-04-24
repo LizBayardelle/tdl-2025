@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import PersonFormModal from './PersonFormModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 export default function PeopleIndex() {
+  const isMobile = useIsMobile();
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -229,17 +232,33 @@ export default function PeopleIndex() {
   }
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {/* Sidebar */}
       <div
         style={{
-          width: sidebarOpen ? '280px' : '0',
+          ...(isMobile
+            ? {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: '280px',
+                padding: 'var(--space-6)',
+                boxShadow: 'var(--shadow-sidebar)',
+                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease',
+                zIndex: 200,
+              }
+            : {
+                width: sidebarOpen ? '280px' : '0',
+                padding: sidebarOpen ? 'var(--space-6)' : '0',
+                boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
+                transition: 'all 0.3s ease',
+              }),
           background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: sidebarOpen ? 'var(--space-6)' : '0',
-          boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
-          transition: 'all 0.3s ease',
         }}
       >
         {sidebarOpen && (
@@ -731,7 +750,7 @@ export default function PeopleIndex() {
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
-          position: 'absolute',
+          position: isMobile ? 'fixed' : 'absolute',
           left: sidebarOpen ? '280px' : '0',
           top: '164px',
           width: '24px',
@@ -746,7 +765,7 @@ export default function PeopleIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 20,
+          zIndex: 210,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"

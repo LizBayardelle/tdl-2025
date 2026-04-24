@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ShareModal from './ShareModal';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 export default function CollectionsIndex() {
+  const isMobile = useIsMobile();
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -211,14 +214,16 @@ export default function CollectionsIndex() {
   return (
     <>
       <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+        <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
         {/* Sidebar Toggle Button */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           style={{
-            position: 'absolute',
+            position: isMobile ? 'fixed' : 'absolute',
             left: sidebarOpen ? '280px' : '0',
             top: '200px',
-            zIndex: 20,
+            zIndex: 210,
             background: 'var(--accent-maroon)',
             color: 'white',
             border: 'none',
@@ -246,7 +251,8 @@ export default function CollectionsIndex() {
             overflowY: 'auto',
             padding: 'var(--space-4)',
             boxShadow: 'var(--shadow-sidebar)',
-            flexShrink: 0
+            flexShrink: 0,
+            ...(isMobile ? { position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 200 } : {}),
           }}>
             {/* Create Form */}
             {showCreateForm && (

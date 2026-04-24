@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import SourceFormModal from './SourceFormModal';
 import NoteFormModal from './NoteFormModal';
 import AuthorsDisplay from './AuthorsDisplay';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 
 export default function SourceShow({ sourceId }) {
+  const isMobile = useIsMobile();
   const [source, setSource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -80,18 +83,33 @@ export default function SourceShow({ sourceId }) {
     });
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       {/* Left Sidebar - Sources List */}
       <aside
         style={{
-          width: sidebarOpen ? '280px' : '0',
+          ...(isMobile
+            ? {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: '280px',
+                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease',
+                zIndex: 200,
+                boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+              }
+            : {
+                width: sidebarOpen ? '280px' : '0',
+                transition: 'width 0.3s ease',
+                boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
+                position: 'relative',
+                flexShrink: 0,
+              }),
           background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
-          transition: 'width 0.3s ease',
-          boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
-          position: 'relative',
-          flexShrink: 0
         }}
       >
         {sidebarOpen && (
@@ -214,7 +232,7 @@ export default function SourceShow({ sourceId }) {
           position: 'fixed',
           left: sidebarOpen ? '280px' : '0',
           top: '100px',
-          zIndex: 50,
+          zIndex: 210,
           background: 'var(--accent-blue)',
           color: 'white',
           padding: 'var(--space-2)',

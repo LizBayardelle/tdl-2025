@@ -58,6 +58,7 @@ export default function AdminConceptGenerations() {
   const [error, setError] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
   const [assignTarget, setAssignTarget] = useState(null); // { generationId, conceptDefinitionId, conceptName }
+  const [retryingIds, setRetryingIds] = useState(() => new Set());
   const pollRef = useRef(null);
 
   const fetchGenerations = async () => {
@@ -69,6 +70,53 @@ export default function AdminConceptGenerations() {
     } catch {
       setError('Failed to load generations');
       setLoading(false);
+    }
+  };
+
+  // Pick the stage to retry: prefer the latest-failed stage recorded in
+  // stage_errors; fall back to a full restart from the 'generate' stage.
+  const pickRetryStage = (gen) => {
+    const entries = Object.entries(gen.stage_errors || {});
+    if (entries.length === 0) return 'generate';
+    entries.sort((a, b) => {
+      const ta = new Date(a[1]?.at || 0).getTime();
+      const tb = new Date(b[1]?.at || 0).getTime();
+      return tb - ta;
+    });
+    const stage = entries[0][0];
+    return ['generate', 'fact_check', 'enrich'].includes(stage) ? stage : 'generate';
+  };
+
+  const retryGeneration = async (gen) => {
+    const stage = pickRetryStage(gen);
+    setRetryingIds((prev) => {
+      const next = new Set(prev);
+      next.add(gen.id);
+      return next;
+    });
+    try {
+      const res = await fetch(`/admin/concept_generations/${gen.id}/retry_stage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ stage }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.errors?.join(', ') || 'Retry failed');
+      } else {
+        await fetchGenerations();
+      }
+    } catch {
+      setError('Retry failed');
+    } finally {
+      setRetryingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(gen.id);
+        return next;
+      });
     }
   };
 
@@ -163,7 +211,15 @@ export default function AdminConceptGenerations() {
           open={historyOpen}
           onToggle={() => setHistoryOpen((o) => !o)}
         >
-          {historyOpen && history.map((g) => <GenerationRow key={g.id} gen={g} muted />)}
+          {historyOpen && history.map((g) => (
+            <GenerationRow
+              key={g.id}
+              gen={g}
+              muted
+              onRetry={g.status === 'failed' ? () => retryGeneration(g) : undefined}
+              retrying={retryingIds.has(g.id)}
+            />
+          ))}
         </Section>
 
         {assignTarget && (
@@ -255,12 +311,18 @@ function Section({ title, count, emptyText, children, emphasize, collapsible, op
   );
 }
 
-function GenerationRow({ gen, emphasize, pulsing, muted, onAssign }) {
+function GenerationRow({ gen, emphasize, pulsing, muted, onAssign, onRetry, retrying }) {
   const meta = STATUS_META[gen.status] || STATUS_META.pending;
   const handleAssignClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     onAssign && onAssign();
+  };
+  const handleRetryClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (retrying) return;
+    onRetry && onRetry();
   };
   return (
     <a
@@ -344,22 +406,51 @@ function GenerationRow({ gen, emphasize, pulsing, muted, onAssign }) {
         </button>
       )}
       {!onAssign && (
-        <span
-          style={{
-            padding: '4px 10px',
-            borderRadius: 'var(--radius)',
-            fontSize: 'var(--text-xs)',
-            fontWeight: 600,
-            fontFamily: 'var(--font-body)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            background: meta.bg,
-            color: meta.color,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {meta.label}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+          {onRetry && (
+            <button
+              onClick={handleRetryClick}
+              disabled={retrying}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 'var(--radius)',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 600,
+                fontFamily: 'var(--font-body)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                background: retrying ? 'var(--neutral-300)' : 'var(--admin-brown-dark)',
+                color: 'white',
+                border: 'none',
+                cursor: retrying ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+              title="Re-enqueue this generation"
+            >
+              <i className={`fas ${retrying ? 'fa-circle-notch fa-spin' : 'fa-rotate-right'}`}></i>
+              {retrying ? 'Retrying' : 'Retry'}
+            </button>
+          )}
+          <span
+            style={{
+              padding: '4px 10px',
+              borderRadius: 'var(--radius)',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              fontFamily: 'var(--font-body)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: meta.bg,
+              color: meta.color,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {meta.label}
+          </span>
+        </div>
       )}
     </a>
   );

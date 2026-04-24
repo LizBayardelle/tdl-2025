@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import SourceFormModal from './SourceFormModal';
 import PdfUploadModal from './PdfUploadModal';
 import AuthorsDisplay from './AuthorsDisplay';
+import MobileSidebarBackdrop from './MobileSidebarBackdrop';
+import useIsMobile from '../hooks/useIsMobile';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,6 +11,7 @@ const ITEMS_PER_PAGE_CARDS = 20;
 const ITEMS_PER_PAGE_LIST = 50;
 
 export default function SourcesIndex() {
+  const isMobile = useIsMobile();
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -262,15 +265,31 @@ export default function SourcesIndex() {
   return (
     <div style={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
       {/* Sidebar */}
+      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div
         style={{
-          width: sidebarOpen ? '280px' : '0',
+          ...(isMobile
+            ? {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: '280px',
+                padding: 'var(--space-6)',
+                boxShadow: 'var(--shadow-sidebar)',
+                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s ease',
+                zIndex: 200,
+              }
+            : {
+                width: sidebarOpen ? '280px' : '0',
+                padding: sidebarOpen ? 'var(--space-6)' : '0',
+                boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
+                transition: 'all 0.3s ease',
+              }),
           background: '#e2e2e2',
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: sidebarOpen ? 'var(--space-6)' : '0',
-          boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
-          transition: 'all 0.3s ease',
         }}
       >
         {sidebarOpen && (
@@ -781,7 +800,7 @@ export default function SourcesIndex() {
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
         style={{
-          position: 'absolute',
+          position: isMobile ? 'fixed' : 'absolute',
           left: sidebarOpen ? '280px' : '0',
           top: '164px',
           width: '24px',
@@ -796,7 +815,7 @@ export default function SourcesIndex() {
           borderTopRightRadius: '4px',
           borderBottomRightRadius: '4px',
           transition: 'left 0.3s ease',
-          zIndex: 10,
+          zIndex: 210,
           boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
         }}
         className="sidebar-toggle"
