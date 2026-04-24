@@ -148,6 +148,9 @@ export default function PersonShow({ personId: initialPersonId }) {
   const [showLinkConceptModal, setShowLinkConceptModal] = useState(false);
   const [showLinkSourceModal, setShowLinkSourceModal] = useState(false);
   const [showLinkTagModal, setShowLinkTagModal] = useState(false);
+  const [enriching, setEnriching] = useState(false);
+  const [enrichStep, setEnrichStep] = useState(null); // 'backfilling' | 'enriching' | 'done' | 'nothing-found'
+  const [enrichChanges, setEnrichChanges] = useState(null); // summary of what landed
   const [selectedConceptIds, setSelectedConceptIds] = useState([]);
   const [selectedSourceIds, setSelectedSourceIds] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -209,6 +212,108 @@ export default function PersonShow({ personId: initialPersonId }) {
   const handlePersonClick = (personSlugOrId, personIdNum) => {
     setCurrentPersonId(personIdNum);
     window.history.pushState({}, '', `/people/${personSlugOrId}`);
+  };
+
+  const handleEnrich = async () => {
+    if (enriching) return;
+    setEnriching(true);
+    setEnrichChanges(null);
+
+    const snapshot = {
+      orcid: person.orcid,
+      email: person.email,
+      summary: person.summary,
+      url: person.url,
+      linksCount: (person.links || []).length,
+      enriched_at: person.enriched_at,
+    };
+
+    try {
+      const response = await fetch(`/people/${currentPersonId}/enrich`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        alert(data.error || 'Enrichment failed.');
+        return;
+      }
+      const body = await response.json();
+      setEnrichStep(body.step === 'backfilling_orcid' ? 'backfilling' : 'enriching');
+
+      // Poll the person and walk through steps as state advances.
+      const deadline = Date.now() + 30000; // 30s total (backfill → enrichment chain)
+      while (Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 1500));
+
+        const res = await fetch(`/people/${currentPersonId}.json`);
+        if (!res.ok) continue;
+        const updated = await res.json();
+        setPerson(updated);
+
+        const orcidJustAppeared = !snapshot.orcid && !!updated.orcid;
+        if (orcidJustAppeared) {
+          setEnrichStep('enriching'); // advance from backfill → enrich phase
+        }
+
+        const enrichmentAdvanced =
+          updated.enriched_at &&
+          new Date(updated.enriched_at) > new Date(snapshot.enriched_at || 0);
+
+        if (enrichmentAdvanced) {
+          const diff = diffPerson(snapshot, updated);
+          if (diff.length > 0) {
+            setEnrichStep('done');
+            setEnrichChanges(diff);
+          } else {
+            setEnrichStep('nothing-found');
+          }
+          break;
+        }
+      }
+
+      if (Date.now() >= deadline) {
+        // Hit the timeout without seeing enriched_at advance.
+        const res = await fetch(`/people/${currentPersonId}.json`);
+        if (res.ok) {
+          const updated = await res.json();
+          setPerson(updated);
+          const orcidFound = !snapshot.orcid && !!updated.orcid;
+          setEnrichStep(orcidFound ? 'done' : 'nothing-found');
+          if (orcidFound) setEnrichChanges(['ORCID']);
+        } else {
+          setEnrichStep('nothing-found');
+        }
+      }
+
+      // Auto-dismiss the result banner after a few seconds.
+      setTimeout(() => {
+        setEnrichStep(null);
+        setEnrichChanges(null);
+      }, 6000);
+    } catch (err) {
+      console.error('Enrich error:', err);
+      setEnrichStep('nothing-found');
+      setTimeout(() => setEnrichStep(null), 4000);
+    } finally {
+      setEnriching(false);
+    }
+  };
+
+  const diffPerson = (before, after) => {
+    const changes = [];
+    if (!before.orcid && after.orcid) changes.push('ORCID');
+    if (!before.email && after.email) changes.push('email');
+    if (!before.summary && after.summary) changes.push('bio');
+    if (!before.url && after.url) changes.push('homepage');
+    const afterLinks = (after.links || []).length;
+    if (afterLinks > before.linksCount) {
+      changes.push(`${afterLinks - before.linksCount} link${afterLinks - before.linksCount > 1 ? 's' : ''}`);
+    }
+    return changes;
   };
 
   const handleDelete = async () => {
@@ -405,6 +510,27 @@ export default function PersonShow({ personId: initialPersonId }) {
                 </a>
 
                 <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                  {(() => {
+                    const hasDois = (person.sources || []).some((s) => s.doi && s.doi.trim());
+                    const canEnrich = !!person.orcid || hasDois;
+                    if (!canEnrich) return null;
+                    const title = person.orcid
+                      ? (person.enriched_at
+                          ? `Re-enrich from ORCID (last enriched ${new Date(person.enriched_at).toLocaleDateString()})`
+                          : 'Enrich from ORCID public record')
+                      : 'Find ORCID from their papers, then enrich';
+                    return (
+                      <button
+                        onClick={handleEnrich}
+                        className="icon-btn"
+                        style={{ color: 'var(--accent-gold)' }}
+                        title={title}
+                        disabled={enriching}
+                      >
+                        <i className={enriching ? 'fas fa-circle-notch fa-spin' : 'fas fa-wand-magic-sparkles'}></i>
+                      </button>
+                    );
+                  })()}
                   <button
                     onClick={() => setShowEditModal(true)}
                     className="icon-btn"
@@ -446,37 +572,64 @@ export default function PersonShow({ personId: initialPersonId }) {
                   )}
                 </div>
 
-                {/* Contact Info */}
-                {(person.email || person.url) && (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-4)',
-                    justifyContent: 'center',
-                    marginTop: 'var(--space-3)',
-                    fontSize: 'var(--text-sm)',
+                {/* Structured field list — shows labels even for empty values so the user
+                    can see at a glance what could be populated. */}
+                <div
+                  style={{
+                    marginTop: 'var(--space-4)',
+                    maxWidth: '480px',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    display: 'grid',
+                    gridTemplateColumns: '90px 1fr',
+                    rowGap: 'var(--space-2)',
+                    columnGap: 'var(--space-3)',
                     fontFamily: 'var(--font-body)',
-                    color: 'var(--neutral-600)'
-                  }}>
-                    {person.email && (
+                    fontSize: 'var(--text-sm)',
+                    alignItems: 'baseline',
+                  }}
+                >
+                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>ORCID</div>
+                  <div>
+                    {person.orcid ? (
                       <a
-                        href={`mailto:${person.email}`}
+                        href={`https://orcid.org/${person.orcid}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         style={{
                           color: 'var(--accent-gold)',
                           textDecoration: 'none',
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 'var(--space-1)',
-                          transition: 'color 0.15s'
+                          gap: '6px',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
+                        title="View ORCID profile"
                       >
-                        <i className="fas fa-envelope"></i>
-                        <span>{person.email}</span>
+                        <i className="fab fa-orcid"></i>
+                        <span>{person.orcid}</span>
                       </a>
+                    ) : (
+                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
                     )}
-                    {person.url && (
+                  </div>
+
+                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Email</div>
+                  <div>
+                    {person.email ? (
+                      <a
+                        href={`mailto:${person.email}`}
+                        style={{ color: 'var(--accent-gold)', textDecoration: 'none' }}
+                      >
+                        {person.email}
+                      </a>
+                    ) : (
+                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
+                    )}
+                  </div>
+
+                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Website</div>
+                  <div>
+                    {person.url ? (
                       <a
                         href={person.url}
                         target="_blank"
@@ -484,20 +637,131 @@ export default function PersonShow({ personId: initialPersonId }) {
                         style={{
                           color: 'var(--accent-gold)',
                           textDecoration: 'none',
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 'var(--space-1)',
-                          transition: 'color 0.15s'
+                          gap: '6px',
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
                       >
                         <i className="fas fa-link"></i>
-                        <span>Website</span>
+                        <span>{person.url}</span>
                       </a>
+                    ) : (
+                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
+                    )}
+                  </div>
+
+                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Links</div>
+                  <div>
+                    {(person.links || []).length > 0 ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+                        {(person.links || []).map((link, i) => (
+                          <a
+                            key={i}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: 'var(--accent-gold)',
+                              textDecoration: 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                            }}
+                          >
+                            <i className="fas fa-external-link-alt" style={{ fontSize: '10px' }}></i>
+                            <span>{link.label || link.url}</span>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Enrichment status banner */}
+                {enrichStep && (
+                  <div
+                    style={{
+                      marginTop: 'var(--space-3)',
+                      padding: 'var(--space-2) var(--space-3)',
+                      borderRadius: '6px',
+                      background:
+                        enrichStep === 'done'
+                          ? 'color-mix(in srgb, var(--accent-green) 12%, white)'
+                          : enrichStep === 'nothing-found'
+                            ? 'var(--neutral-100)'
+                            : 'var(--accent-gold-light)',
+                      border:
+                        enrichStep === 'done'
+                          ? '1px solid var(--accent-green)'
+                          : enrichStep === 'nothing-found'
+                            ? '1px solid var(--neutral-300)'
+                            : '1px solid var(--accent-gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 'var(--space-2)',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'var(--text-sm)',
+                      color:
+                        enrichStep === 'done'
+                          ? 'var(--accent-green)'
+                          : enrichStep === 'nothing-found'
+                            ? 'var(--neutral-600)'
+                            : 'var(--accent-gold)',
+                    }}
+                  >
+                    {enrichStep === 'backfilling' && (
+                      <>
+                        <i className="fas fa-search"></i>
+                        <span>Searching their papers on Crossref for an ORCID…</span>
+                      </>
+                    )}
+                    {enrichStep === 'enriching' && (
+                      <>
+                        <i className="fas fa-circle-notch fa-spin"></i>
+                        <span>Pulling public profile from ORCID…</span>
+                      </>
+                    )}
+                    {enrichStep === 'done' && (
+                      <>
+                        <i className="fas fa-check-circle"></i>
+                        <span>
+                          Added{' '}
+                          {enrichChanges && enrichChanges.length > 0
+                            ? enrichChanges.join(', ')
+                            : 'new details'}
+                          .
+                        </span>
+                      </>
+                    )}
+                    {enrichStep === 'nothing-found' && (
+                      <>
+                        <i className="fas fa-info-circle"></i>
+                        <span>
+                          Nothing new found — they may not have a public ORCID profile, or their
+                          papers don't disclose one.
+                        </span>
+                      </>
                     )}
                   </div>
                 )}
+
+                {person.enriched_at && !enrichStep && (
+                  <div
+                    style={{
+                      marginTop: 'var(--space-2)',
+                      textAlign: 'center',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'var(--text-xs)',
+                      color: 'var(--neutral-500)',
+                    }}
+                  >
+                    Enriched from ORCID on {new Date(person.enriched_at).toLocaleDateString()}
+                  </div>
+                )}
+
               </div>
             </div>
 

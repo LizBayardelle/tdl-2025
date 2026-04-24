@@ -13,6 +13,10 @@ const initialState = {
   pendingConcepts: [],
   conceptResolutions: {},
 
+  // Extras (not tied to any detected index — added by the user from the "new author/concept" form)
+  extraAuthors: {},   // { [itemId]: [{ tempId, firstName, lastName, orcid }] }
+  extraConcepts: {},  // { [itemId]: [{ tempId, label, conceptType }] }
+
   // UI state
   expandedItemId: null,
   filter: 'all',  // 'all' | 'ready' | 'needs_review' | 'failed'
@@ -212,6 +216,58 @@ function reducer(state, action) {
       return {
         ...state,
         conceptResolutions: newResolutions
+      };
+    }
+
+    case 'ADD_EXTRA_AUTHOR': {
+      const { itemId, firstName, lastName, orcid } = action.payload;
+      if (!(firstName || lastName)) return state;
+      const tempId = generateTempId();
+      const existing = state.extraAuthors[itemId] || [];
+      return {
+        ...state,
+        extraAuthors: {
+          ...state.extraAuthors,
+          [itemId]: [...existing, { tempId, firstName: firstName || '', lastName: lastName || '', orcid: orcid || null }]
+        }
+      };
+    }
+
+    case 'REMOVE_EXTRA_AUTHOR': {
+      const { itemId, tempId } = action.payload;
+      const existing = state.extraAuthors[itemId] || [];
+      return {
+        ...state,
+        extraAuthors: {
+          ...state.extraAuthors,
+          [itemId]: existing.filter(a => a.tempId !== tempId)
+        }
+      };
+    }
+
+    case 'ADD_EXTRA_CONCEPT': {
+      const { itemId, label, conceptType } = action.payload;
+      if (!label) return state;
+      const tempId = generateTempId();
+      const existing = state.extraConcepts[itemId] || [];
+      return {
+        ...state,
+        extraConcepts: {
+          ...state.extraConcepts,
+          [itemId]: [...existing, { tempId, label, conceptType: conceptType || 'non_physical_concept' }]
+        }
+      };
+    }
+
+    case 'REMOVE_EXTRA_CONCEPT': {
+      const { itemId, tempId } = action.payload;
+      const existing = state.extraConcepts[itemId] || [];
+      return {
+        ...state,
+        extraConcepts: {
+          ...state.extraConcepts,
+          [itemId]: existing.filter(c => c.tempId !== tempId)
+        }
       };
     }
 

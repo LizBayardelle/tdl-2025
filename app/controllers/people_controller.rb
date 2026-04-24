@@ -1,7 +1,7 @@
 class PeopleController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_person, only: [:show, :update, :destroy]
-  before_action :authorize_edit!, only: [:update, :destroy]
+  before_action :set_person, only: [:show, :update, :destroy, :enrich]
+  before_action :authorize_edit!, only: [:update, :destroy, :enrich]
 
   def index
     auth = AuthorizationService.new(current_user)
@@ -72,7 +72,7 @@ class PeopleController < ApplicationController
         render json: @person.as_json(
           include: {
             concepts: { only: [:id, :label, :concept_type] },
-            sources: { only: [:id, :title, :authors, :year] },
+            sources: { only: [:id, :title, :authors, :year, :doi] },
             collections: { only: [:id, :name, :description] }
           }
         ).merge(
@@ -114,6 +114,23 @@ class PeopleController < ApplicationController
     else
       render json: { errors: @person.errors.full_messages }, status: :unprocessable_entity
     end
+  end
+
+  def enrich
+    if @person.orcid.present?
+      FleshOutPersonJob.perform_later(@person.id)
+      render json: { queued: true, step: 'enriching_from_orcid', orcid: @person.orcid }
+      return
+    end
+
+    has_dois = @person.sources.where.not(doi: [nil, '']).exists?
+    if has_dois
+      BackfillPersonOrcidJob.perform_later(@person.id)
+      render json: { queued: true, step: 'backfilling_orcid' }
+      return
+    end
+
+    render json: { error: 'No ORCID and no DOI-bearing sources to disambiguate from.' }, status: :unprocessable_entity
   end
 
   def destroy
@@ -159,7 +176,8 @@ class PeopleController < ApplicationController
       aka: [],
       concept_ids: [],
       source_ids: [],
-      tags: []
+      tags: [],
+      links: [:label, :url]
     )
   end
 

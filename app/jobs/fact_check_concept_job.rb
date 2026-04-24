@@ -35,7 +35,7 @@ class FactCheckConceptJob < ApplicationJob
 
     revised = result[:revised_content] || {}
 
-    attrs = { status: :ready_for_review }
+    attrs = { status: :enriching }
     ConceptGeneration::CONTENT_FIELDS.each do |field|
       attrs[field] = revised[field] if revised.key?(field)
     end
@@ -55,5 +55,9 @@ class FactCheckConceptJob < ApplicationJob
     attrs[:token_usage] = token_usage
 
     generation.update!(attrs)
+
+    # Chain stage 3.
+    job = EnrichConceptLinksJob.perform_later(generation.id)
+    generation.update_column(:enrich_job_id, job.job_id)
   end
 end

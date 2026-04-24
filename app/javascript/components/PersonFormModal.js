@@ -22,11 +22,13 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
     url: '',
     summary: '',
     aka: [],
+    links: [],
     concept_ids: [],
     source_ids: [],
     tags: []
   });
   const [error, setError] = useState('');
+  const [newLink, setNewLink] = useState({ label: '', url: '' });
 
   // Collections state
   const [collections, setCollections] = useState([]);
@@ -136,6 +138,7 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           url: item.url || '',
           summary: item.summary || '',
           aka: item.aka || [],
+          links: item.links || [],
           concept_ids: item.concept_ids || [],
           source_ids: item.source_ids || [],
           tags: item.tags || []
@@ -152,12 +155,14 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
           url: '',
           summary: '',
           aka: [],
+          links: [],
           concept_ids: [],
           source_ids: [],
           tags: []
         });
         lastSavedData.current = null;
       }
+      setNewLink({ label: '', url: '' });
       setError('');
     }
   }, [isOpen, item]);
@@ -197,6 +202,31 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
   const handleArrayInput = (value) => {
     const items = value.split('\n').filter(item => item.trim());
     setFormData({ ...formData, aka: items });
+  };
+
+  const handleAddLink = () => {
+    const url = newLink.url.trim();
+    if (!url) return;
+    const label = newLink.label.trim() || guessLabel(url);
+    setFormData({ ...formData, links: [...formData.links, { label, url }] });
+    setNewLink({ label: '', url: '' });
+  };
+
+  const handleRemoveLink = (index) => {
+    setFormData({ ...formData, links: formData.links.filter((_, i) => i !== index) });
+  };
+
+  const guessLabel = (url) => {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      if (host.includes('scholar.google')) return 'Google Scholar';
+      if (host.includes('orcid.org')) return 'ORCID';
+      if (host.includes('researchgate')) return 'ResearchGate';
+      if (host.includes('linkedin')) return 'LinkedIn';
+      return host;
+    } catch {
+      return 'Link';
+    }
   };
 
   const fetchCollections = async () => {
@@ -689,6 +719,109 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
                         }}
                         placeholder="https://..."
                       />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="form-label">Profile Links</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                      {formData.links.map((link, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '180px 1fr auto',
+                            gap: 'var(--space-2)',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <input
+                            type="text"
+                            value={link.label}
+                            onChange={(e) => {
+                              const next = [...formData.links];
+                              next[i] = { ...next[i], label: e.target.value };
+                              setFormData({ ...formData, links: next });
+                            }}
+                            placeholder="Label (e.g., Google Scholar)"
+                            className="form-input"
+                            style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
+                          />
+                          <input
+                            type="url"
+                            value={link.url}
+                            onChange={(e) => {
+                              const next = [...formData.links];
+                              next[i] = { ...next[i], url: e.target.value };
+                              setFormData({ ...formData, links: next });
+                            }}
+                            placeholder="https://..."
+                            className="form-input"
+                            style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveLink(i)}
+                            title="Remove link"
+                            style={{
+                              padding: '6px 10px',
+                              background: 'transparent',
+                              border: '1px solid var(--neutral-300)',
+                              borderRadius: '6px',
+                              color: 'var(--neutral-500)',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <i className="fas fa-times"></i>
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '180px 1fr auto',
+                          gap: 'var(--space-2)',
+                          alignItems: 'center',
+                          paddingTop: formData.links.length > 0 ? 'var(--space-2)' : 0,
+                          borderTop: formData.links.length > 0 ? '1px dashed var(--neutral-200)' : 'none',
+                        }}
+                      >
+                        <input
+                          type="text"
+                          value={newLink.label}
+                          onChange={(e) => setNewLink({ ...newLink, label: e.target.value })}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
+                          placeholder="Label (optional)"
+                          className="form-input"
+                          style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
+                        />
+                        <input
+                          type="url"
+                          value={newLink.url}
+                          onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
+                          placeholder="https://scholar.google.com/..."
+                          className="form-input"
+                          style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddLink}
+                          disabled={!newLink.url.trim()}
+                          style={{
+                            padding: '6px 12px',
+                            background: newLink.url.trim() ? 'var(--accent-gold)' : 'var(--neutral-300)',
+                            border: 'none',
+                            borderRadius: '6px',
+                            color: 'white',
+                            cursor: newLink.url.trim() ? 'pointer' : 'not-allowed',
+                            fontFamily: 'var(--font-body)',
+                            fontSize: 'var(--text-sm)',
+                          }}
+                        >
+                          <i className="fas fa-plus"></i> Add
+                        </button>
+                      </div>
                     </div>
                   </div>
 

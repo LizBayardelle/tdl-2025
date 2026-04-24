@@ -1,11 +1,14 @@
 import React from 'react';
+import useIsMobile from './useIsMobile';
 
 export default function AdminPageHeader({ title, subtitle, actions, backHref, backLabel }) {
+  const isMobile = useIsMobile();
   return (
     <div
       style={{
-        padding: 'var(--space-6) var(--space-8)',
-        background: 'var(--neutral-600)',
+        padding: isMobile ? 'var(--space-4) var(--space-5)' : 'var(--space-6) var(--space-8)',
+        paddingLeft: isMobile ? 'calc(var(--space-5) + 28px)' : 'var(--space-8)',
+        background: 'var(--admin-brown)',
         boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
         position: 'relative',
         zIndex: 5,
@@ -39,13 +42,14 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
           <h1
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-3xl)',
+              fontSize: isMobile ? 'var(--text-2xl)' : 'var(--text-3xl)',
               fontWeight: 700,
               color: 'white',
               letterSpacing: '-0.02em',
               marginBottom: 'var(--space-1)',
               marginTop: 0,
               wordBreak: 'break-word',
+              lineHeight: 1.15,
             }}
           >
             {title}

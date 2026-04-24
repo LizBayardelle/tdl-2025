@@ -111,6 +111,25 @@ class CreateSourceFromUploadJob < ApplicationJob
       end
     end
 
+    # Manually-added extras (authors not in the detected list)
+    Array(decisions['extra_authors']).each do |extra|
+      last_name = extra['last_name'].presence
+      first_name = extra['first_name'].presence
+      next if last_name.blank? && first_name.blank?
+
+      begin
+        person = user.people.create!(
+          first_name: first_name,
+          last_name: last_name || first_name,
+          orcid: extra['orcid'].presence,
+          role: 'researcher'
+        )
+        source.people << person unless source.people.include?(person)
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.warn "Failed to create extra person: #{e.message}"
+      end
+    end
+
     # Update authors string column from linked people
     # Note: Must use write_attribute because 'authors' is both a column and an association name
     if source.people.any?
@@ -167,6 +186,23 @@ class CreateSourceFromUploadJob < ApplicationJob
     # Also add any explicitly selected concepts from decisions
     if decisions['selected_concept_ids'].present?
       concept_ids_to_link += decisions['selected_concept_ids']
+    end
+
+    # Manually-added extras (concepts not in the detected list)
+    Array(decisions['extra_concepts']).each do |extra|
+      label = extra['label'].to_s.strip
+      next if label.blank?
+
+      begin
+        existing = user.concepts.find_by('LOWER(label) = LOWER(?)', label)
+        new_concept = existing || user.concepts.create!(
+          label: label,
+          concept_type: extra['concept_type'].presence || 'non_physical_concept'
+        )
+        concept_ids_to_link << new_concept.id
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.warn "Failed to create extra concept: #{e.message}"
+      end
     end
 
     # Link all concepts

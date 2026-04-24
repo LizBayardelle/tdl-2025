@@ -10,9 +10,6 @@ export default function AdminPackShow({ packId }) {
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showImport, setShowImport] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
   const [editingDef, setEditingDef] = useState(null);
 
   useEffect(() => {
@@ -134,28 +131,8 @@ export default function AdminPackShow({ packId }) {
     }
   };
 
-  const handleSearchConcepts = async (query) => {
-    setSearchQuery(query);
-    if (query.length < 2) {
-      setSearchResults([]);
-      return;
-    }
-
-    setSearching(true);
-    try {
-      const res = await fetch(`/admin/packs/${packId}/concept_definitions/search_concepts?q=${encodeURIComponent(query)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSearchResults(data);
-      }
-    } catch (err) {
-      console.error('Search failed:', err);
-    } finally {
-      setSearching(false);
-    }
-  };
-
-  const handleImportConcept = async (conceptId) => {
+  const handleImportConcepts = async (conceptIds) => {
+    if (!conceptIds || conceptIds.length === 0) return { created: 0, failed: 0 };
     setSaving(true);
     try {
       const res = await fetch(`/admin/packs/${packId}/concept_definitions/import_from_concept`, {
@@ -164,22 +141,25 @@ export default function AdminPackShow({ packId }) {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
         },
-        body: JSON.stringify({ concept_id: conceptId })
+        body: JSON.stringify({ concept_definition_ids: conceptIds })
       });
 
       if (res.ok) {
-        const newDef = await res.json();
+        const data = await res.json();
+        const created = Array.isArray(data.created) ? data.created : [data];
         setPack(prev => ({
           ...prev,
-          concept_definitions: [...(prev.concept_definitions || []), newDef]
+          concept_definitions: [...(prev.concept_definitions || []), ...created]
         }));
-        setSearchResults(prev => prev.filter(c => c.id !== conceptId));
+        return { created: created.length, failed: (data.failed || []).length };
       } else {
         const data = await res.json();
-        setError(data.errors?.join(', ') || 'Failed to import concept');
+        setError(data.errors?.join(', ') || 'Failed to import concepts');
+        return { created: 0, failed: conceptIds.length };
       }
     } catch (err) {
-      setError('Failed to import concept');
+      setError('Failed to import concepts');
+      return { created: 0, failed: conceptIds.length };
     } finally {
       setSaving(false);
     }
@@ -241,7 +221,7 @@ export default function AdminPackShow({ packId }) {
     return (
       <AdminLayout currentPage="packs">
         <AdminPageHeader title="Loading..." backHref="/admin/packs" backLabel="Back to Packs" />
-        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
           <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
         </div>
       </AdminLayout>
@@ -252,8 +232,8 @@ export default function AdminPackShow({ packId }) {
     return (
       <AdminLayout currentPage="packs">
         <AdminPageHeader title="Pack not found" backHref="/admin/packs" backLabel="Back to Packs" />
-        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
-          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--accent-red)' }}>The pack could not be loaded.</p>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
+          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-700)' }}>The pack could not be loaded.</p>
         </div>
       </AdminLayout>
     );
@@ -266,7 +246,7 @@ export default function AdminPackShow({ packId }) {
         borderRadius: 'var(--radius)',
         fontSize: 'var(--text-xs)',
         fontWeight: 600,
-        fontFamily: 'var(--font-display)',
+        fontFamily: 'var(--font-body)',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
         background: pack.published ? 'white' : 'transparent',
@@ -287,7 +267,7 @@ export default function AdminPackShow({ packId }) {
         backHref="/admin/packs"
         backLabel="Back to Packs"
       />
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
         {error && (
           <div style={{
             padding: '12px',
@@ -521,104 +501,15 @@ export default function AdminPackShow({ packId }) {
             </div>
           </div>
 
-          {/* Import from existing concepts */}
+          {/* Assign concepts from your library */}
           {showImport && (
-            <div style={{
-              background: '#fafafa',
-              padding: '16px',
-              borderRadius: '4px',
-              marginBottom: '16px',
-              border: '1px solid #e0e0e0',
-            }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 500, marginBottom: '8px', fontFamily: 'Inter, -apple-system, sans-serif', color: '#333' }}>
-                Search your concepts
-              </label>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleSearchConcepts(e.target.value)}
-                placeholder="Type to search..."
-                style={inputStyle}
-              />
-
-              {searching && (
-                <p style={{ fontSize: '13px', color: '#888', marginTop: '8px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
-                  Searching...
-                </p>
-              )}
-
-              {searchResults.length > 0 && (
-                <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {searchResults.map(concept => (
-                    <div
-                      key={concept.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '10px 12px',
-                        background: 'white',
-                        borderRadius: '4px',
-                        border: '1px solid #e0e0e0',
-                      }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: 500, fontFamily: 'Inter, -apple-system, sans-serif', fontSize: '14px', color: '#111' }}>
-                            {concept.label}
-                          </span>
-                          {concept.concept_type && (
-                            <span style={{
-                              fontSize: '11px',
-                              color: '#666',
-                              background: '#e0e0e0',
-                              padding: '1px 6px',
-                              borderRadius: '3px',
-                              fontFamily: 'Inter, -apple-system, sans-serif',
-                            }}>
-                              {concept.concept_type.replace(/_/g, ' ')}
-                            </span>
-                          )}
-                        </div>
-                        {concept.summary && (
-                          <p style={{
-                            fontSize: '12px',
-                            color: '#888',
-                            margin: '2px 0 0 0',
-                            fontFamily: 'Inter, -apple-system, sans-serif',
-                          }}>
-                            {concept.summary.substring(0, 80)}{concept.summary.length > 80 ? '...' : ''}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => handleImportConcept(concept.id)}
-                        disabled={saving}
-                        style={{
-                          background: '#111',
-                          color: 'white',
-                          border: 'none',
-                          padding: '4px 10px',
-                          borderRadius: '4px',
-                          fontFamily: 'Inter, -apple-system, sans-serif',
-                          fontSize: '12px',
-                          cursor: saving ? 'not-allowed' : 'pointer',
-                          marginLeft: '12px',
-                        }}
-                      >
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {searchQuery.length >= 2 && !searching && searchResults.length === 0 && (
-                <p style={{ fontSize: '13px', color: '#888', marginTop: '8px', fontFamily: 'Inter, -apple-system, sans-serif' }}>
-                  No matching concepts found (or already added to pack)
-                </p>
-              )}
-            </div>
+            <AssignConceptsPanel
+              packId={packId}
+              existingCount={pack.concept_definitions?.length || 0}
+              onImport={handleImportConcepts}
+              onClose={() => setShowImport(false)}
+              saving={saving}
+            />
           )}
 
           {/* Concept list */}
@@ -1279,6 +1170,352 @@ function ConceptDefinitionModal({ definition, conceptTypes, onSave, onClose, sav
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+const CONCEPT_TYPE_LABEL = {
+  research_method: 'Research method',
+  measurement: 'Measurement',
+  intervention: 'Intervention',
+  pathology: 'Pathology',
+  emotion: 'Emotion',
+  symptom: 'Symptom',
+  school_of_thought: 'School of thought',
+  physical_entity: 'Physical entity',
+  physical_process: 'Physical process',
+  non_physical_process: 'Non-physical process',
+  non_physical_concept: 'Non-physical concept',
+};
+
+function AssignConceptsPanel({ packId, existingCount, onImport, onClose, saving }) {
+  const [concepts, setConcepts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [notice, setNotice] = useState('');
+
+  const fetchConcepts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (query.trim()) params.set('q', query.trim());
+      selectedTypes.forEach((t) => params.append('concept_types[]', t));
+      const res = await fetch(`/admin/packs/${packId}/concept_definitions/search_concepts?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setConcepts(data);
+      }
+    } catch (err) {
+      console.error('Load concepts failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced fetch as filters change
+  useEffect(() => {
+    const t = setTimeout(fetchConcepts, 200);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, selectedTypes, existingCount]);
+
+  const availableTypes = React.useMemo(() => {
+    const set = new Set(concepts.map((c) => c.concept_type).filter(Boolean));
+    return [...set].sort();
+  }, [concepts]);
+
+  const toggleType = (type) => {
+    setSelectedTypes((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]));
+  };
+
+  const toggleSelected = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      concepts.forEach((c) => next.add(c.id));
+      return next;
+    });
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const submit = async () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    const { created, failed } = await onImport(ids);
+    setNotice(`Added ${created} concept${created === 1 ? '' : 's'}${failed ? `, ${failed} failed` : ''}.`);
+    setSelectedIds(new Set());
+  };
+
+  const selectedCount = selectedIds.size;
+
+  return (
+    <div
+      style={{
+        background: 'white',
+        border: '1px solid var(--admin-brown-light)',
+        borderRadius: 'var(--radius)',
+        overflow: 'hidden',
+        marginBottom: 'var(--space-4)',
+      }}
+    >
+      <header
+        style={{
+          padding: 'var(--space-3) var(--space-6)',
+          background: 'var(--admin-brown-light)',
+          borderRadius: 'var(--radius) var(--radius) 0 0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+        }}
+      >
+        <i className="fas fa-list-check" style={{ color: 'var(--admin-brown-dark)' }}></i>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--admin-brown-dark)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Assign concepts
+          </div>
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--neutral-600)', marginTop: '2px' }}>
+            Move unassigned ConceptDefinitions (from the Concept Creator) into this pack.
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--admin-brown-dark)',
+            cursor: 'pointer',
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-sm)',
+            padding: 'var(--space-1) var(--space-2)',
+          }}
+        >
+          <i className="fas fa-xmark"></i>
+        </button>
+      </header>
+
+      <div style={{ padding: 'var(--space-4) var(--space-6)' }}>
+        <div style={{ position: 'relative', marginBottom: 'var(--space-3)' }}>
+          <i
+            className="fas fa-magnifying-glass"
+            style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', left: 'var(--space-3)', color: 'var(--neutral-400)', fontSize: '13px' }}
+          ></i>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter by name…"
+            style={{
+              width: '100%',
+              padding: 'var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3) * 2 + 14px)',
+              border: '1px solid var(--neutral-300)',
+              borderRadius: 'var(--radius)',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-sm)',
+              boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
+        {availableTypes.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)', marginBottom: 'var(--space-3)' }}>
+            {availableTypes.map((type) => {
+              const active = selectedTypes.includes(type);
+              return (
+                <button
+                  key={type}
+                  onClick={() => toggleType(type)}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: 'var(--radius)',
+                    border: `1px solid ${active ? 'var(--admin-brown-dark)' : 'var(--neutral-300)'}`,
+                    background: active ? 'var(--admin-brown-dark)' : 'white',
+                    color: active ? 'white' : 'var(--neutral-700)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: active ? 600 : 500,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {CONCEPT_TYPE_LABEL[type] || type.replace(/_/g, ' ')}
+                </button>
+              );
+            })}
+            {selectedTypes.length > 0 && (
+              <button
+                onClick={() => setSelectedTypes([])}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 'var(--radius)',
+                  border: '1px dashed var(--neutral-400)',
+                  background: 'transparent',
+                  color: 'var(--neutral-600)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  cursor: 'pointer',
+                }}
+              >
+                Clear types
+              </button>
+            )}
+          </div>
+        )}
+
+        <div
+          style={{
+            border: '1px solid var(--neutral-200)',
+            borderRadius: 'var(--radius)',
+            maxHeight: '360px',
+            overflowY: 'auto',
+            background: 'white',
+          }}
+        >
+          {loading ? (
+            <div style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--neutral-500)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
+              Loading…
+            </div>
+          ) : concepts.length === 0 ? (
+            <div style={{ padding: 'var(--space-6)', textAlign: 'center', color: 'var(--neutral-500)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
+              {query || selectedTypes.length > 0
+                ? 'No matching unassigned definitions.'
+                : 'No unassigned definitions available. Approve one via Concept Creator.'}
+            </div>
+          ) : (
+            concepts.map((c) => {
+              const checked = selectedIds.has(c.id);
+              return (
+                <label
+                  key={c.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-3)',
+                    padding: 'var(--space-2) var(--space-4)',
+                    borderBottom: '1px solid var(--neutral-100)',
+                    background: checked ? 'var(--admin-brown-light)' : 'transparent',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-sm)',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleSelected(c.id)}
+                    style={{ accentColor: 'var(--admin-brown-dark)', flexShrink: 0 }}
+                  />
+                  <span style={{ flex: 1, minWidth: 0, color: 'var(--neutral-900)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {c.label}
+                  </span>
+                  {c.concept_type && (
+                    <span
+                      style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-600)',
+                        background: 'var(--neutral-100)',
+                        padding: '2px 8px',
+                        borderRadius: 'var(--radius)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        fontWeight: 600,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {(CONCEPT_TYPE_LABEL[c.concept_type] || c.concept_type.replace(/_/g, ' '))}
+                    </span>
+                  )}
+                </label>
+              );
+            })
+          )}
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 'var(--space-3)',
+            marginTop: 'var(--space-3)',
+            flexWrap: 'wrap',
+          }}
+        >
+          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
+            {selectedCount > 0
+              ? `${selectedCount} selected · ${concepts.length} shown`
+              : `${concepts.length} concept${concepts.length === 1 ? '' : 's'} shown`}
+            {notice && (
+              <span style={{ marginLeft: 'var(--space-3)', color: 'var(--admin-brown-dark)', fontWeight: 600 }}>
+                {notice}
+              </span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            {concepts.length > 0 && (
+              <button
+                onClick={selectAllVisible}
+                disabled={concepts.length === 0}
+                style={{
+                  background: 'white',
+                  color: 'var(--neutral-700)',
+                  border: '1px solid var(--neutral-300)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                }}
+              >
+                Select all shown
+              </button>
+            )}
+            {selectedCount > 0 && (
+              <button
+                onClick={clearSelection}
+                style={{
+                  background: 'white',
+                  color: 'var(--neutral-700)',
+                  border: '1px solid var(--neutral-300)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  borderRadius: 'var(--radius)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  cursor: 'pointer',
+                }}
+              >
+                Clear
+              </button>
+            )}
+            <button
+              onClick={submit}
+              disabled={saving || selectedCount === 0}
+              style={{
+                background: saving || selectedCount === 0 ? 'var(--neutral-300)' : 'var(--admin-brown-dark)',
+                color: 'white',
+                border: 'none',
+                padding: 'var(--space-2) var(--space-4)',
+                borderRadius: 'var(--radius)',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+                fontWeight: 500,
+                cursor: saving || selectedCount === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {saving ? 'Adding…' : selectedCount > 0 ? `Add ${selectedCount} to pack` : 'Add to pack'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

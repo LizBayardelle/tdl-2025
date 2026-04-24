@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useBulkUpload } from './BulkUploadContext';
 import AuthorResolutionSection from './AuthorResolutionSection';
 import ConceptResolutionSection from './ConceptResolutionSection';
+import PdfPreview from './PdfPreview';
 
 export default function ReviewPhase() {
   const { state, dispatch, filteredItems, stats, enrichedItems } = useBulkUpload();
@@ -175,6 +176,16 @@ export default function ReviewPhase() {
         }
       });
 
+      const extraAuthors = (state.extraAuthors[selectedItem.id] || []).map(e => ({
+        first_name: e.firstName,
+        last_name: e.lastName,
+        orcid: e.orcid
+      }));
+      const extraConcepts = (state.extraConcepts[selectedItem.id] || []).map(e => ({
+        label: e.label,
+        concept_type: e.conceptType
+      }));
+
       const response = await fetch(`/upload_batch_items/${selectedItem.id}/approve`, {
         method: 'POST',
         headers: {
@@ -182,7 +193,13 @@ export default function ReviewPhase() {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
         body: JSON.stringify({
-          decisions: { authors: authorDecisions, concepts: conceptDecisions, metadata }
+          decisions: {
+            authors: authorDecisions,
+            concepts: conceptDecisions,
+            extra_authors: extraAuthors,
+            extra_concepts: extraConcepts,
+            metadata
+          }
         }),
       });
 
@@ -332,6 +349,16 @@ export default function ReviewPhase() {
           }
         });
 
+        const extraAuthors = (state.extraAuthors[item.id] || []).map(e => ({
+          first_name: e.firstName,
+          last_name: e.lastName,
+          orcid: e.orcid
+        }));
+        const extraConcepts = (state.extraConcepts[item.id] || []).map(e => ({
+          label: e.label,
+          concept_type: e.conceptType
+        }));
+
         const response = await fetch(`/upload_batch_items/${item.id}/approve`, {
           method: 'POST',
           headers: {
@@ -342,6 +369,8 @@ export default function ReviewPhase() {
             decisions: {
               authors: authorDecisions,
               concepts: conceptDecisions,
+              extra_authors: extraAuthors,
+              extra_concepts: extraConcepts,
               metadata: item.extracted_metadata || {}
             }
           }),
@@ -1058,11 +1087,7 @@ export default function ReviewPhase() {
               </button>
             </div>
             <div style={{ flex: 1, overflow: 'hidden' }}>
-              <iframe
-                src={selectedItem.pdf_url}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                title={`PDF Preview: ${selectedItem.original_filename}`}
-              />
+              <PdfPreview pdfUrl={selectedItem.pdf_url} />
             </div>
           </div>
         </div>

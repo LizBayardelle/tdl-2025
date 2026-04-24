@@ -14,47 +14,55 @@ module Admin
     end
 
     # POST /admin/packs/:pack_id/concept_definitions/import_from_concept
+    # Assigns existing (unassigned) ConceptDefinitions into this pack.
+    # Accepts `concept_definition_ids` array or single `concept_definition_id`.
     def import_from_concept
-      concept = current_user.concepts.find(params[:concept_id])
+      ids = Array(params[:concept_definition_ids]).presence || Array(params[:concept_definition_id]).compact
+      if ids.empty?
+        return render json: { errors: ['concept_definition_id or concept_definition_ids required'] }, status: :unprocessable_entity
+      end
 
-      @definition = @pack.concept_definitions.build(
-        label: concept.label,
-        concept_type: concept.concept_type,
-        summary: concept.summary,
-        description: concept.description,
-        location: concept.location,
-        examples: concept.examples,
-        etymology: concept.etymology,
-        school_of_thought: concept.school_of_thought,
-        history: concept.history,
-        controversy: concept.controversy,
-        clinical_relevance: concept.clinical_relevance,
-        misconceptions: concept.misconceptions,
-        mnemonic: concept.mnemonic,
-        developmental_notes: concept.developmental_notes,
-        measurement_notes: concept.measurement_notes,
-        aliases: concept.aliases
-      )
+      definitions = ConceptDefinition.where(id: ids)
+      assigned = []
+      failed = []
 
-      if @definition.save
-        render json: @definition, status: :created
+      definitions.each do |cd|
+        if cd.pack_id == @pack.id
+          failed << { concept_definition_id: cd.id, errors: ['Already in this pack'] }
+          next
+        end
+        if cd.pack_id.present?
+          failed << { concept_definition_id: cd.id, errors: ["Already assigned to pack ##{cd.pack_id}"] }
+          next
+        end
+        if cd.update(pack_id: @pack.id)
+          assigned << cd
+        else
+          failed << { concept_definition_id: cd.id, errors: cd.errors.full_messages }
+        end
+      end
+
+      if assigned.any?
+        render json: { created: assigned, failed: failed }, status: :created
       else
-        render json: { errors: @definition.errors.full_messages }, status: :unprocessable_entity
+        render json: { errors: failed.flat_map { |f| f[:errors] }.presence || ['Nothing assigned'] }, status: :unprocessable_entity
       end
     end
 
     # GET /admin/packs/:pack_id/concept_definitions/search_concepts
+    # Returns unassigned ConceptDefinitions (pack_id: nil) that can be moved
+    # into this pack. Filterable by `q` (label) and `concept_types[]`.
     def search_concepts
-      query = params[:q].to_s.downcase
-      existing_labels = @pack.concept_definitions.pluck(:label).map(&:downcase)
+      query = params[:q].to_s.strip.downcase
+      types = Array(params[:concept_types]).reject(&:blank?)
 
-      concepts = current_user.concepts
-        .where("LOWER(label) LIKE ?", "%#{query}%")
-        .where.not("LOWER(label) IN (?)", existing_labels.presence || [''])
-        .limit(20)
+      scope = ConceptDefinition.where(pack_id: nil)
         .select(:id, :label, :concept_type, :summary)
 
-      render json: concepts
+      scope = scope.where("LOWER(label) LIKE ?", "%#{query}%") if query.present?
+      scope = scope.where(concept_type: types) if types.any?
+
+      render json: scope.order(Arel.sql('LOWER(label) ASC')).limit(500)
     end
 
     def update

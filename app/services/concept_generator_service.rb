@@ -117,7 +117,7 @@ class ConceptGeneratorService
 
       ## Source grounding
 
-      Use web_search for every empirical or historical claim. The search tool is restricted to a whitelist of authoritative domains (medical, research, reference). If searches return too little useful content, say so in the relevant field rather than padding with inference. Prefer primary and review sources over encyclopedic summaries when both are available.
+      Use web_search for every empirical or historical claim. The search tool is restricted to a whitelist of authoritative domains (medical, research, reference). When you frame a search, favor definitional / overview queries about the concept itself ("parietal lobe overview", "anxiety disorder definition", "cerebellum StatPearls") over queries that hunt for adjacent primary research. The collected sources also seed the reader's "learn more" link list, so reference pages, disease-overview pages, and textbook chapters are more useful than single-study papers. If searches return too little useful content on a particular claim, say so in the relevant field rather than padding with inference.
 
       ## Output format
 

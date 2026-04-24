@@ -3,7 +3,7 @@ module Admin
     before_action :set_generation, only: [:show, :update, :approve, :reject, :retry_stage]
 
     def index
-      @generations = ConceptGeneration.order(created_at: :desc).includes(:batch)
+      @generations = ConceptGeneration.order(created_at: :desc).includes(:batch, :approved_concept_definition)
 
       respond_to do |format|
         format.html
@@ -67,7 +67,8 @@ module Admin
         :label, :summary, :description, :location, :examples, :etymology,
         :school_of_thought, :history, :controversy, :clinical_relevance,
         :misconceptions, :mnemonic, :developmental_notes, :measurement_notes,
-        aliases: []
+        aliases: [],
+        selected_links: [:url, :name, :description, :category, :domain]
       )
 
       if @generation.update(allowed)
@@ -85,6 +86,7 @@ module Admin
       ActiveRecord::Base.transaction do
         cd = build_or_update_concept_definition
         cd.save!
+        create_links_for(cd)
         @generation.update!(
           status: :approved,
           approved_at: Time.current,
@@ -135,6 +137,14 @@ module Admin
         @generation.save!
         job = FactCheckConceptJob.perform_later(@generation.id)
         @generation.update_column(:fact_check_job_id, job.job_id)
+      when 'enrich'
+        # Re-rank links from the existing web_search_sources. Cheap, no API call.
+        @generation.update!(
+          status: :enriching,
+          stage_errors: @generation.stage_errors.except('enrich')
+        )
+        job = EnrichConceptLinksJob.perform_later(@generation.id)
+        @generation.update_column(:enrich_job_id, job.job_id)
       else
         return render json: { errors: ["unknown stage: #{stage}"] }, status: :unprocessable_entity
       end
@@ -146,6 +156,36 @@ module Admin
 
     def set_generation
       @generation = ConceptGeneration.find(params[:id])
+    end
+
+    # For each selected_link: find-or-create a Link by URL, then create a
+    # Linking record pointing to the new/updated ConceptDefinition. Skip
+    # linkings that already exist (idempotent for regeneration).
+    def create_links_for(concept_definition)
+      Array(@generation.selected_links).each do |entry|
+        url = entry['url'].to_s.strip
+        next if url.blank?
+
+        link = Link.find_or_create_by!(url: url) do |l|
+          l.name = entry['name'].to_s.strip.presence || url
+          l.description = entry['description'].presence
+        end
+
+        # Update name/description if the link was already in the table with
+        # weaker metadata.
+        if link.name.blank? && entry['name'].present?
+          link.update!(name: entry['name'])
+        end
+        if link.description.blank? && entry['description'].present?
+          link.update!(description: entry['description'])
+        end
+
+        Linking.find_or_create_by!(
+          link_id: link.id,
+          linkable_type: 'ConceptDefinition',
+          linkable_id: concept_definition.id
+        )
+      end
     end
 
     def build_or_update_concept_definition
@@ -178,6 +218,7 @@ module Admin
         target_mode: gen.target_mode,
         target_concept_definition_id: gen.target_concept_definition_id,
         approved_concept_definition_id: gen.approved_concept_definition_id,
+        approved_concept_definition_pack_id: gen.approved_concept_definition&.pack_id,
         approved_at: gen.approved_at,
         rejected_reason: gen.rejected_reason,
         created_at: gen.created_at,
@@ -196,7 +237,9 @@ module Admin
         content: content,
         citations: gen.citations,
         web_search_sources: gen.web_search_sources,
+        selected_links: gen.selected_links,
         fact_check_notes: gen.fact_check_notes,
+        previous_snapshot: gen.previous_snapshot,
         token_usage: gen.token_usage
       )
     end

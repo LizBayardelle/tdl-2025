@@ -42,7 +42,7 @@ export default function AdminDashboard() {
           width: '44px',
           height: '44px',
           borderRadius: 'var(--radius)',
-          background: 'var(--neutral-800)',
+          background: 'var(--admin-brown-dark)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -82,11 +82,11 @@ export default function AdminDashboard() {
   const SectionLabel = ({ children }) => (
     <div
       style={{
-        fontFamily: 'var(--font-display)',
+        fontFamily: 'var(--font-body)',
         fontSize: 'var(--text-xs)',
-        fontWeight: 600,
+        fontWeight: 700,
         textTransform: 'uppercase',
-        letterSpacing: '0.05em',
+        letterSpacing: '0.08em',
         color: 'var(--neutral-700)',
         marginBottom: 'var(--space-3)',
         paddingBottom: 'var(--space-2)',
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     <AdminLayout currentPage="dashboard">
       <AdminPageHeader title="Dashboard" subtitle="System overview and key metrics" />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
         {loading ? (
           <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)' }}>Loading...</p>
         ) : stats ? (

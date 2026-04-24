@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useBulkUpload } from './BulkUploadContext';
 
 export default function AuthorResolutionSection({ item, onResolutionChange, onCreatePerson }) {
-  const { state } = useBulkUpload();
+  const { state, dispatch } = useBulkUpload();
   const [expandedAuthorIdx, setExpandedAuthorIdx] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -12,8 +12,29 @@ export default function AuthorResolutionSection({ item, onResolutionChange, onCr
   const [orcidSearched, setOrcidSearched] = useState(false);
   const [createForm, setCreateForm] = useState({ firstName: '', lastName: '', orcid: '' });
   const [previousForm, setPreviousForm] = useState(null); // For undo functionality
+  const [newAuthorForm, setNewAuthorForm] = useState({ firstName: '', lastName: '', orcid: '' });
+  const [showNewAuthorForm, setShowNewAuthorForm] = useState(false);
 
   const authors = item.detected_authors || [];
+  const extraAuthors = state.extraAuthors?.[item.id] || [];
+
+  const handleAddExtraAuthor = useCallback(() => {
+    const firstName = newAuthorForm.firstName.trim();
+    const lastName = newAuthorForm.lastName.trim();
+    const orcid = newAuthorForm.orcid.trim();
+    if (!firstName && !lastName) return;
+
+    dispatch({
+      type: 'ADD_EXTRA_AUTHOR',
+      payload: { itemId: item.id, firstName, lastName, orcid: orcid || null }
+    });
+    setNewAuthorForm({ firstName: '', lastName: '', orcid: '' });
+    setShowNewAuthorForm(false);
+  }, [dispatch, item.id, newAuthorForm]);
+
+  const handleRemoveExtraAuthor = useCallback((tempId) => {
+    dispatch({ type: 'REMOVE_EXTRA_AUTHOR', payload: { itemId: item.id, tempId } });
+  }, [dispatch, item.id]);
 
   // Per-request tokens so a late-returning fetch from a previous expansion
   // can't clobber results for the currently-expanded author.
@@ -1164,6 +1185,196 @@ export default function AuthorResolutionSection({ item, onResolutionChange, onCr
             </div>
           );
         })}
+      </div>
+
+      {/* Extras list + "Add author" form (for authors that weren't detected) */}
+      <div style={{ marginTop: 'var(--space-3)' }}>
+        {extraAuthors.length > 0 && (
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 'var(--space-2)',
+            marginBottom: 'var(--space-3)',
+          }}>
+            {extraAuthors.map(extra => (
+              <div
+                key={extra.tempId}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: 'var(--space-1) var(--space-2)',
+                  background: 'var(--accent-gold-light)',
+                  border: '1px solid var(--accent-gold)',
+                  borderRadius: '999px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--neutral-800)',
+                }}
+              >
+                <i className="fas fa-plus-circle" style={{ color: 'var(--accent-gold)' }}></i>
+                {[extra.firstName, extra.lastName].filter(Boolean).join(' ') || 'Unnamed'}
+                {extra.orcid && (
+                  <span style={{ fontSize: '10px', color: 'var(--accent-gold)' }}>{extra.orcid}</span>
+                )}
+                <button
+                  onClick={() => handleRemoveExtraAuthor(extra.tempId)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--neutral-500)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  title="Remove"
+                >
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showNewAuthorForm || (authors.length === 0 && extraAuthors.length === 0) ? (
+          <div style={{
+            padding: 'var(--space-3)',
+            background: 'var(--neutral-50)',
+            border: '1px solid var(--neutral-200)',
+            borderRadius: '8px',
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-xs)',
+              fontWeight: 600,
+              color: 'var(--neutral-600)',
+              marginBottom: 'var(--space-2)',
+            }}>
+              {authors.length === 0 ? 'No authors detected — add one manually' : 'Add New Author'}
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr 1fr auto auto',
+              gap: 'var(--space-2)',
+              alignItems: 'center',
+            }}>
+              <input
+                type="text"
+                value={newAuthorForm.firstName}
+                onChange={(e) => setNewAuthorForm({ ...newAuthorForm, firstName: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddExtraAuthor();
+                  if (e.key === 'Escape') setShowNewAuthorForm(false);
+                }}
+                placeholder="First name"
+                style={{
+                  padding: 'var(--space-2)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--neutral-200)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                }}
+              />
+              <input
+                type="text"
+                value={newAuthorForm.lastName}
+                onChange={(e) => setNewAuthorForm({ ...newAuthorForm, lastName: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddExtraAuthor();
+                  if (e.key === 'Escape') setShowNewAuthorForm(false);
+                }}
+                placeholder="Last name"
+                style={{
+                  padding: 'var(--space-2)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--neutral-200)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                }}
+              />
+              <input
+                type="text"
+                value={newAuthorForm.orcid}
+                onChange={(e) => setNewAuthorForm({ ...newAuthorForm, orcid: e.target.value })}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleAddExtraAuthor();
+                  if (e.key === 'Escape') setShowNewAuthorForm(false);
+                }}
+                placeholder="ORCID (optional)"
+                style={{
+                  padding: 'var(--space-2)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--neutral-200)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                }}
+              />
+              <button
+                onClick={handleAddExtraAuthor}
+                disabled={!newAuthorForm.firstName.trim() && !newAuthorForm.lastName.trim()}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: (newAuthorForm.firstName.trim() || newAuthorForm.lastName.trim()) ? 'var(--accent-gold)' : 'var(--neutral-300)',
+                  color: 'white',
+                  cursor: (newAuthorForm.firstName.trim() || newAuthorForm.lastName.trim()) ? 'pointer' : 'not-allowed',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-xs)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                <i className="fas fa-plus"></i>
+                Add
+              </button>
+              {(authors.length > 0 || extraAuthors.length > 0) && (
+                <button
+                  onClick={() => {
+                    setShowNewAuthorForm(false);
+                    setNewAuthorForm({ firstName: '', lastName: '', orcid: '' });
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--neutral-300)',
+                    background: 'white',
+                    color: 'var(--neutral-500)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-xs)',
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowNewAuthorForm(true)}
+            style={{
+              padding: '6px 12px',
+              borderRadius: '4px',
+              border: '1px dashed var(--neutral-300)',
+              background: 'transparent',
+              color: 'var(--neutral-500)',
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              fontSize: 'var(--text-xs)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              width: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <i className="fas fa-plus"></i>
+            Add an author not in the list
+          </button>
+        )}
       </div>
     </div>
   );

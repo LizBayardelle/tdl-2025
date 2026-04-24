@@ -50,13 +50,13 @@ export default function AdminUsers() {
     <AdminLayout currentPage="users">
       <AdminPageHeader title="Users" subtitle="Manage accounts and admin privileges" />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
         {error && (
           <div
             style={{
               padding: 'var(--space-3)',
-              background: 'var(--accent-red-light)',
-              color: 'var(--accent-red)',
+              background: 'var(--neutral-900)',
+              color: 'white',
               borderRadius: 'var(--radius)',
               marginBottom: 'var(--space-4)',
               fontFamily: 'var(--font-body)',
@@ -134,14 +134,14 @@ export default function AdminUsers() {
                   <button
                     onClick={() => toggleAdmin(user)}
                     style={{
-                      background: user.admin ? 'var(--neutral-800)' : 'white',
+                      background: user.admin ? 'var(--admin-brown-dark)' : 'white',
                       color: user.admin ? 'white' : 'var(--neutral-600)',
                       border: user.admin ? 'none' : '1px solid var(--neutral-300)',
                       padding: '6px 12px',
                       borderRadius: 'var(--radius)',
                       fontSize: 'var(--text-xs)',
                       fontWeight: 600,
-                      fontFamily: 'var(--font-display)',
+                      fontFamily: 'var(--font-body)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.05em',
                       cursor: 'pointer',

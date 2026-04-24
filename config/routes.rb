@@ -89,6 +89,9 @@ Rails.application.routes.draw do
       get :search
       get :search_orcid
     end
+    member do
+      post :enrich
+    end
   end
   resources :notes
   resources :tags, only: [:index, :show, :create, :update, :destroy]

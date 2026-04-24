@@ -39,12 +39,12 @@ const labelStyle = {
 };
 
 const primaryButton = {
-  background: 'var(--neutral-800)',
+  background: 'var(--admin-brown-dark)',
   color: 'white',
   border: 'none',
   padding: 'var(--space-2) var(--space-4)',
   borderRadius: 'var(--radius)',
-  fontFamily: 'var(--font-display)',
+  fontFamily: 'var(--font-body)',
   fontWeight: 500,
   fontSize: 'var(--text-sm)',
   cursor: 'pointer',
@@ -56,7 +56,7 @@ const secondaryButton = {
   border: '1px solid var(--neutral-300)',
   padding: 'var(--space-2) var(--space-4)',
   borderRadius: 'var(--radius)',
-  fontFamily: 'var(--font-display)',
+  fontFamily: 'var(--font-body)',
   fontSize: 'var(--text-sm)',
   cursor: 'pointer',
 };
@@ -119,10 +119,10 @@ export default function AdminConceptGenerationNew() {
         backHref="/admin/concept_generations"
         backLabel="Back to generations"
       />
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) var(--space-8)' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
         <div style={{ background: 'white', padding: 'var(--space-6)', borderRadius: 'var(--radius)', border: '1px solid var(--neutral-200)', maxWidth: '640px', boxShadow: 'var(--shadow-sm)' }}>
           {error && (
-            <div style={{ padding: 'var(--space-3)', background: 'var(--accent-red-light, #fde8e8)', color: 'var(--accent-red, #9c2a2a)', borderRadius: 'var(--radius)', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
+            <div style={{ padding: 'var(--space-3)', background: 'var(--neutral-900)', color: 'white', borderRadius: 'var(--radius)', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
               {error}
             </div>
           )}
@@ -155,7 +155,7 @@ export default function AdminConceptGenerationNew() {
             </div>
 
             <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <button type="submit" disabled={submitting || !name.trim()} style={{ ...primaryButton, background: (submitting || !name.trim()) ? 'var(--neutral-300)' : 'var(--neutral-800)', cursor: (submitting || !name.trim()) ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={submitting || !name.trim()} style={{ ...primaryButton, background: (submitting || !name.trim()) ? 'var(--neutral-300)' : 'var(--admin-brown-dark)', cursor: (submitting || !name.trim()) ? 'not-allowed' : 'pointer' }}>
                 {submitting ? 'Starting...' : 'Generate'}
               </button>
               <a href="/admin/concept_generations" style={{ ...secondaryButton, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>

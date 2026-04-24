@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_20_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -193,6 +193,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_20_120000) do
     t.text "rejected_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "selected_links", default: []
+    t.datetime "enrich_completed_at"
     t.index ["approved_concept_definition_id"], name: "index_concept_generations_on_approved_concept_definition_id"
     t.index ["concept_generation_batch_id", "status"], name: "idx_concept_generations_on_batch_status"
     t.index ["concept_generation_batch_id"], name: "idx_concept_generations_on_batch"
@@ -483,6 +485,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_20_120000) do
     t.string "middle_name"
     t.string "last_name"
     t.string "orcid"
+    t.jsonb "links", default: []
+    t.datetime "enriched_at"
     t.index ["full_name"], name: "index_people_on_full_name"
     t.index ["orcid"], name: "index_people_on_orcid"
     t.index ["role"], name: "index_people_on_role"

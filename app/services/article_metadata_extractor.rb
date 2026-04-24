@@ -36,7 +36,12 @@ class ArticleMetadataExtractor
       Extract and return ONLY a JSON object with these fields:
       - title: Article title
       - authors: Author names as a string (format: "Last, F., Last, F.")
-      - authors_data: Array of author objects with {given, family} for each author
+      - authors_data: Array of author objects with {given, family, orcid} for each author.
+          - orcid: If you see an ORCID identifier near the author (format "0000-0000-0000-000X",
+            or a URL like "orcid.org/0000-0000-0000-000X", or "https://orcid.org/..."), include
+            just the bare identifier (e.g., "0000-0002-1825-0097") for that author. Pair each
+            ORCID with the author it is closest to in the text. Omit the orcid field if you
+            are not confident which author it belongs to.
       - year: Publication year (integer)
       - kind: Source type (usually "article" for PDFs)
       - journal_name: Journal name
@@ -105,6 +110,15 @@ class ArticleMetadataExtractor
       if metadata.empty? || !metadata['title']
         Rails.logger.warn "LLM extraction returned empty or invalid metadata"
         return nil
+      end
+
+      # Normalize ORCIDs the LLM may have returned as URLs
+      if metadata['authors_data'].is_a?(Array)
+        metadata['authors_data'].each do |author|
+          next unless author.is_a?(Hash) && author['orcid']
+          bare = author['orcid'].to_s.strip.sub(%r{^https?://}, '').sub(%r{^orcid\.org/}, '')
+          author['orcid'] = bare.match?(/\A\d{4}-\d{4}-\d{4}-\d{3}[\dX]\z/i) ? bare.upcase : nil
+        end
       end
 
       Rails.logger.info "Successfully extracted metadata from PDF text using LLM: #{metadata['title']}"

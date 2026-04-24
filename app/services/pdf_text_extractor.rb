@@ -1,3 +1,5 @@
+require 'open3'
+
 class PdfTextExtractor
   # Patterns ordered by specificity - most specific first
   DOI_PATTERNS = [
@@ -6,6 +8,10 @@ class PdfTextExtractor
     /\bdoi\s+(10\.\d{4,}\/[^\s\]>"'\n]+)/i,             # "doi 10.xxx" (no colon)
     /\b(10\.\d{4,}\/[^\s\]>"'\n]+)/i                    # Standalone DOI
   ]
+
+  # Below this, we consider PDF::Reader to have "failed" and try pdftotext.
+  # Real papers easily clear 200 chars on just the title+authors of page 1.
+  PDF_READER_MIN_USEFUL_LENGTH = 200
 
   def initialize(pdf_file)
     @pdf_file = pdf_file
@@ -30,7 +36,28 @@ class PdfTextExtractor
   private
 
   def extract_text(pages:)
-    # Handle both File objects and IO/tempfile objects
+    text = pdf_reader_extract(pages: pages)
+
+    if text.length < PDF_READER_MIN_USEFUL_LENGTH
+      Rails.logger.info "PDF::Reader returned #{text.length} chars — trying pdftotext fallback"
+      fallback = pdftotext_extract(pages: pages)
+      if fallback && fallback.length > text.length
+        Rails.logger.info "pdftotext fallback extracted #{fallback.length} chars"
+        text = fallback
+      end
+    end
+
+    # Normalize whitespace - PDFs often have weird spacing
+    normalized = text.gsub(/[[:space:]]+/, ' ')
+    Rails.logger.debug "Normalized text sample: #{normalized[0..500].inspect}"
+    normalized
+  rescue => e
+    Rails.logger.error "PDF text extraction failed: #{e.class} - #{e.message}"
+    Rails.logger.error e.backtrace.first(5).join("\n")
+    ""
+  end
+
+  def pdf_reader_extract(pages:)
     if @pdf_file.respond_to?(:path) && File.exist?(@pdf_file.path.to_s)
       Rails.logger.info "Reading PDF from path: #{@pdf_file.path}"
       reader = PDF::Reader.new(@pdf_file.path)
@@ -41,16 +68,42 @@ class PdfTextExtractor
     end
 
     text = reader.pages.first(pages).map(&:text).join("\n")
-    Rails.logger.info "Extracted #{text.length} characters from #{[pages, reader.pages.count].min} pages"
-
-    # Normalize whitespace - PDFs often have weird spacing
-    normalized = text.gsub(/[[:space:]]+/, ' ')
-    Rails.logger.debug "Normalized text sample: #{normalized[0..500].inspect}"
-    normalized
+    Rails.logger.info "PDF::Reader extracted #{text.length} chars from #{[pages, reader.pages.count].min} pages"
+    text
   rescue => e
-    Rails.logger.error "PDF text extraction failed: #{e.class} - #{e.message}"
-    Rails.logger.error e.backtrace.first(5).join("\n")
+    Rails.logger.warn "PDF::Reader failed: #{e.class} - #{e.message}"
     ""
+  end
+
+  def pdftotext_extract(pages:)
+    path = ensure_local_path
+    return nil unless path
+
+    stdout, status = Open3.capture2('pdftotext', '-layout', '-f', '1', '-l', pages.to_s, path, '-')
+    return nil unless status.success?
+    stdout
+  rescue Errno::ENOENT
+    Rails.logger.warn "pdftotext not installed — skipping poppler fallback. Install poppler-utils to enable it."
+    nil
+  rescue => e
+    Rails.logger.warn "pdftotext failed: #{e.class} - #{e.message}"
+    nil
+  end
+
+  def ensure_local_path
+    return @pdf_file.path if @pdf_file.respond_to?(:path) && File.exist?(@pdf_file.path.to_s)
+
+    return nil unless @pdf_file.respond_to?(:read)
+
+    @pdftotext_tempfile ||= begin
+      tmp = Tempfile.new(['pdftotext-input', '.pdf'])
+      tmp.binmode
+      @pdf_file.rewind if @pdf_file.respond_to?(:rewind)
+      tmp.write(@pdf_file.read)
+      tmp.rewind
+      tmp
+    end
+    @pdftotext_tempfile.path
   end
 
   def find_doi_in_text(text)

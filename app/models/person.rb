@@ -25,6 +25,19 @@ class Person < ApplicationRecord
   # Validations
   validates :user_id, presence: true
   validate :name_presence
+  validate :links_well_formed
+
+  # A link is { "label" => String, "url" => String }. Free-form label so users can name
+  # whatever platform they want without us pre-committing a taxonomy.
+  def links=(value)
+    super(Array(value).map do |link|
+      next nil unless link.is_a?(Hash)
+      {
+        'label' => link['label'].to_s.strip,
+        'url' => link['url'].to_s.strip
+      }
+    end.compact)
+  end
 
   # Scopes
   scope :recent, -> { order(created_at: :desc) }
@@ -44,6 +57,13 @@ class Person < ApplicationRecord
   def name_presence
     if full_name.blank? && first_name.blank? && last_name.blank?
       errors.add(:base, "Must provide either full name or first/last name")
+    end
+  end
+
+  def links_well_formed
+    return if links.blank?
+    links.each_with_index do |link, i|
+      errors.add(:links, "entry #{i + 1} must have a url") if link['url'].blank?
     end
   end
 

@@ -8,8 +8,9 @@ function toTitleCase(str) {
 }
 
 export default function ConceptResolutionSection({ item, onResolutionChange, onCreateConcept }) {
-  const { state } = useBulkUpload();
+  const { state, dispatch } = useBulkUpload();
   const concepts = item.detected_concepts || [];
+  const extraConcepts = state.extraConcepts?.[item.id] || [];
 
   // Track which concept is being edited and store edited labels
   const [editingIdx, setEditingIdx] = useState(null);
@@ -50,7 +51,6 @@ export default function ConceptResolutionSection({ item, onResolutionChange, onC
         const results = await response.json();
         const exactMatch = results.find(c => c.label.toLowerCase() === label.toLowerCase());
         if (exactMatch) {
-          // Concept already exists - could show a message or auto-link
           alert(`Concept "${exactMatch.label}" already exists in your database.`);
           return;
         }
@@ -59,18 +59,24 @@ export default function ConceptResolutionSection({ item, onResolutionChange, onC
       console.error('Search error:', err);
     }
 
-    // Create as a new "detected" concept at the end
-    // We'll add it to pendingConcepts directly
-    onCreateConcept(-1, {
-      label: label.toLowerCase(),
-      conceptType: newConceptType,
-      createdFromKeyword: label
+    // Add as an extra concept — picked up by ReviewPhase when the item is approved.
+    dispatch({
+      type: 'ADD_EXTRA_CONCEPT',
+      payload: {
+        itemId: item.id,
+        label: label.toLowerCase(),
+        conceptType: newConceptType
+      }
     });
 
     setNewConceptLabel('');
     setNewConceptType('non_physical_concept');
     setShowNewConceptForm(false);
-  }, [newConceptLabel, newConceptType, onCreateConcept]);
+  }, [newConceptLabel, newConceptType, dispatch, item.id]);
+
+  const handleRemoveExtraConcept = useCallback((tempId) => {
+    dispatch({ type: 'REMOVE_EXTRA_CONCEPT', payload: { itemId: item.id, tempId } });
+  }, [dispatch, item.id]);
 
   // Get the display label for a concept (edited or original)
   const getDisplayLabel = useCallback((idx, concept) => {
@@ -200,6 +206,55 @@ export default function ConceptResolutionSection({ item, onResolutionChange, onC
     return concept.matched_concept_id && !concept.auto_linked;
   };
 
+  // Extras chips (rendered above the create form in both the empty and normal paths)
+  const extraChips = extraConcepts.length > 0 ? (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 'var(--space-2)',
+      marginBottom: 'var(--space-3)',
+    }}>
+      {extraConcepts.map(extra => (
+        <div
+          key={extra.tempId}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: 'var(--space-1) var(--space-2)',
+            background: 'var(--accent-green-light)',
+            border: '1px solid var(--accent-green)',
+            borderRadius: '999px',
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--neutral-800)',
+          }}
+        >
+          <i className="fas fa-plus-circle" style={{ color: 'var(--accent-green)' }}></i>
+          {toTitleCase(extra.label)}
+          <span style={{ fontSize: '10px', color: 'var(--accent-green)' }}>
+            {extra.conceptType.replace(/_/g, ' ')}
+          </span>
+          <button
+            onClick={() => handleRemoveExtraConcept(extra.tempId)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--neutral-500)',
+              cursor: 'pointer',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            title="Remove"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+      ))}
+    </div>
+  ) : null;
+
   if (concepts.length === 0) {
     return (
       <div style={{ marginBottom: 'var(--space-4)', marginTop: 'var(--space-6)' }}>
@@ -222,18 +277,103 @@ export default function ConceptResolutionSection({ item, onResolutionChange, onC
             margin: 0,
           }}>
             <i className="fas fa-tags" style={{ color: 'var(--accent-green)' }}></i>
-            Concepts (0)
+            Concepts ({extraConcepts.length})
           </h3>
         </div>
+        {extraConcepts.length === 0 && (
+          <div style={{
+            padding: 'var(--space-3)',
+            background: 'var(--neutral-50)',
+            borderRadius: '6px',
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--neutral-500)',
+            marginBottom: 'var(--space-3)',
+          }}>
+            No keywords detected in metadata — add any below.
+          </div>
+        )}
+
+        {extraChips}
+
+        {/* Create-form block, always open in empty state */}
         <div style={{
           padding: 'var(--space-3)',
           background: 'var(--neutral-50)',
-          borderRadius: '6px',
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
-          color: 'var(--neutral-500)',
+          borderRadius: '8px',
+          border: '1px solid var(--neutral-200)',
         }}>
-          No keywords detected in metadata
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            fontWeight: 600,
+            color: 'var(--neutral-600)',
+            marginBottom: 'var(--space-2)',
+          }}>
+            Add New Concept
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+            <input
+              ref={newConceptInputRef}
+              type="text"
+              value={newConceptLabel}
+              onChange={(e) => setNewConceptLabel(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleCreateNewConcept(); }}
+              placeholder="Concept name..."
+              style={{
+                flex: 1,
+                padding: 'var(--space-2)',
+                borderRadius: '6px',
+                border: '1px solid var(--neutral-200)',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)',
+              }}
+            />
+            <select
+              value={newConceptType}
+              onChange={(e) => setNewConceptType(e.target.value)}
+              style={{
+                padding: 'var(--space-2)',
+                borderRadius: '6px',
+                border: '1px solid var(--neutral-200)',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-xs)',
+                background: 'white',
+              }}
+            >
+              <option value="non_physical_concept">Non-Physical Concept</option>
+              <option value="research_method">Research Method</option>
+              <option value="measurement">Measurement</option>
+              <option value="intervention">Intervention</option>
+              <option value="pathology">Pathology</option>
+              <option value="emotion">Emotion</option>
+              <option value="symptom">Symptom</option>
+              <option value="school_of_thought">School of Thought</option>
+              <option value="physical_entity">Physical Entity</option>
+              <option value="physical_process">Physical Process</option>
+              <option value="non_physical_process">Non-Physical Process</option>
+            </select>
+            <button
+              onClick={handleCreateNewConcept}
+              disabled={!newConceptLabel.trim()}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '4px',
+                border: 'none',
+                background: newConceptLabel.trim() ? 'var(--accent-green)' : 'var(--neutral-300)',
+                color: 'white',
+                cursor: newConceptLabel.trim() ? 'pointer' : 'not-allowed',
+                fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-xs)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <i className="fas fa-plus"></i>
+              Add
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -558,6 +698,13 @@ export default function ConceptResolutionSection({ item, onResolutionChange, onC
           );
         })}
       </div>
+
+      {/* Extras chips (manually-added concepts) */}
+      {extraConcepts.length > 0 && (
+        <div style={{ marginTop: 'var(--space-3)' }}>
+          {extraChips}
+        </div>
+      )}
 
       {/* Create new concept section */}
       <div style={{ marginTop: 'var(--space-3)' }}>

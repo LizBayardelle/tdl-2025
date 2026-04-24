@@ -54,7 +54,13 @@ allowed_domains = [
   { domain: 'who.int',                  category: 'medical',       notes: 'World Health Organization' },
   { domain: 'mentalhealth.va.gov',      category: 'mental_health', notes: 'US VA mental health' },
   { domain: 'apa.org',                  category: 'mental_health', notes: 'American Psychological Association' },
-  { domain: 'merriam-webster.com',      category: 'reference',     notes: 'Etymology lookups' }
+  { domain: 'merriam-webster.com',      category: 'reference',     notes: 'Etymology lookups' },
+  { domain: 'adaa.org',                 category: 'mental_health', notes: 'Anxiety and Depression Association of America' },
+  { domain: 'samhsa.gov',               category: 'mental_health', notes: 'Substance Abuse & Mental Health Services Administration' },
+  { domain: 'health.harvard.edu',       category: 'medical',       notes: 'Harvard Health Publishing' },
+  { domain: 'psychologytoday.com',      category: 'mental_health', notes: 'Psychology Today (mixed quality; useful for overview articles)' },
+  { domain: 'ninds.nih.gov',            category: 'medical',       notes: 'NIH National Institute of Neurological Disorders and Stroke' },
+  { domain: 'nia.nih.gov',              category: 'medical',       notes: 'NIH National Institute on Aging' }
 ]
 
 allowed_domains.each do |attrs|

@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useBulkUpload } from './BulkUploadContext';
 import AuthorResolutionSection from './AuthorResolutionSection';
 import ConceptResolutionSection from './ConceptResolutionSection';
+import PdfPreview from './PdfPreview';
 
 export default function ReviewItemCard({ item, isExpanded, onToggleExpand, onApproved }) {
   const { state, dispatch } = useBulkUpload();
@@ -524,15 +525,7 @@ export default function ReviewItemCard({ item, isExpanded, onToggleExpand, onApp
 
             {/* PDF embed */}
             <div style={{ flex: 1, overflow: 'hidden' }}>
-              <iframe
-                src={item.pdf_url}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                }}
-                title={`PDF Preview: ${item.original_filename}`}
-              />
+              <PdfPreview pdfUrl={item.pdf_url} />
             </div>
           </div>
         </div>
