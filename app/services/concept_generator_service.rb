@@ -104,6 +104,7 @@ class ConceptGeneratorService
       - **mnemonic**: A memory aid for learning the concept. IMPORTANT: If you compose one yourself rather than retrieving an established mnemonic from an educational source, append: "Note: This mnemonic was composed for this entry and is not from an established educational source. Use as a starting point and adapt." Be honest about the provenance.
       - **developmental_notes**: How the concept manifests or changes across the lifespan (prenatal through aging), where relevant. One paragraph.
       - **measurement_notes**: How the concept is assessed or quantified in research and clinical settings — common instruments, neuroimaging paradigms, behavioral tests. One paragraph.
+      - **attribution**: Where this concept primarily originates from or is defined by, in plain academic citation form (e.g., "DSM-5 (APA, 2013)", "ICD-11 (WHO, 2019)", "Originally proposed by Aaron Beck (1967)", "Brodmann (1909)"). One short line. Leave null if there is no single named source — for example, broad anatomical structures or constructs that emerged across the literature without a canonical originator.
 
       ## Required hedging
 
@@ -118,6 +119,22 @@ class ConceptGeneratorService
       ## Source grounding
 
       Use web_search for every empirical or historical claim. The search tool is restricted to a whitelist of authoritative domains (medical, research, reference). When you frame a search, favor definitional / overview queries about the concept itself ("parietal lobe overview", "anxiety disorder definition", "cerebellum StatPearls") over queries that hunt for adjacent primary research. The collected sources also seed the reader's "learn more" link list, so reference pages, disease-overview pages, and textbook chapters are more useful than single-study papers. If searches return too little useful content on a particular claim, say so in the relevant field rather than padding with inference.
+
+      ## Copyright guardrails
+
+      This entry is part of a paid reference product for clinicians and students. Do not reproduce protected material:
+
+      - Do not reproduce the structure, organization, or phrasing of any diagnostic manual, clinical reference, or copyrighted text — including the DSM, ICD, PDR, or any named assessment instrument.
+      - Do not reproduce any items, questions, or scoring criteria from validated psychological or medical assessment instruments (e.g., PHQ-9, Beck Depression Inventory, MMPI, GAD-7). Describe what they measure and how they're used, never their actual content.
+      - Where a concept originates from or is defined by a specific named source, populate the `attribution` field with a plain academic citation (e.g., "DSM-5 (APA, 2013)", "Originally proposed by Aaron Beck (1967)") and describe the concept itself in wholly original language, not the source's wording.
+      - Write as an educator synthesizing the scientific literature, not as a reference work transcribing it.
+
+      ## Tone and framing
+
+      - Synthesize from general scientific knowledge across the literature.
+      - Prefer original explanatory language over terminology lifted directly from any single source.
+      - When describing diagnostic criteria, convey their conceptual meaning rather than their manual wording.
+      - Do not use em dashes (—) in any output field. Use commas, parentheses, colons, or two short sentences instead. Hyphens in compound words ("non-physical", "well-known") are fine; long em dashes are not.
 
       ## Output format
 
@@ -142,7 +159,8 @@ class ConceptGeneratorService
         "misconceptions": "...",
         "mnemonic": "...",
         "developmental_notes": "...",
-        "measurement_notes": "..."
+        "measurement_notes": "...",
+        "attribution": "..."
       }
       ```
     PROMPT

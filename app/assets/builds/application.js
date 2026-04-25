@@ -126465,7 +126465,8 @@ var FIELD_GROUPS = [
       { key: "etymology", label: "Etymology", type: "multi" },
       { key: "school_of_thought", label: "School of Thought", type: "single" },
       { key: "history", label: "History", type: "multi" },
-      { key: "controversy", label: "Controversy", type: "multi" }
+      { key: "controversy", label: "Controversy", type: "multi" },
+      { key: "attribution", label: "Attribution", type: "single" }
     ]
   },
   {
@@ -126489,11 +126490,10 @@ var TERMINAL_STATUSES2 = ["approved", "rejected", "failed"];
 var STEPS = [
   { key: "draft", label: "Draft", icon: "fa-pen-nib" },
   { key: "factcheck", label: "Fact-check", icon: "fa-magnifying-glass" },
-  { key: "review", label: "Review", icon: "fa-eye" },
-  { key: "decision", label: "Decision", icon: "fa-gavel" }
+  { key: "review", label: "Review", icon: "fa-eye" }
 ];
 function stepStatusFor(genStatus) {
-  const stepStates = { draft: "upcoming", factcheck: "upcoming", review: "upcoming", decision: "upcoming" };
+  const stepStates = { draft: "upcoming", factcheck: "upcoming", review: "upcoming" };
   let currentStep = "draft";
   switch (genStatus) {
     case "pending":
@@ -126518,8 +126518,7 @@ function stepStatusFor(genStatus) {
       stepStates.draft = "done";
       stepStates.factcheck = "done";
       stepStates.review = "done";
-      stepStates.decision = "done";
-      currentStep = "decision";
+      currentStep = "review";
       break;
     case "failed":
       stepStates.draft = "error";
@@ -126641,21 +126640,26 @@ function AdminConceptGenerationShow({ generationId }) {
         body: JSON.stringify({ concept_generation: edits })
       });
       if (!res.ok) {
-        const data = await res.json();
-        alert(data.errors?.join(", ") || "Save failed");
-      } else {
-        const data = await res.json();
-        setGen(data);
-        setDirty(false);
+        const data2 = await res.json();
+        alert(data2.errors?.join(", ") || "Save failed");
+        return false;
       }
+      const data = await res.json();
+      setGen(data);
+      setDirty(false);
+      return true;
     } catch {
       alert("Save failed");
+      return false;
     } finally {
       setSaving(false);
     }
   };
-  const approve = async () => {
-    if (dirty && !confirm("You have unsaved edits. Approve anyway (using last saved version)?")) return;
+  const approveAndExit = async () => {
+    if (dirty) {
+      const ok = await saveEdits();
+      if (!ok) return;
+    }
     setActing(true);
     try {
       const res = await fetch(`/admin/concept_generations/${generationId}/approve`, {
@@ -126665,32 +126669,21 @@ function AdminConceptGenerationShow({ generationId }) {
       if (!res.ok) {
         const data = await res.json();
         alert(data.errors?.join(", ") || "Approve failed");
-      } else {
-        setGen(await res.json());
+        setActing(false);
+        return;
       }
-    } finally {
+      window.location.href = "/admin/concept_generations";
+    } catch {
+      alert("Approve failed");
       setActing(false);
     }
   };
-  const reject = async () => {
-    const reason = prompt("Reason for rejection (optional):");
-    if (reason === null) return;
-    setActing(true);
-    try {
-      const res = await fetch(`/admin/concept_generations/${generationId}/reject`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf() },
-        body: JSON.stringify({ reason })
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        alert(data.errors?.join(", ") || "Reject failed");
-      } else {
-        setGen(await res.json());
-      }
-    } finally {
-      setActing(false);
+  const keepAsDraft = async () => {
+    if (dirty) {
+      const ok = await saveEdits();
+      if (!ok) return;
     }
+    window.location.href = "/admin/concept_generations";
   };
   const retryStage = async (stage) => {
     setActing(true);
@@ -126724,20 +126717,30 @@ function AdminConceptGenerationShow({ generationId }) {
       backHref: "/admin/concept_generations",
       backLabel: "Back to Concept Creator"
     }
-  ), /* @__PURE__ */ import_react99.default.createElement("div", { style: { flex: 1, overflowY: "auto" } }, /* @__PURE__ */ import_react99.default.createElement(StepTabs, { steps: STEPS, stepStates, active: activeTab || currentStep, onPick: setActiveTab }), /* @__PURE__ */ import_react99.default.createElement("div", { style: { padding: "var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))" } }, (activeTab || currentStep) === "draft" && /* @__PURE__ */ import_react99.default.createElement(DraftTab, { gen, onRetry: retryStage, acting }), (activeTab || currentStep) === "factcheck" && /* @__PURE__ */ import_react99.default.createElement(FactCheckTab, { gen, onRetry: retryStage, acting }), (activeTab || currentStep) === "review" && /* @__PURE__ */ import_react99.default.createElement(
+  ), /* @__PURE__ */ import_react99.default.createElement("div", { style: { flex: 1, overflowY: "auto" } }, /* @__PURE__ */ import_react99.default.createElement("div", { style: { position: "sticky", top: 0, zIndex: 10, background: "white", borderBottom: "1px solid var(--neutral-200)" } }, /* @__PURE__ */ import_react99.default.createElement(StepTabs, { steps: STEPS, stepStates, active: activeTab || currentStep, onPick: setActiveTab }), /* @__PURE__ */ import_react99.default.createElement(
+    ActionBar,
+    {
+      activeTab: activeTab || currentStep,
+      gen,
+      dirty,
+      saving,
+      acting,
+      onRetry: retryStage,
+      onApproveAndExit: approveAndExit,
+      onKeepAsDraft: keepAsDraft,
+      onAcceptChanges: () => setActiveTab("review")
+    }
+  )), /* @__PURE__ */ import_react99.default.createElement("div", { style: { padding: "var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))" } }, (activeTab || currentStep) === "draft" && /* @__PURE__ */ import_react99.default.createElement(DraftTab, { gen, onRetry: retryStage, acting }), (activeTab || currentStep) === "factcheck" && /* @__PURE__ */ import_react99.default.createElement(FactCheckTab, { gen, onRetry: retryStage, acting }), (activeTab || currentStep) === "review" && /* @__PURE__ */ import_react99.default.createElement(
     ReviewTab,
     {
       gen,
       edits,
       onEdit: updateEdit,
-      onSave: saveEdits,
-      dirty,
-      saving,
       onRetry: retryStage,
       acting,
       onRefresh: fetchGen
     }
-  ), (activeTab || currentStep) === "decision" && /* @__PURE__ */ import_react99.default.createElement(DecisionTab, { gen, onApprove: approve, onReject: reject, onRetry: retryStage, acting, dirty }))));
+  ))));
 }
 function StepTabs({ steps, stepStates, active, onPick }) {
   return /* @__PURE__ */ import_react99.default.createElement("div", { style: { background: "white", borderBottom: "1px solid var(--neutral-200)", padding: "0 clamp(var(--space-4), 4vw, var(--space-8))", display: "flex", overflowX: "auto" } }, steps.map((step, idx) => {
@@ -126798,6 +126801,131 @@ function StepBadge({ idx, state }) {
   }
   return /* @__PURE__ */ import_react99.default.createElement("span", { style: { ...base2, background: "var(--neutral-100)", color: "var(--neutral-500)", border: "1px solid var(--neutral-300)" } }, idx);
 }
+function ActionBar({ activeTab, gen, dirty, saving, acting, onRetry, onApproveAndExit, onKeepAsDraft, onAcceptChanges }) {
+  const status = gen.status;
+  const inProgress = IN_PROGRESS_STATUSES2.includes(status);
+  const terminal = status === "approved" || status === "rejected";
+  const busy = acting || saving;
+  const actions = [];
+  let hint = null;
+  if (terminal) {
+    hint = status === "approved" ? `Approved ${gen.approved_at ? new Date(gen.approved_at).toLocaleString() : ""}` : `Rejected${gen.rejected_reason ? ` \u2014 ${gen.rejected_reason}` : ""}`;
+    actions.push({
+      label: "Back to Concept Creator",
+      icon: "fa-arrow-left",
+      kind: "secondary",
+      onClick: () => {
+        window.location.href = "/admin/concept_generations";
+      }
+    });
+  } else if (activeTab === "draft") {
+    if (status === "pending" || status === "generating") {
+      hint = "Drafting in progress\u2026";
+    } else if (status === "failed" && gen.stage_errors?.generate) {
+      hint = "Draft failed \u2014 retry to start over.";
+    }
+    actions.push({
+      label: inProgress ? "Drafting\u2026" : "Regenerate draft",
+      icon: inProgress ? "fa-circle-notch fa-spin" : "fa-rotate-right",
+      kind: "primary",
+      disabled: busy || inProgress,
+      onClick: () => onRetry("generate")
+    });
+  } else if (activeTab === "factcheck") {
+    if (status === "fact_checking" || status === "enriching") {
+      hint = "Fact-check in progress\u2026";
+    } else if (status === "failed" && gen.stage_errors?.fact_check) {
+      hint = "Fact-check failed \u2014 retry it.";
+    }
+    actions.push({
+      label: status === "fact_checking" ? "Re-checking\u2026" : "Re-check facts",
+      icon: status === "fact_checking" ? "fa-circle-notch fa-spin" : "fa-magnifying-glass",
+      kind: "secondary",
+      disabled: busy || status === "fact_checking",
+      onClick: () => onRetry("fact_check")
+    });
+    if (status === "ready_for_review") {
+      actions.push({
+        label: "Accept changes",
+        icon: "fa-arrow-right",
+        kind: "primary",
+        disabled: busy,
+        onClick: onAcceptChanges
+      });
+    }
+  } else if (activeTab === "review") {
+    if (status === "ready_for_review") {
+      if (dirty) hint = "Unsaved edits \u2014 they'll be saved automatically when you publish or keep as draft.";
+      actions.push({
+        label: saving ? "Saving\u2026" : "Keep as draft",
+        icon: saving ? "fa-circle-notch fa-spin" : "fa-floppy-disk",
+        kind: "secondary",
+        disabled: busy,
+        onClick: onKeepAsDraft
+      });
+      actions.push({
+        label: acting ? "Publishing\u2026" : "Accept and publish",
+        icon: acting ? "fa-circle-notch fa-spin" : "fa-circle-check",
+        kind: "primary",
+        disabled: busy,
+        onClick: onApproveAndExit
+      });
+    } else if (inProgress) {
+      hint = "Review unlocks once drafting and fact-check finish.";
+      actions.push({
+        label: "Back to Concept Creator",
+        icon: "fa-arrow-left",
+        kind: "secondary",
+        onClick: () => {
+          window.location.href = "/admin/concept_generations";
+        }
+      });
+    } else if (status === "failed") {
+      hint = "A previous step failed. Use the Draft or Fact-check tab to retry.";
+      actions.push({
+        label: "Back to Concept Creator",
+        icon: "fa-arrow-left",
+        kind: "secondary",
+        onClick: () => {
+          window.location.href = "/admin/concept_generations";
+        }
+      });
+    }
+  }
+  return /* @__PURE__ */ import_react99.default.createElement("div", { style: {
+    padding: "var(--space-3) clamp(var(--space-4), 4vw, var(--space-8))",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-3)",
+    flexWrap: "wrap",
+    borderTop: "1px solid var(--neutral-100)",
+    background: "var(--neutral-50, #fafaf7)"
+  } }, hint && /* @__PURE__ */ import_react99.default.createElement("span", { style: {
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-600)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "var(--space-2)"
+  } }, dirty && activeTab === "review" && /* @__PURE__ */ import_react99.default.createElement("i", { className: "fas fa-circle", style: { fontSize: "7px", color: "var(--admin-brown-dark)" } }), hint), /* @__PURE__ */ import_react99.default.createElement("div", { style: { flex: 1 } }), actions.map((a5, i3) => /* @__PURE__ */ import_react99.default.createElement(
+    "button",
+    {
+      key: i3,
+      onClick: a5.onClick,
+      disabled: a5.disabled,
+      style: {
+        ...a5.kind === "primary" ? primaryBtn : secondaryBtn,
+        opacity: a5.disabled ? 0.6 : 1,
+        cursor: a5.disabled ? "not-allowed" : "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "var(--space-2)"
+      }
+    },
+    /* @__PURE__ */ import_react99.default.createElement("i", { className: `fas ${a5.icon}` }),
+    a5.label
+  )));
+}
 function DraftTab({ gen, onRetry, acting }) {
   const sources = gen.web_search_sources || [];
   return /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, gen.status === "generating" && /* @__PURE__ */ import_react99.default.createElement(ProgressBanner, { icon: "fa-circle-notch fa-spin" }, "Claude Sonnet is researching and drafting from authoritative sources. This usually takes 3\u20135 minutes."), gen.status === "pending" && /* @__PURE__ */ import_react99.default.createElement(ProgressBanner, { icon: "fa-hourglass-half" }, "Queued. Generation will begin shortly."), gen.status === "failed" && gen.stage_errors?.generate && /* @__PURE__ */ import_react99.default.createElement(
@@ -126846,7 +126974,7 @@ function FactCheckTab({ gen, onRetry, acting }) {
       message: gen.stage_errors.fact_check.message,
       actions: /* @__PURE__ */ import_react99.default.createElement("button", { onClick: () => onRetry("fact_check"), disabled: acting, style: { ...primaryBtn, background: "white", color: "var(--neutral-900)" } }, /* @__PURE__ */ import_react99.default.createElement("i", { className: "fas fa-redo", style: { marginRight: "var(--space-2)" } }), "Retry fact-check")
     }
-  ), diffs.length === 0 ? /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: notes.length === 0 && !snapshot ? "Fact-check hasn't run yet" : "No changes", icon: "fa-magnifying-glass" }, notes.length === 0 && !snapshot ? "This tab will fill in once Claude Opus finishes the fact-check pass." : "The fact-checker reviewed the draft and made no changes. Proceed to review.") : /* @__PURE__ */ import_react99.default.createElement(import_react99.default.Fragment, null, /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: `${diffs.length} change${diffs.length === 1 ? "" : "s"} to review`, icon: "fa-magnifying-glass" }, "Each box below represents a field the fact-checker modified. Expand to see what changed and why."), /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, diffs.map((d3) => /* @__PURE__ */ import_react99.default.createElement(DiffBox, { key: d3.key, diff: d3 })))), gen.status === "ready_for_review" && /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react99.default.createElement("button", { onClick: () => onRetry("fact_check"), disabled: acting, style: secondaryBtn, title: "Restore the post-draft snapshot and re-run fact-check only" }, /* @__PURE__ */ import_react99.default.createElement("i", { className: "fas fa-redo", style: { marginRight: "var(--space-2)" } }), "Re-run fact-check")));
+  ), diffs.length === 0 ? /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: notes.length === 0 && !snapshot ? "Fact-check hasn't run yet" : "No changes", icon: "fa-magnifying-glass" }, notes.length === 0 && !snapshot ? "This tab will fill in once Claude Opus finishes the fact-check pass." : "The fact-checker reviewed the draft and made no changes. Proceed to review.") : /* @__PURE__ */ import_react99.default.createElement(import_react99.default.Fragment, null, /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: `${diffs.length} change${diffs.length === 1 ? "" : "s"} to review`, icon: "fa-magnifying-glass" }, "Each box below represents a field the fact-checker modified. Expand to see what changed and why."), /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, diffs.map((d3) => /* @__PURE__ */ import_react99.default.createElement(DiffBox, { key: d3.key, diff: d3 })))));
 }
 function DiffBox({ diff }) {
   const { key, before, after, notes, changed } = diff;
@@ -127021,38 +127149,42 @@ function diffWords(before, after) {
   const afterSegs = merged.filter((o3) => o3.type !== "remove").map((o3) => ({ text: o3.text, highlight: o3.type === "add" }));
   return { beforeSegs, afterSegs };
 }
-function ReviewTab({ gen, edits, onEdit, onSave, dirty, saving, onRetry, acting, onRefresh }) {
+function ReviewTab({ gen, edits, onEdit, onRetry, acting, onRefresh }) {
   const disabled2 = TERMINAL_STATUSES2.includes(gen.status) || IN_PROGRESS_STATUSES2.includes(gen.status);
   const hasContent = gen.content && Object.values(gen.content).some((v3) => v3 && (Array.isArray(v3) ? v3.length : true));
+  if (gen.status === "approved") {
+    const cdId = gen.approved_concept_definition_id;
+    const packId = gen.approved_concept_definition_pack_id;
+    let followUp = null;
+    if (cdId && packId) {
+      followUp = /* @__PURE__ */ import_react99.default.createElement("a", { href: `/admin/packs/${packId}`, style: { color: "var(--admin-brown-dark)", fontWeight: 600, textDecoration: "underline" } }, "Open pack to edit ConceptDefinition #", cdId);
+    } else if (cdId) {
+      followUp = /* @__PURE__ */ import_react99.default.createElement("span", { style: { color: "var(--neutral-600)" } }, "ConceptDefinition #", cdId, " isn't assigned to a pack yet \u2014", " ", /* @__PURE__ */ import_react99.default.createElement("a", { href: "/admin/packs", style: { color: "var(--admin-brown-dark)", fontWeight: 600, textDecoration: "underline" } }, "assign it in Packs"), ".");
+    }
+    return /* @__PURE__ */ import_react99.default.createElement(
+      TerminalState,
+      {
+        icon: "fa-circle-check",
+        title: "Approved",
+        detail: `Approved on ${new Date(gen.approved_at).toLocaleString()}.`,
+        followUp
+      }
+    );
+  }
+  if (gen.status === "rejected") {
+    return /* @__PURE__ */ import_react99.default.createElement(
+      TerminalState,
+      {
+        icon: "fa-ban",
+        title: "Rejected",
+        detail: gen.rejected_reason || "No reason was provided."
+      }
+    );
+  }
   if (!hasContent) {
     return /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: "No content yet", icon: "fa-hourglass-half" }, "Review becomes available once drafting and fact-check finish.");
   }
-  return /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "calc(var(--space-6) * 2)" } }, gen.status === "ready_for_review" && /* @__PURE__ */ import_react99.default.createElement("div", { style: {
-    position: "sticky",
-    top: 0,
-    zIndex: 3,
-    background: "white",
-    border: "1px solid var(--neutral-200)",
-    borderRadius: "var(--radius)",
-    padding: "var(--space-3) var(--space-4)",
-    display: "flex",
-    alignItems: "center",
-    gap: "var(--space-3)",
-    flexWrap: "wrap"
-  } }, /* @__PURE__ */ import_react99.default.createElement("span", { style: { fontFamily: "var(--font-body)", fontSize: "var(--text-sm)", color: "var(--neutral-700)" } }, "Edit any field below, then save. Approve or reject on the Decision tab."), /* @__PURE__ */ import_react99.default.createElement(
-    "button",
-    {
-      onClick: onSave,
-      disabled: !dirty || saving,
-      style: {
-        ...primaryBtn,
-        marginLeft: "auto",
-        background: dirty ? "var(--admin-brown-dark)" : "var(--neutral-300)",
-        cursor: dirty ? "pointer" : "not-allowed"
-      }
-    },
-    saving ? "Saving\u2026" : dirty ? "Save edits" : "Saved"
-  )), FIELD_GROUPS.map((group) => /* @__PURE__ */ import_react99.default.createElement(FieldGroup, { key: group.key, group, edits, onEdit, disabled: disabled2 })), /* @__PURE__ */ import_react99.default.createElement(
+  return /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "calc(var(--space-6) * 2)" } }, FIELD_GROUPS.map((group) => /* @__PURE__ */ import_react99.default.createElement(FieldGroup, { key: group.key, group, edits, onEdit, disabled: disabled2 })), /* @__PURE__ */ import_react99.default.createElement(
     SelectedLinksPanel,
     {
       gen,
@@ -127225,167 +127357,6 @@ function FieldGroup({ group, edits, onEdit, disabled: disabled2 }) {
       }
     ));
   })));
-}
-function DecisionTab({ gen, onApprove, onReject, onRetry, acting, dirty }) {
-  if (gen.status === "approved") {
-    const cdId = gen.approved_concept_definition_id;
-    const packId = gen.approved_concept_definition_pack_id;
-    let followUp = null;
-    if (cdId && packId) {
-      followUp = /* @__PURE__ */ import_react99.default.createElement(
-        "a",
-        {
-          href: `/admin/packs/${packId}`,
-          style: { color: "var(--admin-brown-dark)", fontWeight: 600, textDecoration: "underline" }
-        },
-        "Open pack to edit ConceptDefinition #",
-        cdId
-      );
-    } else if (cdId) {
-      followUp = /* @__PURE__ */ import_react99.default.createElement("span", { style: { color: "var(--neutral-600)" } }, "ConceptDefinition #", cdId, " isn't assigned to a pack yet \u2014 ", " ", /* @__PURE__ */ import_react99.default.createElement("a", { href: "/admin/packs", style: { color: "var(--admin-brown-dark)", fontWeight: 600, textDecoration: "underline" } }, "assign it in Packs"), ".");
-    }
-    return /* @__PURE__ */ import_react99.default.createElement(
-      TerminalState,
-      {
-        icon: "fa-circle-check",
-        title: "Approved",
-        detail: `Approved on ${new Date(gen.approved_at).toLocaleString()}.`,
-        followUp
-      }
-    );
-  }
-  if (gen.status === "rejected") {
-    return /* @__PURE__ */ import_react99.default.createElement(
-      TerminalState,
-      {
-        icon: "fa-ban",
-        title: "Rejected",
-        detail: gen.rejected_reason || "No reason was provided."
-      }
-    );
-  }
-  if (gen.status !== "ready_for_review") {
-    return /* @__PURE__ */ import_react99.default.createElement(InfoCard, { title: "Not ready for a decision yet", icon: "fa-hourglass-half" }, "Finish the draft and fact-check steps before approving or rejecting.");
-  }
-  return /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "calc(var(--space-6) * 2)" } }, dirty && /* @__PURE__ */ import_react99.default.createElement("div", { style: {
-    background: "white",
-    border: "1px solid var(--neutral-900)",
-    borderLeft: "4px solid var(--neutral-900)",
-    borderRadius: "var(--radius)",
-    padding: "var(--space-3) var(--space-4)",
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-sm)",
-    color: "var(--neutral-900)",
-    display: "flex",
-    alignItems: "center",
-    gap: "var(--space-3)"
-  } }, /* @__PURE__ */ import_react99.default.createElement("i", { className: "fas fa-triangle-exclamation" }), /* @__PURE__ */ import_react99.default.createElement("span", null, /* @__PURE__ */ import_react99.default.createElement("strong", null, "Unsaved edits"), " on the Review tab. Save before approving or the last saved version will be used.")), /* @__PURE__ */ import_react99.default.createElement(DecisionGroup, { label: "Make a decision", emphasize: true }, /* @__PURE__ */ import_react99.default.createElement(
-    DecisionCard,
-    {
-      icon: "fa-check",
-      title: "Approve & publish",
-      body: "Create a new ConceptDefinition from the content on the Review tab. This can't be undone through the creator.",
-      actionLabel: acting ? "Approving\u2026" : "Approve",
-      primary: true,
-      onAction: onApprove,
-      disabled: acting
-    }
-  ), /* @__PURE__ */ import_react99.default.createElement(
-    DecisionCard,
-    {
-      icon: "fa-xmark",
-      title: "Reject",
-      body: "Discard this draft. Nothing gets published; the record stays here for history with your reason.",
-      actionLabel: acting ? "Rejecting\u2026" : "Reject",
-      onAction: onReject,
-      disabled: acting
-    }
-  )), /* @__PURE__ */ import_react99.default.createElement(DecisionGroup, { label: "Not quite right?" }, /* @__PURE__ */ import_react99.default.createElement(
-    DecisionCard,
-    {
-      icon: "fa-magnifying-glass",
-      title: "Re-run fact-check",
-      body: "Restore the original post-draft content and run Claude Opus over it again. Skips the expensive drafting step.",
-      actionLabel: "Re-fact-check",
-      onAction: () => onRetry("fact_check"),
-      disabled: acting
-    }
-  ), /* @__PURE__ */ import_react99.default.createElement(
-    DecisionCard,
-    {
-      icon: "fa-arrows-rotate",
-      title: "Regenerate from scratch",
-      body: "Throw everything out and restart from the beginning. Re-runs both drafting and fact-check (slowest, most expensive).",
-      actionLabel: "Regenerate",
-      onAction: () => onRetry("generate"),
-      disabled: acting
-    }
-  )));
-}
-function DecisionGroup({ label, emphasize, children: children2 }) {
-  return /* @__PURE__ */ import_react99.default.createElement("div", null, /* @__PURE__ */ import_react99.default.createElement(
-    "div",
-    {
-      style: {
-        fontFamily: "var(--font-body)",
-        fontSize: "var(--text-xs)",
-        fontWeight: 700,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        color: emphasize ? "var(--admin-brown-dark)" : "var(--neutral-600)",
-        paddingBottom: "var(--space-2)",
-        borderBottom: `1px solid ${emphasize ? "var(--admin-brown)" : "var(--neutral-200)"}`,
-        marginBottom: "var(--space-4)"
-      }
-    },
-    label
-  ), /* @__PURE__ */ import_react99.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } }, children2));
-}
-function DecisionCard({ icon: icon3, title, body, actionLabel, primary, onAction, disabled: disabled2 }) {
-  return /* @__PURE__ */ import_react99.default.createElement(
-    "div",
-    {
-      style: {
-        padding: "var(--space-3) var(--space-2)",
-        display: "flex",
-        gap: "var(--space-4)",
-        alignItems: "center",
-        flexWrap: "wrap"
-      }
-    },
-    /* @__PURE__ */ import_react99.default.createElement("div", { style: {
-      width: "40px",
-      height: "40px",
-      borderRadius: "var(--radius)",
-      background: primary ? "var(--admin-brown-dark)" : "var(--admin-brown-light)",
-      color: primary ? "white" : "var(--admin-brown-dark)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0
-    } }, /* @__PURE__ */ import_react99.default.createElement("i", { className: `fas ${icon3}` })),
-    /* @__PURE__ */ import_react99.default.createElement("div", { style: { flex: 1, minWidth: 0 } }, /* @__PURE__ */ import_react99.default.createElement("div", { style: {
-      fontFamily: "var(--font-body)",
-      fontSize: "var(--text-sm)",
-      fontWeight: 700,
-      color: "var(--neutral-900)",
-      marginBottom: "2px"
-    } }, title), /* @__PURE__ */ import_react99.default.createElement("div", { style: {
-      fontFamily: "var(--font-body)",
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-600)",
-      lineHeight: 1.5
-    } }, body)),
-    /* @__PURE__ */ import_react99.default.createElement(
-      "button",
-      {
-        onClick: onAction,
-        disabled: disabled2,
-        style: primary ? { ...primaryBtn, opacity: disabled2 ? 0.6 : 1, cursor: disabled2 ? "not-allowed" : "pointer" } : { ...secondaryBtn, opacity: disabled2 ? 0.6 : 1, cursor: disabled2 ? "not-allowed" : "pointer" }
-      },
-      actionLabel
-    )
-  );
 }
 function TerminalState({ icon: icon3, title, detail, followUp }) {
   return /* @__PURE__ */ import_react99.default.createElement("div", { style: {

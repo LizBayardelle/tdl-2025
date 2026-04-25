@@ -67,6 +67,7 @@ module Admin
         :label, :summary, :description, :location, :examples, :etymology,
         :school_of_thought, :history, :controversy, :clinical_relevance,
         :misconceptions, :mnemonic, :developmental_notes, :measurement_notes,
+        :attribution,
         aliases: [],
         selected_links: [:url, :name, :description, :category, :domain]
       )

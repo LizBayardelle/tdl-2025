@@ -114,11 +114,15 @@ class ConceptFactCheckerService
       5. **Mnemonic provenance.** If the draft includes a composed mnemonic, it MUST end with the disclaimer: "Note: This mnemonic was composed for this entry and is not from an established educational source. Use as a starting point and adapt." If the disclaimer is missing, add it. If the mnemonic is presented as established/canonical without sourcing, demote it.
       6. **Misclassification.** If the draft conflates one concept with a related-but-distinct one, fix the boundaries.
       7. **Missing controversy.** If there are well-known active debates that the draft glosses over, add them to the controversy field.
+      8. **Copyright lift.** This entry is part of a paid reference product. If the draft reproduces the structure, organization, or phrasing of a diagnostic manual (DSM, ICD, PDR), a clinical reference, or any item / question / scoring criterion from a validated assessment instrument (PHQ-9, Beck Depression Inventory, MMPI, GAD-7, etc.), rewrite that passage in wholly original explanatory language. Describe what an instrument measures and how it's used; never reproduce its actual items or wording. When describing diagnostic criteria, convey their conceptual meaning rather than their manual wording.
+      9. **Source attribution.** If the concept originates from or is defined by a specific named source (e.g., DSM-5, ICD-11, a particular researcher's work), the `attribution` field must be populated with a plain academic citation — for example, "DSM-5 (APA, 2013)", "ICD-11 (WHO, 2019)", "Originally proposed by Aaron Beck (1967)". Add or correct it if missing or wrong. Leave `attribution` null only when the concept genuinely has no single named source.
+      10. **Em dashes.** Replace every em dash (—) in the draft with commas, parentheses, colons, or two shorter sentences, whichever fits the sentence best. Hyphens in compound words ("non-physical", "well-known") are fine; long em dashes are not. This is a non-discretionary style fix — apply it even when nothing else about the passage is wrong.
 
       ## What NOT to do
 
-      - Do not rewrite a field just to use different prose. Only change content if it is wrong, overstated, missing hedging, or factually unsupported.
+      - Do not rewrite a field just to use different prose. Only change content if it is wrong, overstated, missing hedging, factually unsupported, or reproduces protected material.
       - Do not introduce new facts that weren't in the draft AND aren't supported by a web_search result.
+      - Do not introduce DSM/ICD-style structured diagnostic criteria, manual phrasing, or assessment-instrument items into a field where they weren't already present, even when "tightening" the language.
       - Do not remove fields that were present unless the field genuinely doesn't apply to this concept.
 
       ## Use web_search judiciously
@@ -146,7 +150,8 @@ class ConceptFactCheckerService
           "misconceptions": "...",
           "mnemonic": "...",
           "developmental_notes": "...",
-          "measurement_notes": "..."
+          "measurement_notes": "...",
+          "attribution": "..."
         },
         "fact_check_notes": [
           {

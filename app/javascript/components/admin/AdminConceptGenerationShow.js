@@ -35,6 +35,7 @@ const FIELD_GROUPS = [
       { key: 'school_of_thought', label: 'School of Thought', type: 'single' },
       { key: 'history', label: 'History', type: 'multi' },
       { key: 'controversy', label: 'Controversy', type: 'multi' },
+      { key: 'attribution', label: 'Attribution', type: 'single' },
     ],
   },
   {
@@ -62,12 +63,11 @@ const STEPS = [
   { key: 'draft',      label: 'Draft',       icon: 'fa-pen-nib' },
   { key: 'factcheck',  label: 'Fact-check',  icon: 'fa-magnifying-glass' },
   { key: 'review',     label: 'Review',      icon: 'fa-eye' },
-  { key: 'decision',   label: 'Decision',    icon: 'fa-gavel' },
 ];
 
 function stepStatusFor(genStatus) {
   // Returns { currentStep, stepStates } where stepStates[key] is 'upcoming' | 'current' | 'done' | 'error'
-  const stepStates = { draft: 'upcoming', factcheck: 'upcoming', review: 'upcoming', decision: 'upcoming' };
+  const stepStates = { draft: 'upcoming', factcheck: 'upcoming', review: 'upcoming' };
   let currentStep = 'draft';
 
   switch (genStatus) {
@@ -93,8 +93,7 @@ function stepStatusFor(genStatus) {
       stepStates.draft = 'done';
       stepStates.factcheck = 'done';
       stepStates.review = 'done';
-      stepStates.decision = 'done';
-      currentStep = 'decision';
+      currentStep = 'review';
       break;
     case 'failed':
       stepStates.draft = 'error';
@@ -233,20 +232,25 @@ export default function AdminConceptGenerationShow({ generationId }) {
       if (!res.ok) {
         const data = await res.json();
         alert(data.errors?.join(', ') || 'Save failed');
-      } else {
-        const data = await res.json();
-        setGen(data);
-        setDirty(false);
+        return false;
       }
+      const data = await res.json();
+      setGen(data);
+      setDirty(false);
+      return true;
     } catch {
       alert('Save failed');
+      return false;
     } finally {
       setSaving(false);
     }
   };
 
-  const approve = async () => {
-    if (dirty && !confirm('You have unsaved edits. Approve anyway (using last saved version)?')) return;
+  const approveAndExit = async () => {
+    if (dirty) {
+      const ok = await saveEdits();
+      if (!ok) return;
+    }
     setActing(true);
     try {
       const res = await fetch(`/admin/concept_generations/${generationId}/approve`, {
@@ -256,33 +260,22 @@ export default function AdminConceptGenerationShow({ generationId }) {
       if (!res.ok) {
         const data = await res.json();
         alert(data.errors?.join(', ') || 'Approve failed');
-      } else {
-        setGen(await res.json());
+        setActing(false);
+        return;
       }
-    } finally {
+      window.location.href = '/admin/concept_generations';
+    } catch {
+      alert('Approve failed');
       setActing(false);
     }
   };
 
-  const reject = async () => {
-    const reason = prompt('Reason for rejection (optional):');
-    if (reason === null) return;
-    setActing(true);
-    try {
-      const res = await fetch(`/admin/concept_generations/${generationId}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
-        body: JSON.stringify({ reason }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        alert(data.errors?.join(', ') || 'Reject failed');
-      } else {
-        setGen(await res.json());
-      }
-    } finally {
-      setActing(false);
+  const keepAsDraft = async () => {
+    if (dirty) {
+      const ok = await saveEdits();
+      if (!ok) return;
     }
+    window.location.href = '/admin/concept_generations';
   };
 
   const retryStage = async (stage) => {
@@ -331,7 +324,20 @@ export default function AdminConceptGenerationShow({ generationId }) {
       />
 
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <StepTabs steps={STEPS} stepStates={stepStates} active={activeTab || currentStep} onPick={setActiveTab} />
+        <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid var(--neutral-200)' }}>
+          <StepTabs steps={STEPS} stepStates={stepStates} active={activeTab || currentStep} onPick={setActiveTab} />
+          <ActionBar
+            activeTab={activeTab || currentStep}
+            gen={gen}
+            dirty={dirty}
+            saving={saving}
+            acting={acting}
+            onRetry={retryStage}
+            onApproveAndExit={approveAndExit}
+            onKeepAsDraft={keepAsDraft}
+            onAcceptChanges={() => setActiveTab('review')}
+          />
+        </div>
 
         <div style={{ padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
           {(activeTab || currentStep) === 'draft' && (
@@ -345,16 +351,10 @@ export default function AdminConceptGenerationShow({ generationId }) {
               gen={gen}
               edits={edits}
               onEdit={updateEdit}
-              onSave={saveEdits}
-              dirty={dirty}
-              saving={saving}
               onRetry={retryStage}
               acting={acting}
               onRefresh={fetchGen}
             />
-          )}
-          {(activeTab || currentStep) === 'decision' && (
-            <DecisionTab gen={gen} onApprove={approve} onReject={reject} onRetry={retryStage} acting={acting} dirty={dirty} />
           )}
         </div>
       </div>
@@ -441,6 +441,134 @@ function StepBadge({ idx, state }) {
     );
   }
   return <span style={{ ...base, background: 'var(--neutral-100)', color: 'var(--neutral-500)', border: '1px solid var(--neutral-300)' }}>{idx}</span>;
+}
+
+/* ─── Sticky action bar ───────────────────────────── */
+
+function ActionBar({ activeTab, gen, dirty, saving, acting, onRetry, onApproveAndExit, onKeepAsDraft, onAcceptChanges }) {
+  const status = gen.status;
+  const inProgress = IN_PROGRESS_STATUSES.includes(status);
+  const terminal = status === 'approved' || status === 'rejected';
+  const busy = acting || saving;
+
+  const actions = [];
+  let hint = null;
+
+  if (terminal) {
+    hint = status === 'approved'
+      ? `Approved ${gen.approved_at ? new Date(gen.approved_at).toLocaleString() : ''}`
+      : `Rejected${gen.rejected_reason ? ` — ${gen.rejected_reason}` : ''}`;
+    actions.push({ label: 'Back to Concept Creator', icon: 'fa-arrow-left', kind: 'secondary',
+      onClick: () => { window.location.href = '/admin/concept_generations'; } });
+  } else if (activeTab === 'draft') {
+    if (status === 'pending' || status === 'generating') {
+      hint = 'Drafting in progress…';
+    } else if (status === 'failed' && gen.stage_errors?.generate) {
+      hint = 'Draft failed — retry to start over.';
+    }
+    actions.push({
+      label: inProgress ? 'Drafting…' : 'Regenerate draft',
+      icon: inProgress ? 'fa-circle-notch fa-spin' : 'fa-rotate-right',
+      kind: 'primary',
+      disabled: busy || inProgress,
+      onClick: () => onRetry('generate'),
+    });
+  } else if (activeTab === 'factcheck') {
+    if (status === 'fact_checking' || status === 'enriching') {
+      hint = 'Fact-check in progress…';
+    } else if (status === 'failed' && gen.stage_errors?.fact_check) {
+      hint = 'Fact-check failed — retry it.';
+    }
+    actions.push({
+      label: status === 'fact_checking' ? 'Re-checking…' : 'Re-check facts',
+      icon: status === 'fact_checking' ? 'fa-circle-notch fa-spin' : 'fa-magnifying-glass',
+      kind: 'secondary',
+      disabled: busy || status === 'fact_checking',
+      onClick: () => onRetry('fact_check'),
+    });
+    if (status === 'ready_for_review') {
+      actions.push({
+        label: 'Accept changes',
+        icon: 'fa-arrow-right',
+        kind: 'primary',
+        disabled: busy,
+        onClick: onAcceptChanges,
+      });
+    }
+  } else if (activeTab === 'review') {
+    if (status === 'ready_for_review') {
+      if (dirty) hint = 'Unsaved edits — they\'ll be saved automatically when you publish or keep as draft.';
+      actions.push({
+        label: saving ? 'Saving…' : 'Keep as draft',
+        icon: saving ? 'fa-circle-notch fa-spin' : 'fa-floppy-disk',
+        kind: 'secondary',
+        disabled: busy,
+        onClick: onKeepAsDraft,
+      });
+      actions.push({
+        label: acting ? 'Publishing…' : 'Accept and publish',
+        icon: acting ? 'fa-circle-notch fa-spin' : 'fa-circle-check',
+        kind: 'primary',
+        disabled: busy,
+        onClick: onApproveAndExit,
+      });
+    } else if (inProgress) {
+      hint = 'Review unlocks once drafting and fact-check finish.';
+      actions.push({ label: 'Back to Concept Creator', icon: 'fa-arrow-left', kind: 'secondary',
+        onClick: () => { window.location.href = '/admin/concept_generations'; } });
+    } else if (status === 'failed') {
+      hint = 'A previous step failed. Use the Draft or Fact-check tab to retry.';
+      actions.push({ label: 'Back to Concept Creator', icon: 'fa-arrow-left', kind: 'secondary',
+        onClick: () => { window.location.href = '/admin/concept_generations'; } });
+    }
+  }
+
+  return (
+    <div style={{
+      padding: 'var(--space-3) clamp(var(--space-4), 4vw, var(--space-8))',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 'var(--space-3)',
+      flexWrap: 'wrap',
+      borderTop: '1px solid var(--neutral-100)',
+      background: 'var(--neutral-50, #fafaf7)',
+    }}>
+      {hint && (
+        <span style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-xs)',
+          color: 'var(--neutral-600)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 'var(--space-2)',
+        }}>
+          {dirty && activeTab === 'review' && (
+            <i className="fas fa-circle" style={{ fontSize: '7px', color: 'var(--admin-brown-dark)' }}></i>
+          )}
+          {hint}
+        </span>
+      )}
+      <div style={{ flex: 1 }} />
+      {actions.map((a, i) => (
+        <button
+          key={i}
+          onClick={a.onClick}
+          disabled={a.disabled}
+          style={{
+            ...(a.kind === 'primary' ? primaryBtn : secondaryBtn),
+            opacity: a.disabled ? 0.6 : 1,
+            cursor: a.disabled ? 'not-allowed' : 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+          }}
+        >
+          <i className={`fas ${a.icon}`}></i>
+          {a.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 /* ─── Draft tab ───────────────────────────────────── */
@@ -565,14 +693,6 @@ function FactCheckTab({ gen, onRetry, acting }) {
         </>
       )}
 
-      {gen.status === 'ready_for_review' && (
-        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button onClick={() => onRetry('fact_check')} disabled={acting} style={secondaryBtn} title="Restore the post-draft snapshot and re-run fact-check only">
-            <i className="fas fa-redo" style={{ marginRight: 'var(--space-2)' }}></i>
-            Re-run fact-check
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -841,9 +961,49 @@ function diffWords(before, after) {
 
 /* ─── Review tab ──────────────────────────────────── */
 
-function ReviewTab({ gen, edits, onEdit, onSave, dirty, saving, onRetry, acting, onRefresh }) {
+function ReviewTab({ gen, edits, onEdit, onRetry, acting, onRefresh }) {
   const disabled = TERMINAL_STATUSES.includes(gen.status) || IN_PROGRESS_STATUSES.includes(gen.status);
   const hasContent = gen.content && Object.values(gen.content).some((v) => v && (Array.isArray(v) ? v.length : true));
+
+  if (gen.status === 'approved') {
+    const cdId = gen.approved_concept_definition_id;
+    const packId = gen.approved_concept_definition_pack_id;
+    let followUp = null;
+    if (cdId && packId) {
+      followUp = (
+        <a href={`/admin/packs/${packId}`} style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}>
+          Open pack to edit ConceptDefinition #{cdId}
+        </a>
+      );
+    } else if (cdId) {
+      followUp = (
+        <span style={{ color: 'var(--neutral-600)' }}>
+          ConceptDefinition #{cdId} isn't assigned to a pack yet —{' '}
+          <a href="/admin/packs" style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}>
+            assign it in Packs
+          </a>.
+        </span>
+      );
+    }
+    return (
+      <TerminalState
+        icon="fa-circle-check"
+        title="Approved"
+        detail={`Approved on ${new Date(gen.approved_at).toLocaleString()}.`}
+        followUp={followUp}
+      />
+    );
+  }
+
+  if (gen.status === 'rejected') {
+    return (
+      <TerminalState
+        icon="fa-ban"
+        title="Rejected"
+        detail={gen.rejected_reason || 'No reason was provided.'}
+      />
+    );
+  }
 
   if (!hasContent) {
     return (
@@ -855,38 +1015,6 @@ function ReviewTab({ gen, edits, onEdit, onSave, dirty, saving, onRetry, acting,
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--space-6) * 2)' }}>
-      {gen.status === 'ready_for_review' && (
-        <div style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 3,
-          background: 'white',
-          border: '1px solid var(--neutral-200)',
-          borderRadius: 'var(--radius)',
-          padding: 'var(--space-3) var(--space-4)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-3)',
-          flexWrap: 'wrap',
-        }}>
-          <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-700)' }}>
-            Edit any field below, then save. Approve or reject on the Decision tab.
-          </span>
-          <button
-            onClick={onSave}
-            disabled={!dirty || saving}
-            style={{
-              ...primaryBtn,
-              marginLeft: 'auto',
-              background: dirty ? 'var(--admin-brown-dark)' : 'var(--neutral-300)',
-              cursor: dirty ? 'pointer' : 'not-allowed',
-            }}
-          >
-            {saving ? 'Saving…' : dirty ? 'Save edits' : 'Saved'}
-          </button>
-        </div>
-      )}
-
       {FIELD_GROUPS.map((group) => (
         <FieldGroup key={group.key} group={group} edits={edits} onEdit={onEdit} disabled={disabled} />
       ))}
@@ -1115,200 +1243,6 @@ function FieldGroup({ group, edits, onEdit, disabled }) {
   );
 }
 
-
-/* ─── Decision tab ────────────────────────────────── */
-
-function DecisionTab({ gen, onApprove, onReject, onRetry, acting, dirty }) {
-  if (gen.status === 'approved') {
-    const cdId = gen.approved_concept_definition_id;
-    const packId = gen.approved_concept_definition_pack_id;
-    let followUp = null;
-    if (cdId && packId) {
-      followUp = (
-        <a
-          href={`/admin/packs/${packId}`}
-          style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}
-        >
-          Open pack to edit ConceptDefinition #{cdId}
-        </a>
-      );
-    } else if (cdId) {
-      followUp = (
-        <span style={{ color: 'var(--neutral-600)' }}>
-          ConceptDefinition #{cdId} isn't assigned to a pack yet — {' '}
-          <a href="/admin/packs" style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}>
-            assign it in Packs
-          </a>.
-        </span>
-      );
-    }
-    return (
-      <TerminalState
-        icon="fa-circle-check"
-        title="Approved"
-        detail={`Approved on ${new Date(gen.approved_at).toLocaleString()}.`}
-        followUp={followUp}
-      />
-    );
-  }
-  if (gen.status === 'rejected') {
-    return (
-      <TerminalState
-        icon="fa-ban"
-        title="Rejected"
-        detail={gen.rejected_reason || 'No reason was provided.'}
-      />
-    );
-  }
-  if (gen.status !== 'ready_for_review') {
-    return (
-      <InfoCard title="Not ready for a decision yet" icon="fa-hourglass-half">
-        Finish the draft and fact-check steps before approving or rejecting.
-      </InfoCard>
-    );
-  }
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--space-6) * 2)' }}>
-      {dirty && (
-        <div style={{
-          background: 'white',
-          border: '1px solid var(--neutral-900)',
-          borderLeft: '4px solid var(--neutral-900)',
-          borderRadius: 'var(--radius)',
-          padding: 'var(--space-3) var(--space-4)',
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-sm)',
-          color: 'var(--neutral-900)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-3)',
-        }}>
-          <i className="fas fa-triangle-exclamation"></i>
-          <span><strong>Unsaved edits</strong> on the Review tab. Save before approving or the last saved version will be used.</span>
-        </div>
-      )}
-
-      <DecisionGroup label="Make a decision" emphasize>
-        <DecisionCard
-          icon="fa-check"
-          title="Approve & publish"
-          body="Create a new ConceptDefinition from the content on the Review tab. This can't be undone through the creator."
-          actionLabel={acting ? 'Approving…' : 'Approve'}
-          primary
-          onAction={onApprove}
-          disabled={acting}
-        />
-        <DecisionCard
-          icon="fa-xmark"
-          title="Reject"
-          body="Discard this draft. Nothing gets published; the record stays here for history with your reason."
-          actionLabel={acting ? 'Rejecting…' : 'Reject'}
-          onAction={onReject}
-          disabled={acting}
-        />
-      </DecisionGroup>
-
-      <DecisionGroup label="Not quite right?">
-        <DecisionCard
-          icon="fa-magnifying-glass"
-          title="Re-run fact-check"
-          body="Restore the original post-draft content and run Claude Opus over it again. Skips the expensive drafting step."
-          actionLabel="Re-fact-check"
-          onAction={() => onRetry('fact_check')}
-          disabled={acting}
-        />
-        <DecisionCard
-          icon="fa-arrows-rotate"
-          title="Regenerate from scratch"
-          body="Throw everything out and restart from the beginning. Re-runs both drafting and fact-check (slowest, most expensive)."
-          actionLabel="Regenerate"
-          onAction={() => onRetry('generate')}
-          disabled={acting}
-        />
-      </DecisionGroup>
-    </div>
-  );
-}
-
-function DecisionGroup({ label, emphasize, children }) {
-  return (
-    <div>
-      <div
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: emphasize ? 'var(--admin-brown-dark)' : 'var(--neutral-600)',
-          paddingBottom: 'var(--space-2)',
-          borderBottom: `1px solid ${emphasize ? 'var(--admin-brown)' : 'var(--neutral-200)'}`,
-          marginBottom: 'var(--space-4)',
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function DecisionCard({ icon, title, body, actionLabel, primary, onAction, disabled }) {
-  return (
-    <div
-      style={{
-        padding: 'var(--space-3) var(--space-2)',
-        display: 'flex',
-        gap: 'var(--space-4)',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-      }}
-    >
-      <div style={{
-        width: '40px',
-        height: '40px',
-        borderRadius: 'var(--radius)',
-        background: primary ? 'var(--admin-brown-dark)' : 'var(--admin-brown-light)',
-        color: primary ? 'white' : 'var(--admin-brown-dark)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <i className={`fas ${icon}`}></i>
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-sm)',
-          fontWeight: 700,
-          color: 'var(--neutral-900)',
-          marginBottom: '2px',
-        }}>
-          {title}
-        </div>
-        <div style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
-          color: 'var(--neutral-600)',
-          lineHeight: 1.5,
-        }}>
-          {body}
-        </div>
-      </div>
-      <button
-        onClick={onAction}
-        disabled={disabled}
-        style={primary ? { ...primaryBtn, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' } : { ...secondaryBtn, opacity: disabled ? 0.6 : 1, cursor: disabled ? 'not-allowed' : 'pointer' }}
-      >
-        {actionLabel}
-      </button>
-    </div>
-  );
-}
 
 function TerminalState({ icon, title, detail, followUp }) {
   return (

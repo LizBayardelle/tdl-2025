@@ -3,6 +3,7 @@ class ConceptGeneration < ApplicationRecord
     label aliases summary description location examples etymology
     school_of_thought history controversy clinical_relevance
     misconceptions mnemonic developmental_notes measurement_notes
+    attribution
   ].freeze
 
   belongs_to :batch, class_name: 'ConceptGenerationBatch', foreign_key: :concept_generation_batch_id
