@@ -1,8 +1,8 @@
 # Generates a ConceptDefinition for an existing user concept on demand.
 # Wraps ConceptGeneratorService (Sonnet 4.6 + web search) and writes the
-# result straight to a fresh ConceptDefinition record — no pack_id, no
-# review queue.  The user's concept_generations counter is consumed before
-# the job fires so we don't pay for over-quota calls.
+# result straight to a fresh ConceptDefinition record, auto-approved with
+# no review queue.  The user's concept_generations counter is consumed
+# before the job fires so we don't pay for over-quota calls.
 class GenerateConceptDefinitionJob < ApplicationJob
   queue_as :default
 
@@ -65,8 +65,7 @@ class GenerateConceptDefinitionJob < ApplicationJob
 
       content = result[:content] || {}
 
-      # Build attrs for the ConceptDefinition record.  pack_id is nil — this
-      # definition belongs to the user-generated channel, not a curated pack.
+      # Build attrs for the ConceptDefinition record.
       attrs = CONTENT_FIELDS.each_with_object({}) do |field, hash|
         value = content[field]
         hash[field] = value unless value.nil? || (value.respond_to?(:strip) && value.strip.empty?)

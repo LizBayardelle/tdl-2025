@@ -35,7 +35,6 @@ module Admin
           existing_concept_definition: {
             id: existing.id,
             label: existing.label,
-            pack_id: existing.pack_id,
             summary: existing.summary
           }
         }, status: :conflict
@@ -219,7 +218,6 @@ module Admin
         target_mode: gen.target_mode,
         target_concept_definition_id: gen.target_concept_definition_id,
         approved_concept_definition_id: gen.approved_concept_definition_id,
-        approved_concept_definition_pack_id: gen.approved_concept_definition&.pack_id,
         approved_at: gen.approved_at,
         rejected_reason: gen.rejected_reason,
         created_at: gen.created_at,

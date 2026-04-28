@@ -7,7 +7,7 @@ class ConceptsController < ApplicationController
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Concept)
     @concepts = Concept.where(id: accessible_ids)
-      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :collections, :domains, definition: :pack)
+      .includes(:outgoing_connections, :incoming_connections, :sources, :people, :linked_notes, :collections, :domains, :definition)
       .recent
 
     respond_to do |format|
@@ -30,10 +30,7 @@ class ConceptsController < ApplicationController
                 }
               },
               domains: { only: [:id, :name] },
-              definition: {
-                only: [:id, :label],
-                include: { pack: { only: [:id, :name] } }
-              }
+              definition: { only: [:id, :label] }
             }
           ).merge(
             collections: concept.collections.map { |c| { id: c.id, name: c.name } },
@@ -50,16 +47,6 @@ class ConceptsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        # Pack definitions whose label matches this concept — surface
-        # purchase opportunities on the show page.
-        available_definitions = ConceptDefinition
-          .where("LOWER(label) = ?", @concept.label.to_s.downcase.strip)
-          .where.not(pack_id: nil)
-          .where.not(id: @concept.definition_id)
-          .joins(:pack)
-          .where(packs: { published: true })
-          .includes(:pack)
-
         # Sources tagged with this concept, enriched with note count and
         # marker info so the show page can sort key sources first and surface
         # the most-noted papers.
@@ -130,8 +117,7 @@ class ConceptsController < ApplicationController
                 :controversy, :clinical_relevance, :misconceptions, :mnemonic,
                 :developmental_notes, :measurement_notes, :attribution,
                 :external_refs
-              ],
-              include: { pack: { only: [:id, :name] } }
+              ]
             },
             outgoing_connections: {
               only: [:id, :rel_type, :relationship_label],
@@ -154,20 +140,6 @@ class ConceptsController < ApplicationController
           key_authors: key_authors_payload,
           generation_quota: current_user.concept_generation_quota,
           contextual_notes: contextual_notes_payload,
-          available_definitions: available_definitions.map { |d|
-            owned = current_user.user_packs.exists?(pack_id: d.pack_id)
-            {
-              id: d.id,
-              summary: d.summary,
-              pack: {
-                id: d.pack.id,
-                name: d.pack.name,
-                price_cents: d.pack.price_cents,
-                concept_count: d.pack.concept_count,
-                owned: owned,
-              }
-            }
-          }
         )
       }
     end

@@ -377,20 +377,21 @@ function TermsOfService() {
         </P>
       </Sec>
 
-      <Sec n="7" title="Purchases, packs, and subscriptions">
+      <Sec n="7" title="Subscriptions and billing">
         <P>
-          The service offers paid content (&ldquo;Packs&rdquo;) and may offer
-          subscription plans. Prices, taxes, and any recurring billing terms
-          are shown at checkout. Payments are processed by Stripe; by paying,
-          you also agree to Stripe&apos;s terms.
+          The service offers paid subscription plans (&ldquo;Storage&rdquo;
+          and &ldquo;Unlimited&rdquo;).  Prices, taxes, and recurring
+          billing terms are shown at checkout.  Subscriptions auto-renew at
+          the price shown for the interval you selected (monthly or
+          annual) until cancelled.  Payments are processed by Stripe; by
+          paying, you also agree to Stripe&apos;s terms.
         </P>
         <P>
-          Refunds are governed by our{' '}
-          <A href="/legal/refunds">Refund Policy</A>. We may change prices for
-          future purchases or for the next billing period of an active
-          subscription. We will give reasonable notice of price changes that
-          affect a renewal. You may cancel before the renewal to avoid the
-          new price.
+          Refunds and cancellation are governed by our{' '}
+          <A href="/legal/refunds">Refund Policy</A>.  We may change prices
+          for the next billing period of an active subscription; we will
+          give reasonable notice of price changes that affect a renewal,
+          and you may cancel before the renewal to avoid the new price.
         </P>
       </Sec>
 
@@ -596,10 +597,11 @@ function PrivacyPolicy() {
         </Sub>
         <Sub title="Payment information">
           <P>
-            If you buy a Pack, Stripe processes the payment. We receive a
-            record of the purchase, including amount, currency, the last four
-            digits of your card, and Stripe&apos;s customer and charge
-            identifiers. We do not receive or store full card numbers.
+            If you subscribe to a paid plan, Stripe processes the payment.
+            We receive a record of the charge, including amount, currency,
+            the last four digits of your card, and Stripe&apos;s customer,
+            subscription, and invoice identifiers.  We do not receive or
+            store full card numbers.
           </P>
         </Sub>
         <Sub title="Technical and usage information">
@@ -972,8 +974,8 @@ function AcceptableUsePolicy() {
           distribute paywalled, licensed, or otherwise restricted material
           to people who do not have an independent right to access it.
           Sharing within a research group of properly licensed materials is
-          generally fine; making a Pack of copyrighted PDFs available to
-          the public is not.
+          generally fine; making a public collection of copyrighted PDFs
+          available to anyone is not.
         </P>
       </Sec>
 
@@ -1043,7 +1045,7 @@ function AcceptableUsePolicy() {
             'Remove or hide specific content.',
             'Restrict specific features.',
             'Suspend the account temporarily.',
-            'Terminate the account, which ends access to the service and to any paid Packs associated with it.',
+            'Terminate the account, which ends access to the service.',
             'Cooperate with law enforcement, including responding to valid legal process.',
           ]}
         />
@@ -1199,9 +1201,9 @@ function DmcaPolicy() {
           appropriate circumstances. We consider the totality of the user&apos;s
           history, including the number of valid notices, the user&apos;s
           response, whether counter-notices were filed and were valid, and
-          whether the conduct continued after warning. Termination ends
-          access to the service and to any paid Packs associated with the
-          account, and does not entitle the user to a refund.
+          whether the conduct continued after warning.  Termination ends
+          access to the service and does not entitle the user to a refund
+          of any prepaid period.
         </P>
       </Sec>
 
@@ -1250,71 +1252,78 @@ function RefundPolicy() {
   return (
     <>
       <P>
-        This policy explains when {COMPANY.product} issues refunds and how
-        to request one. The short version: you can get a full refund within
-        7 days of purchase if you have not yet accessed substantive Pack
-        content. Beyond that, refunds are at our discretion, with a small
-        set of cases where we always issue one.
+        This policy explains when {COMPANY.product} issues refunds for
+        subscription fees and how to request one.  The short version: you
+        can cancel any time and keep access through the end of the period
+        you already paid for, no refund of the unused portion required by
+        default.  We will, however, refund unused time in a small set of
+        cases below, and we always refund clear billing mistakes.
       </P>
       <P>
-        Refunds apply to purchases made directly through {COMPANY.product}.
-        Purchases made through a third party (for example, a reseller) are
-        governed by that party&apos;s policy.
+        Refunds apply to subscriptions paid directly through{' '}
+        {COMPANY.product}.  Subscriptions paid through a third party (for
+        example, a reseller) are governed by that party&apos;s policy.
       </P>
 
-      <Sec n="1" title="The 7-day window">
+      <Sec n="1" title="How cancellation works">
         <P>
-          You may request a full refund within 7 days of purchase, for any
-          reason, if you have not yet accessed substantive content from the
-          Pack. &ldquo;Substantive content&rdquo; means opening more than
-          the preview, downloading included sources, or otherwise using
-          material that was not visible before purchase. Browsing the
-          Pack&apos;s landing page or its preview does not count.
+          When you cancel a subscription, the cancellation is scheduled for
+          the end of your current billing period.  You keep paid access
+          until that date.  Your account then drops to the Free tier; your
+          stored Content (sources, notes, concepts, definitions, etc.)
+          remains available on the Free tier within its limits.
         </P>
         <P>
-          We err on the side of granting these requests when the use is
-          ambiguous. If you ask within the window and your usage is light,
-          assume the answer is yes.
+          Cancellation does not, by itself, refund the unused portion of
+          the period.  If you would like that, see the next section.
         </P>
       </Sec>
 
       <Sec n="2" title="Cases where we always refund">
         <P>
-          Regardless of the 7-day window, we issue a full refund in the
-          following cases:
+          We issue a full or prorated refund, regardless of how long ago
+          the charge happened, in the following cases:
         </P>
         <L
           items={[
-            'Duplicate purchase. You bought the same Pack twice. Send us either order ID and we refund the second.',
-            'Billing error. You were charged the wrong amount, or charged after a successful cancellation, or charged for something you did not buy.',
-            'Unauthorized purchase. The transaction was made without your consent, including fraud on your card. Report it to us and to your card issuer.',
-            'Material failure. The Pack does not contain what was advertised, or technical issues on our end prevent you from accessing it and we cannot resolve them in a reasonable time.',
+            'Billing error.  You were charged the wrong amount, charged after a successful cancellation, charged twice for the same period, or charged for something you did not subscribe to.',
+            'Unauthorized charge.  The transaction was made without your consent, including fraud on your card.  Report it to us and to your card issuer.',
+            'Material failure.  The service is unavailable to you for a meaningful portion of a paid period because of a problem on our end and we cannot resolve it in a reasonable time.',
           ]}
         />
+        <P>Write to us whenever you discover the issue.</P>
+      </Sec>
+
+      <Sec n="3" title="Discretionary refunds for unused time">
         <P>
-          These are not subject to the 7-day limit. Write to us whenever
-          you discover the issue.
+          Outside the cases above, refunds of the unused portion of a
+          subscription are at our discretion.  If you cancelled shortly
+          after auto-renewal, or your circumstances changed, tell us what
+          happened.  We consider how recent the renewal was, how much of
+          the period has been used (including AI features billed against
+          your tier&apos;s quota), and whether the situation is
+          exceptional.  We will tell you yes or no plainly.
+        </P>
+        <P>
+          By default we will not refund a period that is mostly used up,
+          and we will not refund concept-definition generations that have
+          already been spent.
         </P>
       </Sec>
 
-      <Sec n="3" title="Outside the 7-day window">
+      <Sec n="4" title="Auto-renewal disclosures">
         <P>
-          After 7 days, or if you have already used substantive Pack
-          content, refunds are at our discretion. Tell us what happened. We
-          consider how much of the Pack has been used, how recent the
-          purchase was, and whether the situation is exceptional. We do not
-          guarantee a refund in these cases, and we will tell you yes or no
-          plainly.
+          Subscriptions auto-renew at the price shown at checkout for the
+          interval you selected (monthly or annual).  Stripe sends a
+          receipt after every successful renewal charge.  You can cancel
+          at any time from the Subscription page; we do not require a
+          phone call, an email, or a justification.
         </P>
-      </Sec>
-
-      <Sec n="4" title="Subscriptions">
         <P>
-          {COMPANY.product} does not offer subscription plans at this time.
-          If we add them, this section will describe the refund terms that
-          apply to them, including any cancellation, proration, and
-          auto-renewal rules required by California law and other
-          jurisdictions where we operate.
+          California residents: per the California Automatic Renewal Law,
+          you can cancel your auto-renewing subscription online at any
+          time.  Other states with similar laws (New York, Illinois, and
+          others) are honored the same way.
         </P>
       </Sec>
 
@@ -1328,12 +1337,12 @@ function RefundPolicy() {
         </P>
         <L
           items={[
-            'The order or receipt ID, if you have it. Otherwise the date and the approximate amount.',
-            'The reason for the request. A short sentence is enough.',
+            'The receipt ID or invoice number, if you have it.  Otherwise the date and the approximate amount.',
+            'The reason for the request.  A short sentence is enough.',
           ]}
         />
         <P>
-          We respond within 3 business days. Most refund decisions take
+          We respond within 3 business days.  Most refund decisions take
           less than 24 hours.
         </P>
       </Sec>
@@ -1341,23 +1350,23 @@ function RefundPolicy() {
       <Sec n="6" title="How refunds are processed">
         <P>
           Approved refunds go back to the original payment method through
-          Stripe. Processing on our side is immediate. The funds typically
+          Stripe.  Processing on our side is immediate.  The funds typically
           appear on your statement within 5 to 10 business days, depending
-          on your card issuer or bank. We cannot speed up the issuer&apos;s
+          on your card issuer or bank.  We cannot speed up the issuer&apos;s
           side.
         </P>
         <P>
-          When a Pack is refunded, your access to that Pack ends. Notes
-          and other Content you created while you had access remain in
-          your account.
+          When a paid period is refunded, your access drops to the Free
+          tier on the same day the refund is issued.  Your stored Content
+          remains available within the Free tier&apos;s limits.
         </P>
       </Sec>
 
       <Sec n="7" title="Chargebacks">
         <P>
           If something is wrong with a charge, write to us before disputing
-          it with your card issuer. Most issues we can resolve faster than
-          a chargeback can. Disputes filed without first contacting us, or
+          it with your card issuer.  Most issues we can resolve faster than
+          a chargeback can.  Disputes filed without first contacting us, or
           filed in bad faith, may result in suspension or termination of
           your account.
         </P>
@@ -1368,9 +1377,8 @@ function RefundPolicy() {
           If your account is suspended or terminated because of a violation
           of the <A href="/legal/terms">Terms of Service</A> or the{' '}
           <A href="/legal/acceptable-use">Acceptable Use Policy</A>, you
-          are not entitled to a refund of fees already paid for Packs or
-          other access. This is the only category of termination that
-          forfeits refund eligibility.
+          are not entitled to a refund of fees already paid.  This is the
+          only category of termination that forfeits refund eligibility.
         </P>
       </Sec>
 
@@ -1380,8 +1388,8 @@ function RefundPolicy() {
           <A href={`${COMPANY.productUrl}/legal/refunds`}>
             {COMPANY.productUrl}/legal/refunds
           </A>{' '}
-          with the effective date. Changes apply to purchases made after
-          the change takes effect.
+          with the effective date.  Changes apply to charges that occur
+          after the change takes effect.
         </P>
       </Sec>
 
@@ -1426,7 +1434,7 @@ function AiPolicy() {
             'Concept suggestion from a source’s abstract or full text.',
             'Concept-type classification, which decides whether a suggested concept is a methodology, construct, finding, or other category.',
             'Author and entity disambiguation, where the same name across multiple sources may refer to different people.',
-            'Curated Pack generation, where editors use AI assistance to draft Pack content. Pack content is reviewed by a human before publication.',
+            'Concept-definition generation, where you trigger a full encyclopedia-style entry (summary, history, examples, controversies, citations, and similar fields) for a concept in your library.',
           ]}
         />
         <P>
@@ -1658,7 +1666,7 @@ function Subprocessors() {
         <SubprocessorCard
           name="Stripe"
           url="https://stripe.com"
-          role="Payments. Processes Pack purchases, handles cards, and manages payouts."
+          role="Payments. Processes subscription charges, handles cards, manages payouts, and runs the customer billing portal."
           data="Name, email, billing address, payment-method details (card information goes directly to Stripe; we do not see full card numbers), purchase history, and IP at checkout."
           location="United States, with regional processing where applicable"
           links={[

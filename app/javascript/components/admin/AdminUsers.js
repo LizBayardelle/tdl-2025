@@ -171,10 +171,6 @@ export default function AdminUsers() {
                     <i className="fas fa-lightbulb" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
                     {user.concepts_count} concepts
                   </span>
-                  <span>
-                    <i className="fas fa-box" style={{ marginRight: '4px', color: 'var(--neutral-400)' }}></i>
-                    {user.packs_count} packs
-                  </span>
                 </div>
               </div>
             ))}

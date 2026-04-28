@@ -16,8 +16,8 @@ import MagicSparkles from './icons/MagicSparkles';
 // =====================================================================
 // ConceptShow
 // Single concept detail page.  Hierarchy breadcrumb + children, inline
-// relationship adding, pack provenance, related sources/people/notes,
-// and the existing long-form fields displayed cleanly.
+// relationship adding, generated definition + user content side-by-side,
+// related sources/people/notes, and long-form fields.
 // =====================================================================
 
 // Flatten the categorized rel types into a list with category label.
@@ -231,7 +231,6 @@ export default function ConceptShow({ conceptId }) {
 
   const type = concept.effective_concept_type || concept.concept_type;
   const typeLabel = getNodeTypeLabel(type);
-  const pack = concept.definition?.pack;
   const definition = concept.definition;
 
   return (
@@ -260,16 +259,11 @@ export default function ConceptShow({ conceptId }) {
       <section className="cs-hero">
         <div className="cs-hero-top">
           {type && <span className="cs-hero-type">{typeLabel}</span>}
-          {pack && (
-            <a href={`/packs/${pack.id}`} className="cs-hero-pack" title={`Definition from ${pack.name}`}>
-              <span className="cs-pack-dot" aria-hidden="true" />From: {pack.name}
-            </a>
-          )}
         </div>
         <h1 className="cs-hero-title">{toTitleCase(concept.label)}</h1>
         {concept.summary && <p className="cs-hero-summary">{stripHtml(concept.summary)}</p>}
-        {/* Owned-pack pages move the stats into the sidebar; non-owned
-            pages keep them in the hero since they have no sidebar. */}
+        {/* Pages with a definition move stats into the sidebar; bare pages
+            keep them in the hero since they have no sidebar. */}
         {!(definition && (definition.summary || definition.description)) && (
           <HeroStats concept={concept} />
         )}
@@ -281,7 +275,6 @@ export default function ConceptShow({ conceptId }) {
         connections={connections}
         allConcepts={allConcepts}
         definition={definition}
-        pack={pack}
         onCreateConnection={handleCreateConnection}
         onDeleteConnection={handleDeleteConnection}
         onConceptCreated={fetchAllConcepts}
@@ -694,30 +687,25 @@ function Breadcrumb({ parents, current }) {
 
 // =====================================================================
 // ConceptBody — decides between two layouts:
-//   1. OWNED-PACK: 2-column.  Main = full pack article (every field).
-//      Sidebar = compact summaries linking out to the full library data.
-//      User's own annotations append below the pack article.
-//   2. UNOWNED OR NO PACK: single-column flow with full sections.
+//   1. WITH DEFINITION: 2-column.  Main = full encyclopedia article
+//      (every field).  Sidebar = compact summaries linking out to the
+//      full library data.  User annotations append per section.
+//   2. NO DEFINITION: single-column flow with the Generate CTA on top.
 // =====================================================================
 function ConceptBody({
-  concept, conceptId, connections, allConcepts, definition, pack,
+  concept, conceptId, connections, allConcepts, definition,
   onCreateConnection, onDeleteConnection, onConceptCreated,
   onGenerateDefinition, generating, generationError, generationQuota,
 }) {
   const ownedDefinition = definition && (definition.summary || definition.description) ? definition : null;
   const focalId = parseInt(conceptId);
-  const availableDefinitions = concept.available_definitions || [];
 
   if (ownedDefinition) {
     return (
       <div className="cs-2col">
         <main className="cs-2col-main">
-          <PackOwnedLede definition={ownedDefinition} pack={pack} />
-          <IntegratedArticle
-            concept={concept}
-            definition={ownedDefinition}
-            pack={pack}
-          />
+          <DefinitionLede definition={ownedDefinition} />
+          <IntegratedArticle concept={concept} definition={ownedDefinition} />
           <FurtherReading definition={ownedDefinition} />
         </main>
 
@@ -769,20 +757,17 @@ function ConceptBody({
     );
   }
 
-  // Unowned or no pack — single-column flow
+  // No definition yet — single-column flow with the Generate CTA on top
   return (
     <>
-      <PackLede
-        ownedDefinition={null}
-        ownedPack={null}
-        availableDefinitions={availableDefinitions}
-        onGenerateDefinition={onGenerateDefinition}
+      <GenerateDefinitionLede
+        onGenerate={onGenerateDefinition}
         generating={generating}
-        generationError={generationError}
-        generationQuota={generationQuota}
+        error={generationError}
+        quota={generationQuota}
       />
 
-      <IntegratedArticle concept={concept} definition={null} pack={null} />
+      <IntegratedArticle concept={concept} definition={null} />
 
       <Section
         title={`Relationships (${connections.length})`}
@@ -899,7 +884,7 @@ function prettyHost(url) {
 }
 
 // =====================================================================
-// Sidebar — compact summaries used by the owned-pack 2-col layout.
+// Sidebar — compact summaries used by the with-definition 2-col layout.
 // =====================================================================
 function SidebarBlock({ label, count, sub, children }) {
   return (
@@ -1034,49 +1019,11 @@ function SidebarChips({ label, items }) {
 }
 
 // =====================================================================
-// PackLede — unified "Definition" block beneath the hero.  Three states:
-// owned (full lede), available-but-not-owned (teaser + CTA), or none.
-// Designed to make pack-backed concept pages feel like polished wiki
-// entries, and to make available-but-locked content tantalizing.
+// Definition lede — the "Definition" block beneath the hero.  Either the
+// concept has a generated definition (DefinitionLede) or it doesn't, in
+// which case the GenerateDefinitionLede CTA shows up.
 // =====================================================================
-function PackLede({
-  ownedDefinition, ownedPack, availableDefinitions,
-  onGenerateDefinition, generating, generationError, generationQuota,
-}) {
-  // Sort available packs by richness so the most compelling teaser leads.
-  const sortedAvailable = useMemo(() => {
-    return [...availableDefinitions].sort((a, b) => {
-      const aLen = (a.summary || '').length;
-      const bLen = (b.summary || '').length;
-      if (aLen !== bLen) return bLen - aLen;
-      return (b.pack?.concept_count || 0) - (a.pack?.concept_count || 0);
-    });
-  }, [availableDefinitions]);
-
-  if (ownedDefinition) {
-    return <PackOwnedLede definition={ownedDefinition} pack={ownedPack} />;
-  }
-  if (sortedAvailable.length > 0) {
-    const [primary, ...others] = sortedAvailable;
-    return <PackAvailableLede primary={primary} others={others} />;
-  }
-  // No definition yet, no available pack — offer to generate one with Haiku.
-  if (onGenerateDefinition) {
-    return (
-      <PackGenerateLede
-        onGenerate={onGenerateDefinition}
-        generating={generating}
-        error={generationError}
-        quota={generationQuota}
-      />
-    );
-  }
-  return null;
-}
-
-// Placeholder lede shown when there's no definition (owned or available).
-// Offers to spin one up via Haiku, with quota messaging built in.
-function PackGenerateLede({ onGenerate, generating, error, quota }) {
+function GenerateDefinitionLede({ onGenerate, generating, error, quota }) {
   if (generating) {
     return (
       <section className="cs-pack-lede is-generating">
@@ -1151,16 +1098,11 @@ function PackGenerateLede({ onGenerate, generating, error, quota }) {
   );
 }
 
-function PackOwnedLede({ definition, pack }) {
+function DefinitionLede({ definition }) {
   return (
     <section className="cs-pack-lede is-owned">
       <header className="cs-pack-lede-head">
         <span className="cs-pack-lede-eyebrow">Definition</span>
-        {pack && (
-          <a href={`/packs/${pack.id}`} className="cs-pack-lede-byline">
-            From <em>{pack.name}</em>
-          </a>
-        )}
       </header>
       {definition.summary && (
         <p className="cs-pack-lede-summary">{definition.summary}</p>
@@ -1169,7 +1111,7 @@ function PackOwnedLede({ definition, pack }) {
   );
 }
 
-// Long-form fields shared across user concepts and pack definitions.
+// Long-form fields shared across user concepts and generated definitions.
 const LONG_FORM_FIELDS = [
   { key: 'description',         label: 'Description',          rich: true },
   { key: 'mnemonic',            label: 'Mnemonic' },
@@ -1187,11 +1129,10 @@ const LONG_FORM_FIELDS = [
 
 // =====================================================================
 // IntegratedArticle — per-field section with the user's content above
-// (if present) and a boxed pack passage below (if present).  A field
-// only renders if at least one side has content.  Used for both
-// owned-pack pages and bare concept pages alike.
+// (if present) and the generated definition's content boxed below (if
+// present).  A field only renders if at least one side has content.
 // =====================================================================
-function IntegratedArticle({ concept, definition, pack }) {
+function IntegratedArticle({ concept, definition }) {
   const present = LONG_FORM_FIELDS.filter((f) => concept[f.key] || definition?.[f.key]);
   if (present.length === 0) return null;
 
@@ -1199,7 +1140,7 @@ function IntegratedArticle({ concept, definition, pack }) {
     <section className="cs-integrated">
       {present.map((f) => {
         const userValue = concept[f.key];
-        const packValue = definition?.[f.key];
+        const generatedValue = definition?.[f.key];
         return (
           <article key={f.key} className="cs-integrated-section">
             <h2 className="cs-integrated-heading">{f.label}</h2>
@@ -1212,14 +1153,12 @@ function IntegratedArticle({ concept, definition, pack }) {
               </div>
             )}
 
-            {packValue && (
+            {generatedValue && (
               <aside className="cs-integrated-pack">
-                <div className="cs-integrated-pack-eyebrow">
-                  From <em>{pack?.name || 'pack'}</em>
-                </div>
+                <div className="cs-integrated-pack-eyebrow">From the generated definition</div>
                 {f.rich
-                  ? <RichTextBlock html={packValue} />
-                  : <p className="cs-integrated-text">{packValue}</p>}
+                  ? <RichTextBlock html={generatedValue} />
+                  : <p className="cs-integrated-text">{generatedValue}</p>}
               </aside>
             )}
           </article>
@@ -1232,59 +1171,9 @@ function IntegratedArticle({ concept, definition, pack }) {
   );
 }
 
-function PackAvailableLede({ primary, others }) {
-  const summary = stripHtml(primary.summary || '');
-  return (
-    <section className="cs-pack-lede is-available">
-      <header className="cs-pack-lede-head">
-        <span className="cs-pack-lede-eyebrow is-preview">Preview</span>
-        <span className="cs-pack-lede-byline">
-          From <em>{primary.pack.name}</em>
-        </span>
-      </header>
-      {summary && (
-        <div className="cs-pack-lede-summary-wrap">
-          <p className="cs-pack-lede-summary">{summary}</p>
-          <div className="cs-pack-lede-fade" aria-hidden="true" />
-        </div>
-      )}
-      <div className="cs-pack-lede-cta">
-        <div className="cs-pack-lede-cta-text">
-          <strong>{primary.pack.name}</strong>
-          <span className="cs-pack-lede-cta-meta">
-            {primary.pack.concept_count > 0 && <> · {primary.pack.concept_count} curated concept{primary.pack.concept_count === 1 ? '' : 's'}</>}
-            {primary.pack.price_cents > 0 && <> · {formatPrice(primary.pack.price_cents)}</>}
-            {primary.pack.price_cents === 0 && <> · Free</>}
-          </span>
-        </div>
-        <a href={`/packs/${primary.pack.id}`} className="sp-action sp-action-primary cs-pack-lede-cta-btn">
-          {primary.pack.owned ? 'Open pack' : 'See what’s inside →'}
-        </a>
-      </div>
-      {others.length > 0 && (
-        <p className="cs-pack-lede-others">
-          {others.length} other pack{others.length === 1 ? '' : 's'} also include
-          {others.length === 1 ? 's' : ''} this concept:&nbsp;
-          {others.map((d, i) => (
-            <React.Fragment key={d.id}>
-              {i > 0 && ', '}
-              <a href={`/packs/${d.pack.id}`} className="cs-pack-lede-others-link">{d.pack.name}</a>
-            </React.Fragment>
-          ))}
-        </p>
-      )}
-    </section>
-  );
-}
-
 function truncateAt(s, n) {
   if (!s) return '';
   return s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s;
-}
-
-function formatPrice(cents) {
-  if (cents == null) return '';
-  return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
 }
 
 function Section({ title, sub, children, defaultOpen = true }) {
@@ -1893,27 +1782,6 @@ function CSStyles() {
         border-radius: var(--r-sm);
         font-weight: 500;
       }
-      .cs-hero-pack {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-warm);
-        padding: 3px 10px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .cs-hero-pack:hover { background: var(--paper); border: 1px solid var(--ink-line); padding: 2px 9px; }
-      .cs-pack-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--ink-3);
-        flex-shrink: 0;
-      }
       .cs-hero-title {
         font-family: var(--font-display);
         font-size: 40px;
@@ -1933,8 +1801,7 @@ function CSStyles() {
         max-width: 720px;
       }
 
-      /* Available in packs (commercial upsell, restrained) */
-      /* ---------- Pack lede (owned + available variants) ---------- */
+      /* ---------- Definition lede (with-definition + generate states) ---------- */
       .cs-pack-lede {
         position: relative;
         max-width: 720px;

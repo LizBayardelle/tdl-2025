@@ -15,8 +15,6 @@ class User < ApplicationRecord
   has_many :highlight_colors, dependent: :destroy
   has_many :highlights, dependent: :destroy
   has_many :upload_batches, dependent: :destroy
-  has_many :user_packs, dependent: :destroy
-  has_many :packs, through: :user_packs
   has_many :subscriptions, dependent: :destroy
 
   # Collections and shares

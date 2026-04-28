@@ -57,7 +57,6 @@ export default function AdminConceptGenerations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [assignTarget, setAssignTarget] = useState(null); // { generationId, conceptDefinitionId, conceptName }
   const [retryingIds, setRetryingIds] = useState(() => new Set());
   const pollRef = useRef(null);
 
@@ -142,15 +141,9 @@ export default function AdminConceptGenerations() {
     };
   }, [generations]);
 
-  const isApprovedUnassigned = (g) =>
-    g.status === 'approved' && g.approved_concept_definition_id && !g.approved_concept_definition_pack_id;
-
   const inProgress = generations.filter((g) => IN_PROGRESS_STATUSES.includes(g.status));
   const readyForReview = generations.filter((g) => g.status === 'ready_for_review');
-  const unassigned = generations.filter(isApprovedUnassigned);
-  const history = generations.filter(
-    (g) => TERMINAL_STATUSES.includes(g.status) && !isApprovedUnassigned(g)
-  );
+  const history = generations.filter((g) => TERMINAL_STATUSES.includes(g.status));
 
   return (
     <AdminLayout currentPage="concept_generations">
@@ -184,26 +177,6 @@ export default function AdminConceptGenerations() {
         </Section>
 
         <Section
-          title="Unassigned"
-          count={unassigned.length}
-          emptyText="Every approved concept is filed in a pack."
-        >
-          {unassigned.map((g) => (
-            <GenerationRow
-              key={g.id}
-              gen={g}
-              onAssign={() =>
-                setAssignTarget({
-                  generationId: g.id,
-                  conceptDefinitionId: g.approved_concept_definition_id,
-                  conceptName: g.concept_name,
-                })
-              }
-            />
-          ))}
-        </Section>
-
-        <Section
           title="History"
           count={history.length}
           emptyText="No past drafts yet."
@@ -221,17 +194,6 @@ export default function AdminConceptGenerations() {
             />
           ))}
         </Section>
-
-        {assignTarget && (
-          <AssignToPackModal
-            target={assignTarget}
-            onClose={() => setAssignTarget(null)}
-            onAssigned={() => {
-              setAssignTarget(null);
-              fetchGenerations();
-            }}
-          />
-        )}
 
         {loading && generations.length === 0 && (
           <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)', marginTop: 'var(--space-4)' }}>Loading...</p>
@@ -311,13 +273,8 @@ function Section({ title, count, emptyText, children, emphasize, collapsible, op
   );
 }
 
-function GenerationRow({ gen, emphasize, pulsing, muted, onAssign, onRetry, retrying }) {
+function GenerationRow({ gen, emphasize, pulsing, muted, onRetry, retrying }) {
   const meta = STATUS_META[gen.status] || STATUS_META.pending;
-  const handleAssignClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onAssign && onAssign();
-  };
   const handleRetryClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -379,35 +336,8 @@ function GenerationRow({ gen, emphasize, pulsing, muted, onAssign, onRetry, retr
           </div>
         </div>
       </div>
-      {onAssign && (
-        <button
-          onClick={handleAssignClick}
-          style={{
-            padding: '6px 12px',
-            borderRadius: 'var(--radius)',
-            fontSize: 'var(--text-xs)',
-            fontWeight: 600,
-            fontFamily: 'var(--font-body)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            background: 'var(--admin-brown-dark)',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-          title="Assign this concept to a pack"
-        >
-          <i className="fas fa-box"></i>
-          Assign to pack
-        </button>
-      )}
-      {!onAssign && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          {onRetry && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+        {onRetry && (
             <button
               onClick={handleRetryClick}
               disabled={retrying}
@@ -451,7 +381,6 @@ function GenerationRow({ gen, emphasize, pulsing, muted, onAssign, onRetry, retr
             {meta.label}
           </span>
         </div>
-      )}
     </a>
   );
 }
@@ -718,201 +647,3 @@ function Banner({ tone, children }) {
   );
 }
 
-function AssignToPackModal({ target, onClose, onAssigned }) {
-  const [packs, setPacks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('');
-  const [assigning, setAssigning] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/admin/packs.json');
-        const data = await res.json();
-        setPacks(Array.isArray(data) ? data : []);
-      } catch {
-        setError('Failed to load packs.');
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  const filtered = packs.filter((p) => p.name.toLowerCase().includes(filter.trim().toLowerCase()));
-
-  const assign = async (packId) => {
-    setAssigning(true);
-    setError('');
-    try {
-      const res = await fetch(`/admin/packs/${packId}/concept_definitions/import_from_concept`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ concept_definition_ids: [target.conceptDefinitionId] }),
-      });
-      if (res.ok) {
-        onAssigned();
-      } else {
-        const data = await res.json();
-        setError((data.errors || []).join(', ') || 'Failed to assign.');
-      }
-    } catch {
-      setError('Failed to assign.');
-    } finally {
-      setAssigning(false);
-    }
-  };
-
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: 'var(--space-4)',
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: 'white',
-          borderRadius: 'var(--radius)',
-          width: '100%',
-          maxWidth: '520px',
-          height: 'min(640px, 85vh)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          boxShadow: 'var(--shadow-lg)',
-        }}
-      >
-        <div
-          style={{
-            padding: 'var(--space-5) var(--space-6)',
-            background: 'var(--admin-brown-light)',
-            borderBottom: '1px solid var(--admin-brown)',
-          }}
-        >
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', fontWeight: 700, color: 'var(--admin-brown-dark)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Assign to pack
-          </div>
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-800)', marginTop: 'var(--space-1)' }}>
-            <strong>{target.conceptName}</strong>
-          </div>
-        </div>
-
-        <div style={{ padding: 'var(--space-5) var(--space-6) var(--space-4)' }}>
-          <input
-            type="text"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter packs…"
-            style={{
-              width: '100%',
-              padding: 'var(--space-3) var(--space-4)',
-              border: '1px solid var(--neutral-300)',
-              borderRadius: 'var(--radius)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              boxSizing: 'border-box',
-            }}
-            autoFocus
-          />
-          {error && (
-            <div style={{ marginTop: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', background: 'var(--neutral-900)', color: 'white', borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
-              {error}
-            </div>
-          )}
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 var(--space-6) var(--space-5)' }}>
-          {loading ? (
-            <div style={{ padding: 'var(--space-5) var(--space-4)', fontFamily: 'var(--font-body)', color: 'var(--neutral-500)', fontSize: 'var(--text-sm)' }}>Loading packs…</div>
-          ) : filtered.length === 0 ? (
-            <div style={{ padding: 'var(--space-5) var(--space-4)', fontFamily: 'var(--font-body)', color: 'var(--neutral-500)', fontSize: 'var(--text-sm)' }}>
-              {packs.length === 0 ? 'No packs yet. Create one in Packs first.' : 'No packs match that filter.'}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              {filtered.map((pack) => (
-                <button
-                  key={pack.id}
-                  onClick={() => assign(pack.id)}
-                  disabled={assigning}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 'var(--space-4)',
-                    padding: 'var(--space-4) var(--space-5)',
-                    background: 'white',
-                    border: '1px solid var(--neutral-200)',
-                    borderRadius: 'var(--radius)',
-                    cursor: assigning ? 'not-allowed' : 'pointer',
-                    textAlign: 'left',
-                    fontFamily: 'var(--font-body)',
-                    opacity: assigning ? 0.6 : 1,
-                    transition: 'border-color 0.15s, background 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!assigning) {
-                      e.currentTarget.style.background = 'var(--admin-brown-light)';
-                      e.currentTarget.style.borderColor = 'var(--admin-brown)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = 'var(--neutral-200)';
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--neutral-900)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {pack.name}
-                    </div>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', marginTop: '2px' }}>
-                      {pack.concept_definitions_count ?? pack.concept_count ?? 0} concepts · {pack.published ? 'published' : 'draft'}
-                    </div>
-                  </div>
-                  <i className="fas fa-arrow-right" style={{ color: 'var(--admin-brown-dark)', fontSize: '12px' }}></i>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div
-          style={{
-            padding: 'var(--space-4) var(--space-6)',
-            borderTop: '1px solid var(--neutral-200)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <button
-            onClick={onClose}
-            style={{
-              background: 'white',
-              color: 'var(--neutral-700)',
-              border: '1px solid var(--neutral-300)',
-              padding: 'var(--space-2) var(--space-5)',
-              borderRadius: 'var(--radius)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              cursor: 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

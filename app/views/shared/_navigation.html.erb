@@ -60,9 +60,6 @@
             <%= link_to uploads_path, class: "site-nav-dropdown-link" do %>
               <i class="fas fa-upload site-nav-dropdown-icon"></i>Bulk Uploads
             <% end %>
-            <%= link_to packs_path, class: "site-nav-dropdown-link" do %>
-              <i class="fas fa-box-open site-nav-dropdown-icon"></i>Packs Store
-            <% end %>
             <%= link_to sharing_path, class: "site-nav-dropdown-link" do %>
               <i class="fas fa-share-nodes site-nav-dropdown-icon"></i>Sharing
             <% end %>
@@ -121,7 +118,6 @@
         <div class="site-nav-mobile-eyebrow">Account · <%= current_user.email %></div>
         <%= link_to "Account", edit_user_registration_path, class: "site-nav-mobile-link" %>
         <%= link_to "Bulk Uploads", uploads_path, class: "site-nav-mobile-link" %>
-        <%= link_to "Packs Store", packs_path, class: "site-nav-mobile-link" %>
         <%= link_to "Sharing", sharing_path, class: "site-nav-mobile-link" %>
         <% if current_user.admin? %>
           <%= link_to "Admin", admin_dashboard_path, class: "site-nav-mobile-link" %>

@@ -12,14 +12,6 @@ Rails.application.routes.draw do
   get "uploads", to: "home#uploads", as: :uploads
   get "search", to: "search#index"
 
-  # Packs & purchasing
-  resources :packs, only: [:index, :show] do
-    collection do
-      get :owned
-    end
-  end
-  post "checkout/:pack_id", to: "checkouts#create", as: :checkout
-
   # Subscriptions
   get  "subscribe",          to: "subscriptions#new",    as: :subscribe
   post "subscriptions",      to: "subscriptions#create"
@@ -40,18 +32,6 @@ Rails.application.routes.draw do
     get "/", to: "dashboard#index", as: :dashboard
     get "docs", to: "docs#index", as: :docs
     get "docs/:slug", to: "docs#show", as: :doc
-    resources :packs do
-      member do
-        post :sync_stripe
-      end
-      resources :concept_definitions, only: [:create, :update, :destroy] do
-        collection do
-          get :search_concepts
-          post :import_from_concept
-        end
-        resources :links, only: [:create, :destroy], controller: 'concept_definition_links'
-      end
-    end
     resources :users, only: [:index, :update]
 
     resources :concept_generations, only: [:index, :new, :create, :show, :update] do

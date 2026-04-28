@@ -152,7 +152,12 @@ class EnrichCitedSourceJob < ApplicationJob
 
     if updates.any?
       Rails.logger.info "EnrichCitedSourceJob updating src=#{source.id} (#{confidence}): #{updates.keys.inspect}"
-      source.update(updates)
+      # `authors` collides with the has_many :authors association, so write
+      # the column directly via []= and save once at the end.
+      authors_value = updates.delete(:authors)
+      source[:authors] = authors_value if authors_value
+      source.assign_attributes(updates)
+      source.save
     else
       Rails.logger.info "EnrichCitedSourceJob no fields to fill for src=#{source.id}"
     end

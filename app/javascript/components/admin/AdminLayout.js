@@ -91,7 +91,6 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: 'fa-tachometer-alt', key: 'dashboard' },
-    { href: '/admin/packs', label: 'Packs', icon: 'fa-box', key: 'packs' },
     { href: '/admin/concept_generations', label: 'Concept Creator', icon: 'fa-wand-magic-sparkles', key: 'concept_generations' },
     { href: '/admin/users', label: 'Users', icon: 'fa-users', key: 'users' },
     {

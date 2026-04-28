@@ -83,7 +83,7 @@ class PassageInsightService
         properties: {
           summary: {
             type: 'string',
-            description: 'One to three plain-language sentences capturing what the passage is saying. No quoting, no fluff.'
+            description: 'One to three plain-language sentences stating the information directly. Write as if YOU are stating the facts, not describing what some other text says. NEVER start with "This passage…", "The passage…", "The text…", "The author…", "The article…", "It describes…", "It explains…", or any similar meta-language. Just state the content.'
           },
           existing_concept_labels: {
             type: 'array',
@@ -179,7 +179,9 @@ class PassageInsightService
       """
 
       Do four things:
-      1. Write a 1-3 sentence plain-language summary of what the passage is saying. No hedging, no "the passage discusses".
+      1. Write a 1-3 sentence summary that states the information DIRECTLY, as if you are presenting the facts.  NEVER start the summary with phrases like "This passage…", "The passage…", "The text…", "The article…", "The author…", "It describes…", "It explains…", or any other meta-reference to the source.  Examples:
+         BAD:  "This passage describes career adaptability as the readiness to cope with work-related tasks."
+         GOOD: "Career adaptability is the readiness to cope with work-related tasks and adjust to changing career plans, framed within goal-setting theory."
       2. Pick concept tags. CRITICAL: judge concepts ONLY from the passage text, NOT the source title/abstract. The source context is for disambiguation only. A concept counts ONLY if the passage's actual sentences address it — not because the larger article is about it. If the passage just sets up adjacent topics without engaging them, return nothing. It is correct and expected to return ZERO concepts when the passage is a transition, citation cluster, or framing sentence. Return at most 2-3 truly applicable tags.
       3. Identify named people DISCUSSED substantively in the passage (their work explained, views described). Authors who only appear in citations like "(Smith, 2020)" or "Creed et al., 2009" are NOT people — they belong in cited_sources.
       4. List EVERY distinct citation in the passage as a cited_sources entry. Include both full bibliography entries (with title) and inline citations (with empty title, just authors+year). Each unique work gets one entry. Don't merge multiple citations into one. NEVER fabricate a title — leave it blank if not present.

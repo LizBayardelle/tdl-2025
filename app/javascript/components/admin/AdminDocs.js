@@ -109,8 +109,8 @@ const FLOWS = [
   {
     name: 'Concepts',
     routes: [
-      { path: '/concepts', view: 'ConceptsIndex.js', notes: 'Library: filters by type/origin, hierarchy, pack provenance', rebrandedAt: '2026-04-26' },
-      { path: '/concepts/:id', view: 'ConceptShow.js', notes: 'Hierarchy breadcrumb, inline relationship adding, pack provenance', rebrandedAt: '2026-04-26' },
+      { path: '/concepts', view: 'ConceptsIndex.js', notes: 'Library: filters by type, hierarchy', rebrandedAt: '2026-04-26' },
+      { path: '/concepts/:id', view: 'ConceptShow.js', notes: 'Hierarchy breadcrumb, inline relationship adding, on-demand definitions', rebrandedAt: '2026-04-26' },
       { path: '— modal', view: 'ConceptFormModal / ConceptDisambiguationModal', notes: 'Slimmed: relationships moved to show page; new taxonomy + ? reference; sidebar tabs and header in concept navy', rebrandedAt: '2026-04-26' },
     ],
   },
@@ -167,19 +167,9 @@ const FLOWS = [
     ],
   },
   {
-    name: 'Packs',
-    routes: [
-      { path: '/packs', view: 'PacksIndex.js', notes: 'Marketplace' },
-      { path: '/packs/:id', view: 'PackShow.js', notes: 'Detail + checkout entry' },
-      { path: '/packs/owned', view: 'PacksOwned.js', notes: 'My packs' },
-    ],
-  },
-  {
     name: 'Admin',
     routes: [
       { path: '/admin', view: 'AdminDashboard.js', notes: 'Stats grid' },
-      { path: '/admin/packs', view: 'AdminPacks.js', notes: 'Pack management' },
-      { path: '/admin/packs/:id', view: 'AdminPackShow.js', notes: 'Edit pack + concepts' },
       { path: '/admin/users', view: 'AdminUsers.js', notes: 'User table' },
       { path: '/admin/concept_generations', view: 'AdminConceptGenerations.js', notes: 'Generation queue' },
       { path: '/admin/concept_generations/new', view: 'AdminConceptGenerationNew.js', notes: 'New generation form' },
@@ -1434,7 +1424,7 @@ function ToDoDoc() {
         items={[
           {
             title: 'Landing page: FAQ section',
-            body: 'Add an FAQ accordion or simple Q&A list to the marketing homepage. Cover the high-friction questions that block conversion: imports from Zotero / Mendeley / EndNote (planned), exporting your library (planned), mobile app (planned), what happens to your data if you cancel, pricing tiers and the 999-source free limit, and how packs work. Sit between the Founder note and the final CTA.',
+            body: 'Add an FAQ accordion or simple Q&A list to the marketing homepage. Cover the high-friction questions that block conversion: imports from Zotero / Mendeley / EndNote (planned), exporting your library (planned), mobile app (planned), what happens to your data if you cancel, pricing tiers and the 300-article free limit, and how concept-definition generation works. Sit between the Founder note and the final CTA.',
             tags: ['homepage', 'marketing'],
             captured: '2026-04-26',
           },
@@ -1490,13 +1480,13 @@ function ToDoDoc() {
         items={[
           {
             title: 'Automatic relationship creation/detection for concepts',
-            body: 'Trigger Haiku to sweep the whole library and propose relationships, either from the /concepts index page or as a follow-up to PDF/pack ingestion.  Keep as "suggest, then review."  Never auto-create.  Async job into a review queue at /concepts/suggestions.  Cap each run at ~200 concepts with a cost preview.  Remember dismissals so re-running the sweep does not surface the same rejected pairs.',
+            body: 'Trigger Haiku to sweep the whole library and propose relationships, either from the /concepts index page or as a follow-up to PDF ingestion.  Keep as "suggest, then review."  Never auto-create.  Async job into a review queue at /concepts/suggestions.  Cap each run at ~200 concepts with a cost preview.  Remember dismissals so re-running the sweep does not surface the same rejected pairs.',
             tags: ['index', 'on input'],
             captured: '2026-04-26',
           },
           {
-            title: 'Institutional licensing for pre-generated packs',
-            body: 'The pack framework — ConceptDefinition records bundled into a Pack with shared attribution — is no longer the consumer offering, but the infrastructure is built.  Future B2B sales motion: license packs to medical schools, board-prep services, dissertation programs, etc.  Different price point ($500-$5K per institution), different sales channel.  Zero impact on the direct subscription product, but a real second revenue line we can run later without rebuilding anything.  Could partner with subject-matter experts to produce authoritative packs (e.g., "DSM-5 in 200 concepts") and sell into adjacent markets.',
+            title: 'Institutional / B2B sales of curated concept bundles',
+            body: 'Future B2B revenue line: build a "curated bundle" framework on top of ConceptDefinition (pre-generated definitions grouped by domain, e.g., "DSM-5 in 200 concepts" or "Neuroanatomy 101") and license to medical schools, board-prep services, dissertation programs.  Different price point ($500-$5K per institution), different sales channel.  Originally the consumer "Pack" feature was this framework, removed when we moved to subscription + on-demand generation; if we revisit this, build a fresh bundle/license model — do NOT resurrect the old Pack tables (they were tightly coupled to checkout, user_packs, and the consumer marketplace flow we cut).',
             tags: ['monetization', 'b2b'],
             captured: '2026-04-27',
           },

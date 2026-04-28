@@ -12,8 +12,7 @@ module Admin
               email: user.email,
               admin: user.admin,
               created_at: user.created_at,
-              concepts_count: user.concepts.count,
-              packs_count: user.packs.count
+              concepts_count: user.concepts.count
             }
           }
         }

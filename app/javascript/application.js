@@ -23,12 +23,7 @@ import CollectionManager from './components/CollectionManager';
 import ShareModal from './components/ShareModal';
 import BulkUploadPage from './components/BulkUploadPage';
 import BulkUploadWizard from './components/bulk-upload-v2/BulkUploadWizard';
-import PacksIndex from './components/PacksIndex';
-import PackShow from './components/PackShow';
-import PacksOwned from './components/PacksOwned';
 import AdminDashboard from './components/admin/AdminDashboard';
-import AdminPacks from './components/admin/AdminPacks';
-import AdminPackShow from './components/admin/AdminPackShow';
 import AdminUsers from './components/admin/AdminUsers';
 import AdminConceptGenerations from './components/admin/AdminConceptGenerations';
 import AdminConceptGenerationNew from './components/admin/AdminConceptGenerationNew';
@@ -149,38 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(bulkUploadRoot).render(<BulkUploadPage />);
   }
 
-  // Packs
-  const packsIndexRoot = document.getElementById('packs-index-root');
-  if (packsIndexRoot) {
-    createRoot(packsIndexRoot).render(<PacksIndex />);
-  }
-
-  const packShowRoot = document.getElementById('pack-show-root');
-  if (packShowRoot) {
-    const packId = packShowRoot.dataset.packId;
-    createRoot(packShowRoot).render(<PackShow packId={packId} />);
-  }
-
-  const packsOwnedRoot = document.getElementById('packs-owned-root');
-  if (packsOwnedRoot) {
-    createRoot(packsOwnedRoot).render(<PacksOwned />);
-  }
-
   // Admin
   const adminDashboardRoot = document.getElementById('admin-dashboard-root');
   if (adminDashboardRoot) {
     createRoot(adminDashboardRoot).render(<AdminDashboard />);
-  }
-
-  const adminPacksRoot = document.getElementById('admin-packs-root');
-  if (adminPacksRoot) {
-    createRoot(adminPacksRoot).render(<AdminPacks />);
-  }
-
-  const adminPackShowRoot = document.getElementById('admin-pack-show-root');
-  if (adminPackShowRoot) {
-    const packId = adminPackShowRoot.dataset.packId;
-    createRoot(adminPackShowRoot).render(<AdminPackShow packId={packId} />);
   }
 
   const adminUsersRoot = document.getElementById('admin-users-root');

@@ -117,8 +117,6 @@ export default function AdminDashboard() {
             >
               <StatCard label="Total Users" value={stats.total_users} icon="fa-users" />
               <StatCard label="Users This Month" value={stats.users_this_month} icon="fa-user-plus" />
-              <StatCard label="Published Packs" value={stats.published_packs} icon="fa-box" />
-              <StatCard label="Total Purchases" value={stats.total_purchases} icon="fa-shopping-cart" />
             </div>
 
             <SectionLabel>Content</SectionLabel>
@@ -131,7 +129,6 @@ export default function AdminDashboard() {
             >
               <StatCard label="Total Concepts" value={stats.total_concepts} icon="fa-lightbulb" />
               <StatCard label="Total Sources" value={stats.total_sources} icon="fa-book" />
-              <StatCard label="Purchases This Month" value={stats.purchases_this_month} icon="fa-chart-line" />
             </div>
           </>
         ) : (

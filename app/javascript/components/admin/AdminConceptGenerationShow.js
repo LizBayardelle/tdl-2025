@@ -968,24 +968,9 @@ function ReviewTab({ gen, edits, onEdit, onRetry, acting, onRefresh }) {
 
   if (gen.status === 'approved') {
     const cdId = gen.approved_concept_definition_id;
-    const packId = gen.approved_concept_definition_pack_id;
-    let followUp = null;
-    if (cdId && packId) {
-      followUp = (
-        <a href={`/admin/packs/${packId}`} style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}>
-          Open pack to edit ConceptDefinition #{cdId}
-        </a>
-      );
-    } else if (cdId) {
-      followUp = (
-        <span style={{ color: 'var(--neutral-600)' }}>
-          ConceptDefinition #{cdId} isn't assigned to a pack yet —{' '}
-          <a href="/admin/packs" style={{ color: 'var(--admin-brown-dark)', fontWeight: 600, textDecoration: 'underline' }}>
-            assign it in Packs
-          </a>.
-        </span>
-      );
-    }
+    const followUp = cdId ? (
+      <span style={{ color: 'var(--neutral-600)' }}>ConceptDefinition #{cdId} saved.</span>
+    ) : null;
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--space-6) * 2)' }}>
         <TerminalState

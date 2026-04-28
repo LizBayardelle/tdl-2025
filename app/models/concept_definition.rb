@@ -4,7 +4,6 @@ class ConceptDefinition < ApplicationRecord
     process measurement method field
   ].freeze
 
-  belongs_to :pack, optional: true, counter_cache: :concept_count
   has_many :concepts, foreign_key: :definition_id, dependent: :nullify
 
   has_many :concept_definition_domains, dependent: :destroy

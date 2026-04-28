@@ -8,7 +8,7 @@ import { toTitleCase } from '../utils/titleCase';
 // =====================================================================
 // ConceptsIndex
 // Library view of every concept the user owns: clean table, hierarchy
-// indent, type + origin filters, pack provenance.
+// indent, type filter.
 // =====================================================================
 
 export default function ConceptsIndex() {
@@ -22,13 +22,12 @@ export default function ConceptsIndex() {
 
   const [textFilter, setTextFilter] = useState('');
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [origin, setOrigin] = useState('all'); // 'all' | 'mine' | 'pack'
 
   const [sortField, setSortField] = useState('label');
   const [sortDir, setSortDir] = useState('asc');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const activeFilterCount = (selectedTypes.length > 0 ? selectedTypes.length : 0) + (origin !== 'all' ? 1 : 0);
+  const activeFilterCount = selectedTypes.length;
 
   useEffect(() => { fetchConcepts(); }, []);
 
@@ -59,16 +58,9 @@ export default function ConceptsIndex() {
     return counts;
   }, [concepts]);
 
-  const packCount = useMemo(
-    () => concepts.filter((c) => c.definition?.pack?.name).length,
-    [concepts]
-  );
-
   // ---- Apply filters ----
   const filtered = useMemo(() => {
     return concepts.filter((c) => {
-      if (origin === 'mine' && c.definition_id) return false;
-      if (origin === 'pack' && !c.definition_id) return false;
       const t = c.effective_concept_type || c.concept_type;
       if (selectedTypes.length > 0 && !selectedTypes.includes(t)) return false;
       if (textFilter.trim()) {
@@ -77,7 +69,7 @@ export default function ConceptsIndex() {
       }
       return true;
     });
-  }, [concepts, origin, selectedTypes, textFilter]);
+  }, [concepts, selectedTypes, textFilter]);
 
   // ---- Hierarchy (only when no text filter) ----
   const rows = useMemo(() => {
@@ -111,11 +103,9 @@ export default function ConceptsIndex() {
           <h1 className="cidx-title">Concepts</h1>
           <p className="cidx-subtitle">
             {concepts.length} concept{concepts.length === 1 ? '' : 's'}
-            {packCount > 0 && <> · {packCount} from pack{packCount === 1 ? '' : 's'}</>}
           </p>
         </div>
         <div className="cidx-header-actions">
-          <a href="/packs" className="sp-action sp-action-secondary">Browse packs</a>
           <button type="button" className="sp-action sp-action-primary" onClick={() => { setConceptStack([]); setShowForm(true); }}>
             <span className="cidx-plus" aria-hidden="true">+</span> Concept
           </button>
@@ -141,12 +131,6 @@ export default function ConceptsIndex() {
             </span>
           </button>
           <div className="cidx-sidebar-body">
-          <FilterSection label="Origin">
-            <RadioRow checked={origin === 'all'}  onChange={() => setOrigin('all')}  label="All concepts" count={concepts.length} />
-            <RadioRow checked={origin === 'mine'} onChange={() => setOrigin('mine')} label="My library"     count={concepts.length - packCount} />
-            <RadioRow checked={origin === 'pack'} onChange={() => setOrigin('pack')} label="From packs"     count={packCount} />
-          </FilterSection>
-
           <FilterSection
             label="Type"
             trailing={<ConceptTypeHelpButton onClick={() => setShowTypeRef(true)} />}
@@ -206,7 +190,6 @@ export default function ConceptsIndex() {
                     <Th label="Connections" field="connections" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
                     <Th label="Sources" field="sources" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
                     <Th label="Notes"   field="notes"   sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
-                    <th className="cidx-th">Origin</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -268,16 +251,6 @@ function FilterSection({ label, trailing, children }) {
   );
 }
 
-function RadioRow({ checked, onChange, label, count }) {
-  return (
-    <label className="cidx-row">
-      <input type="radio" checked={checked} onChange={onChange} className="cidx-radio" />
-      <span className="cidx-row-label">{label}</span>
-      {count != null && <span className="cidx-row-count">{count}</span>}
-    </label>
-  );
-}
-
 function CheckboxRow({ checked, onChange, label, count }) {
   return (
     <label className="cidx-row">
@@ -309,7 +282,6 @@ function ConceptRow({ concept, depth, hierarchical }) {
   const type = concept.effective_concept_type || concept.concept_type;
   const typeLabel = getNodeTypeLabel(type);
   const connectionsCount = (concept.outgoing_connections?.length || 0) + (concept.incoming_connections?.length || 0);
-  const pack = concept.definition?.pack;
 
   return (
     <tr>
@@ -325,15 +297,6 @@ function ConceptRow({ concept, depth, hierarchical }) {
       <td className="cidx-td-num">{connectionsCount || <span className="cidx-muted">—</span>}</td>
       <td className="cidx-td-num">{concept.sources_count || <span className="cidx-muted">—</span>}</td>
       <td className="cidx-td-num">{concept.notes_count || <span className="cidx-muted">—</span>}</td>
-      <td className="cidx-td-origin">
-        {pack ? (
-          <a href={`/packs/${pack.id}`} className="cidx-pack-pill" title={`From pack: ${pack.name}`}>
-            <span className="cidx-pack-dot" aria-hidden="true" />{pack.name}
-          </a>
-        ) : (
-          <span className="cidx-muted">—</span>
-        )}
-      </td>
     </tr>
   );
 }
@@ -350,7 +313,6 @@ function EmptyState({ hasConcepts, onCreate }) {
           <button type="button" className="sp-action sp-action-primary" onClick={onCreate}>
             <span className="cidx-plus">+</span> First concept
           </button>
-          <a href="/packs" className="sp-action sp-action-secondary">Browse pre-loaded packs</a>
         </div>
       </div>
     );
@@ -358,7 +320,7 @@ function EmptyState({ hasConcepts, onCreate }) {
   return (
     <div className="cidx-empty">
       <h2 className="cidx-empty-title">No matches for the current filters.</h2>
-      <p className="cidx-empty-text">Adjust the type, origin, or text filter and try again.</p>
+      <p className="cidx-empty-text">Adjust the type or text filter and try again.</p>
     </div>
   );
 }
@@ -710,31 +672,6 @@ function CIdxStyles() {
         white-space: nowrap;
       }
 
-      .cidx-td-origin { width: 1%; white-space: nowrap; }
-      .cidx-pack-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-warm);
-        padding: 2px 10px 2px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .cidx-pack-pill:hover { background: var(--paper); border: 1px solid var(--ink-line); padding: 1px 9px 1px 7px; }
-      .cidx-pack-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--ink-3);
-        flex-shrink: 0;
-      }
 
       .cidx-muted { color: var(--ink-4); }
 

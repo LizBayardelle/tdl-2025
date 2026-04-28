@@ -1,8 +1,8 @@
 import React from 'react';
 
-// Public-facing view of a ConceptDefinition. Used in PackShow (post-purchase),
-// the admin generation review tab as a live preview, and (later) the
-// standalone /concepts/:id show page.
+// Public-facing view of a ConceptDefinition.  Used in the admin generation
+// review tab as a live preview, and (later) the standalone /concepts/:id
+// show page.
 //
 // Expects a `concept` shape with:
 //   label, concept_type, school_of_thought, aliases, summary,
@@ -255,7 +255,7 @@ export default function ConceptDefinitionView({ concept }) {
             fontStyle: 'italic',
             marginTop: '12px',
           }}>
-            Custom mnemonic created for this pack — not from standard educational materials.
+            Custom mnemonic created for this concept — not from standard educational materials.
           </div>
         </div>
       )}

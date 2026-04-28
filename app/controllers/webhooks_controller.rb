@@ -35,22 +35,12 @@ class WebhooksController < ApplicationController
 
   private
 
-  # checkout.session.completed fires for both pack purchases and subscription
-  # checkouts. Pack purchases carry a pack_id in metadata; subscriptions don't.
+  # checkout.session.completed fires when a Stripe Checkout session finishes.
+  # We use it for subscription checkouts only.
   def handle_checkout_completed(session)
-    user_id = session.metadata["user_id"]
-    pack_id = session.metadata["pack_id"]
-
-    if user_id && pack_id
-      ProvisionPackJob.perform_later(user_id.to_i, pack_id.to_i)
-      return
-    end
-
-    # Subscription checkout: pull the subscription and sync it.
-    if session.mode == "subscription" && session.subscription.present?
-      stripe_sub = Stripe::Subscription.retrieve(session.subscription)
-      SubscriptionSyncService.sync_stripe_subscription(stripe_sub)
-    end
+    return unless session.mode == "subscription" && session.subscription.present?
+    stripe_sub = Stripe::Subscription.retrieve(session.subscription)
+    SubscriptionSyncService.sync_stripe_subscription(stripe_sub)
   end
 
   def handle_invoice_payment_failed(invoice)
