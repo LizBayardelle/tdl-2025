@@ -21,7 +21,7 @@ require 'json'
 # See https://docs.openalex.org/api-entities/authors for the shape of the response.
 class OpenalexEnrichmentService
   BASE_URL = 'https://api.openalex.org'
-  USER_AGENT = 'TDL-2025 (research tracking; mailto:support@example.com)'
+  USER_AGENT = 'MapMyResearch (research tracking; mailto:elizabeth@linchpinindustries.com)'
 
   def initialize(person)
     @person = person

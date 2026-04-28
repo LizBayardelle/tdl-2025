@@ -10,7 +10,7 @@ export default function HierarchicalConceptSelect({
   value,
   onChange,
   excludeId = null,
-  placeholder = "select a construct...",
+  placeholder = "select a concept...",
   className = "px-3 py-1.5 border border-gray-300 rounded bg-white text-base flex-1 min-w-[200px]",
   required = false
 }) {

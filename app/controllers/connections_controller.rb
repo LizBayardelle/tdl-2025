@@ -32,10 +32,12 @@ class ConnectionsController < ApplicationController
     respond_to do |format|
       format.html # render index.html.erb for visualization
       format.json {
-        render json: @connections.as_json(include: {
-          src_concept: { only: [:id, :label, :concept_type] },
-          dst_concept: { only: [:id, :label, :concept_type] }
-        })
+        render json: @connections.includes(:tags).map { |conn|
+          conn.as_json(include: {
+            src_concept: { only: [:id, :label, :concept_type] },
+            dst_concept: { only: [:id, :label, :concept_type] }
+          }).merge(tags: conn.tags.pluck(:name))
+        }
       }
     end
   end
@@ -45,11 +47,13 @@ class ConnectionsController < ApplicationController
     render json: @connection.as_json(include: {
       src_concept: { only: [:id, :label, :concept_type, :summary] },
       dst_concept: { only: [:id, :label, :concept_type, :summary] }
-    })
+    }).merge(tags: @connection.tags.pluck(:name))
   end
 
   # POST /connections
   def create
+    tags_array = params[:connection][:tags]
+
     # Normalize the relationship to canonical form
     normalized = Connection.normalize_relationship_params(
       connection_params[:src_concept_id],
@@ -59,14 +63,15 @@ class ConnectionsController < ApplicationController
 
     # Build connection with normalized params
     @connection = current_user.connections.build(
-      connection_params.except(:src_concept_id, :dst_concept_id, :rel_type).merge(normalized)
+      connection_params.except(:tags, :src_concept_id, :dst_concept_id, :rel_type).merge(normalized)
     )
 
     if @connection.save
+      @connection.tag_list = tags_array unless tags_array.nil?
       render json: @connection.as_json(include: {
         src_concept: { only: [:id, :label, :concept_type] },
         dst_concept: { only: [:id, :label, :concept_type] }
-      }), status: :created
+      }).merge(tags: @connection.tags.pluck(:name)), status: :created
     else
       render json: { errors: @connection.errors.full_messages }, status: :unprocessable_entity
     end
@@ -74,6 +79,8 @@ class ConnectionsController < ApplicationController
 
   # PATCH/PUT /connections/:id
   def update
+    tags_array = params[:connection][:tags]
+
     # Normalize the relationship to canonical form
     normalized = Connection.normalize_relationship_params(
       connection_params[:src_concept_id] || @connection.src_concept_id,
@@ -81,11 +88,12 @@ class ConnectionsController < ApplicationController
       connection_params[:rel_type] || @connection.rel_type
     )
 
-    if @connection.update(connection_params.except(:src_concept_id, :dst_concept_id, :rel_type).merge(normalized))
+    if @connection.update(connection_params.except(:tags, :src_concept_id, :dst_concept_id, :rel_type).merge(normalized))
+      @connection.tag_list = tags_array unless tags_array.nil?
       render json: @connection.as_json(include: {
         src_concept: { only: [:id, :label, :concept_type] },
         dst_concept: { only: [:id, :label, :concept_type] }
-      })
+      }).merge(tags: @connection.tags.pluck(:name))
     else
       render json: { errors: @connection.errors.full_messages }, status: :unprocessable_entity
     end

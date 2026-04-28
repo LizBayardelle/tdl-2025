@@ -3,7 +3,11 @@ import SlidePanel from './SlidePanel';
 import ConceptSearchSelect from './ConceptSearchSelect';
 import InlineRelTypeSelect, { getRelTypeCategory } from './InlineRelTypeSelect';
 import TagSelector from './TagSelector';
+import SourceSelector from './SourceSelector';
+import PeopleSelector from './PeopleSelector';
+import CollectionSelector from './CollectionSelector';
 import { NODE_TYPES } from '../config/nodeTypes';
+import ConceptTypeReference, { ConceptTypeHelpButton } from './ConceptTypeReference';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -26,10 +30,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
   const [updatedRelationships, setUpdatedRelationships] = useState({}); // { id: newRelType }
   const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
   const [typeDropdownPos, setTypeDropdownPos] = useState({ top: 0, left: 0 });
+  const [showTypeRef, setShowTypeRef] = useState(false);
   const typeDropdownTriggerRef = useRef(null);
   const [formData, setFormData] = useState({
     label: '',
-    concept_type: 'non_physical_concept',
+    concept_type: 'phenomenon',
     summary: '',
     description: '',
     location: '',
@@ -45,6 +50,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
     measurement_notes: '',
     aliases: [],
     tags: [],
+    source_ids: [],
+    person_ids: [],
+    collection_ids: [],
     new_relationship_dst_concept_id: '',
     new_relationship_rel_type: 'related_to'
   });
@@ -267,7 +275,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         fetchItemCollections(item.id);
         const newFormData = {
           label: item.label || '',
-          concept_type: item.concept_type || 'non_physical_concept',
+          concept_type: item.concept_type || 'phenomenon',
           summary: item.summary || '',
           description: item.description || '',
           location: item.location || '',
@@ -282,7 +290,10 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           developmental_notes: item.developmental_notes || '',
           measurement_notes: item.measurement_notes || '',
           aliases: item.aliases || [],
-          tags: item.tags || [],
+          tags: Array.isArray(item.tags) ? item.tags.map(t => typeof t === 'string' ? t : t.name) : [],
+          source_ids: item.source_ids || (item.sources ? item.sources.map(s => s.id) : []),
+          person_ids: item.person_ids || (item.people ? item.people.map(p => p.id) : []),
+          collection_ids: [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
@@ -297,7 +308,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         const draft = loadDraft();
         const emptyFormData = {
           label: '',
-          concept_type: 'non_physical_concept',
+          concept_type: 'phenomenon',
           summary: '',
           description: '',
           location: '',
@@ -313,6 +324,9 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           measurement_notes: '',
           aliases: [],
           tags: [],
+          source_ids: [],
+          person_ids: [],
+          collection_ids: [],
           new_relationship_dst_concept_id: '',
           new_relationship_rel_type: 'related_to'
         };
@@ -476,12 +490,12 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
 
   const handleAddRelationship = async () => {
     if (!item?.id) {
-      alert('Please save the construct first before adding relationships');
+      alert('Please save the concept first before adding relationships');
       return;
     }
 
     if (!formData.new_relationship_dst_concept_id) {
-      alert('Please select a construct to relate to');
+      alert('Please select a concept to relate to');
       return;
     }
 
@@ -600,7 +614,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({ concept: { label, concept_type: 'non_physical_concept' } }),
+        body: JSON.stringify({ concept: { label, concept_type: 'phenomenon' } }),
       });
 
       if (response.ok) {
@@ -646,63 +660,50 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: 'var(--space-3) var(--space-4)',
-          background: 'var(--accent-green)',
+          padding: 'var(--space-3) var(--space-5)',
+          background: 'var(--paper)',
+          borderBottom: '1px solid var(--ink-line)',
           flexShrink: 0,
+          gap: 'var(--space-3)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            {/* Back Button - shown when in stacked modal */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', minWidth: 0 }}>
             {stackDepth > 0 && (
               <button
                 type="button"
                 onClick={handleClose}
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  color: 'white',
-                  fontSize: 'var(--text-sm)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-1) var(--space-2)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-1)',
-                  borderRadius: 'var(--radius)',
-                  fontFamily: 'var(--font-body)',
-                  fontWeight: 500,
-                  transition: 'all 0.15s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
-                }}
+                className="sp-action sp-action-quiet"
+                style={{ flexShrink: 0 }}
                 title="Go back to previous concept"
               >
-                <i className="fas fa-arrow-left"></i>
+                <i className="fas fa-arrow-left" style={{ marginRight: 6 }}></i>
                 <span className="hidden md:inline">Back</span>
               </button>
             )}
             <h2 style={{
               margin: 0,
               fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-lg)',
-              fontWeight: 700,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
+              fontSize: '20px',
+              fontWeight: 600,
+              color: 'var(--concept)',
+              letterSpacing: '-0.005em',
+              lineHeight: 1.2,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
             }}>
-              <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-base)', opacity: 0.9 }}></i>
-              {item ? (formData.label || item.label || 'Untitled Concept') : 'New Construct'}
+              {item ? (formData.label || item.label || 'Untitled concept') : 'New concept'}
             </h2>
             {stackDepth > 0 && (
               <span style={{
-                fontSize: 'var(--text-xs)',
-                color: 'white',
-                background: 'rgba(255,255,255,0.2)',
+                fontFamily: 'var(--font-body)',
+                fontSize: '11px',
+                color: 'var(--ink-3)',
+                background: 'var(--paper-warm)',
                 padding: '2px 8px',
-                borderRadius: '10px',
+                borderRadius: 'var(--r-sm)',
+                fontWeight: 500,
+                flexShrink: 0,
               }}>
                 Level {stackDepth + 1}
               </span>
@@ -728,7 +729,7 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                     <button type="button" onClick={() => {
                       clearDraft();
                       const empty = {
-                        label: '', concept_type: 'non_physical_concept', summary: '', description: '', location: '',
+                        label: '', concept_type: 'phenomenon', summary: '', description: '', location: '',
                         examples: '', etymology: '', school_of_thought: '', history: '', controversy: '',
                         clinical_relevance: '', misconceptions: '', mnemonic: '', developmental_notes: '',
                         measurement_notes: '', aliases: [], tags: [],
@@ -754,14 +755,14 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 )}
                 {saveStatus === 'saving' && (
                   <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-green)' }}></i>
-                    <span style={{ color: 'var(--accent-green)' }}>Saving...</span>
+                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--ink-3)' }}></i>
+                    <span style={{ color: 'var(--ink-3)' }}>Saving…</span>
                   </>
                 )}
                 {saveStatus === 'saved' && (
                   <>
-                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
-                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
+                    <i className="fas fa-check" style={{ color: 'var(--concept)' }}></i>
+                    <span style={{ color: 'var(--concept)' }}>Saved</span>
                   </>
                 )}
                 {saveStatus === 'error' && (
@@ -780,29 +781,34 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
               type="button"
               onClick={handleClose}
               style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: 'none',
-                color: 'white',
-                fontSize: 'var(--text-xl)',
+                background: 'transparent',
+                border: '1px solid transparent',
+                color: 'var(--ink-3)',
+                fontSize: '14px',
                 cursor: 'pointer',
-                padding: 'var(--space-1)',
+                padding: 0,
                 width: '32px',
                 height: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '4px',
-                transition: 'all 0.15s'
+                borderRadius: 'var(--r-sm)',
+                transition: 'background 0.12s, color 0.12s, border-color 0.12s',
+                flexShrink: 0,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                e.currentTarget.style.background = 'var(--paper-soft)';
+                e.currentTarget.style.color = 'var(--ink)';
+                e.currentTarget.style.borderColor = 'var(--ink-line)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'var(--ink-3)';
+                e.currentTarget.style.borderColor = 'transparent';
               }}
               title="Close"
             >
-            <i className="fas fa-times"></i>
+              <i className="fas fa-times"></i>
             </button>
           </div>
         </div>
@@ -849,10 +855,11 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                 borderRadius: 'var(--radius)',
                 cursor: 'pointer',
                 fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'basics' ? '#c8c8c8' : 'transparent',
+                fontWeight: activeTab === 'basics' ? 600 : 500,
+                color: activeTab === 'basics' ? 'var(--concept)' : 'var(--ink-2)',
+                background: activeTab === 'basics' ? 'var(--paper-warm)' : 'transparent',
                 border: 'none',
-                transition: 'background 0.15s',
+                transition: 'background 0.15s, color 0.15s',
                 marginBottom: '0.25rem',
                 textAlign: 'left',
                 fontFamily: 'var(--font-body)',
@@ -869,43 +876,14 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
               <span className="hidden md:inline">Basics</span>
             </button>
 
-            {['context', 'clinical', 'relationships'].map(tab => {
+            {['context', 'clinical', 'connections'].map(tab => {
               const tabConfig = {
-                context: { icon: 'fas fa-map-marker-alt', label: 'Context' },
-                clinical: { icon: 'fas fa-stethoscope', label: 'Clinical & Research' },
-                relationships: { icon: 'fas fa-project-diagram', label: 'Relationships' },
+                context:     { icon: 'fas fa-map-marker-alt', label: 'Context' },
+                clinical:    { icon: 'fas fa-stethoscope',    label: 'Clinical & Research' },
+                connections: { icon: 'fas fa-link',           label: 'Connections' },
               }[tab];
 
-              const handleTabClick = async () => {
-                if (tab === 'relationships' && !item?.id && formData.label.trim()) {
-                  try {
-                    const response = await fetch('/concepts', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-                      },
-                      body: JSON.stringify({ concept: formData }),
-                    });
-                    if (response.ok) {
-                      const newConcept = await response.json();
-                      clearDraft();
-                      onSuccess(newConcept, 'relationships');
-                    } else {
-                      const data = await response.json();
-                      setError(data.errors?.join(', ') || 'Failed to save concept');
-                    }
-                  } catch (error) {
-                    console.error('Error saving concept:', error);
-                    setError('An error occurred while saving the concept');
-                  }
-                } else if (tab === 'relationships' && !item?.id && !formData.label.trim()) {
-                  setError('Please enter a label before adding relationships');
-                  setActiveTab('basics');
-                } else {
-                  setActiveTab(tab);
-                }
-              };
+              const handleTabClick = () => setActiveTab(tab);
 
               return (
                 <button
@@ -922,16 +900,17 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                     borderRadius: 'var(--radius)',
                     cursor: 'pointer',
                     fontSize: 'var(--text-sm)',
-                    color: 'var(--neutral-700)',
-                    background: activeTab === tab ? '#c8c8c8' : 'transparent',
+                    fontWeight: activeTab === tab ? 600 : 500,
+                    color: activeTab === tab ? 'var(--concept)' : 'var(--ink-2)',
+                    background: activeTab === tab ? 'var(--paper-warm)' : 'transparent',
                     border: 'none',
-                    transition: 'background 0.15s',
+                    transition: 'background 0.15s, color 0.15s',
                     marginBottom: '0.25rem',
                     textAlign: 'left',
                     fontFamily: 'var(--font-body)',
                   }}
                   onMouseEnter={(e) => {
-                    if (activeTab !== tab) e.currentTarget.style.background = '#d8d8d8';
+                    if (activeTab !== tab) e.currentTarget.style.background = 'var(--paper-soft)';
                   }}
                   onMouseLeave={(e) => {
                     if (activeTab !== tab) e.currentTarget.style.background = 'transparent';
@@ -962,7 +941,10 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
 
               <div className="grid grid-cols-2 gap-4">
                 <div style={{ position: 'relative' }}>
-                  <label className="form-label">Type</label>
+                  <label className="form-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    Type
+                    <ConceptTypeHelpButton onClick={() => setShowTypeRef(true)} />
+                  </label>
                   <p className="form-hint">What this fundamentally is, not what field it belongs to.</p>
                   <button
                     type="button"
@@ -1013,12 +995,24 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
                         {NODE_TYPES.map(opt => (
                           <div key={opt.value}
                             onClick={() => { setFormData({ ...formData, concept_type: opt.value }); setTypeDropdownOpen(false); }}
-                            style={{ padding: 'var(--space-3)', cursor: 'pointer', borderBottom: '1px solid var(--neutral-100)', background: formData.concept_type === opt.value ? 'var(--accent-green-light)' : 'transparent' }}
-                            onMouseEnter={(e) => { if (formData.concept_type !== opt.value) e.currentTarget.style.background = 'var(--neutral-50)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = formData.concept_type === opt.value ? 'var(--accent-green-light)' : 'transparent'; }}
+                            style={{ padding: 'var(--space-3)', cursor: 'pointer', borderBottom: '1px solid var(--ink-line-soft)', background: formData.concept_type === opt.value ? 'var(--paper-warm)' : 'transparent' }}
+                            onMouseEnter={(e) => { if (formData.concept_type !== opt.value) e.currentTarget.style.background = 'var(--paper-soft)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = formData.concept_type === opt.value ? 'var(--paper-warm)' : 'transparent'; }}
                           >
-                            <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--neutral-900)', marginBottom: '2px' }}>{opt.label}</div>
-                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', lineHeight: 1.4 }}>{opt.description}</div>
+                            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 'var(--text-base)', color: 'var(--ink)', marginBottom: '2px', letterSpacing: '-0.005em' }}>{opt.label}</div>
+                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', lineHeight: 1.5, marginBottom: '4px' }}>{opt.description}</div>
+                            {opt.examples && opt.examples.length > 0 && (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                {opt.examples.map(ex => (
+                                  <span key={ex} style={{
+                                    fontFamily: 'var(--font-display)', fontStyle: 'italic',
+                                    fontSize: '11px', color: 'var(--ink-3)',
+                                    background: 'var(--paper-soft)', border: '1px solid var(--ink-line)',
+                                    padding: '1px 7px', borderRadius: 'var(--r-sm)',
+                                  }}>{ex}</span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1197,629 +1191,64 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
             </div>
           )}
 
-          {activeTab === 'relationships' && (
+          {activeTab === 'connections' && (
             <div className="space-y-4">
-              {/* Relationships */}
-              <div style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 'var(--text-xl)',
-                fontWeight: 700,
-                color: 'var(--primary)',
-                marginBottom: 'var(--space-3)',
-              }}>
-                Relationships
-              </div>
+              <p className="form-hint" style={{ marginTop: 0 }}>
+                Link this concept to other entities in your library.
+                Concept-to-concept relationships (parent of, builds on, etc.) live on the show page.
+              </p>
 
-              <div style={{
-                background: 'var(--accent-green-light)',
-                border: '2px solid var(--primary)',
-                borderRadius: 'var(--radius)',
-                padding: 'var(--space-4)',
-              }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 2fr 2fr auto',
-                  gap: 'var(--space-2)',
-                  alignItems: 'center',
-                  marginBottom: 'var(--space-3)',
-                }}>
-                  <span style={{
-                    fontWeight: 600,
-                    color: 'var(--primary)',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-base)',
-                    lineHeight: 1,
-                  }}>
-                    {formData.label || 'This'}
-                  </span>
-                  <select
-                    value={formData.new_relationship_rel_type}
-                    onChange={(e) => setFormData({ ...formData, new_relationship_rel_type: e.target.value })}
-                    className="form-select"
-                  >
-                    <optgroup label="Hierarchical">
-                      <option value="parent_of">is a parent of</option>
-                      <option value="child_of">is a child of</option>
-                      <option value="is_a">is a (categorization)</option>
-                      <option value="categorizes">categorizes</option>
-                    </optgroup>
-                    <optgroup label="Sequential">
-                      <option value="prerequisite_for">is a prerequisite for</option>
-                      <option value="builds_on">builds on</option>
-                      <option value="derived_from">is derived from</option>
-                    </optgroup>
-                    <optgroup label="Semantic">
-                      <option value="related_to">is related to</option>
-                      <option value="contrasts_with">contrasts with</option>
-                      <option value="integrates_with">integrates with</option>
-                      <option value="associated_with">is associated with</option>
-                    </optgroup>
-                    <optgroup label="Influence">
-                      <option value="influenced">influenced</option>
-                      <option value="supports">supports</option>
-                      <option value="critiques">critiques</option>
-                    </optgroup>
-                    <optgroup label="Positional">
-                      <option value="is_above">is above</option>
-                      <option value="is_below">is below</option>
-                      <option value="contains">contains</option>
-                      <option value="is_inside">is inside</option>
-                      <option value="faces">faces</option>
-                      <option value="faces_away_from">faces away from</option>
-                      <option value="is_near">is near</option>
-                    </optgroup>
-                    <optgroup label="Positional — Anatomical">
-                      <option value="superior_to">is superior to</option>
-                      <option value="inferior_to">is inferior to</option>
-                      <option value="anterior_to">is anterior to</option>
-                      <option value="posterior_to">is posterior to</option>
-                      <option value="medial_to">is medial to</option>
-                      <option value="lateral_to">is lateral to</option>
-                      <option value="dorsal_to">is dorsal to</option>
-                      <option value="ventral_to">is ventral to</option>
-                      <option value="rostral_to">is rostral to</option>
-                      <option value="caudal_to">is caudal to</option>
-                      <option value="proximal_to">is proximal to</option>
-                      <option value="distal_to">is distal to</option>
-                      <option value="ipsilateral_to">is ipsilateral to</option>
-                      <option value="contralateral_to">is contralateral to</option>
-                    </optgroup>
-                    <optgroup label="Other">
-                      <option value="authored">authored</option>
-                      <option value="applies_to">applies to</option>
-                      <option value="treats">treats</option>
-                    </optgroup>
-                  </select>
-                  <ConceptSearchSelect
-                    concepts={concepts}
-                    value={formData.new_relationship_dst_concept_id}
-                    onChange={(e) => setFormData({ ...formData, new_relationship_dst_concept_id: e.target.value })}
-                    excludeId={item?.id}
-                    placeholder="Type to search constructs..."
-                    onCreateConcept={handleCreateConcept}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddRelationship}
-                    className="btn-primary"
-                    style={{
-                      padding: 'var(--space-2) var(--space-4)',
-                      whiteSpace: 'nowrap',
-                    }}
-                    disabled={!item?.id || !formData.new_relationship_dst_concept_id}
-                  >
-                    Add
-                  </button>
-                </div>
-
-                {!item?.id && (
-                  <p className="form-helper" style={{ marginTop: 'var(--space-2)', color: 'var(--neutral-500)' }}>
-                    Save the construct first before adding relationships.
-                  </p>
-                )}
-
-                {/* Existing Relationships — grouped by category with inline editable types */}
-                {item && (() => {
-                  const categoryOrder = ['Hierarchical', 'Sequential', 'Semantic', 'Influence', 'Positional', 'Positional - Anatomical', 'Other'];
-
-                  // Normalize all connections into a flat list with effective rel_type
-                  const allConns = [];
-                  (item.outgoing_connections || [])
-                    .filter(c => !deletedRelationshipIds.includes(c.id))
-                    .forEach(c => {
-                      const effectiveRelType = updatedRelationships[c.id] || c.rel_type;
-                      allConns.push({ ...c, rel_type: effectiveRelType, originalRelType: c.rel_type, direction: 'out', key: `out-${c.id}` });
-                    });
-                  newRelationships.forEach(c => allConns.push({ ...c, direction: 'new', key: `new-${c.id}` }));
-                  (item.incoming_connections || [])
-                    .filter(c => !deletedRelationshipIds.includes(c.id))
-                    .forEach(c => {
-                      const effectiveRelType = updatedRelationships[c.id] || c.rel_type;
-                      allConns.push({ ...c, rel_type: effectiveRelType, originalRelType: c.rel_type, direction: 'in', key: `in-${c.id}` });
-                    });
-
-                  if (allConns.length === 0) return null;
-
-                  // Group by category
-                  const grouped = {};
-                  allConns.forEach(c => {
-                    const cat = getRelTypeCategory(c.rel_type);
-                    if (!grouped[cat]) grouped[cat] = [];
-                    grouped[cat].push(c);
-                  });
-
-                  return (
-                    <div style={{ marginTop: 'var(--space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                      {categoryOrder.filter(cat => grouped[cat]).map(cat => (
-                        <div key={cat} style={{
-                          background: 'white',
-                          border: '1px solid var(--neutral-300)',
-                          borderRadius: 'var(--radius)',
-                          overflow: 'hidden',
-                        }}>
-                          <div style={{
-                            padding: 'var(--space-2) var(--space-3)',
-                            background: 'var(--neutral-100)',
-                            borderBottom: '1px solid var(--neutral-300)',
-                            fontFamily: 'var(--font-display)',
-                            fontSize: 'var(--text-sm)',
-                            fontWeight: 700,
-                            color: 'var(--primary)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                          }}>
-                            {cat}
-                          </div>
-                          <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                            {grouped[cat].map(conn => (
-                              <li
-                                key={conn.key}
-                                style={{
-                                  padding: 'var(--space-2) var(--space-3)',
-                                  borderBottom: '1px solid var(--neutral-100)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-2)',
-                                  fontSize: 'var(--text-sm)',
-                                  ...(conn.direction === 'new' ? { background: 'var(--accent-green-light)' } : {}),
-                                }}
-                              >
-                                <span style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)', flexShrink: 0 }}>
-                                  {conn.direction === 'in' ? '\u2190' : '\u2192'}
-                                </span>
-                                {conn.direction === 'in' ? (
-                                  <>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                                      <a
-                                        href={`/concepts/${conn.src_concept?.id}`}
-                                        style={{
-                                          color: 'var(--primary)',
-                                          textDecoration: 'underline',
-                                          textDecorationStyle: 'dotted',
-                                          textUnderlineOffset: '2px'
-                                        }}
-                                      >
-                                        {conn.src_concept?.label || 'Unknown'}
-                                      </a>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          if (conn.src_concept?.id && onEditRelatedConcept) {
-                                            onEditRelatedConcept(conn.src_concept.id);
-                                          }
-                                        }}
-                                        style={{
-                                          background: 'transparent',
-                                          border: 'none',
-                                          color: 'var(--neutral-400)',
-                                          cursor: 'pointer',
-                                          padding: '2px 4px',
-                                          fontSize: '11px',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          borderRadius: '2px',
-                                          transition: 'all 0.15s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.color = 'var(--primary)';
-                                          e.currentTarget.style.background = 'var(--neutral-100)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.color = 'var(--neutral-400)';
-                                          e.currentTarget.style.background = 'transparent';
-                                        }}
-                                        title={`Edit ${conn.src_concept?.label}`}
-                                      >
-                                        <i className="fas fa-pen"></i>
-                                      </button>
-                                    </span>
-                                    <InlineRelTypeSelect
-                                      value={conn.rel_type}
-                                      onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
-                                                                          />
-                                    <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                                      {item.label}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span style={{ fontWeight: 600, color: 'var(--neutral-700)' }}>
-                                      {item.label}
-                                    </span>
-                                    <InlineRelTypeSelect
-                                      value={conn.rel_type}
-                                      onChange={(newType) => handleUpdateRelationshipType(conn.id, newType)}
-                                                                          />
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                                      <a
-                                        href={`/concepts/${conn.dst_concept?.id}`}
-                                        style={{
-                                          color: 'var(--primary)',
-                                          textDecoration: 'underline',
-                                          textDecorationStyle: 'dotted',
-                                          textUnderlineOffset: '2px'
-                                        }}
-                                      >
-                                        {conn.dst_concept?.label || 'Unknown'}
-                                      </a>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          if (conn.dst_concept?.id && onEditRelatedConcept) {
-                                            onEditRelatedConcept(conn.dst_concept.id);
-                                          }
-                                        }}
-                                        style={{
-                                          background: 'transparent',
-                                          border: 'none',
-                                          color: 'var(--neutral-400)',
-                                          cursor: 'pointer',
-                                          padding: '2px 4px',
-                                          fontSize: '11px',
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          borderRadius: '2px',
-                                          transition: 'all 0.15s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.color = 'var(--primary)';
-                                          e.currentTarget.style.background = 'var(--neutral-100)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.color = 'var(--neutral-400)';
-                                          e.currentTarget.style.background = 'transparent';
-                                        }}
-                                        title={`Edit ${conn.dst_concept?.label}`}
-                                      >
-                                        <i className="fas fa-pen"></i>
-                                      </button>
-                                    </span>
-                                  </>
-                                )}
-                                {conn.relationship_label && (
-                                  <span style={{
-                                    fontSize: 'var(--text-xs)',
-                                    color: 'var(--neutral-500)',
-                                    fontStyle: 'italic',
-                                  }}>
-                                    "{conn.relationship_label}"
-                                  </span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteRelationship(conn.id)}
-                                  style={{
-                                    marginLeft: 'auto',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--error)',
-                                    cursor: 'pointer',
-                                    padding: 'var(--space-1)',
-                                    borderRadius: '4px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    transition: 'background 0.15s',
-                                    flexShrink: 0,
-                                  }}
-                                  onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-                                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                >
-                                  <i className="fas fa-times" style={{ fontSize: '14px' }}></i>
-                                </button>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Tags & Collections - 2 column layout */}
-              <div style={{
-                marginTop: 'var(--space-6)',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: 'var(--space-6)',
-              }}>
-                {/* Tags Column */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'var(--text-xl)',
-                    fontWeight: 700,
-                    color: 'var(--primary)',
-                    marginBottom: 'var(--space-3)',
-                  }}>
-                    Tags
-                  </div>
-                  <div style={{ height: '350px' }}>
-                    <TagSelector
-                      selectedTags={formData.tags}
-                      onChange={(tags) => setFormData({ ...formData, tags: tags })}
-                      themeColor="var(--accent-green)"
+                  <label className="form-label">Sources</label>
+                  <p className="form-hint">Papers, books, and other sources that reference or define this concept.</p>
+                  <div style={{ height: formData.source_ids.length > 0 ? '320px' : '240px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <SourceSelector
+                      selectedSourceIds={formData.source_ids}
+                      onChange={(source_ids) => setFormData({ ...formData, source_ids })}
+                      themeColor="var(--source)"
                     />
                   </div>
                 </div>
 
-                {/* Collections Column */}
                 <div>
-                  <div style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'var(--text-xl)',
-                    fontWeight: 700,
-                    color: 'var(--accent-maroon)',
-                    marginBottom: 'var(--space-3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
-                  }}>
-                    <i className="fas fa-folder" style={{ fontSize: 'var(--text-lg)' }}></i>
-                    Collections
+                  <label className="form-label">People</label>
+                  <p className="form-hint">Researchers, theorists, or clinicians directly tied to this concept.</p>
+                  <div style={{ height: formData.person_ids.length > 0 ? '320px' : '240px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <PeopleSelector
+                      selectedPersonIds={formData.person_ids}
+                      onChange={(person_ids) => setFormData({ ...formData, person_ids })}
+                      themeColor="var(--person)"
+                    />
                   </div>
+                </div>
+              </div>
 
-                  {!item?.id ? (
-                    <div style={{
-                      padding: 'var(--space-4)',
-                      background: 'var(--neutral-100)',
-                      borderRadius: 'var(--radius)',
-                      color: 'var(--neutral-500)',
-                      fontSize: 'var(--text-sm)',
-                      textAlign: 'center',
-                    }}>
-                      Save the construct first to add it to collections.
-                    </div>
-                  ) : (
-                    <div style={{
-                      border: '1px solid var(--neutral-200)',
-                      borderRadius: 'var(--radius)',
-                      overflow: 'hidden',
-                      height: '350px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}>
-                      {/* In Collections */}
-                      <div style={{
-                        padding: 'var(--space-2) var(--space-3)',
-                        background: 'var(--accent-maroon-light)',
-                        borderBottom: '1px solid var(--neutral-200)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--accent-maroon)',
-                      }}>
-                        In Collections ({itemCollections.length})
-                      </div>
-                      <div style={{
-                        flex: '0 0 auto',
-                        maxHeight: '140px',
-                        overflowY: 'auto',
-                        borderBottom: '1px solid var(--neutral-200)',
-                      }}>
-                        {itemCollections.length === 0 ? (
-                          <div style={{
-                            padding: 'var(--space-3)',
-                            color: 'var(--neutral-400)',
-                            fontSize: 'var(--text-sm)',
-                            textAlign: 'center',
-                          }}>
-                            Not in any collections yet
-                          </div>
-                        ) : (
-                          <div style={{ padding: 'var(--space-2)' }}>
-                            {itemCollections.map(collection => (
-                              <div
-                                key={collection.id}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  padding: 'var(--space-2)',
-                                  background: 'var(--accent-maroon-light)',
-                                  borderRadius: 'var(--radius)',
-                                  marginBottom: 'var(--space-1)',
-                                }}
-                              >
-                                <span style={{
-                                  fontSize: 'var(--text-sm)',
-                                  color: 'var(--neutral-700)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-2)',
-                                }}>
-                                  <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: 'var(--text-xs)' }}></i>
-                                  {collection.name}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveFromCollection(collection.id)}
-                                  style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'var(--neutral-400)',
-                                    cursor: 'pointer',
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    fontSize: 'var(--text-xs)',
-                                  }}
-                                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
-                                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
-                                  title="Remove from collection"
-                                >
-                                  <i className="fas fa-times"></i>
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="form-label">Tags</label>
+                  <p className="form-hint">Free-form labels for grouping concepts your way.</p>
+                  <div style={{ height: formData.tags.length > 0 ? '320px' : '240px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <TagSelector
+                      selectedTags={formData.tags}
+                      onChange={(tags) => setFormData({ ...formData, tags })}
+                      themeColor="var(--ink-3)"
+                    />
+                  </div>
+                </div>
 
-                      {/* Available Collections */}
-                      <div style={{
-                        padding: 'var(--space-2) var(--space-3)',
-                        background: 'var(--neutral-100)',
-                        borderBottom: '1px solid var(--neutral-200)',
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--neutral-500)',
-                      }}>
-                        Add to Collection
-                      </div>
-                      {/* Filter/Create Input */}
-                      <div style={{ padding: 'var(--space-2)', borderBottom: '1px solid var(--neutral-200)' }}>
-                        <input
-                          type="text"
-                          value={collectionFilter}
-                          onChange={(e) => setCollectionFilter(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              const filterLower = collectionFilter.trim().toLowerCase();
-                              const canCreate = collectionFilter.trim() &&
-                                !collections.some(c => c.name.toLowerCase() === filterLower);
-                              if (canCreate) {
-                                handleCreateCollection(collectionFilter.trim());
-                              }
-                            }
-                          }}
-                          placeholder="Type to filter or create..."
-                          style={{
-                            width: '100%',
-                            padding: 'var(--space-2)',
-                            border: '1px solid var(--neutral-300)',
-                            borderRadius: 'var(--radius)',
-                            fontSize: 'var(--text-sm)',
-                            fontFamily: 'var(--font-body)',
-                          }}
-                        />
-                        {(() => {
-                          const filterLower = collectionFilter.trim().toLowerCase();
-                          const canCreate = collectionFilter.trim() &&
-                            !collections.some(c => c.name.toLowerCase() === filterLower);
-                          if (canCreate) {
-                            return (
-                              <button
-                                type="button"
-                                onClick={() => handleCreateCollection(collectionFilter.trim())}
-                                style={{
-                                  background: 'none',
-                                  padding: 0,
-                                  color: 'var(--accent-maroon)',
-                                  fontSize: 'var(--text-xs)',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  marginTop: 'var(--space-2)',
-                                  fontFamily: 'var(--font-body)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-1)',
-                                }}
-                              >
-                                <i className="fas fa-plus"></i> Create "{collectionFilter.trim()}"
-                              </button>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                      <div style={{
-                        flex: 1,
-                        overflowY: 'auto',
-                        padding: 'var(--space-2)',
-                      }}>
-                        {loadingCollections ? (
-                          <div style={{
-                            padding: 'var(--space-3)',
-                            color: 'var(--neutral-400)',
-                            fontSize: 'var(--text-sm)',
-                            textAlign: 'center',
-                          }}>
-                            Loading collections...
-                          </div>
-                        ) : (() => {
-                          const availableCollections = collections
-                            .filter(c => !itemCollections.find(ic => ic.id === c.id))
-                            .filter(c => !collectionFilter.trim() ||
-                              c.name.toLowerCase().includes(collectionFilter.trim().toLowerCase()));
-
-                          if (availableCollections.length === 0) {
-                            return (
-                              <div style={{
-                                padding: 'var(--space-3)',
-                                color: 'var(--neutral-400)',
-                                fontSize: 'var(--text-sm)',
-                                textAlign: 'center',
-                              }}>
-                                {collectionFilter.trim()
-                                  ? 'No matching collections. Press Enter to create.'
-                                  : collections.length === 0
-                                    ? 'No collections yet. Type above to create one.'
-                                    : 'Already in all collections'}
-                              </div>
-                            );
-                          }
-
-                          return availableCollections.map(collection => (
-                            <div
-                              key={collection.id}
-                              onClick={() => handleAddToCollection(collection.id)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 'var(--space-2)',
-                                padding: 'var(--space-2)',
-                                borderRadius: 'var(--radius)',
-                                cursor: 'pointer',
-                                marginBottom: 'var(--space-1)',
-                                transition: 'background 0.15s',
-                              }}
-                              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-                              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                            >
-                              <i className="fas fa-folder" style={{ color: 'var(--neutral-400)', fontSize: 'var(--text-xs)' }}></i>
-                              <span style={{
-                                fontSize: 'var(--text-sm)',
-                                color: 'var(--neutral-600)',
-                                flex: 1,
-                              }}>
-                                {collection.name}
-                              </span>
-                              <i className="fas fa-plus" style={{ color: 'var(--accent-maroon)', fontSize: 'var(--text-xs)' }}></i>
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  )}
+                <div>
+                  <label className="form-label">Collections</label>
+                  <p className="form-hint">Groupings of related entities — saved reading lists, course units, etc.</p>
+                  <div style={{ height: '320px', overflow: 'hidden' }}>
+                    <CollectionSelector
+                      itemType="Concept"
+                      itemId={item?.id}
+                      selectedCollectionIds={formData.collection_ids}
+                      onChange={(ids) => setFormData({ ...formData, collection_ids: ids })}
+                      themeColor="var(--ink-3)"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1827,53 +1256,28 @@ export default function ConceptFormModal({ isOpen, onClose, onSuccess, item, onE
         </div>
       </div>
 
-        {/* Footer - only show for new constructs, editing uses autosave + X button */}
+        {/* Footer - only show for new concepts, editing uses autosave + X button */}
         {!item ? (
           <div style={{
-            borderTop: '1px solid var(--neutral-200)',
-            background: 'white',
+            borderTop: '1px solid var(--ink-line)',
+            background: 'var(--paper)',
             padding: 'var(--space-4) var(--space-6)',
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'center',
             gap: 'var(--space-3)',
+            flexShrink: 0,
           }}>
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                padding: '0.5rem 1.25rem',
-                background: 'white',
-                color: 'var(--accent-green)',
-                border: '1px solid var(--accent-green)',
-                borderRadius: '6px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-              }}
-            >
+            <button type="button" onClick={handleClose} className="sp-action sp-action-secondary">
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{
-                padding: '0.5rem 1.25rem',
-                background: 'var(--accent-green)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-              }}
-            >
-              Create Construct
+            <button type="submit" className="sp-action sp-action-primary">
+              Create concept
             </button>
           </div>
         ) : null}
       </form>
+      <ConceptTypeReference open={showTypeRef} onClose={() => setShowTypeRef(false)} />
     </SlidePanel>
   );
 }

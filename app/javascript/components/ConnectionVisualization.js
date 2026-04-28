@@ -134,7 +134,7 @@ export default function ConnectionVisualization() {
       <div className="mb-8">
         <h1 className="text-4xl mb-4">Knowledge Graph</h1>
         <p className="text-lg mb-6">
-          Explore relationships between constructs
+          Explore relationships between concepts
         </p>
 
         <div className="flex gap-4 mb-6">
@@ -265,7 +265,7 @@ export default function ConnectionVisualization() {
 
       {filteredConcepts.length === 0 && (
         <div className="text-center py-12 bg-white border border-gray-300 rounded-lg">
-          <p className="text-lg text-gray-600">No constructs match your filters</p>
+          <p className="text-lg text-gray-600">No concepts match your filters</p>
         </div>
       )}
     </div>

@@ -33,6 +33,10 @@ import AdminUsers from './components/admin/AdminUsers';
 import AdminConceptGenerations from './components/admin/AdminConceptGenerations';
 import AdminConceptGenerationNew from './components/admin/AdminConceptGenerationNew';
 import AdminConceptGenerationShow from './components/admin/AdminConceptGenerationShow';
+import AdminDocs from './components/admin/AdminDocs';
+import SamplePage from './components/SamplePage';
+import LegalPage from './components/LegalPage';
+import SearchPage from './components/SearchPage';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -115,11 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const sourceId = pdfStudyRoot.dataset.sourceId;
     const sourceTitle = pdfStudyRoot.dataset.sourceTitle;
     const pdfUrl = pdfStudyRoot.dataset.pdfUrl;
+    const userUnlimited = pdfStudyRoot.dataset.userUnlimited === 'true';
+    const userAdmin = pdfStudyRoot.dataset.userAdmin === 'true';
     createRoot(pdfStudyRoot).render(
       <PdfStudyMode
         sourceId={sourceId}
         sourceTitle={sourceTitle}
         pdfUrl={pdfUrl}
+        userUnlimited={userUnlimited}
+        userAdmin={userAdmin}
       />
     );
   }
@@ -194,6 +202,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (adminConceptGenerationShowRoot) {
     const generationId = adminConceptGenerationShowRoot.dataset.generationId;
     createRoot(adminConceptGenerationShowRoot).render(<AdminConceptGenerationShow generationId={generationId} />);
+  }
+
+  const adminDocsRoot = document.getElementById('admin-docs-root');
+  if (adminDocsRoot) {
+    const initialSlug = adminDocsRoot.dataset.slug;
+    createRoot(adminDocsRoot).render(<AdminDocs initialSlug={initialSlug} />);
+  }
+
+  const samplePageRoot = document.getElementById('samplepage-root');
+  if (samplePageRoot) {
+    createRoot(samplePageRoot).render(<SamplePage />);
+  }
+
+  const legalPageRoot = document.getElementById('legal-page-root');
+  if (legalPageRoot) {
+    const slug = legalPageRoot.dataset.slug || null;
+    createRoot(legalPageRoot).render(<LegalPage slug={slug} />);
+  }
+
+  const searchPageRoot = document.getElementById('search-page-root');
+  if (searchPageRoot) {
+    const initialQuery = searchPageRoot.dataset.query || '';
+    createRoot(searchPageRoot).render(<SearchPage initialQuery={initialQuery} />);
   }
 });
 

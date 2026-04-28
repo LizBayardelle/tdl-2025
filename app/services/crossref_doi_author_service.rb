@@ -7,7 +7,7 @@ require 'json'
 # ORCID across multiple papers they're known to have authored.
 class CrossrefDoiAuthorService
   BASE_URL = 'https://api.crossref.org/works'
-  USER_AGENT = 'TDL-2025 (research tracking; mailto:support@example.com)'
+  USER_AGENT = 'MapMyResearch (research tracking; mailto:elizabeth@linchpinindustries.com)'
 
   def initialize(doi)
     @doi = normalize(doi)

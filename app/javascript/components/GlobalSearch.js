@@ -1,212 +1,214 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+
+// =====================================================================
+// GlobalSearch — typeahead that lives in the main nav.
+// Dropdown shows a few results per category.  Pressing Enter (or
+// clicking "View all") sends the user to /search?q=<query>.
+// =====================================================================
+
+const PER_GROUP = 4;
 
 export default function GlobalSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const searchRef = useRef(null);
-  const timeoutRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+  const inputRef = useRef(null);
+  const debounceRef = useRef(null);
 
+  // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        setShowResults(false);
+    const onClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
+  // Cmd/Ctrl-K to focus
   useEffect(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    if (query.trim().length < 2) {
-      setResults(null);
-      setShowResults(false);
-      return;
-    }
-
-    setLoading(true);
-    timeoutRef.current = setTimeout(() => {
-      performSearch(query);
-    }, 300);
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      } else if (e.key === 'Escape' && open) {
+        setOpen(false);
+        inputRef.current?.blur();
       }
     };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  // Debounced fetch
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (query.trim().length < 2) {
+      setResults(null);
+      return;
+    }
+    setLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/search.json?q=${encodeURIComponent(query)}&limit=${PER_GROUP}`);
+        const data = await res.json();
+        setResults(data);
+      } catch (err) {
+        console.error('Search error:', err);
+        setResults(null);
+      } finally {
+        setLoading(false);
+      }
+    }, 250);
+    return () => debounceRef.current && clearTimeout(debounceRef.current);
   }, [query]);
 
-  const performSearch = async (searchQuery) => {
-    try {
-      const response = await fetch(`/search?q=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      setResults(data);
-      setShowResults(true);
-      setLoading(false);
-    } catch (error) {
-      console.error('Search error:', error);
-      setLoading(false);
-    }
+  const total = useMemo(() => {
+    if (!results) return 0;
+    return ['concepts', 'sources', 'people', 'notes', 'tags', 'collections']
+      .reduce((sum, k) => sum + (results[k]?.length || 0), 0);
+  }, [results]);
+
+  const submit = (e) => {
+    e?.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    window.location.href = `/search?q=${encodeURIComponent(q)}`;
   };
 
-  const totalResults = results
-    ? results.concepts.length + results.sources.length + results.people.length + results.notes.length + results.tags.length
-    : 0;
-
   return (
-    <div ref={searchRef} className="relative w-full max-w-2xl">
-      <div className="relative">
+    <form ref={containerRef} className="gs-root" onSubmit={submit} role="search">
+      <div className={`gs-input-wrap ${open ? 'is-open' : ''}`}>
+        <SearchIcon />
         <input
+          ref={inputRef}
           type="text"
+          className="gs-input"
+          placeholder="Search the library"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.trim().length >= 2 && setShowResults(true)}
-          placeholder="Search across everything..."
-          className="w-full px-4 py-2 pl-10 border border-gray-300 rounded bg-white"
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => query.trim().length >= 2 && setOpen(true)}
+          autoComplete="off"
+          spellCheck="false"
         />
-        <div className="absolute left-3 top-2.5 text-gray-400">
-          🔍
-        </div>
-        {loading && (
-          <div className="absolute right-3 top-2.5 text-gray-400">
-            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-          </div>
-        )}
+        <kbd className="gs-kbd">⌘K</kbd>
       </div>
 
-      {showResults && results && totalResults > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-          <div className="p-3 border-b border-gray-200">
-            <p className="text-sm text-gray-600">
-              Found {totalResults} result{totalResults === 1 ? '' : 's'} for "{results.query}"
-            </p>
-          </div>
+      {open && query.trim().length >= 2 && (
+        <div className="gs-dropdown" role="listbox">
+          {loading && !results && <div className="gs-status">Searching…</div>}
 
-          {results.concepts.length > 0 && (
-            <SearchSection title="Constructs" items={results.concepts} type="concept" />
+          {results && total === 0 && !loading && (
+            <div className="gs-status">No matches for <em>{results.query}</em>.</div>
           )}
 
-          {results.sources.length > 0 && (
-            <SearchSection title="Sources" items={results.sources} type="source" />
-          )}
+          {results && total > 0 && (
+            <>
+              <Group label="Concepts"    items={results.concepts}    type="concept" onPick={() => setOpen(false)} />
+              <Group label="Sources"     items={results.sources}     type="source"  onPick={() => setOpen(false)} />
+              <Group label="People"      items={results.people}      type="person"  onPick={() => setOpen(false)} />
+              <Group label="Notes"       items={results.notes}       type="note"    onPick={() => setOpen(false)} />
+              <Group label="Tags"        items={results.tags}        type="tag"     onPick={() => setOpen(false)} />
+              <Group label="Collections" items={results.collections} type="collection" onPick={() => setOpen(false)} />
 
-          {results.people.length > 0 && (
-            <SearchSection title="People" items={results.people} type="person" />
-          )}
-
-          {results.notes.length > 0 && (
-            <SearchSection title="Notes" items={results.notes} type="note" />
-          )}
-
-          {results.tags.length > 0 && (
-            <SearchSection title="Tags" items={results.tags} type="tag" />
+              <a
+                href={`/search?q=${encodeURIComponent(query)}`}
+                className="gs-all"
+                onClick={() => setOpen(false)}
+              >
+                View all results <span className="gs-all-arrow">→</span>
+              </a>
+            </>
           )}
         </div>
       )}
-
-      {showResults && results && totalResults === 0 && query.trim().length >= 2 && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg p-6 text-center">
-          <p className="text-gray-600">No results found for "{results.query}"</p>
-        </div>
-      )}
-    </div>
+    </form>
   );
 }
 
-function SearchSection({ title, items, type }) {
+function Group({ label, items, type, onPick }) {
+  if (!items || items.length === 0) return null;
   return (
-    <div className="border-b border-gray-200 last:border-b-0">
-      <div className="px-3 py-2 bg-sand">
-        <h3 className="text-xs uppercase tracking-wider font-medium">{title}</h3>
-      </div>
-      <div className="divide-y divide-gray-200">
-        {items.map((item) => (
-          <SearchResultItem key={item.id} item={item} type={type} />
-        ))}
-      </div>
+    <div className="gs-group">
+      <div className="gs-group-label">{label}</div>
+      {items.map((item) => (
+        <ResultRow key={`${type}-${item.id}`} item={item} type={type} onPick={onPick} />
+      ))}
     </div>
   );
 }
 
-function SearchResultItem({ item, type }) {
-  const stripHtml = (html) => {
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-  };
-
-  const getLink = () => {
-    if (type === 'concept') return `/concepts/${item.id}`;
-    if (type === 'source') return `/sources/${item.id}`;
-    if (type === 'person') return `/people/${item.id}`;
-    if (type === 'note') return `/notes/${item.id}`;
-    if (type === 'tag') return `/tags`;
-    return '#';
-  };
-
-  const getTitle = () => {
-    if (type === 'concept') return item.label;
-    if (type === 'source') return item.title || item.full_name;
-    if (type === 'person') return item.full_name;
-    if (type === 'note') {
-      const plainText = stripHtml(item.body || '');
-      return item.title || plainText.substring(0, 100) + (plainText.length > 100 ? '...' : '');
+function ResultRow({ item, type, onPick }) {
+  const link = (() => {
+    switch (type) {
+      case 'concept':    return `/concepts/${item.id}`;
+      case 'source':     return `/sources/${item.id}`;
+      case 'person':     return `/people/${item.id}`;
+      case 'note':       return `/notes/${item.id}`;
+      case 'tag':        return '/tags';
+      case 'collection': return `/collections/${item.id}`;
+      default:           return '#';
     }
-    if (type === 'tag') return item.name;
-    return '';
-  };
+  })();
 
-  const getSubtitle = () => {
-    if (type === 'concept') return item.summary;
-    if (type === 'source') return item.authors;
-    if (type === 'person') return item.role;
-    if (type === 'note' && item.concept) return `→ ${item.concept.label}`;
-    if (type === 'tag') return `${item.taggings_count} items`;
+  const title = (() => {
+    if (type === 'concept')    return item.label;
+    if (type === 'source')     return item.title || 'Untitled';
+    if (type === 'person')     return item.full_name;
+    if (type === 'note')       return item.title || stripHtml(item.body || '').slice(0, 80) || 'Untitled note';
+    if (type === 'tag')        return item.name;
+    if (type === 'collection') return item.name || 'Untitled collection';
     return '';
-  };
+  })();
 
-  const getBadge = () => {
-    if (type === 'concept') return item.concept_type;
-    if (type === 'source') return item.kind;
-    if (type === 'person') return item.role;
-    if (type === 'note') return item.note_type;
-    return null;
-  };
+  const subtitle = (() => {
+    if (type === 'concept')    return item.summary ? truncate(stripHtml(item.summary), 80) : (item.concept_type ? humanize(item.concept_type) : '');
+    if (type === 'source')     return [item.authors, item.year].filter(Boolean).join(' · ');
+    if (type === 'person')     return item.role || (item.summary ? truncate(stripHtml(item.summary), 80) : '');
+    if (type === 'note')       return item.source?.title || (item.concepts?.[0]?.label ? `→ ${item.concepts[0].label}` : '');
+    if (type === 'tag')        return `${item.taggings_count || 0} item${(item.taggings_count || 0) === 1 ? '' : 's'}`;
+    if (type === 'collection') return item.description ? truncate(item.description, 80) : '';
+    return '';
+  })();
+
+  const dotClass = (type === 'concept' || type === 'source' || type === 'person')
+    ? `gs-dot is-${type}`
+    : 'gs-dot is-neutral';
 
   return (
-    <a
-      href={getLink()}
-      className="block px-4 py-3 hover:bg-sand transition-colors"
-      onClick={() => window.location.href = getLink()}
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            {getBadge() && (
-              <span className="text-xs uppercase tracking-wider text-primary bg-sand px-2 py-0.5 rounded">
-                {getBadge()}
-              </span>
-            )}
-            {type === 'tag' && item.color && (
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: item.color }}
-              />
-            )}
-          </div>
-          <p className="font-medium text-sm mb-1 truncate">{getTitle()}</p>
-          {getSubtitle() && (
-            <p className="text-xs text-gray-600 truncate">{getSubtitle()}</p>
-          )}
-        </div>
-      </div>
+    <a href={link} className="gs-row" onClick={onPick}>
+      <span className={dotClass} aria-hidden="true" />
+      <span className="gs-row-text">
+        <span className="gs-row-title">{title}</span>
+        {subtitle && <span className="gs-row-sub">{subtitle}</span>}
+      </span>
     </a>
+  );
+}
+
+function stripHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function truncate(s, n) {
+  if (!s) return '';
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+function humanize(s) {
+  if (!s) return s;
+  return String(s).replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+}
+
+function SearchIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" />
+      <path d="M11 11l3 3" strokeLinecap="round" />
+    </svg>
   );
 }
 

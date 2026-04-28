@@ -8,8 +8,8 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
       style={{
         padding: isMobile ? 'var(--space-4) var(--space-5)' : 'var(--space-6) var(--space-8)',
         paddingLeft: isMobile ? 'calc(var(--space-5) + 28px)' : 'var(--space-8)',
-        background: 'var(--admin-brown)',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+        background: 'var(--paper)',
+        borderBottom: '1px solid var(--ink-line)',
         position: 'relative',
         zIndex: 5,
       }}
@@ -20,18 +20,18 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
           style={{
             fontFamily: 'var(--font-body)',
             fontSize: 'var(--text-xs)',
-            color: 'rgba(255,255,255,0.6)',
+            color: 'var(--ink-3)',
             textDecoration: 'none',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 'var(--space-2)',
             marginBottom: 'var(--space-2)',
             textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            fontWeight: 600,
+            letterSpacing: '0.08em',
+            fontWeight: 700,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'white')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--ink)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink-3)')}
         >
           <i className="fas fa-arrow-left"></i>
           {backLabel || 'Back'}
@@ -42,10 +42,10 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
           <h1
             style={{
               fontFamily: 'var(--font-display)',
-              fontSize: isMobile ? 'var(--text-2xl)' : 'var(--text-3xl)',
-              fontWeight: 700,
-              color: 'white',
-              letterSpacing: '-0.02em',
+              fontSize: isMobile ? '24px' : '32px',
+              fontWeight: 600,
+              color: 'var(--ink)',
+              letterSpacing: '-0.015em',
               marginBottom: 'var(--space-1)',
               marginTop: 0,
               wordBreak: 'break-word',
@@ -59,7 +59,7 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
               style={{
                 fontFamily: 'var(--font-body)',
                 fontSize: 'var(--text-sm)',
-                color: 'rgba(255,255,255,0.65)',
+                color: 'var(--ink-3)',
                 margin: 0,
               }}
             >

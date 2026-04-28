@@ -1,0 +1,26 @@
+// Controlled vocabulary for research methodology tags.
+// Keep in sync with ResearchTypeTagger::RESEARCH_TYPES on the server.
+export const RESEARCH_TYPES = [
+  'Case Study',
+  'Cohort Study',
+  'Computational Modeling',
+  'Cross-sectional',
+  'Experimental',
+  'Literature Review',
+  'Longitudinal',
+  'Meta-analysis',
+  'Mixed Methods',
+  'Natural Experiment',
+  'Observational',
+  'Pilot Study',
+  'Predictive Modeling',
+  'Psychometrics',
+  'Qualitative',
+  'Quantitative',
+  'Quasi-experimental',
+  'RCT',
+  'Replication Study',
+  'Secondary Data Analysis',
+  'Systematic Review',
+  'Theoretical Paper',
+];

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -395,6 +395,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.jsonb "bounds"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "note_id"
+    t.jsonb "cited_source_ids"
+    t.index ["note_id"], name: "index_highlights_on_note_id"
     t.index ["source_id"], name: "index_highlights_on_source_id"
     t.index ["user_id"], name: "index_highlights_on_user_id"
   end
@@ -448,6 +451,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.string "title"
     t.bigint "source_id"
     t.integer "page_number"
+    t.text "quote_text"
+    t.jsonb "quote_bounds"
     t.index ["concept_id"], name: "index_notes_on_concept_id"
     t.index ["note_type"], name: "index_notes_on_note_type"
     t.index ["noted_on"], name: "index_notes_on_noted_on"
@@ -467,6 +472,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.datetime "updated_at", null: false
     t.string "stripe_product_id"
     t.string "stripe_price_id"
+    t.boolean "show_on_homepage", default: false, null: false
+    t.index ["show_on_homepage"], name: "index_packs_on_show_on_homepage"
     t.index ["stripe_price_id"], name: "index_packs_on_stripe_price_id", unique: true
     t.index ["stripe_product_id"], name: "index_packs_on_stripe_product_id", unique: true
   end
@@ -488,6 +495,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.string "orcid"
     t.jsonb "links", default: []
     t.datetime "enriched_at"
+    t.text "affiliation"
+    t.datetime "affiliation_as_of"
     t.index ["full_name"], name: "index_people_on_full_name"
     t.index ["orcid"], name: "index_people_on_orcid"
     t.index ["role"], name: "index_people_on_role"
@@ -601,10 +610,34 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.json "raw_metadata"
     t.text "formatted_citation"
     t.json "methodologies"
+    t.text "markers", default: [], null: false, array: true
     t.index ["doi"], name: "index_sources_on_doi", unique: true, where: "(doi IS NOT NULL)"
     t.index ["kind"], name: "index_sources_on_kind"
+    t.index ["markers"], name: "index_sources_on_markers", using: :gin
     t.index ["user_id"], name: "index_sources_on_user_id"
     t.index ["year"], name: "index_sources_on_year"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "provider", null: false
+    t.string "external_id", null: false
+    t.string "external_customer_id"
+    t.string "status", null: false
+    t.string "interval", null: false
+    t.integer "amount_cents"
+    t.string "currency", default: "usd"
+    t.datetime "current_period_end"
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "canceled_at"
+    t.text "cancellation_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "tier"
+    t.index ["provider", "external_id"], name: "index_subscriptions_on_provider_and_external_id", unique: true
+    t.index ["status"], name: "index_subscriptions_on_status"
+    t.index ["user_id", "status"], name: "index_subscriptions_on_user_id_and_status"
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
   create_table "taggings", force: :cascade do |t|
@@ -692,8 +725,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "admin", default: false, null: false
+    t.string "plan", default: "free", null: false
+    t.datetime "plan_through"
+    t.datetime "source_count_grace_until"
+    t.string "stripe_customer_id"
+    t.integer "concept_generations_used", default: 0, null: false
+    t.datetime "concept_generations_reset_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["plan"], name: "index_users_on_plan"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -723,6 +764,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
   add_foreign_key "connections", "users"
   add_foreign_key "domains", "domains", column: "parent_id"
   add_foreign_key "highlight_colors", "users"
+  add_foreign_key "highlights", "notes"
   add_foreign_key "highlights", "sources"
   add_foreign_key "highlights", "users"
   add_foreign_key "linkings", "links"
@@ -742,6 +784,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_000001) do
   add_foreign_key "source_authors", "authors"
   add_foreign_key "source_authors", "sources"
   add_foreign_key "sources", "users"
+  add_foreign_key "subscriptions", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "users"
   add_foreign_key "upload_batch_items", "sources"

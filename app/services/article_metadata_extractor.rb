@@ -299,7 +299,7 @@ class ArticleMetadataExtractor
     uri = URI("https://api.crossref.org/works/#{URI.encode_www_form_component(doi)}")
 
     request = Net::HTTP::Get.new(uri.request_uri)
-    request['User-Agent'] = 'Mozilla/5.0 (Map My Research App; mailto:research@example.com)'
+    request['User-Agent'] = 'Mozilla/5.0 (Map My Research App; mailto:elizabeth@linchpinindustries.com)'
 
     # Try with standard SSL verification first, fall back to relaxed verification if CRL check fails
     response = nil
@@ -422,7 +422,7 @@ class ArticleMetadataExtractor
     uri = URI("https://api.openalex.org/works/https://doi.org/#{URI.encode_www_form_component(doi)}")
 
     request = Net::HTTP::Get.new(uri.request_uri)
-    request['User-Agent'] = 'MapMyResearch/1.0 (mailto:research@example.com)'
+    request['User-Agent'] = 'MapMyResearch/1.0 (mailto:elizabeth@linchpinindustries.com)'
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true

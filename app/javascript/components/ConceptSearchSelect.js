@@ -10,7 +10,7 @@ export default function ConceptSearchSelect({
   value,
   onChange,
   excludeId = null,
-  placeholder = "Type to search constructs...",
+  placeholder = "Type to search concepts...",
   onCreateConcept,
 }) {
   const [query, setQuery] = useState('');
@@ -255,7 +255,7 @@ export default function ConceptSearchSelect({
               fontFamily: 'var(--font-body)',
               textAlign: 'center',
             }}>
-              No matching constructs
+              No matching concepts
             </div>
           )}
 

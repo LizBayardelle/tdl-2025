@@ -6,7 +6,7 @@ const TOGGLE_HEIGHT = 48;
 const DRAG_THRESHOLD = 4;
 const SIDEBAR_WIDTH = 260;
 
-export default function AdminLayout({ children, currentPage }) {
+export default function AdminLayout({ children, currentPage, activeChildKey }) {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === 'undefined') return true;
@@ -94,7 +94,20 @@ export default function AdminLayout({ children, currentPage }) {
     { href: '/admin/packs', label: 'Packs', icon: 'fa-box', key: 'packs' },
     { href: '/admin/concept_generations', label: 'Concept Creator', icon: 'fa-wand-magic-sparkles', key: 'concept_generations' },
     { href: '/admin/users', label: 'Users', icon: 'fa-users', key: 'users' },
+    {
+      label: 'Documentation',
+      icon: 'fa-book',
+      key: 'docs',
+      children: [
+        { href: '/admin/docs/page-audit', label: 'Page Audit', icon: 'fa-list-check', key: 'page-audit' },
+        { href: '/admin/docs/brand-voice', label: 'Brand Voice', icon: 'fa-feather', key: 'brand-voice' },
+        { href: '/admin/docs/style-guide', label: 'Style Guide', icon: 'fa-palette', key: 'style-guide' },
+        { href: '/admin/docs/to-do', label: 'To-Do & Future Ideas', icon: 'fa-list-ul', key: 'to-do' },
+      ],
+    },
   ];
+
+  const closeOnMobile = () => isMobile && setSidebarOpen(false);
 
   const sidebarStyle = isMobile
     ? {
@@ -103,7 +116,7 @@ export default function AdminLayout({ children, currentPage }) {
         left: 0,
         bottom: 0,
         width: `${SIDEBAR_WIDTH}px`,
-        background: '#e2e2e2',
+        background: 'var(--paper-soft)',
         overflowY: 'auto',
         padding: 'var(--space-6)',
         boxShadow: 'var(--shadow-sidebar)',
@@ -113,7 +126,7 @@ export default function AdminLayout({ children, currentPage }) {
       }
     : {
         width: sidebarOpen ? `${SIDEBAR_WIDTH}px` : '0',
-        background: '#e2e2e2',
+        background: 'var(--paper-soft)',
         overflowY: 'auto',
         overflowX: 'hidden',
         padding: sidebarOpen ? 'var(--space-6)' : '0',
@@ -159,39 +172,24 @@ export default function AdminLayout({ children, currentPage }) {
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginBottom: 'var(--space-6)' }}>
-          {navItems.map((item) => {
-            const isActive = currentPage === item.key;
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                onClick={() => isMobile && setSidebarOpen(false)}
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-3)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  borderRadius: 'var(--radius)',
-                  textDecoration: 'none',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? 'white' : 'var(--neutral-900)',
-                  background: isActive ? 'var(--admin-brown-dark)' : 'transparent',
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
-                {item.label}
-              </a>
-            );
-          })}
+          {navItems.map((item) =>
+            item.children ? (
+              <NavGroup
+                key={item.key}
+                item={item}
+                currentPage={currentPage}
+                activeChildKey={activeChildKey}
+                onNavigate={closeOnMobile}
+              />
+            ) : (
+              <NavLeaf
+                key={item.key}
+                item={item}
+                isActive={currentPage === item.key}
+                onNavigate={closeOnMobile}
+              />
+            )
+          )}
         </nav>
 
         <div style={{ paddingTop: 'var(--space-4)', borderTop: '1px solid var(--neutral-200)' }}>
@@ -229,7 +227,7 @@ export default function AdminLayout({ children, currentPage }) {
           top: `${toggleY}px`,
           width: '24px',
           height: `${TOGGLE_HEIGHT}px`,
-          background: 'var(--admin-brown-dark)',
+          background: 'var(--ink)',
           border: 'none',
           color: 'white',
           cursor: dragging ? 'grabbing' : 'grab',
@@ -263,6 +261,104 @@ export default function AdminLayout({ children, currentPage }) {
       >
         {children}
       </main>
+    </div>
+  );
+}
+
+function NavLeaf({ item, isActive, onNavigate, indented }) {
+  return (
+    <a
+      href={item.href}
+      onClick={onNavigate}
+      style={{
+        fontFamily: 'var(--font-body)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-3)',
+        padding: indented ? 'var(--space-2) var(--space-3) var(--space-2) var(--space-8)' : 'var(--space-2) var(--space-3)',
+        borderRadius: 'var(--radius)',
+        textDecoration: 'none',
+        fontSize: 'var(--text-sm)',
+        fontWeight: isActive ? 600 : 400,
+        color: isActive ? 'white' : 'var(--neutral-900)',
+        background: isActive ? 'var(--admin-brown-dark)' : 'transparent',
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+      {item.label}
+    </a>
+  );
+}
+
+function NavGroup({ item, currentPage, activeChildKey, onNavigate }) {
+  const parentActive = currentPage === item.key;
+  const [expanded, setExpanded] = useState(parentActive);
+
+  useEffect(() => {
+    if (parentActive) setExpanded(true);
+  }, [parentActive]);
+
+  return (
+    <div>
+      <button
+        onClick={() => setExpanded((e) => !e)}
+        style={{
+          fontFamily: 'var(--font-body)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          padding: 'var(--space-2) var(--space-3)',
+          borderRadius: 'var(--radius)',
+          width: '100%',
+          textAlign: 'left',
+          border: 'none',
+          background: parentActive && !activeChildKey ? 'var(--admin-brown-dark)' : 'transparent',
+          color: parentActive && !activeChildKey ? 'white' : 'var(--neutral-900)',
+          fontSize: 'var(--text-sm)',
+          fontWeight: parentActive ? 600 : 400,
+          cursor: 'pointer',
+          transition: 'all 0.15s',
+        }}
+        onMouseEnter={(e) => {
+          if (!(parentActive && !activeChildKey)) e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+        }}
+        onMouseLeave={(e) => {
+          if (!(parentActive && !activeChildKey)) e.currentTarget.style.background = 'transparent';
+        }}
+        aria-expanded={expanded}
+      >
+        <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+        <span style={{ flex: 1 }}>{item.label}</span>
+        <i
+          className="fas fa-chevron-right"
+          style={{
+            fontSize: '10px',
+            transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            transition: 'transform 0.15s',
+            opacity: 0.6,
+          }}
+        ></i>
+      </button>
+      {expanded && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px' }}>
+          {item.children.map((child) => (
+            <NavLeaf
+              key={child.key}
+              item={child}
+              isActive={child.key === activeChildKey}
+              onNavigate={onNavigate}
+              indented
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

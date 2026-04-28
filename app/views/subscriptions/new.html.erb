@@ -1,0 +1,441 @@
+<% content_for(:title) { "Subscribe · Map My Research" } %>
+
+<%
+  current_tier = @current_tier || "free"
+  storage_label = @current_subscription && @current_subscription.tier == "storage" ? "Current plan" : nil
+  unlimited_label = @current_subscription && @current_subscription.tier == "unlimited" ? "Current plan" : nil
+%>
+
+<div class="sub-page" data-interval="monthly">
+  <header class="sub-head">
+    <div class="sub-eyebrow">Map My Research</div>
+    <h1 class="sub-title">Pick a plan that fits your library.</h1>
+    <p class="sub-sub">
+      Free is generous.  Storage unlocks the limits.  Unlimited turns Haiku loose on every concept you collect.
+    </p>
+  </header>
+
+  <%#
+    Annual prices are 10× monthly = two months free.  These match the
+    Stripe prices behind STRIPE_PRICE_*_ANNUAL_ID — keep them in sync
+    with the dashboard or users will get a different number at checkout.
+  %>
+  <div class="sub-interval">
+    <div class="sub-interval-toggle" role="tablist" aria-label="Billing interval">
+      <button type="button" class="sub-interval-btn is-active" data-interval="monthly" role="tab" aria-selected="true">Monthly</button>
+      <button type="button" class="sub-interval-btn" data-interval="annual" role="tab" aria-selected="false">
+        Annual <span class="sub-interval-save">save 17%</span>
+      </button>
+    </div>
+  </div>
+
+  <section class="sub-grid">
+    <%# ---- Free ---- %>
+    <article class="sub-tier <%= 'is-current' if current_tier == 'free' %>">
+      <div class="sub-tier-head">
+        <h2 class="sub-tier-name">Free</h2>
+        <% if current_tier == 'free' %><span class="sub-tier-badge">Current plan</span><% end %>
+      </div>
+      <div class="sub-price">
+        <span class="sub-price-amt">$0</span>
+        <span class="sub-price-per">/ month</span>
+      </div>
+      <p class="sub-tier-line">For trying the workspace and small libraries.</p>
+
+      <ul class="sub-features">
+        <li><strong>300</strong> articles in your library</li>
+        <li>All <strong>mini-AI touches</strong> (research-type tagging, author suggestion, etc.)</li>
+        <li><strong>5</strong> concept-definition generations / month</li>
+        <li>Notes, highlights, sharing, exports</li>
+      </ul>
+
+      <% if current_tier == 'free' %>
+        <button type="button" class="sub-cta sub-cta-quiet" disabled>Current Plan</button>
+      <% else %>
+        <span class="sub-cta sub-cta-quiet">Always Free</span>
+      <% end %>
+    </article>
+
+    <%# ---- Storage ---- %>
+    <article class="sub-tier sub-tier-storage <%= 'is-current' if current_tier == 'storage' %>">
+      <div class="sub-tier-head">
+        <h2 class="sub-tier-name">Storage</h2>
+        <% if current_tier == 'storage' %><span class="sub-tier-badge">Current plan</span><% end %>
+      </div>
+      <div class="sub-price">
+        <span class="sub-price-amt" data-monthly="$4" data-annual="$3.33">$4</span>
+        <span class="sub-price-per">/ month</span>
+      </div>
+      <p class="sub-price-foot" data-annual-only>Billed $40 / year</p>
+      <p class="sub-tier-line">For researchers whose library outgrew the free tier.</p>
+
+      <ul class="sub-features">
+        <li><strong>Unlimited</strong> articles</li>
+        <li><strong>Unlimited</strong> mini-AI touches</li>
+        <li><strong>5</strong> concept-definition generations / month</li>
+        <li>Everything on Free</li>
+      </ul>
+
+      <% if current_tier == 'storage' %>
+        <%= link_to "Manage Subscription", subscription_path, class: "sub-cta sub-cta-secondary" %>
+      <% else %>
+        <%= form_with url: subscriptions_path, method: :post, local: true, class: "sub-form" do |f| %>
+          <%= hidden_field_tag :tier, "storage" %>
+          <%= hidden_field_tag :interval, "month", class: "sub-interval-input" %>
+          <%= f.submit "Choose Storage", class: "sub-cta sub-cta-secondary", data: { disable_with: "Loading…" } %>
+        <% end %>
+      <% end %>
+    </article>
+
+    <%# ---- Unlimited ---- %>
+    <article class="sub-tier sub-tier-unlimited <%= 'is-current' if current_tier == 'unlimited' %>">
+      <div class="sub-tier-flag">Most powerful</div>
+      <div class="sub-tier-head">
+        <h2 class="sub-tier-name">Unlimited</h2>
+        <% if current_tier == 'unlimited' %><span class="sub-tier-badge">Current plan</span><% end %>
+      </div>
+      <div class="sub-price">
+        <span class="sub-price-amt" data-monthly="$19" data-annual="$15.83">$19</span>
+        <span class="sub-price-per">/ month</span>
+      </div>
+      <p class="sub-price-foot" data-annual-only>Billed $190 / year</p>
+      <p class="sub-tier-line">For full-time researchers, clinicians, and writers.</p>
+
+      <ul class="sub-features">
+        <li><strong>Unlimited</strong> articles</li>
+        <li><strong>Unlimited</strong> mini-AI touches</li>
+        <li><strong>Unlimited</strong> concept-definition generations</li>
+        <li>Priority on new AI features</li>
+        <li>Everything on Storage</li>
+      </ul>
+
+      <% if current_tier == 'unlimited' %>
+        <%= link_to "Manage Subscription", subscription_path, class: "sub-cta sub-cta-primary" %>
+      <% else %>
+        <%= form_with url: subscriptions_path, method: :post, local: true, class: "sub-form" do |f| %>
+          <%= hidden_field_tag :tier, "unlimited" %>
+          <%= hidden_field_tag :interval, "month", class: "sub-interval-input" %>
+          <%= f.submit "Choose Unlimited", class: "sub-cta sub-cta-primary", data: { disable_with: "Loading…" } %>
+        <% end %>
+      <% end %>
+    </article>
+  </section>
+
+  <p class="sub-foot">
+    Secure checkout by Stripe.  Cancel anytime from your account page.
+  </p>
+</div>
+
+<script>
+  (function () {
+    var page = document.querySelector('.sub-page[data-interval]');
+    if (!page) return;
+
+    var buttons = page.querySelectorAll('.sub-interval-btn');
+    var amounts = page.querySelectorAll('.sub-price-amt[data-monthly]');
+    var inputs = page.querySelectorAll('.sub-interval-input');
+
+    function setInterval(target) {
+      page.setAttribute('data-interval', target);
+      buttons.forEach(function (b) {
+        var on = b.getAttribute('data-interval') === target;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      amounts.forEach(function (a) {
+        a.textContent = a.getAttribute('data-' + target) || a.textContent;
+      });
+      inputs.forEach(function (i) {
+        i.value = target === 'annual' ? 'annual' : 'month';
+      });
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        setInterval(b.getAttribute('data-interval'));
+      });
+    });
+
+    // Single-fire submit guard.  Disables the tier form's submit button on
+    // first click so the second click can't kick off a duplicate Stripe
+    // Checkout session before the redirect lands.
+    page.querySelectorAll('.sub-form').forEach(function (form) {
+      form.addEventListener('submit', function () {
+        var btn = form.querySelector('input[type=submit], button[type=submit]');
+        if (!btn || btn.disabled) return;
+        var loading = btn.getAttribute('data-disable-with') || 'Loading…';
+        btn.dataset.originalValue = btn.value || btn.textContent;
+        if (btn.tagName === 'INPUT') btn.value = loading; else btn.textContent = loading;
+        btn.disabled = true;
+      });
+    });
+  })();
+</script>
+
+<style>
+  .sub-page {
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 70vh;
+    padding: 72px 24px 96px;
+  }
+  .sub-head {
+    max-width: 720px;
+    margin: 0 auto 48px;
+    text-align: center;
+  }
+  .sub-eyebrow {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+  }
+  .sub-title {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 16px;
+  }
+  .sub-sub {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .sub-interval {
+    max-width: 1080px;
+    margin: 0 auto 28px;
+    display: flex;
+    justify-content: center;
+  }
+  .sub-interval-toggle {
+    display: inline-flex;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-pill, 999px);
+    padding: 4px;
+    gap: 2px;
+  }
+  .sub-interval-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 8px 18px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-radius: var(--r-pill, 999px);
+    transition: background 150ms, color 150ms;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sub-interval-btn:hover { color: var(--ink-2); }
+  .sub-interval-btn.is-active {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .sub-interval-save {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--source-2);
+    background: var(--source-tint);
+    padding: 2px 7px;
+    border-radius: var(--r-sm);
+  }
+
+  .sub-price-foot {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-3);
+    margin: -4px 0 12px;
+  }
+  .sub-page[data-interval="monthly"] [data-annual-only] { display: none; }
+
+  .sub-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    max-width: 1080px;
+    margin: 0 auto;
+    align-items: stretch;
+  }
+  .sub-tier {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 28px 24px 24px;
+  }
+  .sub-tier.is-current { border-color: var(--ink-2); }
+  .sub-tier-storage {
+    border-color: color-mix(in srgb, var(--source) 35%, var(--ink-line));
+  }
+  .sub-tier-unlimited {
+    border: 2px solid var(--concept);
+    box-shadow: 0 8px 24px rgba(31, 59, 115, 0.08);
+  }
+  .sub-tier-flag {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--concept);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: var(--r-pill, 999px);
+  }
+  .sub-tier-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .sub-tier-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .sub-tier-badge {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--concept-2);
+    background: var(--concept-tint);
+    padding: 2px 8px;
+    border-radius: var(--r-sm);
+  }
+  .sub-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .sub-price-amt {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .sub-price-per {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--ink-3);
+  }
+  .sub-tier-line {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-3);
+    margin: 0 0 22px;
+  }
+  .sub-features {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    flex: 1;
+  }
+  .sub-features li {
+    position: relative;
+    padding: 8px 0 8px 22px;
+    border-top: 1px solid var(--ink-line-soft);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .sub-features li:first-child { border-top: none; }
+  .sub-features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14px;
+    width: 12px;
+    height: 6px;
+    border-left: 1.6px solid var(--concept);
+    border-bottom: 1.6px solid var(--concept);
+    transform: rotate(-45deg);
+  }
+  .sub-features strong { color: var(--ink); font-weight: 600; }
+
+  .sub-form { margin: 0; }
+  .sub-cta,
+  .sub-cta * {
+    font-family: var(--font-body) !important;
+  }
+  .sub-cta {
+    display: block;
+    width: 100%;
+    height: 44px;
+    line-height: 42px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background 150ms, color 150ms, border-color 150ms;
+  }
+  .sub-cta-primary {
+    background: var(--concept);
+    color: var(--paper);
+    border-color: var(--concept);
+  }
+  .sub-cta-primary:hover { background: var(--concept-2); border-color: var(--concept-2); }
+  .sub-cta-secondary {
+    background: var(--paper);
+    color: var(--source-2);
+    border-color: var(--source);
+  }
+  .sub-cta-secondary:hover { background: var(--source-tint); }
+  .sub-cta-quiet {
+    background: var(--paper-soft);
+    color: var(--ink-3);
+    border-color: var(--ink-line);
+    cursor: default;
+  }
+  .sub-cta-quiet[disabled] { opacity: 0.85; }
+
+  .sub-foot {
+    max-width: 720px;
+    margin: 32px auto 0;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 880px) {
+    .sub-grid { grid-template-columns: 1fr; max-width: 480px; }
+    .sub-title { font-size: 32px; }
+  }
+</style>

@@ -20,7 +20,20 @@ class FleshOutPersonJob < ApplicationJob
     updates[:summary] = data[:biography] if person.summary.blank? && data[:biography].present?
     updates[:url] = data[:homepage] if person.url.blank? && data[:homepage].present?
 
-    merged_links = merge_links(person.links || [], data[:links] || [])
+    # Affiliation: only write when blank (matches the don't-clobber-manual-edits
+    # convention used for the other fields).  Stamp affiliation_as_of so the UI
+    # can show how fresh the value is and surface staleness later.
+    if person.affiliation.blank? && data[:affiliation].present?
+      updates[:affiliation] = data[:affiliation]
+      updates[:affiliation_as_of] = Time.current
+    end
+
+    # Merge ORCID's profile links AND its external identifiers (Scopus,
+    # ResearcherID, ISNI, etc.) into the existing links array.  The external
+    # identifiers come back URL-shaped from the service so they slot in
+    # alongside profile links.  Dedup is by URL.
+    incoming_links = (data[:links] || []) + (data[:external_ids] || [])
+    merged_links = merge_links(person.links || [], incoming_links)
     updates[:links] = merged_links if merged_links != (person.links || [])
 
     updates[:enriched_at] = Time.current

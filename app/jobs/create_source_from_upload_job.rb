@@ -29,6 +29,16 @@ class CreateSourceFromUploadJob < ApplicationJob
         Rails.logger.info "Source with DOI #{doi} already exists (ID: #{existing_source.id}), linking instead of creating"
         source = existing_source
       else
+        # Paywall: refuse to create new sources past the free tier limit + grace.
+        unless user.can_create_source?
+          Rails.logger.info "Skipping source creation for upload item #{item_id}: user #{user.id} past free tier (#{User::FREE_SOURCE_LIMIT} articles)"
+          item.update!(
+            status: :failed,
+            error_message: "Past the free tier limit of #{User::FREE_SOURCE_LIMIT} articles.  Subscribe to Pro to keep importing."
+          )
+          return
+        end
+
         source_attrs = {
           title: metadata['title'],
           year: metadata['year'],
@@ -56,6 +66,22 @@ class CreateSourceFromUploadJob < ApplicationJob
       if metadata['keywords'].present?
         source[:keywords] = metadata['keywords']
         source.save!
+      end
+
+      # Auto-tag methodology with Haiku if the source has no methodologies set.
+      # Cheap (~half a cent per source) and runs once at creation; the user can
+      # adjust later in the form.
+      if source.methodologies.blank?
+        tags = ResearchTypeTagger.new(
+          title: source.title,
+          abstract: source.abstract,
+          summary: source.summary,
+          kind: source.kind
+        ).tag
+        if tags.any?
+          source.methodologies = tags
+          source.save!
+        end
       end
 
       # Link authors/people

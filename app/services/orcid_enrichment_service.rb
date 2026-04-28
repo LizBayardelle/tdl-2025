@@ -13,8 +13,12 @@ class OrcidEnrichmentService
     @orcid = normalize(orcid)
   end
 
-  # Returns a hash { email:, biography:, homepage:, affiliation:, links: [...] } or nil on failure.
-  # Any field may be missing if the researcher hasn't made it public.
+  # Returns a hash { email:, biography:, homepage:, affiliation:, links: [...], external_ids: [...] }
+  # or nil on failure.  Any field may be missing if the researcher hasn't made it public.
+  # `external_ids` are entries like Scopus Author ID, ResearcherID, ISNI, Loop, etc.,
+  # each shaped like { 'label' => 'Scopus Author ID', 'url' => '...' }.  Only entries
+  # that include a canonical URL are returned — typed identifiers without a URL aren't
+  # actionable in the UI.
   def fetch
     return nil if @orcid.blank?
 
@@ -30,7 +34,8 @@ class OrcidEnrichmentService
       biography: person.dig('biography', 'content'),
       homepage: first_researcher_url(person),
       affiliation: current_affiliation(activities),
-      links: researcher_urls(person)
+      links: researcher_urls(person),
+      external_ids: external_ids(person)
     }
   end
 
@@ -78,6 +83,20 @@ class OrcidEnrichmentService
       label = u['url-name'].presence || 'Link'
       url = u.dig('url', 'value')
       next nil unless url
+      { 'label' => label, 'url' => url }
+    end.compact
+  end
+
+  # External IDs ORCID tracks — Scopus Author ID, ResearcherID, ISNI, Loop,
+  # GitHub, etc.  Each entry has a type, value, and (usually) a canonical URL.
+  # We keep only the URL-bearing ones so they fit cleanly into the Person.links
+  # array as labeled clickable chips.
+  def external_ids(person)
+    entries = person.dig('external-identifiers', 'external-identifier') || []
+    entries.map do |e|
+      label = e['external-id-type'].to_s.strip
+      url = e.dig('external-id-url', 'value')
+      next nil if url.blank? || label.blank?
       { 'label' => label, 'url' => url }
     end.compact
   end

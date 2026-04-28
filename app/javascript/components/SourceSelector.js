@@ -73,6 +73,7 @@ export default function SourceSelector({ selectedSourceIds = [], selectedSourceI
       borderRadius: 'var(--radius)',
       background: 'white',
       height: '100%',
+      maxHeight: '400px',
       display: 'flex',
       flexDirection: 'column',
       fontFamily: 'var(--font-body)'

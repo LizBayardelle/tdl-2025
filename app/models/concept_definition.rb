@@ -1,8 +1,7 @@
 class ConceptDefinition < ApplicationRecord
   CONCEPT_TYPES = %w[
-    research_method measurement intervention pathology emotion symptom
-    school_of_thought physical_entity physical_process non_physical_process
-    non_physical_concept
+    phenomenon theory pathology anatomy intervention
+    process measurement method field
   ].freeze
 
   belongs_to :pack, optional: true, counter_cache: :concept_count

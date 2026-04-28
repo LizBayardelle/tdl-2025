@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import SlidePanel from './SlidePanel';
 import TagSelector from './TagSelector';
 import ConceptSelector from './ConceptSelector';
@@ -7,6 +7,8 @@ import CollectionSelector from './CollectionSelector';
 import AuthorDisambiguationModal from './AuthorDisambiguationModal';
 import ConceptDisambiguationModal from './ConceptDisambiguationModal';
 import RichTextEditor from './RichTextEditor';
+import MagicSparkles from './icons/MagicSparkles';
+import { RESEARCH_TYPES } from '../config/researchTypes';
 
 export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
   const [step, setStep] = useState('drop'); // 'drop' | 'extracting' | 'review' | 'saving'
@@ -32,6 +34,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
     pages: '',
     publisher_or_venue: '',
     keywords: [],
+    methodologies: [],
     tags: [],
     concept_ids: [],
     person_ids: [],
@@ -250,6 +253,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
           pages: data.pages || '',
           publisher_or_venue: data.publisher_or_venue || '',
           keywords: data.keywords || [],
+          methodologies: data.methodologies || [],
           tags: [],
           concept_ids: [],
           person_ids: [],
@@ -274,6 +278,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
           pages: '',
           publisher_or_venue: '',
           keywords: [],
+          methodologies: [],
           tags: [],
           concept_ids: [],
           person_ids: [],
@@ -326,6 +331,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
           pages: data.pages || '',
           publisher_or_venue: data.publisher_or_venue || '',
           keywords: data.keywords || [],
+          methodologies: data.methodologies || [],
           tags: [],
           concept_ids: [],
           person_ids: [],
@@ -465,6 +471,70 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
       setShowAuthorModal(true);
     }
   };
+
+  // Re-tag research methodology with Haiku (the abstract may have been edited
+  // since the initial extraction).
+  const [taggingMethods, setTaggingMethods] = useState(false);
+  const [methodsTagNote, setMethodsTagNote] = useState('');
+
+  const handleAutoTagMethods = async () => {
+    if (!formData.title) {
+      setMethodsTagNote('Add a title first.');
+      return;
+    }
+    setMethodsTagNote('');
+    setTaggingMethods(true);
+    try {
+      const r = await fetch('/sources/tag_research_types', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          abstract: formData.abstract,
+          summary: formData.summary,
+          kind: formData.kind,
+        }),
+      });
+      const data = await r.json();
+      const suggested = Array.isArray(data.types) ? data.types : [];
+      if (suggested.length === 0) {
+        setMethodsTagNote('Nothing strong to suggest from this abstract.');
+        return;
+      }
+      setFormData(prev => ({
+        ...prev,
+        methodologies: Array.from(new Set([...(prev.methodologies || []), ...suggested])),
+      }));
+    } catch (e) {
+      console.error(e);
+      setMethodsTagNote('Auto-tag failed.  Try again in a moment.');
+    } finally {
+      setTaggingMethods(false);
+    }
+  };
+
+  const toggleMethodology = (m) => {
+    setFormData(prev => ({
+      ...prev,
+      methodologies: (prev.methodologies || []).includes(m)
+        ? (prev.methodologies || []).filter(x => x !== m)
+        : [...(prev.methodologies || []), m],
+    }));
+  };
+
+  // Auto-fire methodology tagging once metadata lands on the review step.
+  // Skips when there's no title or when methodologies are already populated
+  // (e.g., the user came back from a different tab and we already tagged).
+  useEffect(() => {
+    if (step !== 'review') return;
+    if (!formData.title) return;
+    if ((formData.methodologies || []).length > 0) return;
+    handleAutoTagMethods();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   // Concept suggestion handlers
   const handleCheckConcepts = async () => {
@@ -1171,7 +1241,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                       fontFamily: 'var(--font-display)',
                       fontSize: 'var(--text-base)',
                       fontWeight: 700,
-                      color: 'var(--accent-gold)',
+                      color: 'var(--source)',
                       marginBottom: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1222,7 +1292,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                         placeholder="Last, F., Last, F."
                       />
                     </div>
-                    <div style={{ height: formData.person_ids.length > 0 ? '280px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <div style={{ height: formData.person_ids.length > 0 ? '240px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                       <PeopleSelector
                         selectedPersonIds={formData.person_ids}
                         onChange={(person_ids) => setFormData({ ...formData, person_ids })}
@@ -1352,13 +1422,100 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                     </div>
                   )}
 
+                  {/* Research Type(s) — auto-tagged on extract, editable here */}
+                  <div>
+                    <div style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 'var(--text-base)',
+                      fontWeight: 700,
+                      color: 'var(--source, var(--accent-blue))',
+                      marginBottom: 'var(--space-2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                        <i className="fas fa-flask" style={{ fontSize: 'var(--text-sm)' }}></i>
+                        Research Type(s)
+                      </div>
+                      {formData.title && (
+                        <button
+                          type="button"
+                          onClick={handleAutoTagMethods}
+                          disabled={taggingMethods}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 'var(--space-1)',
+                            padding: 'var(--space-1) var(--space-2)',
+                            background: 'var(--source-tint, var(--accent-blue-light))',
+                            color: 'var(--source-2, var(--accent-blue))',
+                            border: '1px solid var(--source, var(--accent-blue))',
+                            borderRadius: '4px',
+                            fontSize: 'var(--text-xs)',
+                            fontFamily: 'var(--font-body)',
+                            fontWeight: 500,
+                            cursor: taggingMethods ? 'wait' : 'pointer',
+                            opacity: taggingMethods ? 0.7 : 1,
+                          }}
+                          title="Re-tag from the current abstract"
+                        >
+                          <MagicSparkles size={12} spinning={taggingMethods} />
+                          {taggingMethods ? 'Tagging.' : 'Auto-tag'}
+                        </button>
+                      )}
+                    </div>
+                    {methodsTagNote && (
+                      <div style={{
+                        fontSize: 'var(--text-xs)',
+                        color: 'var(--neutral-500)',
+                        fontStyle: 'italic',
+                        marginBottom: 'var(--space-2)',
+                      }}>
+                        {methodsTagNote}
+                      </div>
+                    )}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '4px',
+                      padding: 'var(--space-3)',
+                      background: 'white',
+                      border: '1px solid var(--neutral-300)',
+                      borderRadius: '6px',
+                      maxHeight: '200px',
+                      overflowY: 'auto',
+                    }}>
+                      {RESEARCH_TYPES.map(m => (
+                        <label key={m} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          fontFamily: 'var(--font-body)',
+                          fontSize: 'var(--text-sm)',
+                          color: 'var(--neutral-700)',
+                          padding: '2px 4px',
+                          cursor: 'pointer',
+                        }}>
+                          <input
+                            type="checkbox"
+                            checked={(formData.methodologies || []).includes(m)}
+                            onChange={() => toggleMethodology(m)}
+                            style={{ accentColor: 'var(--source, var(--accent-blue))' }}
+                          />
+                          <span>{m}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Concepts */}
                   <div>
                     <div style={{
                       fontFamily: 'var(--font-display)',
                       fontSize: 'var(--text-base)',
                       fontWeight: 700,
-                      color: 'var(--accent-green)',
+                      color: 'var(--source)',
                       marginBottom: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1409,7 +1566,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                         </button>
                       )}
                     </div>
-                    <div style={{ height: formData.concept_ids.length > 0 ? '280px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <div style={{ height: formData.concept_ids.length > 0 ? '240px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                       <ConceptSelector
                         selectedConceptIds={formData.concept_ids}
                         onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
@@ -1425,7 +1582,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                       fontFamily: 'var(--font-display)',
                       fontSize: 'var(--text-base)',
                       fontWeight: 700,
-                      color: 'var(--accent-purple)',
+                      color: 'var(--source)',
                       marginBottom: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1434,11 +1591,11 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                       <i className="fas fa-tag" style={{ fontSize: 'var(--text-sm)' }}></i>
                       Tags
                     </div>
-                    <div style={{ height: formData.tags.length > 0 ? '280px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <div style={{ height: formData.tags.length > 0 ? '240px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                       <TagSelector
                         selectedTags={formData.tags}
                         onChange={(tags) => setFormData({ ...formData, tags })}
-                        themeColor="var(--accent-purple)"
+                        themeColor="var(--ink-3)"
                       />
                     </div>
                   </div>
@@ -1449,7 +1606,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                       fontFamily: 'var(--font-display)',
                       fontSize: 'var(--text-base)',
                       fontWeight: 700,
-                      color: 'var(--accent-maroon)',
+                      color: 'var(--source)',
                       marginBottom: 'var(--space-2)',
                       display: 'flex',
                       alignItems: 'center',
@@ -1458,13 +1615,13 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                       <i className="fas fa-folder" style={{ fontSize: 'var(--text-sm)' }}></i>
                       Collections
                     </div>
-                    <div style={{ height: formData.collection_ids.length > 0 ? '280px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
+                    <div style={{ height: formData.collection_ids.length > 0 ? '240px' : '200px', overflow: 'hidden', transition: 'height 0.2s ease' }}>
                       <CollectionSelector
                         itemType="Source"
                         itemId={null}
                         selectedCollectionIds={formData.collection_ids}
                         onChange={(ids) => setFormData({ ...formData, collection_ids: ids })}
-                        themeColor="var(--accent-maroon)"
+                        themeColor="var(--ink-3)"
                       />
                     </div>
                   </div>

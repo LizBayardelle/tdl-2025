@@ -56,6 +56,7 @@ export default function NoteSelector({ selectedNoteIds = [], onChange, themeColo
       borderRadius: '4px',
       background: 'white',
       height: '100%',
+      maxHeight: '400px',
       display: 'flex',
       flexDirection: 'column'
     }}>

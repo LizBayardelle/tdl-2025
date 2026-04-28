@@ -3,8 +3,10 @@ Rails.application.routes.draw do
 
   # User profile image upload
   patch "users/profile_image", to: "users#update_profile_image", as: :update_profile_image
+  get   "users/me", to: "users#me", as: :user_me
 
   root "home#index"
+  get "samplepage", to: "samplepage#index"
   get "dashboard", to: "home#dashboard"
   get "sharing", to: "home#sharing", as: :sharing
   get "uploads", to: "home#uploads", as: :uploads
@@ -18,12 +20,26 @@ Rails.application.routes.draw do
   end
   post "checkout/:pack_id", to: "checkouts#create", as: :checkout
 
+  # Subscriptions
+  get  "subscribe",          to: "subscriptions#new",    as: :subscribe
+  post "subscriptions",      to: "subscriptions#create"
+  get  "subscription",       to: "subscriptions#show",   as: :subscription
+  post "subscription/portal", to: "subscriptions#portal", as: :subscription_portal
+  post "subscription/cancel", to: "subscriptions#cancel", as: :subscription_cancel
+  post "subscription/resume", to: "subscriptions#resume", as: :subscription_resume
+
   # Stripe webhooks
   post "webhooks/stripe", to: "webhooks#stripe"
+
+  # Legal & static
+  get "legal", to: "legal#index", as: :legal
+  get "legal/:slug", to: "legal#show", as: :legal_page
 
   # Admin
   namespace :admin do
     get "/", to: "dashboard#index", as: :dashboard
+    get "docs", to: "docs#index", as: :docs
+    get "docs/:slug", to: "docs#show", as: :doc
     resources :packs do
       member do
         post :sync_stripe
@@ -71,6 +87,10 @@ Rails.application.routes.draw do
       post :find_or_create_from_keywords
       post :suggest_from_metadata
     end
+    member do
+      post :suggest_relationships
+      post :generate_definition
+    end
     resources :links, only: [:index, :create, :destroy], controller: 'concept_links'
   end
   resources :connections, only: [:index, :show, :create, :update, :destroy]
@@ -78,10 +98,18 @@ Rails.application.routes.draw do
     collection do
       post :extract_metadata
       post :extract_from_pdf
+      post :citations
+      post :tag_research_types
+      post :suggest_authors
+      post :flesh_out_citation
     end
     member do
       get :study
       get :notes
+      get :sections
+      post :passage_insights
+      post :ask
+      post :enrich_from_citation
     end
   end
   resources :people, only: [:index, :show, :create, :update, :destroy] do
@@ -100,7 +128,7 @@ Rails.application.routes.draw do
       post :reorder
     end
   end
-  resources :highlights, only: [:index, :create, :destroy]
+  resources :highlights, only: [:index, :create, :update, :destroy]
 
   resources :collections do
     member do

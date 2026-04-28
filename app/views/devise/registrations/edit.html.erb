@@ -1,224 +1,272 @@
-<div style="min-height: calc(100vh - 64px); background: var(--background); padding: var(--space-8) var(--space-6);">
-  <div style="max-width: 600px; margin: 0 auto;">
-    <!-- Header -->
-    <div style="margin-bottom: var(--space-8);">
-      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: var(--space-2);">
-        Account Settings
-      </h1>
-      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-500); margin: 0;">
-        Update your email and password
-      </p>
-    </div>
+<% content_for(:title) { "Settings · Map My Research" } %>
 
-    <!-- Profile Image Card (separate auto-saving form) -->
-    <div class="card" style="margin-bottom: var(--space-6);">
-      <div style="padding: var(--space-6);">
-        <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: var(--space-6);">
-          Profile Image
-        </h2>
+<div class="settings-shell">
+  <div class="settings-container">
+    <header class="settings-header">
+      <h1 class="settings-title">Settings</h1>
+      <p class="settings-subtitle">Update your sign-in details and profile image.</p>
+    </header>
 
-        <div style="display: flex; align-items: center; gap: var(--space-6);">
-          <!-- Current Image Preview -->
-          <div id="profile-image-preview" style="flex-shrink: 0;">
-            <% if resource.profile_image.attached? && resource.profile_image.blob.persisted? %>
-              <%= image_tag resource.profile_image.variant(resize_to_fill: [96, 96]), style: "width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neutral-200);", id: "profile-image-img" %>
-            <% else %>
-              <div id="profile-image-placeholder" style="width: 96px; height: 96px; border-radius: 50%; background: var(--neutral-200); display: flex; align-items: center; justify-content: center; border: 3px solid var(--neutral-300);">
-                <i class="fas fa-user" style="font-size: 40px; color: var(--neutral-400);"></i>
-              </div>
-            <% end %>
-          </div>
-
-          <!-- Upload Field -->
-          <div style="flex: 1;">
-            <label for="profile_image_input" class="form-label" style="display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);">Upload New Image</label>
-            <input type="file" id="profile_image_input" name="profile_image" accept="image/*" class="form-input" style="width: 100%; padding: var(--space-2); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body);" />
-            <div id="profile-image-status" style="font-size: var(--text-xs); color: var(--neutral-500); margin-top: var(--space-2);">
-              JPG, PNG, or GIF. Max 5MB.
-            </div>
-          </div>
+    <!-- Profile image (auto-saving) -->
+    <section class="settings-card">
+      <h2 class="settings-card-title">Profile image</h2>
+      <div class="settings-image-row">
+        <div id="profile-image-preview" class="settings-image-preview">
+          <% if resource.profile_image.attached? && resource.profile_image.blob.persisted? %>
+            <%= image_tag resource.profile_image.variant(resize_to_fill: [96, 96]), id: "profile-image-img" %>
+          <% else %>
+            <span class="settings-image-initials"><%= (current_user.email.presence || "?")[0, 2].upcase %></span>
+          <% end %>
+        </div>
+        <div class="settings-image-upload">
+          <label for="profile_image_input" class="sp-label">Upload a new image</label>
+          <input type="file" id="profile_image_input" name="profile_image" accept="image/*" class="sp-input settings-file-input" />
+          <div id="profile-image-status" class="sp-help">JPG, PNG, or GIF.  5MB max.</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-      <!-- Error Messages -->
+    <!-- Sign-in details -->
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "settings-form" }) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
-      <!-- Main Settings Card -->
-      <div class="card" style="margin-bottom: var(--space-6);">
-        <div style="padding: var(--space-6);">
-          <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--neutral-900); margin-bottom: var(--space-6);">
-            Login Information
-          </h2>
+      <section class="settings-card">
+        <h2 class="settings-card-title">Sign-in details</h2>
 
-          <!-- Email Field -->
-          <div style="margin-bottom: var(--space-6);">
-            <%= f.label :email, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-            <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-              <div style="font-size: var(--text-xs); color: var(--warning); margin-top: var(--space-2);">
-                <i class="fas fa-clock"></i> Waiting for confirmation: <%= resource.unconfirmed_email %>
-              </div>
-            <% end %>
-          </div>
-
-          <!-- Password Section -->
-          <div style="margin-bottom: var(--space-6);">
-            <%= f.label :password, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" %>
-            <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
-              Leave blank if you don't want to change it
+        <div class="sp-field">
+          <%= f.label :email, "Email", class: "sp-label" %>
+          <%= f.email_field :email, autocomplete: "email", class: "sp-input" %>
+          <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+            <div class="sp-help" style="color: var(--warning);">
+              Awaiting confirmation: <%= resource.unconfirmed_email %>
             </div>
-            <%= f.password_field :password, autocomplete: "new-password", class: "form-input", placeholder: "New password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-            <% if @minimum_password_length %>
-              <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-top: var(--space-2);">
-                <%= @minimum_password_length %> characters minimum
-              </div>
-            <% end %>
-          </div>
+          <% end %>
+        </div>
 
-          <!-- Password Confirmation -->
-          <div style="margin-bottom: var(--space-6);">
-            <%= f.label :password_confirmation, "Confirm New Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-input", placeholder: "Confirm new password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
+        <div class="sp-field" style="margin-top: 16px;">
+          <%= f.label :password, "New password", class: "sp-label" %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "sp-input", placeholder: "Leave blank to keep current password" %>
+          <% if @minimum_password_length %>
+            <div class="sp-help"><%= @minimum_password_length %> characters minimum.</div>
+          <% end %>
+        </div>
 
-          <!-- Current Password -->
-          <div style="padding-top: var(--space-4); border-top: 1px solid var(--neutral-200);">
-            <%= f.label :current_password, class: "form-label required", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" %>
-            <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
-              We need your current password to confirm your changes
-            </div>
-            <%= f.password_field :current_password, autocomplete: "current-password", class: "form-input", placeholder: "Current password", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
+        <div class="sp-field" style="margin-top: 16px;">
+          <%= f.label :password_confirmation, "Confirm new password", class: "sp-label" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "sp-input" %>
+        </div>
+
+        <div class="settings-card-section">
+          <div class="sp-field">
+            <%= f.label :current_password, "Current password", class: "sp-label" %>
+            <%= f.password_field :current_password, autocomplete: "current-password", class: "sp-input" %>
+            <div class="sp-help">Required to confirm any change above.</div>
           </div>
         </div>
 
-        <!-- Card Footer with Actions -->
-        <div style="padding: var(--space-4) var(--space-6); background: var(--card-footer); border-top: 1px solid var(--neutral-200); display: flex; gap: var(--space-3); justify-content: flex-end;">
-          <%= link_to "Cancel", :back, style: "background: transparent; color: var(--neutral-700); border: 1px solid var(--neutral-300); padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: all 0.15s;" %>
-          <%= f.submit "Update Login Information", class: "btn-primary", style: "background: var(--primary); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
+        <div class="settings-card-actions">
+          <%= link_to "Cancel", :back, class: "sp-action sp-action-secondary" %>
+          <%= f.submit "Save changes", class: "sp-action sp-action-primary" %>
         </div>
-      </div>
+      </section>
     <% end %>
 
-    <!-- Delete Account Section -->
-    <div class="card" style="border: 1px solid var(--error);">
-      <div style="padding: var(--space-6);">
-        <h2 style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 600; color: var(--error); margin-bottom: var(--space-3);">
-          <i class="fas fa-exclamation-triangle"></i> Danger Zone
-        </h2>
-        <p style="font-size: var(--text-sm); color: var(--neutral-600); margin-bottom: var(--space-4); line-height: 1.6;">
-          Once you delete your account, there is no going back. This action cannot be undone and will permanently delete all your data.
-        </p>
-        <%= button_to "Delete My Account", registration_path(resource_name),
-          data: { confirm: "Are you absolutely sure? This will permanently delete your account and all associated data. This action cannot be undone." },
-          method: :delete,
-          style: "background: var(--error); color: white; border: none; padding: var(--space-2) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
-      </div>
-    </div>
+    <!-- Delete account -->
+    <section class="settings-card settings-card-danger">
+      <h2 class="settings-card-title">Delete account</h2>
+      <p class="settings-card-text">
+        Deleting your account is permanent and cannot be undone.  All sources, notes, concepts, highlights, and shares will be removed.
+      </p>
+      <%= button_to "Delete account",
+            registration_path(resource_name),
+            method: :delete,
+            class: "sp-action settings-delete-action",
+            data: { confirm: "Deleting your account is permanent and cannot be undone.  All your data will be removed.  Type your email and click OK to confirm." } %>
+    </section>
   </div>
 </div>
 
 <style>
-  .form-input:focus,
-  .form-select:focus,
-  .form-textarea:focus {
-    outline: none;
-    border: 2px solid var(--primary) !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
-    padding: calc(var(--space-3) - 1px);
+  .settings-shell {
+    flex: 1;
+    background: var(--paper-soft);
+    padding: 40px 20px 64px;
+  }
+  .settings-container {
+    max-width: 640px;
+    margin: 0 auto;
   }
 
-  .btn-primary:hover {
-    background: var(--primary-dark) !important;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+  .settings-header { margin-bottom: 28px; }
+  .settings-title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+    line-height: 1.1;
+  }
+  .settings-subtitle {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink-3);
+    margin: 0;
   }
 
-  .btn-primary:active {
-    transform: translateY(0);
+  .settings-card {
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .settings-card-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 18px;
+    letter-spacing: -0.005em;
+  }
+  .settings-card-section {
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid var(--ink-line-soft);
+  }
+  .settings-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 20px;
+    margin-top: 24px;
+    border-top: 1px solid var(--ink-line-soft);
   }
 
-  input[type="submit"][style*="var(--error)"]:hover,
-  button[style*="var(--error)"]:hover {
-    background: #6b1f1f !important;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+  .settings-card-text {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    line-height: 1.65;
+    margin: 0 0 16px;
   }
 
-  a[href]:hover {
-    background: var(--neutral-100) !important;
+  .settings-image-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .settings-image-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--paper-warm);
+    border: 1px solid var(--ink-line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .settings-image-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .settings-image-initials {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .settings-image-upload { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .settings-file-input { padding: 6px 10px; height: auto; line-height: 1.4; }
+
+  .settings-card-danger { border-color: var(--error); background: rgba(122, 46, 46, 0.02); }
+  .settings-card-danger .settings-card-title { color: var(--error); }
+
+  .settings-delete-action {
+    background: var(--error);
+    color: var(--paper);
+    border-color: var(--error);
+  }
+  .settings-delete-action:hover {
+    background: #5e2222;
+    border-color: #5e2222;
+    color: var(--paper);
+  }
+
+  /* button_to wraps the submit in a form, which we want inline */
+  .settings-card-danger form { display: inline-block; margin: 0; }
+
+  @media (max-width: 600px) {
+    .settings-card { padding: 20px 18px; }
+    .settings-image-row { gap: 16px; }
+    .settings-image-preview { width: 64px; height: 64px; }
+    .settings-image-initials { font-size: 18px; }
+  }
+  @media (max-width: 420px) {
+    .settings-image-row { flex-direction: column; align-items: flex-start; gap: 16px; }
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const fileInput = document.getElementById('profile_image_input');
-    const preview = document.getElementById('profile-image-preview');
-    const status = document.getElementById('profile-image-status');
+    const preview   = document.getElementById('profile-image-preview');
+    const status    = document.getElementById('profile-image-status');
+    const defaultStatus = 'JPG, PNG, or GIF.  5MB max.';
 
-    if (fileInput) {
-      fileInput.addEventListener('change', async function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+    if (!fileInput) return;
 
-        // Validate file size (5MB max)
-        if (file.size > 5 * 1024 * 1024) {
-          status.textContent = 'File too large. Max 5MB.';
-          status.style.color = 'var(--error)';
-          return;
-        }
+    fileInput.addEventListener('change', async function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-        // Show uploading status
-        status.textContent = 'Uploading...';
-        status.style.color = 'var(--accent-blue)';
-
-        // Create form data
-        const formData = new FormData();
-        formData.append('profile_image', file);
-
-        try {
-          const response = await fetch('<%= update_profile_image_path %>', {
-            method: 'PATCH',
-            headers: {
-              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-              'Accept': 'application/json'
-            },
-            body: formData
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            // Update preview
-            preview.innerHTML = `<img src="${data.image_url}" style="width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--neutral-200);" id="profile-image-img" />`;
-            status.textContent = 'Image updated!';
-            status.style.color = 'var(--accent-green)';
-
-            // Also update nav profile image if it exists
-            const navImg = document.querySelector('#user-menu-button img');
-            if (navImg) {
-              navImg.src = data.image_url.replace('96', '32').replace('96', '32');
-            }
-
-            // Reset status after a moment
-            setTimeout(() => {
-              status.textContent = 'JPG, PNG, or GIF. Max 5MB.';
-              status.style.color = 'var(--neutral-500)';
-            }, 3000);
-          } else {
-            status.textContent = data.errors?.join(', ') || 'Upload failed.';
-            status.style.color = 'var(--error)';
-          }
-        } catch (error) {
-          console.error('Upload error:', error);
-          status.textContent = 'Upload failed. Please try again.';
-          status.style.color = 'var(--error)';
-        }
-
-        // Clear the file input
+      if (file.size > 5 * 1024 * 1024) {
+        status.textContent = 'File is over 5MB.  Choose a smaller image.';
+        status.style.color = 'var(--error)';
         fileInput.value = '';
-      });
-    }
+        return;
+      }
+
+      status.textContent = 'Uploading…';
+      status.style.color = 'var(--ink-3)';
+
+      const formData = new FormData();
+      formData.append('profile_image', file);
+
+      try {
+        const response = await fetch('<%= update_profile_image_path %>', {
+          method: 'PATCH',
+          headers: {
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          },
+          body: formData
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          preview.innerHTML = '<img src="' + data.image_url + '" id="profile-image-img" />';
+          status.textContent = 'Image saved.';
+          status.style.color = 'var(--concept)';
+
+          const navAvatar = document.querySelector('.site-nav-avatar img');
+          if (navAvatar) navAvatar.src = data.image_url;
+
+          setTimeout(function () {
+            status.textContent = defaultStatus;
+            status.style.color = 'var(--ink-3)';
+          }, 2500);
+        } else {
+          status.textContent = (data.errors && data.errors.join(', ')) || 'Upload failed.';
+          status.style.color = 'var(--error)';
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        status.textContent = 'Upload failed.  Try again.';
+        status.style.color = 'var(--error)';
+      }
+
+      fileInput.value = '';
+    });
   });
 </script>

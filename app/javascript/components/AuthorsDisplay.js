@@ -12,13 +12,24 @@ import React from 'react';
  * - onPersonClick: function(personId) - Called when a linked author is clicked
  */
 export default function AuthorsDisplay({ authors, people = [], onPersonClick }) {
-  if (!authors) return null;
+  // The Source model has both an `authors` text column and a
+  // `has_many :authors` association — depending on serialization path,
+  // the prop can arrive as a string OR an array of Author records.
+  // Normalize to a string before any regex / substring work below.
+  const authorsString = Array.isArray(authors)
+    ? authors
+        .map((a) => (typeof a === 'string' ? a : (a?.full_name || a?.name || '')))
+        .filter(Boolean)
+        .join(', ')
+    : (typeof authors === 'string' ? authors : '');
+
+  if (!authorsString) return null;
 
   // If no linked people, just render the string
   if (!people || people.length === 0) {
     return (
       <span style={{ fontFamily: 'var(--font-body)' }}>
-        {authors}
+        {authorsString}
       </span>
     );
   }
@@ -35,7 +46,7 @@ export default function AuthorsDisplay({ authors, people = [], onPersonClick }) 
     // Find all occurrences of this last name
     const regex = new RegExp(`\\b${escapeRegExp(lastName)}\\b`, 'gi');
     let match;
-    while ((match = regex.exec(authors)) !== null) {
+    while ((match = regex.exec(authorsString)) !== null) {
       // Check if this position overlaps with an existing match
       const overlaps = matches.some(m =>
         (match.index >= m.start && match.index < m.end) ||
@@ -64,7 +75,7 @@ export default function AuthorsDisplay({ authors, people = [], onPersonClick }) 
     if (match.start > lastIndex) {
       parts.push(
         <span key={`text-${idx}`}>
-          {authors.substring(lastIndex, match.start)}
+          {authorsString.substring(lastIndex, match.start)}
         </span>
       );
     }
@@ -92,7 +103,7 @@ export default function AuthorsDisplay({ authors, people = [], onPersonClick }) 
         }}
         title={`View ${match.person.full_name}`}
       >
-        {authors.substring(match.start, match.end)}
+        {authorsString.substring(match.start, match.end)}
       </span>
     );
 
@@ -100,10 +111,10 @@ export default function AuthorsDisplay({ authors, people = [], onPersonClick }) 
   });
 
   // Add remaining text after last match
-  if (lastIndex < authors.length) {
+  if (lastIndex < authorsString.length) {
     parts.push(
       <span key="text-end">
-        {authors.substring(lastIndex)}
+        {authorsString.substring(lastIndex)}
       </span>
     );
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function TagSelector({ selectedTags = [], onChange, themeColor = 'var(--accent-purple)' }) {
+export default function TagSelector({ selectedTags = [], onChange, themeColor = 'var(--ink-3)' }) {
   const [allTags, setAllTags] = useState([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -64,6 +64,7 @@ export default function TagSelector({ selectedTags = [], onChange, themeColor = 
       borderRadius: '4px',
       background: 'white',
       height: '100%',
+      maxHeight: '400px',
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -175,7 +176,7 @@ export default function TagSelector({ selectedTags = [], onChange, themeColor = 
             {filter ? 'No matching tags. Press Enter to create new.' : 'No tags yet.'}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {filteredTags.map(tag => (
               <label
                 key={tag}
@@ -184,7 +185,7 @@ export default function TagSelector({ selectedTags = [], onChange, themeColor = 
                   alignItems: 'center',
                   gap: 'var(--space-2)',
                   cursor: 'pointer',
-                  padding: 'var(--space-2)',
+                  padding: '2px 4px',
                   borderRadius: 'var(--radius)',
                   transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)'

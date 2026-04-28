@@ -1,69 +1,39 @@
-<div style="min-height: calc(100vh - 64px); background: var(--background); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem;">
-  <div style="max-width: 480px; width: 100%;">
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: 0.5rem;">
-        Welcome back
-      </h1>
-      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600);">
-        Sign in to continue building your knowledge framework
-      </p>
+<% content_for(:title) { "Sign in · Map My Research" } %>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <%= link_to root_path, aria: { label: "Map My Research home" } do %>
+        <img src="/logo.png" alt="" width="56" height="56" class="auth-logo auth-logo-light">
+        <img src="/logo-white.png" alt="" width="56" height="56" class="auth-logo auth-logo-dark">
+      <% end %>
     </div>
 
-    <!-- Sign In Form Card -->
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-      <div class="card" style="margin-bottom: 1.5rem;">
-        <div style="padding: var(--space-6);">
-          <!-- Email Field -->
-          <div style="margin-bottom: var(--space-4);">
-            <%= f.label :email, "Email", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "your@email.com", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
+    <h1 class="auth-title">Sign in</h1>
 
-          <!-- Password Field -->
-          <div style="margin-bottom: var(--space-4);">
-            <%= f.label :password, "Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.password_field :password, autocomplete: "current-password", placeholder: "Enter your password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
-
-          <!-- Remember Me -->
-          <% if devise_mapping.rememberable? %>
-            <div style="margin-bottom: var(--space-6);">
-              <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
-                <%= f.check_box :remember_me, style: "width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary);" %>
-                <span style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-700);">Remember me</span>
-              </label>
-            </div>
-          <% end %>
-
-          <!-- Submit Button -->
-          <%= f.submit "Sign In", class: "btn-primary", style: "width: 100%; background: var(--primary); color: white; border: none; padding: var(--space-3) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
-        </div>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "auth-form" }) do |f| %>
+      <div class="sp-field">
+        <%= f.label :email, "Email", class: "sp-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: "sp-input" %>
       </div>
+
+      <div class="sp-field">
+        <%= f.label :password, "Password", class: "sp-label" %>
+        <%= f.password_field :password, autocomplete: "current-password", required: true, class: "sp-input" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <label class="auth-remember">
+          <%= f.check_box :remember_me, class: "sp-checkbox" %>
+          <span>Remember me</span>
+        </label>
+      <% end %>
+
+      <%= f.submit "Sign in", class: "sp-action sp-action-primary auth-submit" %>
     <% end %>
 
-    <!-- Links -->
-    <div style="text-align: center;">
+    <div class="auth-footer">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 </div>
-
-<style>
-  .form-input:focus {
-    outline: none;
-    border: 2px solid var(--primary) !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
-    padding: calc(var(--space-3) - 1px);
-  }
-
-  .btn-primary:hover {
-    background: var(--primary-dark) !important;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-</style>

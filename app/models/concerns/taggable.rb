@@ -13,7 +13,7 @@ module Taggable
 
   # Set tags from an array of tag names
   def tag_list=(names)
-    return if names.blank?
+    return if names.nil?
 
     names = names.split(',').map(&:strip) if names.is_a?(String)
 

@@ -16,6 +16,8 @@ import { Color } from '@tiptap/extension-color';
 import ConceptSelector from './ConceptSelector';
 import TagSelector from './TagSelector';
 import SourceSelector from './SourceSelector';
+import PeopleSelector from './PeopleSelector';
+import CollectionSelector from './CollectionSelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBold, faItalic, faUnderline, faStrikethrough,
@@ -25,7 +27,41 @@ import {
   faIndent, faOutdent, faCode, faExpand, faCompress
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId }) {
+export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId, prefill, floatable = false }) {
+  // Floating-window mode: panel is a draggable, no-backdrop card.  Defaults
+  // to ON in floatable mode (study page) so the PDF stays visible; user can
+  // dock to a full slide panel if they want more room.
+  const [floating, setFloating] = useState(floatable);
+  const [floatPos, setFloatPos] = useState(() => ({ x: typeof window !== 'undefined' ? Math.max(16, window.innerWidth - 540) : 0, y: 96 }));
+  const [dragOrigin, setDragOrigin] = useState(null);
+
+  useEffect(() => {
+    if (!dragOrigin) return;
+    const onMove = (e) => {
+      const p = e.touches ? e.touches[0] : e;
+      setFloatPos({
+        x: Math.max(0, Math.min(window.innerWidth - 200, p.clientX - dragOrigin.dx)),
+        y: Math.max(0, Math.min(window.innerHeight - 80, p.clientY - dragOrigin.dy)),
+      });
+    };
+    const onUp = () => setDragOrigin(null);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchmove', onMove);
+    document.addEventListener('touchend', onUp);
+    return () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+    };
+  }, [dragOrigin]);
+
+  const beginDrag = (e) => {
+    if (!floating) return;
+    const p = e.touches ? e.touches[0] : e;
+    setDragOrigin({ dx: p.clientX - floatPos.x, dy: p.clientY - floatPos.y });
+  };
   const [activeTab, setActiveTab] = useState('content');
   const [formData, setFormData] = useState({
     title: '',
@@ -36,7 +72,11 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     noted_on: new Date().toISOString().split('T')[0],
     concept_ids: [],
     source_id: null,
-    tags: []
+    tags: [],
+    quote_text: '',
+    page_number: null,
+    person_ids: [],
+    collection_ids: []
   });
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
@@ -186,7 +226,12 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           noted_on: item.noted_on || new Date().toISOString().split('T')[0],
           concept_ids: item.concepts?.map(c => c.id) || (conceptId ? [conceptId] : []),
           source_id: item.source_id || sourceId || null,
-          tags: item.tags?.map(t => t.name) || []
+          tags: item.tags?.map(t => t.name) || [],
+          quote_text: item.quote_text || '',
+          quote_bounds: item.quote_bounds || null,
+          page_number: item.page_number ?? null,
+          person_ids: item.people?.map(p => p.id) || [],
+          collection_ids: item.collections?.map(c => c.id) || []
         };
         setFormData(newFormData);
         lastSavedData.current = JSON.stringify(newFormData);
@@ -195,20 +240,26 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
         }
       } else {
         const newFormData = {
-          title: '',
-          body: '',
-          note_type: 'note',
-          context: '',
+          title: prefill?.title || '',
+          body: prefill?.body || '',
+          note_type: prefill?.note_type || 'note',
+          context: prefill?.context || '',
           pinned: false,
           noted_on: new Date().toISOString().split('T')[0],
-          concept_ids: conceptId ? [conceptId] : [],
+          concept_ids: prefill?.concept_ids || (conceptId ? [conceptId] : []),
           source_id: sourceId || null,
-          tags: []
+          tags: [],
+          quote_text: prefill?.quote_text || '',
+          quote_bounds: prefill?.quote_bounds || null,
+          page_number: prefill?.page_number ?? null,
+          person_ids: prefill?.person_ids || [],
+          collection_ids: prefill?.collection_ids || [],
+          cited_source_ids: prefill?.cited_source_ids || []
         };
         setFormData(newFormData);
         lastSavedData.current = null;
         if (editor) {
-          editor.commands.setContent('');
+          editor.commands.setContent(newFormData.body);
         }
       }
       setError('');
@@ -580,14 +631,13 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     );
   }
 
-  return (
-    <SlidePanel
-      isOpen={isOpen}
-      onClose={handleClose}
-    >
+  const formContent = (
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Modal Header */}
-        <div style={{
+        <div
+          onMouseDown={floating ? beginDrag : undefined}
+          onTouchStart={floating ? beginDrag : undefined}
+          style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -598,8 +648,16 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
           position: 'relative',
           zIndex: 5,
+          cursor: floating ? 'move' : 'default',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+            {floating && (
+              <i
+                className="fas fa-grip-vertical"
+                style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginRight: -4 }}
+                title="Drag to move"
+              />
+            )}
             <h2 style={{
               margin: 0,
               fontFamily: 'var(--font-display)',
@@ -643,6 +701,37 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
               <FontAwesomeIcon icon={faExpand} />
               <span>Focus</span>
             </button>
+            {floatable && (
+              <button
+                type="button"
+                onClick={() => setFloating(f => !f)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: 'white',
+                  fontSize: 'var(--text-xs)',
+                  cursor: 'pointer',
+                  padding: 'var(--space-1) var(--space-2)',
+                  borderRadius: 'var(--radius)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                }}
+                title={floating ? 'Dock back to side panel' : 'Pop out into a draggable window'}
+              >
+                <i className={`fas ${floating ? 'fa-window-restore' : 'fa-up-right-from-square'}`}></i>
+                <span>{floating ? 'Dock' : 'Pop out'}</span>
+              </button>
+            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
             {/* Delete button - only show for editing */}
@@ -881,6 +970,43 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                 <option value="todo">To Do Item</option>
               </select>
             </div>
+
+            {formData.quote_text && (
+              <div style={{ marginBottom: 'var(--space-3)' }}>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>Quoted passage{formData.page_number ? ` (p. ${formData.page_number})` : ''}</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, quote_text: '' }))}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--neutral-500)',
+                      cursor: 'pointer',
+                      fontSize: 'var(--text-xs)',
+                      padding: 'var(--space-1)'
+                    }}
+                    title="Detach quoted passage"
+                  >
+                    <i className="fas fa-times"></i> Detach
+                  </button>
+                </label>
+                <blockquote style={{
+                  borderLeft: '4px solid #639CA1',
+                  background: 'var(--neutral-50)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  margin: 0,
+                  fontStyle: 'italic',
+                  color: 'var(--neutral-700)',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'var(--text-sm)',
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {formData.quote_text}
+                </blockquote>
+              </div>
+            )}
 
             <div>
               <label className="form-label required teal">Body</label>
@@ -1246,7 +1372,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
 
             {activeTab === 'connections' && (
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ height: '300px' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ height: '320px' }}>
                   {!sourceId && (
                     <div style={{ height: '100%' }}>
                       <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Source</label>
@@ -1261,7 +1387,7 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
 
                   {!conceptId && (
                     <div style={{ height: '100%' }}>
-                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Constructs</label>
+                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Concepts</label>
                       <ConceptSelector
                         selectedConceptIds={formData.concept_ids}
                         onChange={(conceptIds) => setFormData({ ...formData, concept_ids: conceptIds })}
@@ -1269,6 +1395,24 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
                       />
                     </div>
                   )}
+
+                  <div style={{ height: '100%' }}>
+                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to People</label>
+                    <PeopleSelector
+                      selectedPersonIds={formData.person_ids}
+                      onChange={(personIds) => setFormData({ ...formData, person_ids: personIds })}
+                      themeColor="#639CA1"
+                    />
+                  </div>
+
+                  <div style={{ height: '100%' }}>
+                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Add to Collections</label>
+                    <CollectionSelector
+                      selectedCollectionIds={formData.collection_ids}
+                      onChange={(ids) => setFormData({ ...formData, collection_ids: ids })}
+                      themeColor="#639CA1"
+                    />
+                  </div>
 
                   <div style={{ height: '100%' }}>
                     <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Tags</label>
@@ -1317,6 +1461,36 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
           </div>
         )}
       </form>
+  );
+
+  if (floating) {
+    if (!isOpen) return null;
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: `${floatPos.y}px`,
+          left: `${floatPos.x}px`,
+          width: 'min(520px, calc(100vw - 16px))',
+          height: 'min(640px, calc(100vh - 16px))',
+          background: 'white',
+          borderRadius: 'var(--r-lg, 8px)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.28)',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          userSelect: dragOrigin ? 'none' : 'auto',
+        }}
+      >
+        {formContent}
+      </div>
+    );
+  }
+
+  return (
+    <SlidePanel isOpen={isOpen} onClose={handleClose}>
+      {formContent}
     </SlidePanel>
   );
 }

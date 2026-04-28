@@ -1,1453 +1,885 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PersonFormModal from './PersonFormModal';
-import ConceptFormModal from './ConceptFormModal';
-import SourceFormModal from './SourceFormModal';
-import TagFormModal from './TagFormModal';
-import ConceptSelector from './ConceptSelector';
-import SourceSelector from './SourceSelector';
-import TagSelector from './TagSelector';
-import Modal from './Modal';
-import MobileSidebarBackdrop from './MobileSidebarBackdrop';
-import useIsMobile from '../hooks/useIsMobile';
+import { toTitleCase } from '../utils/titleCase';
+import { getNodeTypeLabel } from '../config/nodeTypes';
+import MagicSparkles from './icons/MagicSparkles';
 
-const PersonSidebar = React.memo(({
-  sidebarOpen,
-  isMobile,
-  allPeople,
-  peopleLoading,
-  currentPersonId,
-  searchQuery,
-  setSearchQuery,
-  sortBy,
-  setSortBy,
-  onPersonClick
-}) => {
-  const filteredPeople = useMemo(() => {
-    return allPeople
-      .filter(p => {
-        if (!searchQuery) return true;
-        const query = searchQuery.toLowerCase();
-        return p.full_name?.toLowerCase().includes(query) ||
-               p.role?.toLowerCase().includes(query);
-      })
-      .sort((a, b) => {
-        if (sortBy === 'alphabetical') {
-          return (a.full_name || '').localeCompare(b.full_name || '');
-        } else if (sortBy === 'role') {
-          return (a.role || '').localeCompare(b.role || '');
-        } else {
-          return new Date(b.updated_at) - new Date(a.updated_at);
-        }
-      });
-  }, [allPeople, searchQuery, sortBy]);
-
-  if (!sidebarOpen && !isMobile) return null;
-
-  return (
-    <div style={{
-      width: '280px',
-      background: 'var(--sidebar-bg)',
-      overflowY: 'auto',
-      padding: 'var(--space-4)',
-      boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
-      flexShrink: 0,
-      ...(isMobile
-        ? {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-            transition: 'transform 0.3s ease',
-            zIndex: 200,
-          }
-        : {}),
-    }}>
-      {/* Search */}
-      <div style={{ marginBottom: 'var(--space-4)' }}>
-        <input
-          type="text"
-          placeholder="Search people..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="form-input"
-          style={{
-            width: '100%',
-            fontSize: 'var(--text-sm)',
-            padding: 'var(--space-2)',
-          }}
-        />
-      </div>
-
-      {/* Sort */}
-      <div style={{ marginBottom: 'var(--space-4)' }}>
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="form-select"
-          style={{
-            width: '100%',
-            fontSize: 'var(--text-sm)',
-            padding: 'var(--space-2)',
-          }}
-        >
-          <option value="recent">Recent</option>
-          <option value="alphabetical">Alphabetical</option>
-          <option value="role">By Role</option>
-        </select>
-      </div>
-
-      {/* People List */}
-      <div style={{
-        fontSize: 'var(--text-xs)',
-        fontWeight: 700,
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        color: 'var(--neutral-500)',
-        marginBottom: 'var(--space-3)',
-        fontFamily: 'var(--font-body)',
-      }}>
-        People ({filteredPeople.length})
-      </div>
-
-      {peopleLoading ? (
-        <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)' }}>Loading...</div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-          {filteredPeople.map(person => (
-            <button
-              key={person.id}
-              onClick={() => onPersonClick(person.id, person.id)}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: '4px',
-                border: 'none',
-                background: currentPersonId === person.id ? 'var(--neutral-200)' : 'transparent',
-                cursor: 'pointer',
-                transition: 'background 0.15s',
-                fontFamily: 'var(--font-body)',
-              }}
-              onMouseEnter={(e) => {
-                if (currentPersonId !== person.id) e.currentTarget.style.background = 'var(--neutral-100)';
-              }}
-              onMouseLeave={(e) => {
-                if (currentPersonId !== person.id) e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              <div style={{
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-900)',
-                fontWeight: currentPersonId === person.id ? 600 : 400,
-              }}>
-                {person.full_name}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
+// =====================================================================
+// PersonShow
+// Author profile page.  Identity card on top, summary, then their work
+// (sources tile grid, concept tile grid), small chip rows for tags +
+// collections, and an optional Related People rail at the bottom based
+// on co-authorship + concept overlap.
+// =====================================================================
 
 export default function PersonShow({ personId: initialPersonId }) {
-  const isMobile = useIsMobile();
-  const [currentPersonId, setCurrentPersonId] = useState(initialPersonId);
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showConceptModal, setShowConceptModal] = useState(false);
-  const [showSourceModal, setShowSourceModal] = useState(false);
-  const [showTagModal, setShowTagModal] = useState(false);
-  const [showLinkConceptModal, setShowLinkConceptModal] = useState(false);
-  const [showLinkSourceModal, setShowLinkSourceModal] = useState(false);
-  const [showLinkTagModal, setShowLinkTagModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
+
+  // Enrich (ORCID + OpenAlex pipeline; not Haiku — no sparkle icon)
   const [enriching, setEnriching] = useState(false);
-  const [enrichStep, setEnrichStep] = useState(null); // 'backfilling' | 'enriching' | 'done' | 'nothing-found'
-  const [enrichChanges, setEnrichChanges] = useState(null); // summary of what landed
-  const [selectedConceptIds, setSelectedConceptIds] = useState([]);
-  const [selectedSourceIds, setSelectedSourceIds] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [allPeople, setAllPeople] = useState([]);
-  const [peopleLoading, setPeopleLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [enrichNote, setEnrichNote] = useState('');
 
-  // Fetch all people for sidebar
-  useEffect(() => {
-    const fetchAllPeople = async () => {
-      try {
-        const response = await fetch('/people.json');
-        const data = await response.json();
-        setAllPeople(data);
-        setPeopleLoading(false);
-      } catch (error) {
-        console.error('Error fetching people:', error);
-        setPeopleLoading(false);
-      }
-    };
-    fetchAllPeople();
-  }, []);
+  const personId = initialPersonId;
 
-  // Handle responsive sidebar
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  useEffect(() => { fetchPerson(); }, [personId]);
 
-  // Fetch person data when currentPersonId changes
   const fetchPerson = async () => {
-    if (!currentPersonId) return;
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`/people/${currentPersonId}.json`);
-      const data = await response.json();
-      setPerson(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching person:', error);
+      const r = await fetch(`/people/${personId}.json`);
+      if (!r.ok) throw new Error(`Load failed (${r.status})`);
+      setPerson(await r.json());
+    } catch (e) {
+      console.error(e);
+      setError('We could not load this person.');
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPerson();
-  }, [currentPersonId]);
-
-  const handlePersonClick = (personSlugOrId, personIdNum) => {
-    setCurrentPersonId(personIdNum);
-    window.history.pushState({}, '', `/people/${personSlugOrId}`);
-  };
-
   const handleEnrich = async () => {
-    if (enriching) return;
+    if (!person?.id) return;
+    setEnrichNote('Looking up ORCID.');
     setEnriching(true);
-    setEnrichChanges(null);
 
-    const snapshot = {
-      orcid: person.orcid,
-      email: person.email,
-      summary: person.summary,
-      url: person.url,
-      linksCount: (person.links || []).length,
-      enriched_at: person.enriched_at,
+    // Snapshot the fields the job might fill so we can describe the diff.
+    const before = {
+      enriched_at: person.enriched_at || null,
+      email:   (person.email   || '').trim(),
+      summary: (person.summary || '').trim(),
+      url:     (person.url     || '').trim(),
+      orcid:   (person.orcid   || '').trim(),
+      affiliation: (person.affiliation || '').trim(),
+      links_count: (person.links || []).length,
     };
 
     try {
-      const response = await fetch(`/people/${currentPersonId}/enrich`, {
+      const r = await fetch(`/people/${person.id}/enrich`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-          'Accept': 'application/json',
         },
       });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        alert(data.error || 'Enrichment failed.');
+      const data = await r.json();
+      if (!(r.ok && data.queued)) {
+        setEnrichNote(data.error || 'Enrich failed.');
+        setEnriching(false);
         return;
       }
-      const body = await response.json();
-      setEnrichStep(body.step === 'backfilling_orcid' ? 'backfilling' : 'enriching');
 
-      // Poll the person and walk through steps as state advances.
-      const deadline = Date.now() + 30000; // 30s total (backfill → enrichment chain)
+      // Poll until enriched_at advances or we time out.
+      const deadline = Date.now() + 30000;
       while (Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, 1500));
+        await new Promise((res) => setTimeout(res, 1500));
+        try {
+          const pr = await fetch(`/people/${person.id}.json`);
+          if (!pr.ok) continue;
+          const fresh = await pr.json();
+          const advanced = fresh.enriched_at && fresh.enriched_at !== before.enriched_at;
+          if (!advanced) continue;
 
-        const res = await fetch(`/people/${currentPersonId}.json`);
-        if (!res.ok) continue;
-        const updated = await res.json();
-        setPerson(updated);
+          // Job finished — figure out what (if anything) changed.
+          setPerson(fresh);
+          const changes = [];
+          if (!before.email       && (fresh.email       || '').trim())   changes.push('email');
+          if (!before.summary     && (fresh.summary     || '').trim())   changes.push('summary');
+          if (!before.url         && (fresh.url         || '').trim())   changes.push('website');
+          if (!before.orcid       && (fresh.orcid       || '').trim())   changes.push('ORCID');
+          if (!before.affiliation && (fresh.affiliation || '').trim())   changes.push('affiliation');
+          const newLinks = (fresh.links || []).length - before.links_count;
+          if (newLinks > 0) changes.push(`${newLinks} profile link${newLinks === 1 ? '' : 's'}`);
 
-        const orcidJustAppeared = !snapshot.orcid && !!updated.orcid;
-        if (orcidJustAppeared) {
-          setEnrichStep('enriching'); // advance from backfill → enrich phase
-        }
-
-        const enrichmentAdvanced =
-          updated.enriched_at &&
-          new Date(updated.enriched_at) > new Date(snapshot.enriched_at || 0);
-
-        if (enrichmentAdvanced) {
-          const diff = diffPerson(snapshot, updated);
-          if (diff.length > 0) {
-            setEnrichStep('done');
-            setEnrichChanges(diff);
-          } else {
-            setEnrichStep('nothing-found');
-          }
-          break;
-        }
-      }
-
-      if (Date.now() >= deadline) {
-        // Hit the timeout without seeing enriched_at advance.
-        const res = await fetch(`/people/${currentPersonId}.json`);
-        if (res.ok) {
-          const updated = await res.json();
-          setPerson(updated);
-          const orcidFound = !snapshot.orcid && !!updated.orcid;
-          setEnrichStep(orcidFound ? 'done' : 'nothing-found');
-          if (orcidFound) setEnrichChanges(['ORCID']);
-        } else {
-          setEnrichStep('nothing-found');
+          setEnrichNote(changes.length
+            ? `Added ${changes.join(', ')}.`
+            : 'ORCID had nothing new to add.');
+          setEnriching(false);
+          return;
+        } catch (e) {
+          // Soft fail and try again on the next tick.
+          continue;
         }
       }
 
-      // Auto-dismiss the result banner after a few seconds.
-      setTimeout(() => {
-        setEnrichStep(null);
-        setEnrichChanges(null);
-      }, 6000);
-    } catch (err) {
-      console.error('Enrich error:', err);
-      setEnrichStep('nothing-found');
-      setTimeout(() => setEnrichStep(null), 4000);
-    } finally {
+      setEnrichNote('Lookup is still running. Refresh in a moment to see the result.');
+      setEnriching(false);
+    } catch (e) {
+      console.error(e);
+      setEnrichNote('Enrich failed. Try again in a moment.');
       setEnriching(false);
     }
   };
 
-  const diffPerson = (before, after) => {
-    const changes = [];
-    if (!before.orcid && after.orcid) changes.push('ORCID');
-    if (!before.email && after.email) changes.push('email');
-    if (!before.summary && after.summary) changes.push('bio');
-    if (!before.url && after.url) changes.push('homepage');
-    const afterLinks = (after.links || []).length;
-    if (afterLinks > before.linksCount) {
-      changes.push(`${afterLinks - before.linksCount} link${afterLinks - before.linksCount > 1 ? 's' : ''}`);
-    }
-    return changes;
-  };
-
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete "${person.full_name}"? This action cannot be undone.`)) return;
-
+    if (!person?.id) return;
+    if (!confirm(`Delete ${person.full_name}?  Linked sources and notes are kept; this only removes the Person record.`)) return;
     try {
-      const response = await fetch(`/people/${currentPersonId}`, {
+      const r = await fetch(`/people/${person.id}`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
+        headers: { 'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content },
       });
-
-      if (response.ok) {
+      if (r.ok) {
         window.location.href = '/people';
       } else {
-        const data = await response.json();
-        alert(data.error || 'Error deleting person');
+        const data = await r.json();
+        alert(data.error || 'Could not delete this person.');
       }
-    } catch (error) {
-      console.error('Error deleting person:', error);
-      alert('Error deleting person');
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  const handleLinkConcepts = async () => {
-    try {
-      const response = await fetch(`/people/${currentPersonId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          person: {
-            concept_ids: selectedConceptIds
-          }
-        }),
-      });
-
-      if (response.ok) {
-        await fetchPerson();
-        setShowLinkConceptModal(false);
-        setSelectedConceptIds([]);
-      } else {
-        alert('Error linking concepts');
-      }
-    } catch (error) {
-      console.error('Error linking concepts:', error);
-      alert('Error linking concepts');
-    }
-  };
-
-  const handleLinkSources = async () => {
-    try {
-      const response = await fetch(`/people/${currentPersonId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          person: {
-            source_ids: selectedSourceIds
-          }
-        }),
-      });
-
-      if (response.ok) {
-        await fetchPerson();
-        setShowLinkSourceModal(false);
-        setSelectedSourceIds([]);
-      } else {
-        alert('Error linking sources');
-      }
-    } catch (error) {
-      console.error('Error linking sources:', error);
-      alert('Error linking sources');
-    }
-  };
-
-  const handleLinkTags = async () => {
-    try {
-      const response = await fetch(`/people/${currentPersonId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          person: {
-            tags: selectedTags
-          }
-        }),
-      });
-
-      if (response.ok) {
-        await fetchPerson();
-        setShowLinkTagModal(false);
-        setSelectedTags([]);
-      } else {
-        alert('Error linking tags');
-      }
-    } catch (error) {
-      console.error('Error linking tags:', error);
-      alert('Error linking tags');
-    }
-  };
+  if (loading) return <div className="ps-message">Loading.</div>;
+  if (error) return <div className="ps-message ps-message-error">{error}</div>;
+  if (!person) return null;
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
-      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <PersonSidebar
-        sidebarOpen={sidebarOpen}
-        isMobile={isMobile}
-        allPeople={allPeople}
-        peopleLoading={peopleLoading}
-        currentPersonId={currentPersonId}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        onPersonClick={handlePersonClick}
+    <div className="ps">
+      <PsStyles />
+
+      <a href="/people" className="ps-back">← All People</a>
+
+      <PersonHeader
+        person={person}
+        onEdit={() => setShowEdit(true)}
+        onEnrich={handleEnrich}
+        enriching={enriching}
+        enrichNote={enrichNote}
+        onDelete={handleDelete}
       />
 
-      {/* Toggle button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        style={{
-          position: isMobile ? 'fixed' : 'absolute',
-          left: sidebarOpen ? '280px' : '0',
-          top: '164px',
-          width: '24px',
-          height: '48px',
-          background: 'var(--accent-gold)',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderTopRightRadius: '4px',
-          borderBottomRightRadius: '4px',
-          transition: 'left 0.3s ease',
-          zIndex: 210,
-          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
-        }}
-        title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-      >
-        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
-      </button>
+      <SummarySection person={person} />
 
-      {/* Main content */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        paddingTop: 'var(--space-6)',
-        paddingRight: 'var(--space-6)',
-        paddingBottom: 'var(--space-6)',
-        paddingLeft: 'calc(var(--space-6) + 24px)',
-        background: 'white',
-      }}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--neutral-500)' }}>
-            Loading person...
-          </div>
-        ) : !person ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--neutral-500)' }}>
-            Person not found
-          </div>
-        ) : (
-          <>
-            {/* Header */}
-            <div style={{
-              marginBottom: 'var(--space-6)',
-              paddingTop: 'var(--space-4)',
-              paddingBottom: 'var(--space-4)',
-              borderBottom: '1px solid var(--neutral-200)',
-            }}>
-              {/* Back link and action buttons */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
-                <a
-                  href="/people"
-                  style={{
-                    fontSize: 'var(--text-sm)',
-                    color: 'var(--accent-gold)',
-                    textDecoration: 'none',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: 500,
-                    transition: 'color 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold-dark)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-                >
-                  ← Back to People
-                </a>
+      <SourcesSection sources={person.sources || []} />
 
-                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  {(() => {
-                    const hasDois = (person.sources || []).some((s) => s.doi && s.doi.trim());
-                    const canEnrich = !!person.orcid || hasDois;
-                    if (!canEnrich) return null;
-                    const title = person.orcid
-                      ? (person.enriched_at
-                          ? `Re-enrich from ORCID (last enriched ${new Date(person.enriched_at).toLocaleDateString()})`
-                          : 'Enrich from ORCID public record')
-                      : 'Find ORCID from their papers, then enrich';
-                    return (
-                      <button
-                        onClick={handleEnrich}
-                        className="icon-btn"
-                        style={{ color: 'var(--accent-gold)' }}
-                        title={title}
-                        disabled={enriching}
-                      >
-                        <i className={enriching ? 'fas fa-circle-notch fa-spin' : 'fas fa-wand-magic-sparkles'}></i>
-                      </button>
-                    );
-                  })()}
-                  <button
-                    onClick={() => setShowEditModal(true)}
-                    className="icon-btn"
-                    style={{ color: 'var(--accent-gold)' }}
-                    title="Edit Person"
-                  >
-                    <i className="fas fa-pen"></i>
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="icon-btn"
-                    style={{ color: 'var(--accent-gold)' }}
-                    title="Delete Person"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
+      <ConceptsSection concepts={person.concepts || []} />
 
-              {/* Name and role */}
-              <div>
-                <h1 style={{
-                  fontSize: 'var(--text-3xl)',
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--neutral-900)',
-                  lineHeight: 1.2,
-                  marginBottom: 'var(--space-3)',
-                  textAlign: 'center'
-                }}>
-                  {person.full_name}
-                </h1>
+      <TagsCollectionsSection
+        tags={person.tags || []}
+        collections={person.collections || []}
+      />
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {person.role && (
-                    <span className="tag" style={{ background: 'var(--accent-gold-light)', color: 'var(--accent-gold)', textTransform: 'uppercase' }}>
-                      {person.role}
-                    </span>
-                  )}
-                </div>
-
-                {/* Structured field list — shows labels even for empty values so the user
-                    can see at a glance what could be populated. */}
-                <div
-                  style={{
-                    marginTop: 'var(--space-4)',
-                    maxWidth: '480px',
-                    marginLeft: 'auto',
-                    marginRight: 'auto',
-                    display: 'grid',
-                    gridTemplateColumns: '90px 1fr',
-                    rowGap: 'var(--space-2)',
-                    columnGap: 'var(--space-3)',
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-sm)',
-                    alignItems: 'baseline',
-                  }}
-                >
-                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>ORCID</div>
-                  <div>
-                    {person.orcid ? (
-                      <a
-                        href={`https://orcid.org/${person.orcid}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          color: 'var(--accent-gold)',
-                          textDecoration: 'none',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                        title="View ORCID profile"
-                      >
-                        <i className="fab fa-orcid"></i>
-                        <span>{person.orcid}</span>
-                      </a>
-                    ) : (
-                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
-                    )}
-                  </div>
-
-                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Email</div>
-                  <div>
-                    {person.email ? (
-                      <a
-                        href={`mailto:${person.email}`}
-                        style={{ color: 'var(--accent-gold)', textDecoration: 'none' }}
-                      >
-                        {person.email}
-                      </a>
-                    ) : (
-                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
-                    )}
-                  </div>
-
-                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Website</div>
-                  <div>
-                    {person.url ? (
-                      <a
-                        href={person.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          color: 'var(--accent-gold)',
-                          textDecoration: 'none',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                        }}
-                      >
-                        <i className="fas fa-link"></i>
-                        <span>{person.url}</span>
-                      </a>
-                    ) : (
-                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
-                    )}
-                  </div>
-
-                  <div style={{ color: 'var(--neutral-500)', textAlign: 'right', fontWeight: 500 }}>Links</div>
-                  <div>
-                    {(person.links || []).length > 0 ? (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-                        {(person.links || []).map((link, i) => (
-                          <a
-                            key={i}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              color: 'var(--accent-gold)',
-                              textDecoration: 'none',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                            }}
-                          >
-                            <i className="fas fa-external-link-alt" style={{ fontSize: '10px' }}></i>
-                            <span>{link.label || link.url}</span>
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <span style={{ color: 'var(--neutral-400)' }}>—</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Enrichment status banner */}
-                {enrichStep && (
-                  <div
-                    style={{
-                      marginTop: 'var(--space-3)',
-                      padding: 'var(--space-2) var(--space-3)',
-                      borderRadius: '6px',
-                      background:
-                        enrichStep === 'done'
-                          ? 'color-mix(in srgb, var(--accent-green) 12%, white)'
-                          : enrichStep === 'nothing-found'
-                            ? 'var(--neutral-100)'
-                            : 'var(--accent-gold-light)',
-                      border:
-                        enrichStep === 'done'
-                          ? '1px solid var(--accent-green)'
-                          : enrichStep === 'nothing-found'
-                            ? '1px solid var(--neutral-300)'
-                            : '1px solid var(--accent-gold)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 'var(--space-2)',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'var(--text-sm)',
-                      color:
-                        enrichStep === 'done'
-                          ? 'var(--accent-green)'
-                          : enrichStep === 'nothing-found'
-                            ? 'var(--neutral-600)'
-                            : 'var(--accent-gold)',
-                    }}
-                  >
-                    {enrichStep === 'backfilling' && (
-                      <>
-                        <i className="fas fa-search"></i>
-                        <span>Searching their papers on Crossref for an ORCID…</span>
-                      </>
-                    )}
-                    {enrichStep === 'enriching' && (
-                      <>
-                        <i className="fas fa-circle-notch fa-spin"></i>
-                        <span>Pulling public profile from ORCID…</span>
-                      </>
-                    )}
-                    {enrichStep === 'done' && (
-                      <>
-                        <i className="fas fa-check-circle"></i>
-                        <span>
-                          Added{' '}
-                          {enrichChanges && enrichChanges.length > 0
-                            ? enrichChanges.join(', ')
-                            : 'new details'}
-                          .
-                        </span>
-                      </>
-                    )}
-                    {enrichStep === 'nothing-found' && (
-                      <>
-                        <i className="fas fa-info-circle"></i>
-                        <span>
-                          Nothing new found — they may not have a public ORCID profile, or their
-                          papers don't disclose one.
-                        </span>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {person.enriched_at && !enrichStep && (
-                  <div
-                    style={{
-                      marginTop: 'var(--space-2)',
-                      textAlign: 'center',
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'var(--text-xs)',
-                      color: 'var(--neutral-500)',
-                    }}
-                  >
-                    Enriched from ORCID on {new Date(person.enriched_at).toLocaleDateString()}
-                  </div>
-                )}
-
-              </div>
-            </div>
-
-            {/* Also Known As */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <h2 style={{
-                fontSize: 'var(--text-lg)',
-                fontWeight: 600,
-                fontFamily: 'var(--font-display)',
-                color: 'var(--accent-gold)',
-                marginBottom: 'var(--space-3)',
-              }}>
-                Also Known As
-              </h2>
-              {person.aka && person.aka.length > 0 ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-                  {person.aka.map((name, idx) => (
-                    <span key={idx} className="tag" style={{ background: 'var(--accent-gold-light)', color: 'var(--accent-gold)' }}>
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
-                  No alternate names
-                </div>
-              )}
-            </div>
-
-            {/* Summary */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <h2 style={{
-                fontSize: 'var(--text-lg)',
-                fontWeight: 600,
-                fontFamily: 'var(--font-display)',
-                color: 'var(--accent-gold)',
-                marginBottom: 'var(--space-3)',
-              }}>
-                Summary
-              </h2>
-              {person.summary ? (
-                <div
-                  style={{
-                    fontSize: 'var(--text-sm)',
-                    lineHeight: 1.6,
-                    color: 'var(--neutral-700)',
-                    fontFamily: 'var(--font-body)',
-                  }}
-                  dangerouslySetInnerHTML={{ __html: person.summary }}
-                />
-              ) : (
-                <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
-                  No summary available
-                </div>
-              )}
-            </div>
-
-            {/* Concepts */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 'var(--space-3)',
-              }}>
-                <h2 style={{
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--accent-green)',
-                  margin: 0,
-                }}>
-                  Related Concepts ({person.concepts?.length || 0})
-                </h2>
-                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  <button
-                    onClick={() => {
-                      setSelectedConceptIds(person.concepts?.map(c => c.id) || []);
-                      setShowLinkConceptModal(true);
-                    }}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'white',
-                      color: 'var(--accent-green)',
-                      border: '2px solid var(--accent-green)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                      e.currentTarget.style.background = 'var(--accent-green)';
-                      e.currentTarget.style.color = 'white';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.color = 'var(--accent-green)';
-                    }}
-                    title="Link Existing Concept"
-                  >
-                    <i className="fas fa-link"></i>
-                  </button>
-                  <button
-                    onClick={() => setShowConceptModal(true)}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'var(--accent-green)',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    }}
-                    title="New Concept"
-                  >
-                    <i className="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-              {person.concepts && person.concepts.length > 0 ? (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                  gap: 'var(--space-3)'
-                }}>
-                  {person.concepts.map(concept => (
-                    <a
-                      key={concept.id}
-                      href={`/concepts/${concept.id}`}
-                      className="card"
-                      style={{
-                        padding: 'var(--space-3)',
-                        textDecoration: 'none',
-                        borderLeft: '3px solid var(--accent-green)',
-                        transition: 'all 0.15s',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
-                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
-                    >
-                      <div style={{
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 600,
-                        color: 'var(--neutral-900)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: concept.concept_type ? 'var(--space-1)' : '0'
-                      }}>
-                        {concept.label}
-                      </div>
-                      {concept.concept_type && (
-                        <div style={{
-                          fontSize: 'var(--text-xs)',
-                          color: 'var(--neutral-600)',
-                          textTransform: 'capitalize',
-                          fontFamily: 'var(--font-body)',
-                        }}>
-                          {concept.concept_type}
-                        </div>
-                      )}
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
-                  No related concepts
-                </div>
-              )}
-            </div>
-
-            {/* Sources */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 'var(--space-3)',
-              }}>
-                <h2 style={{
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--accent-blue)',
-                  margin: 0,
-                }}>
-                  Related Sources ({person.sources?.length || 0})
-                </h2>
-                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  <button
-                    onClick={() => {
-                      setSelectedSourceIds(person.sources?.map(s => s.id) || []);
-                      setShowLinkSourceModal(true);
-                    }}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'white',
-                      color: 'var(--accent-blue)',
-                      border: '2px solid var(--accent-blue)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                      e.currentTarget.style.background = 'var(--accent-blue)';
-                      e.currentTarget.style.color = 'white';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.color = 'var(--accent-blue)';
-                    }}
-                    title="Link Existing Source"
-                  >
-                    <i className="fas fa-link"></i>
-                  </button>
-                  <button
-                    onClick={() => setShowSourceModal(true)}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'var(--accent-blue)',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    }}
-                    title="New Source"
-                  >
-                    <i className="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-              {person.sources && person.sources.length > 0 ? (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                  gap: 'var(--space-3)'
-                }}>
-                  {person.sources.map(source => (
-                    <a
-                      key={source.id}
-                      href={`/sources/${source.id}`}
-                      className="card"
-                      style={{
-                        padding: 'var(--space-3)',
-                        textDecoration: 'none',
-                        borderLeft: '3px solid var(--accent-blue)',
-                        transition: 'all 0.15s',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
-                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
-                    >
-                      <div style={{
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 600,
-                        color: 'var(--neutral-900)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: (source.authors || source.year) ? 'var(--space-1)' : '0'
-                      }}>
-                        {source.title}
-                      </div>
-                      {(source.authors || source.year) && (
-                        <div style={{
-                          fontSize: 'var(--text-xs)',
-                          color: 'var(--neutral-600)',
-                          fontFamily: 'var(--font-body)',
-                        }}>
-                          {source.authors && <span>{source.authors}</span>}
-                          {source.year && <span>{source.authors ? ` (${source.year})` : `${source.year}`}</span>}
-                        </div>
-                      )}
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
-                  No related sources
-                </div>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 'var(--space-3)',
-              }}>
-                <h2 style={{
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--accent-purple)',
-                  margin: 0,
-                }}>
-                  Tags ({person.tags?.length || 0})
-                </h2>
-                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                  <button
-                    onClick={() => {
-                      setSelectedTags(person.tags || []);
-                      setShowLinkTagModal(true);
-                    }}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'white',
-                      color: 'var(--accent-purple)',
-                      border: '2px solid var(--accent-purple)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                      e.currentTarget.style.background = 'var(--accent-purple)';
-                      e.currentTarget.style.color = 'white';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.color = 'var(--accent-purple)';
-                    }}
-                    title="Link Existing Tag"
-                  >
-                    <i className="fas fa-link"></i>
-                  </button>
-                  <button
-                    onClick={() => setShowTagModal(true)}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'var(--accent-purple)',
-                      color: 'white',
-                      border: 'none',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 'var(--text-sm)',
-                      transition: 'all 0.15s',
-                      boxShadow: 'var(--shadow-sm)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                    }}
-                    title="New Tag"
-                  >
-                    <i className="fas fa-plus"></i>
-                  </button>
-                </div>
-              </div>
-              {person.tags && person.tags.length > 0 ? (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                  gap: 'var(--space-3)'
-                }}>
-                  {person.tags.map((tag, idx) => (
-                    <div
-                      key={idx}
-                      className="card"
-                      style={{
-                        padding: 'var(--space-3)',
-                        borderLeft: '3px solid var(--accent-purple)',
-                        transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-md)'}
-                      onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}
-                    >
-                      <div style={{
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 600,
-                        color: 'var(--neutral-900)',
-                        fontFamily: 'var(--font-body)',
-                      }}>
-                        {tag}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ color: 'var(--neutral-500)', fontSize: 'var(--text-sm)', fontStyle: 'italic' }}>
-                  No tags
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+      <RelatedPeopleSection people={person.related_people || []} />
 
       <PersonFormModal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        onSuccess={() => {
-          setShowEditModal(false);
-          fetchPerson();
-        }}
-        item={person ? {
-          id: person.id,
-          full_name: person.full_name,
-          role: person.role,
-          email: person.email,
-          url: person.url,
-          summary: person.summary,
-          aka: person.aka || [],
-          concept_ids: person.concepts ? person.concepts.map(c => c.id) : [],
-          source_ids: person.sources ? person.sources.map(s => s.id) : [],
-          tags: person.tags || []
-        } : null}
+        isOpen={showEdit}
+        onClose={() => { setShowEdit(false); fetchPerson(); }}
+        onSuccess={() => { setShowEdit(false); fetchPerson(); }}
+        item={person}
       />
-
-      <ConceptFormModal
-        isOpen={showConceptModal}
-        onClose={() => setShowConceptModal(false)}
-        onSuccess={() => {
-          setShowConceptModal(false);
-          fetchPerson();
-        }}
-        item={{ people_ids: [currentPersonId] }}
-      />
-
-      <SourceFormModal
-        isOpen={showSourceModal}
-        onClose={() => setShowSourceModal(false)}
-        onSuccess={() => {
-          setShowSourceModal(false);
-          fetchPerson();
-        }}
-        item={{ person_ids: [currentPersonId] }}
-      />
-
-      <TagFormModal
-        isOpen={showTagModal}
-        onClose={() => setShowTagModal(false)}
-        onSuccess={() => {
-          setShowTagModal(false);
-          fetchPerson();
-        }}
-        item={null}
-      />
-
-      {/* Link Existing Concept Modal */}
-      <Modal
-        isOpen={showLinkConceptModal}
-        onClose={() => {
-          setShowLinkConceptModal(false);
-          setSelectedConceptIds([]);
-        }}
-        title="Link Existing Concepts"
-        size="large"
-      >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
-          <ConceptSelector
-            selectedConceptIds={selectedConceptIds}
-            onChange={setSelectedConceptIds}
-          />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
-          <button
-            onClick={() => {
-              setShowLinkConceptModal(false);
-              setSelectedConceptIds([]);
-            }}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'white',
-              border: '1px solid var(--neutral-300)',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 500,
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleLinkConcepts}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'var(--accent-green)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-            }}
-          >
-            Save ({selectedConceptIds.length})
-          </button>
-        </div>
-      </Modal>
-
-      {/* Link Existing Source Modal */}
-      <Modal
-        isOpen={showLinkSourceModal}
-        onClose={() => {
-          setShowLinkSourceModal(false);
-          setSelectedSourceIds([]);
-        }}
-        title="Link Existing Sources"
-        size="large"
-      >
-        <div style={{ height: '400px', marginBottom: 'var(--space-4)' }}>
-          <SourceSelector
-            selectedSourceIds={selectedSourceIds}
-            onChange={setSelectedSourceIds}
-          />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-3)' }}>
-          <button
-            onClick={() => {
-              setShowLinkSourceModal(false);
-              setSelectedSourceIds([]);
-            }}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'white',
-              border: '1px solid var(--neutral-300)',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 500,
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleLinkSources}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'var(--accent-blue)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-            }}
-          >
-            Save ({selectedSourceIds.length})
-          </button>
-        </div>
-      </Modal>
-
-      {/* Link Existing Tag Modal */}
-      <Modal
-        isOpen={showLinkTagModal}
-        onClose={() => {
-          setShowLinkTagModal(false);
-          setSelectedTags([]);
-        }}
-        title="Link Existing Tags"
-        size="large"
-      >
-        <div style={{ height: '400px', padding: 'var(--space-6)', paddingBottom: 0 }}>
-          <TagSelector
-            selectedTags={selectedTags}
-            onChange={setSelectedTags}
-          />
-        </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 'var(--space-3)',
-          padding: 'var(--space-6)',
-          borderTop: '1px solid var(--neutral-200)'
-        }}>
-          <button
-            onClick={() => {
-              setShowLinkTagModal(false);
-              setSelectedTags([]);
-            }}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'white',
-              border: '1px solid var(--neutral-300)',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 500,
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleLinkTags}
-            style={{
-              padding: 'var(--space-3) var(--space-4)',
-              background: 'var(--accent-purple)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 600,
-            }}
-          >
-            Save ({selectedTags.length})
-          </button>
-        </div>
-      </Modal>
     </div>
+  );
+}
+
+// =====================================================================
+// Header — identity card
+// =====================================================================
+function PersonHeader({ person, onEdit, onEnrich, enriching, enrichNote, onDelete }) {
+  const initials = useMemo(() => {
+    const f = (person.first_name || '').trim();
+    const l = (person.last_name  || '').trim();
+    if (f || l) return `${f[0] || ''}${l[0] || ''}`.toUpperCase();
+    const parts = (person.full_name || '').trim().split(/\s+/);
+    return parts.slice(0, 2).map(p => p[0] || '').join('').toUpperCase() || '·';
+  }, [person]);
+
+  return (
+    <header className="ps-header">
+      <div className="ps-avatar" aria-hidden="true">{initials}</div>
+      <div className="ps-header-main">
+        <h1 className="ps-title">{toTitleCase(person.full_name)}</h1>
+        <div className="ps-id-row">
+          {person.role && <span className="ps-role">{toTitleCase(person.role)}</span>}
+          {person.orcid && (
+            <a
+              href={`https://orcid.org/${person.orcid}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ps-orcid"
+              title="View ORCID profile"
+            >
+              ORCID · {person.orcid}
+            </a>
+          )}
+          {person.email && (
+            <a href={`mailto:${person.email}`} className="ps-id-link">
+              {person.email}
+            </a>
+          )}
+          {person.url && (
+            <a href={person.url} target="_blank" rel="noopener noreferrer" className="ps-id-link">
+              {prettyHost(person.url)}
+            </a>
+          )}
+        </div>
+
+        {person.affiliation && (
+          <div className="ps-affiliation-row">
+            <span className="ps-affiliation">{person.affiliation}</span>
+            {person.affiliation_as_of && (
+              <span className="ps-affiliation-as-of">
+                as of {formatAsOf(person.affiliation_as_of)}
+              </span>
+            )}
+          </div>
+        )}
+
+        {person.aka && person.aka.length > 0 && (
+          <div className="ps-aka-row">
+            <span className="ps-aka-label">Also known as:</span>
+            {person.aka.map((name, i) => (
+              <span key={i} className="ps-aka-chip">{name}</span>
+            ))}
+          </div>
+        )}
+
+        {person.links && person.links.length > 0 && (
+          <div className="ps-link-row">
+            {person.links.map((link, i) => (
+              <a
+                key={i}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ps-profile-link"
+              >
+                {link.label || prettyHost(link.url)}
+              </a>
+            ))}
+          </div>
+        )}
+
+        {enrichNote && <div className="ps-note">{enrichNote}</div>}
+      </div>
+
+      <aside className="ps-header-actions">
+        <button type="button" className="ps-action" onClick={onEnrich} disabled={enriching}>
+          {enriching ? 'Enriching.' : 'Enrich'}
+        </button>
+        <button type="button" className="ps-action" onClick={onEdit}>
+          Edit Person
+        </button>
+        <button type="button" className="ps-action ps-action-danger" onClick={onDelete}>
+          Delete
+        </button>
+      </aside>
+    </header>
+  );
+}
+
+function prettyHost(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch { return url; }
+}
+
+function formatAsOf(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  } catch { return iso; }
+}
+
+// =====================================================================
+// Summary — collapsible if long
+// =====================================================================
+function SummarySection({ person }) {
+  const [expanded, setExpanded] = useState(false);
+  const html = person.summary;
+
+  if (!html) {
+    return (
+      <section className="ps-section">
+        <h2 className="ps-h2">Summary</h2>
+        <p className="ps-empty-text">No summary written yet.</p>
+      </section>
+    );
+  }
+
+  // Long if more than ~280 chars of plain text.
+  const plain = html.replace(/<[^>]+>/g, '');
+  const isLong = plain.length > 280;
+
+  return (
+    <section className="ps-section">
+      <h2 className="ps-h2">Summary</h2>
+      <div
+        className={`ps-prose ${isLong && !expanded ? 'is-clamped' : ''}`}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      {isLong && (
+        <button type="button" className="ps-toggle" onClick={() => setExpanded(v => !v)}>
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </section>
+  );
+}
+
+// =====================================================================
+// Sources — tile grid
+// =====================================================================
+function SourcesSection({ sources }) {
+  const sorted = useMemo(() => {
+    return [...sources].sort((a, b) => (b.year || 0) - (a.year || 0));
+  }, [sources]);
+
+  return (
+    <section className="ps-section">
+      <div className="ps-section-head">
+        <h2 className="ps-h2 is-source">Sources <span className="ps-count">{sources.length}</span></h2>
+      </div>
+      {sources.length === 0 ? (
+        <p className="ps-empty-text">No sources linked yet.</p>
+      ) : (
+        <div className="ps-tile-grid">
+          {sorted.map(s => (
+            <a key={s.id} href={`/sources/${s.id}`} className="ps-tile">
+              <div className="ps-tile-title">{toTitleCase(s.title)}</div>
+              <div className="ps-tile-meta">
+                {s.authors && <span className="ps-tile-authors">{s.authors}</span>}
+                {s.year && <span className="ps-tile-year">{s.year}</span>}
+                {s.doi && <span className="ps-tile-doi">DOI</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// =====================================================================
+// Concepts — tile grid
+// =====================================================================
+function ConceptsSection({ concepts }) {
+  return (
+    <section className="ps-section">
+      <div className="ps-section-head">
+        <h2 className="ps-h2 is-concept">Concepts <span className="ps-count">{concepts.length}</span></h2>
+      </div>
+      {concepts.length === 0 ? (
+        <p className="ps-empty-text">No concepts linked yet.</p>
+      ) : (
+        <div className="ps-tile-grid">
+          {concepts.map(c => (
+            <a key={c.id} href={`/concepts/${c.id}`} className="ps-tile is-concept-tile">
+              <div className="ps-tile-title">{toTitleCase(c.label)}</div>
+              {c.concept_type && (
+                <div className="ps-tile-type">{getNodeTypeLabel(c.concept_type)}</div>
+              )}
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// =====================================================================
+// Tags + Collections — chip rows
+// =====================================================================
+function TagsCollectionsSection({ tags, collections }) {
+  if (tags.length === 0 && collections.length === 0) return null;
+
+  return (
+    <section className="ps-section ps-section-rows">
+      {tags.length > 0 && (
+        <div className="ps-row">
+          <span className="ps-row-label">Tags</span>
+          <div className="ps-chip-row">
+            {tags.map((t, i) => (
+              <span key={i} className="ps-tag-chip">{t}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {collections.length > 0 && (
+        <div className="ps-row">
+          <span className="ps-row-label">Collections</span>
+          <div className="ps-chip-row">
+            {collections.map(c => (
+              <a key={c.id} href={`/collections/${c.id}`} className="ps-collection-chip">{c.name}</a>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// =====================================================================
+// Related People — only renders when there's data
+// =====================================================================
+function RelatedPeopleSection({ people }) {
+  if (!people || people.length === 0) return null;
+
+  return (
+    <section className="ps-section">
+      <div className="ps-section-head">
+        <h2 className="ps-h2">Related People</h2>
+      </div>
+      <p className="ps-section-hint">
+        Other people in your library who share co-authored sources or research concepts.
+      </p>
+      <div className="ps-related-grid">
+        {people.map(p => (
+          <a key={p.id} href={`/people/${p.id}`} className="ps-related-card">
+            <div className="ps-related-name">{toTitleCase(p.full_name)}</div>
+            {p.role && <div className="ps-related-role">{toTitleCase(p.role)}</div>}
+            <div className="ps-related-overlap">
+              {p.shared_sources_count > 0 && (
+                <span>
+                  {p.shared_sources_count} shared source{p.shared_sources_count === 1 ? '' : 's'}
+                </span>
+              )}
+              {p.shared_sources_count > 0 && p.shared_concepts_count > 0 && <span> · </span>}
+              {p.shared_concepts_count > 0 && (
+                <span>
+                  {p.shared_concepts_count} shared concept{p.shared_concepts_count === 1 ? '' : 's'}
+                </span>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function PsStyles() {
+  return (
+    <style>{`
+      .ps {
+        flex: 1;
+        background: var(--paper);
+        max-width: 1080px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 24px 32px 80px;
+        font-family: var(--font-body);
+        color: var(--ink);
+      }
+
+      .ps-message {
+        padding: 64px 24px;
+        text-align: center;
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+      .ps-message-error { color: var(--error); }
+
+      .ps-back {
+        display: inline-block;
+        margin-bottom: 14px;
+        font-size: 12.5px;
+        color: var(--ink-3);
+        text-decoration: none;
+      }
+      .ps-back:hover { color: var(--person-2); }
+
+      /* ---------- Header / identity card ---------- */
+      .ps-header {
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr) auto;
+        gap: 20px;
+        align-items: start;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-lg);
+        padding: 24px;
+        margin-bottom: 28px;
+      }
+      .ps-avatar {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        background: var(--person-tint);
+        color: var(--person-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .ps-header-main { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+      .ps-title {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--person);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin: 0;
+      }
+      .ps-id-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 12px;
+        font-size: 12.5px;
+      }
+      .ps-role {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--person-2);
+        font-weight: 600;
+      }
+      .ps-orcid {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        background: var(--person-tint);
+        color: var(--person-2);
+        padding: 2px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+        letter-spacing: 0.02em;
+      }
+      .ps-orcid:hover {
+        background: color-mix(in srgb, var(--person-tint) 60%, var(--person) 40%);
+        color: var(--paper);
+      }
+      .ps-id-link {
+        color: var(--ink-2);
+        text-decoration: none;
+        border-bottom: 1px solid var(--ink-line);
+      }
+      .ps-id-link:hover { color: var(--person-2); border-color: var(--person); }
+
+      .ps-affiliation-row {
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 2px;
+      }
+      .ps-affiliation {
+        font-size: 13.5px;
+        color: var(--ink-2);
+        font-weight: 500;
+      }
+      .ps-affiliation-as-of {
+        font-size: 11px;
+        color: var(--ink-4);
+        font-style: italic;
+      }
+
+      .ps-aka-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .ps-aka-label {
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin-right: 4px;
+      }
+      .ps-aka-chip {
+        font-size: 12px;
+        background: var(--paper-soft);
+        color: var(--ink-2);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--ink-line);
+      }
+
+      .ps-link-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .ps-profile-link {
+        display: inline-block;
+        font-size: 12px;
+        background: var(--person-tint);
+        color: var(--person-2);
+        padding: 2px 10px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+      }
+      .ps-profile-link:hover {
+        background: color-mix(in srgb, var(--person-tint) 60%, var(--person) 40%);
+        color: var(--paper);
+      }
+      .ps-note {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--ink-3);
+        font-style: italic;
+      }
+
+      .ps-header-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .ps-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ink-2);
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 6px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+      }
+      .ps-action:hover:not(:disabled) {
+        background: var(--person-tint);
+        color: var(--person-2);
+        border-color: var(--person);
+      }
+      .ps-action:disabled { opacity: 0.55; cursor: not-allowed; }
+      .ps-action-danger { color: var(--ink-3); }
+      .ps-action-danger:hover:not(:disabled) {
+        background: rgba(122, 46, 46, 0.06);
+        color: var(--error);
+        border-color: var(--error);
+      }
+
+      /* ---------- Section shell ---------- */
+      .ps-section { margin-bottom: 36px; }
+      .ps-section-rows { display: flex; flex-direction: column; gap: 14px; }
+      .ps-section-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .ps-h2 {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+        margin: 0 0 12px;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .ps-h2.is-source  { color: var(--source); }
+      .ps-h2.is-concept { color: var(--concept); }
+      .ps-count {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-3);
+      }
+      .ps-section-hint {
+        font-size: 12.5px;
+        color: var(--ink-3);
+        margin: -6px 0 12px;
+      }
+      .ps-empty-text {
+        font-size: 13px;
+        color: var(--ink-4);
+        font-style: italic;
+        margin: 0;
+      }
+
+      /* ---------- Summary prose ---------- */
+      .ps-prose {
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--ink-2);
+      }
+      .ps-prose p { margin: 0 0 10px; }
+      .ps-prose.is-clamped {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .ps-toggle {
+        margin-top: 6px;
+        background: none;
+        border: none;
+        padding: 0;
+        font-size: 12.5px;
+        color: var(--person-2);
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      /* ---------- Tile grids ---------- */
+      .ps-tile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      .ps-tile {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        text-decoration: none;
+        transition: border-color 0.12s, transform 0.12s;
+      }
+      .ps-tile:hover {
+        border-color: var(--source);
+        transform: translateY(-1px);
+      }
+      .ps-tile.is-concept-tile:hover { border-color: var(--concept); }
+      .ps-tile-title {
+        font-family: var(--font-display);
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ink);
+        line-height: 1.35;
+      }
+      .ps-tile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 8px;
+        font-size: 11.5px;
+        color: var(--ink-3);
+      }
+      .ps-tile-authors {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ps-tile-year {
+        font-family: var(--font-mono);
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .ps-tile-doi {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--source-2);
+      }
+      .ps-tile-type {
+        font-size: 10.5px;
+        text-transform: capitalize;
+        color: var(--concept-2);
+      }
+
+      /* ---------- Tags + Collections rows ---------- */
+      .ps-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .ps-row-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        flex-shrink: 0;
+        min-width: 110px;
+      }
+      .ps-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+        flex: 1;
+      }
+      .ps-tag-chip {
+        font-size: 11.5px;
+        color: var(--ink-3);
+        background: var(--paper-soft);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+      }
+      .ps-collection-chip {
+        font-size: 11.5px;
+        color: var(--ink-2);
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+      }
+      .ps-collection-chip:hover { background: var(--hover); color: var(--ink); }
+
+      /* ---------- Related People ---------- */
+      .ps-related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      .ps-related-card {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px 14px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        text-decoration: none;
+        transition: border-color 0.12s, transform 0.12s;
+      }
+      .ps-related-card:hover {
+        border-color: var(--person);
+        transform: translateY(-1px);
+      }
+      .ps-related-name {
+        font-family: var(--font-display);
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--ink);
+      }
+      .ps-related-role {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--person-2);
+        font-weight: 600;
+      }
+      .ps-related-overlap {
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 760px) {
+        .ps { padding: 16px 16px 64px; }
+        .ps-header {
+          grid-template-columns: 64px minmax(0, 1fr);
+          padding: 16px;
+          gap: 14px;
+        }
+        .ps-avatar { width: 64px; height: 64px; font-size: 22px; }
+        .ps-title { font-size: 24px; }
+        .ps-header-actions {
+          grid-column: 1 / -1;
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .ps-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+        .ps-row-label { min-width: 0; }
+      }
+    `}</style>
   );
 }

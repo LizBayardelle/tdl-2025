@@ -1,52 +1,63 @@
 class SourcesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_source, only: [:show, :study, :notes, :update, :destroy]
+  before_action :set_source, only: [:show, :study, :notes, :passage_insights, :sections, :ask, :enrich_from_citation, :update, :destroy]
   before_action :authorize_edit!, only: [:update, :destroy]
 
   def index
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Source)
-    @sources = Source.where(id: accessible_ids).recent
+    base_scope = Source.where(id: accessible_ids)
 
     respond_to do |format|
       format.html
       format.json {
-        # Pagination params
-        page = (params[:page] || 1).to_i
-        per_page = (params[:per_page] || 20).to_i
-        per_page = [per_page, 100].min # Cap at 100
+        # ---- Filter params ----
+        q             = params[:q].to_s.strip
+        kind          = params[:kind].to_s.strip
+        concept_ids   = Array(params[:concept_ids]).map(&:to_i).reject(&:zero?)
+        person_ids    = Array(params[:person_ids]).map(&:to_i).reject(&:zero?)
+        tag_names     = Array(params[:tags]).map(&:to_s).reject(&:blank?)
+        collection_ids = Array(params[:collection_ids]).map(&:to_i).reject(&:zero?)
+        markers       = Array(params[:markers]).map(&:to_s).reject(&:blank?)
+        methodologies = Array(params[:methodologies]).map(&:to_s).reject(&:blank?)
+        year_min      = params[:year_min].presence&.to_i
+        year_max      = params[:year_max].presence&.to_i
+        has_pdf       = truthy?(params[:has_pdf])
+        has_notes     = truthy?(params[:has_notes])
 
-        # Sorting params
-        sort_by = params[:sort_by]
+        scoped = apply_filters(base_scope,
+          q: q, kind: kind,
+          concept_ids: concept_ids, person_ids: person_ids,
+          tag_names: tag_names, collection_ids: collection_ids,
+          markers: markers, methodologies: methodologies,
+          year_min: year_min, year_max: year_max,
+          has_pdf: has_pdf, has_notes: has_notes,
+          owner_id: current_user.id
+        )
+
+        # ---- Sorting ----
+        sort_by  = params[:sort_by]
         sort_dir = params[:sort_dir] == 'desc' ? 'DESC' : 'ASC'
-
-        case sort_by
-        when 'title'
-          @sources = @sources.reorder("LOWER(title) #{sort_dir}")
-        when 'year'
-          @sources = @sources.reorder("year #{sort_dir} NULLS LAST")
-        when 'created_at'
-          @sources = @sources.reorder("created_at #{sort_dir}")
-        when 'notes_count'
-          # Sort by number of notes (requires a subquery or left join)
-          @sources = @sources
-            .left_joins(:notes)
-            .group('sources.id')
-            .reorder("COUNT(notes.id) #{sort_dir}")
+        scoped = case sort_by
+        when 'title'        then scoped.reorder("LOWER(title) #{sort_dir}")
+        when 'year'         then scoped.reorder("year #{sort_dir} NULLS LAST")
+        when 'created_at'   then scoped.reorder("created_at #{sort_dir}")
+        when 'notes_count'  then scoped.left_joins(:notes).group('sources.id').reorder("COUNT(notes.id) #{sort_dir}")
+        else                     scoped.reorder("created_at DESC")
         end
 
-        # Get total count before pagination
-        total_count = @sources.count
-
-        # Apply pagination
-        paginated_sources = @sources.offset((page - 1) * per_page).limit(per_page)
+        # ---- Pagination ----
+        page     = [(params[:page] || 1).to_i, 1].max
+        per_page = [(params[:per_page] || 20).to_i, 100].min
+        total_count = scoped.except(:order).count(:id)
+        total_count = total_count.is_a?(Hash) ? total_count.size : total_count
+        paginated   = scoped.offset((page - 1) * per_page).limit(per_page)
           .includes(:concepts, :tags, :people, :collections, :notes)
           .with_attached_pdf
 
-        # Build paginated source data
-        sources_data = paginated_sources.map { |source|
+        sources_data = paginated.map do |source|
           is_owner = source.user_id == current_user.id
-          source.as_json(only: [:id, :title, :authors, :year, :kind, :doi, :abstract, :summary]).merge(
+          source.as_json(only: [:id, :title, :authors, :year, :kind, :doi, :abstract, :summary, :journal_name, :markers, :methodologies]).merge(
             tags: is_owner ? source.tags.pluck(:name) : [],
             keywords: source[:keywords] || [],
             concept_ids: source.concept_ids,
@@ -54,64 +65,37 @@ class SourcesController < ApplicationController
             people: source.people.map { |p| { id: p.id, full_name: p.full_name, last_name: p.last_name } },
             collections: source.collections.map { |c| { id: c.id, name: c.name } },
             notes_count: source.notes.size,
+            has_pdf: source.pdf.attached?,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
             pdf_filename: source.pdf.attached? ? source.pdf.filename.to_s : nil,
             permission: source.permission_for(current_user),
             is_owner: is_owner
           )
+        end
+
+        payload = {
+          sources: sources_data,
+          pagination: {
+            page: page,
+            per_page: per_page,
+            total_count: total_count,
+            total_pages: (total_count.to_f / per_page).ceil,
+          }
         }
 
-        # On first page, include filter metadata
         if page == 1
-          # Aggregate filter data efficiently using separate queries
-          # Use reorder(nil) to remove the default ordering before distinct
-          kinds = @sources.reorder(nil).distinct.pluck(:kind).compact.sort
-          years = @sources.reorder(nil).distinct.pluck(:year).compact.sort
-
-          # Get authors (people linked to sources)
-          people_ids = PersonSource.where(source_id: accessible_ids).distinct.pluck(:person_id)
-          authors = Person.where(id: people_ids).pluck(:id, :full_name).map { |id, name| { id: id, full_name: name } }.sort_by { |p| p[:full_name] }
-
-          # Get tags (only from owned sources)
-          owned_source_ids = @sources.where(user_id: current_user.id).pluck(:id)
-          tag_ids = Tagging.where(taggable_type: 'Source', taggable_id: owned_source_ids).distinct.pluck(:tag_id)
-          tags = Tag.where(id: tag_ids).pluck(:name).sort
-
-          # Get collections
-          collection_ids = CollectionItem.where(collectable_type: 'Source', collectable_id: accessible_ids).distinct.pluck(:collection_id)
-          collections = Collection.where(id: collection_ids).pluck(:id, :name).map { |id, name| { id: id, name: name } }.sort_by { |c| c[:name] }
-
-          # Count PDFs
-          pdf_count = ActiveStorage::Attachment.where(record_type: 'Source', record_id: accessible_ids, name: 'pdf').count
-
-          render json: {
-            sources: sources_data,
-            pagination: {
-              page: page,
-              per_page: per_page,
-              total_count: total_count,
-              total_pages: (total_count.to_f / per_page).ceil
-            },
-            filters: {
-              kinds: kinds,
-              years: years,
-              authors: authors,
-              tags: tags,
-              collections: collections,
-              pdf_count: pdf_count
-            }
-          }
-        else
-          render json: {
-            sources: sources_data,
-            pagination: {
-              page: page,
-              per_page: per_page,
-              total_count: total_count,
-              total_pages: (total_count.to_f / per_page).ceil
-            }
-          }
+          payload[:filters] = build_filter_facets(base_scope, accessible_ids,
+            applied: {
+              q: q, kind: kind,
+              concept_ids: concept_ids, person_ids: person_ids,
+              tag_names: tag_names, collection_ids: collection_ids,
+              markers: markers, methodologies: methodologies,
+              year_min: year_min, year_max: year_max,
+              has_pdf: has_pdf, has_notes: has_notes,
+            })
         end
+
+        render json: payload
       }
     end
   end
@@ -154,6 +138,8 @@ class SourcesController < ApplicationController
         pinned: note.pinned,
         noted_on: note.noted_on,
         page_number: note.page_number,
+        quote_text: note.quote_text,
+        quote_bounds: note.quote_bounds,
         created_at: note.created_at,
         updated_at: note.updated_at,
         source_id: note.source_id,
@@ -163,7 +149,109 @@ class SourcesController < ApplicationController
     }
   end
 
+  def passage_insights
+    text = params[:text].to_s.strip
+    if text.length < 8
+      render json: { error: 'Selection too short' }, status: :unprocessable_entity
+      return
+    end
+
+    user_concepts = current_user.concepts
+                                .order(updated_at: :desc)
+                                .limit(PassageInsightService::MAX_CONCEPTS_IN_PROMPT)
+                                .pluck(:id, :label)
+                                .map { |id, label| { id: id, label: label } }
+
+    user_people = current_user.people
+                              .order(updated_at: :desc)
+                              .limit(PassageInsightService::MAX_PEOPLE_IN_PROMPT)
+                              .pluck(:id, :full_name)
+                              .map { |id, name| { id: id, full_name: name } }
+
+    result = PassageInsightService.new(
+      passage: text,
+      source_title: @source.title,
+      source_abstract: @source.abstract,
+      user_concepts: user_concepts,
+      user_people: user_people
+    ).call
+
+    if result
+      render json: result
+    else
+      render json: { error: 'Insight generation failed' }, status: :bad_gateway
+    end
+  end
+
+  # POST /sources/:id/enrich_from_citation
+  # Body: { parent_source_id: 7, citation_hint: { authors: "Creed, Fallon, & Hood", year: 2009 } }
+  # Enqueues a background job that opens the parent source's PDF, finds the
+  # matching bibliography line, and runs CitationResolver to fill in title,
+  # journal, DOI, etc.  Fires-and-forgets — returns 202.
+  def enrich_from_citation
+    parent_id = params[:parent_source_id]
+    hint = params[:citation_hint]&.to_unsafe_h || {}
+
+    EnrichCitedSourceJob.perform_later(@source.id, parent_id&.to_i, hint)
+    head :accepted
+  end
+
+  # POST /sources/:id/ask
+  # Q&A against the source's PDF.  Unlimited tier only.
+  def ask
+    unless current_user.unlimited? || current_user.admin
+      render json: {
+        error: 'Ask the Paper is an Unlimited-tier feature.',
+        upgrade_url: subscribe_path,
+      }, status: :payment_required
+      return
+    end
+
+    unless @source.pdf.attached?
+      render json: { error: 'This source has no PDF to read.' }, status: :unprocessable_entity
+      return
+    end
+
+    question = params[:question].to_s.strip
+    if question.length < 4
+      render json: { error: 'Ask a question first.' }, status: :unprocessable_entity
+      return
+    end
+
+    result = @source.pdf.blob.open do |file|
+      PaperQaService.new(pdf_file: file, question: question).call
+    end
+
+    render json: result
+  end
+
+  # GET /sources/:id/sections.json
+  # Returns a list of section headings for the source's PDF.  Falls back to
+  # an empty array if the source has no PDF or if Haiku can't find a clear
+  # structure.
+  def sections
+    unless @source.pdf.attached?
+      render json: { sections: [] }
+      return
+    end
+
+    sections = @source.pdf.blob.open do |file|
+      SectionDetectorService.new(file).call
+    end
+    render json: { sections: sections }
+  end
+
   def create
+    unless current_user.can_create_source?
+      render json: {
+        error: "Library is full",
+        message: "You're past the free tier limit of #{User::FREE_SOURCE_LIMIT} articles.  Upgrade to Pro to keep importing.",
+        upgrade_url: subscribe_path,
+        quota_state: current_user.source_quota_state
+      }, status: :payment_required
+      return
+    end
+
     tags_array = params[:source][:tags]
     authors_string = params[:source][:authors]
     keywords_array = params[:source][:keywords]
@@ -179,14 +267,14 @@ class SourcesController < ApplicationController
     @source = current_user.sources.build(source_params_clean)
 
     # Set keywords directly on column
-    @source[:keywords] = keywords_array if keywords_array.present?
+    @source[:keywords] = keywords_array unless keywords_array.nil?
 
     if @source.save
       # Use Taggable concern for tags (creates Tag records)
-      @source.tag_list = tags_array if tags_array.present?
+      @source.tag_list = tags_array unless tags_array.nil?
 
       # Set concept associations
-      @source.concept_ids = concept_ids if concept_ids.present?
+      @source.concept_ids = concept_ids unless concept_ids.nil?
 
       # Handle people associations
       if person_ids.present?
@@ -242,14 +330,14 @@ class SourcesController < ApplicationController
     source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :override_authors, :processed_authors)
 
     # Set keywords directly on column
-    @source[:keywords] = keywords_array if keywords_array.present?
+    @source[:keywords] = keywords_array unless keywords_array.nil?
 
     if @source.update(source_params_clean)
       # Use Taggable concern for tags (creates Tag records)
-      @source.tag_list = tags_array if tags_array.present?
+      @source.tag_list = tags_array unless tags_array.nil?
 
       # Set concept associations
-      @source.concept_ids = concept_ids if concept_ids.present?
+      @source.concept_ids = concept_ids unless concept_ids.nil?
 
       # Handle people associations
       @source.person_sources.destroy_all
@@ -367,6 +455,95 @@ class SourcesController < ApplicationController
       Rails.logger.error e.backtrace.first(5).join("\n")
       render json: { error: "Failed to extract metadata: #{e.message}" }, status: :unprocessable_entity
     end
+  end
+
+  # POST /sources/suggest_authors
+  # Body: { title:, abstract:, doi: }
+  # Returns: { authors: [{given, family, orcid}], source: 'crossref'|'haiku'|'none' }
+  def suggest_authors
+    title = params[:title].to_s.strip
+    if title.blank?
+      render json: { error: 'Title is required' }, status: :unprocessable_entity
+      return
+    end
+
+    result = AuthorSuggestionService.new(
+      title: title,
+      abstract: params[:abstract],
+      doi: params[:doi]
+    ).suggest
+
+    render json: result
+  end
+
+  # POST /sources/tag_research_types
+  # Body: { title:, abstract:, summary:, kind: }
+  # Returns: { types: [...] } — a list of methodology tags drawn from the
+  # controlled RESEARCH_TYPES vocabulary.  Does not persist; the frontend
+  # merges into the form and saves through the normal flow.
+  def tag_research_types
+    title = params[:title].to_s.strip
+
+    if title.blank?
+      render json: { error: 'Title is required' }, status: :unprocessable_entity
+      return
+    end
+
+    types = ResearchTypeTagger.new(
+      title: title,
+      abstract: params[:abstract],
+      summary: params[:summary],
+      kind: params[:kind]
+    ).tag
+
+    render json: { types: types }
+  end
+
+  # POST /sources/flesh_out_citation
+  # Body: { fragment: "Smith et al. 2021 attention is all you need" | "10.1038/..." }
+  # Resolves a free-form fragment to a full bibliographic record using
+  # Crossref + OpenAlex, with Haiku for parsing and disambiguation.
+  # Returns: { best: {...source fields...}, alternatives: [...], confidence: 'high'|'medium'|'low' }
+  # On failure: { error: ... } with 422.
+  def flesh_out_citation
+    fragment = params[:fragment].to_s.strip
+    if fragment.length < 4
+      render json: { error: 'Provide at least a few characters to search for.' }, status: :unprocessable_entity
+      return
+    end
+
+    result = CitationResolver.resolve(fragment)
+    if result[:ok]
+      render json: {
+        best: result[:best],
+        alternatives: result[:alternatives],
+        confidence: result[:confidence]
+      }
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  end
+
+  # POST /sources/citations
+  # Body: { ids: [1,2,3], format: 'apa' }
+  # Returns formatted citations for the requested sources in the chosen style.
+  def citations
+    auth = AuthorizationService.new(current_user)
+    accessible_ids = auth.accessible_ids(Source)
+    ids = Array(params[:ids]).map(&:to_i).reject(&:zero?) & accessible_ids
+    format = params[:format].to_s.downcase
+
+    unless CitationFormatter::FORMATS.include?(format)
+      render json: { error: 'Unsupported format' }, status: :unprocessable_entity
+      return
+    end
+
+    sources = Source.where(id: ids).includes(:source_authors, :authors)
+    sources_by_id = sources.index_by(&:id)
+    ordered = ids.map { |id| sources_by_id[id] }.compact
+
+    body = CitationFormatter.render_list(ordered, format)
+    render json: { format: format, count: ordered.length, body: body }
   end
 
   private
@@ -492,9 +669,171 @@ class SourcesController < ApplicationController
       tags: [],
       methodologies: [],
       keywords: [],
+      markers: [],
       concept_ids: [],
       person_ids: [],
       collection_ids: []
     )
+  end
+
+  def truthy?(v)
+    %w[1 true yes on].include?(v.to_s.downcase)
+  end
+
+  # Apply all incoming filter params to a Source scope.  Each filter narrows
+  # the set; combinations AND together.  q does a text search across the
+  # most useful fields.
+  def apply_filters(scope, q:, kind:, concept_ids:, person_ids:, tag_names:, collection_ids:, markers:, methodologies:, year_min:, year_max:, has_pdf:, has_notes:, owner_id:)
+    s = scope
+
+    if q.present?
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(q)}%"
+      s = s.where(
+        "title ILIKE :p OR authors ILIKE :p OR summary ILIKE :p OR abstract ILIKE :p OR doi ILIKE :p OR journal_name ILIKE :p",
+        p: pattern
+      )
+    end
+
+    s = s.where(kind: kind) if kind.present?
+    s = s.where("year >= ?", year_min) if year_min
+    s = s.where("year <= ?", year_max) if year_max
+
+    if concept_ids.any?
+      sub = ConceptSource.where(concept_id: concept_ids).select(:source_id)
+      s = s.where(id: sub)
+    end
+
+    if person_ids.any?
+      sub = PersonSource.where(person_id: person_ids).select(:source_id)
+      s = s.where(id: sub)
+    end
+
+    if tag_names.any?
+      tag_ids = Tag.where(user_id: owner_id, name: tag_names).pluck(:id)
+      sub = Tagging.where(taggable_type: 'Source', tag_id: tag_ids).select(:taggable_id)
+      s = s.where(id: sub)
+    end
+
+    if collection_ids.any?
+      sub = CollectionItem.where(collectable_type: 'Source', collection_id: collection_ids).select(:collectable_id)
+      s = s.where(id: sub)
+    end
+
+    if markers.any?
+      s = s.where("markers && ARRAY[?]::text[]", markers)
+    end
+
+    # Methodologies live in a JSON array column, so use json_array_elements_text
+    # to test membership.  Slow if the library is huge but fine for typical
+    # researcher libraries; can migrate to a text array with a GIN index later.
+    if methodologies.any?
+      s = s.where(
+        "sources.methodologies IS NOT NULL AND EXISTS (SELECT 1 FROM json_array_elements_text(sources.methodologies) m WHERE m = ANY (ARRAY[?]))",
+        methodologies
+      )
+    end
+
+    if has_pdf
+      pdf_ids = ActiveStorage::Attachment.where(record_type: 'Source', name: 'pdf').select(:record_id)
+      s = s.where(id: pdf_ids)
+    end
+
+    if has_notes
+      noted_ids = Note.where.not(source_id: nil).select(:source_id)
+      s = s.where(id: noted_ids)
+    end
+
+    s
+  end
+
+  # Faceted filter metadata.  Returns counts and option lists so the
+  # frontend sidebar can render checkboxes with live numbers.  Counts are
+  # computed against the user's full accessible library (not the filtered
+  # set) — this matches the typical faceted-search pattern where you
+  # always see what's available across the whole space.
+  def build_filter_facets(base_scope, accessible_ids, applied:)
+    kinds = base_scope.reorder(nil).group(:kind).count.transform_keys(&:to_s).reject { |k, _| k.blank? }
+    years = base_scope.reorder(nil).where.not(year: nil).group(:year).count
+
+    # Author counts — per-Person source count across the user's library.
+    author_counts = PersonSource
+      .where(source_id: accessible_ids)
+      .group(:person_id)
+      .count
+    authors = Person.where(id: author_counts.keys)
+                    .pluck(:id, :full_name)
+                    .map { |id, name| { id: id, full_name: name, count: author_counts[id] || 0 } }
+                    .sort_by { |p| p[:full_name].to_s.downcase }
+
+    # Concept counts — sources tagged with each concept across the library.
+    concept_counts = ConceptSource
+      .where(source_id: accessible_ids)
+      .group(:concept_id)
+      .count
+    concepts = Concept.where(id: concept_counts.keys)
+                      .pluck(:id, :label)
+                      .map { |id, label| { id: id, label: label, count: concept_counts[id] || 0 } }
+                      .sort_by { |c| c[:label].to_s.downcase }
+
+    # Tag counts — sources carrying each tag.
+    owned_ids = base_scope.where(user_id: current_user.id).pluck(:id)
+    tag_id_counts = Tagging
+      .where(taggable_type: 'Source', taggable_id: owned_ids)
+      .group(:tag_id)
+      .count
+    tag_rows = Tag.where(id: tag_id_counts.keys).pluck(:id, :name)
+    tags = tag_rows
+      .map { |id, name| { name: name, count: tag_id_counts[id] || 0 } }
+      .sort_by { |t| t[:name].to_s.downcase }
+
+    # Collection counts — sources placed in each collection.
+    coll_counts = CollectionItem
+      .where(collectable_type: 'Source', collectable_id: accessible_ids)
+      .group(:collection_id)
+      .count
+    collections = Collection.where(id: coll_counts.keys)
+                            .pluck(:id, :name)
+                            .map { |id, name| { id: id, name: name, count: coll_counts[id] || 0 } }
+                            .sort_by { |c| c[:name].to_s.downcase }
+
+    pdf_count = ActiveStorage::Attachment.where(record_type: 'Source', record_id: accessible_ids, name: 'pdf').count
+    notes_count = Note.where(source_id: accessible_ids).distinct.count(:source_id)
+
+    # Markers: union of suggested defaults + whatever the user has applied.
+    # Counts come from a single pluck of all marker arrays; tally per token.
+    raw_marker_lists = base_scope.reorder(nil).where("markers IS NOT NULL").pluck(:markers)
+    marker_counts = Hash.new(0)
+    raw_marker_lists.each do |list|
+      Array(list).each { |m| marker_counts[m] += 1 if m.present? }
+    end
+    suggested = Source::SUGGESTED_MARKERS
+    marker_names = (suggested + marker_counts.keys).uniq
+    markers_list = marker_names
+      .map { |name| { name: name, count: marker_counts[name] || 0 } }
+      .sort_by { |m| m[:name].to_s.downcase }
+
+    # Methodologies: same shape as markers.  Pluck once, tally in Ruby.
+    raw_method_lists = base_scope.reorder(nil).where("methodologies IS NOT NULL").pluck(:methodologies)
+    method_counts = Hash.new(0)
+    raw_method_lists.each do |list|
+      Array(list).each { |m| method_counts[m] += 1 if m.present? }
+    end
+    methodologies_list = method_counts
+      .map { |name, count| { name: name, count: count } }
+      .sort_by { |m| m[:name].to_s.downcase }
+
+    {
+      kinds: kinds.sort_by { |k, _| k }.map { |k, c| { value: k, count: c } },
+      years: years.sort.map { |y, c| { value: y, count: c } },
+      authors: authors,
+      concepts: concepts,
+      tags: tags,
+      collections: collections,
+      markers: markers_list,
+      methodologies: methodologies_list,
+      pdf_count: pdf_count,
+      notes_count: notes_count,
+      total: base_scope.count,
+    }
   end
 end

@@ -99,6 +99,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
       borderRadius: '4px',
       background: 'white',
       height: '100%',
+      maxHeight: '400px',
       display: 'flex',
       flexDirection: 'column'
     }}>
@@ -210,7 +211,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
             {filter ? 'No matching concepts. Press Enter to create new.' : 'No concepts yet.'}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {filteredConcepts.map(concept => (
               <label
                 key={concept.id}
@@ -219,7 +220,7 @@ export default function ConceptSelector({ selectedConceptIds = [], onChange, the
                   alignItems: 'center',
                   gap: 'var(--space-2)',
                   cursor: 'pointer',
-                  padding: 'var(--space-2)',
+                  padding: '2px 4px',
                   borderRadius: 'var(--radius)',
                   transition: 'background 0.15s',
                   fontFamily: 'var(--font-body)'

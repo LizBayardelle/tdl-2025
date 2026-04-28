@@ -8,6 +8,7 @@ class Note < ApplicationRecord
   has_many :note_links, dependent: :destroy
   has_many :person_notes, dependent: :destroy
   has_many :people, through: :person_notes
+  has_one :highlight, dependent: :destroy
 
   # Many-to-many concepts
   has_many :concept_notes, dependent: :destroy
@@ -20,6 +21,7 @@ class Note < ApplicationRecord
   # Enums
   enum :note_type, {
     note: "note",
+    highlight: "highlight",
     question: "question",
     synthesis: "synthesis",
     connection: "connection",

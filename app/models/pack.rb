@@ -7,4 +7,5 @@ class Pack < ApplicationRecord
 
   scope :published, -> { where(published: true) }
   scope :free, -> { where(price_cents: 0) }
+  scope :homepage_featured, -> { published.where(show_on_homepage: true) }
 end

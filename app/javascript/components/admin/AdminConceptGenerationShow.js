@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import AdminLayout from './AdminLayout';
 import AdminPageHeader from './AdminPageHeader';
+import ConceptDefinitionView from '../ConceptDefinitionView';
 
 const FIELD_GROUPS = [
   {
@@ -986,12 +987,15 @@ function ReviewTab({ gen, edits, onEdit, onRetry, acting, onRefresh }) {
       );
     }
     return (
-      <TerminalState
-        icon="fa-circle-check"
-        title="Approved"
-        detail={`Approved on ${new Date(gen.approved_at).toLocaleString()}.`}
-        followUp={followUp}
-      />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--space-6) * 2)' }}>
+        <TerminalState
+          icon="fa-circle-check"
+          title="Approved"
+          detail={`Approved on ${new Date(gen.approved_at).toLocaleString()}.`}
+          followUp={followUp}
+        />
+        <PreviewPanel label="Published view" gen={gen} source={gen.content} />
+      </div>
     );
   }
 
@@ -1026,7 +1030,67 @@ function ReviewTab({ gen, edits, onEdit, onRetry, acting, onRefresh }) {
         onRefresh={onRefresh}
         disabled={disabled}
       />
+
+      <PreviewPanel
+        label="Preview"
+        sublabel="What the concept will look like to a buyer. Updates live as you edit fields above."
+        gen={gen}
+        source={edits}
+      />
     </div>
+  );
+}
+
+// Renders ConceptDefinitionView under a labeled header, mapping the
+// generation's data shape to what ConceptDefinitionView expects.
+function PreviewPanel({ label, sublabel, gen, source }) {
+  const concept = useMemo(() => ({
+    ...(source || {}),
+    concept_type: gen.concept_type,
+    links: (gen.selected_links || []).map((l) => ({
+      name: l.name,
+      url: l.url,
+      description: l.description,
+    })),
+  }), [source, gen.concept_type, gen.selected_links]);
+
+  return (
+    <section>
+      <div style={{
+        paddingBottom: 'var(--space-2)',
+        borderBottom: '1px solid var(--admin-brown)',
+        marginBottom: 'var(--space-4)',
+      }}>
+        <div style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: 'var(--text-xs)',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: 'var(--admin-brown-dark)',
+        }}>
+          {label}
+        </div>
+        {sublabel && (
+          <div style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: 'var(--text-xs)',
+            color: 'var(--neutral-600)',
+            marginTop: '2px',
+          }}>
+            {sublabel}
+          </div>
+        )}
+      </div>
+      <div style={{
+        background: '#fafafa',
+        border: '1px solid var(--neutral-200)',
+        borderRadius: 'var(--radius)',
+        padding: 'var(--space-6)',
+      }}>
+        <ConceptDefinitionView concept={concept} />
+      </div>
+    </section>
   );
 }
 

@@ -1,1 +1,1 @@
-<div id="note-form-root" data-note='<%= raw @note.to_json(include: { concept: {}, source: {}, people: {}, tags: {} }) %>'></div>
+<div id="note-form-root" data-note="<%= @note.to_json(include: { concept: {}, source: {}, people: {}, tags: {} }) %>"></div>

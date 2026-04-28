@@ -1,0 +1,181 @@
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <%= link_to root_path, class: "site-footer-brand-link", aria: { label: "Map My Research home" } do %>
+        <img src="/logo.png" alt="" class="site-footer-logo site-footer-logo-light" width="44" height="44">
+        <img src="/logo-white.png" alt="" class="site-footer-logo site-footer-logo-dark" width="44" height="44">
+        <span class="site-footer-wordmark">Map My Research</span>
+      <% end %>
+      <p class="site-footer-tagline">Cross-reference everything you've read.</p>
+    </div>
+
+    <div class="site-footer-links">
+      <div class="site-footer-col">
+        <div class="site-footer-eyebrow">Library</div>
+        <% if user_signed_in? %>
+          <%= link_to "Concepts", concepts_path, class: "site-footer-link" %>
+          <%= link_to "Sources", sources_path, class: "site-footer-link" %>
+          <%= link_to "People", people_path, class: "site-footer-link" %>
+          <%= link_to "Notes", notes_path, class: "site-footer-link" %>
+        <% else %>
+          <%= link_to "How it works", root_path(anchor: "how"), class: "site-footer-link" %>
+          <%= link_to "Who it's for", root_path(anchor: "audience"), class: "site-footer-link" %>
+          <%= link_to "Pricing", subscribe_path, class: "site-footer-link" %>
+        <% end %>
+      </div>
+
+      <div class="site-footer-col">
+        <div class="site-footer-eyebrow">Account</div>
+        <% if user_signed_in? %>
+          <%= link_to "Dashboard", dashboard_path, class: "site-footer-link" %>
+          <%= link_to "Subscription", subscription_path, class: "site-footer-link" %>
+          <%= link_to "Sharing", sharing_path, class: "site-footer-link" %>
+          <%= link_to "Bulk uploads", uploads_path, class: "site-footer-link" %>
+          <%= link_to "Settings", edit_user_registration_path, class: "site-footer-link" %>
+        <% else %>
+          <%= link_to "Sign in", new_user_session_path, class: "site-footer-link" %>
+          <%= link_to "Get started", new_user_registration_path, class: "site-footer-link" %>
+          <%= link_to "Pricing", subscribe_path, class: "site-footer-link" %>
+        <% end %>
+      </div>
+
+      <div class="site-footer-col">
+        <div class="site-footer-eyebrow">Linchpin</div>
+        <a href="https://linchpinindustries.com" class="site-footer-link" target="_blank" rel="noopener noreferrer">Linchpin Industries</a>
+      </div>
+
+      <div class="site-footer-col">
+        <div class="site-footer-eyebrow">Legal</div>
+        <%= link_to "Terms", legal_page_path("terms"), class: "site-footer-link" %>
+        <%= link_to "Privacy", legal_page_path("privacy"), class: "site-footer-link" %>
+        <%= link_to "Cookies", legal_page_path("cookies"), class: "site-footer-link" %>
+        <%= link_to "All legal", legal_path, class: "site-footer-link" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-footer-rule"></div>
+
+  <div class="site-footer-meta">
+    <span>&copy; <%= Date.current.year %> Linchpin Industries</span>
+    <span class="site-footer-meta-sep">·</span>
+    <span>Map My Research</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--paper);
+    border-top: 1px solid var(--ink-line);
+    padding: 48px 24px 24px;
+  }
+  .site-footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+    gap: 48px;
+  }
+  .site-footer-brand { max-width: 360px; }
+  .site-footer-brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink);
+    text-decoration: none;
+    margin-bottom: 12px;
+  }
+  .site-footer-logo {
+    width: 44px;
+    height: 44px;
+    display: block;
+    flex-shrink: 0;
+  }
+  .site-footer-logo-dark { display: none; }
+  :root[data-theme="dark"] .site-footer-logo-light,
+  .sp-root[data-theme="dark"] .site-footer-logo-light { display: none; }
+  :root[data-theme="dark"] .site-footer-logo-dark,
+  .sp-root[data-theme="dark"] .site-footer-logo-dark { display: block; }
+
+  .site-footer-wordmark {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .site-footer-tagline {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--ink-3);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .site-footer-links {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .site-footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .site-footer-eyebrow {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 6px;
+  }
+  .site-footer-link {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-2);
+    text-decoration: none;
+    line-height: 1.6;
+    width: fit-content;
+  }
+  .site-footer-link:hover {
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink-3);
+  }
+
+  .site-footer-rule {
+    max-width: 1280px;
+    margin: 40px auto 0;
+    height: 1px;
+    background: var(--ink-line);
+  }
+
+  .site-footer-meta {
+    max-width: 1280px;
+    margin: 16px auto 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .site-footer-meta-sep { color: var(--ink-4); }
+
+  /* Brand stacks above link columns from iPad portrait downward. */
+  @media (max-width: 820px) {
+    .site-footer { padding: 40px 20px 20px; }
+    .site-footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  }
+  /* Links collapse to a single column on small phones. */
+  @media (max-width: 480px) {
+    .site-footer { padding: 32px 16px 16px; }
+    .site-footer-links { grid-template-columns: 1fr; gap: 20px; }
+    .site-footer-meta { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .site-footer-meta-sep { display: none; }
+  }
+</style>

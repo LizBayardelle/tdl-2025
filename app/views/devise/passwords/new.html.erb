@@ -1,16 +1,30 @@
-<h2>Forgot your password?</h2>
+<% content_for(:title) { "Reset your password · Map My Research" } %>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "devise/shared/error_messages", resource: resource %>
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <%= link_to root_path, aria: { label: "Map My Research home" } do %>
+        <img src="/logo.png" alt="" width="56" height="56" class="auth-logo auth-logo-light">
+        <img src="/logo-white.png" alt="" width="56" height="56" class="auth-logo auth-logo-dark">
+      <% end %>
+    </div>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+    <h1 class="auth-title">Reset your password</h1>
+    <p class="auth-subtitle">We'll email a link to set a new one.</p>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="sp-field">
+        <%= f.label :email, "Email", class: "sp-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: "sp-input" %>
+      </div>
+
+      <%= f.submit "Send reset link", class: "sp-action sp-action-primary auth-submit" %>
+    <% end %>
+
+    <div class="auth-footer">
+      <%= render "devise/shared/links" %>
+    </div>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

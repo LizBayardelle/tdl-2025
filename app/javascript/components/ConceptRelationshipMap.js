@@ -1,6 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
+// Canvas can't read CSS custom properties, so we mirror the design-system
+// palette here.  Keep these in sync with design-system.css.
+const PALETTE = {
+  concept:      '#48A27E',
+  conceptTint:  '#E8F4EE',
+  source:       '#4976B1',
+  person:       '#614498',
+  ink:          '#15191F',
+  ink2:         '#3F454E',
+  ink3:         '#71777F',
+  ink4:         '#A4A9B1',
+  inkLine:      '#E1E4E8',
+  inkLineSoft:  '#EBEDF0',
+  paper:        '#FFFFFF',
+};
+
+const FILTER_OPTIONS = [
+  { value: 'all',          label: 'All' },
+  { value: 'hierarchical', label: 'Hierarchical' },
+  { value: 'semantic',     label: 'Semantic' },
+  { value: 'sequential',   label: 'Sequential' },
+  { value: 'influence',    label: 'Influence' },
+  { value: 'positional',   label: 'Positional' },
+];
+
 export default function ConceptRelationshipMap() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
@@ -203,42 +228,40 @@ export default function ConceptRelationshipMap() {
 
     const label = node.label;
     const fontSize = 12 / globalScale;
-    const nodeSize = 3 + (node.connectionCount || 0) * 0.5;
+    const nodeSize = 4 + (node.connectionCount || 0) * 0.5;
 
-    // Design system colors
-    const colors = {
-      green: '#556B2F',
-      greenLight: '#e8f4ed'
-    };
+    // Resolve node color and halo per highlight state.
+    const isFaded = highlightNodes.size > 0 && !highlightNodes.has(node.id);
+    const isHovered = hoverNode && node.id === hoverNode.id;
+    const nodeColor = isFaded ? PALETTE.ink4 : PALETTE.concept;
+    const haloColor = isFaded ? PALETTE.inkLineSoft : PALETTE.conceptTint;
 
-    // All nodes are green, just vary by highlight state
-    let nodeColor;
-    if (hoverNode && node.id === hoverNode.id) {
-      nodeColor = colors.green; // Same green but will have different styling
-    } else if (highlightNodes.size > 0 && !highlightNodes.has(node.id)) {
-      nodeColor = '#d1d5db'; // gray (faded)
-    } else {
-      nodeColor = colors.green;
-    }
+    // Halo behind every node (matches the samplepage map style)
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, nodeSize + 5, 0, 2 * Math.PI);
+    ctx.fillStyle = haloColor;
+    ctx.fill();
 
-    // Draw node
+    // Solid node
     ctx.beginPath();
     ctx.arc(node.x, node.y, nodeSize, 0, 2 * Math.PI);
     ctx.fillStyle = nodeColor;
     ctx.fill();
 
-    // Draw border for highlighted nodes
-    if (highlightNodes.has(node.id)) {
-      ctx.strokeStyle = colors.green;
-      ctx.lineWidth = 1.5 / globalScale;
+    // Subtle ring on the hovered node
+    if (isHovered) {
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, nodeSize + 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = PALETTE.concept;
+      ctx.lineWidth = 1.25 / globalScale;
       ctx.stroke();
     }
 
     // Draw label with collision detection
-    ctx.font = `${fontSize}px Inter, sans-serif`;
+    ctx.font = `500 ${fontSize}px "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = highlightNodes.size > 0 && !highlightNodes.has(node.id) ? '#9ca3af' : 'var(--neutral-900)';
+    ctx.fillStyle = isFaded ? PALETTE.ink4 : PALETTE.ink;
 
     // Measure text dimensions
     const textMetrics = ctx.measureText(label);
@@ -300,14 +323,14 @@ export default function ConceptRelationshipMap() {
       // Draw background for hover label
       const hoverMetrics = ctx.measureText(displayLabel);
       const hoverWidth = hoverMetrics.width;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
       ctx.fillRect(
         bestPosition.x - hoverWidth / 2 - padding * 2,
         bestPosition.y - textHeight / 2 - padding,
         hoverWidth + padding * 4,
         textHeight + padding * 2
       );
-      ctx.fillStyle = 'var(--neutral-900)';
+      ctx.fillStyle = PALETTE.ink;
     }
 
     ctx.fillText(displayLabel, bestPosition.x, bestPosition.y);
@@ -317,17 +340,17 @@ export default function ConceptRelationshipMap() {
     const sourceId = link.source.id || link.source;
     const targetId = link.target.id || link.target;
 
-    // All links are grey, vary by line style
+    // Hairline links, vary by line style based on relationship category.
     let linkColor;
     let linkWidth = 1;
     let dashPattern = [];
     let isDouble = false;
 
     if (highlightLinks.size > 0 && !highlightLinks.has(link)) {
-      linkColor = '#e5e7eb';
+      linkColor = PALETTE.inkLineSoft;
       linkWidth = 0.5;
     } else {
-      linkColor = '#6b7280'; // All links are grey
+      linkColor = PALETTE.ink4;
 
       switch (link.category) {
         case 'hierarchical':
@@ -420,265 +443,73 @@ export default function ConceptRelationshipMap() {
 
   if (loading) {
     return (
-      <div className="card" style={{ padding: 'var(--space-6)' }}>
-        <p style={{
-          fontFamily: 'var(--font-body)',
-          color: 'var(--neutral-600)'
-        }}>
-          Loading relationship map...
-        </p>
-      </div>
+      <section className="sp-relationship">
+        <CrmStyles />
+        <div className="sp-relationship-head">
+          <div>
+            <h2 className="sp-chart-title">Concept map</h2>
+            <p className="sp-chart-subtitle">Loading.</p>
+          </div>
+        </div>
+      </section>
     );
   }
 
   const filteredData = getFilteredData();
+  const totalNodes = filteredData.nodes.length;
+  const totalLinks = filteredData.links.length;
 
   return (
-    <div className="card" style={{ padding: 'var(--space-6)' }}>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--space-4)',
-        marginBottom: 'var(--space-4)'
-      }}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 'var(--space-3)'
-        }}>
-          <h2 style={{
-            fontSize: 'var(--text-2xl)',
-            fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            color: 'var(--accent-green)',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)'
-          }}>
-            <i className="fas fa-project-diagram" style={{ fontSize: 'var(--text-lg)' }}></i>
-            Concept Relationship Map
-          </h2>
+    <section className="sp-relationship">
+      <CrmStyles />
 
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 'var(--space-2)'
-          }}>
-            <button
-              onClick={() => setFilterType('all')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'all' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'all' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'all') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'all') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilterType('hierarchical')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'hierarchical' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'hierarchical' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'hierarchical') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'hierarchical') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              Hierarchical
-            </button>
-            <button
-              onClick={() => setFilterType('semantic')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'semantic' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'semantic' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'semantic') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'semantic') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              Semantic
-            </button>
-            <button
-              onClick={() => setFilterType('sequential')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'sequential' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'sequential' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'sequential') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'sequential') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              Sequential
-            </button>
-            <button
-              onClick={() => setFilterType('influence')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'influence' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'influence' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'influence') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'influence') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              Influence
-            </button>
-            <button
-              onClick={() => setFilterType('positional')}
-              style={{
-                padding: 'var(--space-2) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                background: filterType === 'positional' ? 'var(--accent-green)' : 'var(--neutral-100)',
-                color: filterType === 'positional' ? 'white' : 'var(--neutral-700)'
-              }}
-              onMouseEnter={(e) => {
-                if (filterType !== 'positional') {
-                  e.currentTarget.style.background = 'var(--neutral-200)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (filterType !== 'positional') {
-                  e.currentTarget.style.background = 'var(--neutral-100)';
-                }
-              }}
-            >
-              Positional
-            </button>
-          </div>
+      <div className="sp-relationship-head">
+        <div>
+          <h2 className="sp-chart-title">Concept map</h2>
+          <p className="sp-chart-subtitle">
+            {totalNodes > 0
+              ? <>{totalNodes} concept{totalNodes === 1 ? '' : 's'} · {totalLinks} connection{totalLinks === 1 ? '' : 's'}.  Drag a node to reposition.  Scroll to zoom.</>
+              : 'A view of how your concepts connect.'}
+          </p>
         </div>
-
-        {/* Legend */}
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 'var(--space-4)',
-          fontSize: 'var(--text-sm)',
-          fontFamily: 'var(--font-body)',
-          color: 'var(--neutral-700)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <svg width="32" height="3" style={{ flexShrink: 0 }}>
-              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="2.5" />
-            </svg>
-            <span>Hierarchical</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <svg width="32" height="3" style={{ flexShrink: 0 }}>
-              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="8,4" />
-            </svg>
-            <span>Semantic</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <svg width="32" height="3" style={{ flexShrink: 0 }}>
-              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="2" />
-            </svg>
-            <span>Sequential</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <svg width="32" height="3" style={{ flexShrink: 0 }}>
-              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="2,3" />
-            </svg>
-            <span>Influence</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <svg width="32" height="3" style={{ flexShrink: 0 }}>
-              <line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#6b7280" strokeWidth="1.5" strokeDasharray="8,3,2,3" />
-            </svg>
-            <span>Positional</span>
-          </div>
+        <div className="crm-filters">
+          {FILTER_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={`crm-filter ${filterType === opt.value ? 'is-active' : ''}`}
+              onClick={() => setFilterType(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div style={{
-        border: '1px solid var(--neutral-200)',
-        borderRadius: 'var(--radius)',
-        overflow: 'hidden',
-        height: '500px',
-        minHeight: '400px'
-      }}>
+      <div className="crm-legend">
+        <span className="crm-legend-item">
+          <svg width="32" height="3" aria-hidden="true"><line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#A4A9B1" strokeWidth="2.5" /></svg>
+          Hierarchical
+        </span>
+        <span className="crm-legend-item">
+          <svg width="32" height="3" aria-hidden="true"><line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#A4A9B1" strokeWidth="1.5" strokeDasharray="8,4" /></svg>
+          Semantic
+        </span>
+        <span className="crm-legend-item">
+          <svg width="32" height="3" aria-hidden="true"><line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#A4A9B1" strokeWidth="2" /></svg>
+          Sequential
+        </span>
+        <span className="crm-legend-item">
+          <svg width="32" height="3" aria-hidden="true"><line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#A4A9B1" strokeWidth="1.5" strokeDasharray="2,3" /></svg>
+          Influence
+        </span>
+        <span className="crm-legend-item">
+          <svg width="32" height="3" aria-hidden="true"><line x1="0" y1="1.5" x2="32" y2="1.5" stroke="#A4A9B1" strokeWidth="1.5" strokeDasharray="8,3,2,3" /></svg>
+          Positional
+        </span>
+      </div>
+
+      <div className="crm-canvas">
         <ForceGraph2D
           ref={fgRef}
           graphData={filteredData}
@@ -688,7 +519,7 @@ export default function ConceptRelationshipMap() {
           onNodeHover={handleNodeHover}
           onNodeClick={handleNodeClick}
           linkDirectionalParticles={2}
-          linkDirectionalParticleWidth={link => highlightLinks.has(link) ? 2 : 0}
+          linkDirectionalParticleWidth={(link) => (highlightLinks.has(link) ? 2 : 0)}
           d3VelocityDecay={0.3}
           d3AlphaDecay={0.01}
           cooldownTime={5000}
@@ -697,54 +528,102 @@ export default function ConceptRelationshipMap() {
           enablePanInteraction={true}
           width={undefined}
           height={500}
+          backgroundColor={PALETTE.paper}
         />
       </div>
 
       {hoverNode && (
-        <div style={{
-          marginTop: 'var(--space-4)',
-          padding: 'var(--space-4)',
-          background: 'var(--accent-green-light)',
-          border: '1px solid var(--accent-green)',
-          borderRadius: 'var(--radius)'
-        }}>
-          <h3 style={{
-            fontSize: 'var(--text-lg)',
-            fontWeight: 600,
-            fontFamily: 'var(--font-body)',
-            color: 'var(--neutral-900)',
-            marginBottom: 'var(--space-2)'
-          }}>
-            {hoverNode.label}
-          </h3>
-          <div style={{
-            fontSize: 'var(--text-sm)',
-            fontFamily: 'var(--font-body)',
-            color: 'var(--neutral-700)',
-            display: 'flex',
-            gap: 'var(--space-2)',
-            flexWrap: 'wrap'
-          }}>
-            <span style={{
-              display: 'inline-block',
-              background: 'white',
-              padding: 'var(--space-1) var(--space-2)',
-              borderRadius: 'var(--radius)',
-              textTransform: 'capitalize'
-            }}>
-              {hoverNode.type.replace(/_/g, ' ')}
-            </span>
-            <span style={{
-              display: 'inline-block',
-              background: 'white',
-              padding: 'var(--space-1) var(--space-2)',
-              borderRadius: 'var(--radius)'
-            }}>
+        <div className="crm-hover">
+          <h3 className="crm-hover-title">{hoverNode.label}</h3>
+          <div className="crm-hover-meta">
+            <span className="sp-chip is-concept">{(hoverNode.type || 'concept').replace(/_/g, ' ')}</span>
+            <span className="sp-chip is-neutral">
               {hoverNode.connectionCount} connection{hoverNode.connectionCount !== 1 ? 's' : ''}
             </span>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
+
+function CrmStyles() {
+  return (
+    <style>{`
+      .crm-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .crm-filter {
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--ink-3);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        padding: 4px 10px;
+        cursor: pointer;
+        line-height: 1.4;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+      }
+      .crm-filter:hover {
+        background: var(--paper-soft);
+        color: var(--ink);
+      }
+      .crm-filter.is-active {
+        background: var(--paper-warm);
+        color: var(--ink);
+        border-color: var(--ink-line);
+        font-weight: 600;
+      }
+
+      .crm-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin-bottom: 12px;
+      }
+      .crm-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .crm-canvas {
+        background: var(--paper);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-md);
+        overflow: hidden;
+        height: 500px;
+      }
+
+      .crm-hover {
+        margin-top: 14px;
+        padding: 12px 16px;
+        background: var(--concept-tint);
+        border-left: 3px solid var(--concept);
+        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      }
+      .crm-hover-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--concept-2);
+        margin: 0 0 8px;
+        letter-spacing: -0.005em;
+      }
+      .crm-hover-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .crm-hover-meta .sp-chip { text-transform: capitalize; }
+    `}</style>
+  );
+}
+

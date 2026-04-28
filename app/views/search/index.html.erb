@@ -1,0 +1,5 @@
+<% content_for(:title) do %>
+  <%= @query.present? ? "Search “#{@query}” · Map My Research" : "Search · Map My Research" %>
+<% end %>
+
+<div id="search-page-root" data-query="<%= @query %>"></div>

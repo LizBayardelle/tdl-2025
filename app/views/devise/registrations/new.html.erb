@@ -1,74 +1,43 @@
-<div style="min-height: calc(100vh - 64px); background: var(--background); display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem;">
-  <div style="max-width: 480px; width: 100%;">
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <h1 style="font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 700; color: var(--neutral-900); letter-spacing: -0.02em; margin-bottom: 0.5rem;">
-        Create your account
-      </h1>
-      <p style="font-family: var(--font-body); font-size: var(--text-sm); color: var(--neutral-600);">
-        Start building your knowledge framework
-      </p>
+<% content_for(:title) { "Create an account · Map My Research" } %>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <%= link_to root_path, aria: { label: "Map My Research home" } do %>
+        <img src="/logo.png" alt="" width="56" height="56" class="auth-logo auth-logo-light">
+        <img src="/logo-white.png" alt="" width="56" height="56" class="auth-logo auth-logo-dark">
+      <% end %>
     </div>
 
-    <!-- Sign Up Form Card -->
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+    <h1 class="auth-title">Create an account</h1>
+    <p class="auth-subtitle">Free.  No credit card.</p>
+
+    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
       <%= render "devise/shared/error_messages", resource: resource %>
 
-      <div class="card" style="margin-bottom: 1.5rem;">
-        <div style="padding: var(--space-6);">
-          <!-- Email Field -->
-          <div style="margin-bottom: var(--space-4);">
-            <%= f.label :email, "Email", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "your@email.com", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
-
-          <!-- Password Field -->
-          <div style="margin-bottom: var(--space-4);">
-            <%= f.label :password, class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-1); color: var(--neutral-700);" do %>
-              Password
-            <% end %>
-            <% if @minimum_password_length %>
-              <div style="font-size: var(--text-xs); color: var(--neutral-500); margin-bottom: var(--space-2);">
-                <%= @minimum_password_length %> characters minimum
-              </div>
-            <% end %>
-            <%= f.password_field :password, autocomplete: "new-password", placeholder: "Create a secure password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
-
-          <!-- Password Confirmation Field -->
-          <div style="margin-bottom: var(--space-6);">
-            <%= f.label :password_confirmation, "Confirm Password", class: "form-label", style: "display: block; font-family: var(--font-display); font-size: var(--text-sm); font-weight: 500; margin-bottom: var(--space-2); color: var(--neutral-700);" %>
-            <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Re-enter your password", class: "form-input", style: "width: 100%; padding: var(--space-3); border: 1px solid var(--neutral-300); border-radius: 4px; font-size: var(--text-sm); font-family: var(--font-body); transition: all 0.15s;" %>
-          </div>
-
-          <!-- Submit Button -->
-          <%= f.submit "Create Account", class: "btn-primary", style: "width: 100%; background: var(--primary); color: white; border: none; padding: var(--space-3) var(--space-4); border-radius: 4px; font-family: var(--font-display); font-size: var(--text-base); font-weight: 600; cursor: pointer; transition: all 0.15s;" %>
-        </div>
+      <div class="sp-field">
+        <%= f.label :email, "Email", class: "sp-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", required: true, class: "sp-input" %>
       </div>
+
+      <div class="sp-field">
+        <%= f.label :password, "Password", class: "sp-label" %>
+        <%= f.password_field :password, autocomplete: "new-password", required: true, class: "sp-input" %>
+        <% if @minimum_password_length %>
+          <div class="sp-help"><%= @minimum_password_length %> characters minimum.</div>
+        <% end %>
+      </div>
+
+      <div class="sp-field">
+        <%= f.label :password_confirmation, "Confirm password", class: "sp-label" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", required: true, class: "sp-input" %>
+      </div>
+
+      <%= f.submit "Create account", class: "sp-action sp-action-primary auth-submit" %>
     <% end %>
 
-    <!-- Links -->
-    <div style="text-align: center;">
+    <div class="auth-footer">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 </div>
-
-<style>
-  .form-input:focus {
-    outline: none;
-    border: 2px solid var(--primary) !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
-    padding: calc(var(--space-3) - 1px);
-  }
-
-  .btn-primary:hover {
-    background: var(--primary-dark) !important;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-</style>

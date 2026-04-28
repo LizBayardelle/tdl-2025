@@ -78,12 +78,14 @@ class NotesController < ApplicationController
     person_ids = params[:note][:person_ids]
     source_ids = params[:note][:source_ids]
     concept_ids = params[:note][:concept_ids]
+    collection_ids = params[:note][:collection_ids]
 
-    @note = current_user.notes.build(note_params.except(:tags, :person_ids, :source_ids, :concept_ids))
+    @note = current_user.notes.build(note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids))
+    @note.quote_bounds = quote_bounds_param if params[:note].key?(:quote_bounds)
 
     if @note.save
       # Handle tags
-      @note.tag_list = tags_array if tags_array.present?
+      @note.tag_list = tags_array unless tags_array.nil?
 
       # Handle person associations
       if person_ids.present?
@@ -107,6 +109,9 @@ class NotesController < ApplicationController
 
       # Handle source associations (note: source_id is singular, already handled in note_params)
 
+      sync_collections(@note, collection_ids)
+      sync_highlight_for(@note)
+
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note created successfully.' }
         format.json {
@@ -128,10 +133,12 @@ class NotesController < ApplicationController
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
     concept_ids = params[:note][:concept_ids]
+    collection_ids = params[:note][:collection_ids]
 
-    if @note.update(note_params.except(:tags, :person_ids, :source_ids, :concept_ids))
+    if @note.update(note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids))
+      @note.update_column(:quote_bounds, quote_bounds_param) if params[:note].key?(:quote_bounds)
       # Handle tags
-      @note.tag_list = tags_array if tags_array.present?
+      @note.tag_list = tags_array unless tags_array.nil?
 
       # Handle person associations
       @note.person_notes.destroy_all
@@ -154,6 +161,9 @@ class NotesController < ApplicationController
           ConceptNote.create!(concept: concept, note: @note) if concept
         end
       end
+
+      sync_collections(@note, collection_ids) unless collection_ids.nil?
+      sync_highlight_for(@note)
 
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note updated successfully.' }
@@ -191,6 +201,57 @@ class NotesController < ApplicationController
     head :forbidden unless @note.editable_by?(current_user)
   end
 
+  def sync_collections(note, collection_ids)
+    ids = Array(collection_ids).map(&:to_i).reject(&:zero?)
+    note.collection_items.destroy_all
+    return if ids.empty?
+    Collection.where(id: ids).each do |collection|
+      next unless collection.user_id == current_user.id || collection.shared_with?(current_user)
+      CollectionItem.find_or_create_by!(collection: collection, collectable: note)
+    end
+  end
+
+  # Maintain a Highlight record alongside any note that quotes a passage from
+  # a PDF source.  We re-sync on every save so editing the quote updates the
+  # underlying highlight position; clearing the quote drops the highlight.
+  # Optional sidecar param `cited_source_ids` attaches sources extracted from
+  # a bibliography selection so the highlight can render its blue stripe.
+  def sync_highlight_for(note)
+    needs_highlight = note.source_id.present? &&
+                      note.page_number.present? &&
+                      note.quote_text.present?
+
+    if needs_highlight
+      hl = note.highlight || current_user.highlights.build(note: note)
+      hl.source_id    = note.source_id
+      hl.page_number  = note.page_number
+      hl.text_content = note.quote_text
+      hl.bounds       = note.quote_bounds
+
+      cited = params.dig(:note, :cited_source_ids)
+      if cited.present?
+        ids = Array(cited).map(&:to_i).reject(&:zero?)
+        valid_ids = current_user.sources.where(id: ids).pluck(:id)
+        hl.cited_source_ids = (Array(hl.cited_source_ids) + valid_ids).uniq
+      end
+
+      hl.save
+    elsif note.highlight
+      note.highlight.destroy
+    end
+  end
+
+  def quote_bounds_param
+    raw = params[:note][:quote_bounds]
+    return nil if raw.blank?
+    case raw
+    when Array
+      raw.map { |r| r.respond_to?(:to_unsafe_h) ? r.to_unsafe_h : r }
+    else
+      raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw
+    end
+  end
+
   def note_params
     params.require(:note).permit(
       :title,
@@ -202,7 +263,9 @@ class NotesController < ApplicationController
       :concept_id,
       :source_id,
       :page_number,
+      :quote_text,
       tags: [],
+      collection_ids: [],
       person_ids: [],
       source_ids: [],
       concept_ids: []

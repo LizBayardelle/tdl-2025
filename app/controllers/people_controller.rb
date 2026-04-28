@@ -11,15 +11,42 @@ class PeopleController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
+        # "Effective" reach for each facet — direct links plus everything
+        # this person is connected to via sources they've authored.  Batched
+        # in the model so this stays N+1-free.
+        effective_concept_ids_by_person    = Person.effective_concept_ids_for(accessible_ids)
+        effective_tag_names_by_person      = Person.effective_tag_names_for(accessible_ids)
+        effective_collection_ids_by_person = Person.effective_collection_ids_for(accessible_ids)
+
+        # One label lookup per facet — needed so the sidebar can render names
+        # for via-source items that aren't directly linked to any Person.
+        all_effective_concept_ids    = effective_concept_ids_by_person.values.flatten.uniq
+        all_effective_collection_ids = effective_collection_ids_by_person.values.flatten.uniq
+
+        concept_labels    = Concept.where(id: all_effective_concept_ids).pluck(:id, :label).to_h
+        collection_labels = Collection.where(id: all_effective_collection_ids).pluck(:id, :name).to_h
+
         render json: @people.includes(:concepts, :sources, :notes, :tags, :collections).map { |person|
           is_owner = person.user_id == current_user.id
+          eff_concept_ids    = effective_concept_ids_by_person[person.id]    || []
+          eff_tag_names      = effective_tag_names_by_person[person.id]      || []
+          eff_collection_ids = effective_collection_ids_by_person[person.id] || []
+
+          eff_concepts    = eff_concept_ids.map { |cid|    concept_labels[cid]    && { id: cid, label: concept_labels[cid] } }.compact
+          eff_collections = eff_collection_ids.map { |cid| collection_labels[cid] && { id: cid, name:  collection_labels[cid] } }.compact
+
           person.as_json.merge(
             sources_count: person.sources.count,
             notes_count: person.notes.count,
             concepts: person.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
+            effective_concept_ids: eff_concept_ids,
+            effective_concepts: eff_concepts,
             sources: person.sources.map { |s| { id: s.id, title: s.title, kind: s.kind } },
             collections: person.collections.map { |c| { id: c.id, name: c.name } },
+            effective_collection_ids: eff_collection_ids,
+            effective_collections: eff_collections,
             tags: is_owner ? person.tags.pluck(:name) : [],
+            effective_tag_names: is_owner ? eff_tag_names : [],
             permission: person.permission_for(current_user),
             is_owner: is_owner
           )
@@ -76,7 +103,8 @@ class PeopleController < ApplicationController
             collections: { only: [:id, :name, :description] }
           }
         ).merge(
-          tags: @person.tags.pluck(:name)
+          tags: @person.tags.pluck(:name),
+          related_people: @person.related_people(viewer: current_user)
         )
       }
     end
@@ -92,7 +120,7 @@ class PeopleController < ApplicationController
       update_source_associations(@person, params[:person][:source_ids]) if params[:person][:source_ids]
 
       # Use Taggable concern for tags
-      @person.tag_list = tags_array if tags_array.present?
+      @person.tag_list = tags_array unless tags_array.nil?
 
       render json: @person.as_json.merge(tags: @person.tags.pluck(:name)), status: :created
     else
@@ -108,7 +136,7 @@ class PeopleController < ApplicationController
       update_source_associations(@person, params[:person][:source_ids]) if params[:person][:source_ids]
 
       # Use Taggable concern for tags
-      @person.tag_list = tags_array if tags_array.present?
+      @person.tag_list = tags_array unless tags_array.nil?
 
       render json: @person.as_json.merge(tags: @person.tags.pluck(:name))
     else
@@ -172,6 +200,7 @@ class PeopleController < ApplicationController
       :summary,
       :email,
       :url,
+      :affiliation,
       :attrs,
       aka: [],
       concept_ids: [],

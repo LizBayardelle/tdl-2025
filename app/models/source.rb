@@ -4,6 +4,8 @@ class Source < ApplicationRecord
 
   belongs_to :user
 
+  after_create_commit :start_user_source_grace_if_needed
+
   # Authors (many-to-many with ordering)
   has_many :source_authors, dependent: :destroy
   has_many :authors, through: :source_authors
@@ -53,6 +55,21 @@ class Source < ApplicationRecord
   scope :by_year, ->(year) { where(year: year) }
   scope :by_journal, ->(journal) { where(journal_name: journal) }
   scope :with_doi, -> { where.not(doi: nil) }
+  scope :with_marker, ->(marker) { where("? = ANY(markers)", marker.to_s) }
+  scope :with_any_markers, ->(markers_list) { where("markers && ARRAY[?]::text[]", Array(markers_list).map(&:to_s)) }
+
+  # Suggested defaults users see when they open the marker editor.
+  # They can also type custom markers — the column accepts anything.
+  SUGGESTED_MARKERS = [
+    'To Read',
+    'Currently Reading',
+    'Read',
+    'Needs PDF',
+    'Key Source',
+    'Methods Reference',
+    'Outdated',
+    'Urgent',
+  ].freeze
 
   # Get ordered authors as array
   def ordered_authors
@@ -155,5 +172,13 @@ class Source < ApplicationRecord
     citation += " #{publisher_or_venue}." if publisher_or_venue.present?
 
     citation
+  end
+
+  private
+
+  # Sets the 30-day grace timestamp the first time a free user crosses the
+  # FREE_SOURCE_LIMIT. No-op for pro users or grace already started.
+  def start_user_source_grace_if_needed
+    user&.maybe_start_source_grace!
   end
 end

@@ -6,44 +6,66 @@ import SourceSelector from './SourceSelector';
 import CollectionSelector from './CollectionSelector';
 import RichTextEditor from './RichTextEditor';
 
-// Helper to fetch and manage collections
+const ROLE_OPTIONS = [
+  { value: 'theorist',   label: 'Theorist' },
+  { value: 'clinician',  label: 'Clinician' },
+  { value: 'researcher', label: 'Researcher' },
+  { value: 'peer',       label: 'Peer' },
+  { value: 'client',     label: 'Client' },
+];
+
+const TABS = [
+  { id: 'basics',   label: 'Basics' },
+  { id: 'metadata', label: 'Connections' },
+];
+
+const EMPTY_FORM = {
+  first_name: '',
+  last_name: '',
+  role: 'researcher',
+  orcid: '',
+  email: '',
+  url: '',
+  affiliation: '',
+  summary: '',
+  aka: [],
+  links: [],
+  concept_ids: [],
+  source_ids: [],
+  tags: [],
+};
 
 export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [activeTab, setActiveTab] = useState('basic');
-  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'pending', 'saving', 'saved', 'error'
+  const [activeTab, setActiveTab] = useState('basics');
+  const [saveStatus, setSaveStatus] = useState('idle');
   const saveTimeoutRef = useRef(null);
   const isInitialMount = useRef(true);
   const lastSavedData = useRef(null);
-  const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
-    role: 'theorist',
-    email: '',
-    url: '',
-    summary: '',
-    aka: [],
-    links: [],
-    concept_ids: [],
-    source_ids: [],
-    tags: []
-  });
+
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  // AKA + Links inputs
+  const [akaInput, setAkaInput] = useState('');
   const [newLink, setNewLink] = useState({ label: '', url: '' });
 
-  // Collections state
-  const [collections, setCollections] = useState([]);
+  // Collections (only for existing items)
+  const [, setCollections] = useState([]);
   const [itemCollections, setItemCollections] = useState([]);
-  const [loadingCollections, setLoadingCollections] = useState(false);
-  const [collectionFilter, setCollectionFilter] = useState('');
 
-  // Autosave function for existing items
+  // Enrich (ORCID/OpenAlex) state — not Haiku, so no sparkle icon.
+  const [enriching, setEnriching] = useState(false);
+  const [enrichNote, setEnrichNote] = useState('');
+
+  // ====================================================================
+  // Autosave
+  // ====================================================================
   const performAutosave = useCallback(async (dataToSave) => {
     if (!item?.id) return;
-
     setSaveStatus('saving');
-
     try {
-      const response = await fetch(`/people/${item.id}`, {
+      const r = await fetch(`/people/${item.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -52,130 +74,96 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         },
         body: JSON.stringify({ person: dataToSave }),
       });
-
-      if (response.ok) {
+      if (r.ok) {
         lastSavedData.current = JSON.stringify(dataToSave);
         setSaveStatus('saved');
         setTimeout(() => setSaveStatus('idle'), 2000);
       } else {
         setSaveStatus('error');
       }
-    } catch (error) {
-      console.error('Autosave error:', error);
+    } catch (e) {
+      console.error('Autosave error:', e);
       setSaveStatus('error');
     }
   }, [item?.id]);
 
-  // Handle close with pending save check
   const handleClose = useCallback(async () => {
-    // If there's a pending save, save immediately before closing
     if (saveStatus === 'pending' && item?.id) {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
       await performAutosave(formData);
-    }
-    // If currently saving, wait for it to complete
-    else if (saveStatus === 'saving') {
-      await new Promise(resolve => setTimeout(resolve, 500));
+    } else if (saveStatus === 'saving') {
+      await new Promise(r => setTimeout(r, 500));
     }
     onClose();
   }, [saveStatus, item?.id, formData, performAutosave, onClose]);
 
-  // Debounced autosave effect
   useEffect(() => {
     if (!isOpen || !item?.id) return;
-
-    // Skip initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       lastSavedData.current = JSON.stringify(formData);
       return;
     }
-
-    // Skip if data hasn't changed
     if (JSON.stringify(formData) === lastSavedData.current) return;
-
-    // Show pending state immediately when data changes
     setSaveStatus('pending');
-
-    // Clear existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // Set new debounced save
-    saveTimeoutRef.current = setTimeout(() => {
-      performAutosave(formData);
-    }, 1000);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => performAutosave(formData), 1000);
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
   }, [formData, isOpen, item?.id, performAutosave]);
 
+  // ====================================================================
+  // Init / reset on open
+  // ====================================================================
   useEffect(() => {
-    if (isOpen) {
-      setActiveTab('basic');
-      setSaveStatus('idle');
-      isInitialMount.current = true;
-      setCollectionFilter('');
-      fetchCollections();
-      if (item) {
-        fetchItemCollections(item.id);
-        // Combine first_name and middle_name if middle_name exists (for legacy data)
-        const combinedFirstName = [item.first_name, item.middle_name]
-          .filter(Boolean)
-          .join(' ') || '';
-
-        const newFormData = {
-          first_name: combinedFirstName,
-          last_name: item.last_name || '',
-          role: item.role || 'theorist',
-          email: item.email || '',
-          url: item.url || '',
-          summary: item.summary || '',
-          aka: item.aka || [],
-          links: item.links || [],
-          concept_ids: item.concept_ids || [],
-          source_ids: item.source_ids || [],
-          tags: item.tags || []
-        };
-        setFormData(newFormData);
-        lastSavedData.current = JSON.stringify(newFormData);
-      } else {
-        setItemCollections([]);
-        setFormData({
-          first_name: '',
-          last_name: '',
-          role: 'theorist',
-          email: '',
-          url: '',
-          summary: '',
-          aka: [],
-          links: [],
-          concept_ids: [],
-          source_ids: [],
-          tags: []
-        });
-        lastSavedData.current = null;
-      }
-      setNewLink({ label: '', url: '' });
-      setError('');
+    if (!isOpen) return;
+    setActiveTab('basics');
+    setSaveStatus('idle');
+    isInitialMount.current = true;
+    setEnrichNote('');
+    setEnriching(false);
+    setAkaInput('');
+    setNewLink({ label: '', url: '' });
+    fetchCollections();
+    if (item) {
+      fetchItemCollections(item.id);
+      const combinedFirst = [item.first_name, item.middle_name].filter(Boolean).join(' ') || '';
+      const next = {
+        ...EMPTY_FORM,
+        first_name: combinedFirst,
+        last_name: item.last_name || '',
+        role: item.role || 'researcher',
+        orcid: item.orcid || '',
+        email: item.email || '',
+        url: item.url || '',
+        affiliation: item.affiliation || '',
+        summary: item.summary || '',
+        aka: item.aka || [],
+        links: item.links || [],
+        concept_ids: item.concept_ids || [],
+        source_ids: item.source_ids || [],
+        tags: Array.isArray(item.tags) ? item.tags.map(t => typeof t === 'string' ? t : t.name) : [],
+      };
+      setFormData(next);
+      lastSavedData.current = JSON.stringify(next);
+    } else {
+      setItemCollections([]);
+      setFormData(EMPTY_FORM);
+      lastSavedData.current = null;
     }
+    setError('');
   }, [isOpen, item]);
 
+  // ====================================================================
+  // Save (new persons)
+  // ====================================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    setSubmitting(true);
     try {
       const url = item ? `/people/${item.id}` : '/people';
       const method = item ? 'PATCH' : 'POST';
-
-      const response = await fetch(url, {
+      const r = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -184,38 +172,40 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
         },
         body: JSON.stringify({ person: formData }),
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (r.ok) {
+        const data = await r.json();
         onSuccess(data);
         onClose();
       } else {
-        const data = await response.json();
-        setError(data.errors.join(', '));
+        const data = await r.json();
+        setError((data.errors || []).join(', ') || 'Failed to save.');
       }
-    } catch (error) {
-      console.error('Error saving person:', error);
-      setError('An error occurred while saving the person');
+    } catch (e) {
+      console.error(e);
+      setError('An error occurred while saving the person.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleArrayInput = (value) => {
-    const items = value.split('\n').filter(item => item.trim());
-    setFormData({ ...formData, aka: items });
+  // ====================================================================
+  // AKA chips
+  // ====================================================================
+  const addAka = () => {
+    const v = akaInput.trim();
+    if (!v) return;
+    if (!formData.aka.includes(v)) {
+      setFormData({ ...formData, aka: [...formData.aka, v] });
+    }
+    setAkaInput('');
+  };
+  const removeAka = (idx) => {
+    setFormData({ ...formData, aka: formData.aka.filter((_, i) => i !== idx) });
   };
 
-  const handleAddLink = () => {
-    const url = newLink.url.trim();
-    if (!url) return;
-    const label = newLink.label.trim() || guessLabel(url);
-    setFormData({ ...formData, links: [...formData.links, { label, url }] });
-    setNewLink({ label: '', url: '' });
-  };
-
-  const handleRemoveLink = (index) => {
-    setFormData({ ...formData, links: formData.links.filter((_, i) => i !== index) });
-  };
-
+  // ====================================================================
+  // Profile links
+  // ====================================================================
   const guessLabel = (url) => {
     try {
       const host = new URL(url).hostname.replace(/^www\./, '');
@@ -228,822 +218,773 @@ export default function PersonFormModal({ isOpen, onClose, onSuccess, item }) {
       return 'Link';
     }
   };
+  const addLink = () => {
+    const url = newLink.url.trim();
+    if (!url) return;
+    const label = newLink.label.trim() || guessLabel(url);
+    setFormData({ ...formData, links: [...formData.links, { label, url }] });
+    setNewLink({ label: '', url: '' });
+  };
+  const removeLink = (idx) => {
+    setFormData({ ...formData, links: formData.links.filter((_, i) => i !== idx) });
+  };
 
-  const fetchCollections = async () => {
-    setLoadingCollections(true);
+  // ====================================================================
+  // Enrich from ORCID / OpenAlex (existing endpoint, not Haiku)
+  // ====================================================================
+  const handleEnrich = async () => {
+    if (!item?.id) {
+      setEnrichNote('Save the person first.');
+      return;
+    }
+    setEnrichNote('');
+    setEnriching(true);
     try {
-      const response = await fetch('/collections.json');
-      const data = await response.json();
-      setCollections(data);
-    } catch (error) {
-      console.error('Error fetching collections:', error);
+      const r = await fetch(`/people/${item.id}/enrich`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+      });
+      const data = await r.json();
+      if (r.ok && data.queued) {
+        setEnrichNote(data.step === 'enriching_from_orcid'
+          ? 'Queued ORCID lookup.  Refresh in a moment.'
+          : 'Queued ORCID backfill from linked sources.');
+      } else {
+        setEnrichNote(data.error || 'Enrich failed.');
+      }
+    } catch (e) {
+      console.error(e);
+      setEnrichNote('Enrich failed.  Try again in a moment.');
     } finally {
-      setLoadingCollections(false);
+      setEnriching(false);
     }
   };
 
+  // ====================================================================
+  // Collections (existing person only)
+  // ====================================================================
+  const fetchCollections = async () => {
+    try {
+      const r = await fetch('/collections.json');
+      setCollections(await r.json());
+    } catch (e) { console.error(e); }
+  };
   const fetchItemCollections = async (personId) => {
     try {
-      const response = await fetch(`/people/${personId}.json`);
-      const data = await response.json();
+      const r = await fetch(`/people/${personId}.json`);
+      const data = await r.json();
       setItemCollections(data.collections || []);
-    } catch (error) {
-      console.error('Error fetching item collections:', error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const handleAddToCollection = async (collectionId) => {
-    if (!item?.id) return;
-
-    try {
-      const response = await fetch(`/collections/${collectionId}/add_item`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          item_type: 'Person',
-          item_id: item.id
-        }),
-      });
-
-      if (response.ok) {
-        const collection = collections.find(c => c.id === collectionId);
-        if (collection && !itemCollections.find(c => c.id === collectionId)) {
-          setItemCollections([...itemCollections, collection]);
-        }
-      }
-    } catch (error) {
-      console.error('Error adding to collection:', error);
-    }
-  };
-
-  const handleRemoveFromCollection = async (collectionId) => {
-    if (!item?.id) return;
-
-    try {
-      const response = await fetch(`/collections/${collectionId}/remove_item`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          item_type: 'Person',
-          item_id: item.id
-        }),
-      });
-
-      if (response.ok) {
-        setItemCollections(itemCollections.filter(c => c.id !== collectionId));
-      }
-    } catch (error) {
-      console.error('Error removing from collection:', error);
-    }
-  };
-
-  const handleCreateCollection = async (name) => {
-    if (!name.trim()) return;
-
-    try {
-      const response = await fetch('/collections', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({
-          collection: { name: name.trim() }
-        }),
-      });
-
-      if (response.ok) {
-        const newCollection = await response.json();
-        setCollections([newCollection, ...collections]);
-        setCollectionFilter('');
-        if (item?.id) {
-          handleAddToCollection(newCollection.id);
-        }
-        return newCollection;
-      }
-    } catch (error) {
-      console.error('Error creating collection:', error);
-    }
-    return null;
-  };
-
+  // ====================================================================
+  // Render
+  // ====================================================================
   return (
-    <SlidePanel
-      isOpen={isOpen}
-      onClose={handleClose}
-    >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Modal Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 'var(--space-3) var(--space-4)',
-          background: 'var(--accent-gold)',
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            <h2 style={{
-              margin: 0,
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-lg)',
-              fontWeight: 700,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}>
-              <i className="fas fa-user" style={{ fontSize: 'var(--text-base)', opacity: 0.9 }}></i>
-              {item ? (`${formData.first_name} ${formData.last_name}`.trim() || item.full_name || 'Untitled Person') : 'New Person'}
+    <SlidePanel isOpen={isOpen} onClose={handleClose}>
+      <PfmStyles />
+      <form onSubmit={handleSubmit} className="pfm">
+        {/* Header */}
+        <header className="pfm-head">
+          <div className="pfm-head-title">
+            <h2>
+              {item
+                ? (`${formData.first_name} ${formData.last_name}`.trim() || item.full_name || 'Untitled Person')
+                : 'New Person'}
             </h2>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            {/* Save Status - only show for editing */}
-            {item && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                background: 'rgba(255,255,255,0.9)',
-                padding: 'var(--space-1) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-xs)',
-                fontFamily: 'var(--font-body)',
-              }}>
-                {saveStatus === 'pending' && (
-                  <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
-                    <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
-                  </>
-                )}
-                {saveStatus === 'saving' && (
-                  <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-gold)' }}></i>
-                    <span style={{ color: 'var(--accent-gold)' }}>Saving...</span>
-                  </>
-                )}
-                {saveStatus === 'saved' && (
-                  <>
-                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
-                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
-                  </>
-                )}
-                {saveStatus === 'error' && (
-                  <>
-                    <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
-                    <span style={{ color: 'var(--error)' }}>Error</span>
-                  </>
-                )}
-                {saveStatus === 'idle' && (
-                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
-                )}
-              </div>
-            )}
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: 'none',
-                color: 'white',
-                fontSize: 'var(--text-xl)',
-                cursor: 'pointer',
-                padding: 'var(--space-1)',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '4px',
-                transition: 'all 0.15s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
-              }}
-              title="Close"
-            >
-              <i className="fas fa-times"></i>
-            </button>
+          <div className="pfm-head-actions">
+            {item && <SaveStatus status={saveStatus} />}
+            <button type="button" className="pfm-close" onClick={handleClose} aria-label="Close">×</button>
           </div>
-        </div>
+        </header>
 
         {error && (
-          <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
-            <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
-            {error}
+          <div className="pfm-error">
+            <strong>Error:</strong> {error}
           </div>
         )}
 
-        {/* Sidebar + Content Layout */}
-        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-          {/* Left Sidebar Navigation */}
-          <div className="w-12 md:w-[200px]" style={{
-            background: '#e2e2e2',
-            padding: 'var(--space-2)',
-            paddingTop: 'var(--space-3)',
-            flexShrink: 0,
-            boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.15)',
-          }}>
-            <div className="hidden md:block" style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: 'var(--neutral-500)',
-              marginBottom: 'var(--space-3)',
-              fontFamily: 'var(--font-body)',
-            }}>
-              Sections
-            </div>
+        {/* Sidebar + Content */}
+        <div className="pfm-body">
+          <nav className="pfm-nav">
+            {TABS.map(tab => (
+              <button
+                key={tab.id}
+                type="button"
+                className={`pfm-tab ${activeTab === tab.id ? 'is-active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
 
-            <button
-              type="button"
-              onClick={() => setActiveTab('basic')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'basic' ? '#c8c8c8' : 'transparent',
-                border: 'none',
-                textAlign: 'left',
-                transition: 'background 0.15s',
-                fontFamily: 'var(--font-body)',
-                marginBottom: '0.25rem',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'basic') e.currentTarget.style.background = '#d8d8d8';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'basic') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Basic Info"
-            >
-              <i className="fas fa-info-circle" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Basic Info</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('details')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'details' ? '#c8c8c8' : 'transparent',
-                border: 'none',
-                textAlign: 'left',
-                transition: 'background 0.15s',
-                fontFamily: 'var(--font-body)',
-                marginBottom: '0.25rem',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'details') e.currentTarget.style.background = '#d8d8d8';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'details') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Details"
-            >
-              <i className="fas fa-file-alt" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Details</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('metadata')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'metadata' ? '#c8c8c8' : 'transparent',
-                border: 'none',
-                textAlign: 'left',
-                transition: 'background 0.15s',
-                fontFamily: 'var(--font-body)',
-                marginBottom: '0.25rem',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'metadata') e.currentTarget.style.background = '#d8d8d8';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'metadata') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Relationships"
-            >
-              <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Relationships</span>
-            </button>
-          </div>
-
-          {/* Main Content Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6)', background: 'white' }}>
-            {/* Basic Info Tab */}
-            {activeTab === 'basic' && (
-              <div>
-                <h2 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-2xl)',
-                  fontWeight: 700,
-                  color: 'var(--accent-gold)',
-                  marginBottom: 'var(--space-4)',
-                }}>
-                  Basic Information
-                </h2>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                  {/* Name Fields */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
-                    <div>
-                      <label className="form-label">First/Given Name(s) *</label>
-                      <input
-                        type="text"
-                        value={formData.first_name}
-                        onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                        className="form-input"
-                        style={{
-                          width: '100%',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 'var(--text-base)'
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.padding = 'var(--space-3)';
-                        }}
-                        placeholder="e.g., Aaron T."
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label">Last Name *</label>
-                      <input
-                        type="text"
-                        value={formData.last_name}
-                        onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                        className="form-input"
-                        style={{
-                          width: '100%',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 'var(--text-base)'
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.padding = 'var(--space-3)';
-                        }}
-                        placeholder="e.g., Beck"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Role</label>
-                    <select
-                      value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                      className="form-select"
-                      style={{
-                        width: '100%',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 'var(--text-base)'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.padding = 'var(--space-3)';
-                      }}
-                    >
-                      <option value="theorist">Theorist</option>
-                      <option value="clinician">Clinician</option>
-                      <option value="researcher">Researcher</option>
-                      <option value="peer">Peer</option>
-                      <option value="client">Client</option>
-                    </select>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                    <div>
-                      <label className="form-label">Email</label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="form-input"
-                        style={{
-                          width: '100%',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 'var(--text-base)'
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.padding = 'var(--space-3)';
-                        }}
-                        placeholder="email@example.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="form-label">URL</label>
-                      <input
-                        type="url"
-                        value={formData.url}
-                        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                        className="form-input"
-                        style={{
-                          width: '100%',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 'var(--text-base)'
-                        }}
-                        onFocus={(e) => {
-                          e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                          e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                          e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                        }}
-                        onBlur={(e) => {
-                          e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                          e.currentTarget.style.boxShadow = 'none';
-                          e.currentTarget.style.padding = 'var(--space-3)';
-                        }}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Profile Links</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                      {formData.links.map((link, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '180px 1fr auto',
-                            gap: 'var(--space-2)',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <input
-                            type="text"
-                            value={link.label}
-                            onChange={(e) => {
-                              const next = [...formData.links];
-                              next[i] = { ...next[i], label: e.target.value };
-                              setFormData({ ...formData, links: next });
-                            }}
-                            placeholder="Label (e.g., Google Scholar)"
-                            className="form-input"
-                            style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
-                          />
-                          <input
-                            type="url"
-                            value={link.url}
-                            onChange={(e) => {
-                              const next = [...formData.links];
-                              next[i] = { ...next[i], url: e.target.value };
-                              setFormData({ ...formData, links: next });
-                            }}
-                            placeholder="https://..."
-                            className="form-input"
-                            style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveLink(i)}
-                            title="Remove link"
-                            style={{
-                              padding: '6px 10px',
-                              background: 'transparent',
-                              border: '1px solid var(--neutral-300)',
-                              borderRadius: '6px',
-                              color: 'var(--neutral-500)',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      ))}
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '180px 1fr auto',
-                          gap: 'var(--space-2)',
-                          alignItems: 'center',
-                          paddingTop: formData.links.length > 0 ? 'var(--space-2)' : 0,
-                          borderTop: formData.links.length > 0 ? '1px dashed var(--neutral-200)' : 'none',
-                        }}
-                      >
-                        <input
-                          type="text"
-                          value={newLink.label}
-                          onChange={(e) => setNewLink({ ...newLink, label: e.target.value })}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
-                          placeholder="Label (optional)"
-                          className="form-input"
-                          style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
-                        />
-                        <input
-                          type="url"
-                          value={newLink.url}
-                          onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddLink(); } }}
-                          placeholder="https://scholar.google.com/..."
-                          className="form-input"
-                          style={{ width: '100%', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={handleAddLink}
-                          disabled={!newLink.url.trim()}
-                          style={{
-                            padding: '6px 12px',
-                            background: newLink.url.trim() ? 'var(--accent-gold)' : 'var(--neutral-300)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            color: 'white',
-                            cursor: newLink.url.trim() ? 'pointer' : 'not-allowed',
-                            fontFamily: 'var(--font-body)',
-                            fontSize: 'var(--text-sm)',
-                          }}
-                        >
-                          <i className="fas fa-plus"></i> Add
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Also Known As (one per line)</label>
-                    <textarea
-                      value={formData.aka.join('\n')}
-                      onChange={(e) => handleArrayInput(e.target.value)}
-                      rows="3"
-                      className="form-textarea"
-                      style={{
-                        width: '100%',
-                        fontFamily: 'var(--font-body)',
-                        fontSize: 'var(--text-base)',
-                        resize: 'vertical'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 10%, transparent)';
-                        e.currentTarget.style.padding = 'calc(var(--space-3) - 1px)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                        e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.padding = 'var(--space-3)';
-                      }}
-                      placeholder="Aaron T. Beck&#10;A.T. Beck"
-                    />
-                  </div>
-                </div>
-              </div>
+          <div className="pfm-content">
+            {activeTab === 'basics' && (
+              <BasicsTab
+                formData={formData}
+                setFormData={setFormData}
+                item={item}
+                akaInput={akaInput}
+                setAkaInput={setAkaInput}
+                onAddAka={addAka}
+                onRemoveAka={removeAka}
+                newLink={newLink}
+                setNewLink={setNewLink}
+                onAddLink={addLink}
+                onRemoveLink={removeLink}
+                onEnrich={handleEnrich}
+                enriching={enriching}
+                enrichNote={enrichNote}
+              />
             )}
 
-            {/* Details Tab */}
-            {activeTab === 'details' && (
-              <div>
-                <h2 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-2xl)',
-                  fontWeight: 700,
-                  color: 'var(--accent-gold)',
-                  marginBottom: 'var(--space-4)',
-                }}>
-                  Details
-                </h2>
-
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: 'var(--space-4)',
-                  height: '100%'
-                }}>
-                  <div>
-                    <label className="form-label">Summary</label>
-                    <RichTextEditor
-                      value={formData.summary}
-                      onChange={(html) => setFormData({ ...formData, summary: html })}
-                      placeholder="Brief summary of this person and their work..."
-                      rows={15}
-                      themeColor="var(--accent-gold)"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label">Sources</label>
-                    <div style={{ height: '370px' }}>
-                      <SourceSelector
-                        selectedSourceIds={formData.source_ids}
-                        onChange={(source_ids) => setFormData({ ...formData, source_ids })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Relationships Tab */}
             {activeTab === 'metadata' && (
-              <div>
-                <h2 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-2xl)',
-                  fontWeight: 700,
-                  color: 'var(--accent-gold)',
-                  marginBottom: 'var(--space-4)',
-                }}>
-                  Relationships
-                </h2>
-
-                {/* Row 1: Concepts and Tags */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
-                  {/* Concepts */}
-                  <div>
-                    <div style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'var(--text-base)',
-                      fontWeight: 700,
-                      color: 'var(--accent-green)',
-                      marginBottom: 'var(--space-2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-2)',
-                    }}>
-                      <i className="fas fa-lightbulb" style={{ fontSize: 'var(--text-sm)' }}></i>
-                      Concepts
-                    </div>
-                    <div style={{ height: '280px' }}>
-                      <ConceptSelector
-                        selectedConceptIds={formData.concept_ids}
-                        onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
-                        themeColor="var(--accent-green)"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div>
-                    <div style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: 'var(--text-base)',
-                      fontWeight: 700,
-                      color: 'var(--accent-purple)',
-                      marginBottom: 'var(--space-2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-2)',
-                    }}>
-                      <i className="fas fa-tag" style={{ fontSize: 'var(--text-sm)' }}></i>
-                      Tags
-                    </div>
-                    <div style={{ height: '280px' }}>
-                      <TagSelector
-                        selectedTags={formData.tags}
-                        onChange={(tags) => setFormData({ ...formData, tags })}
-                        themeColor="var(--accent-purple)"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 2: Collections */}
-                <div>
-                  <div style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 'var(--text-base)',
-                    fontWeight: 700,
-                    color: 'var(--accent-maroon)',
-                    marginBottom: 'var(--space-2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
-                  }}>
-                    <i className="fas fa-folder" style={{ fontSize: 'var(--text-sm)' }}></i>
-                    Collections
-                  </div>
-                  <div style={{ height: '280px', position: 'relative' }}>
-                    <CollectionSelector
-                      itemType="Person"
-                      itemId={item?.id}
-                      selectedCollectionIds={itemCollections.map(c => c.id)}
-                      onChange={(ids, collections) => {
-                        setItemCollections(collections);
-                      }}
-                      themeColor="var(--accent-maroon)"
-                      disabled={!item?.id}
-                    />
-                  </div>
-                </div>
-              </div>
+              <ConnectionsTab
+                formData={formData}
+                setFormData={setFormData}
+                item={item}
+                itemCollections={itemCollections}
+                setItemCollections={setItemCollections}
+              />
             )}
           </div>
         </div>
 
-        {/* Footer - only show for new people, editing uses autosave */}
+        {/* Footer — only on new */}
         {!item && (
-          <div style={{
-            borderTop: '1px solid var(--neutral-200)',
-            background: 'white',
-            padding: 'var(--space-4) var(--space-6)',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-          }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '0.5rem 1.25rem',
-                background: 'white',
-                color: 'var(--accent-gold)',
-                border: '1px solid var(--accent-gold)',
-                borderRadius: '6px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-              }}
-            >
+          <footer className="pfm-foot">
+            <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>
               Cancel
             </button>
-            <button
-              type="submit"
-              style={{
-                padding: '0.5rem 1.25rem',
-                background: 'var(--accent-gold)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#8a6624'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-gold)'}
-            >
-              Create Person
+            <button type="submit" className="sp-action sp-action-primary" disabled={submitting}>
+              {submitting ? 'Saving.' : 'Create Person'}
             </button>
-          </div>
+          </footer>
         )}
       </form>
     </SlidePanel>
+  );
+}
+
+// =====================================================================
+// Tab — Basics
+// =====================================================================
+function BasicsTab({
+  formData, setFormData, item,
+  akaInput, setAkaInput, onAddAka, onRemoveAka,
+  newLink, setNewLink, onAddLink, onRemoveLink,
+  onEnrich, enriching, enrichNote,
+}) {
+  return (
+    <section className="pfm-section">
+      <h3 className="pfm-h3">Basics</h3>
+
+      <div className="pfm-grid-2">
+        <Field label="First Name">
+          <input
+            type="text"
+            value={formData.first_name}
+            onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+            className="form-input"
+            placeholder="Jane"
+          />
+        </Field>
+        <Field label="Last Name" required>
+          <input
+            type="text"
+            value={formData.last_name}
+            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+            className="form-input"
+            placeholder="Smith"
+          />
+        </Field>
+      </div>
+
+      <div className="pfm-grid-2">
+        <Field label="Role">
+          <select
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+            className="form-input"
+          >
+            {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+          </select>
+        </Field>
+        <Field
+          label="ORCID"
+          hint="Sixteen-digit researcher ID, e.g., 0000-0002-1825-0097."
+          trailing={item && (
+            <button
+              type="button"
+              className="pfm-enrich-btn"
+              onClick={onEnrich}
+              disabled={enriching}
+              title="Pull profile data from ORCID and OpenAlex"
+            >
+              {enriching ? 'Enriching.' : 'Enrich'}
+            </button>
+          )}
+        >
+          <input
+            type="text"
+            value={formData.orcid}
+            onChange={(e) => setFormData({ ...formData, orcid: e.target.value })}
+            className="form-input"
+            placeholder="0000-0000-0000-0000"
+          />
+          {enrichNote && <div className="pfm-note">{enrichNote}</div>}
+        </Field>
+      </div>
+
+      <div className="pfm-grid-2">
+        <Field label="Email">
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="form-input"
+            placeholder="jane.smith@university.edu"
+          />
+        </Field>
+        <Field label="Website">
+          <input
+            type="url"
+            value={formData.url}
+            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+            className="form-input"
+            placeholder="https://."
+          />
+        </Field>
+      </div>
+
+      <Field label="Affiliation" hint="Current institution and role.  Auto-filled from ORCID; edit to override.">
+        <input
+          type="text"
+          value={formData.affiliation}
+          onChange={(e) => setFormData({ ...formData, affiliation: e.target.value })}
+          className="form-input"
+          placeholder="Associate Professor, Stanford University"
+        />
+      </Field>
+
+      <Field label="Also Known As" hint="Other names this person is published under.  Press Enter to add.">
+        <div className="pfm-chip-input">
+          {formData.aka.map((name, idx) => (
+            <span key={idx} className="pfm-chip">
+              {name}
+              <button type="button" onClick={() => onRemoveAka(idx)} className="pfm-chip-x" aria-label={`Remove ${name}`}>×</button>
+            </span>
+          ))}
+          <input
+            type="text"
+            className="pfm-chip-text"
+            placeholder={formData.aka.length === 0 ? 'e.g., J. Smith, Jane S. Smith' : ''}
+            value={akaInput}
+            onChange={(e) => setAkaInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                onAddAka();
+              } else if (e.key === 'Backspace' && !akaInput && formData.aka.length > 0) {
+                e.preventDefault();
+                onRemoveAka(formData.aka.length - 1);
+              }
+            }}
+          />
+        </div>
+      </Field>
+
+      <Field label="Summary" hint="Short bio in your own words.">
+        <RichTextEditor
+          value={formData.summary}
+          onChange={(html) => setFormData({ ...formData, summary: html })}
+          placeholder="A few sentences about this person."
+          rows={4}
+          themeColor="var(--person)"
+        />
+      </Field>
+
+      <Field label="Profile Links" hint="Google Scholar, ResearchGate, LinkedIn, lab pages — anywhere their work lives.">
+        {formData.links.length > 0 && (
+          <ul className="pfm-link-list">
+            {formData.links.map((link, idx) => (
+              <li key={idx} className="pfm-link-row">
+                <a href={link.url} target="_blank" rel="noopener noreferrer" className="pfm-link-label">
+                  {link.label}
+                </a>
+                <span className="pfm-link-url">{link.url}</span>
+                <button type="button" className="pfm-link-remove" onClick={() => onRemoveLink(idx)} aria-label="Remove link">×</button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="pfm-link-add">
+          <input
+            type="text"
+            className="form-input"
+            placeholder="Label (optional)"
+            value={newLink.label}
+            onChange={(e) => setNewLink({ ...newLink, label: e.target.value })}
+          />
+          <input
+            type="url"
+            className="form-input"
+            placeholder="https://."
+            value={newLink.url}
+            onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onAddLink(); } }}
+          />
+          <button type="button" className="sp-action sp-action-secondary" onClick={onAddLink}>Add</button>
+        </div>
+      </Field>
+    </section>
+  );
+}
+
+// =====================================================================
+// Tab — Connections
+// =====================================================================
+function ConnectionsTab({ formData, setFormData, item, itemCollections, setItemCollections }) {
+  return (
+    <section className="pfm-section">
+      <h3 className="pfm-h3">Connections</h3>
+
+      <div className="pfm-grid-2">
+        <Field label="Concepts">
+          <div className="pfm-selector-frame">
+            <ConceptSelector
+              selectedConceptIds={formData.concept_ids}
+              onChange={(concept_ids) => setFormData({ ...formData, concept_ids })}
+              themeColor="var(--concept)"
+            />
+          </div>
+        </Field>
+
+        <Field label="Sources">
+          <div className="pfm-selector-frame">
+            <SourceSelector
+              selectedSourceIds={formData.source_ids}
+              onChange={(source_ids) => setFormData({ ...formData, source_ids })}
+              themeColor="var(--source)"
+            />
+          </div>
+        </Field>
+      </div>
+
+      <div className="pfm-grid-2">
+        <Field label="Tags">
+          <div className="pfm-selector-frame">
+            <TagSelector
+              selectedTags={formData.tags}
+              onChange={(tags) => setFormData({ ...formData, tags })}
+              themeColor="var(--ink-3)"
+            />
+          </div>
+        </Field>
+
+        <Field label="Collections">
+          <div className="pfm-selector-frame">
+            <CollectionSelector
+              itemType="Person"
+              itemId={item?.id}
+              selectedCollectionIds={item ? itemCollections.map(c => c.id) : []}
+              onChange={(ids, collections) => {
+                if (item) setItemCollections(collections);
+              }}
+              themeColor="var(--ink-3)"
+            />
+          </div>
+        </Field>
+      </div>
+    </section>
+  );
+}
+
+// =====================================================================
+// Field wrapper
+// =====================================================================
+function Field({ label, hint, required, trailing, children }) {
+  return (
+    <div className="pfm-field">
+      <div className="pfm-field-head">
+        <label className="form-label">
+          {label}{required && <span className="pfm-req"> *</span>}
+        </label>
+        {trailing}
+      </div>
+      {hint && <p className="form-hint">{hint}</p>}
+      {children}
+    </div>
+  );
+}
+
+// =====================================================================
+// Save status pill
+// =====================================================================
+function SaveStatus({ status }) {
+  if (status === 'pending') return <span className="pfm-save is-pending">Save Pending.</span>;
+  if (status === 'saving')  return <span className="pfm-save is-saving">Saving.</span>;
+  if (status === 'saved')   return <span className="pfm-save is-saved">Saved</span>;
+  if (status === 'error')   return <span className="pfm-save is-error">Save Error</span>;
+  return <span className="pfm-save is-idle">Auto-Save On</span>;
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function PfmStyles() {
+  return (
+    <style>{`
+      .pfm {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--paper);
+        font-family: var(--font-body);
+        color: var(--ink);
+      }
+
+      .pfm-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 24px;
+        background: var(--paper);
+        border-bottom: 1px solid var(--ink-line);
+        flex-shrink: 0;
+        min-width: 0;
+      }
+      .pfm-head-title { min-width: 0; flex: 1; }
+      .pfm-head-title h2 {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--person);
+        letter-spacing: -0.005em;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pfm-head-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      .pfm-close {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--ink-3);
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--r-sm);
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+      }
+      .pfm-close:hover {
+        background: var(--paper-soft);
+        color: var(--ink);
+        border-color: var(--ink-line);
+      }
+
+      /* Teal accents inside the modal — !important so the rule wins over
+         the global .form-label color regardless of stylesheet load order. */
+      .pfm .form-label,
+      .pfm .pfm-field > .pfm-field-head > .form-label { color: var(--person) !important; }
+      .pfm .sp-action-primary {
+        background: var(--person);
+        border-color: var(--person);
+      }
+      .pfm .sp-action-primary:hover:not(:disabled) {
+        background: var(--person-2);
+        border-color: var(--person-2);
+      }
+      .pfm .sp-checkbox:checked,
+      .pfm .sp-checkbox:indeterminate {
+        background: var(--person);
+        border-color: var(--person);
+      }
+
+      .pfm-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: var(--r-sm);
+        background: var(--paper-soft);
+      }
+      .pfm-save.is-pending { color: var(--ink-3); }
+      .pfm-save.is-saving  { color: var(--person-2); }
+      .pfm-save.is-saved   { color: var(--person); background: var(--person-tint); }
+      .pfm-save.is-error   { color: var(--error); }
+      .pfm-save.is-idle    { color: var(--ink-3); }
+
+      .pfm-error {
+        margin: 12px 24px 0;
+        padding: 10px 14px;
+        border-radius: var(--r-md);
+        background: rgba(122, 46, 46, 0.06);
+        border: 1px solid var(--error);
+        color: var(--error);
+        font-size: 13px;
+      }
+
+      .pfm-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      /* Sidebar nav */
+      .pfm-nav {
+        width: 200px;
+        background: var(--paper-soft);
+        padding: 14px 12px;
+        flex-shrink: 0;
+        border-right: 1px solid var(--ink-line);
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .pfm-tab {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        width: 100%;
+        padding: 8px 12px;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        color: var(--ink-2);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+      }
+      .pfm-tab:hover { background: var(--hover); color: var(--ink); }
+      .pfm-tab.is-active {
+        background: var(--person-tint);
+        color: var(--person-2);
+        font-weight: 600;
+      }
+
+      /* Content */
+      .pfm-content {
+        flex: 1;
+        overflow-y: auto;
+        background: var(--paper);
+        padding: 24px 32px;
+        min-width: 0;
+      }
+      .pfm-section { display: flex; flex-direction: column; gap: 18px; }
+      .pfm-h3 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--person);
+        margin: 0 0 6px;
+        letter-spacing: -0.01em;
+      }
+
+      .pfm-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      /* Field — stretch to keep paired Connections boxes aligned */
+      .pfm-field {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+      }
+      .pfm-field-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .pfm-req { color: var(--person); font-weight: 700; }
+      .pfm-field > .pfm-selector-frame { flex: 1; min-height: 0; }
+
+      .pfm-selector-frame {
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        overflow: hidden;
+      }
+
+      .pfm-note {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--ink-3);
+        font-style: italic;
+      }
+
+      /* Enrich button — automated lookup, NOT Haiku, so no sparkle */
+      .pfm-enrich-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--person-2);
+        background: var(--person-tint);
+        border: 1px solid color-mix(in srgb, var(--person) 30%, transparent);
+        border-radius: var(--r-sm);
+        padding: 4px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+      }
+      .pfm-enrich-btn:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--person-tint) 60%, var(--person) 40%);
+        color: var(--paper);
+        border-color: var(--person);
+      }
+      .pfm-enrich-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+      /* AKA chip input */
+      .pfm-chip-input {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        min-height: 40px;
+      }
+      .pfm-chip-input:focus-within { border-color: var(--person); }
+      .pfm-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12.5px;
+        background: var(--person-tint);
+        color: var(--person-2);
+        padding: 2px 4px 2px 10px;
+        border-radius: var(--r-sm);
+      }
+      .pfm-chip-x {
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0 4px;
+        cursor: pointer;
+        opacity: 0.7;
+      }
+      .pfm-chip-x:hover { opacity: 1; }
+      .pfm-chip-text {
+        flex: 1;
+        min-width: 80px;
+        background: transparent;
+        border: none;
+        outline: none;
+        font: inherit;
+        color: var(--ink);
+        padding: 4px 0;
+      }
+      .pfm-chip-text::placeholder { color: var(--ink-3); }
+
+      /* Profile links */
+      .pfm-link-list {
+        list-style: none;
+        margin: 0 0 8px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .pfm-link-row {
+        display: grid;
+        grid-template-columns: 140px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 10px;
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-size: 12.5px;
+      }
+      .pfm-link-label {
+        color: var(--person-2);
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pfm-link-label:hover { text-decoration: underline; }
+      .pfm-link-url {
+        color: var(--ink-3);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pfm-link-remove {
+        background: none;
+        border: none;
+        color: var(--ink-3);
+        font-size: 16px;
+        line-height: 1;
+        padding: 0 6px;
+        cursor: pointer;
+      }
+      .pfm-link-remove:hover { color: var(--error); }
+
+      .pfm-link-add {
+        display: grid;
+        grid-template-columns: 140px 1fr auto;
+        gap: 8px;
+      }
+
+      /* Footer */
+      .pfm-foot {
+        border-top: 1px solid var(--ink-line);
+        background: var(--paper);
+        padding: 14px 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .pfm-nav {
+          width: 56px;
+          padding: 10px 6px;
+        }
+        .pfm-tab { font-size: 12px; padding: 6px 8px; justify-content: center; }
+        .pfm-content { padding: 18px 16px; }
+        .pfm-grid-2 { grid-template-columns: 1fr; gap: 12px; }
+        .pfm-link-row, .pfm-link-add { grid-template-columns: 1fr; }
+      }
+    `}</style>
   );
 }

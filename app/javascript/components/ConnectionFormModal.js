@@ -308,7 +308,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
                 value={formData.dst_concept_id}
                 onChange={(e) => setFormData({ ...formData, dst_concept_id: e.target.value })}
                 excludeId={formData.src_concept_id ? parseInt(formData.src_concept_id) : null}
-                placeholder="select a construct..."
+                placeholder="select a concept..."
                 required
               />
             </div>
@@ -361,7 +361,7 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
                 fontSize: 'var(--text-base)',
                 resize: 'vertical'
               }}
-              placeholder="Why are these constructs related?"
+              placeholder="Why are these concepts related?"
             />
           </div>
 

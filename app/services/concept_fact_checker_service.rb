@@ -20,9 +20,11 @@ class ConceptFactCheckerService
   class ParseError < FactCheckError; end
   class MissingApiKey < FactCheckError; end
 
-  # Opus 4.7 — adversarial reasoning ("find what's wrong") benefits more
-  # from the strongest model than stage 1's "search and structure" work does.
-  MODEL = 'claude-opus-4-7'
+  # Sonnet 4.6 — handles adversarial verification well at ~1/5 the cost of
+  # Opus and roughly 2x faster, which makes the on-demand generation flow
+  # noticeably snappier.  If quality regresses on edge cases, swap back to
+  # claude-opus-4-7; the rest of the pipeline is model-agnostic.
+  MODEL = 'claude-sonnet-4-6'
   MAX_TOKENS = 16_000
   MAX_SEARCHES = 8 # fewer than stage 1; we're verifying claims, not exploring
 

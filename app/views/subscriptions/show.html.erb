@@ -1,0 +1,630 @@
+<% content_for(:title) { "Your subscription · Map My Research" } %>
+
+<%
+  current_tier = @current_tier || "free"
+  on_paid = current_user.has_pro_access?
+%>
+
+<div class="sub-account-page" data-interval="monthly">
+  <header class="sub-account-head">
+    <div class="sub-account-eyebrow">Subscription</div>
+    <h1 class="sub-account-title">Your plan</h1>
+    <p class="sub-account-sub">
+      You're currently on the <strong><%= current_tier.titleize %></strong> tier.
+      Compare what's included and switch any time.
+    </p>
+  </header>
+
+  <%# ---- Status / billing block (only when on a paid plan) ---- %>
+  <% if @subscription && on_paid %>
+    <section class="sub-account-status">
+      <div class="sub-account-status-row">
+        <div>
+          <div class="sub-account-status-label">Plan</div>
+          <div class="sub-account-status-value"><%= current_tier.titleize %></div>
+        </div>
+        <div>
+          <div class="sub-account-status-label">Billing</div>
+          <div class="sub-account-status-value">
+            <% if @subscription.amount_cents %>
+              <%= number_to_currency(@subscription.amount_cents / 100.0) %> / <%= @subscription.interval %>
+            <% else %>
+              <%= @subscription.interval.to_s.capitalize %>
+            <% end %>
+          </div>
+        </div>
+        <% if current_user.plan_through %>
+          <div>
+            <div class="sub-account-status-label">
+              <%= @subscription.cancel_at_period_end ? "Access through" : "Renews on" %>
+            </div>
+            <div class="sub-account-status-value">
+              <%= current_user.plan_through.strftime("%B %-d, %Y") %>
+            </div>
+          </div>
+        <% end %>
+        <div class="sub-account-status-actions">
+          <%= button_to "Update Card or Invoices →", subscription_portal_path,
+                method: :post,
+                class: "sp-action sp-action-secondary",
+                form: { class: "sub-account-form" } %>
+          <% if @subscription.cancel_at_period_end %>
+            <%= button_to "Resume Subscription", subscription_resume_path,
+                  method: :post,
+                  class: "sp-action sp-action-secondary",
+                  form: { class: "sub-account-form" } %>
+          <% else %>
+            <%= button_to "Cancel Subscription", subscription_cancel_path,
+                  method: :post,
+                  class: "sp-action sp-action-quiet sp-action-danger",
+                  data: { confirm: "Cancel your subscription?  You'll keep access through the end of your current billing period, then drop to the Free tier." },
+                  form: { class: "sub-account-form" } %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @subscription.past_due? %>
+        <div class="sub-account-warn">
+          Payment past due — update your card to keep access.
+        </div>
+      <% end %>
+      <% if @subscription.cancel_at_period_end %>
+        <div class="sub-account-warn">
+          Cancel scheduled for <%= @subscription.current_period_end&.strftime("%B %-d, %Y") %>.  Hit Resume to undo.
+        </div>
+      <% end %>
+    </section>
+  <% elsif params[:subscribed] == "true" %>
+    <section class="sub-account-status">
+      <p class="sub-account-pending">
+        Stripe just confirmed your payment.  We're syncing your account now — refresh in a few seconds.
+      </p>
+      <%= button_to "Refresh", subscription_path, method: :get,
+            class: "sp-action sp-action-secondary",
+            form: { class: "sub-account-form" } %>
+    </section>
+  <% end %>
+
+  <%
+    # Live usage for the current-tier row.  Shown as "X used / 5 this month"
+    # so the user can verify the counter actually resets.
+    gens_used = @generation_quota[:used].to_i
+    gens_limit = @generation_quota[:limit]
+    live_gens_label = if @generation_quota[:unlimited]
+      "Unlimited"
+    elsif gens_limit
+      "#{gens_used} used / #{gens_limit} this month"
+    end
+  %>
+  <%#
+    Annual prices are 10× monthly = two months free.  These match the
+    Stripe prices behind STRIPE_PRICE_*_ANNUAL_ID — keep them in sync
+    with the dashboard or users will get a different number at checkout.
+  %>
+  <% tiers = [
+    { key: 'free',
+      name: 'Free',
+      monthly_price: '$0',
+      annual_price: '$0',
+      annual_billed: nil,
+      line: 'For trying the workspace and small libraries.',
+      features: [
+        ['Articles',                       '300'],
+        ['Mini-AI touches',                'All included'],
+        ['Concept-definition generations', current_tier == 'free'      && live_gens_label ? live_gens_label : '5 Generations'],
+        ['Notes, highlights, sharing',     'Yes'],
+      ] },
+    { key: 'storage',
+      name: 'Storage',
+      monthly_price: '$4',
+      annual_price: '$3.33',
+      annual_billed: 'Billed $40 / year',
+      line: 'For researchers whose library outgrew the free tier.',
+      features: [
+        ['Articles',                       'Unlimited'],
+        ['Mini-AI touches',                'Unlimited'],
+        ['Concept-definition generations', current_tier == 'storage'   && live_gens_label ? live_gens_label : '5 / Month'],
+        ['Notes, highlights, sharing',     'Yes'],
+      ] },
+    { key: 'unlimited',
+      name: 'Unlimited',
+      monthly_price: '$19',
+      annual_price: '$15.83',
+      annual_billed: 'Billed $190 / year',
+      line: 'For full-time researchers, clinicians, and writers.',
+      features: [
+        ['Articles',                       'Unlimited'],
+        ['Mini-AI touches',                'Unlimited'],
+        ['Concept-definition generations', current_tier == 'unlimited' && live_gens_label ? live_gens_label : 'Unlimited'],
+        ['Priority on new AI features',    'Yes'],
+      ] },
+  ] %>
+
+  <div class="sub-interval">
+    <div class="sub-interval-toggle" role="tablist" aria-label="Billing interval">
+      <button type="button" class="sub-interval-btn is-active" data-interval="monthly" role="tab" aria-selected="true">Monthly</button>
+      <button type="button" class="sub-interval-btn" data-interval="annual" role="tab" aria-selected="false">
+        Annual <span class="sub-interval-save">save 17%</span>
+      </button>
+    </div>
+  </div>
+
+  <%# ---- Three-column comparison ---- %>
+  <section class="sub-grid">
+    <% tiers.each do |t| %>
+      <article class="sub-tier sub-tier-<%= t[:key] %> <%= 'is-current' if current_tier == t[:key] %>">
+        <% if t[:key] == 'unlimited' %>
+          <div class="sub-tier-flag">Most powerful</div>
+        <% end %>
+        <div class="sub-tier-head">
+          <h2 class="sub-tier-name"><%= t[:name] %></h2>
+          <% if current_tier == t[:key] %>
+            <span class="sub-tier-badge">Current plan</span>
+          <% end %>
+        </div>
+        <div class="sub-price">
+          <span class="sub-price-amt" data-monthly="<%= t[:monthly_price] %>" data-annual="<%= t[:annual_price] %>"><%= t[:monthly_price] %></span>
+          <span class="sub-price-per">/ month</span>
+        </div>
+        <% if t[:annual_billed] %>
+          <p class="sub-price-foot" data-annual-only><%= t[:annual_billed] %></p>
+        <% end %>
+        <p class="sub-tier-line"><%= t[:line] %></p>
+
+        <ul class="sub-features">
+          <% t[:features].each do |label, value| %>
+            <li>
+              <span class="sub-feat-label"><%= label %></span>
+              <span class="sub-feat-value"><%= value %></span>
+            </li>
+          <% end %>
+        </ul>
+
+        <%
+          # CTA logic per row
+          cta = if current_tier == t[:key]
+            { kind: :current }
+          elsif t[:key] == 'free'
+            { kind: :free }
+          else
+            { kind: :upgrade }
+          end
+        %>
+
+        <% case cta[:kind]
+           when :current %>
+          <button type="button" class="sub-cta sub-cta-quiet" disabled>Current Plan</button>
+        <% when :free %>
+          <span class="sub-cta sub-cta-quiet">Always Free</span>
+        <% when :upgrade %>
+          <%= form_with url: subscriptions_path, method: :post, local: true, class: "sub-form" do |f| %>
+            <%= hidden_field_tag :tier, t[:key] %>
+            <%= hidden_field_tag :interval, "month", class: "sub-interval-input" %>
+            <%= f.submit "Switch to #{t[:name]}",
+                  class: "sub-cta #{t[:key] == 'unlimited' ? 'sub-cta-primary' : 'sub-cta-secondary'}",
+                  data: { disable_with: "Loading…" } %>
+          <% end %>
+        <% end %>
+      </article>
+    <% end %>
+  </section>
+
+  <p class="sub-account-foot">
+    Secure checkout by Stripe.  Cancel any time.
+  </p>
+</div>
+
+<style>
+  .sub-account-page {
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 70vh;
+    padding: 64px 24px 96px;
+  }
+  .sub-account-head {
+    max-width: 720px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  .sub-account-eyebrow {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 14px;
+  }
+  .sub-account-title {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 14px;
+  }
+  .sub-account-sub {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .sub-account-sub strong { color: var(--concept); font-weight: 600; }
+
+  .sub-account-status {
+    max-width: 1080px;
+    margin: 0 auto 36px;
+    padding: 18px 22px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+  }
+  .sub-account-status-row {
+    display: flex;
+    align-items: baseline;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .sub-account-status-label {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+  }
+  .sub-account-status-value {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .sub-account-status-actions {
+    margin-left: auto;
+  }
+  <%# Canonical action-button styles from the style guide, scoped to the page. %>
+  .sub-account-page .sp-action,
+  .sub-account-page .sp-action * {
+    font-family: var(--font-body) !important;
+  }
+  .sub-account-page .sp-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .sub-account-page .sp-action:disabled { opacity: 0.4; cursor: not-allowed; }
+  .sub-account-page .sp-action-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .sub-account-page .sp-action-primary:hover:not(:disabled) {
+    background: var(--ink-2);
+    border-color: var(--ink-2);
+  }
+  .sub-account-page .sp-action-secondary {
+    background: var(--paper);
+    border-color: var(--ink-line);
+    color: var(--ink);
+  }
+  .sub-account-page .sp-action-secondary:hover {
+    background: var(--hover);
+    border-color: var(--ink-3);
+  }
+  .sub-account-page .sp-action-quiet {
+    padding: 0 10px;
+    height: 30px;
+    background: transparent;
+    border-color: transparent;
+    color: var(--ink-2);
+    font-size: 12.5px;
+  }
+  .sub-account-page .sp-action-quiet:hover {
+    background: var(--hover);
+    color: var(--ink);
+  }
+  .sub-account-page .sp-action-danger { color: var(--error); }
+  .sub-account-page .sp-action-danger:hover {
+    background: rgba(122, 46, 46, 0.06);
+    color: var(--error);
+  }
+  .sub-account-form { display: inline-block; margin: 0; }
+  .sub-account-status-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .sub-account-pending {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+  }
+  .sub-account-warn {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(122, 46, 46, 0.06);
+    border: 1px solid var(--error);
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--error);
+  }
+
+  /* Reuse the same grid + tier card styles from /subscribe */
+  .sub-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    max-width: 1080px;
+    margin: 0 auto;
+    align-items: stretch;
+  }
+  .sub-tier {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 28px 24px 24px;
+  }
+  /* Current-plan ring uses source-blue so it never collides with the
+     concept-colored "Most powerful" treatment on the Unlimited card. */
+  .sub-tier.is-current {
+    border-color: var(--source);
+    box-shadow: 0 0 0 2px var(--source);
+  }
+  .sub-tier-storage {
+    border-color: color-mix(in srgb, var(--source) 35%, var(--ink-line));
+  }
+  .sub-tier-unlimited {
+    border: 2px solid var(--concept);
+  }
+  /* When Unlimited is the current plan, source ring wins outside, the
+     concept border still shows through at the corners. */
+  .sub-tier-unlimited.is-current {
+    border-color: var(--concept);
+    box-shadow: 0 0 0 2px var(--source);
+  }
+  .sub-tier-flag {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--concept);
+    color: var(--paper);
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .sub-tier-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .sub-tier-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .sub-tier-badge {
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--concept-2);
+    background: var(--concept-tint);
+    padding: 2px 8px;
+    border-radius: var(--r-sm);
+  }
+  .sub-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px; }
+  .sub-price-amt {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .sub-price-per { font-family: var(--font-body); font-size: 13.5px; color: var(--ink-3); }
+  .sub-tier-line {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-3);
+    margin: 0 0 22px;
+  }
+  .sub-features {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    flex: 1;
+  }
+  .sub-features li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--ink-line-soft);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+  .sub-features li:first-child { border-top: none; }
+  .sub-feat-label { color: var(--ink-3); }
+  .sub-feat-value { color: var(--ink); font-weight: 500; text-align: right; }
+
+  .sub-form { margin: 0; }
+  .sub-cta,
+  .sub-cta * {
+    font-family: var(--font-body) !important;
+  }
+  .sub-cta {
+    display: block;
+    width: 100%;
+    height: 44px;
+    line-height: 42px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: background 150ms, color 150ms, border-color 150ms;
+  }
+  .sub-cta-primary { background: var(--concept); color: var(--paper); border-color: var(--concept); }
+  .sub-cta-primary:hover { background: var(--concept-2); border-color: var(--concept-2); }
+  .sub-cta-secondary {
+    background: var(--paper);
+    color: var(--source-2);
+    border-color: var(--source);
+  }
+  .sub-cta-secondary:hover { background: var(--source-tint); }
+  .sub-cta-quiet {
+    background: var(--paper-soft);
+    color: var(--ink-3);
+    border-color: var(--ink-line);
+    cursor: default;
+  }
+
+  .sub-account-foot {
+    max-width: 720px;
+    margin: 32px auto 0;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+
+  .sub-interval {
+    max-width: 1080px;
+    margin: 0 auto 24px;
+    display: flex;
+    justify-content: center;
+  }
+  .sub-interval-toggle {
+    display: inline-flex;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-pill, 999px);
+    padding: 4px;
+    gap: 2px;
+  }
+  .sub-interval-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 8px 18px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-radius: var(--r-pill, 999px);
+    transition: background 150ms, color 150ms;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sub-interval-btn:hover { color: var(--ink-2); }
+  .sub-interval-btn.is-active {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .sub-interval-save {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--source-2);
+    background: var(--source-tint);
+    padding: 2px 7px;
+    border-radius: var(--r-sm);
+  }
+
+  .sub-price-foot {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-3);
+    margin: -4px 0 12px;
+  }
+  .sub-account-page[data-interval="monthly"] [data-annual-only] { display: none; }
+
+  @media (max-width: 880px) {
+    .sub-grid { grid-template-columns: 1fr; max-width: 480px; }
+    .sub-account-status-row { gap: 18px; }
+    .sub-account-status-actions { margin-left: 0; flex-basis: 100%; }
+  }
+</style>
+
+<script>
+  (function () {
+    var page = document.querySelector('.sub-account-page[data-interval]');
+    if (!page) return;
+
+    var buttons = page.querySelectorAll('.sub-interval-btn');
+    var amounts = page.querySelectorAll('.sub-price-amt[data-monthly]');
+    var inputs = page.querySelectorAll('.sub-interval-input');
+
+    function setInterval(target) {
+      page.setAttribute('data-interval', target);
+      buttons.forEach(function (b) {
+        var on = b.getAttribute('data-interval') === target;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      amounts.forEach(function (a) {
+        a.textContent = a.getAttribute('data-' + target) || a.textContent;
+      });
+      inputs.forEach(function (i) {
+        i.value = target === 'annual' ? 'annual' : 'month';
+      });
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        setInterval(b.getAttribute('data-interval'));
+      });
+    });
+
+    // Single-fire submit guard for the tier-switch forms.  Stops a second
+    // click from kicking off a duplicate Stripe Subscription update before
+    // the redirect from the first one lands.
+    page.querySelectorAll('.sub-form').forEach(function (form) {
+      form.addEventListener('submit', function () {
+        var btn = form.querySelector('input[type=submit], button[type=submit]');
+        if (!btn || btn.disabled) return;
+        var loading = btn.getAttribute('data-disable-with') || 'Loading…';
+        btn.dataset.originalValue = btn.value || btn.textContent;
+        if (btn.tagName === 'INPUT') btn.value = loading; else btn.textContent = loading;
+        btn.disabled = true;
+      });
+    });
+  })();
+</script>

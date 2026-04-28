@@ -445,6 +445,25 @@ export default function AdminPackShow({ packId }) {
             >
               {pack.published ? 'Unpublish' : 'Publish'}
             </button>
+            <button
+              onClick={() => handleUpdate({ show_on_homepage: !pack.show_on_homepage })}
+              disabled={saving || !pack.published}
+              title={!pack.published ? 'Publish the pack first' : ''}
+              style={{
+                background: pack.show_on_homepage ? '#1F3B73' : 'transparent',
+                color: pack.show_on_homepage ? 'white' : '#1F3B73',
+                border: '1px solid #1F3B73',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                fontFamily: 'Inter, -apple-system, sans-serif',
+                fontWeight: 500,
+                fontSize: '14px',
+                cursor: (saving || !pack.published) ? 'not-allowed' : 'pointer',
+                opacity: !pack.published ? 0.5 : 1,
+              }}
+            >
+              {pack.show_on_homepage ? 'Hide from homepage' : 'Show on homepage'}
+            </button>
           </div>
         </div>
 

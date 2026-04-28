@@ -1,1241 +1,1064 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PersonFormModal from './PersonFormModal';
-import MobileSidebarBackdrop from './MobileSidebarBackdrop';
-import useIsMobile from '../hooks/useIsMobile';
+import Toggle from './ui/Toggle';
+import { toTitleCase } from '../utils/titleCase';
+
+// =====================================================================
+// PeopleIndex
+// Library view of every Person the user owns: name, role, sources count,
+// concepts they touch, ORCID, tags.  Teal accents — the third category
+// color alongside Concept-navy and Source-blue.
+// =====================================================================
+
+const SORT_OPTIONS = [
+  { value: 'name-asc',          label: 'Name (A–Z)' },
+  { value: 'name-desc',         label: 'Name (Z–A)' },
+  { value: 'sources_count-desc',label: 'Most Sources' },
+  { value: 'sources_count-asc', label: 'Fewest Sources' },
+  { value: 'created_at-desc',   label: 'Recently Added' },
+];
 
 export default function PeopleIndex() {
-  const isMobile = useIsMobile();
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [showForm, setShowForm] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
+
+  const [textFilter, setTextFilter] = useState('');
   const [selectedRoles, setSelectedRoles] = useState([]);
-  const [selectedConcepts, setSelectedConcepts] = useState([]);
+  const [selectedConceptIds, setSelectedConceptIds] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [selectedSources, setSelectedSources] = useState([]);
-  const [selectedCollections, setSelectedCollections] = useState([]);
-  const [sourceSearchFilter, setSourceSearchFilter] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sortField, setSortField] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState([]);
+  const [hasOrcidOnly, setHasOrcidOnly] = useState(false);
 
-  useEffect(() => {
-    fetchPeople();
-  }, []);
+  const [sort, setSort] = useState('name-asc');
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Handle responsive sidebar - closed on mobile by default (below md: 768px)
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
-    // Set initial state
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  useEffect(() => { fetchPeople(); }, []);
 
   const fetchPeople = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/people.json');
-      const data = await response.json();
-      setPeople(data);
+      const r = await fetch('/people.json');
+      if (!r.ok) throw new Error(`Load failed (${r.status})`);
+      setPeople(await r.json());
+    } catch (e) {
+      console.error(e);
+      setError('We could not load your people.  Try refreshing the page.');
+    } finally {
       setLoading(false);
-    } catch (error) {
-      console.error('Error fetching people:', error);
-      setLoading(false);
     }
   };
 
-  // Get unique values for filters
-  const personRoles = [...new Set(people.map(p => p.role))].filter(Boolean).sort();
-
-  const conceptsMap = new Map();
-  people.forEach(p => {
-    (p.concepts || []).forEach(c => {
-      if (!conceptsMap.has(c.id)) {
-        conceptsMap.set(c.id, { id: c.id, label: c.label });
-      }
+  // ---- Facet metadata (computed from full set, not filtered) ----
+  const roleCounts = useMemo(() => {
+    const counts = {};
+    people.forEach(p => {
+      const r = (p.role || '').trim();
+      if (!r) return;
+      counts[r] = (counts[r] || 0) + 1;
     });
-  });
-  const allConcepts = Array.from(conceptsMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+    return counts;
+  }, [people]);
 
-  const allTags = [...new Set(people.flatMap(p => p.tags || []))].filter(Boolean).sort();
-
-  const sourcesMap = new Map();
-  people.forEach(p => {
-    (p.sources || []).forEach(s => {
-      if (!sourcesMap.has(s.id)) {
-        sourcesMap.set(s.id, { id: s.id, title: s.title, kind: s.kind });
-      }
+  // Concept facet covers concepts each person touches via authored work, not
+  // only direct PersonConcept links.  Backend hydrates `effective_concepts`
+  // per person with id+label objects; the union becomes the facet list.
+  const allConcepts = useMemo(() => {
+    const map = new Map();
+    people.forEach(p => {
+      const seen = new Set();
+      (p.effective_concepts || p.concepts || []).forEach(c => {
+        if (seen.has(c.id)) return;
+        seen.add(c.id);
+        const existing = map.get(c.id);
+        if (existing) existing.count += 1;
+        else map.set(c.id, { id: c.id, label: c.label, count: 1 });
+      });
     });
-  });
-  const allSources = Array.from(sourcesMap.values()).sort((a, b) => a.title.localeCompare(b.title));
-  const filteredSourcesForSidebar = sourceSearchFilter
-    ? allSources.filter(s => s.title.toLowerCase().includes(sourceSearchFilter.toLowerCase()))
-    : allSources;
+    return [...map.values()].sort((a, b) => a.label.localeCompare(b.label));
+  }, [people]);
 
-  const collectionsMap = new Map();
-  people.forEach(p => {
-    (p.collections || []).forEach(c => {
-      if (!collectionsMap.has(c.id)) {
-        collectionsMap.set(c.id, { id: c.id, name: c.name });
-      }
+  // Tag and collection facets cover effective reach (direct + via authored
+  // sources), so a researcher whose papers carry a tag still surfaces under
+  // that tag — same logic as concepts.
+  const allTags = useMemo(() => {
+    const counts = new Map();
+    people.forEach(p => {
+      const seen = new Set();
+      (p.effective_tag_names || p.tags || []).forEach(t => {
+        if (seen.has(t)) return;
+        seen.add(t);
+        counts.set(t, (counts.get(t) || 0) + 1);
+      });
     });
-  });
-  const allCollections = Array.from(collectionsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    return [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [people]);
 
-  // Filter people
-  const filteredPeople = people.filter(person => {
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      const matchesName = person.full_name?.toLowerCase().includes(query);
-      const matchesAka = person.aka?.some(aka => aka.toLowerCase().includes(query));
-      const matchesSummary = person.summary?.toLowerCase().includes(query);
-      if (!matchesName && !matchesAka && !matchesSummary) {
-        return false;
+  const allCollections = useMemo(() => {
+    const map = new Map();
+    people.forEach(p => {
+      const seen = new Set();
+      (p.effective_collections || p.collections || []).forEach(c => {
+        if (seen.has(c.id)) return;
+        seen.add(c.id);
+        const existing = map.get(c.id);
+        if (existing) existing.count += 1;
+        else map.set(c.id, { id: c.id, name: c.name, count: 1 });
+      });
+    });
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [people]);
+
+  const orcidCount = useMemo(() => people.filter(p => p.orcid).length, [people]);
+
+  // ---- Apply filters ----
+  const filtered = useMemo(() => {
+    return people.filter(p => {
+      if (hasOrcidOnly && !p.orcid) return false;
+      if (selectedRoles.length > 0 && !selectedRoles.includes((p.role || '').trim())) return false;
+      if (selectedConceptIds.length > 0) {
+        // Match against effective concepts (direct + via authored sources).
+        const reach = new Set(p.effective_concept_ids || (p.concepts || []).map(c => c.id));
+        if (!selectedConceptIds.some(id => reach.has(id))) return false;
       }
-    }
+      if (selectedTags.length > 0) {
+        const reach = p.effective_tag_names || p.tags || [];
+        if (!selectedTags.some(t => reach.includes(t))) return false;
+      }
+      if (selectedCollectionIds.length > 0) {
+        const reach = new Set(
+          (p.effective_collection_ids
+            || (p.collections || []).map(c => c.id))
+        );
+        if (!selectedCollectionIds.some(id => reach.has(id))) return false;
+      }
+      if (textFilter.trim()) {
+        const q = textFilter.toLowerCase();
+        const haystack = [
+          p.full_name, p.first_name, p.last_name, p.orcid,
+          ...(p.aka || []),
+        ].filter(Boolean).join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [people, hasOrcidOnly, selectedRoles, selectedConceptIds, selectedTags, selectedCollectionIds, textFilter]);
 
-    // Role filter
-    if (selectedRoles.length > 0 && !selectedRoles.includes(person.role)) {
-      return false;
-    }
+  // ---- Sort ----
+  const sorted = useMemo(() => {
+    const [field, dir] = sort.split('-');
+    const mult = dir === 'desc' ? -1 : 1;
+    return [...filtered].sort((a, b) => {
+      let av, bv;
+      switch (field) {
+        case 'sources_count':
+          av = a.sources_count || 0; bv = b.sources_count || 0; break;
+        case 'created_at':
+          av = a.created_at || ''; bv = b.created_at || ''; break;
+        case 'name':
+        default:
+          av = (a.last_name || a.full_name || '').toLowerCase();
+          bv = (b.last_name || b.full_name || '').toLowerCase();
+          break;
+      }
+      if (av < bv) return -1 * mult;
+      if (av > bv) return 1 * mult;
+      return 0;
+    });
+  }, [filtered, sort]);
 
-    // Concept filter
-    if (selectedConcepts.length > 0 && !person.concepts?.some(c => selectedConcepts.includes(c.id))) {
-      return false;
-    }
-
-    // Tag filter
-    if (selectedTags.length > 0 && !person.tags?.some(t => selectedTags.includes(t))) {
-      return false;
-    }
-
-    // Source filter
-    if (selectedSources.length > 0 && !person.sources?.some(s => selectedSources.includes(s.id))) {
-      return false;
-    }
-
-    // Collection filter
-    if (selectedCollections.length > 0 && !person.collections?.some(c => selectedCollections.includes(c.id))) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // Toggle selections
-  const toggleRole = (role) => {
-    setSelectedRoles(prev =>
-      prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role]
-    );
+  // ---- Filter mutators ----
+  const toggleInArray = (setter, current, value) => {
+    setter(current.includes(value) ? current.filter(v => v !== value) : [...current, value]);
   };
-
-  const toggleConcept = (conceptId) => {
-    setSelectedConcepts(prev =>
-      prev.includes(conceptId) ? prev.filter(c => c !== conceptId) : [...prev, conceptId]
-    );
-  };
-
-  const toggleTag = (tag) => {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
-    );
-  };
-
-  const toggleSource = (sourceId) => {
-    setSelectedSources(prev =>
-      prev.includes(sourceId) ? prev.filter(s => s !== sourceId) : [...prev, sourceId]
-    );
-  };
-
-  const toggleCollection = (collectionId) => {
-    setSelectedCollections(prev =>
-      prev.includes(collectionId) ? prev.filter(c => c !== collectionId) : [...prev, collectionId]
-    );
-  };
-
-  const clearAllFilters = () => {
+  const clearAll = () => {
+    setHasOrcidOnly(false);
     setSelectedRoles([]);
-    setSelectedConcepts([]);
+    setSelectedConceptIds([]);
     setSelectedTags([]);
-    setSelectedSources([]);
-    setSelectedCollections([]);
-    setSearchQuery('');
+    setSelectedCollectionIds([]);
+    setTextFilter('');
   };
 
-  const hasActiveFilters = selectedRoles.length > 0 || selectedConcepts.length > 0 ||
-                          selectedTags.length > 0 || selectedSources.length > 0 ||
-                          selectedCollections.length > 0 || searchQuery;
-
-  // Sort people
-  const sortedPeople = [...filteredPeople].sort((a, b) => {
-    let aVal, bVal;
-
-    switch (sortField) {
-      case 'name':
-        aVal = a.full_name || '';
-        bVal = b.full_name || '';
-        break;
-      case 'role':
-        aVal = a.role || '';
-        bVal = b.role || '';
-        break;
-      case 'sources':
-        aVal = a.sources_count || 0;
-        bVal = b.sources_count || 0;
-        break;
-      case 'notes':
-        aVal = a.notes_count || 0;
-        bVal = b.notes_count || 0;
-        break;
-      case 'tags':
-        aVal = (a.tags || []).length;
-        bVal = (b.tags || []).length;
-        break;
-      default:
-        aVal = a.full_name || '';
-        bVal = b.full_name || '';
-    }
-
-    if (typeof aVal === 'string') {
-      const comparison = aVal.localeCompare(bVal);
-      return sortDirection === 'asc' ? comparison : -comparison;
-    } else {
-      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-    }
-  });
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <p className="text-lg">Loading people...</p>
-      </div>
-    );
-  }
+  const activeFilterCount =
+    selectedRoles.length + selectedConceptIds.length + selectedTags.length +
+    selectedCollectionIds.length + (hasOrcidOnly ? 1 : 0);
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
-      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      {/* Sidebar */}
-      <div
-        style={{
-          ...(isMobile
-            ? {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                bottom: 0,
-                width: '280px',
-                padding: 'var(--space-6)',
-                boxShadow: 'var(--shadow-sidebar)',
-                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-                transition: 'transform 0.3s ease',
-                zIndex: 200,
-              }
-            : {
-                width: sidebarOpen ? '280px' : '0',
-                padding: sidebarOpen ? 'var(--space-6)' : '0',
-                boxShadow: sidebarOpen ? 'var(--shadow-sidebar)' : 'none',
-                transition: 'all 0.3s ease',
-              }),
-          background: '#e2e2e2',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        {sidebarOpen && (
-          <>
-            {/* Search */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: 'var(--neutral-500)',
-                  marginBottom: 'var(--space-3)',
-                }}
-              >
-                Search
-              </div>
-              <input
-                type="text"
-                placeholder="Name, summary..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="form-input"
-                style={{
-                  width: '100%',
-                  fontSize: 'var(--text-sm)',
-                  padding: 'var(--space-2)',
-                }}
-              />
-            </div>
+    <div className="pix">
+      <PixStyles />
 
-            {/* Clear all button */}
-            {hasActiveFilters && (
-              <button
-                onClick={clearAllFilters}
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  width: '100%',
-                  padding: 'var(--space-2)',
-                  marginBottom: 'var(--space-6)',
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--accent-gold)',
-                  background: 'transparent',
-                  border: '1px solid var(--accent-gold)',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: 500,
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-gold-light)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
+      <header className="pix-header">
+        <div>
+          <h1 className="pix-title">People</h1>
+          <p className="pix-subtitle">
+            {loading
+              ? 'Loading.'
+              : <>{people.length} person{people.length === 1 ? '' : 's'}{filtered.length !== people.length && <> · {filtered.length} shown</>}</>}
+            {activeFilterCount > 0 && (
+              <> · <button type="button" className="pix-link" onClick={clearAll}>Clear {activeFilterCount} Filter{activeFilterCount === 1 ? '' : 's'}</button></>
+            )}
+          </p>
+        </div>
+        <div className="pix-header-actions">
+          <button
+            type="button"
+            className="sp-action sp-action-primary"
+            onClick={() => { setEditingPerson(null); setShowForm(true); }}
+          >
+            <span className="pix-plus" aria-hidden="true">+</span> Person
+          </button>
+        </div>
+      </header>
+
+      <div className="pix-body">
+        <aside className={`pix-sidebar ${mobileFiltersOpen ? 'is-open' : 'is-collapsed'}`}>
+          <button
+            type="button"
+            className="pix-mobile-toggle"
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            aria-expanded={mobileFiltersOpen}
+          >
+            <span className="pix-mobile-toggle-label">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="pix-mobile-toggle-count">{activeFilterCount} active</span>
+            )}
+            <span className="pix-mobile-toggle-caret" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 5l3 3 3-3" />
+              </svg>
+            </span>
+          </button>
+
+          <div className="pix-sidebar-body">
+            <FilterSection label="Quick">
+              <div className="pix-quick-toggles">
+                <Toggle
+                  checked={hasOrcidOnly}
+                  onChange={() => setHasOrcidOnly(v => !v)}
+                  label="Has ORCID"
+                  count={orcidCount}
+                />
+              </div>
+            </FilterSection>
+
+            <FilterSection label="Role">
+              {Object.keys(roleCounts).length === 0 ? (
+                <p className="pix-filter-empty">No roles yet.</p>
+              ) : (
+                Object.entries(roleCounts)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([role, count]) => (
+                    <CheckboxRow
+                      key={role}
+                      checked={selectedRoles.includes(role)}
+                      onChange={() => toggleInArray(setSelectedRoles, selectedRoles, role)}
+                      label={toTitleCase(role)}
+                      count={count}
+                    />
+                  ))
+              )}
+            </FilterSection>
+
+            <FacetSection
+              label="Concepts"
+              noun="concepts"
+              items={allConcepts.map(c => ({ id: c.id, label: c.label, count: c.count }))}
+              selected={new Set(selectedConceptIds)}
+              onToggle={(id) => toggleInArray(setSelectedConceptIds, selectedConceptIds, id)}
+            />
+
+            {allTags.length > 0 && (
+              <FilterSection label="Tags">
+                <FacetSearchList
+                  noun="tags"
+                  items={allTags.map(t => ({ id: t.name, label: t.name, count: t.count }))}
+                  selectedSet={new Set(selectedTags)}
+                  onToggle={(t) => toggleInArray(setSelectedTags, selectedTags, t)}
+                />
+              </FilterSection>
+            )}
+
+            {allCollections.length > 0 && (
+              <FacetSection
+                label="Collections"
+                noun="collections"
+                items={allCollections.map(c => ({ id: c.id, label: c.name, count: c.count }))}
+                selected={new Set(selectedCollectionIds)}
+                onToggle={(id) => toggleInArray(setSelectedCollectionIds, selectedCollectionIds, id)}
+              />
+            )}
+
+            {activeFilterCount > 0 && (
+              <button type="button" className="pix-clear-all" onClick={clearAll}>
                 Clear All Filters
               </button>
             )}
-
-            {/* Role filters */}
-            {personRoles.length > 0 && (
-              <div style={{ marginBottom: 'var(--space-6)' }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--neutral-500)',
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  Role ({personRoles.length})
-                </div>
-
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  background: 'white',
-                  borderRadius: '6px',
-                  padding: 'var(--space-2)',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                  {personRoles.map(role => {
-                    const count = people.filter(p => p.role === role).length;
-                    const isSelected = selectedRoles.includes(role);
-                    return (
-                      <label
-                        key={role}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          padding: 'var(--space-1) var(--space-2)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: 'var(--text-sm)',
-                          color: 'var(--neutral-700)',
-                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
-                          transition: 'background 0.15s',
-                          marginBottom: '0.125rem',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleRole(role);
-                          }}
-                          style={{ accentColor: 'var(--accent-gold)' }}
-                        />
-                        <span style={{ flex: 1, textTransform: 'capitalize' }}>{role.replace(/_/g, ' ')}</span>
-                        <span
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-400)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Concept filters */}
-            {allConcepts.length > 0 && (
-              <div style={{ marginBottom: 'var(--space-6)' }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--neutral-500)',
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  Concept ({allConcepts.length})
-                </div>
-
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  background: 'white',
-                  borderRadius: '6px',
-                  padding: 'var(--space-2)',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                  {allConcepts.map(concept => {
-                    const count = people.filter(p => p.concepts?.some(c => c.id === concept.id)).length;
-                    const isSelected = selectedConcepts.includes(concept.id);
-                    return (
-                      <label
-                        key={concept.id}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          padding: 'var(--space-1) var(--space-2)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: 'var(--text-sm)',
-                          color: 'var(--neutral-700)',
-                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
-                          transition: 'background 0.15s',
-                          marginBottom: '0.125rem',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleConcept(concept.id);
-                          }}
-                          style={{ accentColor: 'var(--accent-gold)' }}
-                        />
-                        <span style={{ flex: 1 }}>{concept.label}</span>
-                        <span
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-400)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Tag filters */}
-            {allTags.length > 0 && (
-              <div style={{ marginBottom: 'var(--space-6)' }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--neutral-500)',
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  Tag ({allTags.length})
-                </div>
-
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  background: 'white',
-                  borderRadius: '6px',
-                  padding: 'var(--space-2)',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                  {allTags.map(tag => {
-                    const count = people.filter(p => p.tags?.includes(tag)).length;
-                    const isSelected = selectedTags.includes(tag);
-                    return (
-                      <label
-                        key={tag}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          padding: 'var(--space-1) var(--space-2)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: 'var(--text-sm)',
-                          color: 'var(--neutral-700)',
-                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
-                          transition: 'background 0.15s',
-                          marginBottom: '0.125rem',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleTag(tag);
-                          }}
-                          style={{ accentColor: 'var(--accent-gold)' }}
-                        />
-                        <span style={{ flex: 1 }}>{tag}</span>
-                        <span
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-400)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Source filters */}
-            {allSources.length > 0 && (
-              <div style={{ marginBottom: 'var(--space-6)' }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--neutral-500)',
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  Source ({allSources.length})
-                </div>
-
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  background: 'white',
-                  borderRadius: '6px',
-                  padding: 'var(--space-2)',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                  <input
-                    type="text"
-                    value={sourceSearchFilter}
-                    onChange={(e) => setSourceSearchFilter(e.target.value)}
-                    placeholder="Search sources..."
-                    style={{
-                      width: '100%',
-                      padding: 'var(--space-2)',
-                      marginBottom: 'var(--space-2)',
-                      fontSize: 'var(--text-xs)',
-                      border: '1px solid var(--neutral-300)',
-                      borderRadius: '4px',
-                      fontFamily: 'var(--font-body)',
-                      background: 'white',
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.outline = 'none';
-                      e.currentTarget.style.border = '2px solid var(--accent-gold)';
-                      e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--accent-gold) 15%, transparent)';
-                      e.currentTarget.style.padding = 'calc(var(--space-2) - 1px)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.border = '1px solid var(--neutral-300)';
-                      e.currentTarget.style.boxShadow = 'none';
-                      e.currentTarget.style.padding = 'var(--space-2)';
-                    }}
-                  />
-                  {filteredSourcesForSidebar.map(source => {
-                    const count = people.filter(p => p.sources?.some(s => s.id === source.id)).length;
-                    const isSelected = selectedSources.includes(source.id);
-                    return (
-                      <label
-                        key={source.id}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          padding: 'var(--space-1) var(--space-2)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: 'var(--text-sm)',
-                          color: 'var(--neutral-700)',
-                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
-                          transition: 'background 0.15s',
-                          marginBottom: '0.125rem',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleSource(source.id);
-                          }}
-                          style={{ accentColor: 'var(--accent-gold)' }}
-                        />
-                        <span style={{
-                          flex: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }} title={source.title}>{source.title}</span>
-                        <span
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-400)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Collection filters */}
-            {allCollections.length > 0 && (
-              <div style={{ marginBottom: 'var(--space-6)' }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: 'var(--text-xs)',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    color: 'var(--neutral-500)',
-                    marginBottom: 'var(--space-3)',
-                  }}
-                >
-                  Collection ({allCollections.length})
-                </div>
-
-                <div style={{
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  background: 'white',
-                  borderRadius: '6px',
-                  padding: 'var(--space-2)',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}>
-                  {allCollections.map(collection => {
-                    const count = people.filter(p => p.collections?.some(c => c.id === collection.id)).length;
-                    const isSelected = selectedCollections.includes(collection.id);
-                    return (
-                      <label
-                        key={collection.id}
-                        style={{
-                          fontFamily: 'var(--font-body)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-2)',
-                          padding: 'var(--space-1) var(--space-2)',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: 'var(--text-sm)',
-                          color: 'var(--neutral-700)',
-                          background: isSelected ? 'color-mix(in srgb, var(--accent-gold) 20%, white)' : 'transparent',
-                          transition: 'background 0.15s',
-                          marginBottom: '0.125rem',
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-gold) 15%, white)';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) e.currentTarget.style.background = 'transparent';
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            toggleCollection(collection.id);
-                          }}
-                          style={{ accentColor: 'var(--accent-gold)' }}
-                        />
-                        <span style={{ flex: 1 }}>{collection.name}</span>
-                        <span
-                          style={{
-                            fontSize: 'var(--text-xs)',
-                            color: 'var(--neutral-400)',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Toggle button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        style={{
-          position: isMobile ? 'fixed' : 'absolute',
-          left: sidebarOpen ? '280px' : '0',
-          top: '164px',
-          width: '24px',
-          height: '48px',
-          background: 'var(--accent-gold)',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderTopRightRadius: '4px',
-          borderBottomRightRadius: '4px',
-          transition: 'left 0.3s ease',
-          zIndex: 210,
-          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
-        }}
-        className="sidebar-toggle"
-        title={sidebarOpen ? 'Hide filters' : 'Show filters'}
-      >
-        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
-      </button>
-
-      {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
-        {/* Header */}
-        <div style={{
-          padding: 'var(--space-6) var(--space-8)',
-          background: 'color-mix(in srgb, var(--accent-gold) 15%, white)',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-          position: 'relative',
-          zIndex: 5,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-4xl)',
-                  fontWeight: 700,
-                  color: 'var(--accent-gold)',
-                  margin: 0,
-                  lineHeight: 1.1,
-                }}
-              >
-                People
-              </h1>
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-base)',
-                  color: 'var(--neutral-600)',
-                  marginTop: 'var(--space-1)',
-                  marginBottom: 0,
-                }}
-              >
-                {filteredPeople.length} of {people.length} people
-              </p>
-            </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              style={{
-                width: '48px',
-                height: '48px',
-                minWidth: '48px',
-                minHeight: '48px',
-                flexShrink: 0,
-                borderRadius: '50%',
-                background: 'var(--accent-gold)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--text-xl)',
-                transition: 'all 0.15s',
-                boxShadow: 'var(--shadow-md)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#8a6624';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--accent-gold)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }}
-              title="New Person"
-            >
-              <i className="fas fa-plus"></i>
-            </button>
           </div>
-        </div>
+        </aside>
 
-        <PersonFormModal
-          isOpen={showForm}
-          onClose={() => {
-            // Refresh data when closing edit modal (autosave means changes may have been made)
-            if (editingPerson) {
-              fetchPeople();
-            }
-            setShowForm(false);
-            setEditingPerson(null);
-          }}
-          onSuccess={() => {
-            fetchPeople();
-            setShowForm(false);
-            setEditingPerson(null);
-          }}
-          item={editingPerson}
-        />
-
-        {/* People Table */}
-        <div style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'white',
-          paddingTop: 'var(--space-8)',
-        }}>
-          {sortedPeople.length === 0 ? (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '3rem 1.5rem',
-                margin: 'var(--space-6)',
-                marginLeft: 'calc(var(--space-6) + 24px)',
-                background: 'white',
-                border: '1px solid var(--neutral-200)',
-                borderRadius: '4px',
-              }}
-            >
-              <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
-                No people found.
-              </p>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-                {hasActiveFilters ? 'Try adjusting your filters.' : 'Add your first person to track intellectual lineage and influence.'}
-              </p>
+        <main className="pix-main">
+          <div className="pix-toolbar">
+            <div className="pix-search">
+              <SearchIcon />
+              <input
+                type="text"
+                value={textFilter}
+                onChange={(e) => setTextFilter(e.target.value)}
+                placeholder="Search by name, ORCID, alias."
+                className="pix-search-input"
+              />
+              {textFilter && (
+                <button type="button" className="pix-search-clear" onClick={() => setTextFilter('')} aria-label="Clear search">×</button>
+              )}
             </div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="pix-sort"
+            >
+              {SORT_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {error ? (
+            <div className="pix-message pix-message-error">{error}</div>
+          ) : loading ? (
+            <div className="pix-message">Loading.</div>
+          ) : sorted.length === 0 ? (
+            <EmptyState
+              hasFilters={activeFilterCount > 0 || !!textFilter}
+              onClear={clearAll}
+              onCreate={() => { setEditingPerson(null); setShowForm(true); }}
+            />
           ) : (
-            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px' }}>
-                <thead style={{
-                  background: 'white',
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 10,
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                }}>
-                  <tr>
-                    <th
-                      onClick={() => handleSort('name')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.75rem 1rem 0.75rem 2rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-gold)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'opacity 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      Name {sortField === 'name' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th
-                      onClick={() => handleSort('role')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-gold)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'opacity 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      Role {sortField === 'role' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th style={{
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'center',
-                      padding: '0.75rem 1rem',
-                      fontWeight: 600,
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--accent-gold)',
-                      width: '80px'
-                    }}>
-                      Contact
-                    </th>
-                    <th
-                      onClick={() => handleSort('sources')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'center',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-gold)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'opacity 0.15s',
-                        width: '100px'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      Sources {sortField === 'sources' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th
-                      onClick={() => handleSort('notes')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'center',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-gold)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'opacity 0.15s',
-                        width: '100px'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      Notes {sortField === 'notes' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th
-                      onClick={() => handleSort('tags')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'center',
-                        padding: '0.75rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-gold)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'opacity 0.15s',
-                        width: '100px'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                      onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                    >
-                      Tags {sortField === 'tags' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th style={{
-                      padding: '0.75rem 1rem',
-                      width: '60px'
-                    }}>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedPeople.map(person => (
-                    <PersonRow
-                      key={person.id}
-                      person={person}
-                      onUpdate={fetchPeople}
-                      onEdit={(person) => {
-                        setEditingPerson(person);
-                        setShowForm(true);
-                      }}
-                    />
-                  ))}
-                </tbody>
-              </table>
+            <div className="pix-list">
+              {sorted.map(p => (
+                <PersonRow
+                  key={p.id}
+                  person={p}
+                  onEdit={() => { setEditingPerson(p); setShowForm(true); }}
+                />
+              ))}
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
+
+      <PersonFormModal
+        isOpen={showForm}
+        onClose={() => { setShowForm(false); setEditingPerson(null); fetchPeople(); }}
+        onSuccess={() => { setShowForm(false); setEditingPerson(null); fetchPeople(); }}
+        item={editingPerson}
+      />
     </div>
   );
 }
 
-function PersonRow({ person, onUpdate, onEdit }) {
-  const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete "${person.full_name}"?`)) return;
+// =====================================================================
+// Subcomponents
+// =====================================================================
+function FilterSection({ label, trailing, children }) {
+  return (
+    <div className="pix-filter-section">
+      <div className="pix-filter-head">
+        <span className="pix-filter-label">{label}</span>
+        {trailing}
+      </div>
+      <div className="pix-filter-body">{children}</div>
+    </div>
+  );
+}
 
-    try {
-      const response = await fetch(`/people/${person.id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-      });
+function CheckboxRow({ checked, onChange, label, count }) {
+  return (
+    <label className="pix-row">
+      <input type="checkbox" checked={checked} onChange={onChange} className="sp-checkbox" />
+      <span className="pix-row-label">{label}</span>
+      {count != null && <span className="pix-row-count">{count}</span>}
+    </label>
+  );
+}
 
-      if (response.ok) {
-        onUpdate();
-      } else {
-        const data = await response.json();
-        alert(data.error || 'Failed to delete person');
-      }
-    } catch (error) {
-      console.error('Error deleting person:', error);
-    }
+function FacetSection({ label, items, selected, onToggle, noun }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <FilterSection label={label}>
+      <FacetSearchList
+        items={items}
+        selectedSet={selected}
+        onToggle={onToggle}
+        noun={noun}
+      />
+    </FilterSection>
+  );
+}
+
+function FacetSearchList({ items, selectedSet, onToggle, noun = 'items' }) {
+  const [query, setQuery] = useState('');
+  const showSearch = items.length > 8;
+  const filtered = useMemo(() => {
+    if (!query.trim()) return items;
+    const q = query.toLowerCase();
+    return items.filter(i => String(i.label).toLowerCase().includes(q));
+  }, [items, query]);
+  const display = useMemo(() => {
+    const selectedItems = items.filter(i => selectedSet.has(i.id) && !filtered.find(f => f.id === i.id));
+    return [...selectedItems, ...filtered].slice(0, 50);
+  }, [items, filtered, selectedSet]);
+
+  return (
+    <>
+      {showSearch && (
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search ${items.length} ${noun}`}
+          className="pix-facet-search"
+        />
+      )}
+      <div className="pix-facet-list">
+        {display.map(item => (
+          <CheckboxRow
+            key={item.id}
+            checked={selectedSet.has(item.id)}
+            onChange={() => onToggle(item.id)}
+            label={item.label}
+            count={item.count}
+          />
+        ))}
+        {filtered.length > 50 && (
+          <p className="pix-filter-note">Showing first 50.  Refine search.</p>
+        )}
+      </div>
+    </>
+  );
+}
+
+function PersonRow({ person, onEdit }) {
+  const role = (person.role || '').trim();
+  // Clicking anywhere on the card navigates to the profile, except when the
+  // click lands on an inner link/button/chip that has its own behavior.
+  const handleCardClick = (e) => {
+    if (e.target.closest('a, button')) return;
+    window.location.href = `/people/${person.id}`;
   };
 
   return (
-    <tr
-      style={{
-        borderBottom: '1px solid var(--neutral-200)',
-        transition: 'background 0.15s',
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-50)'}
-      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-    >
-      {/* Name */}
-      <td style={{ padding: '0.75rem 1rem 0.75rem 2rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-          <a
-            href={`/people/${person.id}`}
-            style={{
-              fontSize: 'var(--text-sm)',
-              fontWeight: 500,
-              color: 'var(--neutral-900)',
-              textDecoration: 'none',
-              fontFamily: 'var(--font-body)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-          >
-            {person.full_name}
-          </a>
-          <button
-            onClick={() => onEdit(person)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--neutral-400)',
-              cursor: 'pointer',
-              padding: '2px 4px',
-              fontSize: '11px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              borderRadius: '2px',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--accent-gold)';
-              e.currentTarget.style.background = 'var(--neutral-100)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--neutral-400)';
-              e.currentTarget.style.background = 'transparent';
-            }}
-            title={`Edit ${person.full_name}`}
-          >
-            <i className="fas fa-pen"></i>
-          </button>
-        </div>
-      </td>
-
-      {/* Role */}
-      <td style={{ padding: '0.75rem 1rem' }}>
-        {person.role && (
-          <span
-            className="tag"
-            style={{
-              textTransform: 'uppercase',
-              background: 'var(--accent-gold-light)',
-              color: 'var(--accent-gold)',
-              fontSize: 'var(--text-xs)',
-              padding: '0.25rem 0.5rem',
-            }}
-          >
-            {person.role.replace(/_/g, ' ')}
-          </span>
-        )}
-      </td>
-
-      {/* Contact */}
-      <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
-          {person.email && (
+    <article className="pix-row-card pix-row-clickable" onClick={handleCardClick}>
+      <div className="pix-row-main">
+        <div className="pix-row-headline">
+          <a href={`/people/${person.id}`} className="pix-row-title">{toTitleCase(person.full_name)}</a>
+          {person.orcid && (
             <a
-              href={`mailto:${person.email}`}
-              style={{
-                color: 'var(--accent-gold)',
-                fontSize: 'var(--text-sm)',
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-              title={person.email}
-            >
-              <i className="fas fa-envelope"></i>
-            </a>
-          )}
-          {person.url && (
-            <a
-              href={person.url}
+              href={`https://orcid.org/${person.orcid}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                color: 'var(--accent-gold)',
-                fontSize: 'var(--text-sm)',
-                transition: 'color 0.15s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-              title={person.url}
+              className="pix-orcid"
+              title="View ORCID profile"
             >
-              <i className="fas fa-link"></i>
+              ORCID
             </a>
           )}
         </div>
-      </td>
 
-      {/* Sources */}
-      <td style={{
-        padding: '0.75rem 1rem',
-        textAlign: 'center',
-        fontSize: 'var(--text-sm)',
-        color: 'var(--neutral-600)',
-        fontFamily: 'var(--font-body)',
-      }}>
-        {person.sources_count || 0}
-      </td>
+        <div className="pix-row-meta">
+          {role && <span className="pix-row-role">{toTitleCase(role)}</span>}
+          {person.affiliation && (
+            <span className="pix-row-affiliation">{person.affiliation}</span>
+          )}
+          {person.sources_count > 0 && (
+            <span className="pix-mini-stat">
+              {person.sources_count} source{person.sources_count === 1 ? '' : 's'}
+            </span>
+          )}
+          {person.notes_count > 0 && (
+            <span className="pix-mini-stat">
+              {person.notes_count} note{person.notes_count === 1 ? '' : 's'}
+            </span>
+          )}
+        </div>
 
-      {/* Notes */}
-      <td style={{
-        padding: '0.75rem 1rem',
-        textAlign: 'center',
-        fontSize: 'var(--text-sm)',
-        color: 'var(--neutral-600)',
-        fontFamily: 'var(--font-body)',
-      }}>
-        {person.notes_count || 0}
-      </td>
+        {((person.concepts && person.concepts.length > 0) ||
+          (person.tags && person.tags.length > 0) ||
+          (person.collections && person.collections.length > 0)) && (
+          <div className="pix-row-tags">
+            {person.concepts?.slice(0, 4).map(c => (
+              <a key={c.id} href={`/concepts/${c.id}`} className="pix-concept-chip">{toTitleCase(c.label)}</a>
+            ))}
+            {person.concepts?.length > 4 && (
+              <span className="pix-mini-stat">+{person.concepts.length - 4}</span>
+            )}
+            {person.tags?.slice(0, 3).map(t => (
+              <span key={t} className="pix-tag-chip">{t}</span>
+            ))}
+            {person.collections?.map(c => (
+              <a key={c.id} href={`/collections/${c.id}`} className="pix-collection-chip">{c.name}</a>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Tags */}
-      <td style={{
-        padding: '0.75rem 1rem',
-        textAlign: 'center',
-        fontSize: 'var(--text-sm)',
-        color: 'var(--neutral-600)',
-        fontFamily: 'var(--font-body)',
-      }}>
-        {(person.tags || []).length}
-      </td>
-
-      {/* Delete */}
-      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-        <button
-          onClick={handleDelete}
-          className="icon-btn"
-          title="Delete"
-          style={{
-            color: 'var(--accent-gold)',
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0.25rem',
-            fontSize: 'var(--text-sm)',
-            transition: 'color 0.15s',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#8a6624'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-gold)'}
-        >
-          <i className="fas fa-trash"></i>
+      <aside className="pix-row-side">
+        <button type="button" className="pix-row-action" onClick={onEdit}>
+          <EditIcon /> Edit Person
         </button>
-      </td>
-    </tr>
+      </aside>
+    </article>
+  );
+}
+
+function EmptyState({ hasFilters, onClear, onCreate }) {
+  if (hasFilters) {
+    return (
+      <div className="pix-empty">
+        <h2 className="pix-empty-title">No Matches</h2>
+        <p className="pix-empty-text">Adjust the filters or search and try again.</p>
+        <div className="pix-empty-actions">
+          <button type="button" className="sp-action sp-action-secondary" onClick={onClear}>Clear Filters</button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="pix-empty">
+      <h2 className="pix-empty-title">No People Yet</h2>
+      <p className="pix-empty-text">
+        People show up here automatically when sources are added with author info.
+        You can also create them by hand for collaborators or correspondents.
+      </p>
+      <div className="pix-empty-actions">
+        <button type="button" className="sp-action sp-action-primary" onClick={onCreate}>
+          <span className="pix-plus">+</span> First Person
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// Icons
+// =====================================================================
+function SearchIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" />
+      <path d="M11 11l3 3" strokeLinecap="round" />
+    </svg>
+  );
+}
+function EditIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function PixStyles() {
+  return (
+    <style>{`
+      .pix {
+        flex: 1;
+        background: var(--paper);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .pix-header {
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 32px 24px 20px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .pix-title {
+        font-family: var(--font-display);
+        font-size: 36px;
+        font-weight: 600;
+        color: var(--person);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin: 0;
+      }
+      .pix-subtitle {
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        color: var(--ink-3);
+        margin: 6px 0 0;
+      }
+      .pix-link {
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--person-2);
+        cursor: pointer;
+        font: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .pix-link:hover { color: var(--person); }
+      .pix-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .pix-plus { font-family: var(--font-mono); font-weight: 500; }
+
+      /* Teal accents on action primary + checkboxes */
+      .pix .sp-action-primary {
+        background: var(--person);
+        border-color: var(--person);
+      }
+      .pix .sp-action-primary:hover:not(:disabled) {
+        background: var(--person-2);
+        border-color: var(--person-2);
+      }
+      .pix .sp-checkbox:checked,
+      .pix .sp-checkbox:indeterminate {
+        background: var(--person);
+        border-color: var(--person);
+      }
+
+      .pix-body {
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 0 24px 64px;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
+        gap: 32px;
+      }
+
+      .pix-sidebar {
+        position: sticky;
+        top: 88px;
+        align-self: start;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+      .pix-mobile-toggle { display: none; }
+      .pix-sidebar-body { display: block; }
+
+      .pix-filter-section { margin-bottom: 24px; }
+      /* Teal tint for ON-state toggles on this page */
+      .pix-quick-toggles { --toggle-on: var(--person); display: flex; flex-direction: column; gap: 1px; }
+      .pix-filter-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .pix-filter-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .pix-filter-body { display: flex; flex-direction: column; gap: 1px; }
+      .pix-filter-empty {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-4);
+        margin: 0;
+        padding: 4px 8px;
+      }
+      .pix-filter-note {
+        font-family: var(--font-body);
+        font-size: 11px;
+        color: var(--ink-4);
+        margin: 4px 0 0;
+        padding: 0 8px;
+      }
+      .pix-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        cursor: pointer;
+        border-radius: var(--r-sm);
+      }
+      .pix-row:hover { background: var(--hover); color: var(--ink); }
+      .pix-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .pix-row-count {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .pix-facet-search {
+        width: 100%;
+        height: 28px;
+        padding: 0 8px;
+        margin-bottom: 6px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink);
+      }
+      .pix-facet-search:focus { outline: none; border-color: var(--person); }
+      /* Bordered, slightly inset container — makes it visually obvious that
+         the list is scrollable when it overflows.  The inset bottom shadow
+         hints at content below the fold. */
+      .pix-facet-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        max-height: 240px;
+        overflow-y: auto;
+        padding: 4px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        box-shadow: inset 0 -8px 8px -8px rgba(15, 23, 35, 0.08);
+      }
+      .pix-facet-list::-webkit-scrollbar { width: 8px; }
+      .pix-facet-list::-webkit-scrollbar-track { background: transparent; }
+      .pix-facet-list::-webkit-scrollbar-thumb {
+        background: var(--ink-line);
+        border-radius: 4px;
+      }
+      .pix-facet-list::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+      .pix-clear-all {
+        margin-top: 8px;
+        background: transparent;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+        cursor: pointer;
+        width: 100%;
+      }
+      .pix-clear-all:hover { background: var(--hover); color: var(--ink); }
+
+      /* Main */
+      .pix-main { min-width: 0; }
+      .pix-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .pix-search {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        color: var(--ink-3);
+        max-width: 480px;
+        transition: border-color var(--transition-fast);
+      }
+      .pix-search:focus-within { border-color: var(--person); color: var(--ink); }
+      .pix-search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+        min-width: 0;
+      }
+      .pix-search-input::placeholder { color: var(--ink-3); }
+      .pix-search-clear {
+        background: none;
+        border: none;
+        color: var(--ink-3);
+        font-size: 18px;
+        line-height: 1;
+        padding: 0 4px;
+        cursor: pointer;
+      }
+      .pix-search-clear:hover { color: var(--ink); }
+      .pix-sort {
+        height: 36px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .pix-sort:focus { outline: none; border-color: var(--person); }
+
+      .pix-message {
+        padding: 64px 24px;
+        text-align: center;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+      .pix-message-error { color: var(--error); }
+
+      .pix-empty {
+        max-width: 540px;
+        margin: 48px auto;
+        text-align: center;
+        padding: 32px 24px;
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+      }
+      .pix-empty-title {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 8px;
+      }
+      .pix-empty-text {
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--ink-2);
+        line-height: 1.6;
+        margin: 0 0 20px;
+      }
+      .pix-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+      /* Person rows */
+      .pix-list { display: flex; flex-direction: column; gap: 10px; }
+      .pix-row-card {
+        display: flex;
+        gap: 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 14px 16px;
+        transition: border-color var(--transition-fast);
+      }
+      .pix-row-card:hover {
+        border-color: color-mix(in srgb, var(--person) 50%, var(--ink-line));
+      }
+      .pix-row-clickable { cursor: pointer; }
+      .pix-row-main { flex: 1; min-width: 0; }
+      .pix-row-headline {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .pix-row-title {
+        font-family: var(--font-display);
+        font-size: 15.5px;
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.35;
+        text-decoration: none;
+      }
+      .pix-row-title:hover { color: var(--person-2); }
+      .pix-orcid {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        background: var(--person-tint);
+        color: var(--person-2);
+        padding: 1px 6px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+      }
+      .pix-orcid:hover {
+        background: color-mix(in srgb, var(--person-tint) 60%, var(--person) 40%);
+        color: var(--paper);
+      }
+
+      .pix-row-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        margin-top: 6px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        align-items: baseline;
+      }
+      .pix-row-role {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--person-2);
+        font-weight: 600;
+      }
+      .pix-row-affiliation {
+        font-size: 12.5px;
+        color: var(--ink-2);
+      }
+      .pix-mini-stat {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+      }
+
+      .pix-row-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+        margin-top: 8px;
+        align-items: center;
+      }
+      .pix-concept-chip {
+        display: inline-block;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--concept-2);
+        background: var(--concept-tint);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+      }
+      .pix-concept-chip:hover { background: color-mix(in srgb, var(--concept-tint) 70%, var(--concept) 30%); }
+      .pix-tag-chip {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        background: var(--paper-soft);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+      }
+      .pix-collection-chip {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-2);
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+      }
+      .pix-collection-chip:hover { background: var(--hover); color: var(--ink); }
+
+      /* Right-side action column */
+      .pix-row-side {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex-shrink: 0;
+        padding-left: 14px;
+        margin-left: 8px;
+        border-left: 1px solid var(--ink-line-soft);
+        align-self: stretch;
+        justify-content: center;
+      }
+      .pix-row-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 10px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ink-3);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.12s, color 0.12s;
+      }
+      .pix-row-action:hover {
+        background: var(--person-tint);
+        color: var(--person-2);
+      }
+
+      /* Responsive */
+      @media (max-width: 900px) {
+        .pix-body { grid-template-columns: 1fr; }
+        .pix-sidebar {
+          position: static;
+          max-height: none;
+          padding: 0;
+          background: var(--paper);
+          border: 1px solid var(--ink-line);
+          border-radius: var(--r-md);
+          margin-bottom: 16px;
+          overflow: hidden;
+        }
+        .pix-mobile-toggle {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 12px 16px;
+          background: var(--paper);
+          border: none;
+          cursor: pointer;
+          font-family: var(--font-body);
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--ink);
+          text-align: left;
+        }
+        .pix-sidebar.is-open .pix-mobile-toggle { border-bottom: 1px solid var(--ink-line); }
+        .pix-mobile-toggle:hover { background: var(--paper-soft); }
+        .pix-mobile-toggle-label { flex: 1; }
+        .pix-mobile-toggle-count {
+          font-family: var(--font-body);
+          font-size: 11px;
+          font-weight: 500;
+          color: var(--person-2);
+          background: var(--person-tint);
+          padding: 2px 8px;
+          border-radius: var(--r-sm);
+        }
+        .pix-mobile-toggle-caret {
+          display: inline-flex;
+          align-items: center;
+          color: var(--ink-3);
+          transition: transform 0.15s;
+        }
+        .pix-sidebar.is-collapsed .pix-mobile-toggle-caret { transform: rotate(-90deg); }
+        .pix-sidebar.is-collapsed .pix-sidebar-body { display: none; }
+        .pix-sidebar-body { padding: 16px; }
+      }
+      @media (max-width: 600px) {
+        .pix-header { padding: 20px 16px 12px; }
+        .pix-body { padding: 0 16px 48px; gap: 16px; }
+        .pix-title { font-size: 28px; }
+        .pix-toolbar { flex-direction: column; align-items: stretch; }
+        .pix-search { max-width: none; }
+        .pix-row-card { flex-direction: column; gap: 12px; }
+        .pix-row-side {
+          flex-direction: row;
+          flex-wrap: wrap;
+          padding-left: 0;
+          margin-left: 0;
+          border-left: none;
+          padding-top: 10px;
+          border-top: 1px solid var(--ink-line-soft);
+        }
+      }
+    `}</style>
   );
 }

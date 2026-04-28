@@ -1,0 +1,112 @@
+<% if user_signed_in? && current_user.source_quota_state != :pro %>
+  <% state = current_user.source_quota_state %>
+  <% count = current_user.sources_count %>
+  <% limit = User::FREE_SOURCE_LIMIT %>
+
+  <div class="quota-banner quota-banner-<%= state %>" role="status">
+    <div class="quota-banner-inner">
+      <div class="quota-banner-text">
+        <% if state == :under_limit %>
+          <span class="quota-banner-label">Free tier</span>
+          <span class="quota-banner-message"><%= count %> of <%= limit %> articles</span>
+        <% elsif state == :grace %>
+          <span class="quota-banner-label">Library is full</span>
+          <span class="quota-banner-message">
+            You have <%= time_ago_in_words(current_user.source_count_grace_until) %> to subscribe before imports pause.
+          </span>
+        <% elsif state == :blocked %>
+          <span class="quota-banner-label">Imports paused</span>
+          <span class="quota-banner-message">
+            You're past the free tier limit of <%= limit %> articles.  Subscribe to keep importing.
+          </span>
+        <% end %>
+      </div>
+
+      <% if state == :under_limit %>
+        <div class="quota-banner-bar" aria-hidden="true">
+          <div class="quota-banner-bar-fill" style="width: <%= [(count.to_f / limit * 100).round, 100].min %>%;"></div>
+        </div>
+      <% else %>
+        <%= link_to "Subscribe to Pro →", subscribe_path, class: "quota-banner-cta" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<style>
+  .quota-banner {
+    border-bottom: 1px solid var(--ink-line);
+    background: var(--paper-soft);
+    font-family: var(--font-body);
+  }
+  .quota-banner-grace { background: rgba(139, 90, 60, 0.06); border-bottom-color: rgba(139, 90, 60, 0.18); }
+  .quota-banner-blocked { background: rgba(122, 46, 46, 0.06); border-bottom-color: rgba(122, 46, 46, 0.2); }
+
+  .quota-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    flex-wrap: wrap;
+  }
+  .quota-banner-text {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .quota-banner-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .quota-banner-grace   .quota-banner-label { color: var(--warning); }
+  .quota-banner-blocked .quota-banner-label { color: var(--error); }
+  .quota-banner-message {
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.4;
+  }
+  .quota-banner-bar {
+    width: 200px;
+    height: 4px;
+    background: var(--ink-line);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .quota-banner-bar-fill {
+    height: 100%;
+    background: var(--concept);
+    transition: width 240ms ease;
+  }
+  .quota-banner-cta {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--concept);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid var(--concept);
+    border-radius: var(--r-sm);
+    transition: background 150ms ease, color 150ms ease;
+    flex-shrink: 0;
+  }
+  .quota-banner-cta:hover {
+    background: var(--concept);
+    color: #fff;
+  }
+  .quota-banner-blocked .quota-banner-cta { color: var(--error); border-color: var(--error); }
+  .quota-banner-blocked .quota-banner-cta:hover { background: var(--error); color: #fff; }
+  .quota-banner-grace .quota-banner-cta { color: var(--warning); border-color: var(--warning); }
+  .quota-banner-grace .quota-banner-cta:hover { background: var(--warning); color: #fff; }
+
+  @media (max-width: 600px) {
+    .quota-banner-bar { display: none; }
+  }
+</style>

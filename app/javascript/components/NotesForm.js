@@ -403,12 +403,12 @@ export default function NotesForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Link to Construct</label>
+            <label className="block text-sm font-medium mb-1">Link to Concept</label>
             <ConceptSelector
               selectedConceptIds={formData.concept_id ? [parseInt(formData.concept_id)] : []}
               onChange={(concept_ids) => setFormData({ ...formData, concept_id: concept_ids[0] || '' })}
             />
-            <p className="text-xs text-gray-600 mt-1">Select one construct (optional)</p>
+            <p className="text-xs text-gray-600 mt-1">Select one concept (optional)</p>
           </div>
 
           <div>

@@ -5,7 +5,7 @@ export default function CollectionSelector({
   itemId,
   selectedCollectionIds = [],
   onChange,
-  themeColor = 'var(--accent-maroon)',
+  themeColor = 'var(--ink-3)',
   disabled = false
 }) {
   const [allCollections, setAllCollections] = useState([]);
@@ -172,6 +172,7 @@ export default function CollectionSelector({
       borderRadius: 'var(--radius)',
       background: 'white',
       height: '100%',
+      maxHeight: '400px',
       display: 'flex',
       flexDirection: 'column',
       fontFamily: 'var(--font-body)',
@@ -313,7 +314,7 @@ export default function CollectionSelector({
             {filter ? 'No matches. Press Enter to create.' : 'No collections yet.'}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {filteredCollections.map(collection => {
               const isSelected = selectedCollectionIds.includes(collection.id);
               return (
@@ -324,7 +325,7 @@ export default function CollectionSelector({
                     alignItems: 'center',
                     gap: 'var(--space-2)',
                     cursor: 'pointer',
-                    padding: 'var(--space-2)',
+                    padding: '2px 4px',
                     borderRadius: 'var(--radius)',
                     transition: 'background 0.15s',
                     fontFamily: 'var(--font-body)'

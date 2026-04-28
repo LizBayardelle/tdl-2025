@@ -1,888 +1,799 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ConceptFormModal from './ConceptFormModal';
-import MobileSidebarBackdrop from './MobileSidebarBackdrop';
-import useIsMobile from '../hooks/useIsMobile';
+import ConceptTypeReference, { ConceptTypeHelpButton } from './ConceptTypeReference';
 import { buildConceptHierarchy, flattenHierarchy } from '../utils/conceptHierarchy';
 import { NODE_TYPES, getNodeTypeLabel } from '../config/nodeTypes';
+import { toTitleCase } from '../utils/titleCase';
+
+// =====================================================================
+// ConceptsIndex
+// Library view of every concept the user owns: clean table, hierarchy
+// indent, type + origin filters, pack provenance.
+// =====================================================================
 
 export default function ConceptsIndex() {
-  const isMobile = useIsMobile();
   const [concepts, setConcepts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [showForm, setShowForm] = useState(false);
-  const [conceptStack, setConceptStack] = useState([]); // Stack of concepts for nested editing
+  const [conceptStack, setConceptStack] = useState([]);
+  const [showTypeRef, setShowTypeRef] = useState(false);
+
+  const [textFilter, setTextFilter] = useState('');
   const [selectedTypes, setSelectedTypes] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [origin, setOrigin] = useState('all'); // 'all' | 'mine' | 'pack'
+
   const [sortField, setSortField] = useState('label');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDir, setSortDir] = useState('asc');
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  useEffect(() => {
-    fetchConcepts();
-  }, []);
+  const activeFilterCount = (selectedTypes.length > 0 ? selectedTypes.length : 0) + (origin !== 'all' ? 1 : 0);
 
-  // Handle responsive sidebar - closed on mobile by default (below md: 768px)
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
-    // Set initial state
-    handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  useEffect(() => { fetchConcepts(); }, []);
 
   const fetchConcepts = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch('/concepts.json');
-      const data = await response.json();
+      const res = await fetch('/concepts.json');
+      if (!res.ok) throw new Error(`Load failed (${res.status})`);
+      const data = await res.json();
       setConcepts(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching concepts:', error);
+    } catch (err) {
+      console.error(err);
+      setError('We could not load your concepts.  Try refreshing the page.');
+    } finally {
       setLoading(false);
     }
   };
 
-  // Get unique types from actual data
-  const conceptTypes = [...new Set(concepts.map(c => c.concept_type))].filter(Boolean).sort();
+  // ---- Type counts (computed across all concepts, not filtered) ----
+  const typeCounts = useMemo(() => {
+    const counts = {};
+    concepts.forEach((c) => {
+      const t = c.effective_concept_type || c.concept_type;
+      if (!t) return;
+      counts[t] = (counts[t] || 0) + 1;
+    });
+    return counts;
+  }, [concepts]);
 
-  // Filter concepts based on selected types
-  const filteredConcepts = selectedTypes.length === 0
-    ? concepts
-    : concepts.filter(concept => selectedTypes.includes(concept.concept_type));
+  const packCount = useMemo(
+    () => concepts.filter((c) => c.definition?.pack?.name).length,
+    [concepts]
+  );
 
-  // Toggle type selection
-  const toggleType = (type) => {
-    setSelectedTypes(prev =>
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
-  };
-
-  // Handle sorting
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  // Build hierarchy first
-  const hierarchy = buildConceptHierarchy(filteredConcepts);
-
-  // Sort hierarchy recursively at each level
-  const sortHierarchy = (nodes) => {
-    return nodes.sort((a, b) => {
-      let aVal, bVal;
-
-      if (sortField === 'label') {
-        aVal = a.label.toLowerCase();
-        bVal = b.label.toLowerCase();
-      } else if (sortField === 'type') {
-        aVal = a.concept_type;
-        bVal = b.concept_type;
-      } else if (sortField === 'relationships') {
-        const getRelCount = (concept) => {
-          const outgoing = concept.outgoing_connections?.length || 0;
-          const incoming = concept.incoming_connections?.length || 0;
-          return outgoing + incoming;
-        };
-        aVal = getRelCount(a);
-        bVal = getRelCount(b);
+  // ---- Apply filters ----
+  const filtered = useMemo(() => {
+    return concepts.filter((c) => {
+      if (origin === 'mine' && c.definition_id) return false;
+      if (origin === 'pack' && !c.definition_id) return false;
+      const t = c.effective_concept_type || c.concept_type;
+      if (selectedTypes.length > 0 && !selectedTypes.includes(t)) return false;
+      if (textFilter.trim()) {
+        const q = textFilter.toLowerCase();
+        if (!c.label?.toLowerCase().includes(q)) return false;
       }
+      return true;
+    });
+  }, [concepts, origin, selectedTypes, textFilter]);
 
-      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    }).map(node => ({
-      ...node,
-      children: node.children ? sortHierarchy(node.children) : []
-    }));
+  // ---- Hierarchy (only when no text filter) ----
+  const rows = useMemo(() => {
+    if (textFilter.trim() || sortField !== 'label') {
+      // Flat sorted list
+      const sorted = [...filtered].sort((a, b) => compareConcepts(a, b, sortField, sortDir));
+      return sorted.map((c) => ({ concept: c, depth: 0 }));
+    }
+    const tree = buildConceptHierarchy(filtered);
+    const sortedTree = sortTree(tree, sortDir);
+    return flattenHierarchy(sortedTree);
+  }, [filtered, sortField, sortDir, textFilter]);
+
+  const toggleSort = (field) => {
+    if (sortField === field) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    else { setSortField(field); setSortDir('asc'); }
   };
 
-  // Sort the hierarchy at all levels
-  const sortedHierarchy = sortHierarchy(hierarchy);
-
-  // Flatten for display
-  const flatConcepts = flattenHierarchy(sortedHierarchy);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <p className="text-lg">Loading constructs...</p>
-      </div>
+  const toggleType = (type) => {
+    setSelectedTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
     );
-  }
+  };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', position: 'relative' }}>
-      <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="cidx">
+      <CIdxStyles />
 
-      {/* Sidebar */}
-      <div
-        style={{
-          ...(isMobile
-            ? {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                bottom: 0,
-                width: '280px',
-                padding: 'var(--space-6)',
-                boxShadow: 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)',
-                transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-                transition: 'transform 0.3s ease',
-                zIndex: 200,
-              }
-            : {
-                width: sidebarOpen ? '280px' : '0',
-                padding: sidebarOpen ? 'var(--space-6)' : '0',
-                boxShadow: sidebarOpen ? 'inset -8px 0 16px -8px rgba(0, 0, 0, 0.25)' : 'none',
-                transition: 'all 0.3s ease',
-              }),
-          background: '#e2e2e2',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        {sidebarOpen && (
-          <>
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: 'var(--neutral-500)',
-                  marginBottom: 'var(--space-3)',
-                }}
-              >
-                Filter by Type
-              </div>
+      <header className="cidx-header">
+        <div>
+          <h1 className="cidx-title">Concepts</h1>
+          <p className="cidx-subtitle">
+            {concepts.length} concept{concepts.length === 1 ? '' : 's'}
+            {packCount > 0 && <> · {packCount} from pack{packCount === 1 ? '' : 's'}</>}
+          </p>
+        </div>
+        <div className="cidx-header-actions">
+          <a href="/packs" className="sp-action sp-action-secondary">Browse packs</a>
+          <button type="button" className="sp-action sp-action-primary" onClick={() => { setConceptStack([]); setShowForm(true); }}>
+            <span className="cidx-plus" aria-hidden="true">+</span> Concept
+          </button>
+        </div>
+      </header>
 
-              {/* Clear all button */}
-              {selectedTypes.length > 0 && (
-                <button
-                  onClick={() => setSelectedTypes([])}
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    width: '100%',
-                    padding: 'var(--space-2)',
-                    marginBottom: 'var(--space-3)',
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--primary)',
-                    background: 'transparent',
-                    border: '1px solid var(--primary)',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--accent-green-light)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  Clear All ({selectedTypes.length})
-                </button>
-              )}
+      <div className="cidx-body">
+        <aside className={`cidx-sidebar ${mobileFiltersOpen ? 'is-open' : 'is-collapsed'}`}>
+          <button
+            type="button"
+            className="cidx-mobile-toggle"
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            aria-expanded={mobileFiltersOpen}
+          >
+            <span className="cidx-mobile-toggle-label">Filters</span>
+            {activeFilterCount > 0 && (
+              <span className="cidx-mobile-toggle-count">{activeFilterCount} active</span>
+            )}
+            <span className="cidx-mobile-toggle-caret" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 5l3 3 3-3" />
+              </svg>
+            </span>
+          </button>
+          <div className="cidx-sidebar-body">
+          <FilterSection label="Origin">
+            <RadioRow checked={origin === 'all'}  onChange={() => setOrigin('all')}  label="All concepts" count={concepts.length} />
+            <RadioRow checked={origin === 'mine'} onChange={() => setOrigin('mine')} label="My library"     count={concepts.length - packCount} />
+            <RadioRow checked={origin === 'pack'} onChange={() => setOrigin('pack')} label="From packs"     count={packCount} />
+          </FilterSection>
 
-              {/* Type filters */}
-              {conceptTypes.map(type => {
-                const count = concepts.filter(n => n.concept_type === type).length;
-                const isSelected = selectedTypes.includes(type);
-                return (
-                  <label
-                    key={type}
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-2)',
-                      padding: 'var(--space-2)',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-700)',
-                      background: isSelected ? 'var(--neutral-200)' : 'transparent',
-                      transition: 'background 0.15s',
-                      marginBottom: '0.25rem',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = 'var(--neutral-100)';
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected) e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleType(type);
-                      }}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ flex: 1 }}>{getNodeTypeLabel(type)}</span>
-                    <span
-                      style={{
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--neutral-400)',
-                        fontWeight: 500,
-                      }}
-                    >
-                      {count}
-                    </span>
-                  </label>
-                );
-              })}
+          <FilterSection
+            label="Type"
+            trailing={<ConceptTypeHelpButton onClick={() => setShowTypeRef(true)} />}
+          >
+            {NODE_TYPES.map((t) => {
+              const count = typeCounts[t.value] || 0;
+              if (count === 0 && !selectedTypes.includes(t.value)) return null;
+              return (
+                <CheckboxRow
+                  key={t.value}
+                  checked={selectedTypes.includes(t.value)}
+                  onChange={() => toggleType(t.value)}
+                  label={t.label}
+                  count={count}
+                />
+              );
+            })}
+            {selectedTypes.length > 0 && (
+              <button className="cidx-clear" onClick={() => setSelectedTypes([])}>
+                Clear ({selectedTypes.length})
+              </button>
+            )}
+          </FilterSection>
+          </div>
+        </aside>
+
+        <main className="cidx-main">
+          <div className="cidx-toolbar">
+            <div className="cidx-search">
+              <SearchIcon />
+              <input
+                type="text"
+                value={textFilter}
+                onChange={(e) => setTextFilter(e.target.value)}
+                placeholder={`Filter ${concepts.length} concept${concepts.length === 1 ? '' : 's'}`}
+                className="cidx-search-input"
+              />
             </div>
-          </>
-        )}
-      </div>
-
-      {/* Toggle button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        style={{
-          position: isMobile ? 'fixed' : 'absolute',
-          left: sidebarOpen ? '280px' : '0',
-          top: '164px',
-          width: '24px',
-          height: '48px',
-          background: 'var(--primary)',
-          border: 'none',
-          color: 'white',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderTopRightRadius: '4px',
-          borderBottomRightRadius: '4px',
-          transition: 'left 0.3s ease',
-          zIndex: 210,
-          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
-        }}
-        className="sidebar-toggle"
-        title={sidebarOpen ? 'Hide filters' : 'Show filters'}
-      >
-        <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
-      </button>
-
-      {/* Main content */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
-        {/* Header */}
-        <div style={{
-          padding: 'var(--space-6) var(--space-8)',
-          background: 'color-mix(in srgb, var(--accent-green) 15%, white)',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-          position: 'relative',
-          zIndex: 5,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-4xl)',
-                  fontWeight: 700,
-                  color: 'var(--accent-green)',
-                  letterSpacing: '-0.02em',
-                  marginBottom: 'var(--space-1)',
-                }}
-              >
-                Concepts
-              </h1>
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  color: 'var(--neutral-500)',
-                  margin: 0,
-                }}
-              >
-                Theories, Constructs, Structures, and Research Topics
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <a
-                href="/packs"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  padding: 'var(--space-2) var(--space-4)',
-                  background: 'white',
-                  border: '1px solid var(--accent-green)',
-                  borderRadius: 'var(--radius)',
-                  color: 'var(--accent-green)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all 0.15s',
-                  whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-green)';
-                  e.currentTarget.style.color = 'white';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'white';
-                  e.currentTarget.style.color = 'var(--accent-green)';
-                }}
-              >
-                <i className="fas fa-box"></i>
-                Browse Packs
-              </a>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              style={{
-                width: '48px',
-                height: '48px',
-                minWidth: '48px',
-                minHeight: '48px',
-                flexShrink: 0,
-                borderRadius: '50%',
-                background: 'var(--primary)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 'var(--text-xl)',
-                transition: 'all 0.15s',
-                boxShadow: 'var(--shadow-md)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--primary-dark)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--primary)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }}
-              title="New Construct"
-            >
-              <i className="fas fa-plus"></i>
-            </button>
+            <div className="cidx-result-count">
+              {loading ? 'Loading.' : `${rows.length} shown`}
             </div>
           </div>
-        </div>
 
-        <ConceptFormModal
-          isOpen={showForm}
-          onClose={() => {
-            // Refresh data when closing edit modal (autosave means changes may have been made)
-            if (conceptStack.length > 0) {
-              fetchConcepts();
-            }
-            // Pop from stack - if stack has more items, go back to previous
-            if (conceptStack.length > 1) {
-              setConceptStack(prev => prev.slice(0, -1));
-            } else {
-              setShowForm(false);
-              setConceptStack([]);
-            }
-          }}
-          onSuccess={() => {
-            fetchConcepts();
-            // Pop from stack on success too
-            if (conceptStack.length > 1) {
-              setConceptStack(prev => prev.slice(0, -1));
-            } else {
-              setShowForm(false);
-              setConceptStack([]);
-            }
-          }}
-          item={conceptStack[conceptStack.length - 1] || null}
-          stackDepth={conceptStack.length - 1}
-          onEditRelatedConcept={async (conceptId) => {
-            try {
-              const response = await fetch(`/concepts/${conceptId}.json`);
-              if (response.ok) {
-                const conceptData = await response.json();
-                // Push to stack instead of replacing
-                setConceptStack(prev => [...prev, conceptData]);
-              }
-            } catch (error) {
-              console.error('Error fetching concept:', error);
-            }
-          }}
-        />
-
-        {/* Concepts Table */}
-        <div style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          background: '#ffffff',
-          paddingTop: 'var(--space-8)',
-        }}>
-          {filteredConcepts.length === 0 ? (
-            <div
-              style={{
-                textAlign: 'center',
-                padding: '3rem 1.5rem',
-                margin: 'var(--space-6)',
-                marginLeft: 'calc(var(--space-6) + 24px)',
-                background: 'white',
-                border: '1px solid var(--neutral-200)',
-                borderRadius: '4px',
-              }}
-            >
-              <p style={{ fontSize: 'var(--text-lg)', marginBottom: '1rem', color: 'var(--neutral-700)' }}>
-                No constructs yet.
-              </p>
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-                Create your first knowledge construct to begin building your framework.
-              </p>
-            </div>
+          {error ? (
+            <div className="cidx-message cidx-message-error">{error}</div>
+          ) : loading ? (
+            <div className="cidx-message">Loading.</div>
+          ) : rows.length === 0 ? (
+            <EmptyState hasConcepts={concepts.length > 0} onCreate={() => { setConceptStack([]); setShowForm(true); }} />
           ) : (
-            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'auto' }}>
-              <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
-                <thead style={{
-                  background: 'white',
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 10,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}>
-                  {/* First header row - grouped */}
+            <div className="cidx-table-wrap">
+              <table className="cidx-table">
+                <thead>
                   <tr>
-                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
-                    <th style={{ padding: '0.5rem 1rem' }}></th>
-                    <th style={{ padding: '0.5rem 1rem' }}></th>
-                    <th
-                      colSpan={6}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'center',
-                        padding: '0.5rem 0.5rem 0.25rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--accent-green)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        borderBottom: '1px solid var(--neutral-200)',
-                      }}
-                    >
-                      Relationships
-                    </th>
-                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
-                  </tr>
-                  {/* Second header row - individual columns */}
-                  <tr style={{ borderBottom: '1px solid var(--neutral-200)' }}>
-                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
-                    <th
-                      onClick={() => handleSort('label')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.5rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-green)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'color 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
-                    >
-                      Concept {sortField === 'label' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    <th
-                      onClick={() => handleSort('type')}
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        textAlign: 'left',
-                        padding: '0.5rem 1rem',
-                        fontWeight: 600,
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--accent-green)',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        transition: 'color 0.15s',
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-dark)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
-                    >
-                      Type {sortField === 'type' && (
-                        <i className={`fas fa-chevron-${sortDirection === 'asc' ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}></i>
-                      )}
-                    </th>
-                    {/* Relationship sub-columns with icons */}
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Concepts">
-                      <i className="fas fa-lightbulb" style={{ color: 'var(--accent-green)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Sources">
-                      <i className="fas fa-book" style={{ color: 'var(--accent-blue)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="People">
-                      <i className="fas fa-user" style={{ color: 'var(--accent-gold)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Notes">
-                      <i className="fas fa-sticky-note" style={{ color: 'var(--accent-teal)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Tags">
-                      <i className="fas fa-tag" style={{ color: 'var(--accent-purple)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ padding: '0.5rem', textAlign: 'center', width: '3rem' }} title="Collections">
-                      <i className="fas fa-folder" style={{ color: 'var(--accent-maroon)', fontSize: '12px' }}></i>
-                    </th>
-                    <th style={{ width: '2rem', padding: '0.5rem 0.5rem' }}></th>
+                    <Th label="Concept" field="label" sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                    <Th label="Type"    field="type"  sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
+                    <Th label="Connections" field="connections" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
+                    <Th label="Sources" field="sources" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
+                    <Th label="Notes"   field="notes"   sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
+                    <th className="cidx-th">Origin</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {flatConcepts.map(({ concept, depth, parentRelType }) => (
-                    <ConceptRow
-                      key={concept.id}
-                      concept={concept}
-                      depth={depth}
-                      parentRelType={parentRelType}
-                      onUpdate={fetchConcepts}
-                      onEdit={(concept) => {
-                        setConceptStack([concept]);
-                        setShowForm(true);
-                      }}
-                    />
+                  {rows.map(({ concept, depth }) => (
+                    <ConceptRow key={concept.id} concept={concept} depth={depth} hierarchical={!textFilter.trim() && sortField === 'label'} />
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
+
+      <ConceptFormModal
+        isOpen={showForm}
+        onClose={() => {
+          if (conceptStack.length > 1) setConceptStack((p) => p.slice(0, -1));
+          else { setShowForm(false); setConceptStack([]); }
+          fetchConcepts();
+        }}
+        onSuccess={() => {
+          fetchConcepts();
+          if (conceptStack.length > 1) setConceptStack((p) => p.slice(0, -1));
+          else { setShowForm(false); setConceptStack([]); }
+        }}
+        item={conceptStack[conceptStack.length - 1] || null}
+        stackDepth={conceptStack.length - 1}
+        onEditRelatedConcept={async (conceptId) => {
+          try {
+            const res = await fetch(`/concepts/${conceptId}.json`);
+            if (res.ok) {
+              const data = await res.json();
+              setConceptStack((prev) => [...prev, data]);
+            }
+          } catch (err) {
+            console.error(err);
+          }
+        }}
+      />
+
+      <ConceptTypeReference open={showTypeRef} onClose={() => setShowTypeRef(false)} />
     </div>
   );
 }
 
+// =====================================================================
+// Subcomponents
+// =====================================================================
 
-function ConceptRow({ concept, depth, parentRelType, onUpdate, onEdit }) {
-  const [editingType, setEditingType] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef(null);
-  const dropdownRef = useRef(null);
+function FilterSection({ label, trailing, children }) {
+  return (
+    <div className="cidx-filter-section">
+      <div className="cidx-filter-head">
+        <span className="cidx-filter-label">{label}</span>
+        {trailing}
+      </div>
+      <div className="cidx-filter-body">{children}</div>
+    </div>
+  );
+}
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target) &&
-          triggerRef.current && !triggerRef.current.contains(e.target)) {
-        setEditingType(false);
-      }
-    };
-    if (editingType) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [editingType]);
+function RadioRow({ checked, onChange, label, count }) {
+  return (
+    <label className="cidx-row">
+      <input type="radio" checked={checked} onChange={onChange} className="cidx-radio" />
+      <span className="cidx-row-label">{label}</span>
+      {count != null && <span className="cidx-row-count">{count}</span>}
+    </label>
+  );
+}
 
-  const openDropdown = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const dropdownHeight = 400; // max-height of dropdown
-      const dropdownWidth = 320;
+function CheckboxRow({ checked, onChange, label, count }) {
+  return (
+    <label className="cidx-row">
+      <input type="checkbox" checked={checked} onChange={onChange} className="sp-checkbox" />
+      <span className="cidx-row-label">{label}</span>
+      {count != null && <span className="cidx-row-count">{count}</span>}
+    </label>
+  );
+}
 
-      // Check if dropdown would go below viewport
-      let top = rect.bottom + 4;
-      if (top + dropdownHeight > window.innerHeight) {
-        top = Math.max(8, rect.top - dropdownHeight - 4);
-      }
+function Th({ label, field, sortField, sortDir, onSort, numeric }) {
+  const active = sortField === field;
+  return (
+    <th
+      className={`cidx-th ${numeric ? 'cidx-th-num' : ''} ${active ? 'is-active' : ''}`}
+      onClick={() => onSort(field)}
+    >
+      <span>{label}</span>
+      {active && (
+        <span className="cidx-th-arrow" aria-hidden="true">
+          {sortDir === 'asc' ? '▲' : '▼'}
+        </span>
+      )}
+    </th>
+  );
+}
 
-      // Check if dropdown would go off right edge
-      let left = rect.left;
-      if (left + dropdownWidth > window.innerWidth) {
-        left = window.innerWidth - dropdownWidth - 8;
-      }
-
-      setDropdownPos({ top, left });
-    }
-    setEditingType(true);
-  };
-
-  const handleTypeChange = async (newType) => {
-    setEditingType(false);
-    if (newType === concept.concept_type) return;
-
-    try {
-      const response = await fetch(`/concepts/${concept.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ concept: { concept_type: newType } }),
-      });
-
-      if (response.ok) {
-        onUpdate();
-      }
-    } catch (error) {
-      console.error('Error updating type:', error);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this concept?')) return;
-
-    try {
-      const response = await fetch(`/concepts/${concept.id}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-        },
-      });
-
-      if (response.ok) {
-        onUpdate();
-      }
-    } catch (error) {
-      console.error('Error deleting concept:', error);
-    }
-  };
-
-  const getInverseRelType = (relType) => {
-    const inverses = {
-      parent_of: 'child_of',
-      child_of: 'parent_of',
-      prerequisite_for: 'builds_on',
-      builds_on: 'prerequisite_for',
-      derived_from: 'influenced',
-      influenced: 'derived_from'
-    };
-    return inverses[relType] || relType;
-  };
-
-  // Convert incoming connections to their outgoing equivalent for consistent display
-  const outgoingConnections = concept.outgoing_connections || [];
-  const incomingConnections = concept.incoming_connections || [];
-
-  // Convert incoming inverse relationships to outgoing perspective
-  const normalizedIncoming = incomingConnections.map(conn => {
-    const inverseType = getInverseRelType(conn.rel_type);
-    return {
-      id: conn.id,
-      rel_type: inverseType,
-      relationship_label: conn.relationship_label,
-      target: conn.src_concept,
-      isConverted: inverseType !== conn.rel_type
-    };
-  });
-
-  // Convert outgoing to consistent format
-  const normalizedOutgoing = outgoingConnections.map(conn => ({
-    id: conn.id,
-    rel_type: conn.rel_type,
-    relationship_label: conn.relationship_label,
-    target: conn.dst_concept,
-    isConverted: false
-  }));
-
-  // Combine and deduplicate
-  const allRelationships = [...normalizedOutgoing, ...normalizedIncoming];
-
-  // Remove duplicates by checking if the same relationship exists in both directions
-  const uniqueRelationships = allRelationships.filter((rel, index, self) => {
-    const firstIndex = self.findIndex(r =>
-      r.target.id === rel.target.id &&
-      (r.rel_type === rel.rel_type || r.rel_type === getInverseRelType(rel.rel_type))
-    );
-    if (firstIndex === index) return true;
-    if (firstIndex !== index && !rel.isConverted) return true;
-    return false;
-  });
-
-  const totalConnections = uniqueRelationships.length;
-
-  // Calculate indentation based on depth
-  const indentPx = depth * 24; // 24px per level
+function ConceptRow({ concept, depth, hierarchical }) {
+  const type = concept.effective_concept_type || concept.concept_type;
+  const typeLabel = getNodeTypeLabel(type);
+  const connectionsCount = (concept.outgoing_connections?.length || 0) + (concept.incoming_connections?.length || 0);
+  const pack = concept.definition?.pack;
 
   return (
-    <tr
-      style={{
-        borderBottom: '1px solid var(--neutral-200)',
-        transition: 'background 0.15s',
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.background = 'var(--neutral-100)'}
-      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-    >
-      <td style={{ padding: '0.75rem 0.5rem', textAlign: 'center', width: '2rem' }}>
-        <a
-          href={`https://en.wikipedia.org/wiki/${concept.label.replace(/ /g, '_')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="icon-btn"
-          title="Wikipedia"
-          style={{ textDecoration: 'none' }}
-        >
-          <i className="fab fa-wikipedia-w" style={{ fontSize: '12px' }}></i>
-        </a>
-      </td>
-      <td style={{ padding: '0.75rem 1rem' }}>
-        <div style={{ paddingLeft: `${indentPx}px`, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {depth > 0 && (
-            <i className="fas fa-level-up-alt" style={{
-              fontSize: '0.75rem',
-              color: 'var(--neutral-400)',
-              transform: 'rotate(90deg)',
-            }}></i>
-          )}
-          <a
-            href={`/concepts/${concept.id}`}
-            style={{
-              fontFamily: 'var(--font-body)',
-              color: 'var(--neutral-900)',
-              textDecoration: 'none',
-              fontWeight: 400,
-              fontSize: 'var(--text-sm)',
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-green)'}
-            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-          >
-            {concept.label}
-          </a>
-          <button
-            onClick={() => onEdit(concept)}
-            className="icon-btn"
-            title="Edit"
-            style={{ flexShrink: 0 }}
-          >
-            <i className="fas fa-pen" style={{ fontSize: '10px' }}></i>
-          </button>
+    <tr>
+      <td className="cidx-td-concept">
+        <div className="cidx-concept-cell" style={{ paddingLeft: hierarchical ? `${depth * 18}px` : 0 }}>
+          {hierarchical && depth > 0 && <span className="cidx-tree-indent" aria-hidden="true">└</span>}
+          <a href={`/concepts/${concept.id}`} className="cidx-concept-link">{toTitleCase(concept.label)}</a>
         </div>
       </td>
-      <td style={{ padding: '0.75rem 1rem' }}>
-        <span
-          ref={triggerRef}
-          className="tag concept"
-          onClick={(e) => { e.stopPropagation(); editingType ? setEditingType(false) : openDropdown(); }}
-          style={{
-            display: 'inline-block',
-            fontSize: 'var(--text-xs)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.outline = '2px solid var(--primary)'; e.currentTarget.style.outlineOffset = '2px'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.outline = 'none'; }}
-          title="Click to change type"
-        >
-          {getNodeTypeLabel(concept.concept_type)}
-        </span>
-        {editingType && (
-          <div
-            ref={dropdownRef}
-            style={{
-              position: 'fixed',
-              top: dropdownPos.top,
-              left: dropdownPos.left,
-              zIndex: 9999,
-              background: 'white',
-              border: '1px solid var(--neutral-300)',
-              borderRadius: 'var(--radius)',
-              boxShadow: 'var(--shadow-lg)',
-              minWidth: '320px',
-              maxHeight: '400px',
-              overflowY: 'auto',
-            }}>
-            {NODE_TYPES.map(opt => (
-              <div
-                key={opt.value}
-                onClick={() => handleTypeChange(opt.value)}
-                style={{
-                  padding: 'var(--space-3)',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid var(--neutral-100)',
-                  background: concept.concept_type === opt.value ? 'var(--accent-green-light)' : 'white',
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  if (concept.concept_type !== opt.value) {
-                    e.currentTarget.style.background = 'var(--neutral-50)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = concept.concept_type === opt.value ? 'var(--accent-green-light)' : 'white';
-                }}
-              >
-                <div style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  color: 'var(--neutral-800)',
-                  marginBottom: 'var(--space-1)',
-                }}>
-                  {opt.label}
-                </div>
-                <div style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-xs)',
-                  color: 'var(--neutral-500)',
-                  lineHeight: 1.4,
-                }}>
-                  {opt.description}
-                </div>
-              </div>
-            ))}
-          </div>
+      <td className="cidx-td-type">
+        {type ? <span className="cidx-type-chip">{typeLabel}</span> : <span className="cidx-muted">—</span>}
+      </td>
+      <td className="cidx-td-num">{connectionsCount || <span className="cidx-muted">—</span>}</td>
+      <td className="cidx-td-num">{concept.sources_count || <span className="cidx-muted">—</span>}</td>
+      <td className="cidx-td-num">{concept.notes_count || <span className="cidx-muted">—</span>}</td>
+      <td className="cidx-td-origin">
+        {pack ? (
+          <a href={`/packs/${pack.id}`} className="cidx-pack-pill" title={`From pack: ${pack.name}`}>
+            <span className="cidx-pack-dot" aria-hidden="true" />{pack.name}
+          </a>
+        ) : (
+          <span className="cidx-muted">—</span>
         )}
       </td>
-      {/* Relationship counts */}
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {totalConnections > 0 ? totalConnections : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {concept.sources_count > 0 ? concept.sources_count : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {concept.people_count > 0 ? concept.people_count : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {concept.notes_count > 0 ? concept.notes_count : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {concept.tags_count > 0 ? concept.tags_count : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--neutral-600)' }}>
-        {concept.collections_count > 0 ? concept.collections_count : '—'}
-      </td>
-      <td style={{ padding: '0.5rem', textAlign: 'center', width: '2rem' }}>
-        <button
-          onClick={handleDelete}
-          className="icon-btn"
-          title="Delete"
-          style={{ color: 'var(--error)' }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 15%, transparent)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-        >
-          <i className="fas fa-trash" style={{ fontSize: '12px' }}></i>
-        </button>
-      </td>
     </tr>
+  );
+}
+
+function EmptyState({ hasConcepts, onCreate }) {
+  if (!hasConcepts) {
+    return (
+      <div className="cidx-empty">
+        <h2 className="cidx-empty-title">No concepts yet.</h2>
+        <p className="cidx-empty-text">
+          Capture a theory, a pathology, an anatomical structure, or any concept you want to organize the literature around.
+        </p>
+        <div className="cidx-empty-actions">
+          <button type="button" className="sp-action sp-action-primary" onClick={onCreate}>
+            <span className="cidx-plus">+</span> First concept
+          </button>
+          <a href="/packs" className="sp-action sp-action-secondary">Browse pre-loaded packs</a>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="cidx-empty">
+      <h2 className="cidx-empty-title">No matches for the current filters.</h2>
+      <p className="cidx-empty-text">Adjust the type, origin, or text filter and try again.</p>
+    </div>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <circle cx="7" cy="7" r="5" />
+      <path d="M11 11l3 3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// =====================================================================
+// Sort helpers
+// =====================================================================
+
+function compareConcepts(a, b, field, dir) {
+  let av, bv;
+  if (field === 'label') { av = (a.label || '').toLowerCase(); bv = (b.label || '').toLowerCase(); }
+  else if (field === 'type') {
+    av = getNodeTypeLabel(a.effective_concept_type || a.concept_type || '').toLowerCase();
+    bv = getNodeTypeLabel(b.effective_concept_type || b.concept_type || '').toLowerCase();
+  }
+  else if (field === 'connections') {
+    av = (a.outgoing_connections?.length || 0) + (a.incoming_connections?.length || 0);
+    bv = (b.outgoing_connections?.length || 0) + (b.incoming_connections?.length || 0);
+  }
+  else if (field === 'sources') { av = a.sources_count || 0; bv = b.sources_count || 0; }
+  else if (field === 'notes') { av = a.notes_count || 0; bv = b.notes_count || 0; }
+  else { av = ''; bv = ''; }
+  if (av < bv) return dir === 'asc' ? -1 : 1;
+  if (av > bv) return dir === 'asc' ? 1 : -1;
+  return 0;
+}
+
+function sortTree(nodes, dir) {
+  return [...nodes]
+    .sort((a, b) => {
+      const av = (a.label || '').toLowerCase();
+      const bv = (b.label || '').toLowerCase();
+      if (av < bv) return dir === 'asc' ? -1 : 1;
+      if (av > bv) return dir === 'asc' ? 1 : -1;
+      return 0;
+    })
+    .map((n) => ({ ...n, children: n.children ? sortTree(n.children, dir) : [] }));
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+
+function CIdxStyles() {
+  return (
+    <style>{`
+      .cidx {
+        flex: 1;
+        background: var(--paper);
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .cidx-header {
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 32px 24px 20px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .cidx-title {
+        font-family: var(--font-display);
+        font-size: 36px;
+        font-weight: 600;
+        color: var(--concept);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin: 0;
+      }
+
+      /* Concept-themed accents — small navy touches throughout the index */
+      .cidx .sp-action-primary {
+        background: var(--concept);
+        border-color: var(--concept);
+      }
+      .cidx .sp-action-primary:hover:not(:disabled) {
+        background: var(--concept-2);
+        border-color: var(--concept-2);
+      }
+      .cidx .sp-checkbox:checked,
+      .cidx .sp-checkbox:indeterminate {
+        background: var(--concept);
+        border-color: var(--concept);
+      }
+      .cidx .cidx-radio { accent-color: var(--concept); }
+      .cidx-subtitle {
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        color: var(--ink-3);
+        margin: 6px 0 0;
+      }
+      .cidx-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .cidx-plus { font-family: var(--font-mono); font-weight: 500; }
+
+      .cidx-body {
+        max-width: 1440px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 0 24px 64px;
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 32px;
+      }
+
+      .cidx-sidebar {
+        position: sticky;
+        top: 88px;
+        align-self: start;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+      .cidx-mobile-toggle { display: none; }
+      .cidx-sidebar-body { display: block; }
+      .cidx-filter-section { margin-bottom: 28px; }
+      .cidx-filter-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .cidx-filter-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .cidx-filter-body { display: flex; flex-direction: column; gap: 1px; }
+
+      .cidx-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        cursor: pointer;
+        border-radius: var(--r-sm);
+      }
+      .cidx-row:hover { background: var(--hover); color: var(--ink); }
+      .cidx-radio {
+        width: 14px;
+        height: 14px;
+        accent-color: var(--ink);
+        margin: 0;
+        flex-shrink: 0;
+      }
+      .cidx-row-label { flex: 1; }
+      .cidx-row-count {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .cidx-clear {
+        margin-top: 6px;
+        background: transparent;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 5px 10px;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        cursor: pointer;
+        align-self: flex-start;
+      }
+      .cidx-clear:hover { background: var(--hover); color: var(--ink); }
+
+      .cidx-main { min-width: 0; }
+
+      .cidx-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .cidx-search {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 34px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        color: var(--ink-3);
+        max-width: 360px;
+        transition: border-color var(--transition-fast);
+      }
+      .cidx-search:focus-within { border-color: var(--ink-2); color: var(--ink); }
+      .cidx-search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+        min-width: 0;
+      }
+      .cidx-search-input::placeholder { color: var(--ink-3); }
+      .cidx-result-count {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+        margin-left: auto;
+      }
+
+      .cidx-message {
+        padding: 64px 24px;
+        text-align: center;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--ink-3);
+      }
+      .cidx-message-error { color: var(--error); }
+
+      .cidx-empty {
+        max-width: 540px;
+        margin: 48px auto;
+        text-align: center;
+        padding: 32px 24px;
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+      }
+      .cidx-empty-title {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 8px;
+      }
+      .cidx-empty-text {
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--ink-2);
+        line-height: 1.6;
+        margin: 0 0 20px;
+      }
+      .cidx-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+      .cidx-table-wrap {
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        overflow: hidden;
+      }
+      .cidx-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: var(--font-body);
+        font-size: 13px;
+      }
+      .cidx-table thead { background: var(--paper-soft); }
+      .cidx-th {
+        text-align: left;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--ink-line);
+        cursor: pointer;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .cidx-th-num { text-align: right; }
+      .cidx-th:hover { color: var(--ink); }
+      .cidx-th.is-active { color: var(--ink); }
+      .cidx-th-arrow {
+        font-size: 9px;
+        margin-left: 4px;
+        color: var(--concept);
+      }
+      .cidx-table tbody tr {
+        border-top: 1px solid var(--ink-line-soft);
+      }
+      .cidx-table tbody tr:hover { background: var(--paper-soft); }
+      .cidx-table td {
+        padding: 10px 16px;
+        vertical-align: middle;
+        line-height: 1.5;
+      }
+      .cidx-td-concept { max-width: 480px; }
+      .cidx-concept-cell {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .cidx-tree-indent {
+        color: var(--ink-4);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .cidx-concept-link {
+        font-family: var(--font-body);
+        font-weight: 500;
+        color: var(--ink);
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: color var(--transition-fast), border-color var(--transition-fast);
+      }
+      .cidx-concept-link:hover {
+        color: var(--concept-2);
+        border-color: var(--concept);
+      }
+
+      .cidx-type-chip {
+        display: inline-block;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--concept-2);
+        background: var(--concept-tint);
+        padding: 2px 8px;
+        border-radius: var(--r-sm);
+        white-space: nowrap;
+        text-transform: capitalize;
+      }
+
+      .cidx-td-num {
+        text-align: right;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-2);
+        font-variant-numeric: tabular-nums;
+        width: 1%;
+        white-space: nowrap;
+      }
+
+      .cidx-td-origin { width: 1%; white-space: nowrap; }
+      .cidx-pack-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-2);
+        background: var(--paper-warm);
+        padding: 2px 10px 2px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .cidx-pack-pill:hover { background: var(--paper); border: 1px solid var(--ink-line); padding: 1px 9px 1px 7px; }
+      .cidx-pack-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-3);
+        flex-shrink: 0;
+      }
+
+      .cidx-muted { color: var(--ink-4); }
+
+      @media (max-width: 900px) {
+        .cidx-body { grid-template-columns: 1fr; }
+        .cidx-sidebar {
+          position: static;
+          max-height: none;
+          padding: 0;
+          background: var(--paper);
+          border: 1px solid var(--ink-line);
+          border-radius: var(--r-md);
+          margin-bottom: 16px;
+          overflow: hidden;
+        }
+        .cidx-mobile-toggle {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          padding: 12px 16px;
+          background: var(--paper);
+          border: none;
+          cursor: pointer;
+          font-family: var(--font-body);
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--ink);
+          text-align: left;
+        }
+        .cidx-sidebar.is-open .cidx-mobile-toggle { border-bottom: 1px solid var(--ink-line); }
+        .cidx-mobile-toggle:hover { background: var(--paper-soft); }
+        .cidx-mobile-toggle-label { flex: 1; }
+        .cidx-mobile-toggle-count {
+          font-family: var(--font-body);
+          font-size: 11px;
+          font-weight: 500;
+          color: var(--concept-2);
+          background: var(--concept-tint);
+          padding: 2px 8px;
+          border-radius: var(--r-sm);
+        }
+        .cidx-mobile-toggle-caret {
+          display: inline-flex;
+          align-items: center;
+          color: var(--ink-3);
+          transition: transform 0.15s;
+        }
+        .cidx-sidebar.is-collapsed .cidx-mobile-toggle-caret { transform: rotate(-90deg); }
+        .cidx-sidebar.is-collapsed .cidx-sidebar-body { display: none; }
+        .cidx-sidebar-body { padding: 16px; }
+      }
+      @media (max-width: 600px) {
+        .cidx-header { padding: 20px 16px 12px; }
+        .cidx-body { padding: 0 16px 48px; gap: 16px; }
+        .cidx-title { font-size: 28px; }
+        .cidx-table td, .cidx-th { padding: 9px 12px; }
+        .cidx-result-count { display: none; }
+      }
+    `}</style>
   );
 }
