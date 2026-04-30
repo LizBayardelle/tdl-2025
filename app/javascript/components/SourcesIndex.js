@@ -821,6 +821,7 @@ function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, o
                 <TrashIcon />
               </button>
             </div>
+            <CiteThisMenu sourceId={source.id} />
             <a
               href={`/sources/${source.id}/study`}
               className="srx-row-icon srx-row-icon-primary"
@@ -1240,6 +1241,118 @@ function TrashIcon() {
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
       <path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9a1 1 0 001 .9h2.8a1 1 0 001-.9L11 4" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
+  );
+}
+function QuoteIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M5.5 4.5c-1.5 0-2.5 1.2-2.5 2.7 0 1.4 1 2.3 2.2 2.3.3 0 .6 0 .8-.1-.2 1-.9 1.7-2 2.1M11.5 4.5c-1.5 0-2.5 1.2-2.5 2.7 0 1.4 1 2.3 2.2 2.3.3 0 .6 0 .8-.1-.2 1-.9 1.7-2 2.1" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// =====================================================================
+// Cite-this dropdown
+// =====================================================================
+const CITE_FORMATS = [
+  { v: 'apa',             l: 'APA (full)' },
+  { v: 'apa_in_text',     l: 'APA (in-text)' },
+  { v: 'mla',             l: 'MLA (full)' },
+  { v: 'mla_in_text',     l: 'MLA (in-text)' },
+  { v: 'chicago',         l: 'Chicago (full)' },
+  { v: 'chicago_in_text', l: 'Chicago (in-text)' },
+  { v: 'bibtex',          l: 'BibTeX' },
+  { v: 'ris',             l: 'RIS' },
+];
+
+function CiteThisMenu({ sourceId }) {
+  const [open, setOpen] = useState(false);
+  const [busyFormat, setBusyFormat] = useState(null);
+  const [copiedFormat, setCopiedFormat] = useState(null);
+  const [error, setError] = useState(null);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const handleSelect = async (format) => {
+    if (busyFormat) return;
+    setBusyFormat(format);
+    setError(null);
+    try {
+      const csrf = document.querySelector('[name="csrf-token"]')?.content;
+      const res = await fetch('/sources/citations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ ids: [sourceId], format }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const body = (data.body || '').trim();
+      if (!body) throw new Error('Empty citation');
+      await navigator.clipboard.writeText(body);
+      setCopiedFormat(format);
+      setTimeout(() => {
+        setCopiedFormat((curr) => (curr === format ? null : curr));
+        setOpen(false);
+      }, 900);
+    } catch (err) {
+      console.error(err);
+      setError('Could not copy citation');
+      setTimeout(() => setError(null), 2200);
+    } finally {
+      setBusyFormat(null);
+    }
+  };
+
+  return (
+    <div className="srx-cite-wrap" ref={wrapRef}>
+      <button
+        type="button"
+        className="srx-row-icon"
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Cite this source"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title="Cite this"
+      >
+        <QuoteIcon />
+        <span className="srx-row-icon-label">Cite</span>
+      </button>
+      {open && (
+        <div className="srx-cite-menu" role="menu">
+          <div className="srx-cite-menu-head">Copy citation as</div>
+          {CITE_FORMATS.map((o) => {
+            const isCopied = copiedFormat === o.v;
+            return (
+              <button
+                key={o.v}
+                type="button"
+                role="menuitem"
+                className="srx-cite-menu-item"
+                onClick={() => handleSelect(o.v)}
+                disabled={!!busyFormat}
+              >
+                <span>{o.l}</span>
+                {isCopied && <span className="srx-cite-menu-status is-ok">Copied</span>}
+              </button>
+            );
+          })}
+          {error && <div className="srx-cite-menu-error">{error}</div>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1768,10 +1881,70 @@ function SrxStyles() {
         justify-content: center;
       }
 
+      /* Cite-this dropdown */
+      .srx-cite-wrap {
+        position: relative;
+        display: inline-flex;
+      }
+      .srx-cite-menu {
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        z-index: 30;
+        min-width: 200px;
+        padding: 4px;
+        background: var(--paper, #fff);
+        border: 1px solid var(--ink-6, rgba(0,0,0,0.12));
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        display: flex;
+        flex-direction: column;
+      }
+      .srx-cite-menu-head {
+        padding: 6px 10px 4px;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
+      }
+      .srx-cite-menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 7px 10px;
+        background: none;
+        border: 0;
+        border-radius: 5px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-1);
+        text-align: left;
+        cursor: pointer;
+      }
+      .srx-cite-menu-item:hover:not(:disabled) {
+        background: var(--paper-warm, var(--paper-soft));
+        color: var(--source-2);
+      }
+      .srx-cite-menu-item:disabled { cursor: default; opacity: 0.6; }
+      .srx-cite-menu-status {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .srx-cite-menu-status.is-ok { color: var(--source-2); }
+      .srx-cite-menu-error {
+        padding: 6px 10px;
+        font-size: 11.5px;
+        color: var(--danger, #b00020);
+      }
+
       @media (max-width: 720px) {
         /* Labels become noisy on narrow cards — fall back to icon-only */
         .srx-row-icon-label { display: none; }
         .srx-row-icon-primary { width: 28px; padding: 0; justify-content: center; }
+        .srx-cite-wrap > .srx-row-icon { width: 28px; padding: 0; justify-content: center; }
       }
 
       /* Title line: PDF link badge + title text */

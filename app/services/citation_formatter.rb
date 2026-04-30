@@ -4,14 +4,22 @@
 # Each format handles articles, books, chapters, websites, and a generic fallback.
 # Multiple sources can be formatted in one go via .render_list.
 class CitationFormatter
-  FORMATS = %w[apa chicago mla bibtex ris].freeze
+  FORMATS = %w[apa apa_in_text chicago chicago_in_text mla mla_in_text bibtex ris].freeze
+  IN_TEXT_FORMATS = %w[apa_in_text chicago_in_text mla_in_text].freeze
 
   def self.render(source, format)
     new(source, format).render
   end
 
   def self.render_list(sources, format)
-    sources.map { |s| new(s, format).render }.join(format == 'bibtex' ? "\n\n" : "\n")
+    separator = if format == 'bibtex'
+                  "\n\n"
+                elsif IN_TEXT_FORMATS.include?(format)
+                  '; '
+                else
+                  "\n"
+                end
+    sources.map { |s| new(s, format).render }.join(separator)
   end
 
   def initialize(source, format)
@@ -22,11 +30,14 @@ class CitationFormatter
 
   def render
     case @format
-    when 'apa'     then apa
-    when 'chicago' then chicago
-    when 'mla'     then mla
-    when 'bibtex'  then bibtex
-    when 'ris'     then ris
+    when 'apa'             then apa
+    when 'apa_in_text'     then apa_in_text
+    when 'chicago'         then chicago
+    when 'chicago_in_text' then chicago_in_text
+    when 'mla'             then mla
+    when 'mla_in_text'     then mla_in_text
+    when 'bibtex'          then bibtex
+    when 'ris'             then ris
     end
   end
 
@@ -35,32 +46,72 @@ class CitationFormatter
   # ---- Author helpers ----
 
   def authors
-    return @source.ordered_authors.to_a if @source.respond_to?(:ordered_authors) && @source.ordered_authors.any?
-    str = @source.authors_string
+    if @source.respond_to?(:ordered_authors)
+      legacy = @source.ordered_authors.to_a
+      return legacy if legacy.any?
+    end
+    if @source.respond_to?(:person_sources)
+      linked = @source.person_sources.includes(:person).order(:id)
+                      .map(&:person).compact
+      return linked if linked.any?
+    end
+    str = @source.respond_to?(:authors_string) ? @source.authors_string : nil
     return [] if str.blank?
     str.split(/[,;]/).map(&:strip).reject(&:blank?).map { |n| OpenStruct.new(full_name: n, first_name: nil, last_name: n) }
   rescue
     []
   end
 
+  # Returns [given, family] for any author-like object. Tolerant of:
+  #   - `full_name` stored as "Last, First" (extractor occasionally swaps)
+  #   - `first_name` / `last_name` columns swapped, with a trailing comma
+  #     leaking from the original "Last, First" string
+  #   - bare strings or OpenStructs from the authors_string fallback path
+  # The comma-in-full_name signal wins over the stored first/last fields,
+  # since that's the most reliable indicator the columns are unreliable.
+  def name_parts(author)
+    full       = author.respond_to?(:full_name)  ? author.full_name.to_s.strip  : ''
+    first_attr = author.respond_to?(:first_name) ? author.first_name.to_s.strip : ''
+    last_attr  = author.respond_to?(:last_name)  ? author.last_name.to_s.strip  : ''
+    first_attr = first_attr.sub(/[,;]+\z/, '')
+    last_attr  = last_attr.sub(/[,;]+\z/, '')
+
+    if full.include?(',')
+      l, f = full.split(',', 2).map(&:strip)
+      return [f.to_s, l.to_s] if l.present?
+    end
+    return [first_attr, last_attr] if first_attr.present? && last_attr.present?
+    return ['', last_attr] if last_attr.present? && first_attr.blank?
+    return [first_attr, ''] if first_attr.present? && last_attr.blank?
+
+    tokens = full.split(/\s+/).reject(&:blank?)
+    return ['', ''] if tokens.empty?
+    return ['', tokens.first] if tokens.size == 1
+    [tokens[0..-2].join(' '), tokens.last]
+  end
+
+  def given_initials(given)
+    given.split(/[\s\-]+/).reject(&:blank?).map { |p| "#{p[0]}." }.join(' ')
+  end
+
+  def display_full_name(author)
+    given, family = name_parts(author)
+    [given, family].reject(&:blank?).join(' ').presence || family.presence || given
+  end
+
   def apa_authors
     list = authors
     return '' if list.empty?
-    formatted = list.map do |a|
-      name = a.respond_to?(:full_name) ? a.full_name.to_s : a.to_s
-      apa_name(name)
-    end
+    formatted = list.map { |a| apa_name(a) }
     join_with_amp(formatted)
   end
 
-  # "Last, F. M."
-  def apa_name(full)
-    return full if full.blank?
-    parts = full.strip.split(/\s+/)
-    return full if parts.size == 1
-    last = parts.pop
-    initials = parts.map { |p| "#{p[0]}." }.join(' ')
-    "#{last}, #{initials}"
+  # "Last, F. M." (or just the family/given when one side is missing)
+  def apa_name(author)
+    given, family = name_parts(author)
+    return family if given.blank? && family.present?
+    return given if family.blank?
+    "#{family}, #{given_initials(given)}"
   end
 
   def join_with_amp(list)
@@ -73,40 +124,39 @@ class CitationFormatter
   def mla_authors
     list = authors
     return '' if list.empty?
-    names = list.map(&:full_name)
-    case names.size
+    case list.size
     when 1
-      mla_invert(names.first)
+      mla_invert(list.first)
     when 2
-      "#{mla_invert(names.first)}, and #{names.last}"
+      "#{mla_invert(list.first)}, and #{display_full_name(list.last)}"
     else
-      "#{mla_invert(names.first)}, et al."
+      "#{mla_invert(list.first)}, et al."
     end
   end
 
-  def mla_invert(full)
-    parts = full.to_s.strip.split(/\s+/)
-    return full if parts.size < 2
-    last = parts.pop
-    "#{last}, #{parts.join(' ')}"
+  # "Last, First" form for the lead author in MLA / Chicago.
+  def mla_invert(author)
+    given, family = name_parts(author)
+    return given if family.blank?
+    return family if given.blank?
+    "#{family}, #{given}"
   end
 
   def chicago_authors
     list = authors
     return '' if list.empty?
-    names = list.map(&:full_name)
-    case names.size
-    when 1 then mla_invert(names.first)
-    when 2 then "#{mla_invert(names.first)}, and #{names.last}"
+    case list.size
+    when 1 then mla_invert(list.first)
+    when 2 then "#{mla_invert(list.first)}, and #{display_full_name(list.last)}"
     else
-      formatted = [mla_invert(names.first)] + names[1..].map { |n| n }
+      formatted = [mla_invert(list.first)] + list[1..].map { |a| display_full_name(a) }
       formatted[0..-2].join(', ') + ', and ' + formatted.last
     end
   end
 
   def bibtex_authors
     list = authors
-    list.map(&:full_name).join(' and ')
+    list.map { |a| display_full_name(a) }.join(' and ')
   end
 
   def year
@@ -189,6 +239,61 @@ class CitationFormatter
     parts.join(' ')
   end
 
+  # ---- In-text variants ----
+
+  def last_name_of(author)
+    name_parts(author).last
+  end
+
+  def in_text_authors_apa
+    list = authors
+    return 'Anonymous' if list.empty?
+    names = list.map { |a| last_name_of(a) }.reject(&:blank?)
+    case names.size
+    when 0 then 'Anonymous'
+    when 1 then names.first
+    when 2 then "#{names.first} & #{names.last}"
+    else        "#{names.first} et al."
+    end
+  end
+
+  def in_text_authors_narrative
+    list = authors
+    return '' if list.empty?
+    names = list.map { |a| last_name_of(a) }.reject(&:blank?)
+    case names.size
+    when 0 then ''
+    when 1 then names.first
+    when 2 then "#{names.first} and #{names.last}"
+    else        "#{names.first} et al."
+    end
+  end
+
+  def first_page
+    return nil unless @source.pages.present?
+    @source.pages.to_s.split(/[-–—]/).first.to_s.strip.presence
+  end
+
+  def apa_in_text
+    yr = year || 'n.d.'
+    "(#{in_text_authors_apa}, #{yr})"
+  end
+
+  def chicago_in_text
+    yr = year || 'n.d.'
+    auth = in_text_authors_narrative
+    auth = 'Anonymous' if auth.blank?
+    page = first_page
+    page ? "(#{auth} #{yr}, #{page})" : "(#{auth} #{yr})"
+  end
+
+  def mla_in_text
+    auth = in_text_authors_narrative
+    auth = 'Anonymous' if auth.blank?
+    page = first_page
+    page ? "(#{auth} #{page})" : "(#{auth})"
+  end
+
   def bibtex
     type = case @source.kind.to_s
            when 'book' then 'book'
@@ -217,7 +322,8 @@ class CitationFormatter
   end
 
   def bibtex_key
-    last = authors.first&.full_name&.split&.last || 'source'
+    first = authors.first
+    last = (first ? last_name_of(first) : nil).presence || 'source'
     "#{last.gsub(/[^A-Za-z]/, '').downcase}#{year || @source.id}"
   end
 
@@ -237,7 +343,11 @@ class CitationFormatter
            end
     lines = []
     lines << "TY  - #{type}"
-    authors.each { |a| lines << "AU  - #{a.full_name}" }
+    authors.each do |a|
+      given, family = name_parts(a)
+      ris_name = family.present? && given.present? ? "#{family}, #{given}" : display_full_name(a)
+      lines << "AU  - #{ris_name}" if ris_name.present?
+    end
     lines << "TI  - #{title}"
     lines << "PY  - #{year}" if year
     lines << "JO  - #{journal}" if journal.present?

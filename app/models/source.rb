@@ -104,6 +104,21 @@ class Source < ApplicationRecord
     read_attribute(:authors)
   end
 
+  # Rebuild the `authors` text column from currently-linked people, in the
+  # order they were attached. Invoked from PersonSource callbacks so every
+  # save path (manual create, PDF upload, bulk import) ends up with both
+  # the people associations AND a populated string column for citations.
+  def sync_authors_string_from_people!
+    return if new_record?
+    names = person_sources.includes(:person).order(:id)
+                          .map { |ps| ps.person&.full_name }
+                          .reject(&:blank?)
+    return if names.empty?
+    joined = names.join(', ')
+    return if read_attribute(:authors) == joined
+    update_column(:authors, joined)
+  end
+
   # Normalize a DOI string by stripping doi.org URL prefixes.  Keeps case
   # since DOIs are technically case-insensitive but conventionally stored
   # mixed-case.  Returns nil for blank / nil input.

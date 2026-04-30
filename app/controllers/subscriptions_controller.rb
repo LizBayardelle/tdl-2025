@@ -65,6 +65,7 @@ class SubscriptionsController < ApplicationController
       mode: "subscription",
       customer: current_user.stripe_customer_id,
       line_items: [{ price: price_id, quantity: 1 }],
+      allow_promotion_codes: true,
       metadata: { user_id: current_user.id, tier: tier, interval: interval },
       subscription_data: {
         metadata: { user_id: current_user.id, tier: tier }

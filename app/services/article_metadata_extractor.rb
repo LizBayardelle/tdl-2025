@@ -191,6 +191,24 @@ class ArticleMetadataExtractor
     extract_metadata_with_ai(page_content)
   end
 
+  # Splits a free-form author display name into [given, family]. Tolerant
+  # of "Last, First" inputs (which CrossRef/OpenAlex/SemanticScholar can
+  # return for authors with surname-prefix or non-Latin script names) — a
+  # naive whitespace split flips first/last for those rows. Used by the
+  # API extractors below so Person records are created with consistent
+  # column meaning regardless of how upstream formatted the name.
+  def self.split_display_name(name)
+    s = name.to_s.strip
+    return ['', ''] if s.blank?
+    if s.include?(',')
+      family, given = s.split(',', 2).map(&:strip)
+      return [given.to_s, family.to_s] if family.present?
+    end
+    tokens = s.split(/\s+/).reject(&:blank?)
+    return ['', tokens.first.to_s] if tokens.size <= 1
+    [tokens[0..-2].join(' '), tokens.last]
+  end
+
   private
 
   def strip_html_tags(text)
@@ -446,24 +464,21 @@ class ArticleMetadataExtractor
       # Extract authors
       authors_array = data['authorships']&.map do |authorship|
         author = authorship['author']
-        name = author['display_name']
-        if name&.include?(' ')
-          parts = name.split(' ')
-          last = parts.last
-          first_initial = parts.first[0]
-          "#{last}, #{first_initial}."
+        given, family = self.class.split_display_name(author['display_name'])
+        if family.present? && given.present?
+          "#{family}, #{given[0]}."
         else
-          name
+          family.presence || given.presence || author['display_name']
         end
       end || []
 
       # Structured author data
       authors_data = data['authorships']&.each_with_index&.map do |authorship, idx|
         author = authorship['author']
-        name_parts = (author['display_name'] || '').split(' ')
+        given, family = self.class.split_display_name(author['display_name'])
         {
-          'given' => name_parts[0..-2].join(' '),
-          'family' => name_parts.last,
+          'given' => given,
+          'family' => family,
           'orcid' => author['orcid']&.sub('https://orcid.org/', ''),
           'affiliation' => authorship.dig('institutions', 0, 'display_name'),
           'sequence' => idx == 0 ? 'first' : 'additional'
@@ -536,23 +551,20 @@ class ArticleMetadataExtractor
 
       # Extract authors
       authors_array = data['authors']&.map do |author|
-        name = author['name']
-        if name&.include?(' ')
-          parts = name.split(' ')
-          last = parts.last
-          first_initial = parts.first[0]
-          "#{last}, #{first_initial}."
+        given, family = self.class.split_display_name(author['name'])
+        if family.present? && given.present?
+          "#{family}, #{given[0]}."
         else
-          name
+          family.presence || given.presence || author['name']
         end
       end || []
 
       # Structured author data
       authors_data = data['authors']&.each_with_index&.map do |author, idx|
-        name_parts = (author['name'] || '').split(' ')
+        given, family = self.class.split_display_name(author['name'])
         {
-          'given' => name_parts[0..-2].join(' '),
-          'family' => name_parts.last,
+          'given' => given,
+          'family' => family,
           'sequence' => idx == 0 ? 'first' : 'additional'
         }.compact
       end || []

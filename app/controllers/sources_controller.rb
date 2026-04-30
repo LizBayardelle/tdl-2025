@@ -322,10 +322,14 @@ class SourcesController < ApplicationController
         end
       end
 
-      # Auto-generate authors from linked people unless override is enabled
+      # Auto-generate authors from linked people unless override is enabled.
+      # Note: PersonSource#after_create_commit keeps `authors` in sync with
+      # the people association on every link.  In the override branch we
+      # therefore set the typed string AFTER parse_and_link_authors so the
+      # user-typed value wins over the callback-derived join.
       if override_authors == 'true' || override_authors == true
-        @source[:authors] = authors_string if authors_string.present?
         parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+        @source[:authors] = authors_string if authors_string.present?
       elsif @source.people.any?
         @source[:authors] = @source.people.map(&:full_name).join(', ')
       end
@@ -400,10 +404,12 @@ class SourcesController < ApplicationController
         end
       end
 
-      # Auto-generate authors from linked people unless override is enabled
+      # Same as #create: in the override branch we set the typed string
+      # AFTER parse_and_link_authors so the user-typed value wins over the
+      # PersonSource callback's auto-derived join.
       if override_authors == 'true' || override_authors == true
-        @source[:authors] = authors_string if authors_string.present?
         parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+        @source[:authors] = authors_string if authors_string.present?
       elsif @source.people.any?
         @source[:authors] = @source.people.map(&:full_name).join(', ')
       else
