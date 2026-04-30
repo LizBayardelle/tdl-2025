@@ -373,7 +373,7 @@ class SourcesController < ApplicationController
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :statistical_test_ids, :override_authors, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :collection_ids, :statistical_test_ids, :override_authors, :processed_authors)
 
     # Set keywords directly on column
     @source[:keywords] = keywords_array unless keywords_array.nil?

@@ -208,6 +208,15 @@ class ArticleMetadataExtractor
     text
   end
 
+  def reconstruct_inverted_index_abstract(inverted_index)
+    return nil if inverted_index.blank?
+    positions = []
+    inverted_index.each do |word, idxs|
+      Array(idxs).each { |i| positions[i] = word }
+    end
+    positions.compact.join(' ').presence
+  end
+
   def extract_doi_from_url(url)
     # Check if it's a doi.org URL
     if url.match?(/doi\.org/)
@@ -491,7 +500,7 @@ class ArticleMetadataExtractor
         'pages' => [data.dig('biblio', 'first_page'), data.dig('biblio', 'last_page')].compact.join('-').presence,
         'doi' => doi,
         'url' => "https://doi.org/#{doi}",
-        'abstract' => nil, # OpenAlex doesn't always have abstracts in free tier
+        'abstract' => reconstruct_inverted_index_abstract(data['abstract_inverted_index']),
         'keywords' => keywords,
         'publisher_or_venue' => data.dig('primary_location', 'source', 'host_organization_name')
       }
@@ -510,7 +519,7 @@ class ArticleMetadataExtractor
 
   def extract_from_semantic_scholar(doi)
     Rails.logger.info "Trying Semantic Scholar for DOI: #{doi}"
-    uri = URI("https://api.semanticscholar.org/graph/v1/paper/DOI:#{URI.encode_www_form_component(doi)}?fields=title,authors,year,venue,publicationTypes,abstract,externalIds")
+    uri = URI("https://api.semanticscholar.org/graph/v1/paper/DOI:#{URI.encode_www_form_component(doi)}?fields=title,authors,year,venue,publicationTypes,abstract,externalIds,journal,publicationDate,publicationVenue,fieldsOfStudy,s2FieldsOfStudy")
 
     request = Net::HTTP::Get.new(uri.request_uri)
     request['User-Agent'] = 'MapMyResearch/1.0'
@@ -560,16 +569,31 @@ class ArticleMetadataExtractor
         'article'
       end
 
+      # Semantic Scholar's `journal` object has volume, pages, and a name
+      # that's often more accurate than the bare `venue` string.
+      journal = data['journal'] || {}
+      journal_name = journal['name'].presence || data['venue']
+      pages = journal['pages'].to_s.strip.presence
+      volume = journal['volume'].to_s.strip.presence
+
+      ss_keywords = Array(data['fieldsOfStudy']) +
+                    Array(data['s2FieldsOfStudy']).map { |f| f.is_a?(Hash) ? f['category'] : f }
+      ss_keywords = ss_keywords.compact.map(&:to_s).reject(&:empty?).uniq.first(10)
+
       metadata = {
         'title' => data['title'],
         'authors' => authors_array.join(', '),
         'authors_data' => authors_data,
         'year' => data['year'],
         'kind' => kind,
-        'journal_name' => data['venue'],
+        'journal_name' => journal_name,
+        'volume' => volume,
+        'pages' => pages,
+        'publication_date' => data['publicationDate'],
         'doi' => doi,
         'url' => "https://doi.org/#{doi}",
-        'abstract' => data['abstract']
+        'abstract' => data['abstract'],
+        'keywords' => ss_keywords.presence
       }
 
       metadata.compact!
@@ -661,27 +685,55 @@ class ArticleMetadataExtractor
   end
 
   def extract_from_doi_with_fallbacks(doi)
-    # Try each API in order until one succeeds
-    Rails.logger.info "Attempting DOI lookup with fallback chain for: #{doi}"
+    # Query every source and merge the results.  Earlier sources win on
+    # conflicts; later sources fill any field the earlier ones left blank.
+    # We keep going past the first success because any single source may
+    # be missing the abstract, keywords, volume/issue/pages, etc.  This is
+    # noticeably slower than first-wins but produces dramatically more
+    # complete metadata, which is what users care about.
+    Rails.logger.info "Attempting DOI lookup with merged fallback chain for: #{doi}"
 
-    # 1. CrossRef (primary, most comprehensive for journal articles)
-    metadata = extract_from_crossref(doi)
-    return metadata if metadata
+    sources = [
+      ['crossref',         -> { extract_from_crossref(doi) }],
+      ['openalex',         -> { extract_from_openalex(doi) }],
+      ['semantic_scholar', -> { extract_from_semantic_scholar(doi) }],
+      ['datacite',         -> { extract_from_datacite(doi) }],
+    ]
 
-    # 2. OpenAlex (very comprehensive, good fallback)
-    metadata = extract_from_openalex(doi)
-    return metadata if metadata
+    merged = nil
+    sources.each do |name, fetch|
+      result = begin
+        fetch.call
+      rescue => e
+        Rails.logger.warn "#{name} fetch raised: #{e.message}"
+        nil
+      end
+      next unless result.is_a?(Hash) && result.any?
 
-    # 3. Semantic Scholar (good for CS/ML papers)
-    metadata = extract_from_semantic_scholar(doi)
-    return metadata if metadata
+      if merged.nil?
+        merged = result.dup
+      else
+        result.each do |k, v|
+          present = v.is_a?(Array) ? v.any? : v.to_s.strip.present?
+          next unless present
+          existing = merged[k]
+          existing_present = existing.is_a?(Array) ? existing.any? : existing.to_s.strip.present?
+          merged[k] = v unless existing_present
+        end
+      end
 
-    # 4. DataCite (good for preprints, datasets, non-traditional DOIs)
-    metadata = extract_from_datacite(doi)
-    return metadata if metadata
+      complete = %w[abstract keywords volume issue pages publisher_or_venue].all? do |k|
+        val = merged[k]
+        val.is_a?(Array) ? val.any? : val.to_s.strip.present?
+      end
+      break if complete
+    end
 
-    Rails.logger.warn "All DOI APIs failed for: #{doi}"
-    nil
+    if merged.nil?
+      Rails.logger.warn "All DOI APIs failed for: #{doi}"
+      return nil
+    end
+    merged
   end
 
   def extract_doi_from_raw_html(raw_html)

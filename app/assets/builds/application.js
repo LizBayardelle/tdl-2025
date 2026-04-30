@@ -21809,9 +21809,9 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React92 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef39 = React92.useRef, useEffect74 = React92.useEffect, useMemo37 = React92.useMemo, useDebugValue3 = React92.useDebugValue;
+      var React92 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef40 = React92.useRef, useEffect74 = React92.useEffect, useMemo37 = React92.useMemo, useDebugValue3 = React92.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef39(null);
+        var instRef = useRef40(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
@@ -62319,429 +62319,76 @@ var CONFIDENCE_COLORS = {
   medium: { bg: "#fef3c7", border: "#d97706", text: "#92400e" },
   low: { bg: "var(--neutral-100)", border: "var(--neutral-400)", text: "var(--neutral-600)" }
 };
-var CONFIDENCE_LABELS = {
-  high: "High Confidence",
-  medium: "Medium Confidence",
-  low: "Low Confidence"
-};
-function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm }) {
-  const [conceptData, setConceptData] = (0, import_react32.useState)([]);
-  const [newConceptLabel, setNewConceptLabel] = (0, import_react32.useState)("");
-  const [newConceptType, setNewConceptType] = (0, import_react32.useState)("non_physical_concept");
+var emptyCustomRow = () => ({
+  originalSuggestion: null,
+  action: "create",
+  linkedConceptId: null,
+  linkedConceptLabel: null,
+  linkedConceptType: null,
+  editedLabel: "",
+  editedConceptType: "non_physical_concept",
+  isCustom: true
+});
+function ConceptLabelTypeahead({ value, onChange: onChange16, onLink, placeholder, autoFocus }) {
+  const [results, setResults] = (0, import_react32.useState)([]);
+  const [open, setOpen] = (0, import_react32.useState)(false);
+  const [active, setActive] = (0, import_react32.useState)(-1);
+  const wrapperRef = (0, import_react32.useRef)(null);
+  const debounceRef = (0, import_react32.useRef)(null);
   (0, import_react32.useEffect)(() => {
-    if (isOpen) {
-      setNewConceptLabel("");
-      setNewConceptType("non_physical_concept");
-      if (suggestions && suggestions.length > 0) {
-        const initialData = suggestions.map((suggestion) => ({
-          originalSuggestion: {
-            label: suggestion.label,
-            concept_type: suggestion.concept_type,
-            confidence: suggestion.confidence,
-            rationale: suggestion.rationale
-          },
-          action: suggestion.potential_matches?.length > 0 && suggestion.potential_matches[0].match_type === "exact" ? "link" : "create",
-          linkedConceptId: suggestion.potential_matches?.length > 0 && suggestion.potential_matches[0].match_type === "exact" ? suggestion.potential_matches[0].id : null,
-          editedLabel: suggestion.label,
-          editedConceptType: suggestion.concept_type || "non_physical_concept",
-          potentialMatches: suggestion.potential_matches || [],
-          isCustom: false
-        }));
-        setConceptData(initialData);
-      } else {
-        setConceptData([]);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!value || value.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const r4 = await fetch(`/concepts/search?q=${encodeURIComponent(value.trim())}`);
+        if (r4.ok) {
+          const data = await r4.json();
+          setResults(data || []);
+          setActive(-1);
+        }
+      } catch (e3) {
+        console.error(e3);
       }
-    }
-  }, [isOpen, suggestions]);
-  const handleLinkToConcept = (index8, concept) => {
-    setConceptData((prev) => {
-      const newData = [...prev];
-      newData[index8].action = "link";
-      newData[index8].linkedConceptId = concept.id;
-      return newData;
-    });
+    }, 180);
+    return () => clearTimeout(debounceRef.current);
+  }, [value]);
+  (0, import_react32.useEffect)(() => {
+    const onDoc = (e3) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e3.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+  const handleKey = (e3) => {
+    if (!open || results.length === 0) return;
+    if (e3.key === "ArrowDown") {
+      e3.preventDefault();
+      setActive((a5) => Math.min(a5 + 1, results.length - 1));
+    } else if (e3.key === "ArrowUp") {
+      e3.preventDefault();
+      setActive((a5) => Math.max(a5 - 1, 0));
+    } else if (e3.key === "Enter" && active >= 0) {
+      e3.preventDefault();
+      onLink(results[active]);
+      setOpen(false);
+    } else if (e3.key === "Escape") setOpen(false);
   };
-  const handleUnlink = (index8) => {
-    setConceptData((prev) => {
-      const newData = [...prev];
-      newData[index8].action = "create";
-      newData[index8].linkedConceptId = null;
-      return newData;
-    });
-  };
-  const handleSkip = (index8) => {
-    setConceptData((prev) => {
-      const newData = [...prev];
-      newData[index8].action = "skip";
-      newData[index8].linkedConceptId = null;
-      return newData;
-    });
-  };
-  const handleInclude = (index8) => {
-    setConceptData((prev) => {
-      const newData = [...prev];
-      newData[index8].action = "create";
-      return newData;
-    });
-  };
-  const handleRemoveCustom = (index8) => {
-    setConceptData((prev) => prev.filter((_3, i3) => i3 !== index8));
-  };
-  const handleFieldChange = (index8, field, value) => {
-    setConceptData((prev) => {
-      const newData = [...prev];
-      newData[index8][field] = value;
-      return newData;
-    });
-  };
-  const handleAddCustomConcept = () => {
-    if (!newConceptLabel.trim()) return;
-    setConceptData((prev) => [...prev, {
-      originalSuggestion: null,
-      action: "create",
-      linkedConceptId: null,
-      editedLabel: newConceptLabel.trim(),
-      editedConceptType: newConceptType,
-      potentialMatches: [],
-      isCustom: true
-    }]);
-    setNewConceptLabel("");
-    setNewConceptType("non_physical_concept");
-  };
-  const handleConfirm = () => {
-    const processedConcepts = conceptData.map((concept) => ({
-      action: concept.action,
-      linkedConceptId: concept.linkedConceptId,
-      editedLabel: concept.editedLabel,
-      editedConceptType: concept.editedConceptType,
-      originalSuggestion: concept.originalSuggestion,
-      isCustom: concept.isCustom
-    }));
-    onConfirm(processedConcepts);
-  };
-  const getLinkedConcept = (conceptItem) => {
-    if (conceptItem.action === "link" && conceptItem.linkedConceptId) {
-      return conceptItem.potentialMatches.find((c5) => c5.id === conceptItem.linkedConceptId);
-    }
-    return null;
-  };
-  const getConfidenceStyle = (confidence) => {
-    return CONFIDENCE_COLORS[confidence] || CONFIDENCE_COLORS.medium;
-  };
-  const getConfidenceLabel = (confidence) => {
-    return CONFIDENCE_LABELS[confidence] || "Medium Confidence";
-  };
-  const activeCount = conceptData.filter((c5) => c5.action !== "skip").length;
-  return /* @__PURE__ */ import_react32.default.createElement(Modal, { isOpen, onClose, title: "Review Suggested Concepts", size: "large" }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", height: "70vh" } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-4)" } }, /* @__PURE__ */ import_react32.default.createElement("p", { style: {
-    fontSize: "var(--text-sm)",
-    color: "var(--neutral-600)",
-    marginBottom: "var(--space-4)",
-    fontFamily: "var(--font-body)"
-  } }, suggestions?.length > 0 ? `We found ${suggestions.length} potential concept${suggestions.length !== 1 ? "s" : ""} in this article. Link to existing concepts, create new ones, or skip.` : "No suggestions were generated. You can add concepts manually below."), /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)" } }, conceptData.map((concept, index8) => {
-    const linkedConcept = getLinkedConcept(concept);
-    const hasPotentialMatches = concept.potentialMatches && concept.potentialMatches.length > 0;
-    const isSkipped = concept.action === "skip";
-    const isCustom = concept.isCustom;
-    return /* @__PURE__ */ import_react32.default.createElement("div", { key: index8, style: {
-      border: `1px solid ${isSkipped ? "var(--neutral-200)" : isCustom ? "var(--accent-blue)" : "var(--neutral-300)"}`,
-      borderRadius: "4px",
-      padding: "var(--space-4)",
-      background: isSkipped ? "var(--neutral-50)" : isCustom ? "var(--accent-blue-light)" : "white",
-      opacity: isSkipped ? 0.6 : 1,
-      transition: "all 0.15s"
-    } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { marginBottom: "var(--space-3)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } }, /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-      fontWeight: 600,
-      color: "var(--neutral-900)",
-      fontFamily: "var(--font-body)",
-      fontSize: "var(--text-base)"
-    } }, isCustom ? concept.editedLabel : concept.originalSuggestion?.label), isCustom ? /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      padding: "2px 8px",
-      background: "var(--accent-blue)",
-      color: "white",
-      borderRadius: "4px",
-      fontWeight: 500
-    } }, "Custom") : /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      padding: "2px 8px",
-      background: "var(--accent-green-light)",
-      color: "var(--accent-green)",
-      borderRadius: "4px",
-      fontWeight: 500,
-      textTransform: "capitalize"
-    } }, concept.originalSuggestion?.concept_type), /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-      fontSize: "var(--text-xs)",
-      padding: "2px 8px",
-      background: getConfidenceStyle(concept.originalSuggestion?.confidence).bg,
-      color: getConfidenceStyle(concept.originalSuggestion?.confidence).text,
-      border: `1px solid ${getConfidenceStyle(concept.originalSuggestion?.confidence).border}`,
-      borderRadius: "4px",
-      fontWeight: 500
-    } }, getConfidenceLabel(concept.originalSuggestion?.confidence)))), !isCustom && concept.originalSuggestion?.rationale && /* @__PURE__ */ import_react32.default.createElement("p", { style: {
-      fontSize: "var(--text-xs)",
-      color: "var(--neutral-500)",
-      marginTop: "var(--space-1)",
-      fontFamily: "var(--font-body)",
-      fontStyle: "italic"
-    } }, concept.originalSuggestion.rationale)), isCustom ? /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => handleRemoveCustom(index8),
-        style: {
-          fontSize: "var(--text-xs)",
-          color: "var(--error)",
-          padding: "var(--space-1) var(--space-2)",
-          border: "1px solid var(--error)",
-          borderRadius: "4px",
-          background: "white",
-          cursor: "pointer",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500
-        }
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-trash", style: { marginRight: "var(--space-1)" } }),
-      "Remove"
-    ) : isSkipped ? /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => handleInclude(index8),
-        style: {
-          fontSize: "var(--text-xs)",
-          color: "var(--accent-green)",
-          padding: "var(--space-1) var(--space-2)",
-          border: "1px solid var(--accent-green)",
-          borderRadius: "4px",
-          background: "white",
-          cursor: "pointer",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500
-        }
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus", style: { marginRight: "var(--space-1)" } }),
-      "Include"
-    ) : /* @__PURE__ */ import_react32.default.createElement(
-      "button",
-      {
-        type: "button",
-        onClick: () => handleSkip(index8),
-        style: {
-          fontSize: "var(--text-xs)",
-          color: "var(--neutral-500)",
-          padding: "var(--space-1) var(--space-2)",
-          border: "1px solid var(--neutral-300)",
-          borderRadius: "4px",
-          background: "white",
-          cursor: "pointer",
-          fontFamily: "var(--font-body)",
-          fontWeight: 500,
-          transition: "all 0.15s"
-        },
-        onMouseEnter: (e3) => {
-          e3.currentTarget.style.background = "var(--neutral-100)";
-        },
-        onMouseLeave: (e3) => {
-          e3.currentTarget.style.background = "white";
-        }
-      },
-      /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-times", style: { marginRight: "var(--space-1)" } }),
-      "Skip"
-    )), !isSkipped && /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, concept.action === "link" && linkedConcept ? (
-      /* Linked State */
-      /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-        background: "var(--accent-green-light)",
-        border: "1px solid var(--accent-green)",
-        borderRadius: "4px",
-        padding: "var(--space-3)"
-      } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between" } }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-        fontSize: "var(--text-sm)",
-        fontWeight: 500,
-        color: "var(--accent-green)",
-        fontFamily: "var(--font-body)",
-        display: "flex",
-        alignItems: "center",
-        gap: "var(--space-2)"
-      } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-check-circle" }), "Linked to existing concept"), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-        fontSize: "var(--text-sm)",
-        marginTop: "var(--space-1)",
-        fontFamily: "var(--font-body)",
-        color: "var(--neutral-900)"
-      } }, linkedConcept.label, /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-        fontSize: "var(--text-xs)",
-        marginLeft: "var(--space-2)",
-        padding: "2px 6px",
-        background: "white",
-        borderRadius: "3px",
-        color: "var(--neutral-600)"
-      } }, linkedConcept.concept_type))), /* @__PURE__ */ import_react32.default.createElement(
-        "button",
-        {
-          type: "button",
-          onClick: () => handleUnlink(index8),
-          style: {
-            fontSize: "var(--text-xs)",
-            color: "var(--accent-green)",
-            padding: "var(--space-1) var(--space-3)",
-            border: "1px solid var(--neutral-300)",
-            borderRadius: "4px",
-            background: "white",
-            cursor: "pointer",
-            fontFamily: "var(--font-body)",
-            fontWeight: 500,
-            transition: "all 0.15s"
-          },
-          onMouseEnter: (e3) => {
-            e3.currentTarget.style.background = "var(--neutral-100)";
-          },
-          onMouseLeave: (e3) => {
-            e3.currentTarget.style.background = "white";
-          }
-        },
-        "Unlink"
-      )))
-    ) : (
-      /* Create New Concept State */
-      /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "grid", gridTemplateColumns: "2fr 1fr", gap: "var(--space-3)", marginBottom: hasPotentialMatches ? "var(--space-3)" : 0 } }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { style: {
-        display: "block",
-        fontSize: "var(--text-xs)",
-        fontWeight: 500,
-        marginBottom: "var(--space-1)",
-        fontFamily: "var(--font-body)",
-        color: "var(--neutral-700)"
-      } }, "Label"), /* @__PURE__ */ import_react32.default.createElement(
-        "input",
-        {
-          type: "text",
-          value: concept.editedLabel,
-          onChange: (e3) => handleFieldChange(index8, "editedLabel", e3.target.value),
-          className: "form-input",
-          style: {
-            width: "100%",
-            padding: "var(--space-2)",
-            fontSize: "var(--text-sm)",
-            border: "1px solid var(--neutral-300)",
-            borderRadius: "4px",
-            fontFamily: "var(--font-body)"
-          }
-        }
-      )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { style: {
-        display: "block",
-        fontSize: "var(--text-xs)",
-        fontWeight: 500,
-        marginBottom: "var(--space-1)",
-        fontFamily: "var(--font-body)",
-        color: "var(--neutral-700)"
-      } }, "Type"), /* @__PURE__ */ import_react32.default.createElement(
-        "select",
-        {
-          value: concept.editedConceptType,
-          onChange: (e3) => handleFieldChange(index8, "editedConceptType", e3.target.value),
-          className: "form-select",
-          style: {
-            width: "100%",
-            padding: "var(--space-2)",
-            fontSize: "var(--text-sm)",
-            border: "1px solid var(--neutral-300)",
-            borderRadius: "4px",
-            fontFamily: "var(--font-body)",
-            height: "38px"
-          }
-        },
-        CONCEPT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react32.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
-      ))), hasPotentialMatches && /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-        paddingTop: "var(--space-3)",
-        borderTop: "1px solid var(--neutral-200)"
-      } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-        fontSize: "var(--text-xs)",
-        fontWeight: 500,
-        color: "var(--neutral-700)",
-        marginBottom: "var(--space-2)",
-        fontFamily: "var(--font-body)"
-      } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-database", style: { marginRight: "var(--space-1)", opacity: 0.7 } }), "Found in your database:"), /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } }, concept.potentialMatches.map((match) => /* @__PURE__ */ import_react32.default.createElement(
-        "button",
-        {
-          key: match.id,
-          type: "button",
-          onClick: () => handleLinkToConcept(index8, match),
-          style: {
-            width: "100%",
-            textAlign: "left",
-            padding: "var(--space-2) var(--space-3)",
-            fontSize: "var(--text-sm)",
-            background: match.match_type === "exact" ? "var(--accent-green-light)" : "var(--neutral-100)",
-            borderRadius: "4px",
-            border: match.match_type === "exact" ? "2px solid var(--accent-green)" : "1px solid var(--neutral-200)",
-            cursor: "pointer",
-            fontFamily: "var(--font-body)",
-            transition: "all 0.15s"
-          },
-          onMouseEnter: (e3) => {
-            if (match.match_type === "exact") {
-              e3.currentTarget.style.background = "#c6f6d5";
-            } else {
-              e3.currentTarget.style.background = "var(--accent-green-light)";
-              e3.currentTarget.style.borderColor = "var(--accent-green)";
-            }
-          },
-          onMouseLeave: (e3) => {
-            if (match.match_type === "exact") {
-              e3.currentTarget.style.background = "var(--accent-green-light)";
-            } else {
-              e3.currentTarget.style.background = "var(--neutral-100)";
-              e3.currentTarget.style.borderColor = "var(--neutral-200)";
-            }
-          }
-        },
-        /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } }, /* @__PURE__ */ import_react32.default.createElement("span", { style: { fontWeight: 500 } }, match.label), match.match_type === "exact" && /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-          fontSize: "var(--text-xs)",
-          background: "var(--accent-green)",
-          color: "white",
-          padding: "2px 6px",
-          borderRadius: "4px",
-          fontWeight: 600
-        } }, "Exact Match"), /* @__PURE__ */ import_react32.default.createElement("span", { style: {
-          fontSize: "var(--text-xs)",
-          color: "var(--neutral-500)",
-          marginLeft: "auto"
-        } }, match.concept_type))
-      )))))
-    )));
-  })), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-    marginTop: "var(--space-4)",
-    padding: "var(--space-4)",
-    background: "var(--neutral-50)",
-    borderRadius: "4px",
-    border: "1px dashed var(--neutral-300)"
-  } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
-    fontSize: "var(--text-sm)",
-    fontWeight: 600,
-    color: "var(--neutral-700)",
-    marginBottom: "var(--space-3)",
-    fontFamily: "var(--font-body)",
-    display: "flex",
-    alignItems: "center",
-    gap: "var(--space-2)"
-  } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus-circle", style: { color: "var(--accent-blue)" } }), "Add Custom Concept"), /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", gap: "var(--space-2)", alignItems: "flex-end" } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { flex: 2 } }, /* @__PURE__ */ import_react32.default.createElement("label", { style: {
-    display: "block",
-    fontSize: "var(--text-xs)",
-    fontWeight: 500,
-    marginBottom: "var(--space-1)",
-    fontFamily: "var(--font-body)",
-    color: "var(--neutral-600)"
-  } }, "Label"), /* @__PURE__ */ import_react32.default.createElement(
+  return /* @__PURE__ */ import_react32.default.createElement("div", { ref: wrapperRef, style: { position: "relative", width: "100%" } }, /* @__PURE__ */ import_react32.default.createElement(
     "input",
     {
       type: "text",
-      value: newConceptLabel,
-      onChange: (e3) => setNewConceptLabel(e3.target.value),
-      onKeyDown: (e3) => {
-        if (e3.key === "Enter" && newConceptLabel.trim()) {
-          e3.preventDefault();
-          handleAddCustomConcept();
-        }
+      value,
+      onChange: (e3) => {
+        onChange16(e3.target.value);
+        setOpen(true);
       },
-      placeholder: "e.g., Cognitive Behavioral Therapy",
+      onFocus: () => setOpen(true),
+      onKeyDown: handleKey,
+      placeholder,
+      autoFocus,
       className: "form-input",
       style: {
         width: "100%",
@@ -62750,60 +62397,350 @@ function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm })
         border: "1px solid var(--neutral-300)",
         borderRadius: "4px",
         fontFamily: "var(--font-body)",
-        background: "white"
+        background: "white",
+        height: "36px",
+        boxSizing: "border-box"
       }
     }
-  )), /* @__PURE__ */ import_react32.default.createElement("div", { style: { flex: 1 } }, /* @__PURE__ */ import_react32.default.createElement("label", { style: {
-    display: "block",
+  ), open && results.length > 0 && /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    background: "white",
+    border: "1px solid var(--neutral-300)",
+    borderRadius: "4px",
+    marginTop: "2px",
+    maxHeight: "220px",
+    overflowY: "auto",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
+  } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
     fontSize: "var(--text-xs)",
-    fontWeight: 500,
-    marginBottom: "var(--space-1)",
+    color: "var(--neutral-500)",
+    padding: "var(--space-1) var(--space-2)",
+    borderBottom: "1px solid var(--neutral-200)",
+    fontFamily: "var(--font-body)"
+  } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-database", style: { marginRight: "var(--space-1)" } }), "Click to link to an existing concept"), results.map((c5, i3) => /* @__PURE__ */ import_react32.default.createElement(
+    "button",
+    {
+      key: c5.id,
+      type: "button",
+      onMouseDown: (e3) => {
+        e3.preventDefault();
+        onLink(c5);
+        setOpen(false);
+      },
+      onMouseEnter: () => setActive(i3),
+      style: {
+        width: "100%",
+        textAlign: "left",
+        padding: "var(--space-2)",
+        fontSize: "var(--text-sm)",
+        background: i3 === active ? "var(--accent-green-light)" : "white",
+        border: "none",
+        borderBottom: "1px solid var(--neutral-100)",
+        cursor: "pointer",
+        fontFamily: "var(--font-body)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "var(--space-2)"
+      }
+    },
+    /* @__PURE__ */ import_react32.default.createElement("span", { style: { fontWeight: 500 } }, c5.label),
+    /* @__PURE__ */ import_react32.default.createElement("span", { style: {
+      fontSize: "var(--text-xs)",
+      color: "var(--neutral-500)",
+      textTransform: "capitalize"
+    } }, (c5.concept_type || "").replace(/_/g, " "))
+  ))));
+}
+function iconBtnStyle(color2) {
+  return {
+    width: "32px",
+    height: "32px",
+    border: "none",
+    borderRadius: "4px",
+    background: "transparent",
+    color: color2,
+    cursor: "pointer",
+    fontSize: "var(--text-sm)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  };
+}
+function ConceptRow2({ concept, onChange: onChange16, onLink, onUnlink, onSkip, onInclude, onRemove: onRemove2, isLast }) {
+  const isSkipped = concept.action === "skip";
+  const isLinked = concept.action === "link" && concept.linkedConceptId;
+  const isCustom = concept.isCustom;
+  const conf = concept.originalSuggestion?.confidence;
+  const confStyle = CONFIDENCE_COLORS[conf] || CONFIDENCE_COLORS.medium;
+  return /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    borderBottom: isLast ? "none" : "1px solid var(--neutral-200)",
+    background: isSkipped ? "var(--neutral-50)" : "white",
+    opacity: isSkipped ? 0.6 : 1
+  } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "1fr 200px 100px 40px",
+    gap: "var(--space-2)",
+    padding: "var(--space-2) var(--space-3)",
+    alignItems: "center"
+  } }, /* @__PURE__ */ import_react32.default.createElement("div", null, isLinked ? /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-2)",
+    padding: "var(--space-2)",
+    background: "var(--accent-green-light)",
+    border: "1px solid var(--accent-green)",
+    borderRadius: "4px",
+    fontSize: "var(--text-sm)",
     fontFamily: "var(--font-body)",
-    color: "var(--neutral-600)"
-  } }, "Type"), /* @__PURE__ */ import_react32.default.createElement(
+    height: "36px",
+    boxSizing: "border-box"
+  } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-link", style: { color: "var(--accent-green)", fontSize: "var(--text-xs)" } }), /* @__PURE__ */ import_react32.default.createElement("span", { style: { fontWeight: 500 } }, concept.linkedConceptLabel)) : /* @__PURE__ */ import_react32.default.createElement(
+    ConceptLabelTypeahead,
+    {
+      value: concept.editedLabel,
+      onChange: (v3) => onChange16({ editedLabel: v3 }),
+      onLink,
+      placeholder: isCustom ? "Type a concept name..." : ""
+    }
+  )), /* @__PURE__ */ import_react32.default.createElement("div", null, isLinked ? /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    padding: "var(--space-2)",
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    fontFamily: "var(--font-body)",
+    textTransform: "capitalize",
+    height: "36px",
+    boxSizing: "border-box",
+    display: "flex",
+    alignItems: "center"
+  } }, (concept.linkedConceptType || "").replace(/_/g, " ")) : /* @__PURE__ */ import_react32.default.createElement(
     "select",
     {
-      value: newConceptType,
-      onChange: (e3) => setNewConceptType(e3.target.value),
+      value: concept.editedConceptType,
+      onChange: (e3) => onChange16({ editedConceptType: e3.target.value }),
       className: "form-select",
       style: {
         width: "100%",
-        padding: "var(--space-2)",
+        padding: "var(--space-1) var(--space-2)",
         fontSize: "var(--text-sm)",
         border: "1px solid var(--neutral-300)",
         borderRadius: "4px",
         fontFamily: "var(--font-body)",
-        height: "38px",
-        background: "white"
+        height: "36px",
+        background: "white",
+        boxSizing: "border-box"
       }
     },
     CONCEPT_TYPE_OPTIONS.map((opt) => /* @__PURE__ */ import_react32.default.createElement("option", { key: opt.value, value: opt.value }, opt.label))
+  )), /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", justifyContent: "center" } }, isSkipped ? /* @__PURE__ */ import_react32.default.createElement("span", { style: {
+    fontSize: "var(--text-xs)",
+    padding: "2px 8px",
+    background: "var(--neutral-100)",
+    color: "var(--neutral-500)",
+    borderRadius: "4px",
+    fontWeight: 500
+  } }, "Skipped") : isLinked ? /* @__PURE__ */ import_react32.default.createElement("span", { style: {
+    fontSize: "var(--text-xs)",
+    padding: "2px 8px",
+    background: "var(--accent-green-light)",
+    color: "var(--accent-green)",
+    borderRadius: "4px",
+    fontWeight: 500
+  } }, /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-check", style: { marginRight: "4px" } }), "Linked") : isCustom ? /* @__PURE__ */ import_react32.default.createElement("span", { style: {
+    fontSize: "var(--text-xs)",
+    padding: "2px 8px",
+    background: "var(--accent-blue)",
+    color: "white",
+    borderRadius: "4px",
+    fontWeight: 500
+  } }, "Custom") : /* @__PURE__ */ import_react32.default.createElement("span", { style: {
+    fontSize: "var(--text-xs)",
+    padding: "2px 8px",
+    background: confStyle.bg,
+    color: confStyle.text,
+    border: `1px solid ${confStyle.border}`,
+    borderRadius: "4px",
+    fontWeight: 500,
+    textTransform: "capitalize"
+  } }, conf || "new")), /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", justifyContent: "center" } }, isLinked ? /* @__PURE__ */ import_react32.default.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: onUnlink,
+      title: "Unlink",
+      style: iconBtnStyle("var(--neutral-500)")
+    },
+    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-unlink" })
+  ) : isSkipped ? /* @__PURE__ */ import_react32.default.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: onInclude,
+      title: "Include",
+      style: iconBtnStyle("var(--accent-green)")
+    },
+    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus" })
+  ) : isCustom ? /* @__PURE__ */ import_react32.default.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: onRemove2,
+      title: "Remove",
+      style: iconBtnStyle("var(--error)")
+    },
+    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-trash" })
+  ) : /* @__PURE__ */ import_react32.default.createElement(
+    "button",
+    {
+      type: "button",
+      onClick: onSkip,
+      title: "Skip",
+      style: iconBtnStyle("var(--neutral-500)")
+    },
+    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-times" })
+  ))), !isSkipped && !isLinked && concept.originalSuggestion?.rationale && /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    padding: "0 var(--space-3) var(--space-2) var(--space-3)",
+    fontSize: "var(--text-xs)",
+    color: "var(--neutral-500)",
+    fontStyle: "italic",
+    fontFamily: "var(--font-body)"
+  } }, concept.originalSuggestion.rationale));
+}
+function ConceptDisambiguationModal({ isOpen, onClose, suggestions, onConfirm }) {
+  const [conceptData, setConceptData] = (0, import_react32.useState)([]);
+  (0, import_react32.useEffect)(() => {
+    if (!isOpen) return;
+    if (suggestions && suggestions.length > 0) {
+      const initial2 = suggestions.map((s3) => {
+        const exact = (s3.potential_matches || []).find((m5) => m5.match_type === "exact");
+        return {
+          originalSuggestion: {
+            label: s3.label,
+            concept_type: s3.concept_type,
+            confidence: s3.confidence,
+            rationale: s3.rationale
+          },
+          action: exact ? "link" : "create",
+          linkedConceptId: exact ? exact.id : null,
+          linkedConceptLabel: exact ? exact.label : null,
+          linkedConceptType: exact ? exact.concept_type : null,
+          editedLabel: exact ? exact.label : s3.label,
+          editedConceptType: s3.concept_type || "non_physical_concept",
+          isCustom: false
+        };
+      });
+      setConceptData(initial2);
+    } else {
+      setConceptData([emptyCustomRow()]);
+    }
+  }, [isOpen, suggestions]);
+  const updateRow = (i3, patch) => {
+    setConceptData((prev) => prev.map((row, idx) => idx === i3 ? { ...row, ...patch } : row));
+  };
+  const removeRow2 = (i3) => {
+    setConceptData((prev) => prev.filter((_3, idx) => idx !== i3));
+  };
+  const handleLink = (i3, concept) => {
+    updateRow(i3, {
+      action: "link",
+      linkedConceptId: concept.id,
+      linkedConceptLabel: concept.label,
+      linkedConceptType: concept.concept_type,
+      editedLabel: concept.label
+    });
+  };
+  const handleUnlink = (i3) => {
+    updateRow(i3, {
+      action: "create",
+      linkedConceptId: null,
+      linkedConceptLabel: null,
+      linkedConceptType: null
+    });
+  };
+  const handleSkip = (i3) => updateRow(i3, { action: "skip" });
+  const handleInclude = (i3) => updateRow(i3, { action: "create" });
+  const addCustomRow = () => {
+    setConceptData((prev) => [...prev, emptyCustomRow()]);
+  };
+  const handleConfirm = () => {
+    const processed = conceptData.filter((c5) => c5.action !== "skip").filter((c5) => c5.action === "link" && c5.linkedConceptId || c5.editedLabel && c5.editedLabel.trim()).map((c5) => ({
+      action: c5.action,
+      linkedConceptId: c5.linkedConceptId,
+      editedLabel: (c5.editedLabel || "").trim(),
+      editedConceptType: c5.editedConceptType,
+      originalSuggestion: c5.originalSuggestion,
+      isCustom: c5.isCustom
+    }));
+    onConfirm(processed);
+  };
+  const activeCount = conceptData.filter(
+    (c5) => c5.action !== "skip" && (c5.action === "link" && c5.linkedConceptId || c5.editedLabel && c5.editedLabel.trim())
+  ).length;
+  return /* @__PURE__ */ import_react32.default.createElement(Modal, { isOpen, onClose, title: "Review Suggested Concepts", size: "large" }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { display: "flex", flexDirection: "column", height: "70vh" } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: { flex: 1, overflowY: "auto", padding: "var(--space-4)" } }, /* @__PURE__ */ import_react32.default.createElement("p", { style: {
+    fontSize: "var(--text-sm)",
+    color: "var(--neutral-600)",
+    marginBottom: "var(--space-3)",
+    fontFamily: "var(--font-body)"
+  } }, suggestions?.length > 0 ? `${suggestions.length} concept${suggestions.length !== 1 ? "s" : ""} suggested. Type in any label to search your library and link to an existing one \u2014 or leave as-is to create new.` : "No suggestions were generated. Add concepts manually below."), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    border: "1px solid var(--neutral-200)",
+    borderRadius: "4px",
+    overflow: "visible",
+    background: "white"
+  } }, /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "1fr 200px 100px 40px",
+    gap: "var(--space-2)",
+    padding: "var(--space-2) var(--space-3)",
+    background: "var(--neutral-100)",
+    borderBottom: "1px solid var(--neutral-200)",
+    fontSize: "var(--text-xs)",
+    fontWeight: 600,
+    color: "var(--neutral-700)",
+    fontFamily: "var(--font-body)",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em"
+  } }, /* @__PURE__ */ import_react32.default.createElement("div", null, "Label"), /* @__PURE__ */ import_react32.default.createElement("div", null, "Type"), /* @__PURE__ */ import_react32.default.createElement("div", { style: { textAlign: "center" } }, "Status"), /* @__PURE__ */ import_react32.default.createElement("div", null)), conceptData.map((concept, i3) => /* @__PURE__ */ import_react32.default.createElement(
+    ConceptRow2,
+    {
+      key: i3,
+      concept,
+      isLast: i3 === conceptData.length - 1,
+      onChange: (patch) => updateRow(i3, patch),
+      onLink: (c5) => handleLink(i3, c5),
+      onUnlink: () => handleUnlink(i3),
+      onSkip: () => handleSkip(i3),
+      onInclude: () => handleInclude(i3),
+      onRemove: () => removeRow2(i3)
+    }
   )), /* @__PURE__ */ import_react32.default.createElement(
     "button",
     {
       type: "button",
-      onClick: handleAddCustomConcept,
-      disabled: !newConceptLabel.trim(),
+      onClick: addCustomRow,
       style: {
-        padding: "var(--space-2) var(--space-3)",
-        background: newConceptLabel.trim() ? "var(--accent-blue)" : "var(--neutral-300)",
-        color: "white",
-        border: "none",
-        borderRadius: "4px",
-        fontSize: "var(--text-sm)",
-        fontFamily: "var(--font-body)",
-        fontWeight: 500,
-        cursor: newConceptLabel.trim() ? "pointer" : "not-allowed",
-        height: "38px",
         display: "flex",
         alignItems: "center",
-        gap: "var(--space-1)",
-        transition: "all 0.15s"
+        justifyContent: "center",
+        gap: "var(--space-2)",
+        width: "100%",
+        padding: "var(--space-3)",
+        background: "var(--neutral-50)",
+        border: "none",
+        borderTop: "1px dashed var(--neutral-300)",
+        cursor: "pointer",
+        fontSize: "var(--text-sm)",
+        color: "var(--accent-blue)",
+        fontFamily: "var(--font-body)",
+        fontWeight: 500
       }
     },
-    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus" }),
-    "Add"
-  )))), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
+    /* @__PURE__ */ import_react32.default.createElement("i", { className: "fas fa-plus-circle" }),
+    "Add another concept"
+  ))), /* @__PURE__ */ import_react32.default.createElement("div", { style: {
     display: "flex",
     justifyContent: "center",
     gap: "var(--space-3)",
@@ -63313,11 +63250,14 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     setShowConceptModal(false);
     const allConceptIds = [];
     const created = [];
+    const failed = [];
     for (const c5 of processed) {
       if (c5.action === "skip") continue;
       if (c5.action === "link" && c5.linkedConceptId) {
         allConceptIds.push(Number(c5.linkedConceptId));
       } else if (c5.action === "create") {
+        const label = (c5.editedLabel || "").trim();
+        if (!label) continue;
         try {
           const r4 = await fetch("/concepts", {
             method: "POST",
@@ -63326,16 +63266,36 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
               "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content
             },
             body: JSON.stringify({
-              concept: { label: c5.editedLabel, concept_type: c5.editedConceptType || "phenomenon" }
+              concept: { label, concept_type: c5.editedConceptType || "phenomenon" }
             })
           });
           if (r4.ok) {
             const nc = await r4.json();
             allConceptIds.push(Number(nc.id));
             created.push(nc);
+          } else {
+            let recovered = false;
+            try {
+              const sr = await fetch(`/concepts/search?q=${encodeURIComponent(label)}`);
+              if (sr.ok) {
+                const matches2 = await sr.json();
+                const exact = matches2.find((m5) => (m5.label || "").toLowerCase() === label.toLowerCase());
+                if (exact) {
+                  allConceptIds.push(Number(exact.id));
+                  recovered = true;
+                }
+              }
+            } catch (_3) {
+            }
+            if (!recovered) {
+              const errorData = await r4.json().catch(() => ({}));
+              const msgs = errorData.errors || ["Could not create"];
+              failed.push({ label, errors: Array.isArray(msgs) ? msgs : [String(msgs)] });
+            }
           }
         } catch (e3) {
           console.error(e3);
+          failed.push({ label, errors: [e3.message || "Network error"] });
         }
       }
     }
@@ -63344,6 +63304,14 @@ function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     const merged = [.../* @__PURE__ */ new Set([...existing, ...allConceptIds])];
     setFormData((prev) => ({ ...prev, concept_ids: merged }));
     setProcessedConceptsData(processed);
+    if (failed.length > 0) {
+      const lines = failed.map((f3) => `\u2022 "${f3.label}": ${f3.errors.join(", ")}`).join("\n");
+      alert(`Could not create ${failed.length} concept${failed.length !== 1 ? "s" : ""}:
+
+${lines}
+
+You can edit the labels and try again, or link to an existing concept.`);
+    }
   };
   const performSave = async (processedAuthors = null) => {
     setSubmitting(true);
@@ -65414,6 +65382,8 @@ function ConceptShow({ conceptId }) {
   const [creatingNote, setCreatingNote] = (0, import_react35.useState)(false);
   const [editingNote, setEditingNote] = (0, import_react35.useState)(null);
   const [viewingNote, setViewingNote] = (0, import_react35.useState)(null);
+  const [claiming, setClaiming] = (0, import_react35.useState)(false);
+  const [claimError, setClaimError] = (0, import_react35.useState)(null);
   const [creatingPerson, setCreatingPerson] = (0, import_react35.useState)(false);
   const [creatingSource, setCreatingSource] = (0, import_react35.useState)(false);
   const [generating, setGenerating] = (0, import_react35.useState)(false);
@@ -65614,6 +65584,30 @@ function ConceptShow({ conceptId }) {
     setEditingNote(note);
     setViewingNote(null);
   };
+  const handleClaim = async () => {
+    if (claiming) return;
+    setClaiming(true);
+    setClaimError(null);
+    try {
+      const res = await fetch(`/concepts/${conceptId}/claim`, {
+        method: "POST",
+        headers: { "X-CSRF-Token": csrfToken4(), "Accept": "application/json" }
+      });
+      if (res.status === 402) {
+        const data2 = await res.json();
+        setClaimError({ kind: "quota", message: data2.message, upgradeUrl: data2.upgrade_url });
+        setClaiming(false);
+        return;
+      }
+      if (!res.ok) throw new Error(`Failed (${res.status})`);
+      const data = await res.json();
+      window.location.href = `/concepts/${data.concept_slug || data.concept_id}`;
+    } catch (e3) {
+      console.error("Claim failed", e3);
+      setClaiming(false);
+      setClaimError({ kind: "error", message: "We couldn't add this to your library.  Try again in a moment." });
+    }
+  };
   const handleLinkStashNote = async (note) => {
     try {
       const res = await fetch(`/concepts/${conceptId}/notes/${note.id}/link`, {
@@ -65694,7 +65688,17 @@ function ConceptShow({ conceptId }) {
       title: "Look up on Wikipedia"
     },
     "Wikipedia \u2192"
-  ), /* @__PURE__ */ import_react35.default.createElement("button", { type: "button", className: "sp-action sp-action-secondary", onClick: () => setEditing(true) }, "Edit"), /* @__PURE__ */ import_react35.default.createElement("button", { type: "button", className: "sp-action sp-action-quiet sp-action-danger", onClick: handleDelete2 }, "Delete"))), parents.length > 0 && /* @__PURE__ */ import_react35.default.createElement(Breadcrumb, { parents, current: concept.label }), /* @__PURE__ */ import_react35.default.createElement("section", { className: "cs-hero" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "cs-hero-top" }, type && /* @__PURE__ */ import_react35.default.createElement("span", { className: "cs-hero-type" }, typeLabel), (concept.domains || []).map((d3) => /* @__PURE__ */ import_react35.default.createElement("a", { key: d3.id, href: `/domains/${d3.id}`, className: "sp-chip is-neutral cs-hero-domain" }, d3.name))), /* @__PURE__ */ import_react35.default.createElement("h1", { className: "cs-hero-title" }, toTitleCase(concept.label)), concept.definition?.aliases?.length > 0 && /* @__PURE__ */ import_react35.default.createElement("p", { className: "cs-hero-aliases" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "cs-hero-aliases-label" }, "Also known as"), concept.definition.aliases.join(" \xB7 ")), concept.summary && /* @__PURE__ */ import_react35.default.createElement("p", { className: "cs-hero-summary" }, stripHtml(concept.summary))), /* @__PURE__ */ import_react35.default.createElement(
+  ), concept.is_owner ? /* @__PURE__ */ import_react35.default.createElement(import_react35.default.Fragment, null, /* @__PURE__ */ import_react35.default.createElement("button", { type: "button", className: "sp-action sp-action-secondary", onClick: () => setEditing(true) }, "Edit"), /* @__PURE__ */ import_react35.default.createElement("button", { type: "button", className: "sp-action sp-action-quiet sp-action-danger", onClick: handleDelete2 }, "Delete")) : concept.can_claim ? /* @__PURE__ */ import_react35.default.createElement(
+    "button",
+    {
+      type: "button",
+      className: "sp-action sp-action-primary",
+      onClick: handleClaim,
+      disabled: claiming,
+      title: "Add this concept to your own library \u2014 uses one of your Concept Library Additions."
+    },
+    claiming ? "Adding\u2026" : "+ Add to my library"
+  ) : /* @__PURE__ */ import_react35.default.createElement("span", { className: "sp-action sp-action-quiet", title: "You already have this concept in your library" }, "In your library")), claimError && /* @__PURE__ */ import_react35.default.createElement("div", { className: "cs-claim-error" }, /* @__PURE__ */ import_react35.default.createElement("span", null, claimError.message), claimError.kind === "quota" && claimError.upgradeUrl && /* @__PURE__ */ import_react35.default.createElement("a", { href: claimError.upgradeUrl, className: "cs-claim-error-cta" }, "Upgrade \u2192"))), parents.length > 0 && /* @__PURE__ */ import_react35.default.createElement(Breadcrumb, { parents, current: concept.label }), /* @__PURE__ */ import_react35.default.createElement("section", { className: "cs-hero" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "cs-hero-top" }, type && /* @__PURE__ */ import_react35.default.createElement("span", { className: "cs-hero-type" }, typeLabel), (concept.domains || []).map((d3) => /* @__PURE__ */ import_react35.default.createElement("a", { key: d3.id, href: `/domains/${d3.id}`, className: "sp-chip is-neutral cs-hero-domain" }, d3.name))), /* @__PURE__ */ import_react35.default.createElement("h1", { className: "cs-hero-title" }, toTitleCase(concept.label)), concept.definition?.aliases?.length > 0 && /* @__PURE__ */ import_react35.default.createElement("p", { className: "cs-hero-aliases" }, /* @__PURE__ */ import_react35.default.createElement("span", { className: "cs-hero-aliases-label" }, "Also known as"), concept.definition.aliases.join(" \xB7 ")), concept.summary && /* @__PURE__ */ import_react35.default.createElement("p", { className: "cs-hero-summary" }, stripHtml(concept.summary))), /* @__PURE__ */ import_react35.default.createElement(
     ConceptBody,
     {
       concept,
@@ -66673,6 +66677,24 @@ function CSStyles() {
       }
       .cs-back:hover { color: var(--ink); }
       .cs-header-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+      .cs-claim-error {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: rgba(122, 46, 46, 0.06);
+        border: 1px solid var(--error);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--error);
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .cs-claim-error-cta {
+        font-weight: 600;
+        text-decoration: underline;
+        color: var(--error);
+      }
 
       /* Breadcrumb */
       .cs-breadcrumb {

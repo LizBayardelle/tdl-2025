@@ -65,6 +65,8 @@ export default function ConceptShow({ conceptId }) {
   const [creatingNote, setCreatingNote] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [viewingNote, setViewingNote] = useState(null);
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState(null);
   const [creatingPerson, setCreatingPerson] = useState(false);
   const [creatingSource, setCreatingSource] = useState(false);
 
@@ -292,6 +294,37 @@ export default function ConceptShow({ conceptId }) {
     setViewingNote(null);
   };
 
+  // Claim a shared concept into the current user's library.  Server
+  // creates a new Concept owned by the user, cache-hits the same
+  // ConceptDefinition, and consumes one library-addition slot.  Over-
+  // quota responses surface inline with an upgrade link.
+  const handleClaim = async () => {
+    if (claiming) return;
+    setClaiming(true);
+    setClaimError(null);
+    try {
+      const res = await fetch(`/concepts/${conceptId}/claim`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken(), 'Accept': 'application/json' },
+      });
+      if (res.status === 402) {
+        const data = await res.json();
+        setClaimError({ kind: 'quota', message: data.message, upgradeUrl: data.upgrade_url });
+        setClaiming(false);
+        return;
+      }
+      if (!res.ok) throw new Error(`Failed (${res.status})`);
+      const data = await res.json();
+      // Navigate to the user's own copy.  Use slug when available so
+      // the URL reads cleanly.
+      window.location.href = `/concepts/${data.concept_slug || data.concept_id}`;
+    } catch (e) {
+      console.error('Claim failed', e);
+      setClaiming(false);
+      setClaimError({ kind: 'error', message: "We couldn't add this to your library.  Try again in a moment." });
+    }
+  };
+
   // Stash triage — link promotes a note to direct (creates concept_notes
   // row); dismiss hides it from this concept's stash forever.  Both
   // refetch so the lists rebalance accordingly.
@@ -387,9 +420,35 @@ export default function ConceptShow({ conceptId }) {
           >
             Wikipedia →
           </a>
-          <button type="button" className="sp-action sp-action-secondary" onClick={() => setEditing(true)}>Edit</button>
-          <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={handleDelete}>Delete</button>
+          {concept.is_owner ? (
+            <>
+              <button type="button" className="sp-action sp-action-secondary" onClick={() => setEditing(true)}>Edit</button>
+              <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={handleDelete}>Delete</button>
+            </>
+          ) : concept.can_claim ? (
+            <button
+              type="button"
+              className="sp-action sp-action-primary"
+              onClick={handleClaim}
+              disabled={claiming}
+              title="Add this concept to your own library — uses one of your Concept Library Additions."
+            >
+              {claiming ? 'Adding…' : '+ Add to my library'}
+            </button>
+          ) : (
+            <span className="sp-action sp-action-quiet" title="You already have this concept in your library">
+              In your library
+            </span>
+          )}
         </div>
+        {claimError && (
+          <div className="cs-claim-error">
+            <span>{claimError.message}</span>
+            {claimError.kind === 'quota' && claimError.upgradeUrl && (
+              <a href={claimError.upgradeUrl} className="cs-claim-error-cta">Upgrade →</a>
+            )}
+          </div>
+        )}
       </header>
 
       {parents.length > 0 && <Breadcrumb parents={parents} current={concept.label} />}
@@ -2179,6 +2238,24 @@ function CSStyles() {
       }
       .cs-back:hover { color: var(--ink); }
       .cs-header-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+      .cs-claim-error {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: rgba(122, 46, 46, 0.06);
+        border: 1px solid var(--error);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--error);
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .cs-claim-error-cta {
+        font-weight: 600;
+        text-decoration: underline;
+        color: var(--error);
+      }
 
       /* Breadcrumb */
       .cs-breadcrumb {

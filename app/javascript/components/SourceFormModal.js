@@ -476,11 +476,14 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     setShowConceptModal(false);
     const allConceptIds = [];
     const created = [];
+    const failed = [];
     for (const c of processed) {
       if (c.action === 'skip') continue;
       if (c.action === 'link' && c.linkedConceptId) {
         allConceptIds.push(Number(c.linkedConceptId));
       } else if (c.action === 'create') {
+        const label = (c.editedLabel || '').trim();
+        if (!label) continue;
         try {
           const r = await fetch('/concepts', {
             method: 'POST',
@@ -489,15 +492,37 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
               'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
             },
             body: JSON.stringify({
-              concept: { label: c.editedLabel, concept_type: c.editedConceptType || 'phenomenon' },
+              concept: { label, concept_type: c.editedConceptType || 'phenomenon' },
             }),
           });
           if (r.ok) {
             const nc = await r.json();
             allConceptIds.push(Number(nc.id));
             created.push(nc);
+          } else {
+            // Recover: if user already has a concept with this label, link to it.
+            let recovered = false;
+            try {
+              const sr = await fetch(`/concepts/search?q=${encodeURIComponent(label)}`);
+              if (sr.ok) {
+                const matches = await sr.json();
+                const exact = matches.find(m => (m.label || '').toLowerCase() === label.toLowerCase());
+                if (exact) {
+                  allConceptIds.push(Number(exact.id));
+                  recovered = true;
+                }
+              }
+            } catch (_) { /* fall through to failure */ }
+            if (!recovered) {
+              const errorData = await r.json().catch(() => ({}));
+              const msgs = errorData.errors || ['Could not create'];
+              failed.push({ label, errors: Array.isArray(msgs) ? msgs : [String(msgs)] });
+            }
           }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+          console.error(e);
+          failed.push({ label, errors: [e.message || 'Network error'] });
+        }
       }
     }
     if (created.length > 0) setNewlyCreatedConcepts(p => [...p, ...created]);
@@ -505,6 +530,10 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     const merged = [...new Set([...existing, ...allConceptIds])];
     setFormData(prev => ({ ...prev, concept_ids: merged }));
     setProcessedConceptsData(processed);
+    if (failed.length > 0) {
+      const lines = failed.map(f => `• "${f.label}": ${f.errors.join(', ')}`).join('\n');
+      alert(`Could not create ${failed.length} concept${failed.length !== 1 ? 's' : ''}:\n\n${lines}\n\nYou can edit the labels and try again, or link to an existing concept.`);
+    }
   };
 
   // ====================================================================

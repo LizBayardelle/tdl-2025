@@ -57,20 +57,29 @@ class CitationResolver
   private
 
   def cache_key
-    "citation_resolver:v1:#{Digest::SHA256.hexdigest(@fragment.downcase)}"
+    # v2: merged-fallback enrichment + DOI/arXiv short-circuits now run
+    # OpenAlex + fill_gaps.  Old v1 entries are missing abstracts/keywords
+    # we now know how to fetch, so namespace-bump to invalidate them.
+    "citation_resolver:v2:#{Digest::SHA256.hexdigest(@fragment.downcase)}"
   end
 
   def do_resolve
     if (doi = extract_doi)
       Rails.logger.info "CitationResolver: DOI short-circuit (#{doi})"
       candidate = fetch_by_doi(doi)
-      return candidate ? success(candidate, [], 'high') : error('DOI not found in Crossref.')
+      return error('DOI not found in Crossref.') unless candidate
+      candidate = enrich_with_openalex(candidate)
+      candidate = fill_gaps_with_extractor(candidate) if needs_gap_fill?(candidate)
+      return success(candidate, [], 'high')
     end
 
     if (arxiv = extract_arxiv)
       Rails.logger.info "CitationResolver: arXiv short-circuit (#{arxiv})"
       candidate = fetch_arxiv(arxiv)
-      return candidate ? success(candidate, [], 'high') : error('arXiv lookup failed.')
+      return error('arXiv lookup failed.') unless candidate
+      candidate = enrich_with_openalex(candidate)
+      candidate = fill_gaps_with_extractor(candidate) if needs_gap_fill?(candidate)
+      return success(candidate, [], 'high')
     end
 
     if (pmid = extract_pmid)
@@ -102,7 +111,7 @@ class CitationResolver
     confidence = 'low' if sparse_query && candidates.size > 1
 
     enriched = enrich_with_openalex(best)
-    enriched = fill_gaps_with_extractor(enriched) if enriched[:abstract].blank? && enriched[:doi].present?
+    enriched = fill_gaps_with_extractor(enriched) if needs_gap_fill?(enriched)
     # When confidence is low, show many alternatives so the right paper
     # has a fighting chance of appearing in the picker.
     alt_cap = confidence == 'low' ? 24 : 5
@@ -531,12 +540,32 @@ class CitationResolver
   # non-traditional DOIs (DataCite).  Fill gaps only — never overwrite
   # fields we already have from the matched candidate.
   # =====================================================================
+  GAP_FILL_FIELDS = %w[
+    abstract keywords pages volume issue journal_name publisher_or_venue
+    authors_data title year kind publication_date book_title isbn
+  ].freeze
+
+  # We trigger fill_gaps when ANY of these is blank — a Crossref hit with
+  # an abstract but no pages still leaves the user typing pages by hand,
+  # which is exactly what these APIs are supposed to prevent.
+  GAP_FILL_TRIGGER_FIELDS = %i[
+    abstract keywords pages volume issue publication_date publisher_or_venue
+  ].freeze
+
+  def needs_gap_fill?(candidate)
+    return false if candidate[:doi].blank?
+    GAP_FILL_TRIGGER_FIELDS.any? do |k|
+      val = candidate[k]
+      val.is_a?(Array) ? val.empty? : val.to_s.strip.empty?
+    end
+  end
+
   def fill_gaps_with_extractor(candidate)
     extractor_result = ArticleMetadataExtractor.new(candidate[:doi]).extract
     return candidate unless extractor_result.is_a?(Hash)
 
     filled = candidate.dup
-    %w[abstract keywords pages volume issue journal_name publisher_or_venue authors_data].each do |k|
+    GAP_FILL_FIELDS.each do |k|
       sym_k = k.to_sym
       already_have = filled[sym_k].is_a?(Array) ? filled[sym_k].any? : filled[sym_k].to_s.strip.present?
       next if already_have
