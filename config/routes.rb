@@ -77,6 +77,10 @@ Rails.application.routes.draw do
       post :suggest_relationships
       post :generate_definition
       post :reject_definition
+      # Claim a shared concept into the current user's library — creates
+      # a new Concept row owned by the user, cache-hits the same
+      # definition, consumes one library-addition slot.
+      post :claim
       # Stash triage: link promotes a stash note to direct (creates the
       # M:N concept_notes row); dismiss hides it from this concept's
       # stash forever (creates a dismissed_concept_notes row).

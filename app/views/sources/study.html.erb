@@ -2,7 +2,7 @@
   id="pdf-study-root"
   data-source-id="<%= @source.id %>"
   data-source-title="<%= @source.title %>"
-  data-pdf-url="<%= @source.pdf.attached? ? rails_blob_path(@source.pdf, only_path: true) : '' %>"
+  data-pdf-url="<%= @source.pdf.attached? ? rails_storage_proxy_path(@source.pdf, only_path: true) : '' %>"
   data-user-unlimited="<%= current_user.unlimited? %>"
   data-user-admin="<%= current_user.admin %>"
 ></div>

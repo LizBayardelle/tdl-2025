@@ -1,6 +1,6 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note]
+  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note, :claim]
   before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition, :link_note, :dismiss_note]
 
   def index
@@ -179,6 +179,10 @@ class ConceptsController < ApplicationController
           generation_quota: current_user.concept_generation_quota,
           direct_notes: direct_notes_payload,
           stash_notes: stash_payload,
+          is_owner: @concept.user_id == current_user.id,
+          permission: @concept.permission_for(current_user),
+          can_claim: @concept.user_id != current_user.id &&
+                     !current_user.concepts.exists?(slug: @concept.slug),
         )
       }
     end
@@ -315,6 +319,74 @@ class ConceptsController < ApplicationController
       rejected: true,
       free_regen: was_cache_hit,
       unlimited: current_user.concept_generations_unlimited?,
+      remaining: current_user.concept_generations_unlimited? ? nil : current_user.concept_generations_remaining,
+    }
+  end
+
+  # POST /concepts/:id/claim
+  # Adds a shared concept to the current user's own library.  Creates a
+  # new Concept owned by current_user, cache-hits the existing
+  # ConceptDefinition (so the recipient gets the same rich content their
+  # owner saw, free server-side), and consumes one Concept Library
+  # Addition slot — the symmetry we agreed on for shared content.  If
+  # the user already owns a concept with this slug (claimed earlier or
+  # generated independently), this is a no-op redirect.
+  def claim
+    if @concept.user_id == current_user.id
+      render json: { error: 'You already own this concept.' }, status: :unprocessable_entity
+      return
+    end
+
+    existing = current_user.concepts.find_by(slug: @concept.slug)
+    if existing
+      render json: { claimed: true, concept_id: existing.id, concept_slug: existing.slug, already_owned: true }
+      return
+    end
+
+    new_concept = current_user.concepts.build(
+      label: @concept.label,
+      concept_type: @concept.concept_type,
+    )
+    unless new_concept.save
+      render json: { error: new_concept.errors.full_messages.join(', ') }, status: :unprocessable_entity
+      return
+    end
+
+    cached = ConceptDefinition.best_match_for(
+      slug: new_concept.label.to_s.parameterize,
+      concept_type: new_concept.concept_type,
+    )
+
+    begin
+      current_user.consume_concept_generation!
+    rescue User::InsufficientQuota
+      new_concept.destroy
+      limit = current_user.concept_generation_limit
+      render json: {
+        error: 'over_quota',
+        message: "You've used all #{limit} Concept Library Addition#{limit == 1 ? '' : 's'} on the #{current_user.effective_plan.titleize} tier this month.",
+        tier: current_user.effective_plan,
+        upgrade_url: subscribe_path,
+      }, status: :payment_required
+      return
+    end
+
+    if cached
+      new_concept.update!(definition_id: cached.id, definition_acquired_via: 'cache_hit')
+      ConceptDefinition.increment_counter(:linked_count_cache, cached.id)
+    else
+      # Source concept was shared with us but somehow has no
+      # ConceptDefinition cache match (definition still generating, or
+      # the source has no definition yet).  Fall back to fresh gen so
+      # the user still ends up with a populated entry.
+      GenerateConceptDefinitionJob.perform_later(new_concept.id, current_user.id)
+    end
+
+    render json: {
+      claimed: true,
+      concept_id: new_concept.id,
+      concept_slug: new_concept.slug,
+      cache_hit: !cached.nil?,
       remaining: current_user.concept_generations_unlimited? ? nil : current_user.concept_generations_remaining,
     }
   end
