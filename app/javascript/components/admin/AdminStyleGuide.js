@@ -1437,7 +1437,7 @@ function SGLocalStyles() {
         font-family: var(--serif);
         font-size: 44px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         letter-spacing: -0.02em;
         line-height: 1.05;
         margin: 0;
@@ -1500,7 +1500,7 @@ function SGLocalStyles() {
         font-family: var(--serif);
         font-size: 28px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         letter-spacing: -0.015em;
         line-height: 1.15;
       }
@@ -1509,7 +1509,7 @@ function SGLocalStyles() {
         font-family: var(--serif);
         font-size: 18px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         margin: 24px 0 10px;
       }
 
@@ -1532,7 +1532,7 @@ function SGLocalStyles() {
         font-family: var(--serif);
         font-size: 16px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
       }
       .sg-classes {
         display: flex;
@@ -1825,7 +1825,7 @@ function SGLocalStyles() {
       }
       .sg-spacing-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
       .sg-spacing-block {
-        background: var(--ink);
+        background: var(--primary);
         border-radius: 1px;
       }
       .sg-spacing-num {
@@ -2192,7 +2192,7 @@ function SGLocalStyles() {
         font-family: var(--serif);
         font-size: 32px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         line-height: 1.15;
         letter-spacing: -0.02em;
         margin: 0 0 10px;

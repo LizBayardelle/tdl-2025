@@ -1,6 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import AdminLayout from './AdminLayout';
-import AdminPageHeader from './AdminPageHeader';
 import MagicSparkles from '../icons/MagicSparkles';
 
 // -----------------------------------------------------------------------------
@@ -36,98 +35,98 @@ const ANALYSIS_PREFERENCE_LEVELS = ['Classical / Introductory', 'Robust', 'Bayes
 const COMPLEXITY_LEVELS = ['Introductory', 'Intermediate', 'Advanced', 'Any'];
 
 // Field groups drive the form layout. Each field is { key, label, type, options? }.
-// type ∈ 'single' | 'multi' | 'text' | 'textarea' | 'tags' | 'number'
+// type ∈ 'single' | 'multi' | 'text' | 'textarea' | 'tags'
 const FIELD_GROUPS = [
   {
     title: 'Identification',
-    icon: '🧾',
+    eyebrow: 'What it is',
     fields: [
-      { key: 'name', label: 'Test Name', type: 'text', required: true, hint: 'The canonical name (e.g., "Independent Samples t-test").' },
-      { key: 'aliases', label: 'Aliases', type: 'tags', hint: 'Alternate names. Used to match auto-detected tags from Haiku.' },
-      { key: 'description', label: 'Description', type: 'textarea', hint: 'Optional. Short, plain-language summary.' },
+      { key: 'name', label: 'Test name', type: 'text', required: true, hint: 'The canonical name (e.g., "Independent Samples t-test").' },
+      { key: 'aliases', label: 'Aliases', type: 'tags', hint: 'Alternate names.  Used to match auto-detected tags from Haiku.' },
+      { key: 'description', label: 'Description', type: 'textarea', hint: 'Optional.  Short, plain-language summary.' },
     ],
   },
   {
     title: 'Purpose',
-    icon: '🎯',
+    eyebrow: 'What it does',
     fields: [
-      { key: 'goal', label: 'Goal', type: 'multi', options: GOALS, hint: 'One or more. What does this test do?' },
+      { key: 'goal', label: 'Goal', type: 'multi', options: GOALS, hint: 'One or more.  What does this test do?' },
     ],
   },
   {
     title: 'Variable Structure',
-    icon: '🔀',
+    eyebrow: 'What goes in',
     fields: [
-      { key: 'variable_relationship_structure', label: 'Variable Relationship Structure', type: 'single', options: VARIABLE_RELATIONSHIP_STRUCTURES },
-      { key: 'primary_variable_1_type', label: 'Primary Variable 1 Type', type: 'single', options: PRIMARY_VARIABLE_1_TYPES },
-      { key: 'primary_variable_2_type', label: 'Primary Variable 2 Type', type: 'single', options: PRIMARY_VARIABLE_2_TYPES },
-      { key: 'number_of_dependent_variables', label: 'Number of Dependent Variables', type: 'single', options: NUMBER_OF_DEPENDENT_VARIABLES },
-      { key: 'number_of_predictors', label: 'Number of Predictors', type: 'single', options: NUMBER_OF_PREDICTORS },
+      { key: 'variable_relationship_structure', label: 'Variable relationship structure', type: 'single', options: VARIABLE_RELATIONSHIP_STRUCTURES },
+      { key: 'primary_variable_1_type', label: 'Primary variable 1 type', type: 'single', options: PRIMARY_VARIABLE_1_TYPES },
+      { key: 'primary_variable_2_type', label: 'Primary variable 2 type', type: 'single', options: PRIMARY_VARIABLE_2_TYPES },
+      { key: 'number_of_dependent_variables', label: 'Number of dependent variables', type: 'single', options: NUMBER_OF_DEPENDENT_VARIABLES },
+      { key: 'number_of_predictors', label: 'Number of predictors', type: 'single', options: NUMBER_OF_PREDICTORS },
     ],
   },
   {
     title: 'Design Structure',
-    icon: '🧩',
+    eyebrow: 'How the data is collected',
     fields: [
-      { key: 'number_of_groups_conditions', label: 'Number of Groups / Conditions', type: 'single', options: NUMBER_OF_GROUPS_CONDITIONS },
-      { key: 'sample_relationship', label: 'Sample Relationship', type: 'single', options: SAMPLE_RELATIONSHIPS },
-      { key: 'repeated_observations_present', label: 'Repeated Observations Present', type: 'single', options: YES_NO },
-      { key: 'number_of_timepoints', label: 'Number of Timepoints', type: 'single', options: NUMBER_OF_TIMEPOINTS },
-      { key: 'time_matters_to_analysis', label: 'Time Matters to the Analysis', type: 'single', options: YES_NO },
+      { key: 'number_of_groups_conditions', label: 'Number of groups / conditions', type: 'single', options: NUMBER_OF_GROUPS_CONDITIONS },
+      { key: 'sample_relationship', label: 'Sample relationship', type: 'single', options: SAMPLE_RELATIONSHIPS },
+      { key: 'repeated_observations_present', label: 'Repeated observations present', type: 'single', options: YES_NO },
+      { key: 'number_of_timepoints', label: 'Number of timepoints', type: 'single', options: NUMBER_OF_TIMEPOINTS },
+      { key: 'time_matters_to_analysis', label: 'Time matters to the analysis', type: 'single', options: YES_NO },
     ],
   },
   {
     title: 'Model Structure',
-    icon: '🧠',
+    eyebrow: 'How the model is built',
     fields: [
-      { key: 'covariates_included', label: 'Covariates Included', type: 'single', options: SUPPORT_LEVELS },
-      { key: 'nested_or_clustered_data', label: 'Nested or Clustered Data', type: 'single', options: SUPPORT_LEVELS },
-      { key: 'data_hierarchy', label: 'Data Hierarchy', type: 'single', options: DATA_HIERARCHIES },
+      { key: 'covariates_included', label: 'Covariates included', type: 'single', options: SUPPORT_LEVELS },
+      { key: 'nested_or_clustered_data', label: 'Nested or clustered data', type: 'single', options: SUPPORT_LEVELS },
+      { key: 'data_hierarchy', label: 'Data hierarchy', type: 'single', options: DATA_HIERARCHIES },
       { key: 'mediation', label: 'Mediation', type: 'single', options: SUPPORT_LEVELS },
       { key: 'moderation', label: 'Moderation', type: 'single', options: SUPPORT_LEVELS },
     ],
   },
   {
-    title: 'Assumptions / Edge Cases',
-    icon: '📉',
+    title: 'Assumptions & Edge Cases',
+    eyebrow: 'When it applies',
     fields: [
-      { key: 'parametric_assumptions_reasonably_met', label: 'Parametric Assumptions Reasonably Met', type: 'single', options: YES_NO_UNKNOWN },
-      { key: 'outcome_approximately_normal', label: 'Outcome Approximately Normal', type: 'single', options: YES_NO_UNKNOWN_NA },
-      { key: 'equal_variances_assumed', label: 'Equal Variances Assumed', type: 'single', options: YES_NO_UNKNOWN_NA },
-      { key: 'small_sample_concern', label: 'Small Sample Concern', type: 'single', options: YES_NO_UNKNOWN },
-      { key: 'small_expected_cell_counts', label: 'Small Expected Cell Counts', type: 'single', options: YES_NO_UNKNOWN_NA },
-      { key: 'overdispersion_present', label: 'Overdispersion Present', type: 'single', options: YES_NO_UNKNOWN_NA },
-      { key: 'many_zero_values', label: 'Many Zero Values', type: 'single', options: YES_NO_UNKNOWN_NA },
-      { key: 'censoring_present', label: 'Censoring Present', type: 'single', options: SUPPORT_LEVELS },
+      { key: 'parametric_assumptions_reasonably_met', label: 'Parametric assumptions reasonably met', type: 'single', options: YES_NO_UNKNOWN },
+      { key: 'outcome_approximately_normal', label: 'Outcome approximately normal', type: 'single', options: YES_NO_UNKNOWN_NA },
+      { key: 'equal_variances_assumed', label: 'Equal variances assumed', type: 'single', options: YES_NO_UNKNOWN_NA },
+      { key: 'small_sample_concern', label: 'Small sample concern', type: 'single', options: YES_NO_UNKNOWN },
+      { key: 'small_expected_cell_counts', label: 'Small expected cell counts', type: 'single', options: YES_NO_UNKNOWN_NA },
+      { key: 'overdispersion_present', label: 'Overdispersion present', type: 'single', options: YES_NO_UNKNOWN_NA },
+      { key: 'many_zero_values', label: 'Many zero values', type: 'single', options: YES_NO_UNKNOWN_NA },
+      { key: 'censoring_present', label: 'Censoring present', type: 'single', options: SUPPORT_LEVELS },
     ],
   },
   {
     title: 'Special Analysis Types',
-    icon: '🔬',
+    eyebrow: 'Particular use cases',
     fields: [
-      { key: 'latent_construct_interest', label: 'Latent Construct Interest', type: 'single', options: YES_NO },
-      { key: 'dimension_reduction_goal', label: 'Dimension Reduction Goal', type: 'single', options: YES_NO },
-      { key: 'group_membership_known_in_advance', label: 'Group Membership Known in Advance', type: 'single', options: YES_NO_NA },
-      { key: 'agreement_data_type', label: 'Agreement Data Type', type: 'single', options: AGREEMENT_DATA_TYPES },
+      { key: 'latent_construct_interest', label: 'Latent construct interest', type: 'single', options: YES_NO },
+      { key: 'dimension_reduction_goal', label: 'Dimension reduction goal', type: 'single', options: YES_NO },
+      { key: 'group_membership_known_in_advance', label: 'Group membership known in advance', type: 'single', options: YES_NO_NA },
+      { key: 'agreement_data_type', label: 'Agreement data type', type: 'single', options: AGREEMENT_DATA_TYPES },
     ],
   },
   {
-    title: 'Output / Practical',
-    icon: '⚙️',
+    title: 'Output & Practical',
+    eyebrow: 'What it produces',
     fields: [
-      { key: 'post_hoc_comparisons_needed', label: 'Post Hoc Comparisons Needed', type: 'single', options: POST_HOC_OPTIONS },
-      { key: 'analysis_scope', label: 'Analysis Scope', type: 'single', options: ANALYSIS_SCOPES },
-      { key: 'primary_output_desired', label: 'Primary Output Desired', type: 'multi', options: PRIMARY_OUTPUTS, hint: 'One or more. What does the test produce?' },
+      { key: 'post_hoc_comparisons_needed', label: 'Post-hoc comparisons needed', type: 'single', options: POST_HOC_OPTIONS },
+      { key: 'analysis_scope', label: 'Analysis scope', type: 'single', options: ANALYSIS_SCOPES },
+      { key: 'primary_output_desired', label: 'Primary output desired', type: 'multi', options: PRIMARY_OUTPUTS, hint: 'One or more.  What does the test produce?' },
     ],
   },
   {
     title: 'Advanced',
-    icon: '🧠',
+    eyebrow: 'Estimation preferences',
     fields: [
-      { key: 'exact_method_needed', label: 'Exact Method Needed', type: 'single', options: YES_NO_UNKNOWN },
-      { key: 'bayesian_approach_desired', label: 'Bayesian Approach Desired', type: 'single', options: YES_NO },
-      { key: 'analysis_preference_level', label: 'Analysis Preference Level', type: 'single', options: ANALYSIS_PREFERENCE_LEVELS },
-      { key: 'complexity_level_allowed', label: 'Complexity Level Allowed', type: 'single', options: COMPLEXITY_LEVELS },
+      { key: 'exact_method_needed', label: 'Exact method needed', type: 'single', options: YES_NO_UNKNOWN },
+      { key: 'bayesian_approach_desired', label: 'Bayesian approach desired', type: 'single', options: YES_NO },
+      { key: 'analysis_preference_level', label: 'Analysis preference level', type: 'single', options: ANALYSIS_PREFERENCE_LEVELS },
+      { key: 'complexity_level_allowed', label: 'Complexity level allowed', type: 'single', options: COMPLEXITY_LEVELS },
     ],
   },
 ];
@@ -135,94 +134,41 @@ const FIELD_GROUPS = [
 const ALL_FIELD_KEYS = FIELD_GROUPS.flatMap((g) => g.fields.map((f) => f.key));
 
 // -----------------------------------------------------------------------------
-// Styles
-// -----------------------------------------------------------------------------
-
-const inputStyle = {
-  width: '100%',
-  padding: 'var(--space-2) var(--space-3)',
-  border: '1px solid var(--ink-line)',
-  borderRadius: 'var(--radius)',
-  fontSize: 'var(--text-sm)',
-  fontFamily: 'var(--font-body)',
-  boxSizing: 'border-box',
-  background: 'white',
-};
-
-const labelStyle = {
-  display: 'block',
-  marginBottom: 'var(--space-1)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-xs)',
-  fontWeight: 700,
-  color: 'var(--ink-3)',
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-};
-
-const hintStyle = {
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-xs)',
-  color: 'var(--ink-3)',
-  marginTop: 4,
-};
-
-const primaryButton = {
-  background: 'var(--admin-brown-dark)',
-  color: 'white',
-  border: 'none',
-  padding: 'var(--space-2) var(--space-4)',
-  borderRadius: 'var(--radius)',
-  fontFamily: 'var(--font-body)',
-  fontWeight: 500,
-  fontSize: 'var(--text-sm)',
-  cursor: 'pointer',
-};
-
-const secondaryButton = {
-  background: 'white',
-  color: 'var(--ink)',
-  border: '1px solid var(--ink-line)',
-  padding: 'var(--space-2) var(--space-4)',
-  borderRadius: 'var(--radius)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  display: 'inline-flex',
-  alignItems: 'center',
-};
-
-const dangerButton = {
-  background: 'white',
-  color: 'var(--error)',
-  border: '1px solid var(--error)',
-  padding: 'var(--space-2) var(--space-4)',
-  borderRadius: 'var(--radius)',
-  fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-sm)',
-  cursor: 'pointer',
-};
-
-// -----------------------------------------------------------------------------
 // Field renderers
 // -----------------------------------------------------------------------------
 
+const selectStyle = {
+  width: '100%',
+  padding: '8px 10px',
+  border: '1px solid var(--ink-line)',
+  borderRadius: 'var(--r-sm)',
+  fontSize: '13.5px',
+  fontFamily: 'var(--font-body)',
+  boxSizing: 'border-box',
+  background: 'var(--paper)',
+  color: 'var(--ink)',
+};
+
 function FieldShell({ label, hint, required, children }) {
   return (
-    <div style={{ marginBottom: 'var(--space-4)' }}>
-      <label style={labelStyle}>
-        {label} {required && <span style={{ color: 'var(--error)' }}>*</span>}
+    <div className="sp-field" style={{ marginBottom: 'var(--space-4)' }}>
+      <label className="sp-label">
+        {label}
+        {required && <span style={{ color: 'var(--error)', marginLeft: 4 }}>*</span>}
       </label>
       {children}
-      {hint && <div style={hintStyle}>{hint}</div>}
+      {hint && <div className="sp-help">{hint}</div>}
     </div>
   );
 }
 
 function SingleSelect({ value, options, onChange }) {
   return (
-    <select value={value || ''} onChange={(e) => onChange(e.target.value || null)} style={inputStyle}>
+    <select
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value || null)}
+      style={selectStyle}
+    >
       <option value="">—</option>
       {options.map((o) => (
         <option key={o} value={o}>{o}</option>
@@ -240,32 +186,37 @@ function MultiSelect({ values, options, onChange }) {
     onChange(Array.from(next));
   };
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-      gap: 'var(--space-2)',
-      padding: 'var(--space-3)',
-      border: '1px solid var(--ink-line)',
-      borderRadius: 'var(--radius)',
-      background: 'var(--paper-soft)',
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: 'var(--space-2) var(--space-4)',
+        padding: 'var(--space-3) var(--space-4)',
+        background: 'var(--paper-soft)',
+        border: '1px solid var(--ink-line)',
+        borderRadius: 'var(--r-sm)',
+      }}
+    >
       {options.map((opt) => {
         const checked = selected.has(opt);
         return (
-          <label key={opt} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            color: 'var(--ink)',
-            cursor: 'pointer',
-          }}>
+          <label
+            key={opt}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontFamily: 'var(--font-body)',
+              fontSize: '13px',
+              color: 'var(--ink-2)',
+              cursor: 'pointer',
+            }}
+          >
             <input
               type="checkbox"
+              className="sp-checkbox"
               checked={checked}
               onChange={() => toggle(opt)}
-              style={{ accentColor: 'var(--admin-brown-dark)' }}
             />
             {opt}
           </label>
@@ -291,9 +242,10 @@ function TagsField({ values, onChange }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+      <div style={{ display: 'flex', gap: '8px' }}>
         <input
           type="text"
+          className="sp-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
@@ -303,30 +255,20 @@ function TagsField({ values, onChange }) {
             }
           }}
           placeholder={`e.g., "Student's t-test"`}
-          style={inputStyle}
         />
-        <button type="button" onClick={add} style={secondaryButton}>Add</button>
+        <button type="button" onClick={add} className="sp-action sp-action-secondary">
+          Add
+        </button>
       </div>
       {tags.length > 0 && (
-        <div style={{ marginTop: 'var(--space-2)', display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+        <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
           {tags.map((t) => (
-            <span key={t} style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 'var(--space-1)',
-              padding: '2px var(--space-2)',
-              background: 'var(--paper-warm)',
-              border: '1px solid var(--ink-line)',
-              borderRadius: 'var(--r-pill)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-xs)',
-              color: 'var(--ink)',
-            }}>
+            <span key={t} className="sp-chip is-neutral sp-chip-removable">
               {t}
               <button
                 type="button"
+                className="sp-chip-x"
                 onClick={() => remove(t)}
-                style={{ background: 'none', border: 'none', color: 'var(--ink-3)', cursor: 'pointer', padding: 0, fontSize: 'var(--text-sm)', lineHeight: 1 }}
                 aria-label={`Remove ${t}`}
               >
                 ×
@@ -345,19 +287,19 @@ function FieldRenderer({ field, value, onChange }) {
       return (
         <input
           type="text"
+          className="sp-input"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           required={field.required}
-          style={inputStyle}
         />
       );
     case 'textarea':
       return (
         <textarea
+          className="sp-textarea"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           rows={4}
-          style={{ ...inputStyle, resize: 'vertical' }}
         />
       );
     case 'tags':
@@ -425,8 +367,6 @@ export default function AdminStatisticalTestForm({ testId = null }) {
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  // Treat single-select as "blank" if null/empty string; multi-select as
-  // "blank" if empty array. Identification fields use the same rules.
   const isBlank = (v) => {
     if (v == null) return true;
     if (typeof v === 'string') return v.trim() === '';
@@ -501,7 +441,6 @@ export default function AdminStatisticalTestForm({ testId = null }) {
     setSubmitting(true);
     setError('');
 
-    // Strip blanks from single-select fields so they round-trip as nil rather than ''.
     const payload = { name: form.name, description: form.description, aliases: form.aliases };
     ALL_FIELD_KEYS.forEach((k) => {
       if (k === 'name' || k === 'description' || k === 'aliases') return;
@@ -534,7 +473,7 @@ export default function AdminStatisticalTestForm({ testId = null }) {
 
   const onDelete = async () => {
     if (!isEdit) return;
-    if (!window.confirm('Delete this test? This cannot be undone.')) return;
+    if (!window.confirm('Delete this test?  This cannot be undone.')) return;
     setDeleting(true);
     try {
       const res = await fetch(`/admin/stats/${testId}`, {
@@ -553,149 +492,388 @@ export default function AdminStatisticalTestForm({ testId = null }) {
     }
   };
 
-  const title = isEdit ? (form.name || 'Edit Test') : 'New Statistical Test';
+  const heroTitle = isEdit ? (form.name?.trim() || 'Edit Test') : 'New Statistical Test';
+  const heroLead = isEdit
+    ? 'Edit the catalog entry.  Saving applies to every source already tagged with this test.'
+    : 'Add a test to the catalog so sources can be tagged with it.  Auto-fill from the name to skip the busywork.';
 
   return (
     <AdminLayout currentPage="statistical_tests">
-      <AdminPageHeader
-        title={title}
-        subtitle={isEdit ? 'Edit catalog entry' : 'Add a test to the catalog'}
-        backHref="/admin/stats"
-        backLabel="Back to catalog"
-      />
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
-        {loading ? (
-          <div style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--ink-3)' }}>Loading…</div>
-        ) : (
-          <form onSubmit={onSubmit} style={{ maxWidth: 880 }}>
-            {error && (
-              <div style={{ padding: 'var(--space-3)', background: 'var(--error)', color: 'white', borderRadius: 'var(--radius)', marginBottom: 'var(--space-4)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)' }}>
-                {error}
-              </div>
-            )}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-8) clamp(var(--space-4), 4vw, var(--space-8))',
+        }}
+      >
+        <div style={{ maxWidth: '880px', margin: '0 auto' }}>
+          <FormHero title={heroTitle} lead={heroLead} />
 
-            <section
-              style={{
-                background: 'var(--paper-warm)',
-                border: '1px solid var(--ink-line)',
-                borderRadius: 'var(--radius)',
-                padding: 'var(--space-4) var(--space-5)',
-                marginBottom: 'var(--space-4)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={handleAutoFill}
-                  disabled={autoFilling || !form.name?.trim()}
-                  title={!form.name?.trim() ? 'Add a name first' : 'Ask Haiku to fill the columns from the test name'}
-                  style={{
-                    background: (autoFilling || !form.name?.trim()) ? 'var(--ink-4)' : 'var(--admin-brown-dark)',
-                    color: 'white',
-                    border: 'none',
-                    padding: 'var(--space-2) var(--space-4)',
-                    borderRadius: 'var(--radius)',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: 500,
-                    fontSize: 'var(--text-sm)',
-                    cursor: (autoFilling || !form.name?.trim()) ? 'not-allowed' : 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
-                  }}
+          {loading ? (
+            <p style={{ fontFamily: 'var(--font-body)', color: 'var(--ink-3)' }}>Loading.</p>
+          ) : (
+            <form onSubmit={onSubmit}>
+              {error && <Banner tone="error">{error}</Banner>}
+
+              <AutoFillPanel
+                onAutoFill={handleAutoFill}
+                disabled={autoFilling || !form.name?.trim()}
+                disabledReason={!form.name?.trim() ? 'Add a name first.' : null}
+                spinning={autoFilling}
+                replace={autoFillReplace}
+                onReplaceChange={setAutoFillReplace}
+                error={autoFillError}
+                note={autoFillNote}
+              />
+
+              {FIELD_GROUPS.map((group) => (
+                <FormSection
+                  key={group.title}
+                  title={group.title}
+                  eyebrow={group.eyebrow}
                 >
-                  <MagicSparkles size={14} spinning={autoFilling} />
-                  {autoFilling ? 'Filling…' : 'Auto-fill from name'}
-                </button>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--ink-2)', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={autoFillReplace}
-                    onChange={(e) => setAutoFillReplace(e.target.checked)}
-                    style={{ accentColor: 'var(--admin-brown-dark)' }}
-                  />
-                  Replace existing values
-                </label>
-                <div style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
-                  Default: only fills blanks. Review and save manually.
-                </div>
-              </div>
-              {autoFillError && (
-                <div style={{ marginTop: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--error)' }}>
-                  {autoFillError}
-                </div>
-              )}
-              {autoFillNote && (
-                <div style={{ marginTop: 'var(--space-2)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--success)' }}>
-                  {autoFillNote}
-                </div>
-              )}
-            </section>
+                  {group.fields.map((field) => (
+                    <FieldShell
+                      key={field.key}
+                      label={field.label}
+                      hint={field.hint}
+                      required={field.required}
+                    >
+                      <FieldRenderer
+                        field={field}
+                        value={form[field.key]}
+                        onChange={(v) => update(field.key, v)}
+                      />
+                    </FieldShell>
+                  ))}
+                </FormSection>
+              ))}
 
-            {FIELD_GROUPS.map((group) => (
-              <section
-                key={group.title}
-                style={{
-                  background: 'white',
-                  border: '1px solid var(--ink-line)',
-                  borderRadius: 'var(--radius)',
-                  padding: 'var(--space-5)',
-                  marginBottom: 'var(--space-4)',
-                  boxShadow: 'var(--shadow-sm)',
-                }}
-              >
-                <h2 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-lg)',
-                  fontWeight: 600,
-                  color: 'var(--ink)',
-                  marginTop: 0,
-                  marginBottom: 'var(--space-4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                }}>
-                  <span aria-hidden="true">{group.icon}</span> {group.title}
-                </h2>
-                {group.fields.map((field) => (
-                  <FieldShell key={field.key} label={field.label} hint={field.hint} required={field.required}>
-                    <FieldRenderer
-                      field={field}
-                      value={form[field.key]}
-                      onChange={(v) => update(field.key, v)}
-                    />
-                  </FieldShell>
-                ))}
-              </section>
-            ))}
-
-            <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', position: 'sticky', bottom: 0, background: 'var(--paper-soft)', padding: 'var(--space-3)', borderRadius: 'var(--radius)', border: '1px solid var(--ink-line)' }}>
-              <button
-                type="submit"
+              <FormFooter
+                submitting={submitting}
+                deleting={deleting}
+                isEdit={isEdit}
                 disabled={submitting || !form.name?.trim()}
-                style={{
-                  ...primaryButton,
-                  background: (submitting || !form.name?.trim()) ? 'var(--ink-4)' : 'var(--admin-brown-dark)',
-                  cursor: (submitting || !form.name?.trim()) ? 'not-allowed' : 'pointer',
-                }}
-              >
-                {submitting ? 'Saving…' : (isEdit ? 'Save changes' : 'Create test')}
-              </button>
-              <a href="/admin/stats" style={secondaryButton}>Cancel</a>
-              {isEdit && (
-                <button
-                  type="button"
-                  onClick={onDelete}
-                  disabled={deleting}
-                  style={{ ...dangerButton, marginLeft: 'auto', cursor: deleting ? 'not-allowed' : 'pointer' }}
-                >
-                  {deleting ? 'Deleting…' : 'Delete'}
-                </button>
-              )}
-            </div>
-          </form>
-        )}
+                onDelete={onDelete}
+              />
+            </form>
+          )}
+        </div>
       </div>
     </AdminLayout>
+  );
+}
+
+// ---------- Hero ----------
+
+function FormHero({ title, lead }) {
+  return (
+    <header
+      style={{
+        marginBottom: 'var(--space-8)',
+        paddingBottom: 'var(--space-7)',
+        borderBottom: '1px solid var(--ink-line)',
+      }}
+    >
+      <a
+        href="/admin/stats"
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '12px',
+          color: 'var(--ink-3)',
+          textDecoration: 'none',
+          marginBottom: '12px',
+          display: 'inline-block',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--ink-3)')}
+      >
+        ← Back to catalog
+      </a>
+      <div
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-3)',
+          marginBottom: '12px',
+        }}
+      >
+        Linchpin Industries · Map My Research
+      </div>
+      <h1
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '40px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.05,
+          margin: 0,
+          textWrap: 'balance',
+        }}
+      >
+        {title}
+      </h1>
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '15px',
+          color: 'var(--ink-2)',
+          lineHeight: 1.65,
+          maxWidth: '620px',
+          marginTop: '14px',
+          marginBottom: 0,
+        }}
+      >
+        {lead}
+      </p>
+    </header>
+  );
+}
+
+// ---------- Section ----------
+
+function FormSection({ title, eyebrow, children }) {
+  return (
+    <section style={{ marginBottom: 'var(--space-7)' }}>
+      <div
+        style={{
+          paddingBottom: 'var(--space-3)',
+          marginBottom: 'var(--space-5)',
+          borderBottom: '1px solid var(--ink-line)',
+        }}
+      >
+        {eyebrow && (
+          <div
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '10.5px',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--ink-3)',
+              marginBottom: '6px',
+            }}
+          >
+            {eyebrow}
+          </div>
+        )}
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '24px',
+            fontWeight: 600,
+            color: 'var(--primary)',
+            letterSpacing: '-0.005em',
+            lineHeight: 1.2,
+            margin: 0,
+          }}
+        >
+          {title}
+        </h2>
+      </div>
+      <div>{children}</div>
+    </section>
+  );
+}
+
+// ---------- Auto-fill panel ----------
+
+function AutoFillPanel({ onAutoFill, disabled, disabledReason, spinning, replace, onReplaceChange, error, note }) {
+  return (
+    <section
+      style={{
+        background: 'var(--source-tint)',
+        border: '1px solid color-mix(in srgb, var(--source) 30%, transparent)',
+        borderRadius: 'var(--r-md)',
+        padding: 'var(--space-4) var(--space-5)',
+        marginBottom: 'var(--space-7)',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '10.5px',
+          fontWeight: 700,
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: 'var(--source-2)',
+          marginBottom: '8px',
+        }}
+      >
+        Haiku auto-fill
+      </div>
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '13.5px',
+          color: 'var(--ink-2)',
+          lineHeight: 1.6,
+          marginTop: 0,
+          marginBottom: 'var(--space-3)',
+          maxWidth: '640px',
+        }}
+      >
+        Type a test name above, then offer it to Haiku.  Default: only fills blanks.
+        Toggle <em>Replace existing values</em> to override what's already there.
+      </p>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          flexWrap: 'wrap',
+        }}
+      >
+        <button
+          type="button"
+          onClick={onAutoFill}
+          disabled={disabled}
+          title={disabledReason || 'Ask Haiku to fill the columns from the test name'}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            height: '34px',
+            padding: '0 14px',
+            background: disabled ? 'var(--paper-warm)' : 'var(--source)',
+            color: disabled ? 'var(--ink-3)' : 'var(--paper)',
+            border: `1px solid ${disabled ? 'var(--ink-line)' : 'var(--source)'}`,
+            borderRadius: 'var(--r-sm)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            fontWeight: 500,
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          <MagicSparkles size={14} spinning={spinning} />
+          {spinning ? 'Filling.' : 'Auto-fill from name'}
+        </button>
+
+        <label
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            color: 'var(--ink-2)',
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            className="sp-checkbox is-source"
+            checked={replace}
+            onChange={(e) => onReplaceChange(e.target.checked)}
+          />
+          Replace existing values
+        </label>
+      </div>
+
+      {error && (
+        <div
+          style={{
+            marginTop: 'var(--space-3)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            color: 'var(--error)',
+          }}
+        >
+          {error}
+        </div>
+      )}
+      {note && (
+        <div
+          style={{
+            marginTop: 'var(--space-3)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '13px',
+            color: 'var(--concept-2)',
+          }}
+        >
+          {note}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ---------- Footer ----------
+
+function FormFooter({ submitting, deleting, isEdit, disabled, onDelete }) {
+  return (
+    <div
+      style={{
+        position: 'sticky',
+        bottom: 0,
+        display: 'flex',
+        gap: 'var(--space-2)',
+        alignItems: 'center',
+        padding: 'var(--space-3) var(--space-4)',
+        background: 'var(--paper-soft)',
+        border: '1px solid var(--ink-line)',
+        borderRadius: 'var(--r-md)',
+        boxShadow: 'var(--shadow-sm)',
+        flexWrap: 'wrap',
+      }}
+    >
+      <button
+        type="submit"
+        disabled={disabled}
+        className="sp-action sp-action-primary"
+      >
+        {submitting ? 'Saving.' : (isEdit ? 'Save changes' : 'Create test')}
+      </button>
+      <a href="/admin/stats" className="sp-action sp-action-secondary">
+        Cancel
+      </a>
+      {isEdit && (
+        <button
+          type="button"
+          onClick={onDelete}
+          disabled={deleting}
+          className="sp-action sp-action-quiet sp-action-danger"
+          style={{ marginLeft: 'auto' }}
+        >
+          {deleting ? 'Deleting.' : 'Delete'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------- Banner ----------
+
+function Banner({ tone, children }) {
+  const styles = tone === 'error'
+    ? {
+        background: 'rgba(122, 46, 46, 0.06)',
+        color: 'var(--error)',
+        border: '1px solid rgba(122, 46, 46, 0.20)',
+      }
+    : {
+        background: 'var(--paper-soft)',
+        color: 'var(--ink)',
+        border: '1px solid var(--ink-line)',
+        borderLeft: '3px solid var(--primary)',
+      };
+  return (
+    <div
+      style={{
+        padding: 'var(--space-3) var(--space-4)',
+        borderRadius: 'var(--r-md)',
+        marginBottom: 'var(--space-4)',
+        fontFamily: 'var(--font-body)',
+        fontSize: '13.5px',
+        ...styles,
+      }}
+    >
+      {children}
+    </div>
   );
 }

@@ -50,14 +50,16 @@ class TabletopItemsController < ApplicationController
     params.require(:item).permit(
       :kind, :item_id, :item_type,
       :x, :y, :width, :height, :rotation, :z_index,
-      :body, :start_x, :start_y, :end_x, :end_y, :color
+      :body, :start_x, :start_y, :end_x, :end_y, :color,
+      :start_anchor_id, :end_anchor_id, :start_anchor_side, :end_anchor_side
     )
   end
 
   def update_params
     params.require(:item).permit(
       :x, :y, :width, :height, :rotation, :z_index,
-      :body, :start_x, :start_y, :end_x, :end_y, :color, :staged
+      :body, :start_x, :start_y, :end_x, :end_y, :color, :staged,
+      :start_anchor_id, :end_anchor_id, :start_anchor_side, :end_anchor_side
     )
   end
 

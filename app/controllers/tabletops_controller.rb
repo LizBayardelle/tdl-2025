@@ -48,7 +48,9 @@ class TabletopsController < ApplicationController
 
   # PATCH /tabletops/:id
   def update
+    raw = params.require(:tabletop)
     if @tabletop.update(tabletop_params)
+      sync_collections(@tabletop, raw[:collection_ids]) if raw.key?(:collection_ids)
       render json: tabletop_payload(@tabletop)
     else
       render json: { errors: @tabletop.errors.full_messages }, status: :unprocessable_entity
@@ -159,20 +161,39 @@ class TabletopsController < ApplicationController
     params.require(:tabletop).permit(:name, :description, tags: [])
   end
 
+  # Reconcile this tabletop's collection memberships against the supplied
+  # ID list.  Sharing is collection-driven, so this is the lever that
+  # decides who else can see / edit the tabletop.
+  def sync_collections(tabletop, collection_ids)
+    desired = Array(collection_ids).map(&:to_i).reject(&:zero?).to_set
+    current = tabletop.collection_items.pluck(:collection_id).to_set
+    to_remove = current - desired
+    to_add    = desired - current
+    tabletop.collection_items.where(collection_id: to_remove.to_a).destroy_all if to_remove.any?
+    to_add.each do |cid|
+      collection = Collection.find_by(id: cid)
+      next unless collection
+      next unless collection.user_id == current_user.id || collection.shared_with?(current_user)
+      CollectionItem.find_or_create_by!(collection: collection, collectable: tabletop)
+    end
+  end
+
   def tabletop_payload(t)
     t.as_json(only: [:id, :name, :description, :view_x, :view_y, :view_zoom, :last_opened_at, :created_at, :updated_at])
       .merge(
-        tags:       t.tags.pluck(:name),
-        items:      t.tabletop_items.map { |ti| serialize_item(ti) },
-        permission: t.permission_for(current_user),
-        is_owner:   t.user_id == current_user.id
+        tags:        t.tags.pluck(:name),
+        items:       t.tabletop_items.map { |ti| serialize_item(ti) },
+        collections: t.collections.map { |c| { id: c.id, name: c.name } },
+        permission:  t.permission_for(current_user),
+        is_owner:    t.user_id == current_user.id
       )
   end
 
   def serialize_item(ti)
     payload = ti.as_json(only: [
       :id, :kind, :item_id, :item_type, :x, :y, :width, :height, :rotation,
-      :z_index, :body, :start_x, :start_y, :end_x, :end_y, :color, :staged
+      :z_index, :body, :start_x, :start_y, :end_x, :end_y, :color, :staged,
+      :start_anchor_id, :end_anchor_id, :start_anchor_side, :end_anchor_side
     ])
     payload[:item_data] = item_data_for(ti)
     payload

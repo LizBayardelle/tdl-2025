@@ -1,7 +1,7 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships]
-  before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition]
+  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note]
+  before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition, :link_note, :dismiss_note]
 
   def index
     auth = AuthorizationService.new(current_user)
@@ -82,27 +82,65 @@ class ConceptsController < ApplicationController
           }.compact
         end
 
-        # Notes whose source is tagged with this concept — the user's own
-        # knowledge work on the topic.  Capped to a recent window.
-        contextual_notes_payload = []
+        # Note eager loads for both lists: source, the chip-row
+        # associations the NoteCard component renders, and linked_sources
+        # for multi-source aware display.
+        note_eager = [:source, :concepts, :people, :tags, :collections, :linked_sources]
+
+        # Pre-compute the user's accessible-id sets once so each note's
+        # chip serialization can mark inaccessible references without
+        # rerunning the auth queries per row.
+        auth = AuthorizationService.new(current_user)
+        accessible_sets = {
+          sources:  auth.accessible_ids(Source).to_set,
+          concepts: auth.accessible_ids(Concept).to_set,
+          people:   auth.accessible_ids(Person).to_set,
+        }
+
+        # Direct notes — typed for this concept (legacy concept_id) or
+        # explicitly linked via concept_notes (M:N).  These are the user's
+        # primary work on the concept and headline the show page.  Sorted
+        # pinned-first then by recency so a small number of pinned items
+        # never get pushed below newer scribbles.
+        direct_records = (
+          @concept.notes.includes(note_eager).to_a +
+          @concept.linked_notes.includes(note_eager).to_a
+        ).uniq(&:id).sort_by { |n| [n.pinned ? 0 : 1, -n.created_at.to_i] }
+        direct_note_ids = direct_records.map(&:id).to_set
+
+        direct_notes_payload = direct_records.map { |n| serialize_concept_note(n, accessible: accessible_sets) }
+
+        # Stash — notes living on sources or people that are linked to
+        # this concept, minus anything already promoted to direct OR
+        # explicitly dismissed by the user.  Limit to current_user's notes
+        # so stash-triage actions never target someone else's record.
+        person_ids_arr = @concept.person_ids
+        dismissed_ids = @concept.dismissed_concept_notes.pluck(:note_id).to_set
+
+        stash_records = []
         if source_ids.any?
-          contextual_notes_payload = Note
-            .where(source_id: source_ids)
-            .includes(:source)
-            .order(created_at: :desc)
-            .limit(20)
-            .map { |n|
-              {
-                id: n.id,
-                title: n.title,
-                body: n.body,
-                note_type: n.note_type,
-                noted_on: n.noted_on,
-                created_at: n.created_at,
-                source: n.source && { id: n.source.id, title: n.source.title }
-              }
-            }
+          stash_records.concat(
+            current_user.notes
+                .joins(:note_sources)
+                .where(note_sources: { source_id: source_ids })
+                .distinct
+                .includes(note_eager).to_a
+          )
         end
+        if person_ids_arr.any?
+          stash_records.concat(
+            current_user.notes
+                .joins(:person_notes)
+                .where(person_notes: { person_id: person_ids_arr })
+                .includes(note_eager).to_a
+          )
+        end
+        stash_payload = stash_records
+          .uniq(&:id)
+          .reject { |n| direct_note_ids.include?(n.id) || dismissed_ids.include?(n.id) }
+          .sort_by { |n| -n.created_at.to_i }
+          .first(40)
+          .map { |n| serialize_concept_note(n, person_ids_set: person_ids_arr.to_set, accessible: accessible_sets) }
 
         render json: @concept.as_json(
           methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count, :effective_concept_type],
@@ -139,7 +177,8 @@ class ConceptsController < ApplicationController
           sources: sources_payload,
           key_authors: key_authors_payload,
           generation_quota: current_user.concept_generation_quota,
-          contextual_notes: contextual_notes_payload,
+          direct_notes: direct_notes_payload,
+          stash_notes: stash_payload,
         )
       }
     end
@@ -280,6 +319,39 @@ class ConceptsController < ApplicationController
     }
   end
 
+  # POST /concepts/:id/notes/:note_id/link
+  # Promotes a stash note to "direct" by creating a concept_notes row.
+  # Idempotent — re-linking is a no-op.  Also clears any prior dismissal
+  # so the user can recover from a mis-dismiss without DB surgery.
+  def link_note
+    note = current_user.notes.find_by(id: params[:note_id])
+    unless note
+      render json: { error: 'Note not found' }, status: :not_found
+      return
+    end
+
+    ConceptNote.find_or_create_by!(concept_id: @concept.id, note_id: note.id)
+    DismissedConceptNote.where(concept_id: @concept.id, note_id: note.id).destroy_all
+    render json: { linked: true, concept_id: @concept.id, note_id: note.id }
+  end
+
+  # POST /concepts/:id/notes/:note_id/dismiss
+  # Hides a stash note from this concept forever (per-user, since the
+  # concept itself is user-owned).  Idempotent on the unique
+  # (concept_id, note_id) index.
+  def dismiss_note
+    note = current_user.notes.find_by(id: params[:note_id])
+    unless note
+      render json: { error: 'Note not found' }, status: :not_found
+      return
+    end
+
+    DismissedConceptNote.find_or_create_by!(concept_id: @concept.id, note_id: note.id) do |row|
+      row.dismissed_at = Time.current
+    end
+    render json: { dismissed: true, concept_id: @concept.id, note_id: note.id }
+  end
+
   # GET /concepts/search
   def search
     query = params[:q].to_s.strip
@@ -393,6 +465,59 @@ class ConceptsController < ApplicationController
   end
 
   private
+
+  # Shape used by the concept show page for both the direct-notes list and
+  # the stash.  Mirrors NotesController#serialize_note so the same
+  # frontend NoteCard component renders these without a translation
+  # layer.  `via` is the stash-specific hint used to highlight which
+  # source/person earned the note its place in the stash.
+  def serialize_concept_note(note, person_ids_set: nil, accessible: nil)
+    via = if note.source
+      { kind: 'source', id: note.source.id, label: note.source.title }
+    elsif person_ids_set && note.respond_to?(:people)
+      person = note.people.find { |p| person_ids_set.include?(p.id) }
+      person && { kind: 'person', id: person.id, label: person.full_name }
+    end
+
+    linked_sources = note.respond_to?(:linked_sources) ? note.linked_sources : []
+
+    # Each chip carries an `accessible` flag so the NoteCard can render
+    # revoked-access entries as muted placeholders.  Caller passes
+    # pre-computed sets in `accessible:` so we don't run the auth query
+    # once per note.
+    a_sources  = (accessible && accessible[:sources])  || Set.new
+    a_concepts = (accessible && accessible[:concepts]) || Set.new
+    a_people   = (accessible && accessible[:people])   || Set.new
+
+    {
+      id: note.id,
+      title: note.title,
+      body: note.body,
+      note_type: note.note_type,
+      noted_on: note.noted_on,
+      pinned: note.pinned,
+      context: note.context,
+      quote_text: note.quote_text,
+      page_number: note.page_number,
+      created_at: note.created_at,
+      source: note.source && {
+        id: note.source.id, title: note.source.title, year: note.source.year,
+        accessible: a_sources.include?(note.source.id),
+      },
+      linked_sources: linked_sources.map { |s|
+        { id: s.id, title: s.title, year: s.year, accessible: a_sources.include?(s.id) }
+      },
+      concepts: note.concepts.map { |c|
+        { id: c.id, label: c.label, concept_type: c.concept_type, accessible: a_concepts.include?(c.id) }
+      },
+      people: note.people.map { |p|
+        { id: p.id, full_name: p.full_name, role: p.role, accessible: a_people.include?(p.id) }
+      },
+      tags: note.tags.map { |t| { id: t.id, name: t.name } },
+      collections: note.collections.map { |c| { id: c.id, name: c.name } },
+      via: via,
+    }
+  end
 
   def set_concept
     @concept = Concept.find_by(slug: params[:id]) || Concept.find(params[:id])

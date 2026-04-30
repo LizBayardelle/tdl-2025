@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ConceptFormModal from './ConceptFormModal';
 import NoteFormModal from './NoteFormModal';
+import NoteShowModal from './NoteShowModal';
+import NoteCard, { NoteCardStyles } from './NoteCard';
 import PersonFormModal from './PersonFormModal';
 import SourceFormModal from './SourceFormModal';
 import { getNodeTypeLabel } from '../config/nodeTypes';
@@ -37,11 +39,9 @@ const PARENT_OUTGOING = new Set(['parent_of', 'categorizes']);
 const CHILD_OUTGOING  = new Set(['child_of', 'is_a']);
 
 const POLL_INTERVAL_MS = 5000;
-// Generated-field truncation threshold.  Fields whose stripped text
-// exceeds this collapse to ~12em with a "Show more" toggle.  Tuned for
-// multi-paragraph fields like description; one-paragraph fields fall
-// well below and render in full without a toggle.
-const TRUNCATION_CHAR_THRESHOLD = 500;
+// Further Reading list cap.  The model can re-cite the same source across
+// many fields, so refs need both URL- and title-level dedupe before display.
+const MAX_FURTHER_READING = 7;
 // Slightly longer than the server's GENERATION_TIMEOUT_SECONDS (720s) so
 // the client can detect a server-side timeout and show a clean error
 // rather than racing it.
@@ -63,6 +63,8 @@ export default function ConceptShow({ conceptId }) {
 
   const [editing, setEditing] = useState(false);
   const [creatingNote, setCreatingNote] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [viewingNote, setViewingNote] = useState(null);
   const [creatingPerson, setCreatingPerson] = useState(false);
   const [creatingSource, setCreatingSource] = useState(false);
 
@@ -260,6 +262,69 @@ export default function ConceptShow({ conceptId }) {
     }
   };
 
+  // ---- Note actions (mirror NotesIndex so NoteCard hover affordances work)
+  const csrfToken = () => document.querySelector('[name="csrf-token"]')?.content;
+
+  const handleToggleNotePin = async (note) => {
+    try {
+      const res = await fetch(`/notes/${note.id}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ note: { pinned: !note.pinned } }),
+      });
+      if (res.ok) fetchConcept();
+    } catch (err) { console.error('Pin toggle failed', err); }
+  };
+
+  const handleDeleteNote = async (note) => {
+    if (!window.confirm('Delete this note? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/notes/${note.id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': csrfToken() },
+      });
+      if (res.ok) fetchConcept();
+    } catch (err) { console.error('Delete note failed', err); }
+  };
+
+  const handleEditNote = (note) => {
+    setEditingNote(note);
+    setViewingNote(null);
+  };
+
+  // Stash triage — link promotes a note to direct (creates concept_notes
+  // row); dismiss hides it from this concept's stash forever.  Both
+  // refetch so the lists rebalance accordingly.
+  const handleLinkStashNote = async (note) => {
+    try {
+      const res = await fetch(`/concepts/${conceptId}/notes/${note.id}/link`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken(), 'Accept': 'application/json' },
+      });
+      if (res.ok) fetchConcept();
+    } catch (err) { console.error('Stash link failed', err); }
+  };
+
+  const handleDismissStashNote = async (note) => {
+    try {
+      const res = await fetch(`/concepts/${conceptId}/notes/${note.id}/dismiss`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken(), 'Accept': 'application/json' },
+      });
+      if (res.ok) fetchConcept();
+    } catch (err) { console.error('Stash dismiss failed', err); }
+  };
+
+  const handleNoteFormClose = () => {
+    setCreatingNote(false);
+    setEditingNote(null);
+  };
+
+  const handleNoteFormSuccess = () => {
+    handleNoteFormClose();
+    fetchConcept();
+  };
+
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${concept.label}".  This can’t be undone.  All notes and connections to this concept will be removed.`)) return;
     try {
@@ -298,8 +363,8 @@ export default function ConceptShow({ conceptId }) {
     return { parents: dedupe(parentList), children: dedupe(childList) };
   }, [concept, conceptId, connections]);
 
-  if (loading) return (<div className="cs-loading"><CSStyles />Loading.</div>);
-  if (error)   return (<div className="cs-loading cs-error"><CSStyles />{error}</div>);
+  if (loading) return (<div className="cs-loading"><CSStyles /><NoteCardStyles />Loading.</div>);
+  if (error)   return (<div className="cs-loading cs-error"><CSStyles /><NoteCardStyles />{error}</div>);
   if (!concept) return null;
 
   const type = concept.effective_concept_type || concept.concept_type;
@@ -308,7 +373,7 @@ export default function ConceptShow({ conceptId }) {
 
   return (
     <div className="cs-shell">
-      <CSStyles />
+      <CSStyles /><NoteCardStyles />
 
       <header className="cs-header">
         <a href="/concepts" className="cs-back">← All concepts</a>
@@ -332,12 +397,18 @@ export default function ConceptShow({ conceptId }) {
       <section className="cs-hero">
         <div className="cs-hero-top">
           {type && <span className="cs-hero-type">{typeLabel}</span>}
+          {(concept.domains || []).map((d) => (
+            <a key={d.id} href={`/domains/${d.id}`} className="sp-chip is-neutral cs-hero-domain">{d.name}</a>
+          ))}
         </div>
         <h1 className="cs-hero-title">{toTitleCase(concept.label)}</h1>
+        {concept.definition?.aliases?.length > 0 && (
+          <p className="cs-hero-aliases">
+            <span className="cs-hero-aliases-label">Also known as</span>
+            {concept.definition.aliases.join(' · ')}
+          </p>
+        )}
         {concept.summary && <p className="cs-hero-summary">{stripHtml(concept.summary)}</p>}
-        {/* Pages with a definition move stats into the sidebar; bare pages
-            keep them in the hero since they have no sidebar. */}
-        {!hasDefinitionContent(definition) && <HeroStats concept={concept} />}
       </section>
 
       <ConceptBody
@@ -351,6 +422,13 @@ export default function ConceptShow({ conceptId }) {
         onConceptCreated={fetchAllConcepts}
         onGenerateDefinition={handleGenerateDefinition}
         onRejectDefinition={handleRejectDefinition}
+        onAddNote={() => setCreatingNote(true)}
+        onViewNote={setViewingNote}
+        onEditNote={handleEditNote}
+        onDeleteNote={handleDeleteNote}
+        onToggleNotePin={handleToggleNotePin}
+        onLinkStashNote={handleLinkStashNote}
+        onDismissStashNote={handleDismissStashNote}
         generating={generating}
         rejecting={rejecting}
         generationError={generationError}
@@ -365,7 +443,22 @@ export default function ConceptShow({ conceptId }) {
         onSuccess={() => { setEditing(false); fetchConcept(); fetchConnections(); }}
         item={concept}
       />
-      <NoteFormModal     isOpen={creatingNote}    onClose={() => setCreatingNote(false)}   onSuccess={() => { setCreatingNote(false);   fetchConcept(); }} relatedConceptId={conceptId} />
+      <NoteFormModal
+        isOpen={creatingNote || !!editingNote}
+        onClose={handleNoteFormClose}
+        onSuccess={handleNoteFormSuccess}
+        onDelete={handleNoteFormSuccess}
+        item={editingNote}
+        relatedConceptId={conceptId}
+      />
+      <NoteShowModal
+        isOpen={!!viewingNote}
+        onClose={() => setViewingNote(null)}
+        note={viewingNote}
+        onEdit={() => handleEditNote(viewingNote)}
+        onDelete={() => { if (viewingNote) { handleDeleteNote(viewingNote); setViewingNote(null); } }}
+        onTogglePin={() => { if (viewingNote) handleToggleNotePin(viewingNote); }}
+      />
       <PersonFormModal   isOpen={creatingPerson}  onClose={() => setCreatingPerson(false)} onSuccess={() => { setCreatingPerson(false); fetchConcept(); }} relatedConceptId={conceptId} />
       <SourceFormModal   isOpen={creatingSource}  onClose={() => setCreatingSource(false)} onSuccess={() => { setCreatingSource(false); fetchConcept(); }} relatedConceptId={conceptId} />
     </div>
@@ -377,30 +470,6 @@ export default function ConceptShow({ conceptId }) {
 // =====================================================================
 
 // =====================================================================
-// Hero stats row — at-a-glance counts from the concept payload.
-// =====================================================================
-function HeroStats({ concept }) {
-  const stats = [
-    { label: 'Sources',     value: concept.sources?.length ?? concept.sources_count ?? 0 },
-    { label: 'Notes',       value: concept.contextual_notes?.length ?? concept.notes_count ?? 0 },
-    { label: 'Key Authors', value: concept.key_authors?.length ?? 0 },
-    { label: 'Connections', value: (concept.outgoing_connections?.length || 0) + (concept.incoming_connections?.length || 0) },
-  ].filter((s) => s.value > 0);
-
-  if (stats.length === 0) return null;
-
-  return (
-    <dl className="cs-stats">
-      {stats.map((s) => (
-        <div key={s.label} className="cs-stat">
-          <dt className="cs-stat-label">{s.label}</dt>
-          <dd className="cs-stat-value">{s.value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 // =====================================================================
 // Key Authors — top researchers behind this concept's literature.
 // =====================================================================
@@ -459,36 +528,6 @@ function TopSources({ sources }) {
           </div>
         </li>
       ))}
-    </ul>
-  );
-}
-
-// =====================================================================
-// Contextual Notes — notes from sources tagged with this concept.
-// =====================================================================
-function ContextualNotes({ notes }) {
-  return (
-    <ul className="cs-note-list">
-      {notes.map((n) => {
-        const preview = stripHtml(n.body || '').slice(0, 220);
-        return (
-          <li key={n.id} className="cs-note-row">
-            <div className="cs-note-head">
-              <a href={`/notes/${n.id}`} className="cs-note-title">
-                {n.title || preview.slice(0, 60) || 'Untitled note'}
-              </a>
-              {n.note_type && <span className="cs-note-type">{n.note_type}</span>}
-            </div>
-            {preview && <p className="cs-note-preview">{preview}</p>}
-            {n.source && (
-              <div className="cs-note-source">
-                <span className="cs-list-dot is-source" />
-                <a href={`/sources/${n.source.id}`}>{toTitleCase(n.source.title || 'Source')}</a>
-              </div>
-            )}
-          </li>
-        );
-      })}
     </ul>
   );
 }
@@ -771,29 +810,55 @@ function ConceptBody({
   concept, conceptId, connections, allConcepts, definition,
   onCreateConnection, onDeleteConnection, onConceptCreated,
   onGenerateDefinition, onRejectDefinition,
+  onAddNote, onViewNote, onEditNote, onDeleteNote, onToggleNotePin,
+  onLinkStashNote, onDismissStashNote,
   generating, rejecting, generationError, generationQuota,
   revealKey, acquiredVia,
 }) {
+  const [showFullModal, setShowFullModal] = useState(false);
   const ownedDefinition = hasDefinitionContent(definition) ? definition : null;
   const focalId = parseInt(conceptId);
 
-  if (ownedDefinition) {
-    return (
+  return (
+    <>
+      {/* Lede area sits above the 2-col grid.  With a definition: the
+          summary card + a "Read full entry" button that opens the modal.
+          Without one: the Generate CTA / generating / over-quota states. */}
+      {ownedDefinition ? (
+        <DefinitionRevealRegion key={revealKey} animate={revealKey > 0}>
+          <DefinitionLede definition={ownedDefinition} />
+          <button
+            type="button"
+            className="cs-read-full"
+            onClick={() => setShowFullModal(true)}
+          >
+            Read full entry →
+          </button>
+        </DefinitionRevealRegion>
+      ) : (
+        <GenerateDefinitionLede
+          onGenerate={onGenerateDefinition}
+          generating={generating}
+          error={generationError}
+          quota={generationQuota}
+        />
+      )}
+
       <div className="cs-2col">
         <main className="cs-2col-main">
-          {/* key={revealKey} forces a remount when a new definition lands,
-              which restarts the staged-reveal animation.  revealKey is 0
-              on initial page load (no animation on revisits). */}
-          <DefinitionRevealRegion key={revealKey} animate={revealKey > 0}>
-            <DefinitionLede definition={ownedDefinition} />
-            <IntegratedArticle concept={concept} definition={ownedDefinition} />
-            <FurtherReading definition={ownedDefinition} />
-            <DefinitionRejectPanel
-              acquiredVia={acquiredVia}
-              rejecting={rejecting}
-              onReject={onRejectDefinition}
-            />
-          </DefinitionRevealRegion>
+          <ConceptNotes
+            conceptLabel={concept.label}
+            conceptId={concept.id}
+            directNotes={concept.direct_notes}
+            stashNotes={concept.stash_notes}
+            onAddNote={onAddNote}
+            onViewNote={onViewNote}
+            onEditNote={onEditNote}
+            onDeleteNote={onDeleteNote}
+            onToggleNotePin={onToggleNotePin}
+            onLinkStashNote={onLinkStashNote}
+            onDismissStashNote={onDismissStashNote}
+          />
         </main>
 
         <aside className="cs-2col-side">
@@ -829,101 +894,35 @@ function ConceptBody({
           )}
           <SidebarKeyAuthors authors={concept.key_authors || []} />
           <SidebarTopSources sources={concept.sources || []} />
-          <SidebarNotes notes={concept.contextual_notes || []} />
           <SidebarPeople people={concept.people || []} />
           <SidebarChips
             label="Tags"
-            items={(concept.tags || []).map((t, i) => ({ id: t, label: t, key: `t-${i}` }))}
+            chipKind="is-neutral"
+            items={(concept.tags || []).map((t, i) => ({
+              id: t,
+              label: `#${t}`,
+              href: `/tags/${encodeURIComponent(t)}`,
+              key: `t-${i}`,
+            }))}
           />
           <SidebarChips
             label="Collections"
+            chipKind="is-neutral"
             items={(concept.collections || []).map((c) => ({ id: c.id, label: c.name, href: `/collections/${c.id}`, key: `c-${c.id}` }))}
           />
+          {ownedDefinition && <FurtherReading definition={ownedDefinition} />}
         </aside>
       </div>
-    );
-  }
 
-  // No definition yet — single-column flow with the Generate CTA on top
-  return (
-    <>
-      <GenerateDefinitionLede
-        onGenerate={onGenerateDefinition}
-        generating={generating}
-        error={generationError}
-        quota={generationQuota}
+      <DefinitionFullModal
+        isOpen={showFullModal}
+        onClose={() => setShowFullModal(false)}
+        concept={concept}
+        definition={ownedDefinition}
+        acquiredVia={acquiredVia}
+        rejecting={rejecting}
+        onRejectDefinition={onRejectDefinition}
       />
-
-      <IntegratedArticle concept={concept} definition={null} />
-
-      <Section
-        title={`Relationships (${connections.length})`}
-        sub="Grouped by relationship type.  Hover any concept to remove the connection.  To change a relationship type, remove and re-add it below."
-      >
-        {connections.length > 0 && (
-          <RelationshipsByCategory
-            connections={connections}
-            focalConcept={concept}
-            focalId={focalId}
-            onDelete={onDeleteConnection}
-          />
-        )}
-        <InlineRelationshipAdder
-          allConcepts={allConcepts}
-          currentConceptId={focalId}
-          focalLabel={concept.label}
-          existingConnections={connections}
-          onCreate={onCreateConnection}
-          onConceptCreated={onConceptCreated}
-        />
-        <SuggestPanel
-          conceptId={conceptId}
-          focalLabel={concept.label}
-          onAccept={async (s) => { await onCreateConnection(s.target_id, s.rel_type); }}
-        />
-      </Section>
-
-      {concept.key_authors && concept.key_authors.length > 0 && (
-        <Section
-          title={`Key Authors (${concept.key_authors.length})`}
-          sub="Researchers behind this concept's literature, ranked by source count."
-        >
-          <KeyAuthors authors={concept.key_authors} />
-        </Section>
-      )}
-
-      {concept.sources && concept.sources.length > 0 && (
-        <Section title={`Sources (${concept.sources.length})`}>
-          <TopSources sources={concept.sources} />
-        </Section>
-      )}
-
-      {concept.people && concept.people.length > 0 && (
-        <Section title={`People (${concept.people.length})`} sub="Manually linked people, distinct from Key Authors above.">
-          <div className="cs-tile-grid">
-            {concept.people.map((p) => (
-              <a key={p.id} href={`/people/${p.id}`} className="cs-tile">
-                <span className="cs-list-dot is-person" />
-                <span className="cs-tile-text">
-                  <span className="cs-tile-title">{p.full_name}</span>
-                  {p.role && <span className="cs-tile-meta">{p.role}</span>}
-                </span>
-              </a>
-            ))}
-          </div>
-        </Section>
-      )}
-
-      {concept.contextual_notes && concept.contextual_notes.length > 0 && (
-        <Section
-          title={`Notes (${concept.contextual_notes.length})`}
-          sub="Notes you've taken on sources tagged with this concept."
-        >
-          <ContextualNotes notes={concept.contextual_notes} />
-        </Section>
-      )}
-
-      <FurtherReading definition={definition} />
     </>
   );
 }
@@ -937,28 +936,81 @@ function FurtherReading({ definition }) {
   const refs = definition?.external_refs;
   if (!Array.isArray(refs) || refs.length === 0) return null;
 
-  // Group: citations first, then sources, preserving order within each.
+  // Citations rank above search-result sources; within each, preserve
+  // arrival order.  Then dedupe by canonical URL AND by lowercased title
+  // (different URLs sometimes share a title — Wikipedia anchors,
+  // alternate ScienceDirect routes — and we never want both shown).
   const citations = refs.filter((r) => r.type === 'citation');
   const sources   = refs.filter((r) => r.type !== 'citation');
   const ordered   = [...citations, ...sources];
 
+  const seenKey = new Set();
+  const seenTitle = new Set();
+  const deduped = [];
+  for (const r of ordered) {
+    const key = canonicalUrl(r.url);
+    const title = (r.title || '').trim().toLowerCase();
+    if (!key || seenKey.has(key)) continue;
+    if (title && seenTitle.has(title)) continue;
+    seenKey.add(key);
+    if (title) seenTitle.add(title);
+    deduped.push(r);
+    if (deduped.length >= MAX_FURTHER_READING) break;
+  }
+
   return (
     <section className="cs-further">
-      <h2 className="cs-integrated-heading">Further Reading</h2>
+      <h3 className="cs-further-heading">Further Reading</h3>
       <p className="cs-further-hint">
-        Sources cited in the generated definition.  External links open in a new tab.
+        Sources cited in the generated definition.
       </p>
       <ul className="cs-further-list">
-        {ordered.map((r, i) => (
-          <li key={`${r.url}-${i}`} className="cs-further-row">
-            <a href={r.url} target="_blank" rel="noopener noreferrer" className="cs-further-link">
-              {r.title || r.url}
-            </a>
-            <span className="cs-further-host">{prettyHost(r.url)}</span>
-          </li>
-        ))}
+        {deduped.map((r, i) => {
+          const host = prettyHost(r.url);
+          return (
+            <li key={`${r.url}-${i}`} className="cs-further-row">
+              <a href={r.url} target="_blank" rel="noopener noreferrer" className="cs-further-link">
+                <FaviconImg host={host} />
+                <span className="cs-further-text">
+                  <span className="cs-further-title">{r.title || r.url}</span>
+                  <span className="cs-further-host">{host}</span>
+                </span>
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </section>
+  );
+}
+
+// Renders a domain favicon via Google's public favicon service so we
+// don't have to fetch + cache them ourselves.  If the request fails (no
+// network, blocked tracker, missing favicon) we fall back to a small
+// neutral globe glyph so the row layout stays stable.
+function FaviconImg({ host }) {
+  const [failed, setFailed] = useState(false);
+  if (!host || failed) {
+    return (
+      <span className="cs-further-favicon cs-further-favicon-fallback" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+          <circle cx="8" cy="8" r="6" />
+          <ellipse cx="8" cy="8" rx="2.5" ry="6" />
+          <line x1="2" y1="8" x2="14" y2="8" />
+        </svg>
+      </span>
+    );
+  }
+  return (
+    <img
+      src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`}
+      alt=""
+      width="16"
+      height="16"
+      className="cs-further-favicon"
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
   );
 }
 
@@ -967,6 +1019,20 @@ function prettyHost(url) {
     return new URL(url).hostname.replace(/^www\./, '');
   } catch {
     return '';
+  }
+}
+
+// Canonical key for dedupe: host + path, lowercased, trailing slash and
+// fragment stripped.  "wiki/Goal_orientation" and "wiki/Goal_orientation#X"
+// collapse to one entry; query params drop too since they almost never
+// distinguish between substantively different sources.
+function canonicalUrl(url) {
+  if (!url) return '';
+  try {
+    const u = new URL(url);
+    return `${u.host.replace(/^www\./, '')}${u.pathname.replace(/\/$/, '')}`.toLowerCase();
+  } catch {
+    return url.toLowerCase().trim();
   }
 }
 
@@ -986,15 +1052,16 @@ function SidebarBlock({ label, count, sub, children }) {
   );
 }
 
-// Compact at-a-glance counts at the very top of the sidebar.
+// Compact at-a-glance counts at the very top of the sidebar.  Three
+// stats fit in one row; People is rendered separately below in
+// SidebarPeople so we don't double-show it here.
 function SidebarStats({ concept, connections }) {
   const stats = [
     { label: 'Connections', value: connections?.length || 0 },
     { label: 'Sources',     value: concept.sources?.length ?? concept.sources_count ?? 0 },
-    { label: 'Notes',       value: concept.contextual_notes?.length ?? concept.notes_count ?? 0 },
-    { label: 'People',      value: concept.people?.length ?? concept.people_count ?? 0 },
-  ].filter((s) => s.value > 0);
-  if (stats.length === 0) return null;
+    { label: 'Notes',       value: concept.direct_notes?.length ?? concept.notes_count ?? 0 },
+  ];
+  if (stats.every((s) => s.value === 0)) return null;
   return (
     <div className="cs-side-stats">
       {stats.map((s) => (
@@ -1016,16 +1083,23 @@ function SidebarRelationships__unused({ connections, focalConcept, focalId, onDe
 
 function SidebarKeyAuthors({ authors }) {
   if (!authors || authors.length === 0) return null;
+  const visible = authors.slice(0, 12);
+  const overflow = authors.length - visible.length;
   return (
     <SidebarBlock label="Key Authors" count={authors.length}>
-      <ul className="cs-side-list">
-        {authors.slice(0, 5).map((a) => (
-          <li key={a.id} className="cs-side-row">
-            <a href={`/people/${a.id}`} className="cs-side-name">{toTitleCase(a.full_name)}</a>
-            <span className="cs-side-meta">{a.source_count} src</span>
-          </li>
+      <div className="cs-side-chips">
+        {visible.map((a) => (
+          <a
+            key={a.id}
+            href={`/people/${a.id}`}
+            className="sp-chip is-person cs-side-chip"
+            title={`${a.full_name} (${a.source_count} sources)`}
+          >
+            {toTitleCase(a.full_name)}
+          </a>
         ))}
-      </ul>
+        {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
+      </div>
     </SidebarBlock>
   );
 }
@@ -1036,69 +1110,61 @@ function SidebarTopSources({ sources }) {
     return [...sources].sort((a, b) => {
       if (a.is_key_source !== b.is_key_source) return a.is_key_source ? -1 : 1;
       return (b.notes_count || 0) - (a.notes_count || 0);
-    }).slice(0, 5);
+    }).slice(0, 12);
   }, [sources]);
+  const overflow = sources.length - ranked.length;
   return (
     <SidebarBlock label="Top Sources" count={sources.length}>
-      <ul className="cs-side-list">
+      <div className="cs-side-chips">
         {ranked.map((s) => (
-          <li key={s.id} className="cs-side-row">
-            <a href={`/sources/${s.id}`} className="cs-side-name">
-              {s.is_key_source && <span className="cs-side-key" title="Key source">★ </span>}
-              {toTitleCase(s.title)}
-            </a>
-            {s.year && <span className="cs-side-meta">{s.year}</span>}
-          </li>
+          <a
+            key={s.id}
+            href={`/sources/${s.id}`}
+            className="sp-chip is-source cs-side-chip"
+            title={s.year ? `${s.title} (${s.year})` : s.title}
+          >
+            {s.is_key_source && <span className="cs-side-key" aria-hidden="true">★ </span>}
+            {toTitleCase(s.title)}
+          </a>
         ))}
-      </ul>
-    </SidebarBlock>
-  );
-}
-
-function SidebarNotes({ notes }) {
-  if (!notes || notes.length === 0) return null;
-  return (
-    <SidebarBlock label="Notes" count={notes.length}>
-      <ul className="cs-side-list">
-        {notes.slice(0, 5).map((n) => {
-          const title = n.title || stripHtml(n.body || '').slice(0, 60) || 'Untitled note';
-          return (
-            <li key={n.id} className="cs-side-row">
-              <a href={`/notes/${n.id}`} className="cs-side-name">{title}</a>
-              {n.note_type && <span className="cs-side-meta">{n.note_type}</span>}
-            </li>
-          );
-        })}
-      </ul>
+        {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
+      </div>
     </SidebarBlock>
   );
 }
 
 function SidebarPeople({ people }) {
   if (!people || people.length === 0) return null;
+  const visible = people.slice(0, 12);
+  const overflow = people.length - visible.length;
   return (
     <SidebarBlock label="People" count={people.length} sub="Manually linked, distinct from Key Authors.">
-      <ul className="cs-side-list">
-        {people.slice(0, 5).map((p) => (
-          <li key={p.id} className="cs-side-row">
-            <a href={`/people/${p.id}`} className="cs-side-name">{toTitleCase(p.full_name)}</a>
-            {p.role && <span className="cs-side-meta">{p.role}</span>}
-          </li>
+      <div className="cs-side-chips">
+        {visible.map((p) => (
+          <a
+            key={p.id}
+            href={`/people/${p.id}`}
+            className="sp-chip is-person cs-side-chip"
+            title={p.role ? `${p.full_name} — ${p.role}` : p.full_name}
+          >
+            {toTitleCase(p.full_name)}
+          </a>
         ))}
-      </ul>
+        {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
+      </div>
     </SidebarBlock>
   );
 }
 
-function SidebarChips({ label, items }) {
+function SidebarChips({ label, items, chipKind = 'is-neutral' }) {
   if (!items || items.length === 0) return null;
   return (
     <SidebarBlock label={label} count={items.length}>
       <div className="cs-side-chips">
         {items.map((it) => (
           it.href
-            ? <a key={it.key} href={it.href} className="cs-side-chip">{it.label}</a>
-            : <span key={it.key} className="cs-side-chip">{it.label}</span>
+            ? <a key={it.key} href={it.href} className={`sp-chip ${chipKind} cs-side-chip`}>{it.label}</a>
+            : <span key={it.key} className={`sp-chip ${chipKind} cs-side-chip`}>{it.label}</span>
         ))}
       </div>
     </SidebarBlock>
@@ -1261,33 +1327,201 @@ function DefinitionRejectPanel({ acquiredVia, rejecting, onReject }) {
   );
 }
 
-// Renders a generated field's body, collapsing long content under a
-// fade with a "Show more" toggle.  Below the threshold the toggle never
-// renders, so short fields stay clean.  Length is measured against
-// stripped text so HTML tags don't inflate the count.
-function TruncatablePack({ value, rich }) {
-  const [expanded, setExpanded] = useState(false);
-  const raw = (rich ? stripHtml(value) : value || '').trim();
-  const needsTruncation = raw.length > TRUNCATION_CHAR_THRESHOLD;
-  const clampClass = needsTruncation && !expanded ? 'is-clamped' : '';
+// Main-area notes pane.  Two sections: direct notes (your work on this
+// concept) and a stash of notes that live on related sources or people.
+// Phase A is display-only — Phase B adds Add/Dismiss triage buttons to
+// the stash rows.
+const NOTE_TYPE_FILTER_OPTIONS = [
+  { value: '',           label: 'All' },
+  { value: 'note',       label: 'Note' },
+  { value: 'question',   label: 'Question' },
+  { value: 'synthesis',  label: 'Synthesis' },
+  { value: 'connection', label: 'Connection' },
+  { value: 'todo',       label: 'To Do' },
+  { value: 'highlight',  label: 'Highlight' },
+];
+
+function ConceptNotes({
+  conceptLabel, conceptId, directNotes, stashNotes,
+  onAddNote, onViewNote, onEditNote, onDeleteNote, onToggleNotePin,
+  onLinkStashNote, onDismissStashNote,
+}) {
+  const direct = directNotes || [];
+  const stash  = stashNotes  || [];
+
+  // Filter / sort state for the direct list.  The backend already sorts
+  // pinned-first; this lets the user override or narrow on the client
+  // without a round-trip.  Stash is not filtered — it's a triage queue.
+  const [typeFilter, setTypeFilter] = useState('');
+  const [sort, setSort] = useState('pinned');
+  const [query, setQuery] = useState('');
+
+  const filteredDirect = useMemo(() => {
+    let arr = direct;
+    if (typeFilter) arr = arr.filter((n) => (n.note_type || 'note') === typeFilter);
+    if (query.trim()) {
+      const q = query.trim().toLowerCase();
+      arr = arr.filter((n) => {
+        const title = (n.title || '').toLowerCase();
+        const body  = (n.body  || '').toLowerCase().replace(/<[^>]+>/g, ' ');
+        return title.includes(q) || body.includes(q);
+      });
+    }
+    const byRecent = (a, b) => new Date(b.created_at) - new Date(a.created_at);
+    if (sort === 'recent') return [...arr].sort(byRecent);
+    if (sort === 'oldest') return [...arr].sort((a, b) => -byRecent(a, b));
+    // pinned-first (default)
+    return [...arr].sort((a, b) =>
+      (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || byRecent(a, b)
+    );
+  }, [direct, typeFilter, query, sort]);
+
+  // Suppress the chip pointing back to the current concept.
+  const omitChipIds = { concept: conceptId ? [conceptId] : [] };
+
+  // Common action handlers wired into every NoteCard so the canonical
+  // hover affordances (edit/delete) and view/pin behaviors all work.
+  const directCardProps = {
+    omitChipIds,
+    query,
+    onView: onViewNote,
+    onEdit: onEditNote,
+    onDelete: onDeleteNote,
+    onTogglePin: onToggleNotePin,
+  };
+  const stashCardProps = {
+    omitChipIds,
+    onView: onViewNote,
+    onAdd: onLinkStashNote,
+    onDismiss: onDismissStashNote,
+  };
 
   return (
-    <>
-      <div className={`cs-pack-clamp ${clampClass}`}>
-        {rich
-          ? <RichTextBlock html={value} />
-          : <p className="cs-integrated-text">{value}</p>}
-      </div>
-      {needsTruncation && (
-        <button
-          type="button"
-          className="cs-pack-toggle"
-          onClick={() => setExpanded((v) => !v)}
-        >
-          {expanded ? 'Show less' : 'Show more'}
+    <section className="cs-notes">
+      <header className="cs-notes-head">
+        <h2 className="cs-notes-title">Notes</h2>
+        <button type="button" className="sp-action sp-action-primary" onClick={onAddNote}>
+          + Add note
         </button>
+      </header>
+
+      {direct.length > 0 && (
+        <div className="cs-notes-filter">
+          <div className="cs-notes-filter-types" role="tablist" aria-label="Filter notes by type">
+            {NOTE_TYPE_FILTER_OPTIONS.map((opt) => (
+              <button
+                key={opt.value || 'all'}
+                type="button"
+                role="tab"
+                aria-selected={typeFilter === opt.value}
+                className={`cs-notes-filter-chip ${typeFilter === opt.value ? 'is-active' : ''}`}
+                onClick={() => setTypeFilter(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          <div className="cs-notes-filter-controls">
+            <select
+              className="cs-notes-filter-sort"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              aria-label="Sort notes"
+            >
+              <option value="pinned">Pinned first</option>
+              <option value="recent">Most recent</option>
+              <option value="oldest">Oldest</option>
+            </select>
+            <input
+              type="search"
+              className="cs-notes-filter-search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Filter notes…"
+              aria-label="Search notes"
+            />
+          </div>
+        </div>
       )}
-    </>
+
+      {direct.length === 0 ? (
+        <div className="cs-notes-empty">
+          <p className="cs-notes-empty-line">No notes on this concept yet.</p>
+          <p className="cs-notes-empty-hint">
+            Capture what you're thinking about {conceptLabel}.  Notes attached here are direct — anything from related sources or authors shows up below for you to triage.
+          </p>
+        </div>
+      ) : filteredDirect.length === 0 ? (
+        <div className="cs-notes-empty">
+          <p className="cs-notes-empty-line">No notes match your filter.</p>
+          <p className="cs-notes-empty-hint">
+            Clear the type filter or the search box to see your other notes.
+          </p>
+        </div>
+      ) : (
+        <ul className="nx-list nx-list-card">
+          {filteredDirect.map((n) => (
+            <NoteCard key={`d-${n.id}`} note={n} {...directCardProps} />
+          ))}
+        </ul>
+      )}
+
+      {stash.length > 0 && (
+        <section className="cs-stash">
+          <h3 className="cs-stash-title">From related sources &amp; people</h3>
+          <p className="cs-stash-hint">
+            Notes you've taken on sources tagged with this concept, or on its people.  Add to attach this note directly to {conceptLabel}; dismiss to hide it from this concept's stash.
+          </p>
+          <ul className="nx-list nx-list-card">
+            {stash.map((n) => (
+              <NoteCard key={`s-${n.id}`} note={n} {...stashCardProps} className="is-stash" />
+            ))}
+          </ul>
+        </section>
+      )}
+    </section>
+  );
+}
+
+// Full-entry modal — opens from the lede CTA, hosts the per-field
+// IntegratedArticle and the rejection flow.  Esc and overlay click both
+// close.  The 10s staged reveal does NOT play inside the modal — it's
+// already done its job on the lede; the modal just fades in.
+function DefinitionFullModal({ isOpen, onClose, concept, definition, acquiredVia, rejecting, onRejectDefinition }) {
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !definition) return null;
+
+  return (
+    <div className="cs-modal-overlay" onClick={onClose}>
+      <div className="cs-modal-card" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <header className="cs-modal-head">
+          <div>
+            <span className="cs-modal-eyebrow">Full Entry</span>
+            <h2 className="cs-modal-title">{toTitleCase(concept.label)}</h2>
+          </div>
+          <button type="button" className="cs-modal-close" onClick={onClose} aria-label="Close">×</button>
+        </header>
+        <div className="cs-modal-body">
+          <IntegratedArticle concept={concept} definition={definition} />
+          <DefinitionRejectPanel
+            acquiredVia={acquiredVia}
+            rejecting={rejecting}
+            onReject={() => { onClose(); onRejectDefinition(); }}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1308,43 +1542,61 @@ const LONG_FORM_FIELDS = [
 ];
 
 // =====================================================================
-// IntegratedArticle — per-field section with the user's content above
-// (if present) and the generated definition's content boxed below (if
-// present).  A field only renders if at least one side has content.
+// IntegratedArticle — wiki-style entry rendered inside the full-entry
+// modal.  The generated content is the body of each section (heading +
+// paragraphs); the user's hand-entered content, when present, sits in a
+// green-bordered box labeled "Your notes" since that's the rare
+// per-user material now.  A field only renders if at least one side has
+// content.
 // =====================================================================
 function IntegratedArticle({ concept, definition }) {
   const present = LONG_FORM_FIELDS.filter((f) => concept[f.key] || definition?.[f.key]);
   if (present.length === 0) return null;
 
   return (
-    <section className="cs-integrated">
+    <article className="cs-article">
       {present.map((f) => {
         const userValue = concept[f.key];
         const generatedValue = definition?.[f.key];
         return (
-          <article key={f.key} className="cs-integrated-section">
-            <h2 className="cs-integrated-heading">{f.label}</h2>
+          <section key={f.key} className="cs-article-section">
+            <h2 className="cs-article-heading">{f.label}</h2>
 
-            {userValue && (
-              <div className="cs-integrated-user">
-                {f.rich
-                  ? <RichTextBlock html={userValue} />
-                  : <p className="cs-integrated-text">{userValue}</p>}
+            {generatedValue && (
+              <div className="cs-article-body">
+                {renderFieldParagraphs(generatedValue, f.rich)}
               </div>
             )}
 
-            {generatedValue && (
-              <aside className="cs-integrated-pack">
-                <TruncatablePack value={generatedValue} rich={f.rich} />
+            {userValue && (
+              <aside className="cs-article-user">
+                <span className="cs-article-user-eyebrow">Your notes</span>
+                {renderFieldParagraphs(userValue, f.rich)}
               </aside>
             )}
-          </article>
+          </section>
         );
       })}
       {definition?.attribution && (
-        <footer className="cs-integrated-attribution">{definition.attribution}</footer>
+        <footer className="cs-article-attribution">{definition.attribution}</footer>
       )}
-    </section>
+    </article>
+  );
+}
+
+// Splits a field value on blank lines (\n\n) and emits one <p> per
+// paragraph.  For rich fields the chunks pass through innerHTML so any
+// inline markup (bold, italics, links) the model emitted survives; for
+// plain fields the text is escaped by React.  A field that has no blank
+// lines just renders as a single <p>.
+function renderFieldParagraphs(value, rich) {
+  if (!value) return null;
+  const chunks = String(value).split(/\n{2,}/).map((s) => s.trim()).filter(Boolean);
+  if (chunks.length === 0) return null;
+  return chunks.map((chunk, i) =>
+    rich
+      ? <p key={i} className="cs-article-text" dangerouslySetInnerHTML={{ __html: chunk }} />
+      : <p key={i} className="cs-article-text">{chunk}</p>
   );
 }
 
@@ -1963,11 +2215,29 @@ function CSStyles() {
         font-family: var(--font-display);
         font-size: 40px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         line-height: 1.1;
         letter-spacing: -0.02em;
         margin: 0 0 12px;
         text-wrap: balance;
+      }
+      .cs-hero-domain { text-decoration: none; }
+      .cs-hero-aliases {
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-3);
+        margin: -4px 0 12px;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .cs-hero-aliases-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--ink-3);
       }
       .cs-hero-summary {
         font-family: var(--font-body);
@@ -2077,15 +2347,23 @@ function CSStyles() {
 
       /* ---------- Further Reading (external_refs from definition) ---------- */
       .cs-further {
-        max-width: 720px;
-        margin: 36px 0 0;
-        padding-top: 24px;
+        margin-top: 24px;
+        padding-top: 18px;
         border-top: 1px solid var(--ink-line);
       }
-      .cs-further-hint {
-        font-size: 12.5px;
+      .cs-further-heading {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
         color: var(--ink-3);
-        margin: -6px 0 12px;
+        margin: 0 0 4px;
+      }
+      .cs-further-hint {
+        font-size: 12px;
+        color: var(--ink-3);
+        margin: 0 0 10px;
       }
       .cs-further-list {
         list-style: none;
@@ -2096,55 +2374,373 @@ function CSStyles() {
         gap: 6px;
       }
       .cs-further-row {
-        display: flex;
-        align-items: baseline;
-        gap: 12px;
-        padding: 6px 0;
+        padding: 4px 0;
       }
       .cs-further-link {
-        font-family: var(--font-body);
-        font-size: 13.5px;
-        color: var(--ink);
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
         text-decoration: none;
-        border-bottom: 1px solid var(--ink-line);
-        flex: 1;
+        color: var(--ink);
+        padding: 4px 6px;
+        border-radius: var(--r-sm);
+        transition: background 0.12s;
+      }
+      .cs-further-link:hover { background: var(--hover); }
+      .cs-further-favicon {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        border-radius: 3px;
+        object-fit: contain;
+        background: var(--paper-soft);
+      }
+      .cs-further-favicon-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink-3);
+      }
+      .cs-further-text {
+        display: flex;
+        flex-direction: column;
         min-width: 0;
+        flex: 1;
+        gap: 1px;
+      }
+      .cs-further-title {
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink);
+        line-height: 1.35;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
-        transition: color 0.12s, border-color 0.12s;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
-      .cs-further-link:hover { color: var(--concept-2); border-color: var(--concept); }
+      .cs-further-link:hover .cs-further-title { color: var(--concept-2); }
       .cs-further-host {
         font-family: var(--font-mono);
-        font-size: 11px;
+        font-size: 10.5px;
         color: var(--ink-3);
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
-      /* ---------- IntegratedArticle: per-field user + pack pattern ---------- */
-      /* Staged-reveal animation.  Plays when a definition lands in this
-         session (cache hit OR fresh-gen completion).  Page revisits don't
-         set is-revealing, so users only see the animation when the
-         definition was just acquired.  Total budget ~9.5s; integrated
-         sections stagger between the lede and the further-reading rail. */
-      .cs-reveal.is-revealing .cs-pack-lede.is-owned       { animation: csReveal 0.7s 0s    ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(1) { animation: csReveal 0.7s 1.2s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(2) { animation: csReveal 0.7s 2.0s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(3) { animation: csReveal 0.7s 2.8s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(4) { animation: csReveal 0.7s 3.6s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(5) { animation: csReveal 0.7s 4.4s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(6) { animation: csReveal 0.7s 5.2s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-section:nth-child(n+7) { animation: csReveal 0.7s 6.0s ease both; }
-      .cs-reveal.is-revealing .cs-integrated-attribution   { animation: csReveal 0.7s 7.0s  ease both; }
-      .cs-reveal.is-revealing .cs-further                  { animation: csReveal 0.7s 7.6s  ease both; }
-      .cs-reveal.is-revealing .cs-reject-panel             { animation: csReveal 0.7s 8.4s  ease both; }
+      /* Lede reveal.  Plays only when a definition just landed in this
+         session (cache hit OR fresh-gen completion); revealKey > 0 sets
+         is-revealing on the wrapper.  Page revisits start at revealKey=0
+         and skip the animation entirely. */
+      .cs-reveal.is-revealing .cs-pack-lede.is-owned { animation: csReveal 0.7s ease both; }
+      .cs-reveal.is-revealing .cs-read-full          { animation: csReveal 0.7s 0.4s ease both; }
       @keyframes csReveal {
         from { opacity: 0; transform: translateY(8px); }
         to   { opacity: 1; transform: translateY(0); }
       }
       @media (prefers-reduced-motion: reduce) {
         .cs-reveal.is-revealing * { animation: none !important; }
+      }
+
+      /* ---------- IntegratedArticle: wiki-style entry inside the modal ----------
+         Generated content reads as the body of each section (heading +
+         paragraphs); user-entered content sits in a green-tinted aside
+         labeled "Your notes" since that's the rare per-user material. */
+      .cs-article {
+        max-width: 100%;
+        font-family: var(--font-body);
+      }
+      .cs-article-section {
+        margin-bottom: 28px;
+      }
+      .cs-article-section:last-of-type { margin-bottom: 0; }
+      .cs-article-heading {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+        line-height: 1.25;
+        margin: 0 0 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--ink-line-soft);
+      }
+      .cs-article-body {
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: var(--ink);
+      }
+      .cs-article-body .cs-richtext { font-family: inherit; font-size: inherit; line-height: inherit; }
+      .cs-article-body p { margin: 0 0 10px; }
+      .cs-article-body p:last-child { margin-bottom: 0; }
+      .cs-article-text { margin: 0; white-space: pre-wrap; }
+
+      .cs-article-user {
+        margin-top: 12px;
+        padding: 12px 16px;
+        background: var(--concept-tint);
+        border-left: 3px solid var(--concept);
+        border-radius: var(--r-md);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ink-2);
+      }
+      .cs-article-user .cs-richtext { font-family: inherit; font-size: inherit; line-height: inherit; }
+      .cs-article-user p { margin: 0 0 6px; }
+      .cs-article-user p:last-child { margin-bottom: 0; }
+      .cs-article-user-eyebrow {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--concept-2);
+        margin-bottom: 6px;
+      }
+      .cs-article-attribution {
+        margin-top: 26px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ink-line-soft);
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        font-style: italic;
+      }
+
+      /* "Read full entry" button — sits directly under the lede card and
+         opens DefinitionFullModal.  Visually distinct so it reads as the
+         clear way to dive into the canonical entry while the page itself
+         stays focused on the user's notes. */
+      .cs-read-full {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: -16px 0 28px;
+        padding: 10px 18px;
+        background: var(--paper);
+        color: var(--concept-2);
+        border: 1px solid var(--concept);
+        border-radius: var(--r-md);
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 120ms, color 120ms, border-color 120ms;
+      }
+      .cs-read-full:hover {
+        background: var(--concept);
+        color: var(--paper);
+        border-color: var(--concept);
+      }
+
+      /* Main-area notes pane — replaces the per-field IntegratedArticle
+         on the with-definition layout.  Direct notes headline, stash sits
+         below and is hidden when empty. */
+      .cs-notes { max-width: 720px; }
+      .cs-notes-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+      .cs-notes-title {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0;
+        letter-spacing: -0.005em;
+      }
+      /* Notes filter row — type chips + sort dropdown + search input.
+         Wraps below 720px so the chip row keeps its horizontal scan and
+         the controls stack underneath. */
+      .cs-notes-filter {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px 18px;
+        margin-bottom: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--ink-line-soft);
+      }
+      .cs-notes-filter-types {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .cs-notes-filter-chip {
+        appearance: none;
+        background: transparent;
+        border: 1px solid transparent;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink-3);
+        padding: 5px 10px;
+        border-radius: var(--r-pill, 999px);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+      }
+      .cs-notes-filter-chip:hover { background: var(--hover); color: var(--ink-2); }
+      .cs-notes-filter-chip.is-active {
+        background: var(--primary);
+        color: var(--paper);
+        border-color: var(--primary);
+      }
+      .cs-notes-filter-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .cs-notes-filter-sort,
+      .cs-notes-filter-search {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        height: 30px;
+        line-height: 1;
+      }
+      .cs-notes-filter-search { min-width: 180px; }
+      .cs-notes-filter-sort:focus-visible,
+      .cs-notes-filter-search:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 1px;
+        border-color: var(--primary);
+      }
+
+      .cs-notes-empty {
+        padding: 28px 22px;
+        background: var(--paper-soft);
+        border: 1px dashed var(--ink-line);
+        border-radius: var(--r-md);
+        text-align: center;
+      }
+      .cs-notes-empty-line {
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-2);
+        margin: 0 0 6px;
+      }
+      .cs-notes-empty-hint {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--ink-3);
+        margin: 0;
+        max-width: 460px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Stash-row visual modifier on top of the canonical nx-card from
+         NoteCardStyles.  Softer top-border + paper-soft background so the
+         stash reads as "candidate" against the brighter direct list. */
+      .nx-card.is-stash {
+        border-top-color: color-mix(in srgb, var(--ink-3) 50%, var(--paper));
+        background: var(--paper-soft);
+      }
+
+      .cs-stash {
+        margin-top: 32px;
+      }
+      .cs-stash-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink-2);
+        margin: 0 0 4px;
+      }
+      .cs-stash-hint {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        margin: 0 0 12px;
+      }
+
+      /* Full-entry modal — overlay covers the page, card scrolls
+         within itself if the entry is long.  Animation is a soft fade +
+         rise, not the staged reveal (that's the lede's job). */
+      .cs-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 20, 25, 0.55);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 56px 20px 40px;
+        z-index: 1000;
+        overflow-y: auto;
+        animation: csModalFade 180ms ease;
+      }
+      .cs-modal-card {
+        background: var(--paper);
+        border-radius: var(--r-md);
+        max-width: 760px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        display: flex;
+        flex-direction: column;
+        animation: csModalRise 220ms ease;
+      }
+      .cs-modal-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 22px 28px 16px;
+        border-bottom: 1px solid var(--ink-line-soft);
+      }
+      .cs-modal-eyebrow {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--concept);
+        margin-bottom: 6px;
+      }
+      .cs-modal-title {
+        font-family: var(--font-display);
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .cs-modal-close {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 26px;
+        line-height: 1;
+        color: var(--ink-3);
+        cursor: pointer;
+        padding: 2px 10px;
+        border-radius: var(--r-sm);
+        transition: background 120ms, color 120ms;
+      }
+      .cs-modal-close:hover { background: var(--paper-soft); color: var(--ink); }
+      .cs-modal-body {
+        padding: 22px 28px 28px;
+      }
+      @keyframes csModalFade { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes csModalRise {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
       }
 
       /* Reject ("not what you meant") panel: subtle trigger button by
@@ -2206,88 +2802,6 @@ function CSStyles() {
         padding: 8px 0;
       }
 
-      .cs-integrated {
-        max-width: 720px;
-        margin: 28px 0;
-      }
-      .cs-integrated-section {
-        margin-bottom: 24px;
-      }
-      .cs-integrated-section:last-of-type { margin-bottom: 0; }
-      .cs-integrated-heading {
-        font-family: var(--font-display);
-        font-size: 19px;
-        font-weight: 600;
-        color: var(--concept);
-        letter-spacing: -0.005em;
-        line-height: 1.25;
-        margin: 0 0 10px;
-      }
-      .cs-integrated-user {
-        font-family: var(--font-body);
-        font-size: 14.5px;
-        line-height: 1.55;
-        color: var(--ink);
-      }
-      .cs-integrated-user .cs-richtext { font-family: inherit; font-size: inherit; line-height: inherit; }
-      .cs-integrated-text { margin: 0; white-space: pre-wrap; }
-
-      .cs-integrated-pack {
-        margin-top: 10px;
-        padding: 14px 18px;
-        background: var(--concept-tint);
-        border-left: 3px solid var(--concept);
-        border-radius: var(--r-md);
-      }
-      /* Show-more clamp on long generated fields (e.g. multi-paragraph
-         description).  Threshold is char-length based — short fields skip
-         the toggle entirely.  Fade gradient color matches the pack tint
-         so the bottom of the clamped block dissolves cleanly. */
-      .cs-pack-clamp.is-clamped {
-        position: relative;
-        max-height: 12em;
-        overflow: hidden;
-      }
-      .cs-pack-clamp.is-clamped::after {
-        content: '';
-        position: absolute;
-        inset: auto 0 0 0;
-        height: 3em;
-        background: linear-gradient(to bottom, rgba(232, 244, 238, 0), var(--concept-tint));
-        pointer-events: none;
-      }
-      .cs-pack-toggle {
-        margin-top: 8px;
-        background: transparent;
-        border: none;
-        font-family: var(--font-body);
-        font-size: 12.5px;
-        font-weight: 600;
-        color: var(--concept-2);
-        cursor: pointer;
-        padding: 2px 0;
-        text-decoration: underline;
-        text-decoration-color: transparent;
-        text-underline-offset: 3px;
-        transition: text-decoration-color 120ms;
-      }
-      .cs-pack-toggle:hover { text-decoration-color: var(--concept); }
-      .cs-integrated-pack .cs-richtext,
-      .cs-integrated-pack .cs-integrated-text {
-        font-family: var(--font-body);
-        font-size: 14.5px;
-        line-height: 1.55;
-        color: var(--ink-2);
-      }
-      .cs-integrated-attribution {
-        margin-top: 26px;
-        padding-top: 14px;
-        border-top: 1px solid var(--ink-line-soft);
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
-        font-style: italic;
-      }
 
       /* Available-state teaser fade + CTA */
       .cs-pack-lede-summary-wrap {
@@ -2912,22 +3426,17 @@ function CSStyles() {
       }
       .cs-2col-main { min-width: 0; }
       .cs-2col-side {
-        position: sticky;
-        top: 24px;
-        align-self: start;
-        max-height: calc(100vh - 48px);
-        overflow-y: auto;
         display: flex;
         flex-direction: column;
         gap: 22px;
         padding-left: 22px;
         border-left: 1px solid var(--ink-line);
       }
-      /* Sidebar stats — compact 2x2 grid of at-a-glance counts. */
+      /* Sidebar stats — three at-a-glance counts in a single row. */
       .cs-side-stats {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px 16px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px 12px;
         padding-bottom: 18px;
         border-bottom: 1px solid var(--ink-line);
       }
@@ -3084,20 +3593,25 @@ function CSStyles() {
       .cs-side-chips {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
+        gap: 6px;
+        margin-top: 4px;
       }
       .cs-side-chip {
-        display: inline-block;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-soft);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
         text-decoration: none;
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: filter 0.12s;
       }
-      a.cs-side-chip:hover { background: var(--concept-tint); color: var(--concept-2); border-color: var(--concept); }
+      a.cs-side-chip:hover { filter: brightness(0.95); }
+      .cs-side-key { color: var(--accent-gold); margin-right: 2px; }
+      .cs-side-more {
+        font-family: var(--font-body);
+        font-size: 11px;
+        color: var(--ink-4);
+        font-style: italic;
+        align-self: center;
+      }
 
       /* User annotations layered below the pack article */
       .cs-annotations {
@@ -3172,25 +3686,6 @@ function CSStyles() {
         line-height: 1.25;
         margin: 0 0 10px;
       }
-      .cs-article-text {
-        font-family: var(--font-display);
-        font-size: 15.5px;
-        line-height: 1.7;
-        color: var(--ink-2);
-        margin: 0;
-        white-space: pre-wrap;
-      }
-      /* Rich-text inside article reads at the same scale */
-      .cs-article-section .cs-richtext {
-        font-family: var(--font-display);
-        font-size: 15.5px;
-        line-height: 1.7;
-        color: var(--ink-2);
-      }
-      .cs-article-section .cs-richtext p {
-        margin: 0 0 12px;
-      }
-      .cs-article-section .cs-richtext p:last-child { margin: 0; }
 
       /* ---------- Hero stats row ---------- */
       .cs-stats {

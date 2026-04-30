@@ -205,11 +205,11 @@
   :root[data-theme="dark"] .site-nav-logo-dark,
   .sp-root[data-theme="dark"] .site-nav-logo-dark { display: block; }
 
-  /* Right-aligned tail: links + user cluster */
-  .site-nav-brand + .site-nav-links,
-  .site-nav-brand + .site-nav-right {
-    margin-left: auto;
-  }
+  /* Right-aligned tail: links + user cluster.  The right cluster always
+     hugs the far edge — even on mobile where .site-nav-links is hidden,
+     the avatar + burger stay on the right. */
+  .site-nav-brand + .site-nav-links { margin-left: auto; }
+  .site-nav-right { margin-left: auto; }
 
   /* Primary links */
   .site-nav-links {

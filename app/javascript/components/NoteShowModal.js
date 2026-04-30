@@ -283,16 +283,7 @@ export default function NoteShowModal({ isOpen, onClose, note, onEdit, onDelete,
             <button
               type="button"
               onClick={() => onEdit && onEdit(note)}
-              className="btn-primary"
-              style={{
-                background: 'var(--accent-teal)',
-                color: 'white',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 'var(--space-1)',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#4a8187'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-teal)'}
+              className="sp-action sp-action-primary"
             >
               <i className="fas fa-edit" style={{ fontSize: '12px' }}></i>
               Edit

@@ -4,9 +4,31 @@ import SourceFormModal from './SourceFormModal';
 import AuthorsDisplay from './AuthorsDisplay';
 import MethodologyTags from './MethodologyTags';
 import StatisticalTestTags from './StatisticalTestTags';
+import NoteCard, { NoteCardStyles } from './NoteCard';
 import { toTitleCase } from '../utils/titleCase';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+const stripHtml = (s) => {
+  if (!s) return '';
+  const decode = (t) => t
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&amp;/gi, '&');
+  const strip = (t) => t
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '');
+  let out = strip(decode(String(s)));
+  out = strip(decode(out));
+  return out
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
 
 function relativeTime(input) {
   if (!input) return '';
@@ -119,19 +141,19 @@ export default function SourceShow({ sourceId }) {
 
   if (loading) {
     return (
-      <div className="ss-loading"><SSStyles />Loading.</div>
+      <div className="ss-loading"><SSStyles /><NoteCardStyles />Loading.</div>
     );
   }
 
   if (!source) {
     return (
-      <div className="ss-loading"><SSStyles />Source not found.</div>
+      <div className="ss-loading"><SSStyles /><NoteCardStyles />Source not found.</div>
     );
   }
 
   return (
     <div className="ss-shell">
-      <SSStyles />
+      <SSStyles /><NoteCardStyles />
 
       <header className="ss-header">
         <a href="/sources" className="ss-back">← All sources</a>
@@ -385,10 +407,9 @@ function SourceAbstract({ source }) {
       {source.abstract && (
         <div className="ss-abstract-block">
           <span className="ss-section-eyebrow">Abstract</span>
-          <div
-            className="ss-richtext"
-            dangerouslySetInnerHTML={{ __html: source.abstract }}
-          />
+          <div className="ss-richtext" style={{ whiteSpace: 'pre-wrap' }}>
+            {stripHtml(source.abstract)}
+          </div>
         </div>
       )}
     </div>
@@ -527,31 +548,14 @@ function SourceNotes({ sourceId, notes, loading }) {
         </a>
       </header>
 
-      <ul className="ss-note-list">
+      <ul className="nx-list nx-list-card">
         {notes.map((note) => (
-          <li key={note.id} className="ss-note-card">
-            {note.title && <h4 className="ss-note-title">{note.title}</h4>}
-            <div
-              className="ss-note-body"
-              dangerouslySetInnerHTML={{ __html: note.body || '' }}
-            />
-            {(note.concepts?.length > 0 || (Array.isArray(note.tags) && note.tags.length > 0)) && (
-              <div className="ss-note-chips">
-                {note.concepts?.map((c) => (
-                  <span key={`c-${c.id}`} className="ss-chip ss-chip-concept">{c.label}</span>
-                ))}
-                {Array.isArray(note.tags) && note.tags.map((t, i) => (
-                  <span key={`t-${i}`} className="ss-chip ss-chip-tag">
-                    {typeof t === 'string' ? t : t.name}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="ss-note-meta">
-              {note.page_number && <span>Page {note.page_number}</span>}
-              <span>{new Date(note.created_at).toLocaleDateString()}</span>
-            </div>
-          </li>
+          <NoteCard
+            key={note.id}
+            note={note}
+            omitChips={['source']}
+            omitChipIds={{ source: [Number(sourceId)] }}
+          />
         ))}
       </ul>
     </section>
@@ -1082,7 +1086,7 @@ function SSStyles() {
         font-family: var(--font-display);
         font-size: 38px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         line-height: 1.15;
         letter-spacing: -0.02em;
         margin: 0 0 10px;
@@ -1692,60 +1696,12 @@ function SSStyles() {
         border-color: var(--source-2);
       }
 
-      .ss-note-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .ss-note-card {
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-left: 3px solid var(--source);
-        border-radius: var(--r-md);
-        padding: 14px 18px;
-      }
-      .ss-note-title {
-        font-family: var(--font-display);
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ink);
-        margin: 0 0 6px;
-      }
-      .ss-note-body {
-        font-family: var(--font-body);
-        font-size: 13.5px;
-        color: var(--ink-2);
-        line-height: 1.6;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .ss-note-body p { margin: 0 0 6px; }
-      .ss-note-body p:last-child { margin: 0; }
+      /* Note cards on this page render via the shared NoteCard component;
+         see NoteCard.js / NoteCardStyles for their styles. */
       .ss-chip-row {
         display: flex;
         flex-wrap: wrap;
         gap: 6px 8px;
-      }
-      .ss-note-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px 8px;
-        margin-top: 10px;
-      }
-      .ss-note-meta {
-        display: flex;
-        gap: 12px;
-        margin-top: 10px;
-        padding-top: 8px;
-        border-top: 1px solid var(--ink-line-soft);
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
       }
 
       /* Sidebar */

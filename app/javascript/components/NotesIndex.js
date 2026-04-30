@@ -3,6 +3,16 @@ import { SPStyles } from './SamplePage';
 import NoteFormModal from './NoteFormModal';
 import NoteShowModal from './NoteShowModal';
 import TabletopShow from './TabletopShow';
+import NoteCard, {
+  NoteCardStyles,
+  NOTE_TYPE_LABELS,
+  tagName,
+  tagKey,
+  plain,
+  highlightText,
+  formatDate,
+  PinIcon,
+} from './NoteCard';
 
 // =====================================================================
 // NotesIndex
@@ -13,15 +23,6 @@ import TabletopShow from './TabletopShow';
 // Notes are typically authored from /sources/:id/study; this page is
 // where they're rediscovered, connected, and pruned.
 // =====================================================================
-
-const NOTE_TYPE_LABELS = {
-  note:       'Note',
-  question:   'Question',
-  synthesis:  'Synthesis',
-  connection: 'Connection',
-  todo:       'To Do',
-  highlight:  'Highlight',
-};
 
 const NOTE_TYPE_ORDER = ['note', 'question', 'synthesis', 'connection', 'todo', 'highlight'];
 
@@ -94,83 +95,6 @@ function writeFiltersToUrl(f) {
 }
 
 // ---------- Utility ----------
-function tagName(t) { return typeof t === 'string' ? t : t?.name; }
-function tagKey(t)  { return typeof t === 'string' ? t : t?.name; }
-
-function plain(html) {
-  if (!html) return '';
-  const tmp = typeof document !== 'undefined' ? document.createElement('div') : null;
-  if (!tmp) return String(html).replace(/<[^>]*>/g, ' ');
-  tmp.innerHTML = html;
-  return (tmp.textContent || tmp.innerText || '').trim();
-}
-
-function escapeRegex(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-// Highlight all case-insensitive occurrences of `query` in plain `text`.
-// Returns React children (string + <mark> nodes) so it's safe to render.
-function highlightText(text, query) {
-  if (!text) return text;
-  const q = (query || '').trim();
-  if (!q) return text;
-  const re = new RegExp(`(${escapeRegex(q)})`, 'gi');
-  const parts = String(text).split(re);
-  return parts.map((part, i) =>
-    i % 2 === 1 ? <mark key={i} className="nx-mark">{part}</mark> : part
-  );
-}
-
-// Highlight inside an HTML body (note content).  Walks text nodes only so
-// existing tags are left alone.  Returns an HTML string for use with
-// dangerouslySetInnerHTML.
-function highlightHtml(html, query) {
-  if (!html) return '';
-  const q = (query || '').trim();
-  if (!q || typeof document === 'undefined') return html;
-  const escaped = escapeRegex(q);
-  const re = new RegExp(`(${escaped})`, 'gi');
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  const walk = (node) => {
-    if (node.nodeType === 3) {
-      const text = node.textContent;
-      if (!re.test(text)) return;
-      re.lastIndex = 0;
-      const span = document.createElement('span');
-      // Re-encode to avoid injecting raw HTML; escape & < > before the replace.
-      const safe = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(re, '<mark class="nx-mark">$1</mark>');
-      span.innerHTML = safe;
-      const parent = node.parentNode;
-      while (span.firstChild) parent.insertBefore(span.firstChild, node);
-      parent.removeChild(node);
-    } else if (node.nodeType === 1 && node.nodeName !== 'MARK') {
-      // Snapshot children before mutation
-      Array.from(node.childNodes).forEach(walk);
-    }
-  };
-  Array.from(tmp.childNodes).forEach(walk);
-  return tmp.innerHTML;
-}
-
-function formatDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  const now = new Date();
-  const ms = now - d;
-  const day = 24 * 60 * 60 * 1000;
-  if (ms < day && now.getDate() === d.getDate()) return 'Today';
-  if (ms < 2 * day && now.getDate() - d.getDate() === 1) return 'Yesterday';
-  if (now.getFullYear() === d.getFullYear()) {
-    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  }
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 function monthKey(iso) {
   if (!iso) return 'unknown';
   const d = new Date(iso);
@@ -520,6 +444,7 @@ export default function NotesIndex() {
     return (
       <div className="sp-root nx">
         <SPStyles />
+        <NoteCardStyles />
         <NxStyles />
         <div className="nx-loading">Loading notes.</div>
       </div>
@@ -529,6 +454,7 @@ export default function NotesIndex() {
   return (
     <div className="sp-root nx">
       <SPStyles />
+      <NoteCardStyles />
       <NxStyles />
 
       <header className="nx-header">
@@ -597,10 +523,13 @@ export default function NotesIndex() {
           )}
           <button
             type="button"
-            className="sp-action sp-action-secondary"
+            className="sp-action sp-action-secondary nx-new-note-btn"
             onClick={() => { setEditingNote(null); setShowForm(true); }}
+            title="New note"
+            aria-label="New note"
           >
-            <span aria-hidden="true">+</span> New Note
+            <span aria-hidden="true">+</span>
+            <span className="nx-new-note-label"> New Note</span>
           </button>
         </div>
       </header>
@@ -1161,165 +1090,6 @@ function NoteList({ notes, density, query, selectMode, selectedIds, onToggleSele
   );
 }
 
-function NoteCard({ note, query, onView, onEdit, onDelete, onTogglePin, onChipClick, selectMode, selected, onToggleSelect }) {
-  const isOwner = note.is_owner !== false;
-  const type = note.note_type || 'note';
-  const stop = (e) => e.stopPropagation();
-  const bodyHtml = useMemo(() => highlightHtml(note.body || '', query), [note.body, query]);
-  const onActivate = selectMode ? (() => onToggleSelect(note.id)) : (() => onView(note));
-  return (
-    <li
-      className={`nx-card ${note.pinned ? 'is-pinned' : ''} ${selectMode ? 'is-selectable' : ''} ${selected ? 'is-selected' : ''}`}
-      onClick={onActivate}
-      role="button"
-      tabIndex={0}
-      aria-pressed={selectMode ? selected : undefined}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onActivate(); } }}
-    >
-      {selectMode ? (
-        <span className={`nx-card-check ${selected ? 'is-on' : ''}`} aria-hidden="true">
-          {selected && (
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-            </svg>
-          )}
-        </span>
-      ) : (
-        <button
-          type="button"
-          className={`nx-pin nx-pin-corner ${note.pinned ? 'is-on' : ''}`}
-          onClick={(e) => { stop(e); onTogglePin(note); }}
-          aria-pressed={!!note.pinned}
-          title={note.pinned ? 'Unpin' : 'Pin'}
-        >
-          <PinIcon filled={!!note.pinned} />
-        </button>
-      )}
-
-      <header className="nx-card-head">
-        <span className="nx-type-eyebrow">{NOTE_TYPE_LABELS[type] || type}</span>
-        <div className="nx-card-head-right">
-          {isOwner && !selectMode && (
-            <div className="nx-card-actions">
-              <button
-                type="button"
-                className="sp-icon-action-quiet nx-icon-btn"
-                onClick={(e) => { stop(e); onEdit(note); }}
-                aria-label="Edit note"
-                title="Edit"
-              >
-                <EditIcon />
-              </button>
-              <button
-                type="button"
-                className="sp-icon-action-quiet nx-icon-btn nx-icon-btn-danger"
-                onClick={(e) => { stop(e); onDelete(note); }}
-                aria-label="Delete note"
-                title="Delete"
-              >
-                <TrashIcon />
-              </button>
-            </div>
-          )}
-          <time className="nx-card-date" dateTime={note.created_at}>{formatDate(note.noted_on || note.created_at)}</time>
-        </div>
-      </header>
-
-      {note.title && <h3 className="nx-card-title">{highlightText(note.title, query)}</h3>}
-
-      {note.quote_text && (
-        <div className="sp-banner nx-quote-banner">
-          <span className="nx-quote-glyph" aria-hidden="true">“</span>
-          <div className="nx-quote-body">
-            <span className="nx-quote-text">{highlightText(note.quote_text, query)}</span>
-            {note.page_number && (
-              note.source ? (
-                <a
-                  href={`/sources/${note.source.id}/study?page=${note.page_number}`}
-                  className="nx-quote-page nx-quote-page-link"
-                  onClick={stop}
-                  title={`Open source in study mode at page ${note.page_number}`}
-                >
-                  Page {note.page_number} <span className="nx-quote-page-arrow" aria-hidden="true">↗</span>
-                </a>
-              ) : (
-                <span className="nx-quote-page">Page {note.page_number}</span>
-              )
-            )}
-          </div>
-        </div>
-      )}
-
-      {note.body && (
-        <div
-          className="nx-card-body"
-          dangerouslySetInnerHTML={{ __html: bodyHtml }}
-        />
-      )}
-
-      {note.context && (
-        <div className="nx-card-context">
-          <span className="nx-card-context-label">Context</span>
-          <span>{note.context}</span>
-        </div>
-      )}
-
-      {(note.source || note.concepts?.length || note.people?.length || note.tags?.length || note.collections?.length) ? (
-        <div className="nx-card-chips">
-          {note.source && (
-            <a
-              href={`/sources/${note.source.id}`}
-              className="sp-chip is-source nx-chip-link"
-              onClick={stop}
-              title={note.source.title}
-            >{note.source.title}</a>
-          )}
-          {note.concepts?.map(c => (
-            <button
-              key={`c-${c.id}`}
-              type="button"
-              className="sp-chip is-concept nx-chip-button"
-              onClick={(e) => { stop(e); onChipClick('concept', c.id); }}
-              title={`Filter by ${c.label}`}
-            >{c.label}</button>
-          ))}
-          {note.people?.map(p => (
-            <button
-              key={`p-${p.id}`}
-              type="button"
-              className="sp-chip is-person nx-chip-button"
-              onClick={(e) => { stop(e); onChipClick('person', p.id); }}
-              title={`Filter by ${p.full_name}`}
-            >{p.full_name}</button>
-          ))}
-          {note.tags?.map(t => {
-            const name = tagName(t);
-            return (
-              <button
-                key={`t-${tagKey(t)}`}
-                type="button"
-                className="sp-chip is-neutral nx-chip-button nx-chip-tag"
-                onClick={(e) => { stop(e); onChipClick('tag', name); }}
-                title={`Filter by #${name}`}
-              >#{name}</button>
-            );
-          })}
-          {note.collections?.map(c => (
-            <a
-              key={`co-${c.id}`}
-              href={`/collections/${c.id}`}
-              className="sp-chip is-neutral nx-chip-link"
-              onClick={stop}
-              title={c.name}
-            >{c.name}</a>
-          ))}
-        </div>
-      ) : null}
-
-    </li>
-  );
-}
-
 function NoteCompactRow({ note, query, onView, onTogglePin, onChipClick, selectMode, selected, onToggleSelect }) {
   const type = note.note_type || 'note';
   const excerpt = note.title || plain(note.body).slice(0, 140) || (note.quote_text ? `“${note.quote_text}”` : '(empty note)');
@@ -1580,34 +1350,6 @@ function SearchIcon() {
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="7" cy="7" r="4.5" />
       <path d="M10.5 10.5L14 14" />
-    </svg>
-  );
-}
-function PinIcon({ filled, small }) {
-  const s = small ? 14 : 17;
-  return (
-    <svg width={s} height={s} viewBox="0 0 16 16" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 2h6" />
-      <path d="M6 2v4.5L4 8.5h8L10 6.5V2" />
-      <path d="M8 8.5v5.5" />
-    </svg>
-  );
-}
-function EditIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M11.5 2.5l2 2-7.5 7.5-2.5.5.5-2.5 7.5-7.5z" />
-      <path d="M10 4l2 2" />
-    </svg>
-  );
-}
-function TrashIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 4h10" />
-      <path d="M5 4V2.5h6V4" />
-      <path d="M4 4l.7 9.2a.5.5 0 00.5.3h5.6a.5.5 0 00.5-.3L12 4" />
-      <path d="M6.5 7v4M9.5 7v4" />
     </svg>
   );
 }
@@ -2214,126 +1956,8 @@ function NxStyles() {
       .nx-list-card { display: flex; flex-direction: column; gap: 16px; }
       .nx-list-compact { border-top: 1px solid var(--ink-line-soft); }
 
-      /* ============ CARD (modeled on home-hero-card) ============ */
-      .nx-card {
-        position: relative;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-top: 3px solid var(--primary);
-        border-radius: var(--r-lg);
-        padding: 4px 28px 22px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        cursor: pointer;
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.04),
-          0 12px 32px rgba(21, 25, 31, 0.06);
-        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s, background 0.12s;
-      }
-      .nx-card:hover {
-        border-color: var(--primary);
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.05),
-          0 18px 36px rgba(21, 25, 31, 0.10);
-        transform: translateY(-1px);
-      }
-      .nx-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-      .nx-card.is-pinned { background: var(--paper-soft); }
-
-      .nx-card-head {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        justify-content: space-between;
-        margin-bottom: 6px;
-      }
-      .nx-card-head-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex: 1;
-        min-width: 0;
-      }
-      .nx-card-head-right {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        flex-shrink: 0;
-      }
-      .nx-card-actions {
-        display: inline-flex;
-        gap: 2px;
-        opacity: 0;
-        transition: opacity 0.15s;
-      }
-      .nx-card:hover .nx-card-actions,
-      .nx-card:focus-within .nx-card-actions { opacity: 1; }
-      @media (hover: none) {
-        .nx-card-actions { opacity: 1; }
-      }
-      .nx-icon-btn {
-        height: 26px;
-        width: 26px;
-      }
-      .nx-icon-btn-danger:hover { color: var(--error); background: rgba(122, 46, 46, 0.06); }
-      .nx-pin {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-        color: var(--ink-4);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        border-radius: var(--r-sm);
-        flex-shrink: 0;
-      }
-      .nx-pin:hover { color: var(--ink-2); background: var(--hover); }
-      .nx-pin.is-on { color: var(--primary); }
-      .nx-pin-row { width: 20px; height: 20px; }
-      /* Corner-anchored pin in cards — sits flush against the card's edge so
-         the type eyebrow can line up with the title/body indent below. */
-      .nx-pin-corner {
-        position: absolute;
-        top: 4px;
-        left: 2px;
-        z-index: 1;
-      }
-
-      /* Select-mode check — replaces the pin in the same corner slot */
-      .nx-card-check {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        z-index: 1;
-        width: 18px;
-        height: 18px;
-        border: 1.5px solid var(--ink-3);
-        border-radius: 3px;
-        background: var(--paper);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--paper);
-        transition: background 0.12s, border-color 0.12s;
-      }
-      .nx-card-check.is-on {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: var(--paper);
-      }
-      .nx-card.is-selectable { cursor: pointer; }
-      .nx-card.is-selectable:hover { border-color: var(--primary); }
-      .nx-card.is-selected {
-        border-color: var(--primary);
-        background: rgba(31, 59, 115, 0.04);
-      }
-      .nx-card.is-selected:hover { background: rgba(31, 59, 115, 0.06); }
-
-      /* Compact-row variant */
+      /* Card styles live in NoteCard.js (NoteCardStyles). The bits below
+         are only used by the compact-row variant on this page. */
       .nx-row-check {
         width: 16px;
         height: 16px;
@@ -2353,169 +1977,8 @@ function NxStyles() {
         background: rgba(31, 59, 115, 0.04);
         border-left-color: var(--primary);
       }
-
-      .nx-type-eyebrow {
-        font-family: var(--sans);
-        font-size: 10.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        color: var(--ink-3);
-        flex-shrink: 0;
-      }
-      .nx-card-note       .nx-type-eyebrow { color: var(--ink-3); }
       .nx-type-eyebrow-sm { font-size: 9.5px; letter-spacing: 0.12em; }
-
-      .nx-card-title {
-        font-family: var(--serif);
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--ink);
-        margin: 2px 0 0;
-        line-height: 1.25;
-      }
-      .nx-card:hover .nx-card-title { text-decoration: underline; text-underline-offset: 3px; }
-      .nx-card-date {
-        font-family: var(--mono);
-        font-size: 10.5px;
-        color: var(--ink-3);
-        font-variant-numeric: tabular-nums;
-        flex-shrink: 0;
-        letter-spacing: 0.04em;
-      }
-
-      /* Quote = sp-banner with a small leading mark; sans 13 to match the SG banner */
-      .nx-quote-banner {
-        align-items: center;
-        gap: 10px;
-        padding: 8px 12px;
-      }
-      .nx-quote-glyph {
-        font-family: var(--serif);
-        font-size: 18px;
-        line-height: 0.7;
-        color: var(--source);
-        opacity: 0.7;
-        flex-shrink: 0;
-      }
-      .nx-quote-body {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        flex: 1;
-        min-width: 0;
-      }
-      .nx-quote-text {
-        font-family: var(--sans);
-        font-size: 13px;
-        line-height: 1.5;
-        color: var(--source-2);
-        flex: 1;
-        min-width: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .nx-quote-page {
-        font-family: var(--mono);
-        font-size: 10.5px;
-        color: var(--source-2);
-        opacity: 0.75;
-        flex-shrink: 0;
-        letter-spacing: 0.02em;
-      }
-      a.nx-quote-page-link {
-        text-decoration: none;
-        opacity: 0.8;
-        cursor: pointer;
-        transition: opacity 0.12s, color 0.12s;
-      }
-      a.nx-quote-page-link:hover { opacity: 1; color: var(--source); text-decoration: underline; }
-      .nx-quote-page-arrow { margin-left: 1px; }
-
-      /* Search match highlight */
-      .nx .nx-mark {
-        background: #FBE7A1;
-        color: inherit;
-        padding: 0 1px;
-        border-radius: 1px;
-      }
-
-      .nx-card-body {
-        font-family: var(--sans);
-        font-size: 14.5px;
-        color: var(--ink-2);
-        line-height: 1.6;
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .nx-card-body p { margin: 0 0 6px; }
-      .nx-card-body p:last-child { margin: 0; }
-      .nx-card-body ul { list-style: disc; padding-left: 18px; margin: 0 0 6px; }
-      .nx-card-body ol { list-style: decimal; padding-left: 18px; margin: 0 0 6px; }
-      .nx-card-body li { margin: 0; }
-      .nx-card-body code {
-        font-family: var(--mono);
-        font-size: 12.5px;
-        background: var(--paper-warm);
-        padding: 1px 4px;
-        border-radius: 2px;
-      }
-      .nx-card-body blockquote {
-        margin: 0 0 6px;
-        padding-left: 10px;
-        border-left: 2px solid var(--ink-line);
-        color: var(--ink-3);
-      }
-      .nx-card-body a {
-        color: var(--primary);
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-      .nx-card-body img { max-width: 100%; border-radius: var(--r-sm); }
-      .nx-card-body strong { color: var(--ink); font-weight: 600; }
-
-      .nx-card-context {
-        display: flex;
-        gap: 8px;
-        align-items: baseline;
-        font-family: var(--sans);
-        font-size: 12.5px;
-        color: var(--ink-3);
-        line-height: 1.5;
-      }
-      .nx-card-context-label {
-        font-family: var(--sans);
-        font-size: 10.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--ink-3);
-        flex-shrink: 0;
-      }
-
-      .nx-card-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 4px;
-      }
-      .nx-chip-link, .nx-chip-button {
-        background-image: none;
-        border: none;
-        cursor: pointer;
-        max-width: 240px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-decoration: none;
-        transition: filter 0.1s;
-      }
-      .nx-chip-link:hover, .nx-chip-button:hover { filter: brightness(0.96); }
-      .nx-chip-tag { font-family: var(--mono); letter-spacing: 0.01em; }
+      .nx-pin-row { width: 20px; height: 20px; }
 
       /* ============ COMPACT ROW ============ */
       .nx-row-card {
@@ -2598,6 +2061,18 @@ function NxStyles() {
         .nx-header { padding: 22px var(--nx-pad-x) 14px; }
         .nx-title { font-size: 28px; }
         .nx-main { padding: 16px var(--nx-pad-x) 48px; }
+
+        /* Header buttons get tight: collapse "New Note" into a square +
+           icon button so all three actions still fit on the row.  Open
+           Tabletop and Add to Tabletop keep their labels for clarity. */
+        .nx-new-note-label { display: none; }
+        .nx-new-note-btn {
+          width: 34px;
+          padding: 0;
+          font-size: 18px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
       }
 
       @media (max-width: 540px) {

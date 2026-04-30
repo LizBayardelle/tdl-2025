@@ -452,7 +452,7 @@ export default function BulkUploadItemCard({ item, isExpanded, onToggle, onAppro
                 <button
                   onClick={handleRetry}
                   disabled={saving}
-                  className="btn-secondary"
+                  className="sp-action sp-action-secondary"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}
                 >
                   {saving ? (

@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import AdminLayout from './AdminLayout';
-import AdminPageHeader from './AdminPageHeader';
 import AdminStyleGuide from './AdminStyleGuide';
 import useIsMobile from './useIsMobile';
 
@@ -51,13 +50,9 @@ export default function AdminDocs({ initialSlug }) {
     }
   };
 
+  // Every doc renders its own hero — no chrome AdminPageHeader needed.
   return (
     <AdminLayout currentPage="docs" activeChildKey={activeDoc.slug}>
-      <AdminPageHeader
-        title={activeDoc.title}
-        subtitle={activeDoc.description}
-      />
-
       <div
         style={{
           flex: 1,
@@ -82,9 +77,9 @@ const STATUS_LABEL = {
   done: 'Done',
 };
 const STATUS_COLOR = {
-  todo: { bg: 'var(--neutral-100, #efeae1)', fg: 'var(--neutral-700, #4a4337)' },
-  in_progress: { bg: '#fff4d6', fg: '#8a6d2c' },
-  done: { bg: '#dcecd6', fg: '#3f6b34' },
+  todo:        { bg: 'var(--paper-warm)',   fg: 'var(--ink-3)' },
+  in_progress: { bg: 'var(--source-tint)',  fg: 'var(--source-2)' },
+  done:        { bg: 'var(--concept-tint)', fg: 'var(--concept-2)' },
 };
 
 const FLOWS = [
@@ -278,18 +273,55 @@ function PageAudit() {
 
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-      <p
+      <header
         style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-sm)',
-          color: 'var(--neutral-600)',
-          marginTop: 0,
-          marginBottom: 'var(--space-6)',
-          lineHeight: 1.6,
+          marginBottom: 'var(--space-8)',
+          paddingBottom: 'var(--space-7)',
+          borderBottom: '1px solid var(--ink-line)',
         }}
       >
-        Three tracks per page: <strong>Rebrand</strong> (convert to the new design system), <strong>Mobile</strong>, and <strong>iPad</strong>.  Click any status pill to cycle <em>Not started → In progress → Done</em>.  Progress is saved to your browser.
-      </p>
+        <div
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--ink-3)',
+            marginBottom: '12px',
+          }}
+        >
+          Linchpin Industries · Map My Research
+        </div>
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '44px',
+            fontWeight: 600,
+            color: 'var(--primary)',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.05,
+            margin: 0,
+          }}
+        >
+          Page Audit
+        </h1>
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '16px',
+            color: 'var(--ink-2)',
+            lineHeight: 1.65,
+            maxWidth: '680px',
+            marginTop: '14px',
+            marginBottom: 0,
+          }}
+        >
+          Three tracks per page: <strong>Rebrand</strong> (convert to the new design system),{' '}
+          <strong>Mobile</strong>, and <strong>iPad</strong>.  Click any status pill to cycle{' '}
+          <em>Not started → In progress → Done</em>.  Progress is saved to your browser.
+        </p>
+      </header>
 
       {/* Approach card */}
       <div
@@ -304,11 +336,11 @@ function PageAudit() {
         <div
           style={{
             fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-xs)',
+            fontSize: '10.5px',
             fontWeight: 700,
             textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--neutral-700)',
+            letterSpacing: '0.12em',
+            color: 'var(--ink-3)',
             marginBottom: 'var(--space-3)',
           }}
         >
@@ -405,15 +437,16 @@ function FlowSection({ flow, statuses, onCycle, isMobile }) {
     <section style={{ marginBottom: 'var(--space-8)' }}>
       <h2
         style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: 'var(--neutral-700)',
-          paddingBottom: 'var(--space-2)',
-          borderBottom: '1px solid var(--neutral-200)',
-          marginBottom: 'var(--space-3)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '22px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '-0.005em',
+          lineHeight: 1.2,
+          paddingBottom: 'var(--space-3)',
+          borderBottom: '1px solid var(--ink-line)',
+          margin: 0,
+          marginBottom: 'var(--space-4)',
         }}
       >
         {flow.name}
@@ -449,7 +482,7 @@ function FlowSection({ flow, statuses, onCycle, isMobile }) {
             }}
           >
             <thead>
-              <tr style={{ background: 'var(--neutral-50, #f7f4ee)' }}>
+              <tr style={{ background: 'var(--paper-soft)' }}>
                 <Th>Route</Th>
                 <Th>View / Component</Th>
                 <Th>Notes</Th>
@@ -977,42 +1010,56 @@ function BrandVoice() {
 
 function BVIntro() {
   return (
-    <div
+    <header
       style={{
         marginBottom: 'var(--space-8)',
-        paddingBottom: 'var(--space-6)',
-        borderBottom: '1px solid var(--neutral-200)',
+        paddingBottom: 'var(--space-7)',
+        borderBottom: '1px solid var(--ink-line)',
       }}
     >
       <div
         style={{
           fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
+          fontSize: '11px',
           fontWeight: 700,
-          textTransform: 'uppercase',
           letterSpacing: '0.12em',
-          color: 'var(--neutral-500)',
-          marginBottom: 'var(--space-3)',
+          textTransform: 'uppercase',
+          color: 'var(--ink-3)',
+          marginBottom: '12px',
         }}
       >
         Linchpin Industries · Map My Research
       </div>
-      <p
+      <h1
         style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-base)',
-          lineHeight: 1.7,
-          color: 'var(--neutral-700)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '44px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.05,
           margin: 0,
         }}
       >
-        This document is the source of truth for how Map My Research sounds.
-        In the product, on the marketing site, in emails, in error messages,
-        in every word a user encounters.  Use it when writing copy.  Use it
-        when editing copy.  If a piece of copy violates this document, the
-        document wins.
+        Brand Voice
+      </h1>
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '16px',
+          color: 'var(--ink-2)',
+          lineHeight: 1.65,
+          maxWidth: '680px',
+          marginTop: '14px',
+          marginBottom: 0,
+        }}
+      >
+        The source of truth for how Map My Research sounds.  In the product,
+        on the marketing site, in emails, in error messages, in every word a
+        user encounters.  Use it when writing copy.  Use it when editing copy.
+        If a piece of copy violates this document, the document wins.
       </p>
-    </div>
+    </header>
   );
 }
 
@@ -1021,16 +1068,16 @@ function BVSection({ title, children }) {
     <section style={{ marginBottom: 'var(--space-8)' }}>
       <h2
         style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: 'var(--text-xs)',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: 'var(--neutral-700)',
-          paddingBottom: 'var(--space-2)',
-          borderBottom: '1px solid var(--neutral-200)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '24px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '-0.005em',
+          lineHeight: 1.2,
+          paddingBottom: 'var(--space-3)',
+          borderBottom: '1px solid var(--ink-line)',
           margin: 0,
-          marginBottom: 'var(--space-4)',
+          marginBottom: 'var(--space-5)',
         }}
       >
         {title}
@@ -1199,7 +1246,7 @@ function BVToneTable({ rows }) {
         }}
       >
         <thead>
-          <tr style={{ background: 'var(--neutral-50, #f7f4ee)' }}>
+          <tr style={{ background: 'var(--paper-soft)' }}>
             <BVTh width="22%">Context</BVTh>
             <BVTh width="32%">Tone</BVTh>
             <BVTh>Example</BVTh>
@@ -1241,7 +1288,7 @@ function BVDoDontTable({ rows }) {
         }}
       >
         <thead>
-          <tr style={{ background: 'var(--neutral-50, #f7f4ee)' }}>
+          <tr style={{ background: 'var(--paper-soft)' }}>
             <BVTh width="50%">
               <span style={{ color: '#8b2d2d' }}>Off-brand</span>
             </BVTh>
@@ -1305,9 +1352,10 @@ function BVTagline({ rank, line, note, recommended }) {
         gap: 'var(--space-4)',
         padding: 'var(--space-4)',
         marginBottom: 'var(--space-3)',
-        background: recommended ? 'var(--accent-green-light, #e8ebe0)' : 'var(--neutral-100)',
-        border: recommended ? '1px solid var(--primary)' : '1px solid var(--neutral-200)',
-        borderRadius: 'var(--radius)',
+        background: recommended ? 'var(--paper-soft)' : 'var(--paper)',
+        border: recommended ? '1px solid var(--primary)' : '1px solid var(--ink-line)',
+        borderLeft: recommended ? '3px solid var(--primary)' : '1px solid var(--ink-line)',
+        borderRadius: 'var(--r-md)',
       }}
     >
       <div
@@ -1355,10 +1403,10 @@ function BVCallout({ children, strong }) {
     <div
       style={{
         padding: 'var(--space-5)',
-        background: strong ? 'var(--neutral-900)' : 'var(--neutral-100)',
-        color: strong ? 'white' : 'var(--neutral-800)',
+        background: strong ? 'var(--primary)' : 'var(--paper-soft)',
+        color: strong ? 'var(--paper)' : 'var(--ink)',
         borderLeft: strong ? 'none' : '3px solid var(--primary)',
-        borderRadius: 'var(--radius)',
+        borderRadius: 'var(--r-md)',
         fontFamily: 'var(--font-body)',
         fontSize: strong ? 'var(--text-base)' : 'var(--text-sm)',
         lineHeight: 1.7,
@@ -1413,7 +1461,7 @@ function ToDoDoc() {
       <ToDoStyles />
 
       <header className="td-hero">
-        <div className="td-eyebrow">Map My Research</div>
+        <div className="td-eyebrow">Linchpin Industries · Map My Research</div>
         <h1 className="td-title">To-Do &amp; Future Ideas</h1>
         <p className="td-lead">
           Pending work and captured ideas.  Things land here so they don&apos;t sit in a chat thread or get lost.
@@ -1545,7 +1593,7 @@ function ToDoStyles() {
 
       .td-hero {
         margin-bottom: 32px;
-        padding-bottom: 24px;
+        padding-bottom: 32px;
         border-bottom: 1px solid var(--ink-line);
       }
       .td-eyebrow {
@@ -1555,28 +1603,33 @@ function ToDoStyles() {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--ink-3);
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
       .td-title {
         font-family: var(--font-display);
-        font-size: 36px;
+        font-size: 44px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         letter-spacing: -0.02em;
         line-height: 1.05;
-        margin: 0 0 12px;
+        margin: 0;
       }
       .td-lead {
         font-family: var(--font-body);
-        font-size: 15px;
+        font-size: 16px;
         color: var(--ink-2);
         line-height: 1.65;
-        margin: 0;
-        max-width: 620px;
+        margin-top: 14px;
+        margin-bottom: 0;
+        max-width: 680px;
       }
 
       .td-section { margin-bottom: 36px; }
-      .td-section-head { margin-bottom: 14px; }
+      .td-section-head {
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--ink-line);
+      }
       .td-section-eyebrow {
         font-family: var(--font-body);
         font-size: 10.5px;
@@ -1588,10 +1641,10 @@ function ToDoStyles() {
       }
       .td-section-title {
         font-family: var(--font-display);
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 600;
-        color: var(--ink);
-        letter-spacing: -0.01em;
+        color: var(--primary);
+        letter-spacing: -0.005em;
         line-height: 1.2;
         margin: 0;
       }

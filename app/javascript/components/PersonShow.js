@@ -365,13 +365,15 @@ function ConceptsSection({ concepts }) {
       {concepts.length === 0 ? (
         <p className="ps-empty-text">No concepts linked yet.</p>
       ) : (
-        <div className="ps-tile-grid">
+        <div className="ps-chip-cluster">
           {concepts.map(c => (
-            <a key={c.id} href={`/concepts/${c.id}`} className="ps-tile is-concept-tile">
-              <div className="ps-tile-title">{toTitleCase(c.label)}</div>
-              {c.concept_type && (
-                <div className="ps-tile-type">{getNodeTypeLabel(c.concept_type)}</div>
-              )}
+            <a
+              key={c.id}
+              href={`/concepts/${c.id}`}
+              className="sp-chip is-concept ps-cluster-chip"
+              title={c.concept_type ? `${c.label} — ${getNodeTypeLabel(c.concept_type)}` : c.label}
+            >
+              {toTitleCase(c.label)}
             </a>
           ))}
         </div>
@@ -391,9 +393,15 @@ function TagsCollectionsSection({ tags, collections }) {
       {tags.length > 0 && (
         <div className="ps-row">
           <span className="ps-row-label">Tags</span>
-          <div className="ps-chip-row">
+          <div className="ps-chip-cluster">
             {tags.map((t, i) => (
-              <span key={i} className="ps-tag-chip">{t}</span>
+              <a
+                key={i}
+                href={`/tags/${encodeURIComponent(t)}`}
+                className="sp-chip is-neutral ps-cluster-chip"
+              >
+                #{t}
+              </a>
             ))}
           </div>
         </div>
@@ -401,9 +409,15 @@ function TagsCollectionsSection({ tags, collections }) {
       {collections.length > 0 && (
         <div className="ps-row">
           <span className="ps-row-label">Collections</span>
-          <div className="ps-chip-row">
+          <div className="ps-chip-cluster">
             {collections.map(c => (
-              <a key={c.id} href={`/collections/${c.id}`} className="ps-collection-chip">{c.name}</a>
+              <a
+                key={c.id}
+                href={`/collections/${c.id}`}
+                className="sp-chip is-neutral ps-cluster-chip"
+              >
+                {c.name}
+              </a>
             ))}
           </div>
         </div>
@@ -798,29 +812,20 @@ function PsStyles() {
         flex-shrink: 0;
         min-width: 110px;
       }
-      .ps-chip-row {
+      .ps-chip-cluster {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px 6px;
+        gap: 6px;
         flex: 1;
       }
-      .ps-tag-chip {
-        font-size: 11.5px;
-        color: var(--ink-3);
-        background: var(--paper-soft);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-      }
-      .ps-collection-chip {
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-soft);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
+      .ps-cluster-chip {
         text-decoration: none;
+        max-width: 280px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: filter 0.12s;
       }
-      .ps-collection-chip:hover { background: var(--hover); color: var(--ink); }
+      a.ps-cluster-chip:hover { filter: brightness(0.95); }
 
       /* ---------- Related People ---------- */
       .ps-related-grid {

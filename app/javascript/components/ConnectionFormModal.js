@@ -393,39 +393,14 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
         }}>
           <button
             type="submit"
-            className="btn-primary"
-            style={{
-              background: 'var(--accent-green)',
-              fontFamily: 'var(--font-body)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--primary-dark)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-green)'}
+            className="sp-action sp-action-primary"
           >
-            {item ? 'Save Changes' : 'Create Relationship'}
+            {item ? 'Save changes' : 'Create relationship'}
           </button>
           <button
             type="button"
             onClick={onClose}
-            style={{
-              padding: 'var(--space-2) var(--space-4)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-body)',
-              color: 'var(--accent-green)',
-              background: 'var(--accent-green-light)',
-              border: '1px solid var(--accent-green)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-green)';
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent-green-light)';
-              e.currentTarget.style.color = 'var(--accent-green)';
-            }}
+            className="sp-action sp-action-secondary"
           >
             Cancel
           </button>

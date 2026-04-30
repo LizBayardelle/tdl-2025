@@ -1,3 +1,5 @@
+require 'set'
+
 # Generates a ConceptDefinition for an existing user concept on demand.
 # Wraps ConceptGeneratorService (Sonnet 4.6 + web search) and writes the
 # result straight to a fresh ConceptDefinition record, auto-approved with
@@ -25,6 +27,12 @@ class GenerateConceptDefinitionJob < ApplicationJob
   # generations can finish; anything longer is broken and the user
   # shouldn't keep paying for the quota slot.
   GENERATION_TIMEOUT_SECONDS = 720
+
+  # Cap on entries written to ConceptDefinition#external_refs.  The model
+  # produces 50+ raw refs at 12 web searches, mostly duplicates of the
+  # same handful of canonical sources.  7 keeps the show-page rail useful
+  # without being a wall of links.
+  MAX_FURTHER_READING = 7
 
   def perform(concept_id, user_id)
     concept = Concept.find_by(id: concept_id)
@@ -90,22 +98,36 @@ class GenerateConceptDefinitionJob < ApplicationJob
       attrs['label']        ||= concept.label
       attrs['concept_type'] ||= concept.effective_concept_type
 
-      # Combine citations + web sources into a single external_refs payload.
-      # Each entry is { type:, title:, url: } — used by the show page's
-      # "Further Reading" rail at the bottom.
+      # Combine citations + web sources into a single external_refs payload
+      # for the show page's "Further Reading" rail.  The model often
+      # re-cites the same URL across many fields, so dedupe by canonical
+      # URL and by lowercased title — different URLs (Wikipedia anchors,
+      # alternate ScienceDirect routes) frequently share a title and we
+      # never want both.  Capped at MAX_FURTHER_READING so the rail stays
+      # a curated list rather than a research dump.
       refs = []
+      seen_keys = Set.new
+      seen_titles = Set.new
+      add_ref = lambda do |type, title, url|
+        return if url.blank?
+        key = canonical_url(url)
+        return if key.empty? || seen_keys.include?(key)
+        title_key = title.to_s.strip.downcase
+        return if !title_key.empty? && seen_titles.include?(title_key)
+        seen_keys << key
+        seen_titles << title_key unless title_key.empty?
+        refs << { 'type' => type, 'title' => title.presence || url, 'url' => url }
+      end
+
       Array(result[:citations]).each do |c|
         next unless c.is_a?(Hash)
-        url = c['url'] || c[:url]
-        next if url.blank?
-        refs << { 'type' => 'citation', 'title' => c['title'] || c[:title] || url, 'url' => url }
+        add_ref.call('citation', c['title'] || c[:title], c['url'] || c[:url])
+        break if refs.size >= MAX_FURTHER_READING
       end
       Array(result[:web_search_sources]).each do |s|
         next unless s.is_a?(Hash)
-        url = s['url'] || s[:url]
-        next if url.blank?
-        next if refs.any? { |r| r['url'] == url }
-        refs << { 'type' => 'source', 'title' => s['title'] || s[:title] || url, 'url' => url }
+        add_ref.call('source', s['title'] || s[:title], s['url'] || s[:url])
+        break if refs.size >= MAX_FURTHER_READING
       end
       attrs['external_refs'] = refs
 
@@ -130,6 +152,19 @@ class GenerateConceptDefinitionJob < ApplicationJob
   end
 
   private
+
+  # Mirror of the frontend canonicalUrl in ConceptShow.js: host + path,
+  # lowercased, www. stripped, trailing slash and fragment removed.
+  # Wikipedia anchors and trailing-slash variants collapse to one entry.
+  def canonical_url(url)
+    return '' if url.blank?
+    uri = URI.parse(url.to_s.strip)
+    host = uri.host.to_s.downcase.sub(/^www\./, '')
+    path = uri.path.to_s.sub(/\/\z/, '')
+    "#{host}#{path}".downcase
+  rescue URI::InvalidURIError
+    url.to_s.downcase.strip
+  end
 
   def try_advisory_lock(concept_id)
     sql = ActiveRecord::Base.send(

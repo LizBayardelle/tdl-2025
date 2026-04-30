@@ -328,7 +328,7 @@ function DashKPI({ label, value, category, link, onAdd }) {
     <div className="dash-kpi">
       <a href={link} className="dash-kpi-link">
         <div className={eyebrowClass}>{label}</div>
-        <div className="dash-kpi-value">{Number(value).toLocaleString()}</div>
+        <div className="dash-kpi-value">{(typeof value === 'number' && Number.isFinite(value)) ? value.toLocaleString() : value}</div>
       </a>
       {onAdd && (
         <button
@@ -346,9 +346,14 @@ function DashKPI({ label, value, category, link, onAdd }) {
 }
 
 function DashStat({ label, value, suffix, link, onAdd }) {
+  // Non-numeric values (e.g., the ∞ glyph for unlimited plans) pass through
+  // verbatim — Number('∞') is NaN, which would render "NaN unlimited".
+  const display = (typeof value === 'number' && Number.isFinite(value))
+    ? value.toLocaleString()
+    : value;
   const content = (
     <>
-      <span className="dash-stat-value">{Number(value).toLocaleString()}{suffix ? <span className="dash-stat-suffix"> {suffix}</span> : null}</span>
+      <span className="dash-stat-value">{display}{suffix ? <span className="dash-stat-suffix"> {suffix}</span> : null}</span>
       <span className="dash-stat-label">{label}</span>
     </>
   );
@@ -769,13 +774,38 @@ function DashStyles() {
       }
       @media (max-width: 760px) {
         .dash-recent-grid { grid-template-columns: 1fr; }
+        .dash-recent-row-title {
+          white-space: normal;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
       }
       @media (max-width: 600px) {
         .dash { padding: 20px 16px 48px; }
         .dash-title { font-size: 28px; }
-        .dash-kpi-row { grid-template-columns: 1fr; row-gap: 12px; column-gap: 12px; }
-        .dash-secondary { grid-template-columns: repeat(2, 1fr); row-gap: 12px; column-gap: 10px; }
-        .dash-kpi-value { font-size: 32px; }
+        .dash-subtitle { font-size: 12.5px; }
+        .dash-header { margin-bottom: 22px; }
+        /* 2x2 instead of 1-col — keeps the dashboard scannable instead of
+           a mile-long stack of giant cards. */
+        .dash-kpi-row { grid-template-columns: repeat(2, 1fr); column-gap: 10px; row-gap: 12px; }
+        .dash-kpi-link { padding: 16px 14px; }
+        .dash-kpi-value { font-size: 28px; }
+        .dash-kpi-eyebrow { margin-bottom: 8px; font-size: 10px; }
+        .dash-secondary { grid-template-columns: repeat(2, 1fr); row-gap: 10px; column-gap: 10px; }
+        .dash-stat-link { padding: 12px 14px; }
+        .dash-stat-value { font-size: 18px; }
+        .dash-stat-label { font-size: 10px; letter-spacing: 0.08em; }
+        .dash-recent-head { padding: 14px 16px 10px; }
+        .dash-recent-row { padding: 10px 16px; }
+        .dash-recent-footer { padding: 8px 16px 10px; }
+      }
+      @media (max-width: 380px) {
+        /* Single-column on the smallest screens — tap targets stay big
+           enough without things crashing into each other. */
+        .dash-kpi-row { grid-template-columns: 1fr; }
+        .dash-secondary { grid-template-columns: 1fr; }
       }
     `}</style>
   );

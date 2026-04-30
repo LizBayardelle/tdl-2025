@@ -66,7 +66,7 @@ class SearchController < ApplicationController
           concepts: { only: [:id, :label] },
         },
       ),
-      tags: tags.map { |t| t.as_json(only: [:id, :name, :description, :color]).merge(taggings_count: t.taggings_count) },
+      tags: tags.map { |t| t.as_json(only: [:id, :name, :description]).merge(taggings_count: t.taggings_count) },
       collections: collections.as_json(only: [:id, :name, :description]),
     }
   end

@@ -4,6 +4,7 @@ import PersonFormModal from './PersonFormModal';
 import ConceptFormModal from './ConceptFormModal';
 import SourceFormModal from './SourceFormModal';
 import NoteFormModal from './NoteFormModal';
+import NoteCard, { NoteCardStyles } from './NoteCard';
 import PeopleSelector from './PeopleSelector';
 import ConceptSelector from './ConceptSelector';
 import SourceSelector from './SourceSelector';
@@ -126,6 +127,7 @@ export default function TagsIndex() {
     return (
       <div className="tx-loading">
         <TXStyles />
+        <NoteCardStyles />
         Loading tags.
       </div>
     );
@@ -135,6 +137,7 @@ export default function TagsIndex() {
     <>
       <div className="tx-shell">
         <TXStyles />
+        <NoteCardStyles />
         <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <button
@@ -187,11 +190,6 @@ export default function TagsIndex() {
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleTagClick(tag); } }}
                   >
-                    <span
-                      className="tx-list-dot"
-                      style={{ background: tag.color || 'var(--ink-line)' }}
-                      aria-hidden="true"
-                    />
                     <div className="tx-list-text">
                       <div className="tx-list-name">{tag.name}</div>
                       {tag.description && <div className="tx-list-sub">{tag.description}</div>}
@@ -291,6 +289,24 @@ function TagDetail({ tag, onUpdate, onDelete }) {
 
   const notes = tag.notes || [];
 
+  const handleDeleteNote = async (note) => {
+    if (!window.confirm('Delete this note? This can\'t be undone.')) return;
+    try {
+      const r = await fetch(`/notes/${note.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content,
+        },
+      });
+      if (r.ok) await fetchTagDetails();
+      else alert('Could not delete the note.');
+    } catch (e) {
+      console.error('Delete note failed:', e);
+      alert('Could not delete the note.');
+    }
+  };
+
   return (
     <>
       <TagFormModal
@@ -311,7 +327,6 @@ function TagDetail({ tag, onUpdate, onDelete }) {
       <div className="tx-detail">
         <header className="tx-detail-head">
           <div className="tx-detail-titleline">
-            <span className="tx-detail-dot" style={{ background: tag.color || 'var(--ink-line)' }} aria-hidden="true" />
             <h1 className="tx-detail-title">{tag.name}</h1>
           </div>
           <div className="tx-detail-actions">
@@ -332,6 +347,7 @@ function TagDetail({ tag, onUpdate, onDelete }) {
               notes={notes}
               onCreateNew={() => setNoteModal('new')}
               onEditNote={(note) => setNoteModal(note)}
+              onDeleteNote={handleDeleteNote}
             />
           </main>
 
@@ -443,7 +459,7 @@ function TagDetail({ tag, onUpdate, onDelete }) {
 // Notes panel — central column.  Big void when empty, list of cards
 // when populated.  Click a card to edit; "+ New Note" creates pre-tagged.
 // =====================================================================
-function NotesPanel({ notes, onCreateNew, onEditNote }) {
+function NotesPanel({ notes, onCreateNew, onEditNote, onDeleteNote }) {
   if (notes.length === 0) {
     return (
       <button type="button" className="tx-notes-void" onClick={onCreateNew}>
@@ -470,27 +486,16 @@ function NotesPanel({ notes, onCreateNew, onEditNote }) {
           <i className="fas fa-pen-fancy" /> New Note
         </button>
       </header>
-      <ul className="tx-note-list">
+      <ul className="nx-list nx-list-card">
         {notes.map((note) => (
-          <li key={note.id}>
-            <button type="button" className="tx-note-card" onClick={() => onEditNote(note)}>
-              <div className="tx-note-card-head">
-                {note.note_type && <span className="tx-note-type">{note.note_type}</span>}
-                <time className="tx-note-date">
-                  {formatDate(note.noted_on || note.created_at)}
-                </time>
-              </div>
-              {note.title && <h4 className="tx-note-title">{note.title}</h4>}
-              {note.body && (
-                <p className="tx-note-body">{stripHtml(note.body).slice(0, 240)}</p>
-              )}
-              {note.source && (
-                <div className="tx-note-source">
-                  <i className="fas fa-book-open" /> {note.source.title}
-                </div>
-              )}
-            </button>
-          </li>
+          <NoteCard
+            key={note.id}
+            note={note}
+            onView={onEditNote}
+            onEdit={onEditNote}
+            onDelete={onDeleteNote}
+            omitChips={['tag']}
+          />
         ))}
       </ul>
     </section>
@@ -498,66 +503,86 @@ function NotesPanel({ notes, onCreateNew, onEditNote }) {
 }
 
 // =====================================================================
-// Sidebar section — compact bullet list per type with link/create icons.
+// Sidebar section — modeled on /sources/:id's SidebarBlock.
+// People + Concepts render as chip clusters (sp-chip is-person /
+// is-concept).  Sources render as a text-link list with 2-line clamp
+// on titles, hovering to source-blue.  Link / Create live in a small
+// footer row so the heading stays calm.
 // =====================================================================
 function SideSection({ type, cfg, items, onLink, onCreate }) {
+  // Cap at 10 by default; click "Show more" to reveal the rest.  Per-section
+  // local state, so opening one cluster doesn't change the others.
+  const COLLAPSED = 10;
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? items : items.slice(0, COLLAPSED);
+  const overflow = items.length - visible.length;
+  const canCollapse = items.length > COLLAPSED;
+  const chipClass = (
+    type === 'people'   ? 'is-person'  :
+    type === 'concepts' ? 'is-concept' :
+    type === 'sources'  ? 'is-source'  : 'is-neutral'
+  );
+
   return (
     <div className="tx-side-section" style={{ '--tx-side-color': cfg.accent }}>
       <header className="tx-side-head">
         <span className="tx-side-label">
           <span className="tx-side-dot" aria-hidden="true" />
           {cfg.label}
-          <span className="tx-side-count">{items.length}</span>
         </span>
-        <div className="tx-side-actions">
-          <button
-            type="button"
-            className="tx-side-btn tx-side-btn-link"
-            onClick={onLink}
-            title={`Link existing ${cfg.label.toLowerCase()}`}
-            aria-label={`Link existing ${cfg.label.toLowerCase()}`}
-          >
-            <i className="fas fa-link" />
-          </button>
-          <button
-            type="button"
-            className="tx-side-btn tx-side-btn-create"
-            onClick={onCreate}
-            title={`Create new ${cfg.singular.toLowerCase()}`}
-            aria-label={`Create new ${cfg.singular.toLowerCase()}`}
-          >
-            <i className="fas fa-plus" />
-          </button>
-        </div>
+        <span className="tx-side-count">{items.length}</span>
       </header>
+
       {items.length === 0 ? (
         <p className="tx-side-empty">None linked yet.</p>
       ) : (
-        <ul className="tx-side-list">
-          {items.slice(0, 12).map((it) => {
-            const label = it.title || it.label || it.full_name || 'Untitled';
-            const meta = (() => {
-              if (type === 'people')   return it.role || '';
-              if (type === 'concepts') return it.concept_type || '';
-              if (type === 'sources')  return it.year ? `${it.year}` : '';
-              return '';
-            })();
+        <div className="tx-side-chips">
+          {visible.map((it) => {
+            const label = it.label || it.full_name || it.title || 'Untitled';
+            const tooltip = type === 'sources' && it.year ? `${label} (${it.year})` : label;
             return (
-              <li key={it.id}>
-                <a href={ITEM_LINK[type](it.id)} className="tx-side-link" title={label}>
-                  <span className="tx-side-link-name">{label}</span>
-                  {meta && <span className="tx-side-link-meta">{meta}</span>}
-                </a>
-              </li>
+              <a
+                key={it.id}
+                href={ITEM_LINK[type](it.id)}
+                className={`sp-chip ${chipClass} tx-side-chip`}
+                title={tooltip}
+              >
+                {label}
+              </a>
             );
           })}
-          {items.length > 12 && (
-            <li className="tx-side-more">
-              +{items.length - 12} more
-            </li>
-          )}
-        </ul>
+        </div>
       )}
+
+      {canCollapse && (
+        <button
+          type="button"
+          className="tx-side-toggle"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : `Show ${overflow} more`}
+        </button>
+      )}
+
+      <div className="tx-side-foot">
+        <button
+          type="button"
+          className="tx-side-foot-btn"
+          onClick={onLink}
+          title={`Link existing ${cfg.label.toLowerCase()}`}
+        >
+          <i className="fas fa-link" /> Link
+        </button>
+        <button
+          type="button"
+          className="tx-side-foot-btn"
+          onClick={onCreate}
+          title={`Create new ${cfg.singular.toLowerCase()}`}
+        >
+          <i className="fas fa-plus" /> New
+        </button>
+      </div>
     </div>
   );
 }
@@ -571,8 +596,8 @@ function RelationshipsSection({ connections }) {
       <header className="tx-side-head">
         <span className="tx-side-label">
           <i className="fas fa-link" /> Relationships
-          <span className="tx-side-count">{connections.length}</span>
         </span>
+        <span className="tx-side-count">{connections.length}</span>
       </header>
       <ul className="tx-side-list">
         {connections.slice(0, 8).map((c) => (
@@ -583,7 +608,7 @@ function RelationshipsSection({ connections }) {
           </li>
         ))}
         {connections.length > 8 && (
-          <li className="tx-side-more">+{connections.length - 8} more</li>
+          <li className="tx-side-more-row">+{connections.length - 8} more</li>
         )}
       </ul>
     </div>
@@ -756,13 +781,6 @@ function TXStyles() {
         background: var(--primary);
         color: var(--paper);
       }
-      .tx-list-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
-      }
       .tx-list-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
       .tx-list-name {
         font-size: 13px;
@@ -828,13 +846,6 @@ function TXStyles() {
         align-items: center;
         gap: 14px;
         min-width: 0;
-      }
-      .tx-detail-dot {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
       }
       .tx-detail-title {
         font-family: var(--font-display);
@@ -998,79 +1009,10 @@ function TXStyles() {
         flex-direction: column;
         gap: 12px;
       }
-      .tx-note-card {
-        width: 100%;
-        text-align: left;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-top: 3px solid var(--primary);
-        border-radius: var(--r-md);
-        padding: 14px 18px;
-        cursor: pointer;
-        font-family: inherit;
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.04),
-          0 6px 14px rgba(21, 25, 31, 0.04);
-        transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
-      }
-      .tx-note-card:hover {
-        border-color: var(--primary);
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.05),
-          0 12px 24px rgba(21, 25, 31, 0.08);
-        transform: translateY(-1px);
-      }
-      .tx-note-card-head {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 6px;
-      }
-      .tx-note-type {
-        font-family: var(--font-body);
-        font-size: 10.5px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--primary);
-      }
-      .tx-note-date {
-        font-family: var(--font-mono);
-        font-size: 11px;
-        color: var(--ink-3);
-        font-variant-numeric: tabular-nums;
-      }
-      .tx-note-title {
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--ink);
-        margin: 0 0 6px;
-        line-height: 1.3;
-      }
-      .tx-note-body {
-        font-family: var(--font-body);
-        font-size: 13.5px;
-        color: var(--ink-2);
-        line-height: 1.55;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .tx-note-source {
-        margin-top: 8px;
-        padding-top: 6px;
-        border-top: 1px solid var(--ink-line-soft);
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
-      }
-      .tx-note-source i { margin-right: 4px; }
+      /* Note cards on this page render via the shared NoteCard component;
+         see NoteCard.js / NoteCardStyles for their styles. */
 
-      /* ---------- Sidebar sections — mirrors ss-side-block ---------- */
+      /* ---------- Sidebar sections — modeled on ss-side-block ---------- */
       .tx-side-section {
         display: flex;
         flex-direction: column;
@@ -1112,42 +1054,7 @@ function TXStyles() {
         font-family: var(--font-mono);
         font-size: 11px;
         color: var(--ink-3);
-        font-weight: 400;
-        letter-spacing: 0;
-        text-transform: none;
-        margin-left: 2px;
       }
-      .tx-side-actions {
-        display: inline-flex;
-        gap: 4px;
-        flex-shrink: 0;
-      }
-      .tx-side-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        border: 1px solid var(--tx-side-color, var(--ink-line));
-        transition: background 0.15s, color 0.15s, transform 0.15s;
-      }
-      .tx-side-btn-link {
-        background: var(--paper);
-        color: var(--tx-side-color, var(--ink-3));
-      }
-      .tx-side-btn-link:hover {
-        background: var(--tx-side-color, var(--ink-3));
-        color: var(--paper);
-        transform: translateY(-1px);
-      }
-      .tx-side-btn-create {
-        background: var(--tx-side-color, var(--ink-3));
-        color: var(--paper);
-      }
-      .tx-side-btn-create:hover { transform: translateY(-1px); }
 
       .tx-side-empty {
         margin: 0;
@@ -1156,47 +1063,108 @@ function TXStyles() {
         color: var(--ink-4);
         font-style: italic;
       }
+
+      /* Chip cluster (people, concepts) */
+      .tx-side-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .tx-side-chip {
+        text-decoration: none;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: filter 0.12s;
+      }
+      /* Source titles can be long — let them eat a full row before
+         ellipsizing so the chip cluster doesn't all collapse into the
+         narrow column width. */
+      .tx-side-section .tx-side-chip { max-width: 240px; }
+      .tx-side-chip:hover { filter: brightness(0.95); }
+
+      /* Text-link list (sources) — mirrors ss-side-name */
       .tx-side-list {
         list-style: none;
         margin: 6px 0 0;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 6px;
       }
-      .tx-side-link {
+      .tx-side-row {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
         gap: 8px;
+      }
+      .tx-side-name {
         font-family: var(--font-body);
         font-size: 12.5px;
         color: var(--ink);
         text-decoration: none;
         line-height: 1.4;
-      }
-      .tx-side-link:hover { color: var(--tx-side-color, var(--ink)); }
-      .tx-side-link-name {
         flex: 1;
         min-width: 0;
-        white-space: nowrap;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
       }
-      .tx-side-link-meta {
+      .tx-side-name:hover { color: var(--tx-side-color, var(--ink-2)); }
+      .tx-side-meta {
         font-family: var(--font-mono);
         font-size: 10.5px;
         color: var(--ink-3);
         flex-shrink: 0;
-        text-transform: capitalize;
       }
-      .tx-side-more {
-        padding: 4px 0;
+      .tx-side-more-row {
         font-family: var(--font-body);
         font-size: 11px;
         color: var(--ink-4);
         font-style: italic;
       }
+      .tx-side-toggle {
+        align-self: flex-start;
+        margin-top: 4px;
+        padding: 2px 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--tx-side-color, var(--primary));
+        opacity: 0.75;
+        transition: opacity 0.12s;
+      }
+      .tx-side-toggle:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+
+      /* Section footer — Link / New buttons in calmer text-only form,
+         mirroring CollectionPicker on /sources/:id. */
+      .tx-side-foot {
+        display: inline-flex;
+        gap: 14px;
+        margin-top: 6px;
+      }
+      .tx-side-foot-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.12s;
+      }
+      .tx-side-foot-btn:hover { color: var(--tx-side-color, var(--ink-2)); }
+      .tx-side-foot-btn i { font-size: 9.5px; opacity: 0.85; }
 
       .tx-side-rel {
         display: flex;
@@ -1249,6 +1217,20 @@ function TXStyles() {
       }
 
       /* ---------- Responsive ---------- */
+      @media (max-width: 900px) {
+        .tx-2col { grid-template-columns: 1fr; gap: 28px; }
+        .tx-2col-side {
+          position: static;
+          max-height: none;
+          overflow-y: visible;
+          padding-left: 0;
+          border-left: none;
+          padding-bottom: 20px;
+          border-bottom: 1px solid var(--ink-line);
+          order: 1;
+        }
+        .tx-2col-main { order: 2; }
+      }
       @media (max-width: 768px) {
         .tx-detail { padding: 18px 16px 56px; }
         .tx-detail-title { font-size: 24px; }

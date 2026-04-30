@@ -25,6 +25,8 @@ class Concept < ApplicationRecord
   has_many :linkings, as: :linkable, dependent: :destroy
   has_many :links, through: :linkings
 
+  has_many :dismissed_concept_notes, dependent: :destroy
+
   # Validations
   validates :label, presence: true
   validates :slug, presence: true, uniqueness: true

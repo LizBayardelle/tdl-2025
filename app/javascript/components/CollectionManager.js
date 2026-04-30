@@ -135,105 +135,147 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="medium">
-      <div style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
-            {itemToAdd ? 'Add to Collection' : 'My Collections'}
+      <div style={{ padding: '24px', fontFamily: 'var(--font-body)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: 600,
+              color: 'var(--primary)',
+              letterSpacing: '-0.005em',
+            }}
+          >
+            {itemToAdd ? 'Add to collection' : 'My collections'}
           </h2>
           <button
             onClick={onClose}
+            aria-label="Close"
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '1.5rem',
+              fontSize: '22px',
+              lineHeight: 1,
               cursor: 'pointer',
-              color: 'var(--color-text-secondary)'
+              color: 'var(--ink-3)',
+              padding: '4px 8px',
             }}
           >
-            &times;
+            ×
           </button>
         </div>
 
         {error && (
-          <div style={{
-            padding: '0.75rem',
-            backgroundColor: 'var(--color-error-bg, #fee)',
-            color: 'var(--color-error, #c00)',
-            borderRadius: '4px',
-            marginBottom: '1rem'
-          }}>
+          <div
+            style={{
+              padding: '10px 14px',
+              background: 'rgba(122, 46, 46, 0.06)',
+              color: 'var(--error)',
+              border: '1px solid rgba(122, 46, 46, 0.20)',
+              borderRadius: 'var(--r-md)',
+              marginBottom: '14px',
+              fontSize: '13.5px',
+            }}
+          >
             {error}
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
-            Loading collections...
-          </div>
+          <div style={{ textAlign: 'center', padding: '32px', color: 'var(--ink-3)' }}>Loading.</div>
         ) : (
           <>
-            {/* Collection List */}
-            <div style={{ maxHeight: '300px', overflowY: 'auto', marginBottom: '1rem' }}>
+            <div style={{ maxHeight: '320px', overflowY: 'auto', marginBottom: '16px' }}>
               {collections.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
-                  No collections yet. Create one to get started.
+                <div
+                  style={{
+                    textAlign: 'center',
+                    padding: '28px 16px',
+                    background: 'var(--paper-soft)',
+                    border: '1px dashed var(--ink-line)',
+                    borderRadius: 'var(--r-md)',
+                    color: 'var(--ink-3)',
+                    fontSize: '13.5px',
+                  }}
+                >
+                  No collections yet.  Create one to get started.
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {collections.map(collection => (
-                    <div
-                      key={collection.id}
-                      onClick={() => itemToAdd && setSelectedCollection(collection)}
-                      style={{
-                        padding: '0.75rem 1rem',
-                        border: `2px solid ${selectedCollection?.id === collection.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        borderRadius: '6px',
-                        cursor: itemToAdd ? 'pointer' : 'default',
-                        backgroundColor: selectedCollection?.id === collection.id ? 'var(--color-primary-bg, #f0f7ff)' : 'white',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 500 }}>{collection.name}</div>
-                        {collection.description && (
-                          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>
-                            {collection.description}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {collections.map((collection) => {
+                    const isSelected = selectedCollection?.id === collection.id;
+                    return (
+                      <div
+                        key={collection.id}
+                        onClick={() => itemToAdd && setSelectedCollection(collection)}
+                        style={{
+                          padding: '12px 14px',
+                          border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--ink-line)'}`,
+                          borderRadius: 'var(--r-md)',
+                          cursor: itemToAdd ? 'pointer' : 'default',
+                          background: isSelected ? 'var(--paper-soft)' : 'var(--paper)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          transition: 'border-color 0.12s, background 0.12s',
+                        }}
+                      >
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '14px' }}>
+                            {collection.name}
                           </div>
-                        )}
-                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', marginTop: '0.25rem' }}>
-                          {collection.items_count || 0} items
+                          {collection.description && (
+                            <div style={{ fontSize: '13px', color: 'var(--ink-2)', marginTop: '2px', lineHeight: 1.5 }}>
+                              {collection.description}
+                            </div>
+                          )}
+                          <div
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '11px',
+                              color: 'var(--ink-3)',
+                              marginTop: '4px',
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {collection.items_count || 0} {(collection.items_count || 0) === 1 ? 'item' : 'items'}
+                          </div>
                         </div>
+                        {!itemToAdd && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCollection(collection.id);
+                            }}
+                            className="sp-action sp-action-quiet sp-action-danger"
+                            style={{ height: '28px', padding: '0 10px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}
+                          >
+                            Delete
+                          </button>
+                        )}
                       </div>
-                      {!itemToAdd && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCollection(collection.id);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--color-text-secondary)',
-                            cursor: 'pointer',
-                            padding: '0.25rem'
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Include Related Checkbox */}
             {itemToAdd && selectedCollection && (
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', cursor: 'pointer' }}>
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '14px',
+                  fontSize: '13.5px',
+                  color: 'var(--ink-2)',
+                  cursor: 'pointer',
+                }}
+              >
                 <input
                   type="checkbox"
+                  className="sp-checkbox"
                   checked={includeRelated}
                   onChange={(e) => setIncludeRelated(e.target.checked)}
                 />
@@ -241,45 +283,37 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
               </label>
             )}
 
-            {/* Create Form */}
             {showCreateForm ? (
-              <form onSubmit={handleCreateCollection} style={{ marginTop: '1rem' }}>
-                <input
-                  type="text"
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                  placeholder="Collection name"
-                  autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '4px',
-                    marginBottom: '0.5rem'
-                  }}
-                />
-                <textarea
-                  value={newCollectionDescription}
-                  onChange={(e) => setNewCollectionDescription(e.target.value)}
-                  placeholder="Description (optional)"
-                  rows={2}
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 0.75rem',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: '4px',
-                    marginBottom: '0.75rem',
-                    resize: 'vertical'
-                  }}
-                />
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <form onSubmit={handleCreateCollection} style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="sp-field">
+                  <label className="sp-label">Name</label>
+                  <input
+                    type="text"
+                    className="sp-input"
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    placeholder="e.g., Attachment theory papers"
+                    autoFocus
+                    required
+                  />
+                </div>
+                <div className="sp-field">
+                  <label className="sp-label">Description</label>
+                  <textarea
+                    className="sp-textarea"
+                    value={newCollectionDescription}
+                    onChange={(e) => setNewCollectionDescription(e.target.value)}
+                    placeholder="Optional."
+                    rows={2}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="submit"
                     disabled={creating || !newCollectionName.trim()}
-                    className="btn-primary"
-                    style={{ padding: '0.5rem 1rem' }}
+                    className="sp-action sp-action-primary"
                   >
-                    {creating ? 'Creating...' : 'Create'}
+                    {creating ? 'Creating.' : 'Create'}
                   </button>
                   <button
                     type="button"
@@ -288,8 +322,7 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
                       setNewCollectionName('');
                       setNewCollectionDescription('');
                     }}
-                    className="btn-secondary"
-                    style={{ padding: '0.5rem 1rem' }}
+                    className="sp-action sp-action-secondary"
                   >
                     Cancel
                   </button>
@@ -297,24 +330,31 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
               </form>
             ) : (
               <button
+                type="button"
                 onClick={() => setShowCreateForm(true)}
-                className="btn-secondary"
-                style={{ width: '100%', padding: '0.5rem 1rem' }}
+                className="sp-action sp-action-secondary"
+                style={{ width: '100%' }}
               >
-                + New Collection
+                + New collection
               </button>
             )}
 
-            {/* Add to Collection Button */}
             {itemToAdd && selectedCollection && (
-              <div style={{ marginTop: '1rem', borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+              <div
+                style={{
+                  marginTop: '16px',
+                  borderTop: '1px solid var(--ink-line-soft)',
+                  paddingTop: '16px',
+                }}
+              >
                 <button
+                  type="button"
                   onClick={handleAddToCollection}
                   disabled={adding}
-                  className="btn-primary"
-                  style={{ width: '100%', padding: '0.75rem 1rem' }}
+                  className="sp-action sp-action-primary"
+                  style={{ width: '100%' }}
                 >
-                  {adding ? 'Adding...' : `Add to "${selectedCollection.name}"`}
+                  {adding ? 'Adding.' : `Add to "${selectedCollection.name}"`}
                 </button>
               </div>
             )}

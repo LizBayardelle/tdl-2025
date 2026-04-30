@@ -30,22 +30,43 @@ class CollectionsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        json_data = @collection.as_json(include: {
-          sources: { only: [:id, :title] },
-          concepts: { only: [:id, :label] },
-          people: { only: [:id, :full_name] },
-          notes: { only: [:id, :title, :body] }
-        })
+        notes = @collection.notes.includes(:concept, :linked_sources, :concepts, :people, :tags, :collections)
 
-        # Include shares info if owner
+        json_data = @collection.as_json(only: [:id, :name, :description, :user_id]).merge(
+          items_count: @collection.items_count,
+          is_owner: @collection.user_id == current_user.id,
+          owner_email: @collection.user.email,
+          sources: @collection.sources.as_json(only: [:id, :title, :year, :kind, :authors]),
+          concepts: @collection.concepts.as_json(only: [:id, :label, :concept_type]),
+          people: @collection.people.as_json(only: [:id, :full_name, :role]),
+          notes: notes.map { |n|
+            n.as_json(
+              only: [:id, :title, :body, :note_type, :context, :pinned, :noted_on,
+                     :source_id, :page_number, :quote_text, :quote_bounds, :created_at],
+              include: {
+                concept: { only: [:id, :label] },
+                concepts: { only: [:id, :label, :concept_type] },
+                people: { only: [:id, :full_name, :role] },
+                tags: { only: [:id, :name] },
+                collections: { only: [:id, :name] }
+              }
+            ).merge(
+              source_ids: n.linked_sources.map(&:id),
+              linked_sources: n.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } }
+            )
+          }
+        )
+
+        # Owner-only: who this is shared with.
         if @collection.user_id == current_user.id
-          json_data['shares'] = @collection.shares.where(active: true).includes(:recipient).map do |share|
-            {
-              id: share.id,
-              email: share.recipient.email,
-              permission: share.permission
-            }
+          json_data[:shares] = @collection.shares.where(active: true).includes(:recipient).map do |share|
+            { id: share.id, email: share.recipient.email, permission: share.permission }
           end
+        else
+          # Recipient view: surface their permission level so the UI can hide
+          # mutating actions when read-only.
+          share = @collection.shares.find_by(recipient_id: current_user.id, active: true)
+          json_data[:share_permission] = share&.permission
         end
 
         render json: json_data

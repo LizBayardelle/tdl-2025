@@ -4,7 +4,13 @@ class Note < ApplicationRecord
 
   belongs_to :user
   belongs_to :concept, optional: true  # Legacy single concept
+  # `source` is the *primary* source — the one whose page/quote the note's
+  # highlight (if any) belongs to. `linked_sources` is the broader list of
+  # sources this note attaches to. Saves keep them in sync: source_id always
+  # equals one of the note_sources rows.
   belongs_to :source, optional: true
+  has_many :note_sources, dependent: :destroy
+  has_many :linked_sources, through: :note_sources, source: :source
   has_many :note_links, dependent: :destroy
   has_many :person_notes, dependent: :destroy
   has_many :people, through: :person_notes

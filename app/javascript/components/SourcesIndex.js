@@ -25,6 +25,27 @@ const KIND_LABELS = {
   other: 'Other',
 };
 
+const stripHtml = (s) => {
+  if (!s) return '';
+  const decode = (t) => t
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&amp;/gi, '&');
+  const strip = (t) => t
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '');
+  let out = strip(decode(String(s)));
+  out = strip(decode(out));
+  return out
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
+
 const SORT_OPTIONS = [
   { value: 'created_at-desc', label: 'Recently Added' },
   { value: 'title-asc',       label: 'Title (A–Z)' },
@@ -742,7 +763,7 @@ function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, o
   const [showMarkers, setShowMarkers] = useState(false);
   const linkedPeople = Array.isArray(source.people) ? source.people : [];
   const authorsString = typeof source.authors === 'string' ? source.authors : '';
-  const abstractText = (source.abstract || source.summary || '').toString().trim();
+  const abstractText = stripHtml(source.abstract || source.summary || '');
 
   return (
     <article className={`srx-row-card ${selected ? 'is-selected' : ''}`}>

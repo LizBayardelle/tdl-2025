@@ -3,7 +3,9 @@ module Admin
     before_action :set_generation, only: [:show, :update, :approve, :reject, :retry_stage]
 
     def index
-      @generations = ConceptGeneration.order(created_at: :desc).includes(:batch, :approved_concept_definition)
+      @generations = ConceptGeneration
+        .order(created_at: :desc)
+        .includes(:approved_concept_definition, batch: :user)
 
       respond_to do |format|
         format.html
@@ -210,6 +212,7 @@ module Admin
     end
 
     def serialize_generation(gen, include_content: false)
+      user = gen.batch&.user
       base = {
         id: gen.id,
         concept_name: gen.concept_name,
@@ -223,6 +226,12 @@ module Admin
         created_at: gen.created_at,
         updated_at: gen.updated_at,
         batch_id: gen.concept_generation_batch_id,
+        triggered_by: user && {
+          id: user.id,
+          email: user.email,
+          plan: user.plan,
+          admin: user.admin
+        },
         stage_errors: gen.stage_errors
       }
 

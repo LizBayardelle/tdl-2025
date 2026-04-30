@@ -669,59 +669,15 @@ export default function ConceptDisambiguationModal({ isOpen, onClose, suggestion
           <button
             type="button"
             onClick={handleConfirm}
-            className="btn-primary"
+            className="sp-action sp-action-primary"
             disabled={activeCount === 0}
-            style={{
-              background: activeCount === 0 ? 'var(--neutral-300)' : 'var(--accent-green)',
-              color: 'white',
-              border: 'none',
-              padding: 'var(--space-3) var(--space-4)',
-              borderRadius: '4px',
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              cursor: activeCount === 0 ? 'not-allowed' : 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              if (activeCount > 0) {
-                e.currentTarget.style.background = '#22543d';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeCount > 0) {
-                e.currentTarget.style.background = 'var(--accent-green)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }
-            }}
           >
             Confirm {activeCount > 0 ? `(${activeCount})` : ''}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
-            style={{
-              background: 'white',
-              color: 'var(--neutral-700)',
-              border: '1px solid var(--neutral-300)',
-              padding: 'var(--space-3) var(--space-4)',
-              borderRadius: '4px',
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-100)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-            }}
+            className="sp-action sp-action-secondary"
           >
             Cancel
           </button>

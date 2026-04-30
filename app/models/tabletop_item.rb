@@ -1,6 +1,6 @@
 class TabletopItem < ApplicationRecord
   ENTITY_KINDS = %w[note source concept].freeze
-  DECOR_KINDS  = %w[header text arrow].freeze
+  DECOR_KINDS  = %w[header text arrow frame].freeze
   KINDS        = ENTITY_KINDS + DECOR_KINDS
 
   belongs_to :tabletop

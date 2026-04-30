@@ -24,36 +24,76 @@ import {
   faAlignLeft, faAlignCenter, faAlignRight,
   faListUl, faListOl, faLink, faUnlink,
   faQuoteLeft, faMinus, faTable, faImage,
-  faIndent, faOutdent, faCode, faExpand, faCompress
+  faIndent, faOutdent, faCode, faExpand, faCompress,
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, item, conceptId, sourceId, prefill, floatable = false }) {
-  // Floating-window mode: panel is a draggable, no-backdrop card.  Defaults
-  // to ON in floatable mode (study page) so the PDF stays visible; user can
-  // dock to a full slide panel if they want more room.
-  const [floating, setFloating] = useState(floatable);
-  const [floatPos, setFloatPos] = useState(() => ({ x: typeof window !== 'undefined' ? Math.max(16, window.innerWidth - 540) : 0, y: 96 }));
-  const [dragOrigin, setDragOrigin] = useState(null);
+// Notes are cross-cutting (attach to anything) so they share the navy
+// chrome with the other non-categorical surfaces (Tags, Collections).
+// Selectors inside the modal still get teal-ish bones via themeColor below.
+const NOTE_ACCENT      = '#1F3B73'; // var(--primary)
+const NOTE_ACCENT_DARK = '#142A57'; // var(--primary-dark)
+const NOTE_ACCENT_TINT = 'rgba(31, 59, 115, 0.10)';
 
+const NOTE_TYPES = [
+  { value: 'note',       label: 'Note' },
+  { value: 'question',   label: 'Question' },
+  { value: 'synthesis',  label: 'Synthesis' },
+  { value: 'connection', label: 'Connection' },
+  { value: 'todo',       label: 'To-Do Item' },
+];
+
+export default function NoteFormModal({
+  isOpen, onClose, onSuccess, onDelete,
+  item, conceptId, sourceId, prefill,
+  defaultTags,
+  floatable = false,
+}) {
+  const [floating, setFloating] = useState(floatable);
+  const [floatPos, setFloatPos] = useState(() => ({
+    x: typeof window !== 'undefined' ? Math.max(16, window.innerWidth - 540) : 0,
+    y: 96,
+  }));
+  const [dragOrigin, setDragOrigin] = useState(null);
+  const [activeTab, setActiveTab] = useState('content');
+  const [fullscreenMode, setFullscreenMode] = useState(false);
+  const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState('idle'); // idle | pending | saving | saved | error
+  const saveTimeoutRef = useRef(null);
+  const isInitialMount = useRef(true);
+  const lastSavedData = useRef(null);
+  // Most recent autosave response from the server. Surfaced via onSuccess
+  // when the modal closes so the parent's note list can refresh in place.
+  const lastAutosaveResponse = useRef(null);
+
+  const [formData, setFormData] = useState({
+    title: '', body: '', note_type: 'note', context: '', pinned: false,
+    noted_on: new Date().toISOString().split('T')[0],
+    concept_ids: [], source_ids: [], tags: [],
+    quote_text: '', page_number: null, person_ids: [], collection_ids: [],
+  });
+
+  // ---------------------------------------------------------------------
+  // Drag handlers (floating mode)
+  // ---------------------------------------------------------------------
   useEffect(() => {
     if (!dragOrigin) return;
     const onMove = (e) => {
       const p = e.touches ? e.touches[0] : e;
       setFloatPos({
-        x: Math.max(0, Math.min(window.innerWidth - 200, p.clientX - dragOrigin.dx)),
-        y: Math.max(0, Math.min(window.innerHeight - 80, p.clientY - dragOrigin.dy)),
+        x: Math.max(0, Math.min(window.innerWidth  - 200, p.clientX - dragOrigin.dx)),
+        y: Math.max(0, Math.min(window.innerHeight -  80, p.clientY - dragOrigin.dy)),
       });
     };
     const onUp = () => setDragOrigin(null);
     document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mouseup',   onUp);
     document.addEventListener('touchmove', onMove);
-    document.addEventListener('touchend', onUp);
+    document.addEventListener('touchend',  onUp);
     return () => {
       document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('mouseup',   onUp);
       document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('touchend', onUp);
+      document.removeEventListener('touchend',  onUp);
     };
   }, [dragOrigin]);
 
@@ -62,121 +102,81 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     const p = e.touches ? e.touches[0] : e;
     setDragOrigin({ dx: p.clientX - floatPos.x, dy: p.clientY - floatPos.y });
   };
-  const [activeTab, setActiveTab] = useState('content');
-  const [formData, setFormData] = useState({
-    title: '',
-    body: '',
-    note_type: 'note',
-    context: '',
-    pinned: false,
-    noted_on: new Date().toISOString().split('T')[0],
-    concept_ids: [],
-    source_id: null,
-    tags: [],
-    quote_text: '',
-    page_number: null,
-    person_ids: [],
-    collection_ids: []
-  });
-  const [error, setError] = useState('');
-  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle', 'saving', 'saved', 'error'
-  const [fullscreenMode, setFullscreenMode] = useState(false);
-  const saveTimeoutRef = useRef(null);
-  const isInitialMount = useRef(true);
-  const lastSavedData = useRef(null);
 
-  // Autosave function for existing items
+  // ---------------------------------------------------------------------
+  // Autosave (existing notes only)
+  // ---------------------------------------------------------------------
   const performAutosave = useCallback(async (dataToSave) => {
-    if (!item?.id) return;
-
+    if (!item?.id) return null;
     setSaveStatus('saving');
-
     const payload = {
       ...dataToSave,
       concept_ids: dataToSave.concept_ids || [],
-      source_id: dataToSave.source_id || null,
-      tags: dataToSave.tags || []
+      source_ids:  dataToSave.source_ids  || [],
+      tags:        dataToSave.tags        || [],
     };
-
     try {
-      const response = await fetch(`/notes/${item.id}`, {
+      const r = await fetch(`/notes/${item.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'X-CSRF-Token': csrfToken(),
         },
         body: JSON.stringify({ note: payload }),
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (r.ok) {
+        const data = await r.json();
         lastSavedData.current = JSON.stringify(dataToSave);
+        lastAutosaveResponse.current = data;
         setSaveStatus('saved');
-        // Clear "saved" status after 2 seconds
         setTimeout(() => setSaveStatus('idle'), 2000);
+        return data;
       } else {
         setSaveStatus('error');
+        return null;
       }
-    } catch (error) {
-      console.error('Autosave error:', error);
+    } catch (e) {
+      console.error('Autosave error:', e);
       setSaveStatus('error');
+      return null;
     }
   }, [item?.id]);
 
-  // Handle close with pending save check
   const handleClose = useCallback(async () => {
-    // If there's a pending save, save immediately before closing
+    let latest = lastAutosaveResponse.current;
     if (saveStatus === 'pending' && item?.id) {
-      // Clear the debounce timeout
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      // Save immediately and wait for it
-      await performAutosave(formData);
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      const fresh = await performAutosave(formData);
+      if (fresh) latest = fresh;
+    } else if (saveStatus === 'saving') {
+      // Wait for an in-flight autosave so we capture its response below.
+      await new Promise((r) => setTimeout(r, 500));
+      latest = lastAutosaveResponse.current || latest;
     }
-    // If currently saving, wait for it to complete
-    else if (saveStatus === 'saving') {
-      // Wait a bit for the save to complete
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
+    // Edit mode: tell the parent so its card list refreshes. New-note
+    // creation already calls onSuccess from handleSubmit.
+    if (item?.id && latest && onSuccess) onSuccess(latest);
     onClose();
-  }, [saveStatus, item?.id, formData, performAutosave, onClose]);
+  }, [saveStatus, item?.id, formData, performAutosave, onClose, onSuccess]);
 
-  // Debounced autosave effect
   useEffect(() => {
     if (!isOpen || !item?.id) return;
-
-    // Skip initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       lastSavedData.current = JSON.stringify(formData);
       return;
     }
-
-    // Skip if data hasn't changed
     if (JSON.stringify(formData) === lastSavedData.current) return;
-
-    // Show pending state immediately when data changes
     setSaveStatus('pending');
-
-    // Clear existing timeout
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-
-    // Set new debounced save
-    saveTimeoutRef.current = setTimeout(() => {
-      performAutosave(formData);
-    }, 1000);
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => performAutosave(formData), 1000);
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
   }, [formData, isOpen, item?.id, performAutosave]);
 
+  // ---------------------------------------------------------------------
+  // TipTap editor
+  // ---------------------------------------------------------------------
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -184,1302 +184,270 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-primary underline',
-        },
-      }),
-      Table.configure({
-        resizable: true,
-      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } }),
+      Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
       TableCell,
-      Image.configure({
-        HTMLAttributes: {
-          class: 'max-w-full h-auto',
-        },
-      }),
+      Image.configure({ HTMLAttributes: { class: 'max-w-full h-auto' } }),
     ],
     content: formData.body,
     onUpdate: ({ editor }) => {
-      setFormData(prev => ({ ...prev, body: editor.getHTML() }));
+      setFormData((prev) => ({ ...prev, body: editor.getHTML() }));
     },
   });
 
+  // ---------------------------------------------------------------------
+  // Init / reset on open
+  // ---------------------------------------------------------------------
   useEffect(() => {
-    if (isOpen) {
-      setActiveTab('content');
-      setSaveStatus('idle');
-      isInitialMount.current = true;
-      if (item) {
-        const newFormData = {
-          title: item.title || '',
-          body: item.body || '',
-          note_type: item.note_type || 'note',
-          context: item.context || '',
-          pinned: item.pinned || false,
-          noted_on: item.noted_on || new Date().toISOString().split('T')[0],
-          concept_ids: item.concepts?.map(c => c.id) || (conceptId ? [conceptId] : []),
-          source_id: item.source_id || sourceId || null,
-          tags: item.tags?.map(t => t.name) || [],
-          quote_text: item.quote_text || '',
-          quote_bounds: item.quote_bounds || null,
-          page_number: item.page_number ?? null,
-          person_ids: item.people?.map(p => p.id) || [],
-          collection_ids: item.collections?.map(c => c.id) || []
-        };
-        setFormData(newFormData);
-        lastSavedData.current = JSON.stringify(newFormData);
-        if (editor) {
-          editor.commands.setContent(newFormData.body);
-        }
-      } else {
-        const newFormData = {
-          title: prefill?.title || '',
-          body: prefill?.body || '',
-          note_type: prefill?.note_type || 'note',
-          context: prefill?.context || '',
-          pinned: false,
-          noted_on: new Date().toISOString().split('T')[0],
-          concept_ids: prefill?.concept_ids || (conceptId ? [conceptId] : []),
-          source_id: sourceId || null,
-          tags: [],
-          quote_text: prefill?.quote_text || '',
-          quote_bounds: prefill?.quote_bounds || null,
-          page_number: prefill?.page_number ?? null,
-          person_ids: prefill?.person_ids || [],
-          collection_ids: prefill?.collection_ids || [],
-          cited_source_ids: prefill?.cited_source_ids || []
-        };
-        setFormData(newFormData);
-        lastSavedData.current = null;
-        if (editor) {
-          editor.commands.setContent(newFormData.body);
-        }
-      }
-      setError('');
-    }
-  }, [isOpen, item, conceptId, sourceId, editor]);
+    if (!isOpen) return;
+    setActiveTab('content');
+    setSaveStatus('idle');
+    isInitialMount.current = true;
+    lastAutosaveResponse.current = null;
 
+    if (item) {
+      // source_ids prefers the canonical multi-source list returned by the
+      // server; falls back to the legacy single source_id when an older
+      // payload only carries that.
+      const initialSourceIds = item.source_ids?.length
+        ? item.source_ids
+        : (item.source_id ? [item.source_id] : (sourceId ? [sourceId] : []));
+      const newFormData = {
+        title:        item.title || '',
+        body:         item.body || '',
+        note_type:    item.note_type || 'note',
+        context:      item.context || '',
+        pinned:       item.pinned || false,
+        noted_on:     item.noted_on || new Date().toISOString().split('T')[0],
+        concept_ids:  item.concepts?.map((c) => c.id) || (conceptId ? [conceptId] : []),
+        source_ids:   initialSourceIds,
+        tags:         item.tags?.map((t) => t.name) || [],
+        quote_text:   item.quote_text || '',
+        quote_bounds: item.quote_bounds || null,
+        page_number:  item.page_number ?? null,
+        person_ids:   item.people?.map((p) => p.id) || [],
+        collection_ids: item.collections?.map((c) => c.id) || [],
+      };
+      setFormData(newFormData);
+      lastSavedData.current = JSON.stringify(newFormData);
+      if (editor) editor.commands.setContent(newFormData.body);
+    } else {
+      const newFormData = {
+        title:        prefill?.title || '',
+        body:         prefill?.body || '',
+        note_type:    prefill?.note_type || 'note',
+        context:      prefill?.context || '',
+        pinned:       false,
+        noted_on:     new Date().toISOString().split('T')[0],
+        concept_ids:  prefill?.concept_ids || (conceptId ? [conceptId] : []),
+        source_ids:   prefill?.source_ids || (sourceId ? [sourceId] : []),
+        tags:         prefill?.tags || defaultTags || [],
+        quote_text:   prefill?.quote_text || '',
+        quote_bounds: prefill?.quote_bounds || null,
+        page_number:  prefill?.page_number ?? null,
+        person_ids:   prefill?.person_ids || [],
+        collection_ids: prefill?.collection_ids || [],
+        cited_source_ids: prefill?.cited_source_ids || [],
+      };
+      setFormData(newFormData);
+      lastSavedData.current = null;
+      if (editor) editor.commands.setContent(newFormData.body);
+    }
+    setError('');
+  }, [isOpen, item, conceptId, sourceId, defaultTags, editor]);
+
+  // ---------------------------------------------------------------------
+  // Submit (new notes go through here; edits autosave)
+  // ---------------------------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     const payload = {
       ...formData,
       concept_ids: formData.concept_ids || [],
-      source_id: formData.source_id || null,
-      tags: formData.tags || []
+      source_ids:  formData.source_ids  || [],
+      tags:        formData.tags        || [],
     };
-
     try {
-      console.log('Submitting note. item:', item, 'item.id:', item?.id);
-      const url = item ? `/notes/${item.id}` : '/notes';
+      const url    = item ? `/notes/${item.id}` : '/notes';
       const method = item ? 'PATCH' : 'POST';
-      console.log('URL:', url, 'Method:', method);
-
-      const response = await fetch(url, {
+      const r = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'X-CSRF-Token': csrfToken(),
         },
         body: JSON.stringify({ note: payload }),
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        onSuccess(data);
+      if (r.ok) {
+        onSuccess(await r.json());
         onClose();
       } else {
-        const data = await response.json();
-        setError(data.errors.join(', '));
+        const data = await r.json();
+        setError(data.errors?.join(', ') || 'Failed to save note');
       }
-    } catch (error) {
-      console.error('Error saving note:', error);
+    } catch (e) {
+      console.error('Save error:', e);
       setError('An error occurred while saving the note');
     }
   };
 
-  const toolbarButtonStyle = (isActive) => ({
-    padding: 'var(--space-1) var(--space-2)',
-    borderRadius: '4px',
-    fontSize: 'var(--text-sm)',
-    color: '#639CA1',
-    background: isActive ? 'rgba(99, 156, 161, 0.2)' : 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    fontFamily: 'var(--font-body)',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '30px',
-    height: '28px',
-  });
+  // ---------------------------------------------------------------------
+  // Renders
+  // ---------------------------------------------------------------------
+  if (!isOpen) return null;
 
-  const toolbarHover = (isActive) => ({
-    onMouseEnter: (e) => !isActive && (e.currentTarget.style.background = 'rgba(99, 156, 161, 0.1)'),
-    onMouseLeave: (e) => !isActive && (e.currentTarget.style.background = 'transparent'),
-  });
-
-  const divider = (
-    <div style={{ width: '1px', height: '24px', background: 'rgba(99, 156, 161, 0.2)', margin: '0 var(--space-1)' }}></div>
-  );
-
-  // Fullscreen mode render
-  if (fullscreenMode && isOpen) {
+  if (fullscreenMode) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 10000,
-        background: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-        {/* Fullscreen Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 'var(--space-2) var(--space-3)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--sidebar-bg)',
-          flexShrink: 0,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <button
-              type="button"
-              onClick={() => setFullscreenMode(false)}
-              style={{
-                background: '#639CA1',
-                border: 'none',
-                color: 'white',
-                fontSize: 'var(--text-sm)',
-                cursor: 'pointer',
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: 'var(--radius)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-1)',
-              }}
-            >
-              <i className="fas fa-compress"></i>
-              <span>Exit</span>
+      <div className="nfm-fullscreen">
+        <NfmStyles />
+        <header className="nfm-fs-head">
+          <div className="nfm-fs-head-left">
+            <button type="button" className="nfm-fs-exit" onClick={() => setFullscreenMode(false)}>
+              <i className="fas fa-compress" /> Exit
             </button>
-            <span style={{
-              fontSize: 'var(--text-sm)',
-              color: 'var(--neutral-600)',
-              fontFamily: 'var(--font-body)',
-            }}>
-              {formData.title || 'Untitled Note'}
-            </span>
+            <span className="nfm-fs-title">{formData.title || 'Untitled Note'}</span>
           </div>
-          {/* Save status in fullscreen */}
-          {item && (
-            <div style={{
-              fontSize: 'var(--text-xs)',
-              color: saveStatus === 'saved' ? 'var(--accent-green)' :
-                     saveStatus === 'error' ? 'var(--error)' : 'var(--neutral-500)',
-            }}>
-              {saveStatus === 'pending' && <><i className="fas fa-circle-notch fa-spin"></i> Pending...</>}
-              {saveStatus === 'saving' && <><i className="fas fa-circle-notch fa-spin"></i> Saving...</>}
-              {saveStatus === 'saved' && <><i className="fas fa-check"></i> Saved</>}
-              {saveStatus === 'error' && <><i className="fas fa-exclamation-circle"></i> Error</>}
-              {saveStatus === 'idle' && <span style={{ color: 'var(--neutral-400)' }}>Auto-save on</span>}
-            </div>
-          )}
-        </div>
-
-        {/* Fullscreen Toolbar - Full toolbar with all buttons */}
-        {editor && (
-          <div style={{
-            padding: 'var(--space-2)',
-            borderBottom: '1px solid var(--neutral-200)',
-            display: 'flex',
-            gap: 'var(--space-1)',
-            flexWrap: 'wrap',
-            background: 'white',
-            flexShrink: 0,
-          }}>
-            {/* Text formatting */}
-            <button type="button" onClick={() => editor.chain().focus().toggleBold().run()}
-              style={toolbarButtonStyle(editor.isActive('bold'))} {...toolbarHover(editor.isActive('bold'))} title="Bold">
-              <FontAwesomeIcon icon={faBold} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()}
-              style={toolbarButtonStyle(editor.isActive('italic'))} {...toolbarHover(editor.isActive('italic'))} title="Italic">
-              <FontAwesomeIcon icon={faItalic} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().toggleUnderline().run()}
-              style={toolbarButtonStyle(editor.isActive('underline'))} {...toolbarHover(editor.isActive('underline'))} title="Underline">
-              <FontAwesomeIcon icon={faUnderline} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()}
-              style={toolbarButtonStyle(editor.isActive('strike'))} {...toolbarHover(editor.isActive('strike'))} title="Strikethrough">
-              <FontAwesomeIcon icon={faStrikethrough} />
-            </button>
-
-            {divider}
-
-            {/* Headings dropdown */}
-            <select
-              onChange={(e) => {
-                const level = parseInt(e.target.value);
-                if (level) {
-                  editor.chain().focus().toggleHeading({ level }).run();
-                } else {
-                  editor.chain().focus().setParagraph().run();
-                }
-              }}
-              style={{
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: '4px',
-                fontSize: 'var(--text-sm)',
-                color: '#639CA1',
-                border: '1px solid rgba(99, 156, 161, 0.2)',
-                background: 'var(--neutral-50)',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)'
-              }}
-              value={
-                editor.isActive('heading', { level: 1 }) ? '1' :
-                editor.isActive('heading', { level: 2 }) ? '2' :
-                editor.isActive('heading', { level: 3 }) ? '3' :
-                editor.isActive('heading', { level: 4 }) ? '4' :
-                editor.isActive('heading', { level: 5 }) ? '5' :
-                editor.isActive('heading', { level: 6 }) ? '6' : ''
-              }
-            >
-              <option value="">Paragraph</option>
-              <option value="1">Heading 1</option>
-              <option value="2">Heading 2</option>
-              <option value="3">Heading 3</option>
-              <option value="4">Heading 4</option>
-              <option value="5">Heading 5</option>
-              <option value="6">Heading 6</option>
-            </select>
-
-            {divider}
-
-            {/* Text color */}
-            <input
-              type="color"
-              onInput={(e) => editor.chain().focus().setColor(e.target.value).run()}
-              value={editor.getAttributes('textStyle').color || '#000000'}
-              style={{
-                width: '32px',
-                height: '24px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                border: '1px solid rgba(99, 156, 161, 0.2)'
-              }}
-              title="Text Color"
-            />
-
-            {/* Highlight */}
-            <input
-              type="color"
-              onInput={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
-              style={{
-                width: '32px',
-                height: '24px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                border: '1px solid rgba(99, 156, 161, 0.2)'
-              }}
-              title="Highlight Color"
-            />
-
-            {divider}
-
-            {/* Text alignment */}
-            <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()}
-              style={toolbarButtonStyle(editor.isActive({ textAlign: 'left' }))} {...toolbarHover(editor.isActive({ textAlign: 'left' }))} title="Align Left">
-              <FontAwesomeIcon icon={faAlignLeft} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()}
-              style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }))} {...toolbarHover(editor.isActive({ textAlign: 'center' }))} title="Align Center">
-              <FontAwesomeIcon icon={faAlignCenter} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()}
-              style={toolbarButtonStyle(editor.isActive({ textAlign: 'right' }))} {...toolbarHover(editor.isActive({ textAlign: 'right' }))} title="Align Right">
-              <FontAwesomeIcon icon={faAlignRight} />
-            </button>
-
-            {divider}
-
-            {/* Lists */}
-            <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}
-              style={toolbarButtonStyle(editor.isActive('bulletList'))} {...toolbarHover(editor.isActive('bulletList'))} title="Bullet List">
-              <FontAwesomeIcon icon={faListUl} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              style={toolbarButtonStyle(editor.isActive('orderedList'))} {...toolbarHover(editor.isActive('orderedList'))} title="Numbered List">
-              <FontAwesomeIcon icon={faListOl} />
-            </button>
-
-            {/* Indent / Outdent */}
-            <button type="button" onClick={() => editor.chain().focus().sinkListItem('listItem').run()}
-              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Indent">
-              <FontAwesomeIcon icon={faIndent} />
-            </button>
-            <button type="button" onClick={() => editor.chain().focus().liftListItem('listItem').run()}
-              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Outdent">
-              <FontAwesomeIcon icon={faOutdent} />
-            </button>
-
-            {divider}
-
-            {/* Link */}
-            <button type="button" onClick={() => {
-              const url = window.prompt('Enter URL:');
-              if (url) editor.chain().focus().setLink({ href: url }).run();
-            }} style={toolbarButtonStyle(editor.isActive('link'))} {...toolbarHover(editor.isActive('link'))} title="Add Link">
-              <FontAwesomeIcon icon={faLink} />
-            </button>
-
-            {/* Unlink */}
-            <button type="button" onClick={() => editor.chain().focus().unsetLink().run()}
-              style={{
-                ...toolbarButtonStyle(false),
-                opacity: editor.isActive('link') ? 1 : 0.4,
-                cursor: editor.isActive('link') ? 'pointer' : 'default',
-              }}
-              {...toolbarHover(false)}
-              title="Remove Link"
-              disabled={!editor.isActive('link')}
-            >
-              <FontAwesomeIcon icon={faUnlink} />
-            </button>
-
-            {/* Blockquote */}
-            <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()}
-              style={toolbarButtonStyle(editor.isActive('blockquote'))} {...toolbarHover(editor.isActive('blockquote'))} title="Blockquote">
-              <FontAwesomeIcon icon={faQuoteLeft} />
-            </button>
-
-            {/* Code Block */}
-            <button type="button" onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              style={toolbarButtonStyle(editor.isActive('codeBlock'))} {...toolbarHover(editor.isActive('codeBlock'))} title="Code Block">
-              <FontAwesomeIcon icon={faCode} />
-            </button>
-
-            {/* Horizontal Rule */}
-            <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()}
-              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Horizontal Rule">
-              <FontAwesomeIcon icon={faMinus} />
-            </button>
-
-            {divider}
-
-            {/* Table */}
-            <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Insert Table">
-              <FontAwesomeIcon icon={faTable} />
-            </button>
-
-            {/* Image */}
-            <button type="button" onClick={() => {
-              const url = window.prompt('Enter image URL:');
-              if (url) editor.chain().focus().setImage({ src: url }).run();
-            }}
-              style={toolbarButtonStyle(false)} {...toolbarHover(false)} title="Insert Image">
-              <FontAwesomeIcon icon={faImage} />
-            </button>
-
-            {divider}
-
-            {/* Exit fullscreen - at end of toolbar */}
-            <button type="button" onClick={() => setFullscreenMode(false)}
-              style={{
-                ...toolbarButtonStyle(false),
-                marginLeft: 'auto',
-              }} {...toolbarHover(false)} title="Exit Focus Mode">
-              <FontAwesomeIcon icon={faCompress} />
-            </button>
-          </div>
-        )}
-
-        {/* Fullscreen Editor - scrollable content area */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          WebkitOverflowScrolling: 'touch',
-          padding: 'var(--space-4)',
-          maxWidth: '900px',
-          margin: '0 auto',
-          width: '100%',
-        }}>
-          <EditorContent
-            editor={editor}
-            style={{ fontSize: '16px' }} // Prevent iOS zoom
-            className="note-content prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[calc(100vh-200px)] [&_.ProseMirror]:text-base [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100"
-          />
+          {item && <SaveStatus status={saveStatus} />}
+        </header>
+        <EditorToolbar editor={editor} onFullscreenToggle={() => setFullscreenMode(false)} fullscreenIcon={faCompress} />
+        <div className="nfm-fs-body">
+          <EditorContent editor={editor} className="nfm-prose nfm-prose-fs" />
         </div>
       </div>
     );
   }
 
   const formContent = (
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Modal Header */}
-        <div
-          onMouseDown={floating ? beginDrag : undefined}
-          onTouchStart={floating ? beginDrag : undefined}
-          style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 'var(--space-3) var(--space-4)',
-          borderBottom: 'none',
-          background: '#639CA1',
-          flexShrink: 0,
-          boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-          position: 'relative',
-          zIndex: 5,
-          cursor: floating ? 'move' : 'default',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            {floating && (
-              <i
-                className="fas fa-grip-vertical"
-                style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginRight: -4 }}
-                title="Drag to move"
-              />
-            )}
-            <h2 style={{
-              margin: 0,
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-lg)',
-              fontWeight: 700,
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-            }}>
-              <i className="fas fa-sticky-note" style={{ fontSize: 'var(--text-base)', opacity: 0.85 }}></i>
-              {item ? (formData.title || item.title || 'Untitled Note') : 'New Note'}
-            </h2>
-            {/* Focus Mode Button in Header */}
+    <form onSubmit={handleSubmit} className="nfm">
+      <NfmStyles />
+
+      {/* Header */}
+      <header
+        className={`nfm-head${floating ? ' is-draggable' : ''}`}
+        onMouseDown={floating ? beginDrag : undefined}
+        onTouchStart={floating ? beginDrag : undefined}
+      >
+        <div className="nfm-head-left">
+          {floating && <i className="fas fa-grip-vertical nfm-grip" title="Drag to move" />}
+          <h2 className="nfm-title">
+            <i className="fas fa-sticky-note" />
+            {item ? (formData.title || item.title || 'Untitled Note') : 'New Note'}
+          </h2>
+          <button
+            type="button"
+            className="nfm-head-pill"
+            onClick={() => setFullscreenMode(true)}
+            title="Focus mode"
+          >
+            <FontAwesomeIcon icon={faExpand} /> <span>Focus</span>
+          </button>
+          {floatable && (
             <button
               type="button"
-              onClick={() => setFullscreenMode(true)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: 'white',
-                fontSize: 'var(--text-xs)',
-                cursor: 'pointer',
-                padding: 'var(--space-1) var(--space-2)',
-                borderRadius: 'var(--radius)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-1)',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-              }}
-              title="Focus Mode"
+              className="nfm-head-pill"
+              onClick={() => setFloating((f) => !f)}
+              title={floating ? 'Dock back to side panel' : 'Pop out into a draggable window'}
             >
-              <FontAwesomeIcon icon={faExpand} />
-              <span>Focus</span>
+              <i className={`fas ${floating ? 'fa-window-restore' : 'fa-up-right-from-square'}`} />
+              <span>{floating ? 'Dock' : 'Pop out'}</span>
             </button>
-            {floatable && (
-              <button
-                type="button"
-                onClick={() => setFloating(f => !f)}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: 'white',
-                  fontSize: 'var(--text-xs)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-1) var(--space-2)',
-                  borderRadius: 'var(--radius)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-1)',
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                }}
-                title={floating ? 'Dock back to side panel' : 'Pop out into a draggable window'}
-              >
-                <i className={`fas ${floating ? 'fa-window-restore' : 'fa-up-right-from-square'}`}></i>
-                <span>{floating ? 'Dock' : 'Pop out'}</span>
-              </button>
-            )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-            {/* Delete button - only show for editing */}
-            {item && onDelete && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this note?')) {
-                    onDelete(item.id);
-                  }
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  fontSize: 'var(--text-sm)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderRadius: '4px',
-                  transition: 'all 0.15s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#ffcccc';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)';
-                }}
-                title="Delete note"
-              >
-                <i className="fas fa-trash-alt"></i>
-              </button>
-            )}
-            {/* Save Status - only show for editing */}
-            {item && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                background: 'white',
-                padding: 'var(--space-1) var(--space-3)',
-                borderRadius: 'var(--radius)',
-                boxShadow: 'var(--shadow-sm)',
-                fontSize: 'var(--text-xs)',
-                fontFamily: 'var(--font-body)',
-              }}>
-                {saveStatus === 'pending' && (
-                  <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--neutral-400)' }}></i>
-                    <span style={{ color: 'var(--neutral-500)' }}>Save Pending...</span>
-                  </>
-                )}
-                {saveStatus === 'saving' && (
-                  <>
-                    <i className="fas fa-circle-notch fa-spin" style={{ color: '#639CA1' }}></i>
-                    <span style={{ color: '#639CA1' }}>Saving...</span>
-                  </>
-                )}
-                {saveStatus === 'saved' && (
-                  <>
-                    <i className="fas fa-check" style={{ color: 'var(--accent-green)' }}></i>
-                    <span style={{ color: 'var(--accent-green)' }}>Saved</span>
-                  </>
-                )}
-                {saveStatus === 'error' && (
-                  <>
-                    <i className="fas fa-exclamation-circle" style={{ color: 'var(--error)' }}></i>
-                    <span style={{ color: 'var(--error)' }}>Error</span>
-                  </>
-                )}
-                {saveStatus === 'idle' && (
-                  <span style={{ color: 'var(--neutral-400)' }}>Auto-Saving Enabled</span>
-                )}
-              </div>
-            )}
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={handleClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                border: 'none',
-                color: 'white',
-                fontSize: 'var(--text-xl)',
-                cursor: 'pointer',
-                padding: 'var(--space-1)',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                transition: 'all 0.15s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              }}
-              title="Close"
-            >
-              <i className="fas fa-times"></i>
-            </button>
-          </div>
+          )}
         </div>
-
-        {error && (
-          <div className="alert alert-error" style={{ margin: 'var(--space-4)', marginBottom: 0 }}>
-            <span className="alert-title"><i className="fas fa-times-circle"></i> Error:</span>
-            {error}
-          </div>
-        )}
-
-        {/* Sidebar + Content Layout */}
-        <div style={{ display: 'flex', flex: 1, gap: 0, overflow: 'hidden', position: 'relative' }}>
-          {/* Left Sidebar Navigation */}
-          <div className="w-12 md:w-[200px]" style={{
-            background: '#e2e2e2',
-            padding: 'var(--space-2)',
-            paddingTop: 'var(--space-3)',
-            flexShrink: 0,
-            boxShadow: 'var(--shadow-sidebar)',
-          }}>
-            <div className="hidden md:block" style={{
-              fontSize: 'var(--text-xs)',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: 'var(--neutral-500)',
-              marginBottom: 'var(--space-3)',
-              fontFamily: 'var(--font-body)',
-            }}>
-              Sections
-            </div>
-
+        <div className="nfm-head-right">
+          {item && onDelete && (
             <button
               type="button"
-              onClick={() => setActiveTab('content')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'content' ? 'var(--neutral-200)' : 'transparent',
-                border: 'none',
-                transition: 'background 0.15s',
-                marginBottom: '0.25rem',
-                textAlign: 'left',
-                fontFamily: 'var(--font-body)',
+              className="nfm-head-icon nfm-head-icon-danger"
+              onClick={() => {
+                if (window.confirm('Delete this note?  It can\'t be undone.')) onDelete(item.id);
               }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'content') e.currentTarget.style.background = 'var(--neutral-100)';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'content') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Content"
+              title="Delete note"
+              aria-label="Delete note"
             >
-              <i className="fas fa-file-alt" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Content</span>
+              <i className="fas fa-trash-alt" />
             </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('connections')}
-              className="justify-center md:justify-start"
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-2)',
-                borderRadius: 'var(--radius)',
-                cursor: 'pointer',
-                fontSize: 'var(--text-sm)',
-                color: 'var(--neutral-700)',
-                background: activeTab === 'connections' ? 'var(--neutral-200)' : 'transparent',
-                border: 'none',
-                transition: 'background 0.15s',
-                marginBottom: '0.25rem',
-                textAlign: 'left',
-                fontFamily: 'var(--font-body)',
-              }}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'connections') e.currentTarget.style.background = 'var(--neutral-100)';
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'connections') e.currentTarget.style.background = 'transparent';
-              }}
-              title="Connections"
-            >
-              <i className="fas fa-project-diagram" style={{ width: '16px' }}></i>
-              <span className="hidden md:inline">Connections</span>
-            </button>
-          </div>
-
-          {/* Content Area */}
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            background: 'white',
-            padding: 'var(--space-6)',
-          }}>
-            {activeTab === 'content' && (
-              <div className="space-y-4">
-            <div>
-              <label className="form-label teal">Title</label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="form-input"
-                placeholder="Optional title for this note"
-              />
-            </div>
-
-            <div>
-              <label className="form-label required teal">Type</label>
-              <select
-                value={formData.note_type}
-                onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
-                className="form-select"
-              >
-                <option value="note">Note</option>
-                <option value="question">Question</option>
-                <option value="synthesis">Synthesis</option>
-                <option value="connection">Connection</option>
-                <option value="todo">To Do Item</option>
-              </select>
-            </div>
-
-            {formData.quote_text && (
-              <div style={{ marginBottom: 'var(--space-3)' }}>
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>Quoted passage{formData.page_number ? ` (p. ${formData.page_number})` : ''}</span>
-                  <button
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, quote_text: '' }))}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--neutral-500)',
-                      cursor: 'pointer',
-                      fontSize: 'var(--text-xs)',
-                      padding: 'var(--space-1)'
-                    }}
-                    title="Detach quoted passage"
-                  >
-                    <i className="fas fa-times"></i> Detach
-                  </button>
-                </label>
-                <blockquote style={{
-                  borderLeft: '4px solid #639CA1',
-                  background: 'var(--neutral-50)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  margin: 0,
-                  fontStyle: 'italic',
-                  color: 'var(--neutral-700)',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 'var(--text-sm)',
-                  lineHeight: 1.5,
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {formData.quote_text}
-                </blockquote>
-              </div>
-            )}
-
-            <div>
-              <label className="form-label required teal">Body</label>
-              <div style={{
-                border: '1px solid var(--neutral-300)',
-                borderRadius: 'var(--radius)',
-                background: 'white',
-                overflow: 'hidden'
-              }}>
-            {editor && (
-              <div style={{
-                borderBottom: '1px solid var(--neutral-200)',
-                padding: 'var(--space-2)',
-                display: 'flex',
-                gap: 'var(--space-1)',
-                flexWrap: 'wrap',
-                background: 'white'
-              }}>
-                {/* Text formatting */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBold().run()}
-                  style={toolbarButtonStyle(editor.isActive('bold'))}
-                  {...toolbarHover(editor.isActive('bold'))}
-                  title="Bold"
-                >
-                  <FontAwesomeIcon icon={faBold} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleItalic().run()}
-                  style={toolbarButtonStyle(editor.isActive('italic'))}
-                  {...toolbarHover(editor.isActive('italic'))}
-                  title="Italic"
-                >
-                  <FontAwesomeIcon icon={faItalic} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleUnderline().run()}
-                  style={toolbarButtonStyle(editor.isActive('underline'))}
-                  {...toolbarHover(editor.isActive('underline'))}
-                  title="Underline"
-                >
-                  <FontAwesomeIcon icon={faUnderline} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleStrike().run()}
-                  style={toolbarButtonStyle(editor.isActive('strike'))}
-                  {...toolbarHover(editor.isActive('strike'))}
-                  title="Strikethrough"
-                >
-                  <FontAwesomeIcon icon={faStrikethrough} />
-                </button>
-
-                {divider}
-
-                {/* Headings dropdown */}
-                <select
-                  onChange={(e) => {
-                    const level = parseInt(e.target.value);
-                    if (level) {
-                      editor.chain().focus().toggleHeading({ level }).run();
-                    } else {
-                      editor.chain().focus().setParagraph().run();
-                    }
-                  }}
-                  style={{
-                    padding: 'var(--space-1) var(--space-2)',
-                    borderRadius: '4px',
-                    fontSize: 'var(--text-sm)',
-                    color: '#639CA1',
-                    border: '1px solid rgba(99, 156, 161, 0.2)',
-                    background: 'var(--neutral-50)',
-                    cursor: 'pointer',
-                    fontFamily: 'var(--font-body)'
-                  }}
-                  value={
-                    editor.isActive('heading', { level: 1 }) ? '1' :
-                    editor.isActive('heading', { level: 2 }) ? '2' :
-                    editor.isActive('heading', { level: 3 }) ? '3' :
-                    editor.isActive('heading', { level: 4 }) ? '4' :
-                    editor.isActive('heading', { level: 5 }) ? '5' :
-                    editor.isActive('heading', { level: 6 }) ? '6' : ''
-                  }
-                >
-                  <option value="">Paragraph</option>
-                  <option value="1">Heading 1</option>
-                  <option value="2">Heading 2</option>
-                  <option value="3">Heading 3</option>
-                  <option value="4">Heading 4</option>
-                  <option value="5">Heading 5</option>
-                  <option value="6">Heading 6</option>
-                </select>
-
-                {divider}
-
-                {/* Text color */}
-                <input
-                  type="color"
-                  onInput={(e) => editor.chain().focus().setColor(e.target.value).run()}
-                  value={editor.getAttributes('textStyle').color || '#000000'}
-                  style={{
-                    width: '32px',
-                    height: '24px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    border: '1px solid rgba(99, 156, 161, 0.2)'
-                  }}
-                  title="Text Color"
-                />
-
-                {/* Highlight */}
-                <input
-                  type="color"
-                  onInput={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
-                  style={{
-                    width: '32px',
-                    height: '24px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    border: '1px solid rgba(99, 156, 161, 0.2)'
-                  }}
-                  title="Highlight Color"
-                />
-
-                {divider}
-
-                {/* Text alignment */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                  style={toolbarButtonStyle(editor.isActive({ textAlign: 'left' }))}
-                  {...toolbarHover(editor.isActive({ textAlign: 'left' }))}
-                  title="Align Left"
-                >
-                  <FontAwesomeIcon icon={faAlignLeft} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                  style={toolbarButtonStyle(editor.isActive({ textAlign: 'center' }))}
-                  {...toolbarHover(editor.isActive({ textAlign: 'center' }))}
-                  title="Align Center"
-                >
-                  <FontAwesomeIcon icon={faAlignCenter} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                  style={toolbarButtonStyle(editor.isActive({ textAlign: 'right' }))}
-                  {...toolbarHover(editor.isActive({ textAlign: 'right' }))}
-                  title="Align Right"
-                >
-                  <FontAwesomeIcon icon={faAlignRight} />
-                </button>
-
-                {divider}
-
-                {/* Lists */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBulletList().run()}
-                  style={toolbarButtonStyle(editor.isActive('bulletList'))}
-                  {...toolbarHover(editor.isActive('bulletList'))}
-                  title="Bullet List"
-                >
-                  <FontAwesomeIcon icon={faListUl} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                  style={toolbarButtonStyle(editor.isActive('orderedList'))}
-                  {...toolbarHover(editor.isActive('orderedList'))}
-                  title="Numbered List"
-                >
-                  <FontAwesomeIcon icon={faListOl} />
-                </button>
-
-                {/* Indent / Outdent */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().sinkListItem('listItem').run()}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Indent"
-                >
-                  <FontAwesomeIcon icon={faIndent} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().liftListItem('listItem').run()}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Outdent"
-                >
-                  <FontAwesomeIcon icon={faOutdent} />
-                </button>
-
-                {divider}
-
-                {/* Link */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const url = window.prompt('Enter URL:');
-                    if (url) {
-                      editor.chain().focus().setLink({ href: url }).run();
-                    }
-                  }}
-                  style={toolbarButtonStyle(editor.isActive('link'))}
-                  {...toolbarHover(editor.isActive('link'))}
-                  title="Add Link"
-                >
-                  <FontAwesomeIcon icon={faLink} />
-                </button>
-
-                {/* Unlink */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().unsetLink().run()}
-                  style={{
-                    ...toolbarButtonStyle(false),
-                    opacity: editor.isActive('link') ? 1 : 0.4,
-                    cursor: editor.isActive('link') ? 'pointer' : 'default',
-                  }}
-                  {...toolbarHover(false)}
-                  title="Remove Link"
-                  disabled={!editor.isActive('link')}
-                >
-                  <FontAwesomeIcon icon={faUnlink} />
-                </button>
-
-                {/* Blockquote */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                  style={toolbarButtonStyle(editor.isActive('blockquote'))}
-                  {...toolbarHover(editor.isActive('blockquote'))}
-                  title="Blockquote"
-                >
-                  <FontAwesomeIcon icon={faQuoteLeft} />
-                </button>
-
-                {/* Code Block */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                  style={toolbarButtonStyle(editor.isActive('codeBlock'))}
-                  {...toolbarHover(editor.isActive('codeBlock'))}
-                  title="Code Block"
-                >
-                  <FontAwesomeIcon icon={faCode} />
-                </button>
-
-                {/* Horizontal Rule */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Horizontal Rule"
-                >
-                  <FontAwesomeIcon icon={faMinus} />
-                </button>
-
-                {divider}
-
-                {/* Table */}
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Insert Table"
-                >
-                  <FontAwesomeIcon icon={faTable} />
-                </button>
-
-                {/* Image */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const url = window.prompt('Enter image URL:');
-                    if (url) {
-                      editor.chain().focus().setImage({ src: url }).run();
-                    }
-                  }}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Insert Image"
-                >
-                  <FontAwesomeIcon icon={faImage} />
-                </button>
-
-                {divider}
-
-                {/* Fullscreen mode */}
-                <button
-                  type="button"
-                  onClick={() => setFullscreenMode(true)}
-                  style={toolbarButtonStyle(false)}
-                  {...toolbarHover(false)}
-                  title="Fullscreen mode"
-                >
-                  <FontAwesomeIcon icon={faExpand} />
-                </button>
-              </div>
-            )}
-                <div style={{
-                  minHeight: '150px',
-                }}>
-                  <EditorContent
-                    editor={editor}
-                    className="note-content px-4 py-2 min-h-[150px] prose prose-sm max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[150px] [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-gray-300 [&_td]:p-2 [&_th]:border [&_th]:border-gray-300 [&_th]:p-2 [&_th]:bg-gray-100 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_li]:ml-2 [&_ul_ul]:ml-6 [&_ol_ol]:ml-6 [&_ul_ol]:ml-6 [&_ol_ul]:ml-6 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:text-gray-600 [&_pre]:bg-gray-100 [&_pre]:p-4 [&_pre]:rounded [&_pre]:overflow-x-auto [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:rounded"
-                  />
-                </div>
-              </div>
-            </div>
-
-                <div>
-                  <label className="form-label">Context</label>
-                  <textarea
-                    value={formData.context}
-                    onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                    rows="2"
-                    className="form-textarea"
-                    placeholder="What prompted this note?"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="form-label">Date Noted</label>
-                    <input
-                      type="date"
-                      value={formData.noted_on}
-                      onChange={(e) => setFormData({ ...formData, noted_on: e.target.value })}
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginTop: 'var(--space-6)' }}>
-                    <input
-                      type="checkbox"
-                      id="pinned"
-                      checked={formData.pinned}
-                      onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
-                      style={{
-                        borderRadius: '4px',
-                        border: '1px solid var(--neutral-300)',
-                        accentColor: '#639CA1'
-                      }}
-                    />
-                    <label htmlFor="pinned" className="text-sm">
-                      Pin this note
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'connections' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ height: '320px' }}>
-                  {!sourceId && (
-                    <div style={{ height: '100%' }}>
-                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Source</label>
-                      <SourceSelector
-                        selectedSourceId={formData.source_id}
-                        onChange={(sourceId) => setFormData({ ...formData, source_id: sourceId })}
-                        multiple={false}
-                        themeColor="#639CA1"
-                      />
-                    </div>
-                  )}
-
-                  {!conceptId && (
-                    <div style={{ height: '100%' }}>
-                      <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to Concepts</label>
-                      <ConceptSelector
-                        selectedConceptIds={formData.concept_ids}
-                        onChange={(conceptIds) => setFormData({ ...formData, concept_ids: conceptIds })}
-                        themeColor="#639CA1"
-                      />
-                    </div>
-                  )}
-
-                  <div style={{ height: '100%' }}>
-                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Link to People</label>
-                    <PeopleSelector
-                      selectedPersonIds={formData.person_ids}
-                      onChange={(personIds) => setFormData({ ...formData, person_ids: personIds })}
-                      themeColor="#639CA1"
-                    />
-                  </div>
-
-                  <div style={{ height: '100%' }}>
-                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Add to Collections</label>
-                    <CollectionSelector
-                      selectedCollectionIds={formData.collection_ids}
-                      onChange={(ids) => setFormData({ ...formData, collection_ids: ids })}
-                      themeColor="#639CA1"
-                    />
-                  </div>
-
-                  <div style={{ height: '100%' }}>
-                    <label className="form-label" style={{ marginBottom: 'var(--space-2)', display: 'block' }}>Tags</label>
-                    <TagSelector
-                      selectedTags={formData.tags}
-                      onChange={(tags) => setFormData({ ...formData, tags: tags })}
-                      themeColor="#639CA1"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
+          {item && <SaveStatus status={saveStatus} />}
+          <button
+            type="button"
+            className="nfm-head-icon"
+            onClick={handleClose}
+            title="Close"
+            aria-label="Close"
+          >
+            <i className="fas fa-times" />
+          </button>
         </div>
+      </header>
 
-        {/* Footer - only show for new notes, editing uses autosave */}
-        {!item && (
-          <div style={{
-            borderTop: '1px solid var(--neutral-200)',
-            background: 'var(--background)',
-            padding: 'var(--space-6)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 'var(--space-3)',
-          }}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{
-                background: '#639CA1',
-                color: 'white'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#527d81'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#639CA1'}
-            >
-              Create Note
-            </button>
-          </div>
-        )}
-      </form>
+      {error && (
+        <div className="nfm-error">
+          <i className="fas fa-times-circle" /> {error}
+        </div>
+      )}
+
+      <div className="nfm-body">
+        <nav className="nfm-nav">
+          <span className="nfm-nav-label">Sections</span>
+          <button
+            type="button"
+            className={`nfm-tab${activeTab === 'content' ? ' is-active' : ''}`}
+            onClick={() => setActiveTab('content')}
+          >
+            <i className="fas fa-file-alt" />
+            <span>Content</span>
+          </button>
+          <button
+            type="button"
+            className={`nfm-tab${activeTab === 'connections' ? ' is-active' : ''}`}
+            onClick={() => setActiveTab('connections')}
+          >
+            <i className="fas fa-project-diagram" />
+            <span>Connections</span>
+          </button>
+        </nav>
+
+        <div className="nfm-content">
+          {activeTab === 'content' && (
+            <ContentTab
+              formData={formData}
+              setFormData={setFormData}
+              editor={editor}
+              onFullscreenToggle={() => setFullscreenMode(true)}
+            />
+          )}
+          {activeTab === 'connections' && (
+            <ConnectionsTab
+              formData={formData}
+              setFormData={setFormData}
+              sourceId={sourceId}
+              conceptId={conceptId}
+            />
+          )}
+        </div>
+      </div>
+
+      {!item && (
+        <footer className="nfm-foot">
+          <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>Cancel</button>
+          <button type="submit" className="sp-action sp-action-primary nfm-foot-create">Create Note</button>
+        </footer>
+      )}
+    </form>
   );
 
   if (floating) {
-    if (!isOpen) return null;
     return (
       <div
+        className="nfm-floating"
         style={{
-          position: 'fixed',
           top: `${floatPos.y}px`,
           left: `${floatPos.x}px`,
-          width: 'min(520px, calc(100vw - 16px))',
-          height: 'min(640px, calc(100vh - 16px))',
-          background: 'white',
-          borderRadius: 'var(--r-lg, 8px)',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.28)',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
           userSelect: dragOrigin ? 'none' : 'auto',
         }}
       >
@@ -1492,5 +460,779 @@ export default function NoteFormModal({ isOpen, onClose, onSuccess, onDelete, it
     <SlidePanel isOpen={isOpen} onClose={handleClose}>
       {formContent}
     </SlidePanel>
+  );
+}
+
+// =====================================================================
+// Save status pill
+// =====================================================================
+function SaveStatus({ status }) {
+  if (status === 'pending') return <span className="nfm-save is-pending"><i className="fas fa-circle-notch fa-spin" /> Save pending…</span>;
+  if (status === 'saving')  return <span className="nfm-save is-saving"><i className="fas fa-circle-notch fa-spin" /> Saving…</span>;
+  if (status === 'saved')   return <span className="nfm-save is-saved"><i className="fas fa-check" /> Saved</span>;
+  if (status === 'error')   return <span className="nfm-save is-error"><i className="fas fa-exclamation-circle" /> Error</span>;
+  return <span className="nfm-save is-idle">Auto-save on</span>;
+}
+
+// =====================================================================
+// Tab — Content
+// =====================================================================
+function ContentTab({ formData, setFormData, editor, onFullscreenToggle }) {
+  return (
+    <section className="nfm-section">
+      <Field label="Title">
+        <input
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          placeholder="Optional title for this note"
+          className="form-input"
+        />
+      </Field>
+
+      <Field label="Type" required>
+        <select
+          value={formData.note_type}
+          onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
+          className="form-select"
+        >
+          {NOTE_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+        </select>
+      </Field>
+
+      {formData.quote_text && (
+        <Field
+          label={`Quoted passage${formData.page_number ? ` (p. ${formData.page_number})` : ''}`}
+          trailing={
+            <button
+              type="button"
+              className="nfm-quote-detach"
+              onClick={() => setFormData((prev) => ({ ...prev, quote_text: '' }))}
+              title="Detach quoted passage"
+            >
+              <i className="fas fa-times" /> Detach
+            </button>
+          }
+        >
+          <blockquote className="nfm-quote">{formData.quote_text}</blockquote>
+        </Field>
+      )}
+
+      <Field label="Body" required>
+        <div className="nfm-editor">
+          <EditorToolbar editor={editor} onFullscreenToggle={onFullscreenToggle} fullscreenIcon={faExpand} />
+          <EditorContent editor={editor} className="nfm-prose" />
+        </div>
+      </Field>
+
+      <Field label="Context">
+        <textarea
+          value={formData.context}
+          onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+          rows={2}
+          className="form-textarea"
+          placeholder="What prompted this note?"
+        />
+      </Field>
+
+      <div className="nfm-grid-2">
+        <Field label="Date noted">
+          <input
+            type="date"
+            value={formData.noted_on}
+            onChange={(e) => setFormData({ ...formData, noted_on: e.target.value })}
+            className="form-input"
+          />
+        </Field>
+        <label className="nfm-pin">
+          <input
+            type="checkbox"
+            checked={formData.pinned}
+            onChange={(e) => setFormData({ ...formData, pinned: e.target.checked })}
+          />
+          <span>Pin this note</span>
+        </label>
+      </div>
+    </section>
+  );
+}
+
+// =====================================================================
+// Tab — Connections
+// =====================================================================
+function ConnectionsTab({ formData, setFormData, sourceId, conceptId }) {
+  return (
+    <section className="nfm-section">
+      <div className="nfm-grid-2">
+        {!sourceId && (
+          <Field label="Link to sources">
+            <SourceSelector
+              selectedSourceIds={formData.source_ids || []}
+              onChange={(ids) => setFormData({ ...formData, source_ids: ids })}
+              multiple={true}
+              themeColor={NOTE_ACCENT}
+            />
+          </Field>
+        )}
+        {!conceptId && (
+          <Field label="Link to concepts">
+            <ConceptSelector
+              selectedConceptIds={formData.concept_ids}
+              onChange={(ids) => setFormData({ ...formData, concept_ids: ids })}
+              themeColor={NOTE_ACCENT}
+            />
+          </Field>
+        )}
+        <Field label="Link to people">
+          <PeopleSelector
+            selectedPersonIds={formData.person_ids}
+            onChange={(ids) => setFormData({ ...formData, person_ids: ids })}
+            themeColor={NOTE_ACCENT}
+          />
+        </Field>
+        <Field label="Add to collections">
+          <CollectionSelector
+            selectedCollectionIds={formData.collection_ids}
+            onChange={(ids) => setFormData({ ...formData, collection_ids: ids })}
+            themeColor={NOTE_ACCENT}
+          />
+        </Field>
+        <Field label="Tags">
+          <TagSelector
+            selectedTags={formData.tags}
+            onChange={(tags) => setFormData({ ...formData, tags })}
+            themeColor={NOTE_ACCENT}
+          />
+        </Field>
+      </div>
+    </section>
+  );
+}
+
+// =====================================================================
+// Reusable Field wrapper
+// =====================================================================
+function Field({ label, required, trailing, children }) {
+  return (
+    <div className="nfm-field">
+      <div className="nfm-field-head">
+        <label className="nfm-label">
+          {label}{required && <span className="nfm-req">*</span>}
+        </label>
+        {trailing}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// =====================================================================
+// Editor toolbar — single source of truth (used in both inline + fullscreen)
+// =====================================================================
+function EditorToolbar({ editor, onFullscreenToggle, fullscreenIcon }) {
+  if (!editor) return null;
+
+  const Btn = ({ icon, isActive, onClick, title, disabled }) => (
+    <button
+      type="button"
+      className={`nfm-tb-btn${isActive ? ' is-active' : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={title}
+    >
+      <FontAwesomeIcon icon={icon} />
+    </button>
+  );
+  const Divider = () => <span className="nfm-tb-divider" />;
+
+  const headingValue =
+    editor.isActive('heading', { level: 1 }) ? '1' :
+    editor.isActive('heading', { level: 2 }) ? '2' :
+    editor.isActive('heading', { level: 3 }) ? '3' :
+    editor.isActive('heading', { level: 4 }) ? '4' :
+    editor.isActive('heading', { level: 5 }) ? '5' :
+    editor.isActive('heading', { level: 6 }) ? '6' : '';
+
+  return (
+    <div className="nfm-tb">
+      <Btn icon={faBold}          isActive={editor.isActive('bold')}      onClick={() => editor.chain().focus().toggleBold().run()}      title="Bold" />
+      <Btn icon={faItalic}        isActive={editor.isActive('italic')}    onClick={() => editor.chain().focus().toggleItalic().run()}    title="Italic" />
+      <Btn icon={faUnderline}     isActive={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline" />
+      <Btn icon={faStrikethrough} isActive={editor.isActive('strike')}    onClick={() => editor.chain().focus().toggleStrike().run()}    title="Strikethrough" />
+      <Divider />
+      <select
+        className="nfm-tb-select"
+        value={headingValue}
+        onChange={(e) => {
+          const level = parseInt(e.target.value, 10);
+          if (level) editor.chain().focus().toggleHeading({ level }).run();
+          else       editor.chain().focus().setParagraph().run();
+        }}
+      >
+        <option value="">Paragraph</option>
+        <option value="1">Heading 1</option>
+        <option value="2">Heading 2</option>
+        <option value="3">Heading 3</option>
+        <option value="4">Heading 4</option>
+        <option value="5">Heading 5</option>
+        <option value="6">Heading 6</option>
+      </select>
+      <Divider />
+      <input
+        type="color"
+        className="nfm-tb-color"
+        onInput={(e) => editor.chain().focus().setColor(e.target.value).run()}
+        value={editor.getAttributes('textStyle').color || '#000000'}
+        title="Text color"
+      />
+      <input
+        type="color"
+        className="nfm-tb-color"
+        onInput={(e) => editor.chain().focus().toggleHighlight({ color: e.target.value }).run()}
+        title="Highlight color"
+      />
+      <Divider />
+      <Btn icon={faAlignLeft}   isActive={editor.isActive({ textAlign: 'left' })}   onClick={() => editor.chain().focus().setTextAlign('left').run()}   title="Align left" />
+      <Btn icon={faAlignCenter} isActive={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center" />
+      <Btn icon={faAlignRight}  isActive={editor.isActive({ textAlign: 'right' })}  onClick={() => editor.chain().focus().setTextAlign('right').run()}  title="Align right" />
+      <Divider />
+      <Btn icon={faListUl}  isActive={editor.isActive('bulletList')}  onClick={() => editor.chain().focus().toggleBulletList().run()}  title="Bullet list" />
+      <Btn icon={faListOl}  isActive={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list" />
+      <Btn icon={faIndent}                                            onClick={() => editor.chain().focus().sinkListItem('listItem').run()} title="Indent" />
+      <Btn icon={faOutdent}                                           onClick={() => editor.chain().focus().liftListItem('listItem').run()} title="Outdent" />
+      <Divider />
+      <Btn
+        icon={faLink}
+        isActive={editor.isActive('link')}
+        onClick={() => {
+          const url = window.prompt('Enter URL:');
+          if (url) editor.chain().focus().setLink({ href: url }).run();
+        }}
+        title="Add link"
+      />
+      <Btn
+        icon={faUnlink}
+        onClick={() => editor.chain().focus().unsetLink().run()}
+        title="Remove link"
+        disabled={!editor.isActive('link')}
+      />
+      <Btn icon={faQuoteLeft} isActive={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} title="Blockquote" />
+      <Btn icon={faCode}      isActive={editor.isActive('codeBlock')}  onClick={() => editor.chain().focus().toggleCodeBlock().run()}  title="Code block" />
+      <Btn icon={faMinus}                                              onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule" />
+      <Divider />
+      <Btn icon={faTable} onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert table" />
+      <Btn
+        icon={faImage}
+        onClick={() => {
+          const url = window.prompt('Enter image URL:');
+          if (url) editor.chain().focus().setImage({ src: url }).run();
+        }}
+        title="Insert image"
+      />
+      {onFullscreenToggle && (
+        <button
+          type="button"
+          className="nfm-tb-btn nfm-tb-btn-trail"
+          onClick={onFullscreenToggle}
+          title={fullscreenIcon === faCompress ? 'Exit focus mode' : 'Focus mode'}
+        >
+          <FontAwesomeIcon icon={fullscreenIcon} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function csrfToken() {
+  return document.querySelector('[name="csrf-token"]')?.content;
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function NfmStyles() {
+  return (
+    <style>{`
+      :root {
+        --nfm-accent:      ${NOTE_ACCENT};
+        --nfm-accent-dark: ${NOTE_ACCENT_DARK};
+        --nfm-accent-tint: ${NOTE_ACCENT_TINT};
+      }
+
+      .nfm {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: var(--paper);
+      }
+
+      /* ---------- Header ---------- */
+      .nfm-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 16px;
+        background: var(--nfm-accent);
+        flex-shrink: 0;
+        z-index: 5;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      }
+      .nfm-head.is-draggable { cursor: move; }
+      .nfm-head-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        flex: 1;
+      }
+      .nfm-head-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .nfm-grip {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .nfm-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--paper);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .nfm-title i { font-size: 14px; opacity: 0.85; }
+      .nfm-head-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: var(--r-sm);
+        color: var(--paper);
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .nfm-head-pill:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      .nfm-head-icon {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        border-radius: 50%;
+        color: var(--paper);
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.15s, color 0.15s;
+      }
+      .nfm-head-icon:hover { background: rgba(255, 255, 255, 0.3); }
+      .nfm-head-icon-danger:hover { background: rgba(255, 255, 255, 0.2); color: #ffd0d0; }
+
+      /* Save status pill */
+      .nfm-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: var(--paper);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        font-weight: 500;
+      }
+      .nfm-save.is-pending { color: var(--ink-3); }
+      .nfm-save.is-saving  { color: var(--nfm-accent-dark); }
+      .nfm-save.is-saved   { color: var(--success); }
+      .nfm-save.is-error   { color: var(--error); }
+      .nfm-save.is-idle    { color: var(--ink-3); }
+
+      /* ---------- Error banner ---------- */
+      .nfm-error {
+        margin: 12px 24px 0;
+        padding: 10px 14px;
+        background: color-mix(in srgb, var(--error) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+        border-radius: var(--r-md);
+        color: var(--error);
+        font-family: var(--font-body);
+        font-size: 13px;
+      }
+      .nfm-error i { margin-right: 6px; }
+
+      /* ---------- Body (sidebar nav + content) ---------- */
+      .nfm-body {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .nfm-nav {
+        width: 200px;
+        flex-shrink: 0;
+        background: var(--paper-soft);
+        border-right: 1px solid var(--ink-line);
+        padding: 16px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .nfm-nav-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-bottom: 6px;
+        padding: 0 6px;
+      }
+      .nfm-tab {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        text-align: left;
+        transition: background 0.12s, color 0.12s;
+      }
+      .nfm-tab:hover { background: var(--hover); }
+      .nfm-tab.is-active {
+        background: var(--nfm-accent-tint);
+        color: var(--nfm-accent-dark);
+        font-weight: 500;
+      }
+      .nfm-tab i { width: 14px; font-size: 12px; }
+
+      .nfm-content {
+        flex: 1;
+        overflow-y: auto;
+        background: var(--paper);
+        padding: 24px 32px 80px;
+        min-width: 0;
+      }
+      .nfm-section { display: flex; flex-direction: column; gap: 18px; }
+
+      /* ---------- Field component ---------- */
+      .nfm-field { display: flex; flex-direction: column; gap: 6px; }
+      .nfm-field-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .nfm-label {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--nfm-accent-dark);
+      }
+      .nfm-req { color: var(--error); margin-left: 4px; }
+      .nfm-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .nfm-pin {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding-top: 22px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        cursor: pointer;
+      }
+      .nfm-pin input { accent-color: var(--nfm-accent); }
+
+      /* ---------- Quoted passage ---------- */
+      .nfm-quote {
+        margin: 0;
+        padding: 10px 14px;
+        background: var(--paper-soft);
+        border-left: 3px solid var(--nfm-accent);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--ink-2);
+        font-style: italic;
+        white-space: pre-wrap;
+      }
+      .nfm-quote-detach {
+        background: transparent;
+        border: none;
+        color: var(--ink-3);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        padding: 0;
+      }
+      .nfm-quote-detach:hover { color: var(--error); }
+      .nfm-quote-detach i { margin-right: 4px; }
+
+      /* ---------- Editor + toolbar ---------- */
+      .nfm-editor {
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        background: var(--paper);
+        overflow: hidden;
+      }
+      .nfm-tb {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        padding: 8px;
+        border-bottom: 1px solid var(--ink-line-soft);
+        background: var(--paper);
+      }
+      .nfm-tb-btn {
+        width: 30px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        color: var(--nfm-accent-dark);
+        cursor: pointer;
+        font-size: 12.5px;
+        transition: background 0.12s, color 0.12s;
+      }
+      .nfm-tb-btn:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--nfm-accent) 12%, transparent);
+      }
+      .nfm-tb-btn.is-active {
+        background: color-mix(in srgb, var(--nfm-accent) 22%, transparent);
+        color: var(--nfm-accent-dark);
+      }
+      .nfm-tb-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .nfm-tb-btn-trail { margin-left: auto; }
+      .nfm-tb-divider {
+        width: 1px;
+        height: 22px;
+        background: color-mix(in srgb, var(--nfm-accent) 25%, transparent);
+        margin: 0 4px;
+      }
+      .nfm-tb-select {
+        padding: 4px 8px;
+        background: var(--paper);
+        border: 1px solid color-mix(in srgb, var(--nfm-accent) 25%, var(--ink-line));
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--nfm-accent-dark);
+        cursor: pointer;
+      }
+      .nfm-tb-color {
+        width: 30px;
+        height: 26px;
+        padding: 0;
+        background: transparent;
+        border: 1px solid color-mix(in srgb, var(--nfm-accent) 25%, var(--ink-line));
+        border-radius: var(--r-sm);
+        cursor: pointer;
+      }
+
+      .nfm-prose {
+        padding: 12px 16px;
+        min-height: 180px;
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.7;
+        color: var(--ink);
+      }
+      .nfm-prose .ProseMirror { outline: none; min-height: 160px; }
+      .nfm-prose .ProseMirror p { margin: 0 0 12px; }
+      .nfm-prose .ProseMirror p:last-child { margin: 0; }
+      .nfm-prose .ProseMirror ul,
+      .nfm-prose .ProseMirror ol { margin: 0 0 12px; padding-left: 22px; }
+      .nfm-prose .ProseMirror ul ul,
+      .nfm-prose .ProseMirror ol ol,
+      .nfm-prose .ProseMirror ul ol,
+      .nfm-prose .ProseMirror ol ul { margin-bottom: 0; }
+      .nfm-prose .ProseMirror li { margin-bottom: 4px; }
+      .nfm-prose .ProseMirror blockquote {
+        border-left: 3px solid var(--ink-line);
+        padding-left: 14px;
+        color: var(--ink-2);
+        font-style: italic;
+        margin: 0 0 12px;
+      }
+      .nfm-prose .ProseMirror pre {
+        background: var(--paper-soft);
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+        overflow-x: auto;
+      }
+      .nfm-prose .ProseMirror code {
+        background: var(--paper-soft);
+        padding: 1px 5px;
+        border-radius: 2px;
+        font-family: var(--font-mono);
+        font-size: 12.5px;
+      }
+      .nfm-prose .ProseMirror table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 0 0 12px;
+      }
+      .nfm-prose .ProseMirror table td,
+      .nfm-prose .ProseMirror table th {
+        border: 1px solid var(--ink-line);
+        padding: 6px 8px;
+      }
+      .nfm-prose .ProseMirror table th {
+        background: var(--paper-soft);
+        text-align: left;
+      }
+      .nfm-prose .ProseMirror img { max-width: 100%; height: auto; }
+
+      /* ---------- Footer (new-note submit row) ---------- */
+      .nfm-foot {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-top: 1px solid var(--ink-line);
+        background: var(--paper-soft);
+        flex-shrink: 0;
+      }
+      .nfm-foot-create {
+        background: var(--nfm-accent);
+        border-color: var(--nfm-accent);
+        color: var(--paper);
+      }
+      .nfm-foot-create:hover {
+        background: var(--nfm-accent-dark);
+        border-color: var(--nfm-accent-dark);
+      }
+
+      /* ---------- Floating window mode ---------- */
+      .nfm-floating {
+        position: fixed;
+        width: min(540px, calc(100vw - 16px));
+        height: min(680px, calc(100vh - 16px));
+        background: var(--paper);
+        border-radius: var(--r-lg);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ---------- Fullscreen mode ---------- */
+      .nfm-fullscreen {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: var(--paper);
+        display: flex;
+        flex-direction: column;
+      }
+      .nfm-fs-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: var(--paper-soft);
+        border-bottom: 1px solid var(--ink-line);
+        flex-shrink: 0;
+      }
+      .nfm-fs-head-left {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .nfm-fs-exit {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: var(--nfm-accent);
+        color: var(--paper);
+        border: none;
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .nfm-fs-exit:hover { background: var(--nfm-accent-dark); }
+      .nfm-fs-title {
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .nfm-fs-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+        max-width: 920px;
+        width: 100%;
+        margin: 0 auto;
+      }
+      .nfm-prose-fs { padding: 0; min-height: calc(100vh - 200px); font-size: 16px; }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 768px) {
+        .nfm-nav {
+          width: 56px;
+          padding: 12px 8px;
+        }
+        .nfm-nav-label { display: none; }
+        .nfm-tab {
+          justify-content: center;
+          padding: 8px;
+        }
+        .nfm-tab span { display: none; }
+        .nfm-content { padding: 16px 16px 60px; }
+        .nfm-grid-2 { grid-template-columns: 1fr; }
+        .nfm-pin { padding-top: 0; }
+        .nfm-head-pill span { display: none; }
+      }
+    `}</style>
   );
 }

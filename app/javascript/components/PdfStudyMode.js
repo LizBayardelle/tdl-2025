@@ -3,6 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import NoteFormModal from './NoteFormModal';
 import HighlightModal from './HighlightModal';
 import ShowNoteModal from './ShowNoteModal';
+import NoteCard, { NoteCardStyles } from './NoteCard';
 import AskThisPaperPanel from './AskThisPaperPanel';
 import MobileSidebarBackdrop from './MobileSidebarBackdrop';
 import MethodologyTags from './MethodologyTags';
@@ -408,6 +409,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
   return (
     <>
       <PsmStyles />
+      <NoteCardStyles />
       <div ref={containerRef} className="psm psm-shell">
         <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -480,8 +482,10 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
                       <NoteCard
                         key={note.id}
                         note={note}
-                        onShow={() => setViewingNote(note)}
+                        onView={() => setViewingNote(note)}
                         onEdit={() => { setEditingNote(note); setShowNoteModal(true); }}
+                        onDelete={() => handleDeleteNote(note.id)}
+                        omitChips={['source']}
                       />
                     ))}
                   </div>
@@ -1003,61 +1007,6 @@ function SidebarSection({ label, count, sub, children }) {
   );
 }
 
-function NoteCard({ note, onShow, onEdit }) {
-  const typeBadge = note.note_type && note.note_type !== 'note' ? note.note_type : null;
-  const hasChips = note.concepts?.length > 0 || (Array.isArray(note.tags) && note.tags.length > 0);
-
-  return (
-    <article className="psm-note-card" onClick={onShow} role="button" tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') onShow(); }}
-    >
-      {(note.title || typeBadge) && (
-        <header className="psm-note-card-head">
-          {note.title && <h3 className="psm-note-card-title">{note.title}</h3>}
-          {typeBadge && <span className={`psm-type-badge is-${typeBadge}`}>{typeBadge}</span>}
-        </header>
-      )}
-
-      {note.quote_text && (
-        <blockquote className="psm-note-quote">{note.quote_text}</blockquote>
-      )}
-      {note.body && (
-        <div
-          className="psm-note-text"
-          dangerouslySetInnerHTML={{ __html: note.body }}
-        />
-      )}
-      {hasChips && (
-        <div className="psm-chip-row">
-          {note.concepts?.map(c => (
-            <a key={c.id} href={`/concepts/${c.id}`} className="psm-chip psm-chip-concept" onClick={(e) => e.stopPropagation()}>{c.label}</a>
-          ))}
-          {Array.isArray(note.tags) && note.tags.map((t, i) => (
-            <span key={i} className="psm-chip psm-chip-tag">
-              {typeof t === 'string' ? t : t.name}
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className="psm-note-meta">
-        <span>
-          {note.page_number && <>p. {note.page_number}</>}
-          {note.page_number && ' · '}
-          {new Date(note.created_at).toLocaleDateString()}
-        </span>
-        <button
-          type="button"
-          className="psm-note-edit-btn"
-          onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          title="Edit note"
-        >
-          <i className="fas fa-pen"></i>
-        </button>
-      </div>
-    </article>
-  );
-}
 
 const SelectionToolbar = React.forwardRef(function SelectionToolbar({
   selection, onQuote, onWireIn, onDismiss
@@ -1626,135 +1575,8 @@ function PsmStyles() {
         padding: 48px 24px;
       }
 
-      /* ---- Note cards (matched to /sources/:id ss-note-card) ---- */
-      .psm-note-card {
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-top: 3px solid var(--source);
-        border-radius: var(--r-md);
-        padding: 14px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        cursor: pointer;
-        transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-        outline: none;
-      }
-      .psm-note-card:hover { border-color: var(--ink-3); border-top-color: var(--source); box-shadow: var(--shadow-card-hover); }
-      .psm-note-card:focus-visible { box-shadow: 0 0 0 2px var(--source-tint); }
-
-      .psm-note-card-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .psm-note-card-title {
-        font-family: var(--font-display);
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ink);
-        margin: 0;
-        line-height: 1.3;
-        flex: 1;
-        min-width: 0;
-      }
-      .psm-note-card-title-muted { color: var(--ink-3); font-style: italic; font-weight: 500; }
-
-      .psm-type-badge {
-        font-family: var(--font-body);
-        font-size: 9.5px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        padding: 2px 7px;
-        border-radius: var(--r-sm);
-        background: var(--paper-warm);
-        color: var(--ink-3);
-        flex-shrink: 0;
-      }
-      .psm-type-badge.is-highlight  { background: rgba(255, 220, 90, 0.35); color: var(--ink-2); }
-      .psm-type-badge.is-question   { background: var(--person-tint);  color: var(--person-2); }
-      .psm-type-badge.is-synthesis  { background: var(--source-tint);  color: var(--source-2); }
-      .psm-type-badge.is-connection { background: var(--concept-tint); color: var(--concept-2); }
-      .psm-type-badge.is-todo       { background: var(--paper-warm); color: var(--ink); border: 1px dashed var(--ink-line); }
-
-      .psm-note-quote {
-        margin: 0;
-        padding: 7px 12px;
-        background: var(--paper-warm);
-        border-left: 2px solid var(--source);
-        border-radius: 0 var(--r-sm) var(--r-sm) 0;
-        color: var(--ink-2);
-        font-style: italic;
-        font-size: 12.5px;
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .psm-note-text {
-        font-family: var(--font-body);
-        font-size: 13.5px;
-        color: var(--ink-2);
-        line-height: 1.6;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .psm-note-text p { margin: 0 0 6px; }
-      .psm-note-text p:last-child { margin: 0; }
-
-      .psm-chip-row { display: flex; flex-wrap: wrap; gap: 6px 8px; }
-
-      .psm-chip {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        font-weight: 500;
-        padding: 3px 10px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        line-height: 1.45;
-        white-space: nowrap;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        transition: background var(--transition-fast), color var(--transition-fast);
-      }
-      .psm-chip-concept { background: var(--concept-tint); color: var(--concept-2); }
-      .psm-chip-concept:hover { background: var(--concept); color: var(--paper); }
-      .psm-chip-tag { background: var(--paper-warm); color: var(--ink-2); }
-      .psm-chip-tag:hover { background: var(--ink-line); color: var(--ink); }
-
-      .psm-note-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 2px;
-        padding-top: 8px;
-        border-top: 1px solid var(--ink-line-soft);
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
-      }
-      .psm-note-edit-btn {
-        background: transparent;
-        border: none;
-        color: var(--ink-3);
-        font-size: 11px;
-        cursor: pointer;
-        padding: 4px 6px;
-        border-radius: var(--r-sm);
-        opacity: 0.55;
-        transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
-      }
-      .psm-note-card:hover .psm-note-edit-btn { opacity: 1; }
-      .psm-note-edit-btn:hover { color: var(--source); background: var(--source-tint); opacity: 1; }
+      /* Note cards in the sidebar render via the shared NoteCard
+         component; see NoteCard.js / NoteCardStyles for their styles. */
 
       /* ---- Floating selection toolbar ---- */
       .psm-toolbar {

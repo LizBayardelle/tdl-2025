@@ -928,54 +928,14 @@ export default function AuthorDisambiguationModal({ isOpen, onClose, authors, au
           <button
             type="button"
             onClick={handleConfirm}
-            className="btn-primary"
-            style={{
-              background: 'var(--accent-gold)',
-              color: 'white',
-              border: 'none',
-              padding: 'var(--space-3) var(--space-4)',
-              borderRadius: '4px',
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#8a6624';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent-gold)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
+            className="sp-action sp-action-primary"
           >
-            Confirm & Save
+            Confirm and save
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
-            style={{
-              background: 'white',
-              color: 'var(--neutral-700)',
-              border: '1px solid var(--neutral-300)',
-              padding: 'var(--space-3) var(--space-4)',
-              borderRadius: '4px',
-              fontFamily: 'var(--font-display)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-100)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'white';
-            }}
+            className="sp-action sp-action-secondary"
           >
             Cancel
           </button>

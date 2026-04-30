@@ -2,262 +2,252 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 
 export default function TagFormModal({ isOpen, onClose, onSuccess, item }) {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    color: '#674675'
-  });
+  const [formData, setFormData] = useState({ name: '', description: '' });
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      if (item) {
-        setFormData({
-          name: item.name || '',
-          description: item.description || '',
-          color: item.color || '#674675'
-        });
-      } else {
-        setFormData({
-          name: '',
-          description: '',
-          color: '#674675'
-        });
-      }
-      setError('');
+    if (!isOpen) return;
+    if (item) {
+      setFormData({
+        name: item.name || '',
+        description: item.description || '',
+      });
+    } else {
+      setFormData({ name: '', description: '' });
     }
+    setError('');
   }, [isOpen, item]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    setSubmitting(true);
     try {
-      const url = item ? `/tags/${item.id}` : '/tags';
+      const url    = item ? `/tags/${item.id}` : '/tags';
       const method = item ? 'PATCH' : 'POST';
-
-      const response = await fetch(url, {
+      const r = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content,
         },
         body: JSON.stringify({ tag: formData }),
       });
-
-      if (response.ok) {
-        const data = await response.json();
+      if (r.ok) {
+        const data = await r.json();
         onSuccess(data);
         onClose();
       } else {
-        const data = await response.json();
-        setError(data.errors.join(', '));
+        const data = await r.json();
+        setError(data.errors?.join(', ') || 'Failed to save tag');
       }
-    } catch (error) {
-      console.error('Error saving tag:', error);
-      setError('An error occurred while saving the tag');
+    } catch (e) {
+      console.error('Save error:', e);
+      setError('An error occurred while saving the tag.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="medium"
-    >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxHeight: '90vh', overflow: 'hidden', position: 'relative' }}>
-        {/* Modal Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: 'var(--space-3) var(--space-4)',
-          borderBottom: '1px solid var(--neutral-200)',
-          background: 'var(--sidebar-bg)',
-          flexShrink: 0,
-        }}>
-          <h2 style={{
-            margin: 0,
-            fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-lg)',
-            fontWeight: 700,
-            color: 'var(--accent-purple)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-          }}>
-            <i className="fas fa-tag" style={{ fontSize: 'var(--text-base)', opacity: 0.7 }}></i>
-            {item ? (formData.name || item.name || 'Untitled Tag') : 'New Tag'}
+    <Modal isOpen={isOpen} onClose={onClose} size="medium">
+      <form onSubmit={handleSubmit} className="tfm">
+        <TfmStyles />
+
+        <header className="tfm-head">
+          <h2 className="tfm-title">
+            {item ? (formData.name || item.name || 'Untitled tag') : 'New tag'}
           </h2>
-          {/* Close Button */}
           <button
             type="button"
+            className="tfm-close"
             onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--neutral-400)',
-              fontSize: 'var(--text-xl)',
-              cursor: 'pointer',
-              padding: 'var(--space-1)',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '4px',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--neutral-200)';
-              e.currentTarget.style.color = 'var(--neutral-700)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'var(--neutral-400)';
-            }}
+            aria-label="Close"
             title="Close"
           >
-            <i className="fas fa-times"></i>
+            <i className="fas fa-times" />
           </button>
-        </div>
+        </header>
 
-        {/* Body */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          background: 'var(--background)',
-          padding: 'var(--space-6)'
-        }}>
+        <div className="tfm-body">
           {error && (
-            <div style={{
-              background: 'var(--accent-purple-light)',
-              border: '1px solid var(--accent-purple)',
-              color: 'var(--error)',
-              padding: 'var(--space-3) var(--space-4)',
-              borderRadius: 'var(--radius)',
-              marginBottom: 'var(--space-4)',
-              fontFamily: 'var(--font-body)',
-              fontSize: 'var(--text-sm)'
-            }}>
-              {error}
+            <div className="tfm-error" role="alert">
+              <i className="fas fa-circle-exclamation" /> {error}
             </div>
           )}
 
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label required">Name</label>
+          <Field label="Name" required>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="form-input"
-              style={{
-                width: '100%',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-base)'
-              }}
+              placeholder='e.g. "Dissertation Lit Review"'
+              autoFocus
               required
             />
-          </div>
+          </Field>
 
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label">Description</label>
+          <Field
+            label="Description"
+            hint="Optional — what this tag represents.  Renders as the project subtitle on /tags."
+          >
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows="3"
+              rows={3}
               className="form-textarea"
-              style={{
-                width: '100%',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-base)',
-                resize: 'vertical'
-              }}
-              placeholder="What does this tag represent?"
+              placeholder="What is this tag for?"
             />
-          </div>
+          </Field>
 
-          <div style={{ marginBottom: 'var(--space-4)' }}>
-            <label className="form-label">Color</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <input
-                type="color"
-                value={formData.color}
-                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                style={{
-                  width: '60px',
-                  height: '40px',
-                  border: '1px solid var(--neutral-200)',
-                  borderRadius: 'var(--radius)',
-                  cursor: 'pointer'
-                }}
-              />
-              <input
-                type="text"
-                value={formData.color}
-                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="form-input"
-                style={{
-                  flex: 1,
-                  fontFamily: 'var(--font-mono, monospace)',
-                  fontSize: 'var(--text-sm)'
-                }}
-                placeholder="#674675"
-              />
-            </div>
-          </div>
         </div>
 
-        {/* Footer */}
-        <div style={{
-          borderTop: '1px solid var(--neutral-200)',
-          background: 'var(--background)',
-          padding: 'var(--space-6)',
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 'var(--space-3)',
-        }}>
-          <button
-            type="submit"
-            className="btn-primary"
-            style={{
-              background: 'var(--accent-purple)',
-              fontFamily: 'var(--font-body)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-purple) 80%, black)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-purple)'}
-          >
-            {item ? 'Save Changes' : 'Create Tag'}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              padding: 'var(--space-2) var(--space-4)',
-              fontSize: 'var(--text-base)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-body)',
-              color: 'var(--accent-purple)',
-              background: 'var(--accent-purple-light)',
-              border: '1px solid var(--accent-purple)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              transition: 'all 0.15s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent-purple)';
-              e.currentTarget.style.color = 'white';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--accent-purple-light)';
-              e.currentTarget.style.color = 'var(--accent-purple)';
-            }}
-          >
+        <footer className="tfm-foot">
+          <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>
             Cancel
           </button>
-        </div>
+          <button
+            type="submit"
+            className="sp-action sp-action-primary tfm-foot-save"
+            disabled={submitting || !formData.name.trim()}
+          >
+            {submitting ? 'Saving…' : (item ? 'Save changes' : 'Create tag')}
+          </button>
+        </footer>
       </form>
     </Modal>
+  );
+}
+
+function Field({ label, required, hint, children }) {
+  return (
+    <div className="tfm-field">
+      <label className="tfm-label">
+        {label}{required && <span className="tfm-req">*</span>}
+      </label>
+      {children}
+      {hint && <p className="tfm-hint">{hint}</p>}
+    </div>
+  );
+}
+
+function TfmStyles() {
+  return (
+    <style>{`
+      .tfm {
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+        background: var(--paper);
+      }
+
+      /* ---------- Header ---------- */
+      .tfm-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 18px;
+        background: var(--primary);
+        flex-shrink: 0;
+        z-index: 5;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+      }
+      .tfm-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--paper);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .tfm-close {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.15);
+        border: none;
+        border-radius: 50%;
+        color: var(--paper);
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      .tfm-close:hover { background: rgba(255, 255, 255, 0.3); }
+
+      /* ---------- Body ---------- */
+      .tfm-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 22px 24px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .tfm-error {
+        padding: 10px 14px;
+        background: color-mix(in srgb, var(--error) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+        border-radius: var(--r-md);
+        color: var(--error);
+        font-family: var(--font-body);
+        font-size: 13px;
+      }
+      .tfm-error i { margin-right: 6px; }
+
+      /* ---------- Field ---------- */
+      .tfm-field { display: flex; flex-direction: column; gap: 6px; }
+      .tfm-label {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .tfm-req { color: var(--error); margin-left: 4px; }
+      .tfm-hint {
+        margin: 0;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        font-style: italic;
+        line-height: 1.5;
+      }
+
+      /* ---------- Footer ---------- */
+      .tfm-foot {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-top: 1px solid var(--ink-line);
+        background: var(--paper-soft);
+        flex-shrink: 0;
+      }
+      .tfm-foot-save {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--paper);
+      }
+      .tfm-foot-save:hover:not(:disabled) {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+      }
+    `}</style>
   );
 }

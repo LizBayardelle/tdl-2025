@@ -128,72 +128,122 @@ export default function ColorSchemeManager({ isOpen, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-sand border-b border-gray-300 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium">Color Coding Scheme</h2>
-            <button
-              onClick={onClose}
-              className="text-2xl hover:text-gray-700"
-              style={{ background: 'none', color: '#4B5563', padding: 0, border: 'none' }}
-            >
-              ×
-            </button>
-          </div>
+        <div
+          style={{
+            padding: '16px 24px',
+            background: 'var(--paper-soft)',
+            borderBottom: '1px solid var(--ink-line)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontFamily: 'var(--font-display)',
+              fontSize: '22px',
+              fontWeight: 600,
+              color: 'var(--primary)',
+              letterSpacing: '-0.005em',
+            }}
+          >
+            Highlight colors
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--ink-3)',
+              fontSize: '22px',
+              lineHeight: 1,
+              padding: '4px 8px',
+              cursor: 'pointer',
+            }}
+          >
+            ×
+          </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
           {loading ? (
-            <p className="text-center text-gray-600">Loading...</p>
+            <p style={{ textAlign: 'center', color: 'var(--ink-3)', fontFamily: 'var(--font-body)' }}>Loading.</p>
           ) : (
-            <div className="space-y-3">
-              {colors.map(color => (
-                <div key={color.id} className="flex items-center gap-3 p-3 border border-gray-300 rounded">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {colors.map((color) => (
+                <div
+                  key={color.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 14px',
+                    background: 'var(--paper)',
+                    border: '1px solid var(--ink-line)',
+                    borderRadius: 'var(--r-md)',
+                  }}
+                >
                   {editingId === color.id ? (
                     <>
                       <input
                         type="color"
                         value={editColor}
                         onChange={(e) => setEditColor(e.target.value)}
-                        className="w-12 h-12 rounded cursor-pointer"
+                        style={{
+                          width: '44px',
+                          height: '36px',
+                          padding: 0,
+                          border: '1px solid var(--ink-line)',
+                          borderRadius: 'var(--r-sm)',
+                          cursor: 'pointer',
+                          background: 'var(--paper)',
+                        }}
                       />
                       <input
                         type="text"
                         value={editLabel}
                         onChange={(e) => setEditLabel(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded"
+                        className="sp-input"
                         placeholder="Label"
+                        style={{ flex: 1 }}
                       />
-                      <button
-                        onClick={() => handleUpdate(color.id)}
-                        className="px-3 py-2 bg-primary text-sand rounded hover:bg-accent-dark text-sm"
-                      >
+                      <button onClick={() => handleUpdate(color.id)} className="sp-action sp-action-primary">
                         Save
                       </button>
-                      <button
-                        onClick={cancelEdit}
-                        className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
-                      >
+                      <button onClick={cancelEdit} className="sp-action sp-action-secondary">
                         Cancel
                       </button>
                     </>
                   ) : (
                     <>
                       <div
-                        className="w-12 h-12 rounded border border-gray-300"
-                        style={{ backgroundColor: color.color_hex }}
+                        style={{
+                          width: '44px',
+                          height: '36px',
+                          background: color.color_hex,
+                          border: '1px solid var(--ink-line)',
+                          borderRadius: 'var(--r-sm)',
+                          flexShrink: 0,
+                        }}
                       />
-                      <span className="flex-1 font-medium">{color.label}</span>
-                      <button
-                        onClick={() => startEdit(color)}
-                        className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-sand"
+                      <span
+                        style={{
+                          flex: 1,
+                          fontFamily: 'var(--font-body)',
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          color: 'var(--ink)',
+                        }}
                       >
+                        {color.label}
+                      </span>
+                      <button onClick={() => startEdit(color)} className="sp-action sp-action-secondary">
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleDelete(color.id)}
-                        className="px-3 py-1 text-sm text-white bg-accent hover:bg-accent-dark rounded"
-                      >
+                      <button onClick={() => handleDelete(color.id)} className="sp-action sp-action-quiet sp-action-danger">
                         Delete
                       </button>
                     </>
@@ -202,26 +252,45 @@ export default function ColorSchemeManager({ isOpen, onClose }) {
               ))}
 
               {/* Add new color form */}
-              <div className="flex items-center gap-3 p-3 border-2 border-dashed border-gray-300 rounded bg-gray-50">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 14px',
+                  background: 'var(--paper-soft)',
+                  border: '1px dashed var(--ink-line)',
+                  borderRadius: 'var(--r-md)',
+                }}
+              >
                 <input
                   type="color"
                   value={editColor}
                   onChange={(e) => setEditColor(e.target.value)}
-                  className="w-12 h-12 rounded cursor-pointer"
+                  style={{
+                    width: '44px',
+                    height: '36px',
+                    padding: 0,
+                    border: '1px solid var(--ink-line)',
+                    borderRadius: 'var(--r-sm)',
+                    cursor: 'pointer',
+                    background: 'var(--paper)',
+                  }}
                 />
                 <input
                   type="text"
                   value={editLabel}
                   onChange={(e) => setEditLabel(e.target.value)}
-                  placeholder="New color label..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded bg-white"
+                  placeholder="New color label."
+                  className="sp-input"
+                  style={{ flex: 1 }}
                 />
                 <button
                   onClick={handleCreate}
                   disabled={!editLabel.trim()}
-                  className="px-4 py-2 bg-primary text-sand rounded hover:bg-accent-dark disabled:opacity-50"
+                  className="sp-action sp-action-primary"
                 >
-                  Add Color
+                  Add color
                 </button>
               </div>
             </div>

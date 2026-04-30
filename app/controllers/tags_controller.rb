@@ -35,7 +35,7 @@ class TagsController < ApplicationController
       sources: @tag.sources,
       people: @tag.people,
       connections: @tag.connections.includes(:src, :dst),
-      notes: @tag.notes.includes(:concept)
+      notes: @tag.notes.includes(:concept, :linked_sources, :concepts, :people, :tags, :collections)
     }
 
     render json: @tag.as_json.merge(
@@ -51,10 +51,22 @@ class TagsController < ApplicationController
           dst: { only: [:id, :label, :concept_type] }
         }
       ),
-      notes: taggables[:notes].as_json(
-        only: [:id, :title, :body, :note_type, :created_at],
-        include: { concept: { only: [:id, :label] } }
-      )
+      notes: taggables[:notes].map { |n|
+        n.as_json(
+          only: [:id, :title, :body, :note_type, :context, :pinned, :noted_on,
+                 :source_id, :page_number, :quote_text, :quote_bounds, :created_at],
+          include: {
+            concept: { only: [:id, :label] },
+            concepts: { only: [:id, :label, :concept_type] },
+            people: { only: [:id, :full_name, :role] },
+            tags: { only: [:id, :name] },
+            collections: { only: [:id, :name] }
+          }
+        ).merge(
+          source_ids: n.linked_sources.map(&:id),
+          linked_sources: n.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } }
+        )
+      }
     )
   end
 
@@ -91,6 +103,6 @@ class TagsController < ApplicationController
   end
 
   def tag_params
-    params.require(:tag).permit(:name, :description, :color, person_ids: [], concept_ids: [], source_ids: [], note_ids: [])
+    params.require(:tag).permit(:name, :description, person_ids: [], concept_ids: [], source_ids: [], note_ids: [])
   end
 end

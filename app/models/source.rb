@@ -32,8 +32,11 @@ class Source < ApplicationRecord
     EMPIRICAL_KINDS.include?(kind.to_s) && pdf.attached?
   end
 
-  # Notes
-  has_many :notes, dependent: :nullify
+  # Notes — multi-source: notes link via the note_sources join. The legacy
+  # notes.source_id column is kept in sync with one of these rows (the
+  # "primary" source carrying the highlight, if any).
+  has_many :note_sources, dependent: :destroy
+  has_many :notes, through: :note_sources
 
   # Highlights
   has_many :highlights, dependent: :destroy

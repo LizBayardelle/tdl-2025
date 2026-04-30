@@ -8,7 +8,7 @@ class NotesController < ApplicationController
   def index
     auth = AuthorizationService.new(current_user)
     accessible_ids = auth.accessible_ids(Note)
-    @notes = Note.where(id: accessible_ids).includes(:concept, :source, :people, :tags, :collections)
+    @notes = Note.where(id: accessible_ids).includes(:concept, :source, :linked_sources, :people, :tags, :collections)
 
     # Filter by note type
     @notes = @notes.by_type(params[:note_type]) if params[:note_type].present?
@@ -16,8 +16,12 @@ class NotesController < ApplicationController
     # Filter by concept
     @notes = @notes.for_concept(params[:concept_id]) if params[:concept_id].present?
 
-    # Filter by source
-    @notes = @notes.where(source_id: params[:source_id]) if params[:source_id].present?
+    # Filter by source — notes can attach to many sources via note_sources;
+    # match if the requested source is in the join (covers both primary and
+    # additional attachments).
+    if params[:source_id].present?
+      @notes = @notes.joins(:note_sources).where(note_sources: { source_id: params[:source_id] }).distinct
+    end
 
     # Filter by pinned
     @notes = @notes.pinned if params[:pinned] == 'true'
@@ -40,6 +44,8 @@ class NotesController < ApplicationController
             collections: { only: [:id, :name] }
           }).merge(
             tags: is_owner ? note.tags.as_json(only: [:id, :name]) : [],
+            source_ids: note.linked_sources.map(&:id),
+            linked_sources: note.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } },
             permission: note.permission_for(current_user),
             is_owner: is_owner
           )
@@ -67,7 +73,10 @@ class NotesController < ApplicationController
           source: { only: [:id, :title, :authors, :year] },
           people: { only: [:id, :full_name, :role] },
           tags: { only: [:id, :name] }
-        })
+        }).merge(
+          source_ids: @note.linked_sources.map(&:id),
+          linked_sources: @note.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } }
+        )
       }
     end
   end
@@ -80,45 +89,61 @@ class NotesController < ApplicationController
     concept_ids = params[:note][:concept_ids]
     collection_ids = params[:note][:collection_ids]
 
-    @note = current_user.notes.build(note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids))
+    attrs = note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids)
+    # Pick a primary source up front so the singular source_id stays in sync
+    # with the multi-attachment join. If the form sent only source_ids[], use
+    # the first; if it sent both, keep an explicit source_id wins.
+    if attrs[:source_id].blank? && source_ids.is_a?(Array)
+      first_id = source_ids.find(&:present?)
+      attrs[:source_id] = first_id if first_id
+    end
+    @note = current_user.notes.build(attrs)
     @note.quote_bounds = quote_bounds_param if params[:note].key?(:quote_bounds)
 
     if @note.save
       # Handle tags
       @note.tag_list = tags_array unless tags_array.nil?
 
-      # Handle person associations
+      auth = AuthorizationService.new(current_user)
+
+      # Handle person associations.  Recipients of shared collections
+      # need to be able to attach notes to people they don't own, so we
+      # gate on accessible_ids rather than current_user.people.
       if person_ids.present?
+        accessible = auth.accessible_ids(Person).to_set
         person_ids.each do |person_id|
           next if person_id.blank?
-          person = current_user.people.find_by(id: person_id)
+          pid = person_id.to_i
+          next unless accessible.include?(pid)
+          person = Person.find_by(id: pid)
           if person && !@note.people.include?(person)
             PersonNote.create!(person: person, note: @note, rel_type: 'mentioned')
           end
         end
       end
 
-      # Handle concept associations (many-to-many)
+      # Handle concept associations (M:N).  Same logic — recipient can
+      # link a note to any concept they have view access to.
       if concept_ids.present?
+        accessible = auth.accessible_ids(Concept).to_set
         concept_ids.each do |concept_id|
           next if concept_id.blank?
-          concept = current_user.concepts.find_by(id: concept_id)
+          cid = concept_id.to_i
+          next unless accessible.include?(cid)
+          concept = Concept.find_by(id: cid)
           ConceptNote.create!(concept: concept, note: @note) if concept
         end
       end
 
-      # Handle source associations (note: source_id is singular, already handled in note_params)
+      # Multi-source attachments
+      sync_note_sources(@note, source_ids)
 
       sync_collections(@note, collection_ids)
       sync_highlight_for(@note)
 
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note created successfully.' }
-        format.json {
-          render json: @note.as_json(include: {
-            concepts: { only: [:id, :label, :concept_type] }
-          }), status: :created
-        }
+        format.json { render json: serialize_note(@note), status: :created }
       end
     else
       respond_to do |format|
@@ -132,34 +157,61 @@ class NotesController < ApplicationController
   def update
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
+    source_ids = params[:note][:source_ids]
     concept_ids = params[:note][:concept_ids]
     collection_ids = params[:note][:collection_ids]
 
-    if @note.update(note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids))
+    attrs = note_params.except(:tags, :person_ids, :source_ids, :concept_ids, :collection_ids)
+    # Keep singular source_id in sync with the multi-source list. If the form
+    # only sent source_ids[], compute the primary from it; if neither came
+    # through, leave the existing source_id alone.
+    if !attrs.key?(:source_id) && params[:note].key?(:source_ids)
+      first_id = source_ids.is_a?(Array) ? source_ids.find(&:present?) : nil
+      attrs[:source_id] = first_id
+    end
+
+    if @note.update(attrs)
       @note.update_column(:quote_bounds, quote_bounds_param) if params[:note].key?(:quote_bounds)
       # Handle tags
       @note.tag_list = tags_array unless tags_array.nil?
 
-      # Handle person associations
-      @note.person_notes.destroy_all
-      if person_ids.present?
-        person_ids.each do |person_id|
+      auth = AuthorizationService.new(current_user)
+
+      # Handle person associations — only when the form actually sent
+      # person_ids.  Partial updates (e.g., a pinned-only PATCH) must
+      # NOT destroy the existing person links.  Gate on accessible_ids
+      # so recipients can attach notes to shared people.
+      if params[:note].key?(:person_ids)
+        accessible = auth.accessible_ids(Person).to_set
+        @note.person_notes.destroy_all
+        Array(person_ids).each do |person_id|
           next if person_id.blank?
-          person = current_user.people.find_by(id: person_id)
-          if person
-            PersonNote.create!(person: person, note: @note, rel_type: 'mentioned')
-          end
+          pid = person_id.to_i
+          next unless accessible.include?(pid)
+          person = Person.find_by(id: pid)
+          PersonNote.create!(person: person, note: @note, rel_type: 'mentioned') if person
         end
       end
 
-      # Handle concept associations (many-to-many)
-      @note.concept_notes.destroy_all
-      if concept_ids.present?
-        concept_ids.each do |concept_id|
+      # Handle concept associations (M:N) — same rule.  A partial PATCH
+      # without concept_ids leaves the existing concept_notes alone.
+      if params[:note].key?(:concept_ids)
+        accessible = auth.accessible_ids(Concept).to_set
+        @note.concept_notes.destroy_all
+        Array(concept_ids).each do |concept_id|
           next if concept_id.blank?
-          concept = current_user.concepts.find_by(id: concept_id)
+          cid = concept_id.to_i
+          next unless accessible.include?(cid)
+          concept = Concept.find_by(id: cid)
           ConceptNote.create!(concept: concept, note: @note) if concept
         end
+      end
+
+      # Multi-source attachments — only resync if the form sent source_ids[],
+      # so callers that PATCH partial updates (autosave on a body edit) don't
+      # blow away the link list.
+      if params[:note].key?(:source_ids)
+        sync_note_sources(@note, source_ids)
       end
 
       sync_collections(@note, collection_ids) unless collection_ids.nil?
@@ -167,14 +219,7 @@ class NotesController < ApplicationController
 
       respond_to do |format|
         format.html { redirect_to notes_path, notice: 'Note updated successfully.' }
-        format.json {
-          render json: @note.as_json(include: {
-            concepts: { only: [:id, :label, :concept_type] },
-            source: { only: [:id, :title, :authors, :year] },
-            people: { only: [:id, :full_name, :role] },
-            tags: { only: [:id, :name] }
-          })
-        }
+        format.json { render json: serialize_note(@note) }
       end
     else
       respond_to do |format|
@@ -199,6 +244,61 @@ class NotesController < ApplicationController
 
   def authorize_edit!
     head :forbidden unless @note.editable_by?(current_user)
+  end
+
+  # Sync the multi-source join. Always include the primary source_id (set
+  # on the note row) so the join stays consistent with the singular
+  # column.  Filters against accessible_ids rather than owned-only so a
+  # recipient can attach notes to sources shared via a collection.
+  def sync_note_sources(note, source_ids)
+    ids = Array(source_ids).map(&:to_i).reject(&:zero?)
+    ids << note.source_id if note.source_id.present?
+    ids = ids.uniq
+    accessible = AuthorizationService.new(current_user).accessible_ids(Source)
+    valid_ids = ids & accessible
+    note.note_sources.where.not(source_id: valid_ids).destroy_all
+    valid_ids.each do |sid|
+      NoteSource.find_or_create_by!(note: note, source_id: sid)
+    end
+  end
+
+  # Note JSON shared between create/update. Keeps the singular `source` block
+  # for backward compat with displays that show a primary source, and adds
+  # `source_ids` (and a richer `linked_sources`) for the multi-attachment UI.
+  # Each linkable chip carries an `accessible` flag so the UI can render
+  # revoked-access entries as muted, non-clickable placeholders rather
+  # than 403-on-click links.
+  def serialize_note(note)
+    auth = AuthorizationService.new(current_user)
+    a_concepts = auth.accessible_ids(Concept).to_set
+    a_sources  = auth.accessible_ids(Source).to_set
+    a_people   = auth.accessible_ids(Person).to_set
+
+    json = note.as_json(only: [
+      :id, :title, :body, :note_type, :context, :pinned, :noted_on,
+      :page_number, :quote_text, :source_id, :user_id, :created_at, :updated_at,
+    ])
+
+    json['concepts'] = note.concepts.map do |c|
+      { id: c.id, label: c.label, concept_type: c.concept_type,
+        accessible: a_concepts.include?(c.id) }
+    end
+    json['people'] = note.people.map do |p|
+      { id: p.id, full_name: p.full_name, role: p.role,
+        accessible: a_people.include?(p.id) }
+    end
+    json['source'] = note.source && {
+      id: note.source.id, title: note.source.title,
+      authors: note.source.authors, year: note.source.year,
+      accessible: a_sources.include?(note.source.id),
+    }
+    json['linked_sources'] = note.linked_sources.map do |s|
+      { id: s.id, title: s.title, year: s.year,
+        accessible: a_sources.include?(s.id) }
+    end
+    json['source_ids'] = note.linked_sources.pluck(:id)
+    json['tags'] = note.tags.as_json(only: [:id, :name])
+    json
   end
 
   def sync_collections(note, collection_ids)

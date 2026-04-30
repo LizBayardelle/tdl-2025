@@ -49,13 +49,13 @@ export default function BulkActionBar({ reviewCount, failedCount, onBulkApprove,
           <button
             onClick={handleRetryAll}
             disabled={retrying}
-            className="btn-secondary"
+            className="sp-action sp-action-secondary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}
           >
             {retrying ? (
-              <><i className="fas fa-spinner fa-spin"></i> Retrying...</>
+              <><i className="fas fa-spinner fa-spin"></i> Retrying.</>
             ) : (
-              <><i className="fas fa-redo"></i> Retry All Failed ({failedCount})</>
+              <><i className="fas fa-redo"></i> Retry all failed ({failedCount})</>
             )}
           </button>
         )}

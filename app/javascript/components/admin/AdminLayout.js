@@ -91,7 +91,7 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: 'fa-tachometer-alt', key: 'dashboard' },
-    { href: '/admin/concept_generations', label: 'Concept Creator', icon: 'fa-wand-magic-sparkles', key: 'concept_generations' },
+    { href: '/admin/concept_generations', label: 'Concept Generations', icon: 'fa-wand-magic-sparkles', key: 'concept_generations' },
     { href: '/admin/stats', label: 'Statistical Tests', icon: 'fa-chart-column', key: 'statistical_tests' },
     { href: '/admin/users', label: 'Users', icon: 'fa-users', key: 'users' },
     {
@@ -147,7 +147,7 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(0, 0, 0, 0.45)',
+            background: 'rgba(15, 23, 35, 0.45)',
             zIndex: 150,
             animation: 'fadeIn 0.15s ease',
           }}
@@ -209,7 +209,7 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
             onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--neutral-800)')}
             onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--neutral-500)')}
           >
-            <i className="fas fa-arrow-left" style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+            <i className="fas fa-arrow-left" style={{ width: '16px', textAlign: 'center', fontSize: '13px', color: 'var(--primary)' }}></i>
             Back to App
           </a>
         </div>
@@ -227,9 +227,9 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
           top: `${toggleY}px`,
           width: '24px',
           height: `${TOGGLE_HEIGHT}px`,
-          background: 'var(--ink)',
+          background: 'var(--primary)',
           border: 'none',
-          color: 'white',
+          color: 'var(--paper)',
           cursor: dragging ? 'grabbing' : 'grab',
           display: 'flex',
           alignItems: 'center',
@@ -238,7 +238,7 @@ export default function AdminLayout({ children, currentPage, activeChildKey }) {
           borderBottomRightRadius: '4px',
           transition: dragging ? 'none' : 'left 0.3s ease',
           zIndex: 210,
-          boxShadow: '2px 0 4px rgba(0, 0, 0, 0.2)',
+          boxShadow: '2px 0 4px rgba(15, 23, 35, 0.2)',
           touchAction: 'none',
           userSelect: 'none',
         }}
@@ -280,18 +280,26 @@ function NavLeaf({ item, isActive, onNavigate, indented }) {
         textDecoration: 'none',
         fontSize: 'var(--text-sm)',
         fontWeight: isActive ? 600 : 400,
-        color: isActive ? 'white' : 'var(--neutral-900)',
-        background: isActive ? 'var(--admin-brown-dark)' : 'transparent',
+        color: isActive ? 'var(--paper)' : 'var(--ink)',
+        background: isActive ? 'var(--primary)' : 'transparent',
         transition: 'all 0.15s',
       }}
       onMouseEnter={(e) => {
-        if (!isActive) e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+        if (!isActive) e.currentTarget.style.background = 'var(--hover)';
       }}
       onMouseLeave={(e) => {
         if (!isActive) e.currentTarget.style.background = 'transparent';
       }}
     >
-      <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+      <i
+        className={`fas ${item.icon}`}
+        style={{
+          width: '16px',
+          textAlign: 'center',
+          fontSize: '13px',
+          color: isActive ? 'inherit' : 'var(--primary)',
+        }}
+      ></i>
       {item.label}
     </a>
   );
@@ -319,22 +327,30 @@ function NavGroup({ item, currentPage, activeChildKey, onNavigate }) {
           width: '100%',
           textAlign: 'left',
           border: 'none',
-          background: parentActive && !activeChildKey ? 'var(--admin-brown-dark)' : 'transparent',
-          color: parentActive && !activeChildKey ? 'white' : 'var(--neutral-900)',
+          background: parentActive && !activeChildKey ? 'var(--primary)' : 'transparent',
+          color: parentActive && !activeChildKey ? 'var(--paper)' : 'var(--ink)',
           fontSize: 'var(--text-sm)',
           fontWeight: parentActive ? 600 : 400,
           cursor: 'pointer',
           transition: 'all 0.15s',
         }}
         onMouseEnter={(e) => {
-          if (!(parentActive && !activeChildKey)) e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
+          if (!(parentActive && !activeChildKey)) e.currentTarget.style.background = 'var(--hover)';
         }}
         onMouseLeave={(e) => {
           if (!(parentActive && !activeChildKey)) e.currentTarget.style.background = 'transparent';
         }}
         aria-expanded={expanded}
       >
-        <i className={`fas ${item.icon}`} style={{ width: '16px', textAlign: 'center', fontSize: '13px' }}></i>
+        <i
+          className={`fas ${item.icon}`}
+          style={{
+            width: '16px',
+            textAlign: 'center',
+            fontSize: '13px',
+            color: parentActive && !activeChildKey ? 'inherit' : 'var(--primary)',
+          }}
+        ></i>
         <span style={{ flex: 1 }}>{item.label}</span>
         <i
           className="fas fa-chevron-right"

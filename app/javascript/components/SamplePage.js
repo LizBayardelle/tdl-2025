@@ -1572,9 +1572,12 @@ function SPStyles() {
       }
       .sp-checkbox:hover { border-color: var(--ink); }
       .sp-checkbox:checked {
-        background: var(--ink);
-        border-color: var(--ink);
+        background: var(--primary);
+        border-color: var(--primary);
       }
+      .sp-checkbox.is-concept:checked { background: var(--concept); border-color: var(--concept); }
+      .sp-checkbox.is-source:checked  { background: var(--source);  border-color: var(--source); }
+      .sp-checkbox.is-person:checked  { background: var(--person);  border-color: var(--person); }
       .sp-checkbox:checked::after {
         content: '';
         position: absolute;
@@ -1587,9 +1590,12 @@ function SPStyles() {
         transform: rotate(45deg);
       }
       .sp-checkbox:indeterminate {
-        background: var(--ink);
-        border-color: var(--ink);
+        background: var(--primary);
+        border-color: var(--primary);
       }
+      .sp-checkbox.is-concept:indeterminate { background: var(--concept); border-color: var(--concept); }
+      .sp-checkbox.is-source:indeterminate  { background: var(--source);  border-color: var(--source); }
+      .sp-checkbox.is-person:indeterminate  { background: var(--person);  border-color: var(--person); }
       .sp-checkbox:indeterminate::after {
         content: '';
         position: absolute;
@@ -1656,11 +1662,11 @@ function SPStyles() {
       }
       .sp-action:disabled { opacity: 0.4; cursor: not-allowed; }
       .sp-action-primary {
-        background: var(--ink);
+        background: var(--primary);
         color: var(--paper);
-        border: 1px solid var(--ink);
+        border: 1px solid var(--primary);
       }
-      .sp-action-primary:hover:not(:disabled) { background: var(--ink-2); border-color: var(--ink-2); }
+      .sp-action-primary:hover:not(:disabled) { background: var(--primary-dark); border-color: var(--primary-dark); }
       .sp-action-secondary {
         background: var(--paper);
         border: 1px solid var(--ink-line);
@@ -1702,18 +1708,19 @@ function SPStyles() {
         color: var(--ink-3);
         margin-bottom: 12px;
       }
-      .sp-kpi-label.is-concept { color: var(--concept); }
-      .sp-kpi-label.is-source { color: var(--source); }
-      .sp-kpi-label.is-person { color: var(--person); }
       .sp-kpi-value {
         font-family: var(--serif);
         font-size: 38px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         line-height: 1;
         font-variant-numeric: lining-nums;
         letter-spacing: -0.01em;
       }
+      .sp-kpi-value.is-concept { color: var(--concept); }
+      .sp-kpi-value.is-source  { color: var(--source); }
+      .sp-kpi-value.is-person  { color: var(--person); }
+      .sp-kpi-value.is-navy    { color: var(--primary); }
       .sp-kpi-delta {
         font-size: 12px;
         color: var(--ink-3);
@@ -1904,8 +1911,8 @@ function SPStyles() {
         color: var(--ink-3);
         margin-top: 3px;
       }
-      .sp-td-people { color: var(--person); white-space: nowrap; }
-      .sp-text-person { color: var(--person); }
+      .sp-td-people { color: var(--ink-2); white-space: nowrap; }
+      .sp-text-person { color: var(--ink-2); }
       .sp-td-journal { color: var(--ink-2); }
       .sp-td-num { color: var(--ink-2); font-size: 12.5px; }
       .sp-link { color: var(--ink); border-bottom: 1px solid transparent; }
@@ -2007,6 +2014,7 @@ function SPStyles() {
       .sp-form { display: flex; flex-direction: column; gap: 20px; }
       .sp-field { display: flex; flex-direction: column; gap: 6px; }
       .sp-label {
+        font-family: var(--font-body);
         font-size: 12px;
         font-weight: 600;
         color: var(--ink);
@@ -2052,12 +2060,12 @@ function SPStyles() {
       }
       .sp-radio:hover { border-color: var(--ink-3); color: var(--ink); }
       .sp-radio.is-selected {
-        border-color: var(--ink);
+        border-color: var(--primary);
         background: var(--paper-warm);
-        color: var(--ink);
+        color: var(--primary);
         font-weight: 500;
       }
-      .sp-radio input { accent-color: var(--ink); margin: 0; }
+      .sp-radio input { accent-color: var(--primary); margin: 0; }
       .sp-form-actions {
         display: flex;
         justify-content: flex-end;
@@ -2094,9 +2102,9 @@ function SPStyles() {
         border-radius: var(--r-sm);
       }
       .sp-ttf-row:hover { background: var(--hover); }
-      .sp-ttf-row-label.is-concept { color: var(--concept); font-weight: 500; }
-      .sp-ttf-row-label.is-source { color: var(--source); font-weight: 500; }
-      .sp-ttf-row-label.is-person { color: var(--person); font-weight: 500; }
+      .sp-ttf-row-label.is-concept,
+      .sp-ttf-row-label.is-source,
+      .sp-ttf-row-label.is-person { color: var(--ink-2); font-weight: 400; }
 
       /* ============ COMPONENT LIBRARY ============ */
       .sp-lib {
@@ -2153,7 +2161,12 @@ function SPStyles() {
         text-align: center;
         padding: 16px;
       }
-      .sp-empty-art { color: var(--ink-4); margin-bottom: 12px; }
+      .sp-empty-art {
+        color: var(--ink-4);
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: center;
+      }
       .sp-empty-stroke { stroke: currentColor; stroke-width: 1.4; fill: none; stroke-linecap: round; }
       .sp-empty-title {
         font-family: var(--serif);
@@ -2187,7 +2200,7 @@ function SPStyles() {
         padding: 0;
         transition: background 0.15s, border-color 0.15s;
       }
-      .sp-switch.is-on { background: var(--ink); border-color: var(--ink); }
+      .sp-switch.is-on { background: var(--primary); border-color: var(--primary); }
       .sp-switch-thumb {
         position: absolute;
         top: 1px;

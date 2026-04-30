@@ -2,14 +2,38 @@ import React, { useState, useEffect } from 'react';
 import ShareModal from './ShareModal';
 import MobileSidebarBackdrop from './MobileSidebarBackdrop';
 import useIsMobile from '../hooks/useIsMobile';
+import Modal from './Modal';
+import NoteCard, { NoteCardStyles } from './NoteCard';
+import NoteFormModal from './NoteFormModal';
+import PersonFormModal from './PersonFormModal';
+import ConceptFormModal from './ConceptFormModal';
+import SourceFormModal from './SourceFormModal';
+import PeopleSelector from './PeopleSelector';
+import ConceptSelector from './ConceptSelector';
+import SourceSelector from './SourceSelector';
 
-// Type → display config.  Used everywhere we render an item card so the
-// color/icon mapping stays consistent.
+// Type → display config.  Sidebar chip-cluster sections + per-type
+// selectors share the same metadata.  Map matches /tags so the two hubs
+// look and feel the same.
 const TYPE_CONFIG = {
-  sources:  { label: 'Sources',  singular: 'Source',  accent: 'var(--source)',  tint: 'var(--source-tint)',  icon: 'fa-book-open' },
-  concepts: { label: 'Concepts', singular: 'Concept', accent: 'var(--concept)', tint: 'var(--concept-tint)', icon: 'fa-lightbulb' },
-  people:   { label: 'People',   singular: 'Person',  accent: 'var(--person)',  tint: 'var(--person-tint)',  icon: 'fa-user' },
-  notes:    { label: 'Notes',    singular: 'Note',    accent: '#639CA1',        tint: '#E1EEEF',             icon: 'fa-pen-fancy' },
+  people: {
+    label: 'People', singular: 'Person',
+    accent: 'var(--person)', tint: 'var(--person-tint)',
+    icon: 'fa-user', listKey: 'people',
+    chipClass: 'is-person', itemType: 'Person',
+  },
+  concepts: {
+    label: 'Concepts', singular: 'Concept',
+    accent: 'var(--concept)', tint: 'var(--concept-tint)',
+    icon: 'fa-lightbulb', listKey: 'concepts',
+    chipClass: 'is-concept', itemType: 'Concept',
+  },
+  sources: {
+    label: 'Sources', singular: 'Source',
+    accent: 'var(--source)', tint: 'var(--source-tint)',
+    icon: 'fa-book-open', listKey: 'sources',
+    chipClass: 'is-source', itemType: 'Source',
+  },
 };
 
 const ITEM_LINK = {
@@ -17,6 +41,17 @@ const ITEM_LINK = {
   concepts: (id) => `/concepts/${id}`,
   people:   (id) => `/people/${id}`,
   notes:    (id) => `/notes/${id}`,
+};
+
+const SELECTORS = {
+  people:   PeopleSelector,
+  concepts: ConceptSelector,
+  sources:  SourceSelector,
+};
+const SELECTOR_PROPS = {
+  people:   'selectedPersonIds',
+  concepts: 'selectedConceptIds',
+  sources:  'selectedSourceIds',
 };
 
 export default function CollectionsIndex() {
@@ -35,6 +70,8 @@ export default function CollectionsIndex() {
 
   // Share modal
   const [shareCollection, setShareCollection] = useState(null);
+  // Edit modal
+  const [editingCollection, setEditingCollection] = useState(null);
 
   useEffect(() => { fetchCollections(); }, []);
 
@@ -147,10 +184,32 @@ export default function CollectionsIndex() {
     }
   };
 
+  const refreshSelected = async (collectionId) => {
+    const id = collectionId ?? selectedCollection?.id;
+    if (!id) return;
+    try {
+      const res = await fetch(`/collections/${id}.json`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedCollection((prev) => ({ ...prev, ...data }));
+        setCollections((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, items_count: data.items_count } : c))
+        );
+      }
+    } catch (e) { console.error('Refresh failed', e); }
+  };
+
+  const handleCollectionUpdated = (updated) => {
+    setSelectedCollection((prev) => ({ ...prev, ...updated }));
+    setCollections((prev) => prev.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)));
+    setEditingCollection(null);
+  };
+
   if (loading) {
     return (
       <div className="cx-loading">
         <CXStyles />
+        <NoteCardStyles />
         Loading collections.
       </div>
     );
@@ -164,6 +223,7 @@ export default function CollectionsIndex() {
     <>
       <div className="cx-shell">
         <CXStyles />
+        <NoteCardStyles />
         <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <button
@@ -264,6 +324,8 @@ export default function CollectionsIndex() {
               onShare={() => setShareCollection({ id: selectedCollection.id, name: selectedCollection.name, type: 'Collection' })}
               onDelete={() => handleDelete(selectedCollection.id)}
               onRemoveItem={handleRemoveItem}
+              onEdit={() => setEditingCollection(selectedCollection)}
+              onRefresh={refreshSelected}
             />
           ) : (
             <div className="cx-empty-main">
@@ -281,6 +343,13 @@ export default function CollectionsIndex() {
           shareable={shareCollection}
         />
       )}
+
+      <CollectionFormModal
+        isOpen={!!editingCollection}
+        item={editingCollection}
+        onClose={() => setEditingCollection(null)}
+        onSuccess={handleCollectionUpdated}
+      />
     </>
   );
 }
@@ -326,141 +395,476 @@ function CollectionsList({ label, collections, selectedId, onSelect, empty, shar
 }
 
 // =====================================================================
-// Detail pane — modeled on SourceShow chrome
+// Detail pane — notes-centric hub modeled on /tags TagDetail.  Hero +
+// 2-col layout: NotesPanel main, sidebar with chip clusters and the
+// canonical sources/concepts/people lists.
 // =====================================================================
-function CollectionDetail({ collection, onShare, onDelete, onRemoveItem }) {
+function CollectionDetail({ collection, onShare, onDelete, onRemoveItem, onEdit, onRefresh }) {
   const isOwner = collection.is_owner;
-  const totalItems = collection.items_count || 0;
-  const isEmpty = totalItems === 0;
-  const stats = ['sources', 'concepts', 'people', 'notes']
-    .map((type) => ({ type, count: collection[type]?.length || 0 }))
+  const canEdit = isOwner || collection.share_permission === 'collaborator';
+
+  // Per-type modals: link existing + create new — same pattern as /tags.
+  const [openLink, setOpenLink] = useState(null);   // 'people' | 'concepts' | 'sources' | null
+  const [openCreate, setOpenCreate] = useState(null);
+  const [selectedIds, setSelectedIds] = useState({ people: [], concepts: [], sources: [] });
+
+  // Notes are the heart of the collection.  null = closed, 'new' = create,
+  // else edit object — same convention as TagsIndex.
+  const [noteModal, setNoteModal] = useState(null);
+
+  const stats = Object.keys(TYPE_CONFIG)
+    .map((type) => ({ type, count: (collection[TYPE_CONFIG[type].listKey] || []).length }))
     .filter((s) => s.count > 0);
+  const notes = collection.notes || [];
+
+  const startLink = (type) => {
+    const ids = (collection[TYPE_CONFIG[type].listKey] || []).map((it) => it.id);
+    setSelectedIds((prev) => ({ ...prev, [type]: ids }));
+    setOpenLink(type);
+  };
+
+  // Diff selection against current set: POST add_item for new picks,
+  // DELETE remove_item for deselections.  Bulk concurrent for snappier UX.
+  const handleLink = async (type) => {
+    const cfg = TYPE_CONFIG[type];
+    const before = new Set((collection[cfg.listKey] || []).map((it) => it.id));
+    const after  = new Set(selectedIds[type]);
+    const toAdd    = [...after].filter((id) => !before.has(id));
+    const toRemove = [...before].filter((id) => !after.has(id));
+    try {
+      await Promise.all([
+        ...toAdd.map((id) => addItem(collection.id, cfg.itemType, id)),
+        ...toRemove.map((id) => removeItem(collection.id, cfg.itemType, id)),
+      ]);
+      await onRefresh();
+      setOpenLink(null);
+      setSelectedIds((prev) => ({ ...prev, [type]: [] }));
+    } catch (e) {
+      console.error(`Link ${type} failed`, e);
+      alert(`Could not update ${cfg.label.toLowerCase()}.`);
+    }
+  };
+
+  const handleCreated = async (type, created) => {
+    const cfg = TYPE_CONFIG[type];
+    if (created?.id) {
+      try { await addItem(collection.id, cfg.itemType, created.id); }
+      catch (e) { console.error('Auto-attach to collection failed', e); }
+    }
+    setOpenCreate(null);
+    onRefresh();
+  };
+
+  const handleDeleteNote = async (note) => {
+    if (!window.confirm("Delete this note? This can't be undone.")) return;
+    try {
+      const r = await fetch(`/notes/${note.id}`, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/json', 'X-CSRF-Token': csrfToken() },
+      });
+      if (r.ok) onRefresh();
+      else alert('Could not delete the note.');
+    } catch (e) {
+      console.error('Delete note failed', e);
+      alert('Could not delete the note.');
+    }
+  };
 
   return (
-    <div className="cx-detail">
-      <header className="cx-detail-head">
-        <div className="cx-detail-titleline">
-          <i className="fas fa-folder-open cx-detail-folder" />
-          <h1 className="cx-detail-title">{collection.name}</h1>
-        </div>
-        {isOwner && (
+    <>
+      <NoteFormModal
+        isOpen={!!noteModal}
+        onClose={() => setNoteModal(null)}
+        item={noteModal === 'new' ? null : noteModal}
+        prefill={noteModal === 'new' ? { collection_ids: [collection.id] } : undefined}
+        onSuccess={async () => { setNoteModal(null); await onRefresh(); }}
+      />
+
+      <div className="cx-detail">
+        <header className="cx-detail-head">
+          <div className="cx-detail-titleline">
+            <h1 className="cx-detail-title">{collection.name}</h1>
+          </div>
           <div className="cx-detail-actions">
-            <button type="button" className="sp-action sp-action-quiet" onClick={onShare} title="Share">
-              <i className="fas fa-share-alt" /> Share
-            </button>
-            <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={onDelete} title="Delete">
-              <i className="fas fa-trash" /> Delete
-            </button>
+            {isOwner && (
+              <button type="button" className="sp-action sp-action-quiet" onClick={onEdit} title="Edit collection">
+                <i className="fas fa-pen" /> Edit
+              </button>
+            )}
+            {isOwner && (
+              <button type="button" className="sp-action sp-action-quiet" onClick={onShare} title="Share">
+                <i className="fas fa-share-alt" /> Share
+              </button>
+            )}
+            {isOwner && (
+              <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={onDelete} title="Delete">
+                <i className="fas fa-trash" /> Delete
+              </button>
+            )}
+          </div>
+        </header>
+
+        {collection.description && <p className="cx-detail-desc">{collection.description}</p>}
+
+        {!isOwner && (
+          <div className="cx-share-info">
+            <span className="cx-share-label">Shared by:</span>
+            <span className="cx-share-value">{collection.owner_email}</span>
+            <span className="cx-share-perm">{formatPermission(collection.share_permission)}</span>
           </div>
         )}
+
+        {isOwner && Array.isArray(collection.shares) && collection.shares.length > 0 && (
+          <div className="cx-share-info is-owner">
+            <div className="cx-share-info-head">
+              <i className="fas fa-users" /> Shared with
+            </div>
+            <ul className="cx-share-list">
+              {collection.shares.map((s) => (
+                <li key={s.id}>
+                  <span>{s.email}</span>
+                  <span className="cx-share-perm">{formatPermission(s.permission)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="cx-2col">
+          <main className="cx-2col-main">
+            <NotesPanel
+              notes={notes}
+              canEdit={canEdit}
+              onCreateNew={() => setNoteModal('new')}
+              onEditNote={(note) => setNoteModal(note)}
+              onDeleteNote={handleDeleteNote}
+              onRemoveFromCollection={canEdit ? (note) => onRemoveItem(collection.id, 'Note', note.id) : null}
+            />
+          </main>
+
+          <aside className="cx-2col-side">
+            <div className="cx-side-stats">
+              {Object.keys(TYPE_CONFIG).map((type) => (
+                <div key={type} className="cx-side-stat">
+                  <span className="cx-side-stat-value">{(collection[TYPE_CONFIG[type].listKey] || []).length}</span>
+                  <span className="cx-side-stat-label">{TYPE_CONFIG[type].label}</span>
+                </div>
+              ))}
+            </div>
+            {Object.keys(TYPE_CONFIG).map((type) => (
+              <SideSection
+                key={type}
+                type={type}
+                cfg={TYPE_CONFIG[type]}
+                items={collection[TYPE_CONFIG[type].listKey] || []}
+                canEdit={canEdit}
+                collectionId={collection.id}
+                onLink={() => startLink(type)}
+                onCreate={() => setOpenCreate(type)}
+                onRemove={(id) => onRemoveItem(collection.id, TYPE_CONFIG[type].itemType, id).then(onRefresh)}
+              />
+            ))}
+          </aside>
+        </div>
+      </div>
+
+      {/* Link Existing modals (per type) */}
+      {Object.keys(TYPE_CONFIG).map((type) => {
+        const cfg = TYPE_CONFIG[type];
+        const Selector = SELECTORS[type];
+        const selectorProp = SELECTOR_PROPS[type];
+        return (
+          <Modal
+            key={`link-${type}`}
+            isOpen={openLink === type}
+            onClose={() => setOpenLink(null)}
+            title={`Link ${cfg.label} to Collection`}
+            titleColor={cfg.accent}
+            size="large"
+          >
+            <div className="cx-modal-body">
+              <Selector
+                {...{ [selectorProp]: selectedIds[type] }}
+                onChange={(ids) => setSelectedIds((prev) => ({ ...prev, [type]: ids }))}
+                themeColor={cfg.accent}
+              />
+            </div>
+            <div className="cx-modal-footer">
+              <button type="button" className="sp-action sp-action-secondary" onClick={() => setOpenLink(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="sp-action sp-action-primary cx-modal-save"
+                style={{ background: cfg.accent, borderColor: cfg.accent }}
+                onClick={() => handleLink(type)}
+              >
+                Save ({selectedIds[type].length})
+              </button>
+            </div>
+          </Modal>
+        );
+      })}
+
+      {/* Create New modals — auto-attach to this collection on success */}
+      <PersonFormModal
+        isOpen={openCreate === 'people'}
+        onClose={() => setOpenCreate(null)}
+        onSuccess={(p) => handleCreated('people', p)}
+      />
+      <ConceptFormModal
+        isOpen={openCreate === 'concepts'}
+        onClose={() => setOpenCreate(null)}
+        onSuccess={(c) => handleCreated('concepts', c)}
+      />
+      <SourceFormModal
+        isOpen={openCreate === 'sources'}
+        onClose={() => setOpenCreate(null)}
+        onSuccess={(s) => handleCreated('sources', s)}
+      />
+    </>
+  );
+}
+
+async function addItem(collectionId, itemType, itemId) {
+  const r = await fetch(`/collections/${collectionId}/add_item`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+    body: JSON.stringify({ item_type: itemType, item_id: itemId }),
+  });
+  if (!r.ok) throw new Error(`add_item ${r.status}`);
+}
+
+async function removeItem(collectionId, itemType, itemId) {
+  const r = await fetch(`/collections/${collectionId}/remove_item`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+    body: JSON.stringify({ item_type: itemType, item_id: itemId }),
+  });
+  if (!r.ok) throw new Error(`remove_item ${r.status}`);
+}
+
+// =====================================================================
+// Notes panel — central column.  Big void when empty, list of NoteCards
+// when populated.  Click a card to edit; "+ New Note" creates and
+// auto-attaches to this collection.  Mirrors /tags NotesPanel.
+// =====================================================================
+function NotesPanel({ notes, canEdit, onCreateNew, onEditNote, onDeleteNote, onRemoveFromCollection }) {
+  if (notes.length === 0) {
+    return canEdit ? (
+      <button type="button" className="cx-notes-void" onClick={onCreateNew}>
+        <span className="cx-notes-void-plus">+</span>
+        <span className="cx-notes-void-label">Add a note for this collection</span>
+        <span className="cx-notes-void-hint">
+          Quick logs, decisions, takeaways — anything tied to this project lives here.
+        </span>
+      </button>
+    ) : (
+      <div className="cx-notes-empty">
+        <p>No notes in this collection yet.</p>
+      </div>
+    );
+  }
+  return (
+    <section className="cx-notes">
+      <header className="cx-notes-head">
+        <h2 className="cx-notes-heading">
+          Notes <span className="cx-notes-count">{notes.length}</span>
+        </h2>
+        {canEdit && (
+          <button type="button" className="sp-action sp-action-primary cx-notes-cta" onClick={onCreateNew}>
+            <i className="fas fa-pen-fancy" /> New Note
+          </button>
+        )}
+      </header>
+      <ul className="nx-list nx-list-card">
+        {notes.map((note) => (
+          <NoteCard
+            key={note.id}
+            note={note}
+            onView={canEdit ? onEditNote : undefined}
+            onEdit={canEdit ? onEditNote : undefined}
+            onDelete={canEdit ? onDeleteNote : undefined}
+            omitChips={['collection']}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+// =====================================================================
+// Sidebar section — chip clusters per type, with calm Link/New footer
+// buttons.  Mirrors the /tags SideSection with one extra affordance:
+// per-chip remove (since collections support direct removal).
+// =====================================================================
+function SideSection({ type, cfg, items, canEdit, collectionId, onLink, onCreate, onRemove }) {
+  // Default cap of 10 per section.  Click "Show more" to reveal the rest;
+  // click "Show less" to recollapse.  Per-section local state so opening
+  // one cluster doesn't change the others.
+  const COLLAPSED = 10;
+  const [expanded, setExpanded] = useState(false);
+  const visible = expanded ? items : items.slice(0, COLLAPSED);
+  const overflow = items.length - visible.length;
+  const canCollapse = items.length > COLLAPSED;
+
+  return (
+    <div className="cx-side-section" style={{ '--cx-side-color': cfg.accent }}>
+      <header className="cx-side-head">
+        <span className="cx-side-label">
+          <span className="cx-side-dot" aria-hidden="true" />
+          {cfg.label}
+        </span>
+        <span className="cx-side-count">{items.length}</span>
       </header>
 
-      {collection.description && (
-        <p className="cx-detail-desc">{collection.description}</p>
-      )}
-
-      {!isOwner && (
-        <div className="cx-share-info">
-          <span className="cx-share-label">Shared by:</span>
-          <span className="cx-share-value">{collection.owner_email}</span>
-          <span className="cx-share-perm">{formatPermission(collection.share_permission)}</span>
-        </div>
-      )}
-
-      {isOwner && Array.isArray(collection.shares) && collection.shares.length > 0 && (
-        <div className="cx-share-info is-owner">
-          <div className="cx-share-info-head">
-            <i className="fas fa-users" /> Shared with
-          </div>
-          <ul className="cx-share-list">
-            {collection.shares.map((s) => (
-              <li key={s.id}>
-                <span>{s.email}</span>
-                <span className="cx-share-perm">{formatPermission(s.permission)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {stats.length > 0 && (
-        <div className="cx-stats">
-          {stats.map(({ type, count }) => (
-            <div key={type} className="cx-stat" style={{ '--cx-stat-color': TYPE_CONFIG[type].accent }}>
-              <i className={`fas ${TYPE_CONFIG[type].icon}`} />
-              <div className="cx-stat-text">
-                <div className="cx-stat-value">{count}</div>
-                <div className="cx-stat-label">{TYPE_CONFIG[type].label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {isEmpty ? (
-        <div className="cx-detail-empty">
-          <i className="fas fa-inbox cx-detail-empty-icon" />
-          <p>This collection is empty.</p>
-          <p className="cx-detail-empty-hint">Add items from their detail pages.</p>
-        </div>
+      {items.length === 0 ? (
+        <p className="cx-side-empty">None linked yet.</p>
       ) : (
-        <div className="cx-sections">
-          {Object.keys(TYPE_CONFIG).map((type) => {
-            const items = collection[type] || [];
-            if (items.length === 0) return null;
-            const cfg = TYPE_CONFIG[type];
+        <div className="cx-side-chips">
+          {visible.map((it) => {
+            const label = it.label || it.full_name || it.title || 'Untitled';
+            const tooltip = type === 'sources' && it.year ? `${label} (${it.year})` : label;
             return (
-              <section key={type} className="cx-section">
-                <h2 className="cx-section-head" style={{ '--cx-section-color': cfg.accent }}>
-                  <i className={`fas ${cfg.icon}`} /> {cfg.label}
-                  <span className="cx-section-count">{items.length}</span>
-                </h2>
-                <div className="cx-items-grid">
-                  {items.map((item) => (
-                    <ItemCard
-                      key={`${type}-${item.id}`}
-                      item={item}
-                      type={type}
-                      cfg={cfg}
-                      canRemove={isOwner}
-                      onRemove={() => onRemoveItem(collection.id, cfg.singular, item.id)}
-                    />
-                  ))}
-                </div>
-              </section>
+              <a
+                key={it.id}
+                href={ITEM_LINK[type](it.id)}
+                className={`sp-chip ${cfg.chipClass} cx-side-chip`}
+                title={tooltip}
+              >
+                {label}
+              </a>
             );
           })}
+        </div>
+      )}
+
+      {canCollapse && (
+        <button
+          type="button"
+          className="cx-side-toggle"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+        >
+          {expanded ? 'Show less' : `Show ${overflow} more`}
+        </button>
+      )}
+
+      {canEdit && (
+        <div className="cx-side-foot">
+          <button
+            type="button"
+            className="cx-side-foot-btn"
+            onClick={onLink}
+            title={`Link existing ${cfg.label.toLowerCase()}`}
+          >
+            <i className="fas fa-link" /> Link
+          </button>
+          <button
+            type="button"
+            className="cx-side-foot-btn"
+            onClick={onCreate}
+            title={`Create new ${cfg.singular.toLowerCase()}`}
+          >
+            <i className="fas fa-plus" /> New
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-function ItemCard({ item, type, cfg, canRemove, onRemove }) {
-  const label = item.title || item.label || item.full_name || (item.body ? item.body.slice(0, 60) : 'Untitled');
-  return (
-    <article className="cx-item-card" style={{ '--cx-item-color': cfg.accent }}>
-      <a href={ITEM_LINK[type](item.id)} className="cx-item-link" title={label}>
-        {label}
-      </a>
-      {canRemove && (
-        <button
-          type="button"
-          className="cx-item-remove"
-          onClick={(e) => { e.preventDefault(); onRemove(); }}
-          aria-label={`Remove from collection`}
-          title="Remove from collection"
-        >
-          <i className="fas fa-times" />
-        </button>
-      )}
-    </article>
-  );
-}
-
 function formatPermission(p) {
   if (!p) return '';
   return p.charAt(0).toUpperCase() + p.slice(1);
+}
+
+// =====================================================================
+// Edit-collection modal — minimal name + description form.  Mirrors
+// TagFormModal in chrome.
+// =====================================================================
+function CollectionFormModal({ isOpen, item, onClose, onSuccess }) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setName(item?.name || '');
+    setDescription(item?.description || '');
+    setError('');
+  }, [isOpen, item]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const url = item?.id ? `/collections/${item.id}` : '/collections';
+      const method = item?.id ? 'PATCH' : 'POST';
+      const r = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ collection: { name: name.trim(), description: description.trim() } }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        onSuccess({ ...item, ...data });
+      } else {
+        const data = await r.json();
+        setError(data.errors?.join(', ') || 'Failed to save collection');
+      }
+    } catch (e) {
+      console.error('Save collection failed', e);
+      setError('Failed to save collection');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Collection" size="medium">
+      <form onSubmit={handleSubmit} className="cx-cfm-body">
+        {error && <div className="cx-cfm-error">{error}</div>}
+        <div className="cx-cfm-field">
+          <label className="cx-cfm-label">Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="form-input"
+            placeholder="Dissertation Lit Review"
+            autoFocus
+            required
+          />
+        </div>
+        <div className="cx-cfm-field">
+          <label className="cx-cfm-label">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="form-textarea"
+            rows={3}
+            placeholder="Optional — what this collection is for."
+          />
+        </div>
+        <div className="cx-cfm-foot">
+          <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>Cancel</button>
+          <button
+            type="submit"
+            className="sp-action sp-action-primary cx-cfm-save"
+            disabled={submitting || !name.trim()}
+          >
+            {submitting ? 'Saving…' : 'Save changes'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
 }
 
 // =====================================================================
@@ -725,11 +1129,6 @@ function CXStyles() {
         gap: 14px;
         min-width: 0;
       }
-      .cx-detail-folder {
-        color: var(--primary);
-        font-size: 22px;
-        flex-shrink: 0;
-      }
       .cx-detail-title {
         font-family: var(--font-display);
         font-size: 32px;
@@ -816,37 +1215,41 @@ function CXStyles() {
         border-radius: var(--r-sm);
       }
 
-      /* ---------- Stats grid ---------- */
-      .cx-stats {
+      /* ---------- 2-col body: notes main + chip-cluster sidebar ---------- */
+      .cx-2col {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+        gap: 32px;
+        margin-top: 18px;
+      }
+      .cx-2col-main { min-width: 0; }
+      .cx-2col-side {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        position: sticky;
+        top: 16px;
+        align-self: flex-start;
+      }
+
+      /* ---------- Sidebar stat tiles (mirrors tx-side-stats) ---------- */
+      .cx-side-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        margin-bottom: 28px;
-        padding-bottom: 24px;
+        padding-bottom: 18px;
         border-bottom: 1px solid var(--ink-line);
       }
-      .cx-stat {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 14px;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-left: 3px solid var(--cx-stat-color, var(--ink-3));
-        border-radius: var(--r-md);
-      }
-      .cx-stat i {
-        font-size: 18px;
-        color: var(--cx-stat-color, var(--ink-3));
-      }
-      .cx-stat-value {
+      .cx-side-stat { display: flex; flex-direction: column; gap: 2px; }
+      .cx-side-stat-value {
         font-family: var(--font-display);
         font-size: 22px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--primary);
         line-height: 1.1;
+        font-variant-numeric: tabular-nums;
       }
-      .cx-stat-label {
+      .cx-side-stat-label {
         font-family: var(--font-body);
         font-size: 10.5px;
         font-weight: 700;
@@ -855,115 +1258,236 @@ function CXStyles() {
         color: var(--ink-3);
       }
 
-      /* ---------- Sections + items ---------- */
-      .cx-sections { display: flex; flex-direction: column; gap: 32px; }
-      .cx-section { display: flex; flex-direction: column; gap: 12px; }
-      .cx-section-head {
+      /* ---------- Sidebar chip-cluster sections ---------- */
+      .cx-side-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .cx-side-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .cx-side-label {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .cx-side-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--cx-side-color, var(--ink-3));
+        flex-shrink: 0;
+        position: relative;
+        top: 1px;
+      }
+      .cx-side-count {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .cx-side-empty {
+        margin: 0;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-4);
+        font-style: italic;
+      }
+      .cx-side-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .cx-side-chip {
+        text-decoration: none;
+        max-width: 240px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: filter 0.12s;
+      }
+      a.cx-side-chip:hover { filter: brightness(0.95); }
+      .cx-side-toggle {
+        align-self: flex-start;
+        margin-top: 4px;
+        padding: 2px 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--cx-side-color, var(--primary));
+        opacity: 0.75;
+        transition: opacity 0.12s;
+      }
+      .cx-side-toggle:hover { opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
+      .cx-side-foot {
+        display: inline-flex;
+        gap: 14px;
+        margin-top: 6px;
+      }
+      .cx-side-foot-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.12s;
+      }
+      .cx-side-foot-btn:hover { color: var(--cx-side-color, var(--ink-2)); }
+      .cx-side-foot-btn i { font-size: 9.5px; opacity: 0.85; }
+
+      /* ---------- Notes panel (main column) ---------- */
+      .cx-notes-void {
+        width: 100%;
+        background: var(--paper-soft);
+        border: 2px dashed var(--ink-line);
+        border-radius: var(--r-lg);
+        padding: 56px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+        cursor: pointer;
+        font-family: inherit;
+        color: var(--ink-3);
+        transition: border-color 0.15s, background 0.15s, color 0.15s;
+      }
+      .cx-notes-void:hover {
+        border-color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 4%, var(--paper-soft));
+        color: var(--ink-2);
+      }
+      .cx-notes-void-plus {
+        font-family: var(--font-display);
+        font-size: 36px;
+        line-height: 1;
+        color: var(--primary);
+      }
+      .cx-notes-void-label {
         font-family: var(--font-display);
         font-size: 18px;
         font-weight: 600;
-        color: var(--cx-section-color, var(--ink));
+        color: var(--ink);
+      }
+      .cx-notes-void-hint {
+        font-family: var(--font-body);
+        font-size: 13px;
+        max-width: 420px;
+      }
+      .cx-notes-empty {
+        padding: 32px 16px;
+        text-align: center;
+        color: var(--ink-4);
+        font-family: var(--font-body);
+        font-size: 13px;
+      }
+      .cx-notes { display: flex; flex-direction: column; gap: 14px; }
+      .cx-notes-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .cx-notes-heading {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--primary);
         margin: 0;
         display: inline-flex;
-        align-items: center;
+        align-items: baseline;
         gap: 8px;
-        letter-spacing: -0.005em;
       }
-      .cx-section-head i { font-size: 14px; }
-      .cx-section-count {
+      .cx-notes-count {
         font-family: var(--font-mono);
         font-size: 13px;
         color: var(--ink-3);
         font-weight: 400;
-        margin-left: 2px;
       }
+      .cx-notes-cta { background: var(--primary); border-color: var(--primary); color: var(--paper); }
+      .cx-notes-cta:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
 
-      .cx-items-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 12px;
+      /* ---------- Modals ---------- */
+      .cx-modal-body { padding: 16px 24px; min-height: 320px; }
+      .cx-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-top: 1px solid var(--ink-line);
+        background: var(--paper-soft);
       }
+      .cx-modal-save { color: var(--paper); }
 
-      /* Item card — type-colored top accent, hover lift, hover-only X
-         button.  Compact since collections often hold many items. */
-      .cx-item-card {
-        position: relative;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-top: 3px solid var(--cx-item-color, var(--ink-3));
+      /* Edit-collection modal */
+      .cx-cfm-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 22px 24px 14px;
+      }
+      .cx-cfm-error {
+        padding: 10px 14px;
+        background: color-mix(in srgb, var(--error) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
         border-radius: var(--r-md);
-        padding: 12px 14px;
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.04),
-          0 8px 18px rgba(21, 25, 31, 0.05);
-        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
-      }
-      .cx-item-card:hover {
-        border-color: var(--cx-item-color, var(--ink-3));
-        box-shadow:
-          0 1px 2px rgba(21, 25, 31, 0.05),
-          0 14px 28px rgba(21, 25, 31, 0.10);
-        transform: translateY(-1px);
-      }
-      .cx-item-link {
-        display: block;
-        font-family: var(--font-body);
-        font-size: 13.5px;
-        font-weight: 500;
-        line-height: 1.4;
-        color: var(--ink);
-        text-decoration: none;
-        padding-right: 22px;
-        word-break: break-word;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .cx-item-card:hover .cx-item-link { color: var(--cx-item-color, var(--ink)); }
-      .cx-item-remove {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        background: transparent;
-        border: none;
-        color: var(--ink-4);
-        cursor: pointer;
-        padding: 4px 6px;
-        border-radius: var(--r-sm);
-        font-size: 11px;
-        opacity: 0;
-        transition: opacity 0.15s, background 0.15s, color 0.15s;
-      }
-      .cx-item-card:hover .cx-item-remove,
-      .cx-item-card:focus-within .cx-item-remove { opacity: 1; }
-      @media (hover: none) { .cx-item-remove { opacity: 1; } }
-      .cx-item-remove:hover {
-        background: rgba(122, 46, 46, 0.08);
         color: var(--error);
-      }
-
-      /* ---------- Detail empty state ---------- */
-      .cx-detail-empty {
-        text-align: center;
-        padding: 56px 16px;
-        color: var(--ink-3);
         font-family: var(--font-body);
+        font-size: 13px;
       }
-      .cx-detail-empty p { margin: 0; font-size: 14px; }
-      .cx-detail-empty-hint {
-        margin-top: 6px !important;
-        font-size: 12.5px;
-        color: var(--ink-4);
+      .cx-cfm-field { display: flex; flex-direction: column; gap: 6px; }
+      .cx-cfm-label {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--primary);
       }
-      .cx-detail-empty-icon {
-        display: block;
-        font-size: 40px;
-        color: var(--ink-line);
-        margin-bottom: 12px;
+      .cx-cfm-foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 0 6px;
+        border-top: 1px solid var(--ink-line);
+        margin-top: 4px;
+      }
+      .cx-cfm-save {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--paper);
+      }
+      .cx-cfm-save:hover:not(:disabled) {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
       }
 
       /* ---------- Responsive ---------- */
+      @media (max-width: 900px) {
+        .cx-2col { grid-template-columns: 1fr; }
+        .cx-2col-side { position: static; order: 1; }
+        .cx-2col-main { order: 2; }
+      }
       @media (max-width: 768px) {
         .cx-detail { padding: 18px 16px 56px; }
         .cx-detail-title { font-size: 24px; }

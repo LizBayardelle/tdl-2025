@@ -165,7 +165,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('bold') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('bold') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('bold') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Bold"
                   >
                     <FontAwesomeIcon icon={faBold} />
@@ -174,7 +174,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('italic') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('italic') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('italic') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Italic"
                   >
                     <FontAwesomeIcon icon={faItalic} />
@@ -183,7 +183,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('underline') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('underline') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('underline') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Underline"
                   >
                     <FontAwesomeIcon icon={faUnderline} />
@@ -192,7 +192,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('strike') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('strike') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('strike') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Strikethrough"
                   >
                     <FontAwesomeIcon icon={faStrikethrough} />
@@ -211,7 +211,7 @@ export default function NotesForm() {
                       }
                     }}
                     className="px-2 py-1 rounded text-sm border border-primary/20 bg-sand hover:bg-primary/10"
-                    style={{ color: '#414431' }}
+                    style={{ color: 'var(--primary)' }}
                     value={
                       editor.isActive('heading', { level: 1 }) ? '1' :
                       editor.isActive('heading', { level: 2 }) ? '2' :
@@ -256,7 +256,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('left').run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive({ textAlign: 'left' }) ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive({ textAlign: 'left' }) ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive({ textAlign: 'left' }) ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Align Left"
                   >
                     <FontAwesomeIcon icon={faAlignLeft} />
@@ -265,7 +265,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('center').run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive({ textAlign: 'center' }) ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive({ textAlign: 'center' }) ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive({ textAlign: 'center' }) ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Align Center"
                   >
                     <FontAwesomeIcon icon={faAlignCenter} />
@@ -274,7 +274,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().setTextAlign('right').run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive({ textAlign: 'right' }) ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive({ textAlign: 'right' }) ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive({ textAlign: 'right' }) ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Align Right"
                   >
                     <FontAwesomeIcon icon={faAlignRight} />
@@ -287,7 +287,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('bulletList') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('bulletList') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('bulletList') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Bullet List"
                   >
                     <FontAwesomeIcon icon={faListUl} />
@@ -296,7 +296,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('orderedList') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('orderedList') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('orderedList') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Numbered List"
                   >
                     <FontAwesomeIcon icon={faListOl} />
@@ -314,7 +314,7 @@ export default function NotesForm() {
                       }
                     }}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('link') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('link') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('link') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Insert Link"
                   >
                     <FontAwesomeIcon icon={faLink} />
@@ -324,7 +324,7 @@ export default function NotesForm() {
                     onClick={() => editor.chain().focus().unsetLink().run()}
                     disabled={!editor.isActive('link')}
                     className="px-3 py-1 rounded text-sm hover:bg-primary/10 disabled:opacity-50"
-                    style={{ background: 'transparent', color: '#414431' }}
+                    style={{ background: 'transparent', color: 'var(--primary)' }}
                     title="Remove Link"
                   >
                     <FontAwesomeIcon icon={faUnlink} />
@@ -337,7 +337,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('blockquote') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('blockquote') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('blockquote') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Blockquote"
                   >
                     <FontAwesomeIcon icon={faQuoteLeft} />
@@ -346,7 +346,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                     className={`px-3 py-1 rounded text-sm ${editor.isActive('codeBlock') ? 'bg-primary/20' : 'hover:bg-primary/10'}`}
-                    style={{ background: editor.isActive('codeBlock') ? 'rgba(65, 68, 49, 0.2)' : 'transparent', color: '#414431' }}
+                    style={{ background: editor.isActive('codeBlock') ? 'color-mix(in srgb, var(--primary) 14%, transparent)' : 'transparent', color: 'var(--primary)' }}
                     title="Code Block"
                   >
                     <FontAwesomeIcon icon={faCode} />
@@ -359,7 +359,7 @@ export default function NotesForm() {
                     type="button"
                     onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
                     className="px-3 py-1 rounded text-sm hover:bg-primary/10"
-                    style={{ background: 'transparent', color: '#414431' }}
+                    style={{ background: 'transparent', color: 'var(--primary)' }}
                     title="Insert Table"
                   >
                     <FontAwesomeIcon icon={faTable} />
@@ -375,7 +375,7 @@ export default function NotesForm() {
                       }
                     }}
                     className="px-3 py-1 rounded text-sm hover:bg-primary/10"
-                    style={{ background: 'transparent', color: '#414431' }}
+                    style={{ background: 'transparent', color: 'var(--primary)' }}
                     title="Insert Image"
                   >
                     <FontAwesomeIcon icon={faImage} />

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_30_050000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -276,6 +276,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
     t.index ["user_id"], name: "index_connections_on_user_id"
   end
 
+  create_table "dismissed_concept_notes", force: :cascade do |t|
+    t.bigint "concept_id", null: false
+    t.bigint "note_id", null: false
+    t.datetime "dismissed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concept_id", "note_id"], name: "index_dismissed_concept_notes_on_concept_id_and_note_id", unique: true
+    t.index ["concept_id"], name: "index_dismissed_concept_notes_on_concept_id"
+    t.index ["note_id"], name: "index_dismissed_concept_notes_on_note_id"
+  end
+
   create_table "domains", force: :cascade do |t|
     t.string "name", null: false
     t.bigint "parent_id"
@@ -437,6 +448,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
     t.index ["linked_type", "linked_id"], name: "index_note_links_on_linked_type_and_linked_id"
     t.index ["note_id", "linked_type", "linked_id"], name: "index_note_links_on_note_id_and_linked_type_and_linked_id"
     t.index ["note_id"], name: "index_note_links_on_note_id"
+  end
+
+  create_table "note_sources", force: :cascade do |t|
+    t.bigint "note_id", null: false
+    t.bigint "source_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["note_id", "source_id"], name: "index_note_sources_on_note_id_and_source_id", unique: true
+    t.index ["note_id"], name: "index_note_sources_on_note_id"
+    t.index ["source_id"], name: "index_note_sources_on_source_id"
   end
 
   create_table "notes", force: :cascade do |t|
@@ -719,7 +740,13 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "staged", default: false, null: false
+    t.integer "start_anchor_id"
+    t.integer "end_anchor_id"
+    t.string "start_anchor_side"
+    t.string "end_anchor_side"
+    t.index ["end_anchor_id"], name: "index_tabletop_items_on_end_anchor_id"
     t.index ["item_type", "item_id"], name: "index_tabletop_items_on_item"
+    t.index ["start_anchor_id"], name: "index_tabletop_items_on_start_anchor_id"
     t.index ["tabletop_id", "staged"], name: "index_tabletop_items_on_tabletop_id_and_staged"
     t.index ["tabletop_id", "z_index"], name: "index_tabletop_items_on_tabletop_id_and_z_index"
     t.index ["tabletop_id"], name: "index_tabletop_items_on_tabletop_id"
@@ -756,7 +783,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
     t.string "name", null: false
     t.string "slug", null: false
     t.text "description"
-    t.string "color"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_tags_on_name"
@@ -849,6 +875,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
   add_foreign_key "connections", "concepts", column: "dst_concept_id"
   add_foreign_key "connections", "concepts", column: "src_concept_id"
   add_foreign_key "connections", "users"
+  add_foreign_key "dismissed_concept_notes", "concepts", on_delete: :cascade
+  add_foreign_key "dismissed_concept_notes", "notes", on_delete: :cascade
   add_foreign_key "domains", "domains", column: "parent_id"
   add_foreign_key "highlight_colors", "users"
   add_foreign_key "highlights", "notes"
@@ -856,6 +884,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
   add_foreign_key "highlights", "users"
   add_foreign_key "linkings", "links"
   add_foreign_key "note_links", "notes"
+  add_foreign_key "note_sources", "notes", on_delete: :cascade
+  add_foreign_key "note_sources", "sources", on_delete: :cascade
   add_foreign_key "notes", "concepts"
   add_foreign_key "notes", "sources"
   add_foreign_key "notes", "users"

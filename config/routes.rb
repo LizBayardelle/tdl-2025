@@ -77,6 +77,11 @@ Rails.application.routes.draw do
       post :suggest_relationships
       post :generate_definition
       post :reject_definition
+      # Stash triage: link promotes a stash note to direct (creates the
+      # M:N concept_notes row); dismiss hides it from this concept's
+      # stash forever (creates a dismissed_concept_notes row).
+      post 'notes/:note_id/link',    to: 'concepts#link_note',    as: :link_note
+      post 'notes/:note_id/dismiss', to: 'concepts#dismiss_note', as: :dismiss_note
     end
     resources :links, only: [:index, :create, :destroy], controller: 'concept_links'
   end

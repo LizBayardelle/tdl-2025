@@ -44,7 +44,7 @@ export default function AdminPageHeader({ title, subtitle, actions, backHref, ba
               fontFamily: 'var(--font-display)',
               fontSize: isMobile ? '24px' : '32px',
               fontWeight: 600,
-              color: 'var(--ink)',
+              color: 'var(--primary)',
               letterSpacing: '-0.015em',
               marginBottom: 'var(--space-1)',
               marginTop: 0,

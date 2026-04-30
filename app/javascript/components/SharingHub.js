@@ -1,16 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 const TABS = [
-  { id: 'collections', label: 'Collections', icon: 'fa-folder' },
-  { id: 'shared-with-me', label: 'Shared with Me', icon: 'fa-inbox' },
-  { id: 'my-shares', label: 'My Shares', icon: 'fa-share' }
+  { id: 'collections',     label: 'Collections',     icon: 'fa-folder' },
+  { id: 'shared-with-me',  label: 'Shared with me',  icon: 'fa-inbox' },
+  { id: 'my-shares',       label: 'My shares',       icon: 'fa-share' },
 ];
 
 const PERMISSION_OPTIONS = [
-  { value: 'viewer', label: 'Viewer', description: 'Can view only' },
-  { value: 'editor', label: 'Editor', description: 'Can view and edit' },
-  { value: 'collaborator', label: 'Collaborator', description: 'Can view, edit, and add items' }
+  { value: 'viewer',       label: 'Viewer',       description: 'Can view only' },
+  { value: 'editor',       label: 'Editor',       description: 'Can view and edit' },
+  { value: 'collaborator', label: 'Collaborator', description: 'Can view, edit, and add items' },
 ];
+
+const TYPE_ORDER = ['Collection', 'Source', 'Concept', 'Person', 'Note'];
+
+const TYPE_META = {
+  Collection: { icon: 'fa-folder',      tone: 'neutral' },
+  Source:     { icon: 'fa-book',        tone: 'source' },
+  Concept:    { icon: 'fa-lightbulb',   tone: 'concept' },
+  Person:     { icon: 'fa-user',        tone: 'person' },
+  Note:       { icon: 'fa-pen-fancy',   tone: 'neutral' },
+};
+
+const csrf = () => document.querySelector('[name="csrf-token"]')?.content;
 
 export default function SharingHub() {
   const [activeTab, setActiveTab] = useState('collections');
@@ -30,9 +42,7 @@ export default function SharingHub() {
   const [expandedCollection, setExpandedCollection] = useState(null);
   const [collectionDetails, setCollectionDetails] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -40,13 +50,12 @@ export default function SharingHub() {
       const [collectionsRes, receivedRes, outgoingRes] = await Promise.all([
         fetch('/collections.json'),
         fetch('/shares/received.json'),
-        fetch('/shares.json')
+        fetch('/shares.json'),
       ]);
-
       if (collectionsRes.ok) setCollections(await collectionsRes.json());
-      if (receivedRes.ok) setReceivedShares(await receivedRes.json());
-      if (outgoingRes.ok) setOutgoingShares(await outgoingRes.json());
-    } catch (err) {
+      if (receivedRes.ok)    setReceivedShares(await receivedRes.json());
+      if (outgoingRes.ok)    setOutgoingShares(await outgoingRes.json());
+    } catch {
       setError('Failed to load data');
     } finally {
       setLoading(false);
@@ -56,36 +65,30 @@ export default function SharingHub() {
   const handleCreateCollection = async (e) => {
     e.preventDefault();
     if (!newCollectionName.trim()) return;
-
     setCreating(true);
     setError('');
-
     try {
-      const response = await fetch('/collections', {
+      const res = await fetch('/collections', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
         body: JSON.stringify({
           collection: {
             name: newCollectionName.trim(),
-            description: newCollectionDescription.trim()
-          }
-        })
+            description: newCollectionDescription.trim(),
+          },
+        }),
       });
-
-      if (response.ok) {
-        const newCollection = await response.json();
+      if (res.ok) {
+        const newCollection = await res.json();
         setCollections([...collections, newCollection]);
         setNewCollectionName('');
         setNewCollectionDescription('');
         setShowCreateForm(false);
       } else {
-        const data = await response.json();
+        const data = await res.json();
         setError(data.errors?.join(', ') || 'Failed to create collection');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to create collection');
     } finally {
       setCreating(false);
@@ -93,24 +96,20 @@ export default function SharingHub() {
   };
 
   const handleDeleteCollection = async (collectionId) => {
-    if (!confirm('Are you sure you want to delete this collection? This will not delete the items in it.')) return;
-
+    if (!window.confirm('Delete this collection?  Items inside it will not be deleted.')) return;
     try {
-      const response = await fetch(`/collections/${collectionId}`, {
+      const res = await fetch(`/collections/${collectionId}`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        }
+        headers: { 'X-CSRF-Token': csrf() },
       });
-
-      if (response.ok) {
-        setCollections(collections.filter(c => c.id !== collectionId));
+      if (res.ok) {
+        setCollections((cs) => cs.filter((c) => c.id !== collectionId));
         if (expandedCollection === collectionId) {
           setExpandedCollection(null);
           setCollectionDetails(null);
         }
       }
-    } catch (err) {
+    } catch {
       setError('Failed to delete collection');
     }
   };
@@ -121,398 +120,988 @@ export default function SharingHub() {
       setCollectionDetails(null);
       return;
     }
-
     try {
-      const response = await fetch(`/collections/${collectionId}.json`);
-      if (response.ok) {
-        const data = await response.json();
-        setCollectionDetails(data);
+      const res = await fetch(`/collections/${collectionId}.json`);
+      if (res.ok) {
+        setCollectionDetails(await res.json());
         setExpandedCollection(collectionId);
       }
-    } catch (err) {
+    } catch {
       console.error('Failed to load collection details');
     }
   };
 
   const handleRevokeShare = async (shareId) => {
-    if (!confirm('Are you sure you want to revoke this share?')) return;
-
+    if (!window.confirm('Revoke this share?  The recipient will lose access immediately.')) return;
     try {
-      const response = await fetch(`/shares/${shareId}`, {
+      const res = await fetch(`/shares/${shareId}`, {
         method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        }
+        headers: { 'X-CSRF-Token': csrf() },
       });
-
-      if (response.ok) {
-        setOutgoingShares(outgoingShares.filter(s => s.id !== shareId));
+      if (res.ok) {
+        setOutgoingShares((shares) => shares.filter((s) => s.id !== shareId));
       }
-    } catch (err) {
+    } catch {
       console.error('Failed to revoke share');
     }
   };
 
   const handleUpdatePermission = async (shareId, newPermission) => {
     try {
-      const response = await fetch(`/shares/${shareId}`, {
+      const res = await fetch(`/shares/${shareId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ share: { permission: newPermission } })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
+        body: JSON.stringify({ share: { permission: newPermission } }),
       });
-
-      if (response.ok) {
-        setOutgoingShares(outgoingShares.map(s =>
-          s.id === shareId ? { ...s, permission: newPermission } : s
-        ));
+      if (res.ok) {
+        setOutgoingShares((shares) =>
+          shares.map((s) => (s.id === shareId ? { ...s, permission: newPermission } : s))
+        );
       }
-    } catch (err) {
+    } catch {
       console.error('Failed to update permission');
-    }
-  };
-
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'Collection': return 'fa-folder';
-      case 'Source': return 'fa-book';
-      case 'Concept': return 'fa-lightbulb';
-      case 'Person': return 'fa-user';
-      case 'Note': return 'fa-sticky-note';
-      default: return 'fa-file';
     }
   };
 
   const getItemLink = (type, id) => {
     switch (type) {
       case 'Collection': return `/collections/${id}`;
-      case 'Source': return `/sources/${id}`;
-      case 'Concept': return `/concepts/${id}`;
-      case 'Person': return `/people/${id}`;
-      case 'Note': return `/notes/${id}`;
-      default: return '#';
+      case 'Source':     return `/sources/${id}`;
+      case 'Concept':    return `/concepts/${id}`;
+      case 'Person':     return `/people/${id}`;
+      case 'Note':       return `/notes/${id}`;
+      default:           return '#';
     }
   };
 
-  const renderCollections = () => (
+  const tabCounts = {
+    collections:      collections.length,
+    'shared-with-me': receivedShares.length,
+    'my-shares':      outgoingShares.length,
+  };
+
+  return (
+    <div className="sh-shell">
+      <SharingHubStyles />
+      <div className="sh-container">
+        <SharingHero
+          collections={collections.length}
+          received={receivedShares.length}
+          sent={outgoingShares.length}
+        />
+
+        {error && (
+          <Banner tone="error" onDismiss={() => setError('')}>{error}</Banner>
+        )}
+
+        <Tabs activeTab={activeTab} onChange={setActiveTab} counts={tabCounts} />
+
+        {loading ? (
+          <p className="sh-loading">Loading.</p>
+        ) : (
+          <>
+            {activeTab === 'collections' && (
+              <CollectionsTab
+                collections={collections}
+                showCreateForm={showCreateForm}
+                onShowCreateForm={() => setShowCreateForm(true)}
+                onCancelCreateForm={() => {
+                  setShowCreateForm(false);
+                  setNewCollectionName('');
+                  setNewCollectionDescription('');
+                }}
+                newCollectionName={newCollectionName}
+                onNewCollectionNameChange={setNewCollectionName}
+                newCollectionDescription={newCollectionDescription}
+                onNewCollectionDescriptionChange={setNewCollectionDescription}
+                creating={creating}
+                onCreateCollection={handleCreateCollection}
+                onDeleteCollection={handleDeleteCollection}
+                expandedCollection={expandedCollection}
+                onExpandCollection={handleExpandCollection}
+                collectionDetails={collectionDetails}
+                getItemLink={getItemLink}
+              />
+            )}
+            {activeTab === 'shared-with-me' && (
+              <SharedWithMeTab shares={receivedShares} getItemLink={getItemLink} />
+            )}
+            {activeTab === 'my-shares' && (
+              <MySharesTab
+                shares={outgoingShares}
+                onUpdatePermission={handleUpdatePermission}
+                onRevokeShare={handleRevokeShare}
+              />
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// Hero
+// =====================================================================
+function SharingHero({ collections, received, sent }) {
+  return (
+    <header className="sh-hero">
+      <div className="sh-hero-eyebrow">Linchpin Industries · Map My Research</div>
+      <h1 className="sh-hero-title">Sharing</h1>
+      <p className="sh-hero-lead">
+        Group sources, concepts, people, and notes into collections — then share them
+        with collaborators.  Permissions update immediately; revoking a share removes
+        access on the recipient's next page load.
+      </p>
+      <div className="sh-hero-stats">
+        <HeroStat label="Collections"     value={collections} />
+        <HeroStat label="Shared with you" value={received} />
+        <HeroStat label="You've shared"   value={sent} />
+      </div>
+    </header>
+  );
+}
+
+function HeroStat({ label, value }) {
+  return (
+    <div className="sh-hero-stat">
+      <div className="sh-hero-stat-value">{value}</div>
+      <div className="sh-hero-stat-label">{label}</div>
+    </div>
+  );
+}
+
+// =====================================================================
+// Tabs
+// =====================================================================
+function Tabs({ activeTab, onChange, counts }) {
+  return (
+    <nav className="sh-tabs" role="tablist">
+      {TABS.map((tab) => {
+        const active = activeTab === tab.id;
+        const count = counts[tab.id];
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(tab.id)}
+            className={`sh-tab ${active ? 'is-active' : ''}`}
+          >
+            <i className={`fas ${tab.icon} sh-tab-icon`} aria-hidden="true"></i>
+            {tab.label}
+            {count > 0 && <span className="sh-tab-count">{count}</span>}
+          </button>
+        );
+      })}
+    </nav>
+  );
+}
+
+// =====================================================================
+// Collections tab
+// =====================================================================
+function CollectionsTab({
+  collections,
+  showCreateForm, onShowCreateForm, onCancelCreateForm,
+  newCollectionName, onNewCollectionNameChange,
+  newCollectionDescription, onNewCollectionDescriptionChange,
+  creating, onCreateCollection,
+  onDeleteCollection,
+  expandedCollection, onExpandCollection,
+  collectionDetails, getItemLink,
+}) {
+  return (
     <div>
-      {/* Create Form */}
       {showCreateForm ? (
-        <form onSubmit={handleCreateCollection} style={{ marginBottom: '1.5rem', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '8px', backgroundColor: 'var(--color-bg-secondary, #fafafa)' }}>
-          <input
-            type="text"
-            value={newCollectionName}
-            onChange={(e) => setNewCollectionName(e.target.value)}
-            placeholder="Collection name"
-            autoFocus
-            style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-border)', borderRadius: '4px', marginBottom: '0.5rem' }}
-          />
-          <textarea
-            value={newCollectionDescription}
-            onChange={(e) => setNewCollectionDescription(e.target.value)}
-            placeholder="Description (optional)"
-            rows={2}
-            style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid var(--color-border)', borderRadius: '4px', marginBottom: '0.75rem', resize: 'vertical' }}
-          />
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="submit" disabled={creating || !newCollectionName.trim()} className="btn-primary" style={{ padding: '0.5rem 1rem' }}>
-              {creating ? 'Creating...' : 'Create Collection'}
-            </button>
-            <button type="button" onClick={() => { setShowCreateForm(false); setNewCollectionName(''); setNewCollectionDescription(''); }} className="btn-secondary" style={{ padding: '0.5rem 1rem' }}>
-              Cancel
-            </button>
-          </div>
-        </form>
+        <CreateCollectionForm
+          name={newCollectionName}
+          onNameChange={onNewCollectionNameChange}
+          description={newCollectionDescription}
+          onDescriptionChange={onNewCollectionDescriptionChange}
+          creating={creating}
+          onSubmit={onCreateCollection}
+          onCancel={onCancelCreateForm}
+        />
       ) : (
-        <button onClick={() => setShowCreateForm(true)} className="btn-primary" style={{ marginBottom: '1.5rem', padding: '0.5rem 1rem' }}>
-          <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> New Collection
+        <button
+          type="button"
+          onClick={onShowCreateForm}
+          className="sp-action sp-action-primary sh-create-trigger"
+        >
+          + New collection
         </button>
       )}
 
-      {/* Collections List */}
       {collections.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-bg-secondary, #fafafa)', borderRadius: '8px' }}>
-          <i className="fas fa-folder-open" style={{ fontSize: '2rem', marginBottom: '0.5rem', display: 'block' }}></i>
-          <div>No collections yet. Create one to organize and share your items.</div>
-        </div>
+        <EmptyState
+          icon="fa-folder-open"
+          title="No collections yet"
+          body="Create one to organize sources, concepts, people, and notes that go together — and share the whole bundle in one go."
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {collections.map(collection => (
-            <div key={collection.id} style={{ border: '1px solid var(--color-border)', borderRadius: '8px', overflow: 'hidden' }}>
-              <div
-                style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', backgroundColor: expandedCollection === collection.id ? 'var(--color-bg-secondary, #fafafa)' : 'white' }}
-                onClick={() => handleExpandCollection(collection.id)}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <i className={`fas ${expandedCollection === collection.id ? 'fa-folder-open' : 'fa-folder'}`} style={{ color: 'var(--accent-gold)' }}></i>
-                    {collection.name}
-                  </div>
-                  {collection.description && (
-                    <div style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>
-                      {collection.description}
-                    </div>
-                  )}
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', marginTop: '0.25rem' }}>
-                    {collection.items_count || 0} items
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDeleteCollection(collection.id); }}
-                    style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
-                  <i className={`fas fa-chevron-${expandedCollection === collection.id ? 'up' : 'down'}`} style={{ color: 'var(--color-text-secondary)' }}></i>
-                </div>
-              </div>
-
-              {/* Expanded Collection Details */}
-              {expandedCollection === collection.id && collectionDetails && (
-                <div style={{ borderTop: '1px solid var(--color-border)', padding: '1rem', backgroundColor: 'white' }}>
-                  {['sources', 'concepts', 'people', 'notes'].map(type => {
-                    const items = collectionDetails[type] || [];
-                    if (items.length === 0) return null;
-
-                    return (
-                      <div key={type} style={{ marginBottom: '1rem' }}>
-                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                          {type}
-                        </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                          {items.map(item => (
-                            <a
-                              key={item.id}
-                              href={getItemLink(type.charAt(0).toUpperCase() + type.slice(1, -1), item.id)}
-                              style={{ padding: '0.25rem 0.5rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '4px', fontSize: '0.875rem', textDecoration: 'none', color: 'var(--color-text-primary)' }}
-                            >
-                              {item.title || item.label || item.full_name || item.body?.substring(0, 30)}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {!collectionDetails.sources?.length && !collectionDetails.concepts?.length && !collectionDetails.people?.length && !collectionDetails.notes?.length && (
-                    <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-                      This collection is empty. Add items from their detail pages.
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+        <ul className="sh-list">
+          {collections.map((collection) => (
+            <CollectionRow
+              key={collection.id}
+              collection={collection}
+              expanded={expandedCollection === collection.id}
+              details={expandedCollection === collection.id ? collectionDetails : null}
+              onExpand={() => onExpandCollection(collection.id)}
+              onDelete={() => onDeleteCollection(collection.id)}
+              getItemLink={getItemLink}
+            />
           ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function CreateCollectionForm({
+  name, onNameChange,
+  description, onDescriptionChange,
+  creating, onSubmit, onCancel,
+}) {
+  return (
+    <form onSubmit={onSubmit} className="sh-create-form">
+      <div className="sh-create-eyebrow">New collection</div>
+      <div className="sp-field">
+        <label className="sp-label">Name</label>
+        <input
+          type="text"
+          className="sp-input"
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="e.g., Attachment theory papers"
+          autoFocus
+          required
+        />
+      </div>
+      <div className="sp-field">
+        <label className="sp-label">Description</label>
+        <textarea
+          className="sp-textarea"
+          rows={2}
+          value={description}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+          placeholder="Optional.  A short note about what belongs here."
+        />
+      </div>
+      <div className="sh-create-actions">
+        <button
+          type="submit"
+          disabled={creating || !name.trim()}
+          className="sp-action sp-action-primary"
+        >
+          {creating ? 'Creating.' : 'Create collection'}
+        </button>
+        <button type="button" onClick={onCancel} className="sp-action sp-action-secondary">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function CollectionRow({ collection, expanded, details, onExpand, onDelete, getItemLink }) {
+  return (
+    <li className={`sh-row ${expanded ? 'is-expanded' : ''}`}>
+      <button
+        type="button"
+        className="sh-row-head"
+        onClick={onExpand}
+        aria-expanded={expanded}
+      >
+        <i
+          className={`fas ${expanded ? 'fa-folder-open' : 'fa-folder'} sh-row-icon`}
+          aria-hidden="true"
+        ></i>
+        <div className="sh-row-text">
+          <div className="sh-row-title">{collection.name}</div>
+          {collection.description && (
+            <div className="sh-row-desc">{collection.description}</div>
+          )}
+          <div className="sh-row-meta">
+            {collection.items_count || 0} {(collection.items_count || 0) === 1 ? 'item' : 'items'}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="sh-row-delete"
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          aria-label={`Delete ${collection.name}`}
+        >
+          <i className="fas fa-trash" aria-hidden="true"></i>
+        </button>
+        <i className={`fas fa-chevron-${expanded ? 'up' : 'down'} sh-row-caret`} aria-hidden="true"></i>
+      </button>
+
+      {expanded && (
+        <CollectionDetails details={details} getItemLink={getItemLink} />
+      )}
+    </li>
+  );
+}
+
+function CollectionDetails({ details, getItemLink }) {
+  if (!details) {
+    return <div className="sh-row-body sh-row-empty">Loading.</div>;
+  }
+  const groups = ['sources', 'concepts', 'people', 'notes'];
+  const empty = groups.every((g) => !(details[g]?.length));
+  if (empty) {
+    return (
+      <div className="sh-row-body sh-row-empty">
+        This collection is empty.  Add items from their detail pages.
+      </div>
+    );
+  }
+  return (
+    <div className="sh-row-body">
+      {groups.map((groupKey) => {
+        const items = details[groupKey] || [];
+        if (items.length === 0) return null;
+        const Type = groupKey.charAt(0).toUpperCase() + groupKey.slice(1, -1);
+        const tone = TYPE_META[Type]?.tone || 'neutral';
+        return (
+          <div key={groupKey} className="sh-row-group">
+            <div className="sh-row-group-label">{groupKey}</div>
+            <div className="sh-row-group-chips">
+              {items.map((item) => (
+                <a
+                  key={item.id}
+                  href={getItemLink(Type, item.id)}
+                  className={`sp-chip is-${tone}`}
+                >
+                  {item.title || item.label || item.full_name || (item.body || '').substring(0, 30)}
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// =====================================================================
+// Shared with me / My shares
+// =====================================================================
+
+function SharedWithMeTab({ shares, getItemLink }) {
+  const grouped = useMemo(() => groupByType(shares), [shares]);
+  if (shares.length === 0) {
+    return (
+      <EmptyState
+        icon="fa-inbox"
+        title="Nothing shared with you yet"
+        body="When a collaborator shares an item, it'll show up here.  You'll see the same item from their library, with the permission they granted."
+      />
+    );
+  }
+  return (
+    <div className="sh-groups">
+      {TYPE_ORDER.map((type) => {
+        const list = grouped[type];
+        if (!list || list.length === 0) return null;
+        return (
+          <ShareGroup key={type} type={type} count={list.length}>
+            {list.map((share) => (
+              <a
+                key={share.id}
+                href={getItemLink(share.shareable_type, share.shareable_id)}
+                className="sh-share"
+              >
+                <div className="sh-share-text">
+                  <div className="sh-share-name">{share.shareable_name}</div>
+                  <div className="sh-share-meta">Shared by {share.email}</div>
+                </div>
+                <PermissionBadge permission={share.permission} />
+              </a>
+            ))}
+          </ShareGroup>
+        );
+      })}
+    </div>
+  );
+}
+
+function MySharesTab({ shares, onUpdatePermission, onRevokeShare }) {
+  const grouped = useMemo(() => groupByType(shares), [shares]);
+  return (
+    <div>
+      <Banner tone="info">
+        To share an item, open its detail page and click the Share button.  Permissions
+        are managed here once a share exists.
+      </Banner>
+
+      {shares.length === 0 ? (
+        <EmptyState
+          icon="fa-share"
+          title="You haven't shared anything yet"
+          body="Open a source, concept, person, or collection and click Share to grant a collaborator access."
+        />
+      ) : (
+        <div className="sh-groups">
+          {TYPE_ORDER.map((type) => {
+            const list = grouped[type];
+            if (!list || list.length === 0) return null;
+            return (
+              <ShareGroup key={type} type={type} count={list.length}>
+                {list.map((share) => (
+                  <div key={share.id} className="sh-share is-mine">
+                    <div className="sh-share-text">
+                      <div className="sh-share-name">{share.shareable_name}</div>
+                      <div className="sh-share-meta">
+                        Shared with {share.email}
+                        {share.pending && <span className="sh-pending">Pending</span>}
+                      </div>
+                    </div>
+                    <div className="sh-share-actions">
+                      <select
+                        className="sh-perm-select"
+                        value={share.permission}
+                        onChange={(e) => onUpdatePermission(share.id, e.target.value)}
+                      >
+                        {PERMISSION_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => onRevokeShare(share.id)}
+                        className="sp-action sp-action-quiet sp-action-danger sh-revoke"
+                      >
+                        Revoke
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </ShareGroup>
+            );
+          })}
         </div>
       )}
     </div>
   );
+}
 
-  const renderSharedWithMe = () => {
-    const groupedShares = receivedShares.reduce((acc, share) => {
-      const type = share.shareable_type;
-      if (!acc[type]) acc[type] = [];
-      acc[type].push(share);
-      return acc;
-    }, {});
-
-    const typeOrder = ['Collection', 'Source', 'Concept', 'Person', 'Note'];
-
-    return (
-      <div>
-        {receivedShares.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-bg-secondary, #fafafa)', borderRadius: '8px' }}>
-            <i className="fas fa-inbox" style={{ fontSize: '2rem', marginBottom: '0.5rem', display: 'block' }}></i>
-            <div>No items have been shared with you yet.</div>
-          </div>
-        ) : (
-          typeOrder.map(type => {
-            const typeShares = groupedShares[type];
-            if (!typeShares || typeShares.length === 0) return null;
-
-            return (
-              <div key={type} style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <i className={`fas ${getTypeIcon(type)}`}></i>
-                  {type === 'Person' ? 'People' : `${type}s`}
-                  <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.5rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '10px' }}>
-                    {typeShares.length}
-                  </span>
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {typeShares.map(share => (
-                    <a
-                      key={share.id}
-                      href={getItemLink(share.shareable_type, share.shareable_id)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', border: '1px solid var(--color-border)', borderRadius: '6px', backgroundColor: 'white', textDecoration: 'none', color: 'inherit' }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: 500 }}>{share.shareable_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                          Shared by {share.email}
-                        </div>
-                      </div>
-                      <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '4px', color: 'var(--color-text-secondary)' }}>
-                        {share.permission}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    );
-  };
-
-  const renderMyShares = () => {
-    const groupedShares = outgoingShares.reduce((acc, share) => {
-      const type = share.shareable_type;
-      if (!acc[type]) acc[type] = [];
-      acc[type].push(share);
-      return acc;
-    }, {});
-
-    const typeOrder = ['Collection', 'Source', 'Concept', 'Person', 'Note'];
-
-    return (
-      <div>
-        <p style={{ marginBottom: '1rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>
-          To share an item, go to its detail page and click the Share button.
-        </p>
-
-        {outgoingShares.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-bg-secondary, #fafafa)', borderRadius: '8px' }}>
-            <i className="fas fa-share" style={{ fontSize: '2rem', marginBottom: '0.5rem', display: 'block' }}></i>
-            <div>You haven't shared anything yet.</div>
-          </div>
-        ) : (
-          typeOrder.map(type => {
-            const typeShares = groupedShares[type];
-            if (!typeShares || typeShares.length === 0) return null;
-
-            return (
-              <div key={type} style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <i className={`fas ${getTypeIcon(type)}`}></i>
-                  {type === 'Person' ? 'People' : `${type}s`}
-                  <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.5rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '10px' }}>
-                    {typeShares.length}
-                  </span>
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {typeShares.map(share => (
-                    <div
-                      key={share.id}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1rem', border: '1px solid var(--color-border)', borderRadius: '6px', backgroundColor: 'white' }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 500 }}>{share.shareable_name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          Shared with {share.email}
-                          {share.pending && (
-                            <span style={{ padding: '0.125rem 0.375rem', backgroundColor: 'var(--color-warning-bg, #fff3cd)', color: 'var(--color-warning, #856404)', borderRadius: '3px', fontSize: '0.7rem' }}>
-                              Pending
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <select
-                          value={share.permission}
-                          onChange={(e) => handleUpdatePermission(share.id, e.target.value)}
-                          style={{ padding: '0.25rem 0.5rem', border: '1px solid var(--color-border)', borderRadius: '4px', fontSize: '0.875rem' }}
-                        >
-                          {PERMISSION_OPTIONS.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </select>
-                        <button
-                          onClick={() => handleRevokeShare(share.id)}
-                          style={{ background: 'none', border: 'none', color: 'var(--color-error, #c00)', cursor: 'pointer', padding: '0.25rem 0.5rem', fontSize: '0.875rem' }}
-                        >
-                          Revoke
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-        Loading...
-      </div>
-    );
-  }
-
+function ShareGroup({ type, count, children }) {
+  const meta = TYPE_META[type] || { icon: 'fa-file', tone: 'neutral' };
+  const label = type === 'Person' ? 'People' : `${type}s`;
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1.5rem' }}>Sharing</h1>
+    <section className="sh-group">
+      <h2 className="sh-group-title">
+        <i className={`fas ${meta.icon} sh-group-icon`} data-tone={meta.tone} aria-hidden="true"></i>
+        {label}
+        <span className="sh-group-count">{count}</span>
+      </h2>
+      <div className="sh-group-body">{children}</div>
+    </section>
+  );
+}
 
-      {error && (
-        <div style={{ padding: '0.75rem', backgroundColor: 'var(--color-error-bg, #fee)', color: 'var(--color-error, #c00)', borderRadius: '4px', marginBottom: '1rem' }}>
-          {error}
-          <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer' }}>&times;</button>
-        </div>
-      )}
+function PermissionBadge({ permission }) {
+  const tone = {
+    viewer:       'neutral',
+    editor:       'source',
+    collaborator: 'concept',
+  }[permission] || 'neutral';
+  return <span className={`sp-chip is-${tone}`} style={{ textTransform: 'capitalize' }}>{permission}</span>;
+}
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '0.75rem 1rem',
-              border: 'none',
-              background: 'none',
-              cursor: 'pointer',
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-              borderBottom: activeTab === tab.id ? '2px solid var(--color-primary)' : '2px solid transparent',
-              marginBottom: '-1px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            <i className={`fas ${tab.icon}`}></i>
-            {tab.label}
-            {tab.id === 'collections' && collections.length > 0 && (
-              <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.375rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '10px' }}>
-                {collections.length}
-              </span>
-            )}
-            {tab.id === 'shared-with-me' && receivedShares.length > 0 && (
-              <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.375rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '10px' }}>
-                {receivedShares.length}
-              </span>
-            )}
-            {tab.id === 'my-shares' && outgoingShares.length > 0 && (
-              <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.375rem', backgroundColor: 'var(--color-bg-secondary)', borderRadius: '10px' }}>
-                {outgoingShares.length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+function groupByType(shares) {
+  return shares.reduce((acc, share) => {
+    const t = share.shareable_type;
+    if (!acc[t]) acc[t] = [];
+    acc[t].push(share);
+    return acc;
+  }, {});
+}
 
-      {/* Tab Content */}
-      {activeTab === 'collections' && renderCollections()}
-      {activeTab === 'shared-with-me' && renderSharedWithMe()}
-      {activeTab === 'my-shares' && renderMyShares()}
+// =====================================================================
+// Empty + Banner
+// =====================================================================
+function EmptyState({ icon, title, body }) {
+  return (
+    <div className="sh-empty">
+      <i className={`fas ${icon} sh-empty-icon`} aria-hidden="true"></i>
+      <div className="sh-empty-title">{title}</div>
+      <p className="sh-empty-body">{body}</p>
     </div>
+  );
+}
+
+function Banner({ tone, children, onDismiss }) {
+  return (
+    <div className={`sh-banner sh-banner-${tone || 'info'}`}>
+      <div>{children}</div>
+      {onDismiss && (
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="sh-banner-dismiss"
+          aria-label="Dismiss"
+        >
+          ×
+        </button>
+      )}
+    </div>
+  );
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function SharingHubStyles() {
+  return (
+    <style>{`
+      .sh-shell {
+        flex: 1;
+        background: var(--paper-soft);
+        padding: 32px 20px 80px;
+      }
+      .sh-container {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      .sh-loading {
+        font-family: var(--font-body);
+        color: var(--ink-3);
+        padding: 32px 0;
+      }
+
+      /* Hero */
+      .sh-hero {
+        margin-bottom: 28px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--ink-line);
+      }
+      .sh-hero-eyebrow {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-bottom: 12px;
+      }
+      .sh-hero-title {
+        font-family: var(--font-display);
+        font-size: 44px;
+        font-weight: 600;
+        color: var(--primary);
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+        margin: 0;
+      }
+      .sh-hero-lead {
+        font-family: var(--font-body);
+        font-size: 16px;
+        color: var(--ink-2);
+        line-height: 1.65;
+        max-width: 680px;
+        margin: 14px 0 20px;
+      }
+      .sh-hero-stats {
+        display: flex;
+        gap: 32px;
+        flex-wrap: wrap;
+      }
+      .sh-hero-stat-value {
+        font-family: var(--font-display);
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary);
+        font-variant-numeric: tabular-nums lining-nums;
+        letter-spacing: -0.005em;
+        line-height: 1.05;
+      }
+      .sh-hero-stat-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+
+      /* Tabs */
+      .sh-tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid var(--ink-line);
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .sh-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 14px;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--ink-3);
+        cursor: pointer;
+        margin-bottom: -1px;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .sh-tab:hover { color: var(--ink); }
+      .sh-tab.is-active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        font-weight: 600;
+      }
+      .sh-tab-icon { font-size: 12px; opacity: 0.85; }
+      .sh-tab-count {
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-variant-numeric: tabular-nums;
+        background: var(--paper-warm);
+        color: var(--ink-3);
+        padding: 1px 7px;
+        border-radius: var(--r-pill);
+      }
+      .sh-tab.is-active .sh-tab-count {
+        background: color-mix(in srgb, var(--primary) 12%, transparent);
+        color: var(--primary);
+      }
+
+      /* Banner */
+      .sh-banner {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 12px 14px;
+        border-radius: var(--r-md);
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        line-height: 1.55;
+        margin-bottom: 16px;
+      }
+      .sh-banner-info {
+        background: var(--paper-soft);
+        color: var(--ink-2);
+        border: 1px solid var(--ink-line);
+        border-left: 3px solid var(--primary);
+      }
+      .sh-banner-error {
+        background: rgba(122, 46, 46, 0.06);
+        color: var(--error);
+        border: 1px solid rgba(122, 46, 46, 0.20);
+      }
+      .sh-banner > div { flex: 1; min-width: 0; }
+      .sh-banner-dismiss {
+        background: transparent;
+        border: none;
+        color: inherit;
+        opacity: 0.7;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0 4px;
+      }
+      .sh-banner-dismiss:hover { opacity: 1; }
+
+      /* Empty */
+      .sh-empty {
+        background: var(--paper-soft);
+        border: 1px dashed var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 40px 24px;
+        text-align: center;
+      }
+      .sh-empty-icon {
+        font-size: 28px;
+        color: var(--ink-4);
+        margin-bottom: 10px;
+        display: block;
+      }
+      .sh-empty-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 6px;
+        letter-spacing: -0.005em;
+      }
+      .sh-empty-body {
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        color: var(--ink-3);
+        line-height: 1.6;
+        max-width: 460px;
+        margin: 0 auto;
+      }
+
+      /* Create form */
+      .sh-create-trigger {
+        margin-bottom: 18px;
+      }
+      .sh-create-form {
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .sh-create-eyebrow {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .sh-create-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      /* Collection list */
+      .sh-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .sh-row {
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        overflow: hidden;
+        transition: border-color 0.15s, box-shadow 0.15s;
+      }
+      .sh-row:hover { border-color: var(--ink-3); }
+      .sh-row.is-expanded { border-color: var(--primary); }
+
+      .sh-row-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        font-family: var(--font-body);
+        color: inherit;
+      }
+      .sh-row-icon {
+        font-size: 16px;
+        color: var(--primary);
+        flex-shrink: 0;
+        width: 18px;
+        text-align: center;
+      }
+      .sh-row-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .sh-row-title {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: -0.005em;
+      }
+      .sh-row-desc {
+        font-size: 13px;
+        color: var(--ink-2);
+        margin-top: 2px;
+        line-height: 1.5;
+      }
+      .sh-row-meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--ink-3);
+        margin-top: 4px;
+        font-variant-numeric: tabular-nums;
+      }
+      .sh-row-delete {
+        background: transparent;
+        border: none;
+        color: var(--ink-3);
+        cursor: pointer;
+        padding: 6px 8px;
+        font-size: 12px;
+        border-radius: var(--r-sm);
+        transition: color 0.15s, background 0.15s;
+      }
+      .sh-row-delete:hover {
+        color: var(--error);
+        background: rgba(122, 46, 46, 0.06);
+      }
+      .sh-row-caret {
+        color: var(--ink-3);
+        font-size: 11px;
+      }
+
+      .sh-row-body {
+        border-top: 1px solid var(--ink-line-soft);
+        padding: 16px 18px;
+        background: var(--paper-soft);
+      }
+      .sh-row-empty {
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-3);
+        font-style: italic;
+      }
+      .sh-row-group + .sh-row-group {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--ink-line-soft);
+      }
+      .sh-row-group-label {
+        font-family: var(--font-body);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin-bottom: 8px;
+      }
+      .sh-row-group-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      /* Share groups */
+      .sh-groups {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .sh-group-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary);
+        margin: 0 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--ink-line);
+        letter-spacing: -0.005em;
+      }
+      .sh-group-icon {
+        font-size: 12px;
+      }
+      .sh-group-icon[data-tone="source"]  { color: var(--source); }
+      .sh-group-icon[data-tone="concept"] { color: var(--concept); }
+      .sh-group-icon[data-tone="person"]  { color: var(--person); }
+      .sh-group-icon[data-tone="neutral"] { color: var(--ink-3); }
+      .sh-group-count {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+        font-weight: 400;
+      }
+      .sh-group-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* Share row */
+      .sh-share {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 12px 14px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+        flex-wrap: wrap;
+      }
+      .sh-share:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+      }
+      .sh-share.is-mine { cursor: default; }
+      .sh-share.is-mine:hover { transform: none; box-shadow: none; }
+
+      .sh-share-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .sh-share-name {
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.35;
+      }
+      .sh-share-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 3px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+      }
+      .sh-pending {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(139, 90, 60, 0.10);
+        color: var(--warning);
+        padding: 2px 8px;
+        border-radius: var(--r-sm);
+      }
+
+      .sh-share-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .sh-perm-select {
+        height: 32px;
+        padding: 0 10px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .sh-perm-select:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      @media (max-width: 600px) {
+        .sh-hero-title { font-size: 32px; }
+        .sh-hero-stats { gap: 20px; }
+        .sh-row-head { flex-wrap: wrap; }
+      }
+    `}</style>
   );
 }

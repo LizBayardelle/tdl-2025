@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import AdminLayout from './AdminLayout';
-import AdminPageHeader from './AdminPageHeader';
 
 const CONCEPT_TYPES = [
   'research_method',
@@ -17,46 +16,60 @@ const CONCEPT_TYPES = [
 ];
 
 const IN_PROGRESS_STATUSES = ['pending', 'generating', 'fact_checking', 'enriching'];
-const TERMINAL_STATUSES = ['approved', 'rejected', 'failed'];
 
+// Status pills use brand tokens.  In-progress states share the source-blue
+// "active" treatment; ready_for_review uses the concept-tint to read as "your
+// move"; approved is the strong concept ink; failed is the system error red.
 const STATUS_META = {
-  pending:          { label: 'Queued',          bg: 'var(--neutral-100)',        color: 'var(--neutral-700)' },
-  generating:       { label: 'Drafting',        bg: 'var(--neutral-100)',        color: 'var(--neutral-700)' },
-  fact_checking:    { label: 'Fact-checking',   bg: 'var(--neutral-100)',        color: 'var(--neutral-700)' },
-  enriching:        { label: 'Enriching',       bg: 'var(--neutral-100)',        color: 'var(--neutral-700)' },
-  ready_for_review: { label: 'Ready for review',bg: 'var(--admin-brown)',        color: 'white' },
-  approved:         { label: 'Approved',        bg: 'var(--admin-brown-dark)',   color: 'white' },
-  rejected:         { label: 'Rejected',        bg: 'var(--neutral-200)',        color: 'var(--neutral-700)' },
-  failed:           { label: 'Failed',          bg: 'var(--neutral-900)',        color: 'white' },
+  pending:          { label: 'Queued',          bg: 'var(--paper-warm)',         color: 'var(--ink-3)' },
+  generating:       { label: 'Drafting',        bg: 'var(--source-tint)',        color: 'var(--source-2)' },
+  fact_checking:    { label: 'Fact-checking',   bg: 'var(--source-tint)',        color: 'var(--source-2)' },
+  enriching:        { label: 'Enriching',       bg: 'var(--source-tint)',        color: 'var(--source-2)' },
+  ready_for_review: { label: 'Ready for review',bg: 'var(--concept-tint)',       color: 'var(--concept-2)' },
+  approved:         { label: 'Approved',        bg: 'var(--concept)',            color: 'var(--paper)' },
+  rejected:         { label: 'Rejected',        bg: 'var(--paper-warm)',         color: 'var(--ink-3)' },
+  failed:           { label: 'Failed',          bg: 'rgba(122, 46, 46, 0.10)',   color: 'var(--error)' },
 };
 
 const inputStyle = {
   width: '100%',
-  padding: 'var(--space-2) var(--space-3)',
-  border: '1px solid var(--neutral-300)',
-  borderRadius: 'var(--radius)',
-  fontSize: 'var(--text-sm)',
+  padding: '8px 10px',
+  border: '1px solid var(--ink-line)',
+  borderRadius: 'var(--r-sm)',
+  fontSize: '13px',
   fontFamily: 'var(--font-body)',
   boxSizing: 'border-box',
-  background: 'white',
+  background: 'var(--paper)',
+  color: 'var(--ink)',
 };
 
 const labelStyle = {
   display: 'block',
   marginBottom: 'var(--space-1)',
   fontFamily: 'var(--font-body)',
-  fontSize: 'var(--text-xs)',
-  fontWeight: 600,
-  color: 'var(--neutral-600)',
+  fontSize: '11px',
+  fontWeight: 700,
+  color: 'var(--ink-3)',
   textTransform: 'uppercase',
-  letterSpacing: '0.05em',
+  letterSpacing: '0.12em',
 };
+
+function relativeTime(input) {
+  if (!input) return '';
+  const ts = new Date(input).getTime();
+  if (!ts) return '';
+  const diff = (Date.now() - ts) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)}d ago`;
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
 export default function AdminConceptGenerations() {
   const [generations, setGenerations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [historyOpen, setHistoryOpen] = useState(false);
   const [retryingIds, setRetryingIds] = useState(() => new Set());
   const pollRef = useRef(null);
 
@@ -141,249 +154,358 @@ export default function AdminConceptGenerations() {
     };
   }, [generations]);
 
-  const inProgress = generations.filter((g) => IN_PROGRESS_STATUSES.includes(g.status));
-  const readyForReview = generations.filter((g) => g.status === 'ready_for_review');
-  const history = generations.filter((g) => TERMINAL_STATUSES.includes(g.status));
+  const totals = useMemo(() => {
+    const byUser = new Map();
+    generations.forEach((g) => {
+      const key = g.triggered_by?.id || 'system';
+      byUser.set(key, (byUser.get(key) || 0) + 1);
+    });
+    return {
+      all: generations.length,
+      uniqueUsers: byUser.size,
+    };
+  }, [generations]);
 
   return (
     <AdminLayout currentPage="concept_generations">
-      <AdminPageHeader
-        title="Concept Creator"
-        subtitle="Draft, fact-check, and approve new concept definitions"
-      />
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 'var(--space-8) clamp(var(--space-4), 4vw, var(--space-8))',
+        }}
+      >
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <PageHero
+            totalCount={totals.all}
+            uniqueUsers={totals.uniqueUsers}
+          />
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-6) clamp(var(--space-4), 4vw, var(--space-8))' }}>
-        {error && (
-          <Banner tone="error">{error}</Banner>
-        )}
+          {error && <Banner tone="error">{error}</Banner>}
 
-        <InlineCreator onCreated={fetchGenerations} />
+          <GenerationsTable
+            generations={generations}
+            retryingIds={retryingIds}
+            onRetry={retryGeneration}
+            loading={loading}
+          />
 
-        <Section
-          title="Ready for review"
-          count={readyForReview.length}
-          emptyText="Nothing waiting on you right now."
-          emphasize
-        >
-          {readyForReview.map((g) => <GenerationRow key={g.id} gen={g} emphasize />)}
-        </Section>
-
-        <Section
-          title="In progress"
-          count={inProgress.length}
-          emptyText="No drafts in the pipeline."
-        >
-          {inProgress.map((g) => <GenerationRow key={g.id} gen={g} pulsing />)}
-        </Section>
-
-        <Section
-          title="History"
-          count={history.length}
-          emptyText="No past drafts yet."
-          collapsible
-          open={historyOpen}
-          onToggle={() => setHistoryOpen((o) => !o)}
-        >
-          {historyOpen && history.map((g) => (
-            <GenerationRow
-              key={g.id}
-              gen={g}
-              muted
-              onRetry={g.status === 'failed' ? () => retryGeneration(g) : undefined}
-              retrying={retryingIds.has(g.id)}
-            />
-          ))}
-        </Section>
-
-        {loading && generations.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-500)', marginTop: 'var(--space-4)' }}>Loading...</p>
-        )}
+          <InlineCreator onCreated={fetchGenerations} />
+        </div>
       </div>
     </AdminLayout>
   );
 }
 
-function Section({ title, count, emptyText, children, emphasize, collapsible, open, onToggle }) {
-  const hasChildren = Array.isArray(children) ? children.some(Boolean) : Boolean(children);
+// ---------- Hero ----------
+
+function PageHero({ totalCount, uniqueUsers }) {
   return (
-    <div style={{ marginBottom: 'var(--space-8)' }}>
+    <header
+      style={{
+        marginBottom: 'var(--space-8)',
+        paddingBottom: 'var(--space-7)',
+        borderBottom: '1px solid var(--ink-line)',
+      }}
+    >
       <div
-        onClick={collapsible ? onToggle : undefined}
         style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 'var(--space-2)',
-          paddingBottom: 'var(--space-2)',
-          borderBottom: `1px solid ${emphasize ? 'var(--admin-brown)' : 'var(--neutral-200)'}`,
-          marginBottom: 'var(--space-3)',
-          cursor: collapsible ? 'pointer' : 'default',
-          userSelect: 'none',
+          fontFamily: 'var(--font-body)',
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-3)',
+          marginBottom: '12px',
         }}
       >
-        {collapsible && (
-          <i
-            className={`fas fa-chevron-${open ? 'down' : 'right'}`}
-            style={{ fontSize: '11px', color: 'var(--neutral-500)', width: '12px' }}
-          ></i>
-        )}
-        <h2
-          style={{
-            margin: 0,
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-xs)',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: emphasize ? 'var(--admin-brown-dark)' : 'var(--neutral-700)',
-          }}
-        >
-          {title}
-        </h2>
-        <span
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-xs)',
-            color: 'var(--neutral-500)',
-            fontWeight: 500,
-          }}
-        >
-          {count}
-        </span>
+        Linchpin Industries · Map My Research
       </div>
+      <h1
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '44px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.05,
+          margin: 0,
+        }}
+      >
+        Concept Generations
+      </h1>
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '16px',
+          color: 'var(--ink-2)',
+          lineHeight: 1.65,
+          maxWidth: '680px',
+          marginTop: '14px',
+          marginBottom: '20px',
+        }}
+      >
+        Every concept that Claude has drafted, fact-checked, and surfaced — across
+        every user.  Click a row to review it; retry a failed stage from the
+        actions column.
+      </p>
+      <div style={{ display: 'flex', gap: 'var(--space-6)', flexWrap: 'wrap' }}>
+        <HeroStat value={totalCount} label="Generations" />
+        <HeroStat value={uniqueUsers} label="Unique users" />
+      </div>
+    </header>
+  );
+}
 
-      {(!collapsible || open) && !hasChildren && (
-        <div
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            color: 'var(--neutral-500)',
-            padding: 'var(--space-3) var(--space-2)',
-          }}
-        >
-          {emptyText}
-        </div>
-      )}
-
-      {hasChildren && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-          {children}
-        </div>
-      )}
+function HeroStat({ value, label }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '24px',
+          fontWeight: 600,
+          color: 'var(--primary)',
+          fontVariantNumeric: 'tabular-nums lining-nums',
+          letterSpacing: '-0.005em',
+          lineHeight: 1.05,
+        }}
+      >
+        {value}
+      </div>
+      <div
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '10.5px',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-3)',
+          marginTop: '4px',
+        }}
+      >
+        {label}
+      </div>
     </div>
   );
 }
 
-function GenerationRow({ gen, emphasize, pulsing, muted, onRetry, retrying }) {
-  const meta = STATUS_META[gen.status] || STATUS_META.pending;
-  const handleRetryClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (retrying) return;
-    onRetry && onRetry();
-  };
+// ---------- Table ----------
+
+function GenerationsTable({ generations, retryingIds, onRetry, loading }) {
+  if (loading && generations.length === 0) {
+    return (
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          color: 'var(--ink-3)',
+          padding: 'var(--space-6) 0',
+        }}
+      >
+        Loading.
+      </p>
+    );
+  }
+
+  if (generations.length === 0) {
+    return (
+      <div
+        style={{
+          padding: 'var(--space-8)',
+          background: 'var(--paper-soft)',
+          border: '1px dashed var(--ink-line)',
+          borderRadius: 'var(--r-md)',
+          fontFamily: 'var(--font-body)',
+          fontSize: '14px',
+          color: 'var(--ink-3)',
+          textAlign: 'center',
+          marginBottom: 'var(--space-8)',
+        }}
+      >
+        No generations yet.  When a user triggers one from the app, it will land here.
+      </div>
+    );
+  }
+
   return (
-    <a
-      href={`/admin/concept_generations/${gen.id}`}
+    <div
       style={{
-        background: 'white',
-        borderRadius: 'var(--radius)',
-        border: `1px solid ${emphasize ? 'var(--admin-brown)' : 'var(--neutral-200)'}`,
-        padding: 'var(--space-3) var(--space-4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 'var(--space-3)',
-        textDecoration: 'none',
-        transition: 'box-shadow 0.15s, border-color 0.15s',
-        opacity: muted ? 0.75 : 1,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-        e.currentTarget.style.borderColor = emphasize ? 'var(--admin-brown-dark)' : 'var(--neutral-300)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = 'none';
-        e.currentTarget.style.borderColor = emphasize ? 'var(--admin-brown)' : 'var(--neutral-200)';
+        border: '1px solid var(--ink-line)',
+        borderRadius: 'var(--r-md)',
+        overflow: 'hidden',
+        marginBottom: 'var(--space-8)',
       }}
     >
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-        {pulsing && (
-          <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--admin-brown)', fontSize: '12px' }}></i>
-        )}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: 'var(--font-body)',
-              color: 'var(--neutral-900)',
-              fontWeight: 600,
-              fontSize: 'var(--text-base)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {gen.concept_name}
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-body)',
-              color: 'var(--neutral-500)',
-              fontSize: 'var(--text-xs)',
-              marginTop: '2px',
-            }}
-          >
-            {gen.concept_type || 'untyped'} · {new Date(gen.created_at).toLocaleString()}
-          </div>
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-        {onRetry && (
-            <button
-              onClick={handleRetryClick}
-              disabled={retrying}
-              style={{
-                padding: '4px 10px',
-                borderRadius: 'var(--radius)',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 600,
-                fontFamily: 'var(--font-body)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                background: retrying ? 'var(--neutral-300)' : 'var(--admin-brown-dark)',
-                color: 'white',
-                border: 'none',
-                cursor: retrying ? 'not-allowed' : 'pointer',
-                whiteSpace: 'nowrap',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-              title="Re-enqueue this generation"
-            >
-              <i className={`fas ${retrying ? 'fa-circle-notch fa-spin' : 'fa-rotate-right'}`}></i>
-              {retrying ? 'Retrying' : 'Retry'}
-            </button>
-          )}
-          <span
-            style={{
-              padding: '4px 10px',
-              borderRadius: 'var(--radius)',
-              fontSize: 'var(--text-xs)',
-              fontWeight: 600,
-              fontFamily: 'var(--font-body)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: meta.bg,
-              color: meta.color,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {meta.label}
-          </span>
-        </div>
-    </a>
+      <table className="sp-table">
+        <thead>
+          <tr>
+            <th>Concept</th>
+            <th>Type</th>
+            <th>Triggered by</th>
+            <th>Created</th>
+            <th>Status</th>
+            <th style={{ textAlign: 'right' }}>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {generations.map((gen) => (
+            <GenerationRow
+              key={gen.id}
+              gen={gen}
+              retrying={retryingIds.has(gen.id)}
+              onRetry={() => onRetry(gen)}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
+
+function GenerationRow({ gen, retrying, onRetry }) {
+  const meta = STATUS_META[gen.status] || STATUS_META.pending;
+  const inProgress = IN_PROGRESS_STATUSES.includes(gen.status);
+  const canRetry = gen.status === 'failed';
+  const navigate = () => {
+    window.location.href = `/admin/concept_generations/${gen.id}`;
+  };
+  const handleRetry = (e) => {
+    e.stopPropagation();
+    if (retrying) return;
+    onRetry();
+  };
+  const handleUserClick = (e) => {
+    e.stopPropagation();
+  };
+  return (
+    <tr
+      onClick={navigate}
+      style={{ cursor: 'pointer' }}
+    >
+      <td>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+          {inProgress && (
+            <i
+              className="fas fa-circle-notch fa-spin"
+              style={{ color: 'var(--source)', fontSize: '11px', flexShrink: 0 }}
+              aria-label="In progress"
+            ></i>
+          )}
+          <a
+            href={`/admin/concept_generations/${gen.id}`}
+            className="sp-link"
+            onClick={(e) => e.stopPropagation()}
+            style={{ fontWeight: 500 }}
+          >
+            {gen.concept_name}
+          </a>
+        </div>
+      </td>
+      <td style={{ color: 'var(--ink-2)' }}>
+        {(gen.concept_type || 'untyped').replace(/_/g, ' ')}
+      </td>
+      <td>
+        {gen.triggered_by ? (
+          <UserChip user={gen.triggered_by} onClick={handleUserClick} />
+        ) : (
+          <span style={{ color: 'var(--ink-4)', fontStyle: 'italic' }}>—</span>
+        )}
+      </td>
+      <td
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '12px',
+          color: 'var(--ink-3)',
+          whiteSpace: 'nowrap',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+        title={new Date(gen.created_at).toLocaleString()}
+      >
+        {relativeTime(gen.created_at)}
+      </td>
+      <td>
+        <span
+          style={{
+            display: 'inline-flex',
+            padding: '3px 10px',
+            borderRadius: 'var(--r-sm)',
+            fontSize: '11px',
+            fontWeight: 600,
+            fontFamily: 'var(--font-body)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            background: meta.bg,
+            color: meta.color,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {meta.label}
+        </span>
+      </td>
+      <td style={{ textAlign: 'right' }}>
+        {canRetry ? (
+          <button
+            onClick={handleRetry}
+            disabled={retrying}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 'var(--r-sm)',
+              fontSize: '11px',
+              fontWeight: 700,
+              fontFamily: 'var(--font-body)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              background: retrying ? 'var(--paper-warm)' : 'var(--primary)',
+              color: retrying ? 'var(--ink-3)' : 'var(--paper)',
+              border: 'none',
+              cursor: retrying ? 'not-allowed' : 'pointer',
+              whiteSpace: 'nowrap',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            title="Re-enqueue this generation"
+          >
+            <i className={`fas ${retrying ? 'fa-circle-notch fa-spin' : 'fa-rotate-right'}`}></i>
+            {retrying ? 'Retrying' : 'Retry'}
+          </button>
+        ) : (
+          <span style={{ color: 'var(--ink-4)' }}>—</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+function UserChip({ user, onClick }) {
+  const isAdmin = !!user.admin;
+  return (
+    <span
+      onClick={onClick}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '1px 8px',
+        background: isAdmin ? 'var(--paper-warm)' : 'var(--person-tint)',
+        color: isAdmin ? 'var(--ink-2)' : 'var(--person-2)',
+        borderRadius: 'var(--r-sm)',
+        fontSize: '11.5px',
+        fontWeight: 500,
+        whiteSpace: 'nowrap',
+        maxWidth: '260px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}
+      title={`${user.email} · ${user.plan} plan${isAdmin ? ' · admin' : ''}`}
+    >
+      {isAdmin && <i className="fas fa-shield-halved" style={{ fontSize: '9px', opacity: 0.7 }}></i>}
+      {user.email}
+    </span>
+  );
+}
+
+// ---------- Inline creator (admin one-off) ----------
 
 function InlineCreator({ onCreated }) {
   const [expanded, setExpanded] = useState(false);
@@ -442,42 +564,69 @@ function InlineCreator({ onCreated }) {
   return (
     <div
       style={{
-        background: 'white',
-        border: '1px solid var(--neutral-200)',
-        borderRadius: 'var(--radius)',
-        padding: 'var(--space-4)',
-        marginBottom: 'var(--space-6)',
-        boxShadow: 'var(--shadow-sm)',
+        background: 'var(--paper)',
+        border: '1px solid var(--ink-line)',
+        borderRadius: 'var(--r-md)',
+        padding: 'var(--space-4) var(--space-5)',
       }}
     >
       {!expanded ? (
-        <button
-          onClick={() => setExpanded(true)}
+        <div
           style={{
-            width: '100%',
             display: 'flex',
             alignItems: 'center',
-            gap: 'var(--space-3)',
-            padding: 'var(--space-3)',
-            background: 'var(--admin-brown-light)',
-            border: '1px dashed var(--admin-brown)',
-            borderRadius: 'var(--radius)',
-            color: 'var(--admin-brown-dark)',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            cursor: 'pointer',
-            textAlign: 'left',
+            justifyContent: 'space-between',
+            gap: 'var(--space-4)',
+            flexWrap: 'wrap',
           }}
         >
-          <i className="fas fa-plus"></i>
-          New concept…
-        </button>
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '10.5px',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'var(--ink-3)',
+                marginBottom: '4px',
+              }}
+            >
+              Admin one-off
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '13.5px',
+                color: 'var(--ink-2)',
+                lineHeight: 1.55,
+                maxWidth: '560px',
+              }}
+            >
+              Users now trigger their own generations from inside the app.  Use this
+              to draft a concept directly — bypasses user quotas.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="sp-action sp-action-secondary"
+            onClick={() => setExpanded(true)}
+          >
+            New concept.
+          </button>
+        </div>
       ) : (
         <form onSubmit={onSubmit}>
           {error && <Banner tone="error">{error}</Banner>}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: 'var(--space-3)',
+              marginBottom: 'var(--space-4)',
+            }}
+          >
             <div>
               <label style={labelStyle}>Concept name *</label>
               <input
@@ -501,46 +650,34 @@ function InlineCreator({ onCreated }) {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               type="submit"
+              className="sp-action sp-action-primary"
               disabled={submitting || !name.trim()}
-              style={{
-                background: submitting || !name.trim() ? 'var(--neutral-300)' : 'var(--admin-brown-dark)',
-                color: 'white',
-                border: 'none',
-                padding: 'var(--space-2) var(--space-4)',
-                borderRadius: 'var(--radius)',
-                fontFamily: 'var(--font-body)',
-                fontWeight: 500,
-                fontSize: 'var(--text-sm)',
-                cursor: submitting || !name.trim() ? 'not-allowed' : 'pointer',
-              }}
             >
-              {submitting ? 'Starting…' : 'Start generation'}
+              {submitting ? 'Starting.' : 'Start generation'}
             </button>
             <button
               type="button"
+              className="sp-action sp-action-secondary"
               onClick={() => {
                 setExpanded(false);
                 setName('');
                 setConceptType('');
                 setError('');
               }}
-              style={{
-                background: 'white',
-                color: 'var(--neutral-700)',
-                border: '1px solid var(--neutral-300)',
-                padding: 'var(--space-2) var(--space-4)',
-                borderRadius: 'var(--radius)',
-                fontFamily: 'var(--font-body)',
-                fontSize: 'var(--text-sm)',
-                cursor: 'pointer',
-              }}
             >
               Cancel
             </button>
-            <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', color: 'var(--neutral-500)', marginLeft: 'var(--space-2)' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '12px',
+                color: 'var(--ink-3)',
+                marginLeft: 'var(--space-2)',
+              }}
+            >
               Claude drafts, fact-checks, and surfaces it here for review.
             </span>
           </div>
@@ -565,13 +702,15 @@ function InlineCreator({ onCreated }) {
   );
 }
 
+// ---------- Duplicate confirm ----------
+
 function DuplicateModal({ existing, onClose, onCreateAnyway, onRegenerate }) {
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0,0,0,0.4)',
+        background: 'rgba(15, 23, 35, 0.45)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -583,42 +722,64 @@ function DuplicateModal({ existing, onClose, onCreateAnyway, onRegenerate }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: 'white',
-          borderRadius: 'var(--radius)',
+          background: 'var(--paper)',
+          borderRadius: 'var(--r-md)',
           padding: 'var(--space-6)',
           maxWidth: '520px',
           width: '100%',
           boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--ink-line)',
         }}
       >
-        <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--neutral-900)', marginTop: 0, marginBottom: 'var(--space-3)' }}>
+        <h2
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '20px',
+            fontWeight: 600,
+            color: 'var(--primary)',
+            letterSpacing: '-0.005em',
+            marginTop: 0,
+            marginBottom: 'var(--space-3)',
+          }}
+        >
           This concept already exists
         </h2>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-700)', marginTop: 0 }}>
-          "<strong>{existing.label}</strong>" is already a concept definition (#{existing.id}). What do you want to do?
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '14px',
+            color: 'var(--ink-2)',
+            lineHeight: 1.6,
+            marginTop: 0,
+          }}
+        >
+          "<strong style={{ color: 'var(--ink)' }}>{existing.label}</strong>" is already a concept definition (#{existing.id}).  What do you want to do?
         </p>
         {existing.summary && (
-          <div style={{ background: 'var(--neutral-100)', padding: 'var(--space-3)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-700)', marginBottom: 'var(--space-4)' }}>
+          <div
+            style={{
+              background: 'var(--paper-soft)',
+              border: '1px solid var(--ink-line-soft)',
+              padding: 'var(--space-3) var(--space-4)',
+              borderRadius: 'var(--r-sm)',
+              fontFamily: 'var(--font-body)',
+              fontSize: '13.5px',
+              color: 'var(--ink-2)',
+              lineHeight: 1.6,
+              marginBottom: 'var(--space-4)',
+            }}
+          >
             {existing.summary}
           </div>
         )}
         <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
-          <button
-            onClick={onRegenerate}
-            style={{ background: 'var(--admin-brown-dark)', color: 'white', border: 'none', padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', fontWeight: 500, cursor: 'pointer' }}
-          >
+          <button onClick={onRegenerate} className="sp-action sp-action-primary">
             Regenerate existing
           </button>
-          <button
-            onClick={onCreateAnyway}
-            style={{ background: 'white', color: 'var(--neutral-700)', border: '1px solid var(--neutral-300)', padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', cursor: 'pointer' }}
-          >
+          <button onClick={onCreateAnyway} className="sp-action sp-action-secondary">
             Create new anyway
           </button>
-          <button
-            onClick={onClose}
-            style={{ background: 'white', color: 'var(--neutral-700)', border: '1px solid var(--neutral-300)', padding: 'var(--space-2) var(--space-4)', borderRadius: 'var(--radius)', fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', cursor: 'pointer', marginLeft: 'auto' }}
-          >
+          <button onClick={onClose} className="sp-action sp-action-quiet" style={{ marginLeft: 'auto' }}>
             Cancel
           </button>
         </div>
@@ -627,18 +788,30 @@ function DuplicateModal({ existing, onClose, onCreateAnyway, onRegenerate }) {
   );
 }
 
+// ---------- Banner ----------
+
 function Banner({ tone, children }) {
   const styles = tone === 'error'
-    ? { background: 'var(--neutral-900)', color: 'white' }
-    : { background: 'var(--admin-brown-light)', color: 'var(--admin-brown-dark)' };
+    ? {
+        background: 'rgba(122, 46, 46, 0.06)',
+        color: 'var(--error)',
+        border: '1px solid rgba(122, 46, 46, 0.20)',
+      }
+    : {
+        background: 'var(--paper-soft)',
+        color: 'var(--ink)',
+        border: '1px solid var(--ink-line)',
+        borderLeft: '3px solid var(--primary)',
+      };
   return (
     <div
       style={{
-        padding: 'var(--space-3)',
-        borderRadius: 'var(--radius)',
+        padding: 'var(--space-3) var(--space-4)',
+        borderRadius: 'var(--r-md)',
         marginBottom: 'var(--space-4)',
         fontFamily: 'var(--font-body)',
-        fontSize: 'var(--text-sm)',
+        fontSize: '13.5px',
+        lineHeight: 1.5,
         ...styles,
       }}
     >
@@ -646,4 +819,3 @@ function Banner({ tone, children }) {
     </div>
   );
 }
-

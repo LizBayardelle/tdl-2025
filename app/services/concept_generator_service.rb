@@ -97,21 +97,25 @@ class ConceptGeneratorService
 
       Fill every applicable field. If a field does not apply to this concept (for example, a non-anatomical concept has no meaningful "location"), omit it or leave it null rather than fabricating content. Do not force fields to be filled.
 
+      ### Formatting rule for prose fields
+
+      Any field whose value runs more than ~80 words MUST be broken into 2-3 paragraphs separated by a blank line (a literal `\n\n` in the JSON string). Use a paragraph break wherever the topic shifts — for example, between mechanism and clinical implications, between historical context and the current state, between mainstream view and dissent. Do not write a wall of text. Short fields (under ~80 words) stay as a single paragraph.
+
       - **label**: The canonical name of the concept in Title Case. Usually matches the input, but may be normalized (e.g., "frontal lobes" → "Frontal Lobe").
       - **aliases**: Array of other names, abbreviations, or spellings the concept goes by. Empty array if none.
-      - **summary**: One or two sentences capturing what this concept IS and why it matters. Written for a reader who has just encountered the term.
-      - **description**: Two to four paragraphs of detailed explanation. Assume the reader has a general science background but is not a specialist in this sub-field. Cover structure, function, and position within its broader domain.
-      - **location**: Where the concept is found anatomically, or its position within a taxonomy of ideas if non-physical. One paragraph.
-      - **examples**: Concrete instances, cases, or manifestations that help anchor the concept. Optional for abstract concepts.
-      - **etymology**: Linguistic origin of the term, including root language and literal meaning. One to three sentences.
+      - **summary**: One or two sentences capturing what this concept IS and why it matters. Written for a reader who has just encountered the term. Single paragraph.
+      - **description**: Two to four paragraphs of detailed explanation, separated by blank lines. Assume the reader has a general science background but is not a specialist in this sub-field. Cover structure, function, and position within its broader domain — let the paragraph breaks track those shifts.
+      - **location**: Where the concept is found anatomically, or its position within a taxonomy of ideas if non-physical. Usually one paragraph; two if anatomical position and functional position are both relevant.
+      - **examples**: Concrete instances, cases, or manifestations that help anchor the concept. Optional for abstract concepts. Break into paragraphs if you have multiple distinct examples.
+      - **etymology**: Linguistic origin of the term, including root language and literal meaning. One to three sentences, single paragraph.
       - **school_of_thought**: The intellectual tradition(s) that developed or defined this concept (e.g., "Anatomy", "Cognitive neuroscience", "Psychoanalysis"). Keep short.
-      - **history**: How the concept was discovered, articulated, or evolved. Mention key figures, dates, and shifts in understanding. One paragraph.
-      - **controversy**: Active scholarly disagreements about the concept — definitional boundaries, mechanism, interpretation. Only include genuine disagreements, not settled science. One paragraph.
-      - **clinical_relevance**: If applicable, how the concept manifests in clinical practice — associated syndromes, diagnostic significance, therapeutic targeting. One paragraph.
-      - **misconceptions**: Common errors, oversimplifications, or popular-media distortions about this concept. Correct them briefly. One paragraph.
-      - **mnemonic**: A memory aid for learning the concept. IMPORTANT: If you compose one yourself rather than retrieving an established mnemonic from an educational source, append: "Note: This mnemonic was composed for this entry and is not from an established educational source. Use as a starting point and adapt." Be honest about the provenance.
-      - **developmental_notes**: How the concept manifests or changes across the lifespan (prenatal through aging), where relevant. One paragraph.
-      - **measurement_notes**: How the concept is assessed or quantified in research and clinical settings — common instruments, neuroimaging paradigms, behavioral tests. One paragraph.
+      - **history**: How the concept was discovered, articulated, or evolved. Mention key figures, dates, and shifts in understanding. 1-3 paragraphs — break between discovery and modern understanding if both are substantive.
+      - **controversy**: Active scholarly disagreements about the concept — definitional boundaries, mechanism, interpretation. Only include genuine disagreements, not settled science. 1-3 paragraphs, with a paragraph per distinct debate when there are multiple.
+      - **clinical_relevance**: If applicable, how the concept manifests in clinical practice — associated syndromes, diagnostic significance, therapeutic targeting. 1-3 paragraphs — break between diagnostic and therapeutic considerations when both apply.
+      - **misconceptions**: Common errors, oversimplifications, or popular-media distortions about this concept. Correct them briefly. 1-3 paragraphs, with a paragraph per distinct misconception when there are multiple.
+      - **mnemonic**: A memory aid for learning the concept. IMPORTANT: If you compose one yourself rather than retrieving an established mnemonic from an educational source, append: "Note: This mnemonic was composed for this entry and is not from an established educational source. Use as a starting point and adapt." Be honest about the provenance. Single paragraph.
+      - **developmental_notes**: How the concept manifests or changes across the lifespan (prenatal through aging), where relevant. 1-3 paragraphs — break between life stages if you cover several.
+      - **measurement_notes**: How the concept is assessed or quantified in research and clinical settings — common instruments, neuroimaging paradigms, behavioral tests. 1-3 paragraphs — break between methodologies (self-report vs. behavioral vs. neuroimaging) when relevant.
       - **attribution**: Where this concept primarily originates from or is defined by, in plain academic citation form (e.g., "DSM-5 (APA, 2013)", "ICD-11 (WHO, 2019)", "Originally proposed by Aaron Beck (1967)", "Brodmann (1909)"). One short line. Leave null if there is no single named source — for example, broad anatomical structures or constructs that emerged across the literature without a canonical originator.
 
       ## Required hedging
