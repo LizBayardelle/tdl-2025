@@ -2,7 +2,8 @@ class UsersController < ApplicationController
   before_action :authenticate_user!
 
   # GET /users/me.json — current user's plan, quotas, and counters.  Used by
-  # the dashboard to render "Generations left" and other tier-aware stats.
+  # the dashboard to render "Library additions left" and other tier-aware
+  # stats.
   def me
     render json: {
       id: current_user.id,
@@ -10,7 +11,8 @@ class UsersController < ApplicationController
       plan: current_user.effective_plan,
       sources_count: current_user.sources_count,
       sources_limit: User::FREE_SOURCE_LIMIT,
-      concept_generations: current_user.concept_generation_quota,
+      library_additions: current_user.concept_generation_quota,
+      note_taking: current_user.paper_unlock_quota,
     }
   end
 

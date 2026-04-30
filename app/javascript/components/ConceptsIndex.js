@@ -13,6 +13,8 @@ import { toTitleCase } from '../utils/titleCase';
 
 export default function ConceptsIndex() {
   const [concepts, setConcepts] = useState([]);
+  const [sources, setSources] = useState([]);
+  const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,12 +24,14 @@ export default function ConceptsIndex() {
 
   const [textFilter, setTextFilter] = useState('');
   const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedSourceIds, setSelectedSourceIds] = useState([]);
+  const [selectedPersonIds, setSelectedPersonIds] = useState([]);
 
   const [sortField, setSortField] = useState('label');
   const [sortDir, setSortDir] = useState('asc');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const activeFilterCount = selectedTypes.length;
+  const activeFilterCount = selectedTypes.length + selectedSourceIds.length + selectedPersonIds.length;
 
   useEffect(() => { fetchConcepts(); }, []);
 
@@ -35,10 +39,20 @@ export default function ConceptsIndex() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/concepts.json');
-      if (!res.ok) throw new Error(`Load failed (${res.status})`);
-      const data = await res.json();
-      setConcepts(data);
+      const [conceptsRes, sourcesRes, peopleRes] = await Promise.all([
+        fetch('/concepts.json'),
+        fetch('/sources.json?per_page=10000'),
+        fetch('/people.json'),
+      ]);
+      if (!conceptsRes.ok) throw new Error(`Load failed (${conceptsRes.status})`);
+      const [conceptsData, sourcesData, peopleData] = await Promise.all([
+        conceptsRes.json(),
+        sourcesRes.ok ? sourcesRes.json() : Promise.resolve([]),
+        peopleRes.ok ? peopleRes.json() : Promise.resolve([]),
+      ]);
+      setConcepts(conceptsData);
+      setSources(Array.isArray(sourcesData) ? sourcesData : (sourcesData.sources || []));
+      setPeople(Array.isArray(peopleData) ? peopleData : []);
     } catch (err) {
       console.error(err);
       setError('We could not load your concepts.  Try refreshing the page.');
@@ -46,6 +60,55 @@ export default function ConceptsIndex() {
       setLoading(false);
     }
   };
+
+  // Reverse maps so a concept-row check can answer "is this concept linked
+  // to any selected source / person?" in O(1).
+  const sourceIdsByConcept = useMemo(() => {
+    const m = new Map();
+    sources.forEach(s => {
+      (s.concepts || []).forEach(c => {
+        if (!m.has(c.id)) m.set(c.id, new Set());
+        m.get(c.id).add(s.id);
+      });
+    });
+    return m;
+  }, [sources]);
+
+  // Person → concept mapping covers two routes:
+  //   - direct: person tagged on the concept (from /people.json: person.concepts)
+  //   - transitive: person authored a source tagged with the concept
+  // We invert into concept-id → Set<person-id> for O(1) filter checks, and
+  // record the unique concept count per person for the facet badges.
+  const { personIdsByConcept, conceptIdsByPerson } = useMemo(() => {
+    const c2p = new Map();
+    const p2c = new Map();
+    const link = (conceptId, personId) => {
+      if (!c2p.has(conceptId)) c2p.set(conceptId, new Set());
+      c2p.get(conceptId).add(personId);
+      if (!p2c.has(personId)) p2c.set(personId, new Set());
+      p2c.get(personId).add(conceptId);
+    };
+    people.forEach(p => (p.concepts || []).forEach(c => link(c.id, p.id)));
+    sources.forEach(s => {
+      const sourceConceptIds = (s.concepts || []).map(c => c.id);
+      const sourcePeopleIds = (s.people || []).map(p => p.id);
+      sourceConceptIds.forEach(cid => sourcePeopleIds.forEach(pid => link(cid, pid)));
+    });
+    return { personIdsByConcept: c2p, conceptIdsByPerson: p2c };
+  }, [people, sources]);
+
+  const sourceFacets = useMemo(() => sources
+    .filter(s => (s.concepts || []).length > 0)
+    .map(s => ({ id: s.id, label: s.title, count: (s.concepts || []).length }))
+    .sort((a, b) => b.count - a.count || (a.label || '').localeCompare(b.label || '')),
+    [sources]);
+
+  // Facet count = unique concepts a person reaches through either route.
+  const personFacets = useMemo(() => people
+    .map(p => ({ id: p.id, label: p.full_name, count: (conceptIdsByPerson.get(p.id) || new Set()).size }))
+    .filter(p => p.count > 0)
+    .sort((a, b) => b.count - a.count || (a.label || '').localeCompare(b.label || '')),
+    [people, conceptIdsByPerson]);
 
   // ---- Type counts (computed across all concepts, not filtered) ----
   const typeCounts = useMemo(() => {
@@ -63,13 +126,21 @@ export default function ConceptsIndex() {
     return concepts.filter((c) => {
       const t = c.effective_concept_type || c.concept_type;
       if (selectedTypes.length > 0 && !selectedTypes.includes(t)) return false;
+      if (selectedSourceIds.length > 0) {
+        const set = sourceIdsByConcept.get(c.id);
+        if (!set || !selectedSourceIds.some(id => set.has(id))) return false;
+      }
+      if (selectedPersonIds.length > 0) {
+        const set = personIdsByConcept.get(c.id);
+        if (!set || !selectedPersonIds.some(id => set.has(id))) return false;
+      }
       if (textFilter.trim()) {
         const q = textFilter.toLowerCase();
         if (!c.label?.toLowerCase().includes(q)) return false;
       }
       return true;
     });
-  }, [concepts, selectedTypes, textFilter]);
+  }, [concepts, selectedTypes, selectedSourceIds, selectedPersonIds, sourceIdsByConcept, personIdsByConcept, textFilter]);
 
   // ---- Hierarchy (only when no text filter) ----
   const rows = useMemo(() => {
@@ -131,29 +202,60 @@ export default function ConceptsIndex() {
             </span>
           </button>
           <div className="cidx-sidebar-body">
-          <FilterSection
-            label="Type"
-            trailing={<ConceptTypeHelpButton onClick={() => setShowTypeRef(true)} />}
-          >
-            {NODE_TYPES.map((t) => {
-              const count = typeCounts[t.value] || 0;
-              if (count === 0 && !selectedTypes.includes(t.value)) return null;
-              return (
-                <CheckboxRow
-                  key={t.value}
-                  checked={selectedTypes.includes(t.value)}
-                  onChange={() => toggleType(t.value)}
-                  label={t.label}
-                  count={count}
-                />
-              );
-            })}
-            {selectedTypes.length > 0 && (
-              <button className="cidx-clear" onClick={() => setSelectedTypes([])}>
-                Clear ({selectedTypes.length})
+            <FilterSection
+              label="Type"
+              trailing={<ConceptTypeHelpButton onClick={() => setShowTypeRef(true)} />}
+            >
+              {NODE_TYPES.map((t) => {
+                const count = typeCounts[t.value] || 0;
+                if (count === 0 && !selectedTypes.includes(t.value)) return null;
+                return (
+                  <CheckboxRow
+                    key={t.value}
+                    checked={selectedTypes.includes(t.value)}
+                    onChange={() => toggleType(t.value)}
+                    label={t.label}
+                    count={count}
+                  />
+                );
+              })}
+              {selectedTypes.length > 0 && (
+                <button className="cidx-clear" onClick={() => setSelectedTypes([])}>
+                  Clear ({selectedTypes.length})
+                </button>
+              )}
+            </FilterSection>
+
+            <FacetSection
+              label="Sources"
+              accent="source"
+              noun="sources"
+              items={sourceFacets}
+              selected={selectedSourceIds}
+              onToggle={(id) => setSelectedSourceIds(prev =>
+                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+              )}
+            />
+
+            <FacetSection
+              label="People"
+              accent="person"
+              noun="people"
+              items={personFacets}
+              selected={selectedPersonIds}
+              onToggle={(id) => setSelectedPersonIds(prev =>
+                prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+              )}
+            />
+
+            {activeFilterCount > 0 && (
+              <button
+                className="cidx-clear-all"
+                onClick={() => { setSelectedTypes([]); setSelectedSourceIds([]); setSelectedPersonIds([]); }}
+              >
+                Clear All Filters
               </button>
             )}
-          </FilterSection>
           </div>
         </aside>
 
@@ -189,6 +291,7 @@ export default function ConceptsIndex() {
                     <Th label="Type"    field="type"  sortField={sortField} sortDir={sortDir} onSort={toggleSort} />
                     <Th label="Connections" field="connections" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
                     <Th label="Sources" field="sources" sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
+                    <Th label="People"  field="people"  sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
                     <Th label="Notes"   field="notes"   sortField={sortField} sortDir={sortDir} onSort={toggleSort} numeric />
                   </tr>
                 </thead>
@@ -239,15 +342,72 @@ export default function ConceptsIndex() {
 // Subcomponents
 // =====================================================================
 
-function FilterSection({ label, trailing, children }) {
+function FilterSection({ label, trailing, children, accent }) {
   return (
     <div className="cidx-filter-section">
       <div className="cidx-filter-head">
+        {accent && <span className={`cidx-filter-dot is-${accent}`} aria-hidden="true" />}
         <span className="cidx-filter-label">{label}</span>
         {trailing}
       </div>
       <div className="cidx-filter-body">{children}</div>
     </div>
+  );
+}
+
+function FacetSection({ label, items, selected, onToggle, noun, accent }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <FilterSection label={label} accent={accent}>
+      <FacetSearchList
+        items={items}
+        selectedSet={new Set(selected)}
+        onToggle={onToggle}
+        noun={noun}
+      />
+    </FilterSection>
+  );
+}
+
+function FacetSearchList({ items, selectedSet, onToggle, noun = 'items' }) {
+  const [query, setQuery] = useState('');
+  const showSearch = items.length > 8;
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return items;
+    const q = query.toLowerCase();
+    return items.filter(i => String(i.label || '').toLowerCase().includes(q));
+  }, [items, query]);
+
+  const display = useMemo(() => {
+    const sel = items.filter(i => selectedSet.has(i.id) && !filtered.find(f => f.id === i.id));
+    return [...sel, ...filtered].slice(0, 60);
+  }, [items, filtered, selectedSet]);
+
+  return (
+    <>
+      {showSearch && (
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search ${items.length} ${noun}`}
+          className="cidx-facet-search"
+        />
+      )}
+      <div className="cidx-facet-list">
+        {display.map(item => (
+          <CheckboxRow
+            key={item.id}
+            checked={selectedSet.has(item.id)}
+            onChange={() => onToggle(item.id)}
+            label={item.label}
+            count={item.count}
+          />
+        ))}
+        {filtered.length > 60 && <p className="cidx-filter-note">First 60.  Refine search.</p>}
+      </div>
+    </>
   );
 }
 
@@ -296,6 +456,7 @@ function ConceptRow({ concept, depth, hierarchical }) {
       </td>
       <td className="cidx-td-num">{connectionsCount || <span className="cidx-muted">—</span>}</td>
       <td className="cidx-td-num">{concept.sources_count || <span className="cidx-muted">—</span>}</td>
+      <td className="cidx-td-num">{concept.all_people_count || concept.people_count || <span className="cidx-muted">—</span>}</td>
       <td className="cidx-td-num">{concept.notes_count || <span className="cidx-muted">—</span>}</td>
     </tr>
   );
@@ -350,6 +511,7 @@ function compareConcepts(a, b, field, dir) {
     bv = (b.outgoing_connections?.length || 0) + (b.incoming_connections?.length || 0);
   }
   else if (field === 'sources') { av = a.sources_count || 0; bv = b.sources_count || 0; }
+  else if (field === 'people')  { av = a.all_people_count || a.people_count || 0; bv = b.all_people_count || b.people_count || 0; }
   else if (field === 'notes') { av = a.notes_count || 0; bv = b.notes_count || 0; }
   else { av = ''; bv = ''; }
   if (av < bv) return dir === 'asc' ? -1 : 1;
@@ -463,8 +625,74 @@ function CIdxStyles() {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--ink-3);
+        flex: 1;
       }
+      .cidx-filter-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-3);
+        flex-shrink: 0;
+      }
+      .cidx-filter-dot.is-concept { background: var(--concept); }
+      .cidx-filter-dot.is-source  { background: var(--source);  }
+      .cidx-filter-dot.is-person  { background: var(--person);  }
       .cidx-filter-body { display: flex; flex-direction: column; gap: 1px; }
+      .cidx-filter-note {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-style: italic;
+        color: var(--ink-3);
+        margin: 6px 0 0;
+        padding: 0 4px;
+      }
+
+      .cidx-facet-search {
+        width: 100%;
+        height: 28px;
+        padding: 0 8px;
+        margin-bottom: 6px;
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink);
+      }
+      .cidx-facet-search:focus { outline: none; border-color: var(--ink-2); background: var(--paper); }
+      /* Bordered, slightly inset container — makes it visually obvious that
+         the list is scrollable when it overflows.  The inset bottom shadow
+         hints at content below the fold. */
+      .cidx-facet-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        max-height: 240px;
+        overflow-y: auto;
+        padding: 4px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        box-shadow: inset 0 -8px 8px -8px rgba(15, 23, 35, 0.08);
+      }
+      .cidx-facet-list::-webkit-scrollbar { width: 8px; }
+      .cidx-facet-list::-webkit-scrollbar-track { background: transparent; }
+      .cidx-facet-list::-webkit-scrollbar-thumb { background: var(--ink-line); border-radius: 4px; }
+      .cidx-facet-list::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+      .cidx-clear-all {
+        margin-top: 8px;
+        background: transparent;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+        cursor: pointer;
+        width: 100%;
+      }
+      .cidx-clear-all:hover { background: var(--hover); color: var(--ink); }
 
       .cidx-row {
         display: flex;

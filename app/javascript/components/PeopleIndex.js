@@ -53,6 +53,31 @@ export default function PeopleIndex() {
     }
   };
 
+  const deletePerson = async (person) => {
+    const ok = window.confirm(
+      `Delete "${person.full_name}"?\n\n` +
+      `This unlinks them from any sources they're connected to.  ` +
+      `The sources themselves stay.  This can't be undone.`
+    );
+    if (!ok) return;
+    const csrf = document.querySelector('[name="csrf-token"]')?.content;
+    try {
+      const r = await fetch(`/people/${person.id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': csrf, 'Accept': 'application/json' },
+      });
+      if (r.ok || r.status === 204) {
+        setPeople(prev => prev.filter(p => p.id !== person.id));
+      } else {
+        const data = await r.json().catch(() => ({}));
+        alert(`Could not delete: ${data.error || r.status}`);
+      }
+    } catch (err) {
+      console.error('Delete failed', err);
+      alert('Could not delete — check your connection and try again.');
+    }
+  };
+
   // ---- Facet metadata (computed from full set, not filtered) ----
   const roleCounts = useMemo(() => {
     const counts = {};
@@ -268,6 +293,7 @@ export default function PeopleIndex() {
 
             <FacetSection
               label="Concepts"
+              accent="concept"
               noun="concepts"
               items={allConcepts.map(c => ({ id: c.id, label: c.label, count: c.count }))}
               selected={new Set(selectedConceptIds)}
@@ -346,6 +372,7 @@ export default function PeopleIndex() {
                   key={p.id}
                   person={p}
                   onEdit={() => { setEditingPerson(p); setShowForm(true); }}
+                  onDelete={() => deletePerson(p)}
                 />
               ))}
             </div>
@@ -366,10 +393,11 @@ export default function PeopleIndex() {
 // =====================================================================
 // Subcomponents
 // =====================================================================
-function FilterSection({ label, trailing, children }) {
+function FilterSection({ label, trailing, children, accent }) {
   return (
     <div className="pix-filter-section">
       <div className="pix-filter-head">
+        {accent && <span className={`pix-filter-dot is-${accent}`} aria-hidden="true" />}
         <span className="pix-filter-label">{label}</span>
         {trailing}
       </div>
@@ -388,10 +416,10 @@ function CheckboxRow({ checked, onChange, label, count }) {
   );
 }
 
-function FacetSection({ label, items, selected, onToggle, noun }) {
+function FacetSection({ label, items, selected, onToggle, noun, accent }) {
   if (!items || items.length === 0) return null;
   return (
-    <FilterSection label={label}>
+    <FilterSection label={label} accent={accent}>
       <FacetSearchList
         items={items}
         selectedSet={selected}
@@ -444,10 +472,8 @@ function FacetSearchList({ items, selectedSet, onToggle, noun = 'items' }) {
   );
 }
 
-function PersonRow({ person, onEdit }) {
+function PersonRow({ person, onEdit, onDelete }) {
   const role = (person.role || '').trim();
-  // Clicking anywhere on the card navigates to the profile, except when the
-  // click lands on an inner link/button/chip that has its own behavior.
   const handleCardClick = (e) => {
     if (e.target.closest('a, button')) return;
     window.location.href = `/people/${person.id}`;
@@ -465,10 +491,31 @@ function PersonRow({ person, onEdit }) {
               rel="noopener noreferrer"
               className="pix-orcid"
               title="View ORCID profile"
+              onClick={(e) => e.stopPropagation()}
             >
               ORCID
             </a>
           )}
+          <div className="pix-row-actions-hover">
+            <button
+              type="button"
+              className="pix-row-icon"
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              aria-label="Edit person"
+              title="Edit"
+            >
+              <EditIcon />
+            </button>
+            <button
+              type="button"
+              className="pix-row-icon pix-row-icon-danger"
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              aria-label="Delete person"
+              title="Delete"
+            >
+              <TrashIcon />
+            </button>
+          </div>
         </div>
 
         <div className="pix-row-meta">
@@ -507,12 +554,6 @@ function PersonRow({ person, onEdit }) {
           </div>
         )}
       </div>
-
-      <aside className="pix-row-side">
-        <button type="button" className="pix-row-action" onClick={onEdit}>
-          <EditIcon /> Edit Person
-        </button>
-      </aside>
     </article>
   );
 }
@@ -560,6 +601,13 @@ function EditIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
       <path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9a1 1 0 001 .9h2.8a1 1 0 001-.9L11 4" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -670,7 +718,18 @@ function PixStyles() {
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--ink-3);
+        flex: 1;
       }
+      .pix-filter-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-3);
+        flex-shrink: 0;
+      }
+      .pix-filter-dot.is-concept { background: var(--concept); }
+      .pix-filter-dot.is-source  { background: var(--source);  }
+      .pix-filter-dot.is-person  { background: var(--person);  }
       .pix-filter-body { display: flex; flex-direction: column; gap: 1px; }
       .pix-filter-empty {
         font-family: var(--font-body);
@@ -710,14 +769,14 @@ function PixStyles() {
         height: 28px;
         padding: 0 8px;
         margin-bottom: 6px;
-        background: var(--paper);
+        background: var(--paper-soft);
         border: 1px solid var(--ink-line);
         border-radius: var(--r-sm);
         font-family: var(--font-body);
         font-size: 12px;
         color: var(--ink);
       }
-      .pix-facet-search:focus { outline: none; border-color: var(--person); }
+      .pix-facet-search:focus { outline: none; border-color: var(--ink-2); background: var(--paper); }
       /* Bordered, slightly inset container — makes it visually obvious that
          the list is scrollable when it overflows.  The inset bottom shadow
          hints at content below the fold. */
@@ -847,18 +906,28 @@ function PixStyles() {
       .pix-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 
       /* Person rows */
-      .pix-list { display: flex; flex-direction: column; gap: 10px; }
+      .pix-list { display: flex; flex-direction: column; gap: 18px; }
+      /* Card chrome modeled on /sources — top accent in person-purple,
+         soft drop shadow, hover lift. */
       .pix-row-card {
         display: flex;
         gap: 12px;
         background: var(--paper);
         border: 1px solid var(--ink-line);
+        border-top: 3px solid var(--person);
         border-radius: var(--r-md);
         padding: 14px 16px;
-        transition: border-color var(--transition-fast);
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.04),
+          0 12px 32px rgba(21, 25, 31, 0.06);
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s, background 0.12s;
       }
       .pix-row-card:hover {
-        border-color: color-mix(in srgb, var(--person) 50%, var(--ink-line));
+        border-color: var(--person);
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.05),
+          0 18px 36px rgba(21, 25, 31, 0.10);
+        transform: translateY(-1px);
       }
       .pix-row-clickable { cursor: pointer; }
       .pix-row-main { flex: 1; min-width: 0; }
@@ -872,11 +941,54 @@ function PixStyles() {
         font-family: var(--font-display);
         font-size: 15.5px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--person);
         line-height: 1.35;
         text-decoration: none;
+        flex: 1;
+        min-width: 0;
       }
+      .pix-row-title,
+      .pix-row-title:hover { text-decoration: none; }
       .pix-row-title:hover { color: var(--person-2); }
+
+      /* Hover-only Edit + Delete in the headline's right side */
+      .pix-row-actions-hover {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        margin-left: auto;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .pix-row-card:hover .pix-row-actions-hover,
+      .pix-row-card:focus-within .pix-row-actions-hover { opacity: 1; }
+      @media (hover: none) {
+        .pix-row-actions-hover { opacity: 1; }
+      }
+      .pix-row-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        color: var(--ink-3);
+        cursor: pointer;
+        transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+      }
+      .pix-row-icon:hover {
+        background: var(--person-tint);
+        color: var(--person-2);
+        border-color: color-mix(in srgb, var(--person) 30%, transparent);
+      }
+      .pix-row-icon-danger:hover {
+        background: rgba(122, 46, 46, 0.06);
+        color: var(--error);
+        border-color: color-mix(in srgb, var(--error) 30%, transparent);
+      }
       .pix-orcid {
         font-family: var(--font-mono);
         font-size: 10.5px;
@@ -958,40 +1070,6 @@ function PixStyles() {
       }
       .pix-collection-chip:hover { background: var(--hover); color: var(--ink); }
 
-      /* Right-side action column */
-      .pix-row-side {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        flex-shrink: 0;
-        padding-left: 14px;
-        margin-left: 8px;
-        border-left: 1px solid var(--ink-line-soft);
-        align-self: stretch;
-        justify-content: center;
-      }
-      .pix-row-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 5px 10px;
-        font-family: var(--font-body);
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--ink-3);
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: var(--r-sm);
-        cursor: pointer;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background 0.12s, color 0.12s;
-      }
-      .pix-row-action:hover {
-        background: var(--person-tint);
-        color: var(--person-2);
-      }
-
       /* Responsive */
       @media (max-width: 900px) {
         .pix-body { grid-template-columns: 1fr; }
@@ -1048,16 +1126,6 @@ function PixStyles() {
         .pix-title { font-size: 28px; }
         .pix-toolbar { flex-direction: column; align-items: stretch; }
         .pix-search { max-width: none; }
-        .pix-row-card { flex-direction: column; gap: 12px; }
-        .pix-row-side {
-          flex-direction: row;
-          flex-wrap: wrap;
-          padding-left: 0;
-          margin-left: 0;
-          border-left: none;
-          padding-top: 10px;
-          border-top: 1px solid var(--ink-line-soft);
-        }
       }
     `}</style>
   );

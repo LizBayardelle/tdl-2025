@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_29_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -122,13 +122,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.text "measurement_notes"
     t.jsonb "external_refs", default: []
     t.text "attribution"
-    t.bigint "pack_id"
-    t.string "pack_version"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "slug"
+    t.integer "rejection_count", default: 0, null: false
+    t.integer "linked_count_cache", default: 0, null: false
     t.index ["concept_type"], name: "index_concept_definitions_on_concept_type"
     t.index ["label"], name: "index_concept_definitions_on_label"
-    t.index ["pack_id"], name: "index_concept_definitions_on_pack_id"
+    t.index ["slug", "concept_type"], name: "index_concept_definitions_on_slug_and_concept_type"
   end
 
   create_table "concept_domains", id: false, force: :cascade do |t|
@@ -250,6 +251,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.text "developmental_notes"
     t.text "measurement_notes"
     t.jsonb "external_refs", default: []
+    t.string "definition_acquired_via"
     t.index ["concept_type"], name: "index_concepts_on_concept_type"
     t.index ["definition_id"], name: "index_concepts_on_definition_id"
     t.index ["slug"], name: "index_concepts_on_slug", unique: true
@@ -461,21 +463,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.index ["user_id"], name: "index_notes_on_user_id"
   end
 
-  create_table "packs", force: :cascade do |t|
-    t.string "name", null: false
-    t.text "description"
-    t.integer "price_cents", default: 0, null: false
-    t.string "currency", default: "usd"
-    t.integer "concept_count", default: 0
-    t.boolean "published", default: false
+  create_table "passage_insight_unlocks", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "source_id", null: false
+    t.datetime "granted_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "stripe_product_id"
-    t.string "stripe_price_id"
-    t.boolean "show_on_homepage", default: false, null: false
-    t.index ["show_on_homepage"], name: "index_packs_on_show_on_homepage"
-    t.index ["stripe_price_id"], name: "index_packs_on_stripe_price_id", unique: true
-    t.index ["stripe_product_id"], name: "index_packs_on_stripe_product_id", unique: true
+    t.index ["source_id"], name: "index_passage_insight_unlocks_on_source_id"
+    t.index ["user_id", "granted_at"], name: "index_passage_insight_unlocks_on_user_id_and_granted_at"
+    t.index ["user_id", "source_id"], name: "index_passage_insight_unlocks_on_user_id_and_source_id", unique: true
+    t.index ["user_id"], name: "index_passage_insight_unlocks_on_user_id"
   end
 
   create_table "people", force: :cascade do |t|
@@ -580,6 +577,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.index ["source_id"], name: "index_source_authors_on_source_id"
   end
 
+  create_table "source_statistical_tests", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "statistical_test_id", null: false
+    t.float "confidence"
+    t.boolean "detected_automatically", default: false, null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_id", "statistical_test_id"], name: "index_source_stat_tests_on_pair", unique: true
+    t.index ["source_id"], name: "index_source_statistical_tests_on_source_id"
+    t.index ["statistical_test_id"], name: "index_source_statistical_tests_on_statistical_test_id"
+  end
+
   create_table "sources", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "title", null: false
@@ -611,11 +621,60 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.text "formatted_citation"
     t.json "methodologies"
     t.text "markers", default: [], null: false, array: true
+    t.datetime "statistical_tests_searched_at"
     t.index ["doi"], name: "index_sources_on_doi", unique: true, where: "(doi IS NOT NULL)"
     t.index ["kind"], name: "index_sources_on_kind"
     t.index ["markers"], name: "index_sources_on_markers", using: :gin
     t.index ["user_id"], name: "index_sources_on_user_id"
     t.index ["year"], name: "index_sources_on_year"
+  end
+
+  create_table "statistical_tests", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.text "description"
+    t.json "aliases", default: []
+    t.integer "position", default: 0, null: false
+    t.json "goal", default: []
+    t.string "variable_relationship_structure"
+    t.string "primary_variable_1_type"
+    t.string "primary_variable_2_type"
+    t.string "number_of_dependent_variables"
+    t.string "number_of_predictors"
+    t.string "number_of_groups_conditions"
+    t.string "sample_relationship"
+    t.string "repeated_observations_present"
+    t.string "number_of_timepoints"
+    t.string "time_matters_to_analysis"
+    t.string "covariates_included"
+    t.string "nested_or_clustered_data"
+    t.string "data_hierarchy"
+    t.string "mediation"
+    t.string "moderation"
+    t.string "parametric_assumptions_reasonably_met"
+    t.string "outcome_approximately_normal"
+    t.string "equal_variances_assumed"
+    t.string "small_sample_concern"
+    t.string "small_expected_cell_counts"
+    t.string "overdispersion_present"
+    t.string "many_zero_values"
+    t.string "censoring_present"
+    t.string "latent_construct_interest"
+    t.string "dimension_reduction_goal"
+    t.string "group_membership_known_in_advance"
+    t.string "agreement_data_type"
+    t.string "post_hoc_comparisons_needed"
+    t.string "analysis_scope"
+    t.json "primary_output_desired", default: []
+    t.string "exact_method_needed"
+    t.string "bayesian_approach_desired"
+    t.string "analysis_preference_level"
+    t.string "complexity_level_allowed"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_statistical_tests_on_name", unique: true
+    t.index ["position"], name: "index_statistical_tests_on_position"
+    t.index ["slug"], name: "index_statistical_tests_on_slug", unique: true
   end
 
   create_table "subscriptions", force: :cascade do |t|
@@ -638,6 +697,46 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.index ["status"], name: "index_subscriptions_on_status"
     t.index ["user_id", "status"], name: "index_subscriptions_on_user_id_and_status"
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
+  end
+
+  create_table "tabletop_items", force: :cascade do |t|
+    t.bigint "tabletop_id", null: false
+    t.string "kind", null: false
+    t.string "item_type"
+    t.bigint "item_id"
+    t.float "x", default: 0.0, null: false
+    t.float "y", default: 0.0, null: false
+    t.float "width"
+    t.float "height"
+    t.float "rotation", default: 0.0, null: false
+    t.integer "z_index", default: 0, null: false
+    t.text "body"
+    t.float "start_x"
+    t.float "start_y"
+    t.float "end_x"
+    t.float "end_y"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "staged", default: false, null: false
+    t.index ["item_type", "item_id"], name: "index_tabletop_items_on_item"
+    t.index ["tabletop_id", "staged"], name: "index_tabletop_items_on_tabletop_id_and_staged"
+    t.index ["tabletop_id", "z_index"], name: "index_tabletop_items_on_tabletop_id_and_z_index"
+    t.index ["tabletop_id"], name: "index_tabletop_items_on_tabletop_id"
+  end
+
+  create_table "tabletops", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.float "view_x", default: 0.0
+    t.float "view_y", default: 0.0
+    t.float "view_zoom", default: 1.0
+    t.datetime "last_opened_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "last_opened_at"], name: "index_tabletops_on_user_id_and_last_opened_at"
+    t.index ["user_id"], name: "index_tabletops_on_user_id"
   end
 
   create_table "taggings", force: :cascade do |t|
@@ -705,17 +804,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
     t.index ["user_id"], name: "index_upload_batches_on_user_id"
   end
 
-  create_table "user_packs", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "pack_id", null: false
-    t.datetime "purchased_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["pack_id"], name: "index_user_packs_on_pack_id"
-    t.index ["user_id", "pack_id"], name: "index_user_packs_on_user_id_and_pack_id", unique: true
-    t.index ["user_id"], name: "index_user_packs_on_user_id"
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -746,7 +834,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
   add_foreign_key "collections", "users"
   add_foreign_key "concept_definition_domains", "concept_definitions"
   add_foreign_key "concept_definition_domains", "domains"
-  add_foreign_key "concept_definitions", "packs"
   add_foreign_key "concept_domains", "concepts"
   add_foreign_key "concept_domains", "domains"
   add_foreign_key "concept_generation_batches", "users"
@@ -772,6 +859,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
   add_foreign_key "notes", "concepts"
   add_foreign_key "notes", "sources"
   add_foreign_key "notes", "users"
+  add_foreign_key "passage_insight_unlocks", "sources", on_delete: :cascade
+  add_foreign_key "passage_insight_unlocks", "users", on_delete: :cascade
   add_foreign_key "people", "users"
   add_foreign_key "people_concepts", "concepts"
   add_foreign_key "people_concepts", "people"
@@ -783,13 +872,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_27_230000) do
   add_foreign_key "shares", "users", column: "recipient_id"
   add_foreign_key "source_authors", "authors"
   add_foreign_key "source_authors", "sources"
+  add_foreign_key "source_statistical_tests", "sources"
+  add_foreign_key "source_statistical_tests", "statistical_tests"
   add_foreign_key "sources", "users"
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "tabletop_items", "tabletops"
+  add_foreign_key "tabletops", "users"
   add_foreign_key "taggings", "tags"
   add_foreign_key "tags", "users"
   add_foreign_key "upload_batch_items", "sources"
   add_foreign_key "upload_batch_items", "upload_batches"
   add_foreign_key "upload_batches", "users"
-  add_foreign_key "user_packs", "packs"
-  add_foreign_key "user_packs", "users"
 end

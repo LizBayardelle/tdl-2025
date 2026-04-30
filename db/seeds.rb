@@ -72,3 +72,6 @@ allowed_domains.each do |attrs|
 end
 
 puts "Seeded #{AllowedDomain.count} allowed domains"
+
+# === Statistical Tests Catalog ===
+load Rails.root.join('db/seeds/statistical_tests.rb')

@@ -106,6 +106,16 @@ class ProcessBulkUploadItemJob < ApplicationJob
         duplicates: duplicates
       )
 
+      # Auto-approve: items reach this point only if extraction succeeded
+      # AND no duplicates were found AND nothing was flagged ambiguous.
+      # The "default to flag disasters" philosophy — humans only intervene
+      # for actual problems (duplicates / extraction failures); everything
+      # clean ships straight to source creation.  Authors and concepts get
+      # auto-resolved by CreateSourceFromUploadJob via its fallback paths.
+      if item.reload.status_extracted?
+        item.approve!({})
+      end
+
       Rails.logger.info "Successfully processed item #{item_id}"
     rescue => e
       Rails.logger.error "Failed to process item #{item_id}: #{e.message}"

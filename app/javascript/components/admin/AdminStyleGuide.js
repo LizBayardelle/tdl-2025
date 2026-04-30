@@ -4,9 +4,10 @@ import MagicSparkles from '../icons/MagicSparkles';
 
 // =====================================================================
 // AdminStyleGuide
-// Lives at /admin/docs/style-guide.  Documents the design system used
-// at /samplepage so the rest of the site can be migrated to it.
-// Reuses the exact same CSS as SamplePage to stay in sync.
+// Lives at /admin/docs/style-guide.  Documents the design system as
+// expressed in production today.  The canonical exemplars are the Source
+// and Concept show pages and the Sources index — everything else is
+// being migrated toward them.
 // =====================================================================
 
 export default function AdminStyleGuide() {
@@ -45,6 +46,10 @@ export default function AdminStyleGuide() {
         <SGChips />
       </SGSection>
 
+      <SGSection id="dots" eyebrow="Components" title="Category Dots & Eyebrows">
+        <SGCategoryMarks />
+      </SGSection>
+
       <SGSection id="banners" eyebrow="Components" title="Banners & Empty States">
         <SGBannersEmpty />
       </SGSection>
@@ -73,6 +78,34 @@ export default function AdminStyleGuide() {
         <SGCharts />
       </SGSection>
 
+      <SGSection id="card" eyebrow="Patterns" title="Entity Card">
+        <SGEntityCard />
+      </SGSection>
+
+      <SGSection id="pullquote" eyebrow="Patterns" title="Pull-Quote & Highlights">
+        <SGPullQuote />
+      </SGSection>
+
+      <SGSection id="doi" eyebrow="Patterns" title="DOI & Reference Pill">
+        <SGDoiBadge />
+      </SGSection>
+
+      <SGSection id="void" eyebrow="Patterns" title="Empty Void Invitation">
+        <SGEmptyVoid />
+      </SGSection>
+
+      <SGSection id="hero" eyebrow="Page Templates" title="Show-Page Hero">
+        <SGShowHero />
+      </SGSection>
+
+      <SGSection id="twocol" eyebrow="Page Templates" title="Two-Column Show Layout">
+        <SGTwoCol />
+      </SGSection>
+
+      <SGSection id="index" eyebrow="Page Templates" title="Index Page (Sources Model)">
+        <SGIndexPage />
+      </SGSection>
+
       <SGSection id="theming" eyebrow="System" title="Light & Dark Theming">
         <SGTheming />
       </SGSection>
@@ -95,8 +128,12 @@ function SGHero() {
       <h1 className="sg-hero-title">Style Guide</h1>
       <p className="sg-hero-lead">
         The reference for every screen, component, and word the user encounters.
-        It mirrors the system at <a className="sg-link" href="/samplepage" target="_blank" rel="noopener noreferrer">/samplepage</a>.
-        If the demo and this document disagree, the demo is wrong.
+        The canonical exemplars in production are{' '}
+        <a className="sg-link" href="/sources" target="_blank" rel="noopener noreferrer">/sources</a>{' '}(index),{' '}
+        <a className="sg-link" href="#" onClick={(e) => e.preventDefault()}>/sources/:id</a>{' '}(source show), and{' '}
+        <a className="sg-link" href="#" onClick={(e) => e.preventDefault()}>/concepts/:id</a>{' '}(concept show).
+        The atomic system at <a className="sg-link" href="/samplepage" target="_blank" rel="noopener noreferrer">/samplepage</a>{' '}
+        documents the underlying tokens.  When this guide and the show pages disagree, the show pages win.
       </p>
       <SGToc />
     </header>
@@ -105,10 +142,11 @@ function SGHero() {
 
 function SGToc() {
   const groups = [
-    { label: 'Foundations', items: [['principles', 'Principles'], ['color', 'Color'], ['typography', 'Typography'], ['space', 'Spacing & Radii']] },
-    { label: 'Components',  items: [['actions', 'Actions'], ['inputs', 'Inputs'], ['chips', 'Chips & Status'], ['banners', 'Banners & Empty States'], ['icons', 'Iconography']] },
-    { label: 'Patterns',    items: [['kpi', 'KPI Cards'], ['filter', 'Type-to-Filter'], ['tree', 'Hierarchical Tree'], ['table', 'Tables'], ['charts', 'Charts']] },
-    { label: 'System',      items: [['theming', 'Theming'], ['migration', 'Migration Notes']] },
+    { label: 'Foundations',    items: [['principles', 'Principles'], ['color', 'Color'], ['typography', 'Typography'], ['space', 'Spacing & Radii']] },
+    { label: 'Components',     items: [['actions', 'Actions'], ['inputs', 'Inputs'], ['chips', 'Chips & Status'], ['dots', 'Dots & Eyebrows'], ['banners', 'Banners & Empty States'], ['icons', 'Iconography']] },
+    { label: 'Patterns',       items: [['kpi', 'KPI Cards'], ['filter', 'Type-to-Filter'], ['tree', 'Tree'], ['table', 'Tables'], ['charts', 'Charts'], ['card', 'Entity Card'], ['pullquote', 'Pull-Quote'], ['doi', 'DOI Pill'], ['void', 'Empty Void']] },
+    { label: 'Page Templates', items: [['hero', 'Show-Page Hero'], ['twocol', 'Two-Column Show'], ['index', 'Index Page']] },
+    { label: 'System',         items: [['theming', 'Theming'], ['migration', 'Migration Notes']] },
   ];
   return (
     <nav className="sg-toc" aria-label="Table of contents">
@@ -170,12 +208,13 @@ function SGBlock({ title, classes, notes, dont, children }) {
 
 function SGPrinciples() {
   const list = [
-    ['Ink on paper.', 'White is the default surface.  Hairline borders, not shadows, do the structural work.'],
+    ['Navy on paper.', 'White is the default surface.  Navy is the default chrome — primary actions, page titles, the dark side of every input.  Hairline borders, not shadows, do the structural work.'],
     ['Type does the heavy lifting.', 'Hierarchy is built with serif vs. sans, weight, and size — not color or boxes.'],
-    ['Color is categorical, not decorative.', 'Concept, Source, and Person each get one ink.  Everything else stays neutral.'],
+    ['Four colors, four meanings.', 'Concepts are teal, Sources are light blue, People are purple.  Everything else — notes, tags, collections, navigation chrome — uses Navy on white.  Color is the meaning, never decoration.'],
+    ['Color lives in headings, badges, and numerals.', 'Body text, table cells, list rows, and filter labels are never colored — they read as Navy or the ink scale.  Color belongs on the page title, the section heading, the chip / pill / badge, and the big number above its grey label.  If you want something to read as colored, make it one of those.'],
     ['Density where it matters.', 'Sidebars, tables, and filters are dense.  Reading surfaces breathe.'],
     ['Restraint over animation.', 'Subtle transitions on hover.  Nothing pulses, bounces, or floats.'],
-    ['Numerals are typeset.', 'Tabular figures in tables and counts.  Lining serif numerals in KPIs.'],
+    ['Numerals are typeset.', 'Tabular figures in tables and counts.  Lining serif numerals in KPIs.  When a numeral and a label share a frame, the numeral takes the entity ink and the label stays grey.'],
     ['Consequential copy is formal.', 'Destructive and irreversible actions name the consequence in full.'],
   ];
   return (
@@ -194,10 +233,15 @@ function SGPrinciples() {
 }
 
 const COLOR_GROUPS = [
-  { label: 'Categorical', swatches: [
-    { name: 'Concept',      token: '--concept',      light: '#48A27E', dark: '#7DC9A3' },
-    { name: 'Source',       token: '--source',       light: '#4976B1', dark: '#7FA5D1' },
-    { name: 'Person',       token: '--person',       light: '#614498', dark: '#9577C8' },
+  { label: 'Brand · Navy', swatches: [
+    { name: 'Primary (Navy)',  token: '--primary',      light: '#1F3B73', dark: '#7B96C8' },
+    { name: 'Primary Dark',    token: '--primary-dark', light: '#142A57', dark: '#7B96C8' },
+    { name: 'Primary Light',   token: '--primary-light',light: '#7B96C8', dark: '#7B96C8' },
+  ]},
+  { label: 'Categorical · Teal · Light Blue · Purple', swatches: [
+    { name: 'Concept (Teal)',       token: '--concept', light: '#48A27E', dark: '#7DC9A3' },
+    { name: 'Source (Light Blue)',  token: '--source',  light: '#4976B1', dark: '#7FA5D1' },
+    { name: 'Person (Purple)',      token: '--person',  light: '#614498', dark: '#9577C8' },
   ]},
   { label: 'Categorical Tints', swatches: [
     { name: 'Concept tint', token: '--concept-tint', light: '#E8F4EE', dark: '#1A2E25' },
@@ -226,12 +270,17 @@ function SGColor() {
   return (
     <div>
       <p className="sg-prose">
-        Each token has a light and dark sibling.  Use the CSS variable on the token row, not the hex.
-        Reach for color only when the meaning is categorical (entity type) or signal (error, warning).  Everything else is ink.
+        Four colors carry the brand: <strong>Navy</strong> for the chrome and anything that isn't an entity, <strong>Teal</strong> for Concepts, <strong>Light Blue</strong> for Sources, <strong>Purple</strong> for People.  Everything else — notes, tags, collections, methodology, navigation, body type — renders in Navy or the ink scale.  Use the CSS variable on the token row, not the hex.
       </p>
       <p className="sg-prose">
-        <strong>Categorical color is reserved for Concept, Source, and Person.</strong>  Notes, tags, collections, and every other secondary entity render in the ink scale.  In nav and chips, that means <code className="sg-code-inline">--ink-2</code> text on neutral surfaces, never an accent color.  This keeps the three primary entities visually parseable at a glance.
+        <strong>The three categorical inks are reserved.</strong>  When you see teal, you're looking at a Concept.  Light blue is always a Source.  Purple is always a Person.  This is the contract that makes the three primary entities parseable at a glance — never spend a categorical ink on something that isn't its entity.  In nav and chips that aren't entity-typed, that means <code className="sg-code-inline">--ink-2</code> on neutral surfaces, or the Navy <code className="sg-code-inline">--primary</code> for brand chrome.
       </p>
+      <div className="sg-color-quad">
+        <SGColorChip label="Concept" sub="Teal" bg="var(--concept-tint)" fg="var(--concept-2)" />
+        <SGColorChip label="Source" sub="Light Blue" bg="var(--source-tint)" fg="var(--source-2)" />
+        <SGColorChip label="Person" sub="Purple" bg="var(--person-tint)" fg="var(--person-2)" />
+        <SGColorChip label="Everything else" sub="Navy" bg="var(--primary)" fg="var(--paper)" />
+      </div>
       {COLOR_GROUPS.map((g) => (
         <div key={g.label} className="sg-color-group">
           <div className="sg-color-group-label">{g.label}</div>
@@ -240,6 +289,15 @@ function SGColor() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function SGColorChip({ label, sub, bg, fg }) {
+  return (
+    <div className="sg-color-quad-cell" style={{ background: bg, color: fg }}>
+      <div className="sg-color-quad-label">{label}</div>
+      <div className="sg-color-quad-sub">{sub}</div>
     </div>
   );
 }
@@ -613,6 +671,60 @@ function SGIconography() {
   );
 }
 
+function SGCategoryMarks() {
+  return (
+    <>
+      <SGBlock
+        title="Category Dot"
+        classes={['sp-list-dot.is-concept|is-source|is-person']}
+        notes="A 6px filled circle in the entity ink.  Use as a tiny prefix on rows where you can't spend a chip — filter labels, tile headers, hierarchy nodes, suggest results."
+        dont="Use the dot to color a count or stand alone in a column.  It's a marker, not a status."
+      >
+        <div className="sg-row sg-row-vcenter" style={{ gap: 28 }}>
+          <span className="sg-row sg-row-vcenter" style={{ gap: 8 }}>
+            <span className="sg-list-dot is-concept" />
+            <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Anxiety Disorders</span>
+          </span>
+          <span className="sg-row sg-row-vcenter" style={{ gap: 8 }}>
+            <span className="sg-list-dot is-source" />
+            <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Bowlby (1969)</span>
+          </span>
+          <span className="sg-row sg-row-vcenter" style={{ gap: 8 }}>
+            <span className="sg-list-dot is-person" />
+            <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Mary Ainsworth</span>
+          </span>
+          <span className="sg-row sg-row-vcenter" style={{ gap: 8 }}>
+            <span className="sg-list-dot" />
+            <span style={{ fontSize: 13, color: 'var(--ink-2)' }}>Note (neutral)</span>
+          </span>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Section Eyebrow in Entity Color"
+        classes={['ss-section-eyebrow', 'cs-pack-lede-eyebrow', 'cs-integrated-pack-eyebrow']}
+        notes="On a show page, the small uppercase eyebrow above a section heading takes the entity's ink (teal on Concept pages, light blue on Source pages, purple on Person pages).  This is the rare place an eyebrow leaves the ink scale — it ties every section back to the entity."
+        dont="Repeat the entity color on the section heading itself unless the heading is the canonical 'Highlights' / 'Notes' / 'Further Reading' rail.  Two colored elements stacked is louder than the page warrants."
+      >
+        <div className="sg-eyebrow-demo-grid">
+          <div className="sg-eyebrow-demo">
+            <div className="sg-eyebrow-row" style={{ color: 'var(--concept)' }}>Definition · Concept</div>
+            <div className="sg-eyebrow-body">Mentalization-based treatment is a structured approach to…</div>
+          </div>
+          <div className="sg-eyebrow-demo">
+            <div className="sg-eyebrow-row" style={{ color: 'var(--source)' }}>Summary · Source</div>
+            <div className="sg-eyebrow-body">A randomized controlled trial of 312 outpatients tested…</div>
+          </div>
+          <div className="sg-eyebrow-demo">
+            <div className="sg-eyebrow-row" style={{ color: 'var(--person)' }}>Affiliation · Person</div>
+            <div className="sg-eyebrow-body">Tavistock Centre, London (1969–1985).</div>
+          </div>
+        </div>
+      </SGBlock>
+    </>
+  );
+}
+
 // =====================================================================
 // Patterns
 // =====================================================================
@@ -621,15 +733,15 @@ function SGKPI() {
   return (
     <SGBlock
       title="KPI Row"
-      classes={['sp-kpi-row', 'sp-kpi', 'sp-kpi-label.is-concept|is-source|is-person', 'sp-kpi-value', 'sp-kpi-delta']}
-      notes="Up to four primary metrics.  Eyebrow uses the category color (or neutral).  Numeral is serif lining figures.  Delta is one short clause."
-      dont="Use color on the numeral itself.  Reserve category color for the label."
+      classes={['sp-kpi-row', 'sp-kpi', 'sp-kpi-value.is-concept|is-source|is-person|is-navy', 'sp-kpi-label', 'sp-kpi-delta']}
+      notes="Up to four primary metrics.  Numeral is serif lining figures and takes the entity ink (teal / light blue / purple) — or Navy for any non-categorical metric.  Label stays grey, always.  Delta is one short clause in ink-3."
+      dont="Color the label.  Color the numeral itself in two different inks within the same row when the metrics belong to different entities — that's fine.  Mix entity-colored values with non-categorical labels — also fine.  What you can't do is invert: a colored label with an ink numeral reads backwards."
     >
       <div className="sp-kpi-row">
-        <div className="sp-kpi"><div className="sp-kpi-label is-source">Sources</div><div className="sp-kpi-value">61</div><div className="sp-kpi-delta">+4 this week</div></div>
-        <div className="sp-kpi"><div className="sp-kpi-label is-concept">Concepts</div><div className="sp-kpi-value">18</div><div className="sp-kpi-delta">+2 this week</div></div>
-        <div className="sp-kpi"><div className="sp-kpi-label is-person">People</div><div className="sp-kpi-value">27</div><div className="sp-kpi-delta">unchanged</div></div>
-        <div className="sp-kpi"><div className="sp-kpi-label">Notes</div><div className="sp-kpi-value">142</div><div className="sp-kpi-delta">+11 this week</div></div>
+        <div className="sp-kpi"><div className="sp-kpi-label">Sources</div><div className="sp-kpi-value is-source">61</div><div className="sp-kpi-delta">+4 this week</div></div>
+        <div className="sp-kpi"><div className="sp-kpi-label">Concepts</div><div className="sp-kpi-value is-concept">18</div><div className="sp-kpi-delta">+2 this week</div></div>
+        <div className="sp-kpi"><div className="sp-kpi-label">People</div><div className="sp-kpi-value is-person">27</div><div className="sp-kpi-delta">unchanged</div></div>
+        <div className="sp-kpi"><div className="sp-kpi-label">Notes</div><div className="sp-kpi-value is-navy">142</div><div className="sp-kpi-delta">+11 this week</div></div>
       </div>
     </SGBlock>
   );
@@ -652,8 +764,9 @@ function SGTypeToFilter() {
   return (
     <SGBlock
       title="Type-to-Filter with Self-Filtering Checkboxes"
-      classes={['sp-ttf', 'sp-ttf-input', 'sp-ttf-list', 'sp-ttf-row']}
-      notes="The default for any 'pick from a known list' input where the list is longer than ~6 items.  Selected chips render at top; the input narrows the list below.  Same pattern in sidebar filters and form fields."
+      classes={['sp-ttf', 'sp-ttf-input', 'sp-ttf-list', 'sp-ttf-row', 'sp-checkbox.is-concept|is-source|is-person']}
+      notes="The default for any 'pick from a known list' input where the list is longer than ~6 items.  Row text stays neutral — the only colored signals are the chips at top (when something is selected) and the checkbox itself, which takes the entity ink when checked.  Same pattern in sidebar filters and form fields."
+      dont="Color the row labels by entity type.  The list reads as a wall of text when every label is its own ink — let the chips and checkboxes carry the meaning."
     >
       <div className="sp-ttf" style={{ maxWidth: 360 }}>
         {selected.size > 0 && (
@@ -674,8 +787,8 @@ function SGTypeToFilter() {
           {filtered.length === 0 && <div className="sp-filter-empty">No matches.</div>}
           {filtered.map((o) => (
             <label key={o} className="sp-ttf-row">
-              <input type="checkbox" className="sp-checkbox" checked={selected.has(o)} onChange={() => toggle(o)} />
-              <span className="sp-ttf-row-label is-concept">{o}</span>
+              <input type="checkbox" className="sp-checkbox is-concept" checked={selected.has(o)} onChange={() => toggle(o)} />
+              <span className="sp-ttf-row-label">{o}</span>
             </label>
           ))}
         </div>
@@ -720,8 +833,8 @@ function SGTable() {
     <SGBlock
       title="Table"
       classes={['sp-table', 'sp-th', 'sp-th-num', 'sp-td-doi', 'sp-td-num', 'sp-link']}
-      notes="Hairline rows, sortable headers, hover and selected states.  Numerals are mono and tabular.  DOIs and IDs are mono one size smaller than body."
-      dont="Use vertical borders.  Zebra rows.  Bold every other cell.  Restraint."
+      notes="Hairline rows, sortable headers, hover and selected states.  Numerals are mono and tabular.  DOIs and IDs are mono one size smaller than body.  Body cells stay neutral — when an author or concept should read as colored, render it as a chip in that cell, never as plain colored text."
+      dont="Color the cell text directly.  Use vertical borders, zebra rows, or bold every other cell.  Restraint."
     >
       <div style={{ border: '1px solid var(--ink-line)', borderRadius: 'var(--r-md)', overflow: 'hidden' }}>
         <table className="sp-table">
@@ -739,7 +852,10 @@ function SGTable() {
                 <a href="#" className="sp-link" onClick={(e) => e.preventDefault()}>The Other Side of the Coin</a>
                 <div className="sp-td-doi">10.1037/0033-2909.131.2.180</div>
               </td>
-              <td className="sp-td-people">Mikulincer, M., Shaver, P. R.</td>
+              <td>
+                <a href="#" className="sp-chip is-person" onClick={(e) => e.preventDefault()}>Mikulincer, M.</a>{' '}
+                <a href="#" className="sp-chip is-person" onClick={(e) => e.preventDefault()}>Shaver, P. R.</a>
+              </td>
               <td className="sp-td-num">2007</td>
               <td><span className="sp-chip is-concept">Attachment Theory</span></td>
             </tr>
@@ -775,6 +891,406 @@ function SGCharts() {
 }
 
 // =====================================================================
+// Patterns — composed from /sources/:id, /concepts/:id, /sources
+// =====================================================================
+
+function SGEntityCard() {
+  return (
+    <SGBlock
+      title="Entity Card"
+      classes={['srx-row-card', 'is-selected', 'is-key']}
+      notes="The canonical card chrome for any list of entity rows.  3px top accent in the entity ink, hairline border, soft drop shadow, hover lift.  Use for source lists, concept lists, person lists, and anything else that should read 'one of N entities of this type.'"
+      dont="Outline the whole card in the entity color.  Stack two top-accent cards in different entity colors in one column — the chrome stops carrying meaning once you mix."
+    >
+      <div className="sg-card-stack">
+        <article className="sg-entity-card" data-entity="source">
+          <div className="sg-entity-card-pre">
+            <span className="sg-entity-card-year">2007</span>
+            <span className="sg-entity-card-kind">Journal Article</span>
+            <span className="sg-entity-card-journal">Psychological Bulletin</span>
+          </div>
+          <div className="sg-entity-card-title">The Other Side of the Coin: Avoidant Attachment in Adulthood</div>
+          <div className="sg-entity-card-meta">Mikulincer, M., Shaver, P. R.</div>
+          <div className="sg-entity-card-tags">
+            <span className="sp-chip is-concept">Attachment Theory</span>
+            <span className="sp-chip is-concept">Avoidance</span>
+            <span className="sp-chip is-neutral">Thesis Ch. 3</span>
+          </div>
+        </article>
+
+        <article className="sg-entity-card" data-entity="concept">
+          <div className="sg-entity-card-pre">
+            <span className="sg-entity-card-kind">Intervention</span>
+            <span className="sg-entity-card-meta-inline">14 sources · 22 notes</span>
+          </div>
+          <div className="sg-entity-card-title">Mentalization-Based Treatment</div>
+          <div className="sg-entity-card-meta">A structured psychotherapy that develops the patient's capacity to understand mental states.</div>
+        </article>
+
+        <article className="sg-entity-card" data-entity="person">
+          <div className="sg-entity-card-pre">
+            <span className="sg-entity-card-kind">Author</span>
+            <span className="sg-entity-card-meta-inline">8 sources · 3 collaborations</span>
+          </div>
+          <div className="sg-entity-card-title">John Bowlby</div>
+          <div className="sg-entity-card-meta">Tavistock Centre, London.  Founder of attachment theory.</div>
+        </article>
+      </div>
+    </SGBlock>
+  );
+}
+
+function SGPullQuote() {
+  return (
+    <SGBlock
+      title="Pull-Quote / Highlight"
+      classes={['ss-highlights', 'ss-highlight', 'ss-highlight-quote']}
+      notes="Quote text in system sans on a paper-soft tray, with a heavy 3px entity-ink border on the leading edge.  Tight line height — these are excerpts, not paragraphs.  Use for highlights pulled from a Source, key passages from a Concept definition, or any user-extracted quotation.  The eyebrow above is the only colored thing in the tray."
+      dont="Set the body in italic serif — it ages a quote into a Victorian epigraph and pushes the line height too loose for the format.  Use system sans, tight."
+    >
+      <div className="sg-pullquote-tray">
+        <div className="sg-pullquote-head">
+          <span className="sg-pullquote-eyebrow">Highlights</span>
+          <span className="sg-pullquote-count">3</span>
+        </div>
+        <ul className="sg-pullquote-list">
+          <li className="sg-pullquote">
+            <blockquote className="sg-pullquote-text">"Internal working models guide expectations of self and other, and they are revised, however reluctantly, by experience."</blockquote>
+            <div className="sg-pullquote-meta">
+              p. 88 · <a className="sg-pullquote-link" href="#" onClick={(e) => e.preventDefault()}>Open in study mode</a>
+            </div>
+          </li>
+          <li className="sg-pullquote">
+            <blockquote className="sg-pullquote-text">"What cannot be communicated to the mother cannot be communicated to the self."</blockquote>
+            <div className="sg-pullquote-meta">p. 142</div>
+          </li>
+        </ul>
+      </div>
+    </SGBlock>
+  );
+}
+
+function SGDoiBadge() {
+  return (
+    <SGBlock
+      title="DOI / Reference Pill"
+      classes={['ss-doi-badge', 'ss-doi-label', 'ss-doi-value', 'ss-doi-copy']}
+      notes="Mono identifier on a tinted Source pill.  The pill links to doi.org; the inline icon copies the value.  Use for DOIs, ORCIDs, ISBNs, and any external persistent identifier."
+      dont="Show a DOI without copy support.  These exist to be pasted."
+    >
+      <div className="sg-row" style={{ gap: 12 }}>
+        <a className="sg-doi-badge" href="#" onClick={(e) => e.preventDefault()}>
+          <span className="sg-doi-label">DOI</span>
+          <span className="sg-doi-value">10.1037/0003-066X.46.4.333</span>
+          <span className="sg-doi-copy" aria-label="Copy DOI">⎘</span>
+        </a>
+        <a className="sg-doi-badge" href="#" onClick={(e) => e.preventDefault()}>
+          <span className="sg-doi-label">ORCID</span>
+          <span className="sg-doi-value">0000-0002-1825-0097</span>
+          <span className="sg-doi-copy" aria-label="Copy ORCID">⎘</span>
+        </a>
+      </div>
+    </SGBlock>
+  );
+}
+
+function SGEmptyVoid() {
+  return (
+    <SGBlock
+      title="Empty Void Invitation"
+      classes={['ss-notes-void', 'ss-notes-void-plus', 'ss-notes-void-label']}
+      notes="A large dashed surface with a thin serif plus, a label, and one short hint.  Use as the first-time state for a creative slot — Notes, Highlights, Collections — where the right action is 'just start.'  Not for empty filtered lists."
+      dont="Stack two voids on a page.  Pick the slot that matters most and give it the whole frame."
+    >
+      <a className="sg-void" href="#" onClick={(e) => e.preventDefault()}>
+        <span className="sg-void-plus">+</span>
+        <span className="sg-void-label">Your Notes Go Here</span>
+        <span className="sg-void-hint">Highlight a passage in any source to start.  Notes are searchable across the library.</span>
+      </a>
+    </SGBlock>
+  );
+}
+
+// =====================================================================
+// Page Templates
+// =====================================================================
+
+function SGShowHero() {
+  return (
+    <>
+      <p className="sg-prose">
+        Every show page opens the same way: a tight band of categorical metadata, a balanced serif title, a one-line byline.  The eyebrow and any pills inside the band carry the entity color; the title stays in <code className="sg-code-inline">--ink</code>.  This is the moment the user lands on a page and confirms what kind of thing they're looking at.
+      </p>
+
+      <SGBlock
+        title="Source Show Hero"
+        classes={['ss-hero', 'ss-hero-top', 'ss-hero-type', 'ss-hero-meta', 'ss-hero-marker', 'ss-hero-title', 'ss-hero-authors']}
+        notes="Used at /sources/:id.  Type pill in source-tint, mono year, italic serif journal name, optional uppercase markers (Reading List, Thesis Ch. 3) in paper-warm pills.  Title is balanced and tight."
+      >
+        <header className="sg-show-hero" data-entity="source">
+          <div className="sg-show-hero-top">
+            <span className="sg-show-hero-type">Journal Article</span>
+            <span className="sg-show-hero-meta">2007</span>
+            <span className="sg-show-hero-meta is-journal">Psychological Bulletin</span>
+            <span className="sg-show-hero-marker">Reading List</span>
+          </div>
+          <h1 className="sg-show-hero-title">The Other Side of the Coin: Avoidant Attachment in Adulthood</h1>
+          <p className="sg-show-hero-authors">Mikulincer, M., Shaver, P. R.</p>
+        </header>
+      </SGBlock>
+
+      <SGBlock
+        title="Concept Show Hero"
+        classes={['cs-hero', 'cs-hero-type', 'cs-hero-title', 'cs-hero-summary']}
+        notes="Used at /concepts/:id.  Quieter band — just a neutral type pill in paper-warm, then the title and an optional one-paragraph summary in body type.  The teal lives in the surrounding eyebrows and lede card, not in the hero band."
+      >
+        <header className="sg-show-hero" data-entity="concept">
+          <div className="sg-show-hero-top">
+            <span className="sg-show-hero-type is-quiet">Intervention</span>
+          </div>
+          <h1 className="sg-show-hero-title">Mentalization-Based Treatment</h1>
+          <p className="sg-show-hero-summary">A structured psychotherapy that develops the patient's capacity to understand mental states in self and other, originally formulated for borderline personality disorder.</p>
+        </header>
+      </SGBlock>
+
+      <SGBlock
+        title="Header Bar Above the Hero"
+        classes={['ss-header', 'ss-back', 'ss-header-actions']}
+        notes="A small back link on the left, the action cluster on the right.  Edit, secondary actions, and one quiet danger.  Sits above the hero with 16px of breathing room."
+        dont="Put the page title or breadcrumbs in this row.  The hero owns the title; this row is navigation and actions only."
+      >
+        <header className="sg-show-headerbar">
+          <a href="#" className="sg-show-back" onClick={(e) => e.preventDefault()}>← All sources</a>
+          <div className="sg-row" style={{ gap: 6 }}>
+            <button className="sp-action sp-action-secondary">Edit</button>
+            <button className="sp-action sp-action-quiet sp-action-danger">Delete</button>
+          </div>
+        </header>
+      </SGBlock>
+    </>
+  );
+}
+
+function SGTwoCol() {
+  return (
+    <>
+      <p className="sg-prose">
+        Both show pages settle into the same skeleton once you scroll past the hero: a wide reading column on the left and a sticky 1/3-width sidebar on the right, separated by a hairline rule.  The sidebar holds at-a-glance counts and category lists; the main column holds the page's content.  On mobile the sidebar collapses above the main column and the rule turns into a top border.
+      </p>
+
+      <SGBlock
+        title="Skeleton"
+        classes={['cs-2col', 'cs-2col-main', 'cs-2col-side']}
+        notes="2-column grid with a 360px sidebar (Concept Show) or a 1fr / 2fr split (Source Show, where the right column is the reading surface).  The side column is sticky from the top of the viewport and scrolls independently."
+      >
+        <div className="sg-twocol">
+          <main className="sg-twocol-main">
+            <div className="sg-twocol-placeholder">Main content (notes, definition, abstract.)</div>
+            <div className="sg-twocol-placeholder">Long-form reading surface continues.</div>
+          </main>
+          <aside className="sg-twocol-side">
+            <div className="sg-side-stats">
+              <div className="sg-side-stat"><span className="sg-side-stat-value">14</span><span className="sg-side-stat-label">Sources</span></div>
+              <div className="sg-side-stat"><span className="sg-side-stat-value">22</span><span className="sg-side-stat-label">Notes</span></div>
+              <div className="sg-side-stat"><span className="sg-side-stat-value">7</span><span className="sg-side-stat-label">People</span></div>
+            </div>
+            <div className="sg-side-block">
+              <div className="sg-side-head">
+                <span className="sg-side-label">Concepts</span>
+                <span className="sg-side-count">5</span>
+              </div>
+              <ul className="sg-side-list">
+                <li className="sg-side-row">
+                  <a href="#" className="sg-side-name" onClick={(e) => e.preventDefault()}>Attachment Theory</a>
+                  <span className="sg-side-meta">3</span>
+                </li>
+                <li className="sg-side-row">
+                  <a href="#" className="sg-side-name" onClick={(e) => e.preventDefault()}>Internal Working Models</a>
+                  <span className="sg-side-meta">2</span>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Sidebar Stats"
+        classes={['ss-side-stats', 'ss-side-stat', 'ss-side-stat-value', 'ss-side-stat-label']}
+        notes="2- or 3-column grid of at-a-glance counts.  Value is large serif lining figures in the entity color (teal on Concept pages, light blue on Source pages).  Label is the standard uppercase eyebrow.  Sits at the top of the sticky sidebar with a hairline divider underneath."
+        dont="Use deltas, sparklines, or trend arrows here.  Stats in the show sidebar are the present-tense count, not a metric."
+      >
+        <div className="sg-side-stats" data-entity="concept">
+          <div className="sg-side-stat"><span className="sg-side-stat-value">14</span><span className="sg-side-stat-label">Sources</span></div>
+          <div className="sg-side-stat"><span className="sg-side-stat-value">22</span><span className="sg-side-stat-label">Notes</span></div>
+          <div className="sg-side-stat"><span className="sg-side-stat-value">7</span><span className="sg-side-stat-label">People</span></div>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Sidebar Block"
+        classes={['ss-side-block', 'ss-side-head', 'ss-side-label', 'ss-side-count', 'ss-side-list', 'ss-side-row', 'ss-side-name', 'ss-side-meta']}
+        notes="Uppercase label with a mono count on the same baseline.  The list rows below align name (left, ellipsized) and a single mono meta value (right).  Hover takes the name into the entity color."
+      >
+        <div className="sg-side-block">
+          <div className="sg-side-head">
+            <span className="sg-side-label">Co-cited Sources</span>
+            <span className="sg-side-count">8</span>
+          </div>
+          <p className="sg-side-sub">Sources that cite this concept alongside another.</p>
+          <ul className="sg-side-list">
+            <li className="sg-side-row">
+              <a href="#" className="sg-side-name" onClick={(e) => e.preventDefault()}>The Other Side of the Coin: Avoidant Attachment in Adulthood</a>
+              <span className="sg-side-meta">2007</span>
+            </li>
+            <li className="sg-side-row">
+              <a href="#" className="sg-side-name" onClick={(e) => e.preventDefault()}>Cognitive Therapy for Depression</a>
+              <span className="sg-side-meta">1979</span>
+            </li>
+            <li className="sg-side-row">
+              <a href="#" className="sg-side-name" onClick={(e) => e.preventDefault()}>The Strange Situation</a>
+              <span className="sg-side-meta">1978</span>
+            </li>
+          </ul>
+        </div>
+      </SGBlock>
+    </>
+  );
+}
+
+function SGIndexPage() {
+  const [open, setOpen] = useState({ kind: true, year: false });
+  return (
+    <>
+      <p className="sg-prose">
+        <strong>The /sources index is the model.</strong>  Every other index — Concepts, People, Notes, Tags, Collections — should mirror its skeleton: an entity-colored page title, a sticky filter sidebar with collapsible sections and dot-prefixed labels, a toolbar with search + sort + density, an active-filter chip bar, and a list of <code className="sg-code-inline">.srx-row-card</code>-style entity cards.  Color the chrome (page title, primary action, density toggle, card top accent) in the entity ink for that index.
+      </p>
+
+      <SGBlock
+        title="Index Header"
+        classes={['srx-header', 'srx-title', 'srx-subtitle', 'srx-header-actions']}
+        notes="Title in serif 36px in the entity ink (light blue on Sources, teal on Concepts, purple on People).  Subtitle in body 13.5px ink-3.  Header actions cluster right; one primary uses the entity color, secondaries stay neutral."
+        dont="Put a search input in the header row.  Search lives in the toolbar below — keep the header for identity and high-level actions only."
+      >
+        <header className="sg-index-header" data-entity="source">
+          <div>
+            <h1 className="sg-index-title">Sources</h1>
+            <p className="sg-index-subtitle">61 in your library · <button type="button" className="sg-index-link">Clear 2 Filters</button></p>
+          </div>
+          <div className="sg-row" style={{ gap: 8 }}>
+            <button className="sp-action sp-action-secondary">Bulk Upload</button>
+            <button className="sp-action sp-action-primary sg-index-primary">+ Add Source</button>
+          </div>
+        </header>
+      </SGBlock>
+
+      <SGBlock
+        title="Filter Sidebar"
+        classes={['srx-sidebar', 'srx-filter-section', 'srx-filter-head-button', 'srx-filter-dot', 'srx-filter-label', 'srx-filter-caret', 'srx-filter-body', 'srx-row', 'srx-row-label', 'srx-row-count']}
+        notes="Sticky 260px column.  Each section is a button-styled header with a category dot, an uppercase label, and a chevron that rotates when collapsed.  Rows inside are dense (5px·8px), with the label flexing and the count right-aligned in mono."
+      >
+        <aside className="sg-index-sidebar">
+          <div className="sg-index-filter-section">
+            <button type="button" className="sg-index-filter-head" onClick={() => setOpen((s) => ({ ...s, kind: !s.kind }))}>
+              <span className="sg-list-dot is-source" />
+              <span className="sg-index-filter-label">Type</span>
+              <span className={`sg-index-filter-caret ${open.kind ? '' : 'is-closed'}`}><SGIcon name="caret-down" size={9} /></span>
+            </button>
+            {open.kind && (
+              <div className="sg-index-filter-body">
+                <label className="sg-index-row"><input type="checkbox" className="sp-checkbox" defaultChecked /><span className="sg-index-row-label">Journal Article</span><span className="sg-index-row-count">42</span></label>
+                <label className="sg-index-row"><input type="checkbox" className="sp-checkbox" /><span className="sg-index-row-label">Book Chapter</span><span className="sg-index-row-count">11</span></label>
+                <label className="sg-index-row"><input type="checkbox" className="sp-checkbox" /><span className="sg-index-row-label">Thesis</span><span className="sg-index-row-count">5</span></label>
+                <label className="sg-index-row"><input type="checkbox" className="sp-checkbox" /><span className="sg-index-row-label">Working Paper</span><span className="sg-index-row-count">3</span></label>
+              </div>
+            )}
+          </div>
+          <div className="sg-index-filter-section">
+            <button type="button" className="sg-index-filter-head" onClick={() => setOpen((s) => ({ ...s, year: !s.year }))}>
+              <span className="sg-list-dot" />
+              <span className="sg-index-filter-label">Year</span>
+              <span className={`sg-index-filter-caret ${open.year ? '' : 'is-closed'}`}><SGIcon name="caret-down" size={9} /></span>
+            </button>
+            {open.year && (
+              <div className="sg-index-filter-body">
+                <div className="sg-index-year-row">
+                  <input className="sg-index-year-input" placeholder="1969" />
+                  <span className="sg-index-year-dash">–</span>
+                  <input className="sg-index-year-input" placeholder="2024" />
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+      </SGBlock>
+
+      <SGBlock
+        title="Toolbar"
+        classes={['srx-toolbar', 'srx-search', 'srx-search-input', 'srx-sort', 'srx-density-toggle']}
+        notes="Search field on the left at 480px max, sort select to its right, then a density toggle that lights up in the entity tint when active.  All three controls sit at the same 36px height."
+      >
+        <div className="sg-index-toolbar">
+          <div className="sg-index-search">
+            <SGIcon name="search" size={12} />
+            <input className="sg-index-search-input" placeholder="Search title, author, abstract." />
+          </div>
+          <select className="sg-index-sort" defaultValue="recent">
+            <option value="recent">Recent</option>
+            <option value="title">Title A-Z</option>
+            <option value="year">Year</option>
+          </select>
+          <button type="button" className="sg-index-density is-on">Show abstracts</button>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Active-Filter Chip Bar"
+        classes={['srx-chip-bar', 'srx-chip', 'srx-chip-x', 'srx-chip-clear']}
+        notes="Horizontal row of removable chips above the list, in the entity tint.  Each chip removes its own filter; the trailing 'Clear All' resets the lot.  Hidden when no filters are active."
+      >
+        <div className="sg-index-chipbar">
+          <button type="button" className="sg-index-chip">Journal Article<span className="sg-index-chip-x">×</span></button>
+          <button type="button" className="sg-index-chip">2000 – 2024<span className="sg-index-chip-x">×</span></button>
+          <button type="button" className="sg-index-chip">Has PDF<span className="sg-index-chip-x">×</span></button>
+          <button type="button" className="sg-index-chip-clear">Clear All</button>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Entity Row Card (in context)"
+        classes={['srx-list', 'srx-row-card']}
+        notes="The list itself is just a vertical stack of Entity Cards (above) at 18px gap.  The whole card is a click target leading to the show page; the hover state lifts on a soft shadow and switches the border to the entity color."
+      >
+        <div className="sg-card-stack" style={{ gap: 14 }}>
+          <article className="sg-entity-card" data-entity="source">
+            <div className="sg-entity-card-pre">
+              <span className="sg-entity-card-year">1979</span>
+              <span className="sg-entity-card-kind">Book</span>
+              <span className="sg-entity-card-journal">Guilford</span>
+            </div>
+            <div className="sg-entity-card-title">Cognitive Therapy of Depression</div>
+            <div className="sg-entity-card-meta">Beck, A. T., Rush, A. J., Shaw, B. F., Emery, G.</div>
+            <div className="sg-entity-card-tags">
+              <span className="sp-chip is-concept">CBT</span>
+              <span className="sp-chip is-concept">Depression</span>
+            </div>
+          </article>
+          <article className="sg-entity-card" data-entity="source">
+            <div className="sg-entity-card-pre">
+              <span className="sg-entity-card-year">2007</span>
+              <span className="sg-entity-card-kind">Journal Article</span>
+              <span className="sg-entity-card-journal">Psychological Bulletin</span>
+            </div>
+            <div className="sg-entity-card-title">The Other Side of the Coin: Avoidant Attachment in Adulthood</div>
+            <div className="sg-entity-card-meta">Mikulincer, M., Shaver, P. R.</div>
+          </article>
+        </div>
+      </SGBlock>
+    </>
+  );
+}
+
+// =====================================================================
 // System
 // =====================================================================
 
@@ -800,7 +1316,12 @@ function SGMigration() {
   return (
     <div>
       <p className="sg-prose">
-        Today the new system lives only at <code className="sg-code-inline">/samplepage</code> and on this doc, scoped to <code className="sg-code-inline">.sp-root</code>.  The rest of the site still uses the old design tokens (Merriweather, army green, brass gold, etc.) loaded from <code className="sg-code-inline">design-system.css</code>.  We migrate page by page, tracked in <a className="sg-link" href="/admin/docs/page-audit">Page Audit</a>.
+        The four-color brand system is fully expressed at <a className="sg-link" href="/sources" target="_blank" rel="noopener noreferrer">/sources</a>, <code className="sg-code-inline">/sources/:id</code>, and <code className="sg-code-inline">/concepts/:id</code>.  These three pages are the working source of truth — when an older page gets touched, pull from the patterns documented here (which were extracted from those three).  The atomic primitives at <a className="sg-link" href="/samplepage" target="_blank" rel="noopener noreferrer">/samplepage</a> back the system but don't show how to compose a full page.  Page-level migrations are tracked in <a className="sg-link" href="/admin/docs/page-audit">Page Audit</a>.
+      </p>
+
+      <h3 className="sg-h3">Lifting page-level CSS into the system</h3>
+      <p className="sg-prose">
+        The show pages each ship their own scoped <code className="sg-code-inline">ss-*</code> / <code className="sg-code-inline">cs-*</code> / <code className="sg-code-inline">srx-*</code> styles.  As we migrate more pages, lift the recurring rules out into <code className="sg-code-inline">design-system.css</code> under the <code className="sg-code-inline">sp-*</code> prefix — start with the highest-leverage patterns: Entity Card, Sidebar Stats, Sidebar Block, Show Hero band, Filter Sidebar.  Leave the page-specific rules in place until the third page would copy them.
       </p>
 
       <h3 className="sg-h3">Order of operations</h3>
@@ -1320,11 +1841,747 @@ function SGLocalStyles() {
       }
       .sg-link:hover { border-color: var(--ink); }
 
+      /* ============================================================
+         Color quad — the four-color story at the top of Color
+         ============================================================ */
+      .sg-color-quad {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin: 8px 0 28px;
+      }
+      .sg-color-quad-cell {
+        padding: 18px 16px 16px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--ink-line-soft);
+      }
+      .sg-color-quad-label {
+        font-family: var(--serif);
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .sg-color-quad-sub {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.8;
+        margin-top: 2px;
+      }
+
+      /* ============================================================
+         Category dots
+         ============================================================ */
+      .sg-list-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-3);
+        flex-shrink: 0;
+        display: inline-block;
+      }
+      .sg-list-dot.is-concept { background: var(--concept); }
+      .sg-list-dot.is-source  { background: var(--source); }
+      .sg-list-dot.is-person  { background: var(--person); }
+
+      /* Eyebrow demo (entity-colored uppercase + body) */
+      .sg-eyebrow-demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+      .sg-eyebrow-demo {
+        padding: 12px 14px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+      }
+      .sg-eyebrow-row {
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+      .sg-eyebrow-body {
+        font-family: var(--serif);
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--ink);
+      }
+
+      /* ============================================================
+         Entity Card
+         ============================================================ */
+      .sg-card-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .sg-entity-card {
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-top: 3px solid var(--ink-3);
+        border-radius: var(--r-md);
+        padding: 14px 16px;
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.04),
+          0 12px 32px rgba(21, 25, 31, 0.06);
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+      }
+      .sg-entity-card:hover { transform: translateY(-1px); }
+      .sg-entity-card[data-entity="source"]  { border-top-color: var(--source); }
+      .sg-entity-card[data-entity="source"]:hover  { border-color: var(--source); }
+      .sg-entity-card[data-entity="concept"] { border-top-color: var(--concept); }
+      .sg-entity-card[data-entity="concept"]:hover { border-color: var(--concept); }
+      .sg-entity-card[data-entity="person"]  { border-top-color: var(--person); }
+      .sg-entity-card[data-entity="person"]:hover  { border-color: var(--person); }
+      .sg-entity-card-pre {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 10px;
+        margin-bottom: 4px;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--ink-3);
+      }
+      .sg-entity-card-year {
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+      }
+      .sg-entity-card-kind {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+      }
+      .sg-entity-card[data-entity="source"]  .sg-entity-card-kind { color: var(--source-2); }
+      .sg-entity-card[data-entity="concept"] .sg-entity-card-kind { color: var(--concept-2); }
+      .sg-entity-card[data-entity="person"]  .sg-entity-card-kind { color: var(--person-2); }
+      .sg-entity-card-journal { font-style: italic; color: var(--ink-3); }
+      .sg-entity-card-meta-inline { color: var(--ink-3); }
+      .sg-entity-card-title {
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+      .sg-entity-card[data-entity="source"]  .sg-entity-card-title { color: var(--source); }
+      .sg-entity-card[data-entity="concept"] .sg-entity-card-title { color: var(--concept); }
+      .sg-entity-card[data-entity="person"]  .sg-entity-card-title { color: var(--person); }
+      .sg-entity-card-meta {
+        margin-top: 4px;
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--ink-2);
+        line-height: 1.5;
+      }
+      .sg-entity-card-tags {
+        margin-top: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 6px;
+      }
+
+      /* ============================================================
+         Pull-quote / Highlights tray
+         ============================================================ */
+      .sg-pullquote-tray {
+        padding: 18px 20px;
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-md);
+      }
+      .sg-pullquote-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .sg-pullquote-eyebrow {
+        font-family: var(--serif);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--source);
+        letter-spacing: -0.005em;
+      }
+      .sg-pullquote-count {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--ink-3);
+      }
+      .sg-pullquote-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .sg-pullquote {
+        padding-left: 14px;
+        border-left: 3px solid var(--source);
+      }
+      .sg-pullquote-text {
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--ink);
+        margin: 0 0 6px;
+      }
+      .sg-pullquote-meta {
+        font-family: var(--sans);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .sg-pullquote-link {
+        color: var(--source);
+        text-decoration: none;
+      }
+      .sg-pullquote-link:hover { text-decoration: underline; }
+
+      /* ============================================================
+         DOI badge
+         ============================================================ */
+      .sg-doi-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 6px 2px 8px;
+        background: var(--source-tint);
+        color: var(--source-2);
+        border: 1px solid color-mix(in srgb, var(--source) 35%, transparent);
+        border-radius: var(--r-sm);
+        font-family: var(--mono);
+        font-size: 11px;
+        text-decoration: none;
+        line-height: 1.5;
+      }
+      .sg-doi-badge:hover {
+        background: color-mix(in srgb, var(--source) 15%, var(--source-tint));
+        border-color: var(--source);
+      }
+      .sg-doi-label {
+        font-family: var(--sans);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--source);
+      }
+      .sg-doi-value {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sg-doi-copy {
+        font-size: 10.5px;
+        color: var(--source);
+        opacity: 0.8;
+      }
+
+      /* ============================================================
+         Empty void invitation
+         ============================================================ */
+      .sg-void {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 240px;
+        padding: 40px 32px;
+        background: var(--paper);
+        border: 2px dashed var(--ink-line);
+        border-radius: var(--r-md);
+        text-decoration: none;
+        text-align: center;
+        transition: border-color 0.18s, background 0.18s, transform 0.18s;
+      }
+      .sg-void:hover {
+        border-color: var(--source);
+        background: var(--source-tint);
+        transform: translateY(-1px);
+      }
+      .sg-void-plus {
+        font-family: var(--serif);
+        font-size: 64px;
+        font-weight: 300;
+        line-height: 1;
+        color: var(--ink-line);
+        transition: color 0.18s;
+      }
+      .sg-void:hover .sg-void-plus { color: var(--source); }
+      .sg-void-label {
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--ink-2);
+        letter-spacing: -0.01em;
+      }
+      .sg-void:hover .sg-void-label { color: var(--source-2); }
+      .sg-void-hint {
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        max-width: 380px;
+        line-height: 1.55;
+      }
+
+      /* ============================================================
+         Show-page hero
+         ============================================================ */
+      .sg-show-hero { padding: 4px 0 8px; }
+      .sg-show-hero-top {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .sg-show-hero-type {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--source-2);
+        background: var(--source-tint);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+      }
+      .sg-show-hero[data-entity="concept"] .sg-show-hero-type {
+        color: var(--concept-2);
+        background: var(--concept-tint);
+      }
+      .sg-show-hero[data-entity="person"] .sg-show-hero-type {
+        color: var(--person-2);
+        background: var(--person-tint);
+      }
+      .sg-show-hero-type.is-quiet {
+        color: var(--ink-2) !important;
+        background: var(--paper-warm) !important;
+      }
+      .sg-show-hero-meta {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--ink-3);
+      }
+      .sg-show-hero-meta.is-journal {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 13px;
+        color: var(--ink-2);
+      }
+      .sg-show-hero-marker {
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-2);
+        background: var(--paper-warm);
+        padding: 2px 8px;
+        border-radius: var(--r-sm);
+      }
+      .sg-show-hero-title {
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin: 0 0 10px;
+        text-wrap: balance;
+      }
+      .sg-show-hero-authors {
+        font-family: var(--sans);
+        font-size: 14px;
+        color: var(--ink-2);
+        line-height: 1.5;
+        margin: 0;
+      }
+      .sg-show-hero-summary {
+        font-family: var(--sans);
+        font-size: 15px;
+        color: var(--ink-2);
+        line-height: 1.6;
+        margin: 0;
+        max-width: 600px;
+      }
+      .sg-show-headerbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .sg-show-back {
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        text-decoration: none;
+      }
+      .sg-show-back:hover { color: var(--ink); }
+
+      /* ============================================================
+         Two-column show layout
+         ============================================================ */
+      .sg-twocol {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 32px;
+        align-items: start;
+      }
+      .sg-twocol-main {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .sg-twocol-placeholder {
+        padding: 24px;
+        background: var(--paper);
+        border: 1px dashed var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--ink-3);
+        text-align: center;
+      }
+      .sg-twocol-side {
+        padding-left: 22px;
+        border-left: 1px solid var(--ink-line);
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .sg-side-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--ink-line);
+      }
+      .sg-side-stat { display: flex; flex-direction: column; gap: 2px; }
+      .sg-side-stat-value {
+        font-family: var(--serif);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--source);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.1;
+      }
+      .sg-side-stats[data-entity="concept"] .sg-side-stat-value { color: var(--concept); }
+      .sg-side-stats[data-entity="person"]  .sg-side-stat-value { color: var(--person); }
+      .sg-side-stat-label {
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .sg-side-block { display: flex; flex-direction: column; gap: 6px; }
+      .sg-side-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .sg-side-label {
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .sg-side-count {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .sg-side-sub {
+        margin: 0;
+        font-size: 11.5px;
+        color: var(--ink-4);
+        font-style: italic;
+      }
+      .sg-side-list {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .sg-side-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .sg-side-name {
+        font-family: var(--sans);
+        font-size: 12.5px;
+        color: var(--ink);
+        text-decoration: none;
+        line-height: 1.4;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .sg-side-name:hover { color: var(--source); }
+      .sg-side-meta {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--ink-3);
+        flex-shrink: 0;
+      }
+
+      /* ============================================================
+         Index page
+         ============================================================ */
+      .sg-index-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .sg-index-title {
+        font-family: var(--serif);
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin: 0;
+        color: var(--source);
+      }
+      .sg-index-header[data-entity="concept"] .sg-index-title { color: var(--concept); }
+      .sg-index-header[data-entity="person"]  .sg-index-title { color: var(--person); }
+      .sg-index-subtitle {
+        font-family: var(--sans);
+        font-size: 13.5px;
+        color: var(--ink-3);
+        margin: 6px 0 0;
+      }
+      .sg-index-link {
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--source-2);
+        cursor: pointer;
+        font: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .sg-index-link:hover { color: var(--source); }
+      .sg-index-primary {
+        background: var(--source);
+        border-color: var(--source);
+      }
+      .sg-index-primary:hover:not(:disabled) {
+        background: var(--source-2);
+        border-color: var(--source-2);
+      }
+
+      .sg-index-sidebar {
+        max-width: 260px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 12px 14px;
+      }
+      .sg-index-filter-section + .sg-index-filter-section {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--ink-line-soft);
+      }
+      .sg-index-filter-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 6px 0;
+        cursor: pointer;
+        text-align: left;
+        color: inherit;
+      }
+      .sg-index-filter-label {
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        flex: 1;
+      }
+      .sg-index-filter-caret {
+        display: inline-flex;
+        color: var(--ink-3);
+        transition: transform 0.18s;
+      }
+      .sg-index-filter-caret.is-closed { transform: rotate(-90deg); }
+      .sg-index-filter-body { display: flex; flex-direction: column; gap: 1px; padding-top: 4px; }
+      .sg-index-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 8px;
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--ink-2);
+        cursor: pointer;
+        border-radius: var(--r-sm);
+      }
+      .sg-index-row:hover { background: var(--paper-warm); color: var(--ink); }
+      .sg-index-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .sg-index-row-count {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .sg-index-year-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 0;
+      }
+      .sg-index-year-input {
+        flex: 1;
+        height: 30px;
+        padding: 0 8px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink);
+      }
+      .sg-index-year-input:focus { outline: none; border-color: var(--source); }
+      .sg-index-year-dash { color: var(--ink-4); }
+
+      .sg-index-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .sg-index-search {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        color: var(--ink-3);
+        max-width: 480px;
+      }
+      .sg-index-search:focus-within { border-color: var(--source); color: var(--ink); }
+      .sg-index-search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--ink);
+        min-width: 0;
+      }
+      .sg-index-sort {
+        height: 36px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .sg-index-density {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--ink-2);
+        cursor: pointer;
+      }
+      .sg-index-density.is-on {
+        background: var(--source-tint);
+        border-color: var(--source);
+        color: var(--source-2);
+        font-weight: 600;
+      }
+
+      .sg-index-chipbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .sg-index-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--source-tint);
+        color: var(--source-2);
+        border: none;
+        border-radius: var(--r-sm);
+        padding: 3px 8px 3px 10px;
+        font-family: var(--sans);
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .sg-index-chip:hover {
+        background: color-mix(in srgb, var(--source-tint) 70%, var(--source) 30%);
+      }
+      .sg-index-chip-x { font-size: 14px; line-height: 1; opacity: 0.7; }
+      .sg-index-chip-clear {
+        background: transparent;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 3px 10px;
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--ink-3);
+        cursor: pointer;
+      }
+      .sg-index-chip-clear:hover { background: var(--paper-warm); color: var(--ink); }
+
       @media (max-width: 800px) {
         .sg-host { padding: 0 0 48px; }
         .sg-toc { grid-template-columns: repeat(2, 1fr); }
         .sg-two { grid-template-columns: 1fr; }
         .sg-hero-title { font-size: 32px; }
+        .sg-color-quad { grid-template-columns: repeat(2, 1fr); }
+        .sg-twocol { grid-template-columns: 1fr; }
+        .sg-twocol-side {
+          padding-left: 0;
+          border-left: none;
+          padding-top: 16px;
+          border-top: 1px solid var(--ink-line);
+        }
       }
     `}</style>
   );

@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :sources, dependent: :destroy
   has_many :people, dependent: :destroy
   has_many :notes, dependent: :destroy
+  has_many :tabletops, dependent: :destroy
   has_many :tags, dependent: :destroy
   has_many :highlight_colors, dependent: :destroy
   has_many :highlights, dependent: :destroy
@@ -37,8 +38,18 @@ class User < ApplicationRecord
   # + each concept can only be generated once.
   CONCEPT_GENERATION_LIMITS = {
     'free'      => 5,
-    'storage'   => 5,
+    'storage'   => 10,
     'unlimited' => Float::INFINITY,
+  }.freeze
+
+  # Per-tier AI-Assisted Note Taking budget.  Counts distinct papers
+  # ("unlocks"), not individual highlights — once a paper is unlocked the
+  # user can highlight it as much as they want.  Free is a lifetime taste,
+  # Storage resets monthly, Unlimited bypasses.
+  PAPER_UNLOCK_LIMITS = {
+    'free'      => { count: 1,                window: :lifetime },
+    'storage'   => { count: 10,               window: :month },
+    'unlimited' => { count: Float::INFINITY,  window: :unbounded },
   }.freeze
 
   # ---- Plan helpers ------------------------------------------------------
@@ -161,6 +172,69 @@ class User < ApplicationRecord
       limit:     concept_generations_unlimited? ? nil : concept_generation_limit,
       remaining: concept_generations_unlimited? ? nil : [concept_generation_limit - concept_generations_used, 0].max,
       unlimited: concept_generations_unlimited?,
+      tier:      effective_plan,
+    }
+  end
+
+  # ---- AI-Assisted Note Taking quota ------------------------------------
+
+  has_many :passage_insight_unlocks, dependent: :destroy
+
+  def paper_unlock_config
+    PAPER_UNLOCK_LIMITS[effective_plan] || PAPER_UNLOCK_LIMITS['free']
+  end
+
+  def paper_unlocks_unlimited?
+    paper_unlock_config[:count] == Float::INFINITY
+  end
+
+  # Count of distinct papers unlocked within the user's quota window.  Free
+  # = lifetime, Storage = current calendar month.
+  def paper_unlocks_used
+    case paper_unlock_config[:window]
+    when :unbounded then 0
+    when :lifetime  then passage_insight_unlocks.count
+    when :month     then passage_insight_unlocks.this_month.count
+    end
+  end
+
+  def paper_unlocks_remaining
+    return Float::INFINITY if paper_unlocks_unlimited?
+    [paper_unlock_config[:count] - paper_unlocks_used, 0].max
+  end
+
+  # True if this user can highlight `source` for AI-Assisted Note Taking.
+  # Either they've already unlocked it (within window for monthly tiers,
+  # ever for lifetime), or they have budget to unlock a new one.
+  def can_unlock_source_for_notes?(source_id)
+    return true if paper_unlocks_unlimited?
+    return true if has_active_unlock_for?(source_id)
+    paper_unlocks_used < paper_unlock_config[:count]
+  end
+
+  def has_active_unlock_for?(source_id)
+    scope = passage_insight_unlocks.where(source_id: source_id)
+    scope = scope.this_month if paper_unlock_config[:window] == :month
+    scope.exists?
+  end
+
+  # Idempotently records an unlock for (self, source_id).  Caller must have
+  # already passed can_unlock_source_for_notes?.  Unlimited tier still
+  # writes a row — it's cheap and gives us per-paper analytics.
+  def unlock_source_for_notes!(source_id)
+    PassageInsightUnlock.find_or_create_by!(
+      user_id: id,
+      source_id: source_id,
+    ) { |row| row.granted_at = Time.current }
+  end
+
+  def paper_unlock_quota
+    {
+      used:      paper_unlocks_used,
+      limit:     paper_unlocks_unlimited? ? nil : paper_unlock_config[:count],
+      remaining: paper_unlocks_unlimited? ? nil : paper_unlocks_remaining,
+      window:    paper_unlock_config[:window].to_s,
+      unlimited: paper_unlocks_unlimited?,
       tier:      effective_plan,
     }
   end

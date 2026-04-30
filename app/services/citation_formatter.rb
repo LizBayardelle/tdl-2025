@@ -36,8 +36,9 @@ class CitationFormatter
 
   def authors
     return @source.ordered_authors.to_a if @source.respond_to?(:ordered_authors) && @source.ordered_authors.any?
-    return [] if @source.authors.blank?
-    @source.authors.split(/[,;]/).map(&:strip).reject(&:blank?).map { |n| OpenStruct.new(full_name: n, first_name: nil, last_name: n) }
+    str = @source.authors_string
+    return [] if str.blank?
+    str.split(/[,;]/).map(&:strip).reject(&:blank?).map { |n| OpenStruct.new(full_name: n, first_name: nil, last_name: n) }
   rescue
     []
   end

@@ -143,7 +143,7 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
 
   const getTypeColor = () => {
     switch (shareable?.type) {
-      case 'Collection': return 'var(--accent-maroon)';
+      case 'Collection': return 'var(--primary)';
       case 'Source': return 'var(--accent-blue)';
       case 'Concept': return 'var(--accent-green)';
       case 'Person': return 'var(--accent-gold)';

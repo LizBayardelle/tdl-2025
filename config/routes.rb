@@ -41,6 +41,12 @@ Rails.application.routes.draw do
         post :retry_stage
       end
     end
+
+    resources :statistical_tests, path: 'stats' do
+      collection do
+        post :auto_fill
+      end
+    end
   end
 
   resources :upload_batches, only: [:index, :show, :create, :destroy] do
@@ -70,16 +76,22 @@ Rails.application.routes.draw do
     member do
       post :suggest_relationships
       post :generate_definition
+      post :reject_definition
     end
     resources :links, only: [:index, :create, :destroy], controller: 'concept_links'
   end
   resources :connections, only: [:index, :show, :create, :update, :destroy]
+
+  # Public statistical test catalog
+  resources :statistical_tests, only: [:index, :show], path: 'stats', param: :slug
+
   resources :sources, only: [:index, :show, :create, :update, :destroy] do
     collection do
       post :extract_metadata
       post :extract_from_pdf
       post :citations
       post :tag_research_types
+      post :tag_statistical_tests
       post :suggest_authors
       post :flesh_out_citation
     end
@@ -114,6 +126,14 @@ Rails.application.routes.draw do
     member do
       post :add_item
       delete :remove_item
+    end
+  end
+
+  resources :tabletops do
+    resources :items, only: [:index, :create, :update, :destroy], controller: 'tabletop_items'
+    member do
+      patch :viewport
+      post  :import_notes
     end
   end
 

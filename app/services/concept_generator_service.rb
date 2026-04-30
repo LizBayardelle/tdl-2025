@@ -60,11 +60,19 @@ class ConceptGeneratorService
   end
 
   def web_search_tool
+    # allowed_callers: ['direct'] keeps the tool in server-managed direct
+    # mode — Anthropic runs the search and streams results back as
+    # web_search_tool_result blocks.  Without this, web_search_20260209
+    # defaults to programmatic mode, where the model writes Python that
+    # calls web_search inside a code_execution sandbox.  We don't include
+    # code_execution in the tool list, so programmatic mode hangs until
+    # the request times out.  See LinkEnrichmentService for the same fix.
     {
       type: 'web_search_20260209',
       name: 'web_search',
       max_uses: MAX_SEARCHES,
-      allowed_domains: AllowedDomain.active_domains
+      allowed_domains: AllowedDomain.active_domains,
+      allowed_callers: ['direct'],
     }
   end
 
@@ -297,13 +305,14 @@ class ConceptGeneratorService
 
       case b['name']
       when 'web_search'
-        # Older web_search_20250305 direct shape.
+        # Direct-mode shape — server runs the search, model emits a
+        # server_tool_use block with the query in input.query.
         q = b.dig('input', 'query')
         queries << q if q.present?
       when 'code_execution'
-        # web_search_20260209 dynamic filtering: Claude writes Python that
-        # calls web_search({"query": "..."}). Pull every query string out
-        # of the code body.
+        # Programmatic-mode shape, kept defensively in case the tool
+        # config ever drops allowed_callers: ['direct']: Claude writes
+        # Python that calls web_search({"query": "..."}).
         code = b.dig('input', 'code').to_s
         code.scan(/web_search\(\s*\{\s*["']query["']\s*:\s*["']([^"']+)["']/).each do |m|
           queries << m[0]

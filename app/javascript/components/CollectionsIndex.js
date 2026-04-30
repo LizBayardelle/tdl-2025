@@ -3,6 +3,22 @@ import ShareModal from './ShareModal';
 import MobileSidebarBackdrop from './MobileSidebarBackdrop';
 import useIsMobile from '../hooks/useIsMobile';
 
+// Type → display config.  Used everywhere we render an item card so the
+// color/icon mapping stays consistent.
+const TYPE_CONFIG = {
+  sources:  { label: 'Sources',  singular: 'Source',  accent: 'var(--source)',  tint: 'var(--source-tint)',  icon: 'fa-book-open' },
+  concepts: { label: 'Concepts', singular: 'Concept', accent: 'var(--concept)', tint: 'var(--concept-tint)', icon: 'fa-lightbulb' },
+  people:   { label: 'People',   singular: 'Person',  accent: 'var(--person)',  tint: 'var(--person-tint)',  icon: 'fa-user' },
+  notes:    { label: 'Notes',    singular: 'Note',    accent: '#639CA1',        tint: '#E1EEEF',             icon: 'fa-pen-fancy' },
+};
+
+const ITEM_LINK = {
+  sources:  (id) => `/sources/${id}`,
+  concepts: (id) => `/concepts/${id}`,
+  people:   (id) => `/people/${id}`,
+  notes:    (id) => `/notes/${id}`,
+};
+
 export default function CollectionsIndex() {
   const isMobile = useIsMobile();
   const [collections, setCollections] = useState([]);
@@ -20,26 +36,18 @@ export default function CollectionsIndex() {
   // Share modal
   const [shareCollection, setShareCollection] = useState(null);
 
-  useEffect(() => {
-    fetchCollections();
-  }, []);
+  useEffect(() => { fetchCollections(); }, []);
 
   // Auto-select first collection on initial load
   useEffect(() => {
     if (collections.length > 0 && !selectedCollection) {
       handleCollectionClick(collections[0]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collections]);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-
+    const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -48,14 +56,10 @@ export default function CollectionsIndex() {
   const fetchCollections = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/collections.json');
-      if (response.ok) {
-        const data = await response.json();
-        setCollections(data);
-      } else {
-        setError('Failed to load collections');
-      }
-    } catch (err) {
+      const res = await fetch('/collections.json');
+      if (res.ok) setCollections(await res.json());
+      else setError('Failed to load collections');
+    } catch {
       setError('Failed to load collections');
     } finally {
       setLoading(false);
@@ -64,54 +68,41 @@ export default function CollectionsIndex() {
 
   const handleCollectionClick = async (collection) => {
     try {
-      const response = await fetch(`/collections/${collection.id}.json`);
-      if (response.ok) {
-        const data = await response.json();
-        // Merge with list data to keep is_owner, owner_email, share_permission
+      const res = await fetch(`/collections/${collection.id}.json`);
+      if (res.ok) {
+        const data = await res.json();
         setSelectedCollection({ ...collection, ...data });
-        // Close sidebar on mobile after selection
-        if (window.innerWidth < 768) {
-          setSidebarOpen(false);
-        }
+        if (window.innerWidth < 768) setSidebarOpen(false);
       }
-    } catch (err) {
-      console.error('Failed to load collection details');
+    } catch (e) {
+      console.error('Failed to load collection details', e);
     }
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!newName.trim()) return;
-
     setCreating(true);
     setError('');
-
     try {
-      const response = await fetch('/collections', {
+      const res = await fetch('/collections', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-          collection: { name: newName.trim(), description: newDescription.trim() }
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ collection: { name: newName.trim(), description: newDescription.trim() } }),
       });
-
-      if (response.ok) {
-        const newCollection = await response.json();
-        // Add ownership info since we just created it
-        const collectionWithOwner = { ...newCollection, is_owner: true, items_count: 0 };
-        setCollections([collectionWithOwner, ...collections]);
+      if (res.ok) {
+        const newCollection = await res.json();
+        const withMeta = { ...newCollection, is_owner: true, items_count: 0 };
+        setCollections([withMeta, ...collections]);
         setNewName('');
         setNewDescription('');
         setShowCreateForm(false);
-        handleCollectionClick(collectionWithOwner);
+        handleCollectionClick(withMeta);
       } else {
-        const data = await response.json();
+        const data = await res.json();
         setError(data.errors?.join(', ') || 'Failed to create collection');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to create collection');
     } finally {
       setCreating(false);
@@ -119,482 +110,170 @@ export default function CollectionsIndex() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this collection? Items inside will not be deleted.')) return;
-
+    if (!confirm('Delete this collection?  Items inside it stay where they are.')) return;
     try {
-      const response = await fetch(`/collections/${id}`, {
+      const res = await fetch(`/collections/${id}`, {
         method: 'DELETE',
-        headers: { 'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content }
+        headers: { 'X-CSRF-Token': csrfToken() },
       });
-
-      if (response.ok) {
-        setCollections(collections.filter(c => c.id !== id));
-        if (selectedCollection?.id === id) {
-          setSelectedCollection(null);
-        }
+      if (res.ok) {
+        setCollections((prev) => prev.filter((c) => c.id !== id));
+        if (selectedCollection?.id === id) setSelectedCollection(null);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to delete collection');
     }
   };
 
   const handleRemoveItem = async (collectionId, itemType, itemId) => {
     try {
-      const response = await fetch(`/collections/${collectionId}/remove_item`, {
+      const res = await fetch(`/collections/${collectionId}/remove_item`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ item_type: itemType, item_id: itemId })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ item_type: itemType, item_id: itemId }),
       });
-
-      if (response.ok) {
-        // Refresh collection details
-        const refreshResponse = await fetch(`/collections/${collectionId}.json`);
-        if (refreshResponse.ok) {
-          const data = await refreshResponse.json();
-          setSelectedCollection(prev => ({ ...prev, ...data }));
-          setCollections(collections.map(c =>
-            c.id === collectionId ? { ...c, items_count: (c.items_count || 1) - 1 } : c
-          ));
+      if (res.ok) {
+        const refreshed = await fetch(`/collections/${collectionId}.json`);
+        if (refreshed.ok) {
+          const data = await refreshed.json();
+          setSelectedCollection((prev) => ({ ...prev, ...data }));
+          setCollections((prev) =>
+            prev.map((c) => (c.id === collectionId ? { ...c, items_count: Math.max(0, (c.items_count || 1) - 1) } : c)),
+          );
         }
       }
-    } catch (err) {
-      console.error('Failed to remove item');
+    } catch (e) {
+      console.error('Failed to remove item', e);
     }
-  };
-
-  const getItemLink = (type, id) => {
-    const singular = type.endsWith('s') ? type.slice(0, -1) : type;
-    switch (singular.toLowerCase()) {
-      case 'source': return `/sources/${id}`;
-      case 'concept': return `/concepts/${id}`;
-      case 'person': case 'people': return `/people/${id}`;
-      case 'note': return `/notes/${id}`;
-      default: return '#';
-    }
-  };
-
-  const getTypeIcon = (type) => {
-    switch (type.toLowerCase()) {
-      case 'sources': return 'fa-book';
-      case 'concepts': return 'fa-lightbulb';
-      case 'people': return 'fa-user';
-      case 'notes': return 'fa-sticky-note';
-      default: return 'fa-file';
-    }
-  };
-
-  const getTypeColor = (type) => {
-    switch (type.toLowerCase()) {
-      case 'sources': return 'var(--accent-blue)';
-      case 'concepts': return 'var(--accent-green)';
-      case 'people': return 'var(--accent-gold)';
-      case 'notes': return 'var(--accent-teal)';
-      default: return 'var(--neutral-500)';
-    }
-  };
-
-  const formatPermission = (permission) => {
-    if (!permission) return '';
-    return permission.charAt(0).toUpperCase() + permission.slice(1);
   };
 
   if (loading) {
     return (
-      <div style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
-        <p style={{ fontFamily: 'var(--font-body)', color: 'var(--neutral-600)' }}>Loading collections...</p>
+      <div className="cx-loading">
+        <CXStyles />
+        Loading collections.
       </div>
     );
   }
 
-  const totalItems = collections.reduce((sum, c) => sum + (c.items_count || 0), 0);
+  const myCollections     = collections.filter((c) => c.is_owner);
+  const sharedCollections = collections.filter((c) => !c.is_owner);
+  const totalItems        = collections.reduce((sum, c) => sum + (c.items_count || 0), 0);
 
   return (
     <>
-      <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden', position: 'relative' }}>
+      <div className="cx-shell">
+        <CXStyles />
         <MobileSidebarBackdrop isMobile={isMobile} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Sidebar Toggle Button */}
         <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            position: isMobile ? 'fixed' : 'absolute',
-            left: sidebarOpen ? '280px' : '0',
-            top: '200px',
-            zIndex: 210,
-            background: 'var(--accent-maroon)',
-            color: 'white',
-            border: 'none',
-            padding: 'var(--space-2)',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            borderRadius: '0 4px 4px 0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '48px'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-maroon) 80%, black)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent-maroon)'}
+          type="button"
+          className="cx-sidebar-toggle"
+          onClick={() => setSidebarOpen((v) => !v)}
+          style={{ left: sidebarOpen ? '280px' : '0' }}
+          aria-label="Toggle collection list"
         >
-          <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} style={{ fontSize: '12px' }}></i>
+          <i className={`fas fa-chevron-${sidebarOpen ? 'left' : 'right'}`} />
         </button>
 
-        {/* Left Sidebar */}
         {sidebarOpen && (
-          <aside style={{
-            width: '280px',
-            background: '#e2e2e2',
-            overflowY: 'auto',
-            padding: 'var(--space-4)',
-            boxShadow: 'var(--shadow-sidebar)',
-            flexShrink: 0,
-            ...(isMobile ? { position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 200 } : {}),
-          }}>
-            {/* Create Form */}
-            {showCreateForm && (
-              <div style={{
-                background: 'white',
-                padding: 'var(--space-4)',
-                borderRadius: '4px',
-                marginBottom: 'var(--space-4)',
-                border: '1px solid var(--neutral-300)'
-              }}>
-                <form onSubmit={handleCreate}>
-                  <input
-                    type="text"
-                    value={newName}
-                    onChange={(e) => setNewName(e.target.value)}
-                    placeholder="Collection name"
-                    autoFocus
-                    className="form-input"
-                    style={{ width: '100%', marginBottom: 'var(--space-2)', fontFamily: 'var(--font-body)' }}
-                  />
-                  <textarea
-                    value={newDescription}
-                    onChange={(e) => setNewDescription(e.target.value)}
-                    placeholder="Description (optional)"
-                    rows={2}
-                    className="form-input"
-                    style={{ width: '100%', marginBottom: 'var(--space-3)', fontFamily: 'var(--font-body)', resize: 'vertical' }}
-                  />
-                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                    <button
-                      type="submit"
-                      disabled={creating || !newName.trim()}
-                      className="btn-primary"
-                      style={{
-                        flex: 1,
-                        background: creating || !newName.trim() ? 'var(--neutral-300)' : 'var(--accent-maroon)',
-                        cursor: creating || !newName.trim() ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      {creating ? 'Creating...' : 'Create'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowCreateForm(false); setNewName(''); setNewDescription(''); }}
-                      className="btn-secondary"
-                      style={{ flex: 1 }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+          <aside className={`cx-sidebar${isMobile ? ' is-mobile' : ''}`}>
+            <header className="cx-sidebar-head">
+              <div>
+                <h2 className="cx-sidebar-title">Collections</h2>
+                <p className="cx-sidebar-sub">{collections.length} · {totalItems} items</p>
               </div>
+              <button
+                type="button"
+                className="cx-newbtn"
+                onClick={() => setShowCreateForm((v) => !v)}
+                title="New collection"
+                aria-label="New collection"
+              >
+                <i className="fas fa-plus" />
+              </button>
+            </header>
+
+            {showCreateForm && (
+              <form className="cx-create" onSubmit={handleCreate}>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Collection name"
+                  className="form-input"
+                  autoFocus
+                />
+                <textarea
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Description (optional)"
+                  rows={2}
+                  className="form-input"
+                />
+                <div className="cx-create-actions">
+                  <button
+                    type="submit"
+                    className="sp-action sp-action-primary cx-create-primary"
+                    disabled={creating || !newName.trim()}
+                  >
+                    {creating ? 'Creating…' : 'Create'}
+                  </button>
+                  <button
+                    type="button"
+                    className="sp-action sp-action-secondary"
+                    onClick={() => { setShowCreateForm(false); setNewName(''); setNewDescription(''); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             )}
 
             {error && (
-              <div style={{
-                padding: 'var(--space-3)',
-                backgroundColor: '#fee',
-                color: '#c00',
-                borderRadius: '4px',
-                marginBottom: 'var(--space-4)',
-                fontSize: 'var(--text-sm)',
-                fontFamily: 'var(--font-body)'
-              }}>
+              <div className="cx-error" role="alert">
                 {error}
-                <button onClick={() => setError('')} style={{ float: 'right', background: 'none', border: 'none', cursor: 'pointer', color: '#c00' }}>&times;</button>
+                <button type="button" className="cx-error-x" onClick={() => setError('')} aria-label="Dismiss">×</button>
               </div>
             )}
 
-            {/* My Collections */}
-            {(() => {
-              const myCollections = collections.filter(c => c.is_owner);
-              const sharedCollections = collections.filter(c => !c.is_owner);
+            <CollectionsList
+              label="My Collections"
+              collections={myCollections}
+              selectedId={selectedCollection?.id}
+              onSelect={handleCollectionClick}
+              empty="No collections yet"
+            />
 
-              return (
-                <>
-                  <div style={{ marginBottom: 'var(--space-4)' }}>
-                    <h2 style={{
-                      fontSize: 'var(--text-xs)',
-                      fontWeight: 700,
-                      fontFamily: 'var(--font-body)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      color: 'var(--neutral-500)',
-                      marginBottom: 'var(--space-3)'
-                    }}>
-                      My Collections ({myCollections.length})
-                    </h2>
-
-                    {myCollections.length === 0 ? (
-                      <p style={{
-                        fontSize: 'var(--text-sm)',
-                        color: 'var(--neutral-600)',
-                        fontFamily: 'var(--font-body)',
-                        textAlign: 'center',
-                        padding: 'var(--space-4)'
-                      }}>No collections yet</p>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-                        {myCollections.map(collection => (
-                          <div
-                            key={collection.id}
-                            onClick={() => handleCollectionClick(collection)}
-                            style={{
-                              padding: 'var(--space-2) var(--space-3)',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              background: selectedCollection?.id === collection.id ? 'var(--accent-maroon)' : 'transparent',
-                              color: selectedCollection?.id === collection.id ? 'white' : 'var(--neutral-900)',
-                              transition: 'all 0.15s',
-                              fontFamily: 'var(--font-body)'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (selectedCollection?.id !== collection.id) {
-                                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (selectedCollection?.id !== collection.id) {
-                                e.currentTarget.style.background = 'transparent';
-                              }
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div style={{ flex: 1, overflow: 'hidden' }}>
-                                <div style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-2)',
-                                  fontSize: 'var(--text-sm)',
-                                  fontWeight: 500
-                                }}>
-                                  <i className="fas fa-folder" style={{ fontSize: '12px', opacity: 0.7 }}></i>
-                                  <span style={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                  }}>
-                                    {collection.name}
-                                  </span>
-                                </div>
-                              </div>
-                              <span style={{
-                                fontSize: 'var(--text-xs)',
-                                marginLeft: 'var(--space-2)',
-                                flexShrink: 0,
-                                opacity: 0.7
-                              }}>
-                                {collection.items_count || 0}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Shared with Me */}
-                  {sharedCollections.length > 0 && (
-                    <div>
-                      <h2 style={{
-                        fontSize: 'var(--text-xs)',
-                        fontWeight: 700,
-                        fontFamily: 'var(--font-body)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        color: 'var(--neutral-500)',
-                        marginBottom: 'var(--space-3)'
-                      }}>
-                        Shared with Me ({sharedCollections.length})
-                      </h2>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-                        {sharedCollections.map(collection => (
-                          <div
-                            key={collection.id}
-                            onClick={() => handleCollectionClick(collection)}
-                            style={{
-                              padding: 'var(--space-2) var(--space-3)',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              background: selectedCollection?.id === collection.id ? 'var(--accent-maroon)' : 'transparent',
-                              color: selectedCollection?.id === collection.id ? 'white' : 'var(--neutral-900)',
-                              transition: 'all 0.15s',
-                              fontFamily: 'var(--font-body)'
-                            }}
-                            onMouseEnter={(e) => {
-                              if (selectedCollection?.id !== collection.id) {
-                                e.currentTarget.style.background = 'rgba(0,0,0,0.05)';
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (selectedCollection?.id !== collection.id) {
-                                e.currentTarget.style.background = 'transparent';
-                              }
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                              <div style={{ flex: 1, overflow: 'hidden' }}>
-                                <div style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 'var(--space-2)',
-                                  fontSize: 'var(--text-sm)',
-                                  fontWeight: 500
-                                }}>
-                                  <i className="fas fa-share-alt" style={{ fontSize: '12px', opacity: 0.7 }}></i>
-                                  <span style={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap'
-                                  }}>
-                                    {collection.name}
-                                  </span>
-                                </div>
-                                <p style={{
-                                  fontSize: 'var(--text-xs)',
-                                  marginTop: '2px',
-                                  opacity: 0.7,
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap'
-                                }}>
-                                  from {collection.owner_email?.split('@')[0]}
-                                </p>
-                              </div>
-                              <span style={{
-                                fontSize: 'var(--text-xs)',
-                                marginLeft: 'var(--space-2)',
-                                flexShrink: 0,
-                                opacity: 0.7
-                              }}>
-                                {collection.items_count || 0}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              );
-            })()}
+            {sharedCollections.length > 0 && (
+              <CollectionsList
+                label="Shared with Me"
+                collections={sharedCollections}
+                selectedId={selectedCollection?.id}
+                onSelect={handleCollectionClick}
+                shared
+              />
+            )}
           </aside>
         )}
 
-        {/* Main Content */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'white' }}>
-          {/* Header */}
-          <div style={{
-            padding: 'var(--space-6) var(--space-8)',
-            background: 'color-mix(in srgb, var(--accent-maroon) 15%, white)',
-            boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
-            position: 'relative',
-            zIndex: 5,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-              <div>
-                <h1 style={{
-                  fontSize: 'var(--text-4xl)',
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-display)',
-                  color: 'var(--accent-maroon)',
-                  margin: 0,
-                  lineHeight: 1.1
-                }}>Collections</h1>
-                <p style={{
-                  fontSize: 'var(--text-base)',
-                  color: 'var(--neutral-600)',
-                  fontFamily: 'var(--font-body)',
-                  marginTop: 'var(--space-1)',
-                  marginBottom: 0
-                }}>
-                  {collections.length} collections — {totalItems} items
-                </p>
-              </div>
-              {/* New Collection Button */}
-              <button
-                onClick={() => setShowCreateForm(!showCreateForm)}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: 'var(--accent-maroon)',
-                  color: 'white',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 'var(--text-lg)',
-                  boxShadow: 'var(--shadow-sm)',
-                  transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-maroon) 80%, black)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--accent-maroon)';
-                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                }}
-                title="New Collection"
-              >
-                <i className="fas fa-plus"></i>
-              </button>
+        <main className="cx-main">
+          {selectedCollection ? (
+            <CollectionDetail
+              collection={selectedCollection}
+              onShare={() => setShareCollection({ id: selectedCollection.id, name: selectedCollection.name, type: 'Collection' })}
+              onDelete={() => handleDelete(selectedCollection.id)}
+              onRemoveItem={handleRemoveItem}
+            />
+          ) : (
+            <div className="cx-empty-main">
+              <i className="fas fa-folder-open cx-empty-icon" />
+              <p className="cx-empty-text">Select a collection to view its contents.</p>
             </div>
-          </div>
-
-          {/* Content Area */}
-          <div style={{
-            flex: 1,
-            overflowY: 'auto',
-            padding: 'var(--space-6)',
-          }}>
-            {selectedCollection ? (
-              <CollectionDetail
-                collection={selectedCollection}
-                onDelete={() => handleDelete(selectedCollection.id)}
-                onShare={() => setShareCollection({ id: selectedCollection.id, name: selectedCollection.name, type: 'Collection' })}
-                onRemoveItem={handleRemoveItem}
-                getItemLink={getItemLink}
-                getTypeIcon={getTypeIcon}
-                getTypeColor={getTypeColor}
-                formatPermission={formatPermission}
-              />
-            ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: 'var(--space-8)',
-                color: 'var(--neutral-500)',
-                fontFamily: 'var(--font-body)'
-              }}>
-                <i className="fas fa-folder-open" style={{ fontSize: '3rem', marginBottom: 'var(--space-4)', display: 'block', color: 'var(--accent-maroon)', opacity: 0.5 }}></i>
-                Select a collection to view its contents
-              </div>
-            )}
-          </div>
+          )}
         </main>
       </div>
 
-      {/* Share Modal */}
       {shareCollection && (
         <ShareModal
           isOpen={!!shareCollection}
@@ -606,309 +285,690 @@ export default function CollectionsIndex() {
   );
 }
 
-function CollectionDetail({ collection, onDelete, onShare, onRemoveItem, getItemLink, getTypeIcon, getTypeColor, formatPermission }) {
+function csrfToken() {
+  return document.querySelector('[name="csrf-token"]')?.content;
+}
+
+// =====================================================================
+// Sidebar list — My / Shared section
+// =====================================================================
+function CollectionsList({ label, collections, selectedId, onSelect, empty, shared }) {
+  return (
+    <section className="cx-list">
+      <h3 className="cx-list-label">{label} ({collections.length})</h3>
+      {collections.length === 0 ? (
+        <p className="cx-list-empty">{empty}</p>
+      ) : (
+        <ul>
+          {collections.map((c) => (
+            <li
+              key={c.id}
+              className={`cx-list-item${selectedId === c.id ? ' is-active' : ''}`}
+              onClick={() => onSelect(c)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(c); } }}
+            >
+              <i className={`fas ${shared ? 'fa-share-alt' : 'fa-folder'} cx-list-icon`} />
+              <div className="cx-list-text">
+                <div className="cx-list-name">{c.name}</div>
+                {shared && c.owner_email && (
+                  <div className="cx-list-sub">from {c.owner_email.split('@')[0]}</div>
+                )}
+              </div>
+              <span className="cx-list-count">{c.items_count || 0}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+// =====================================================================
+// Detail pane — modeled on SourceShow chrome
+// =====================================================================
+function CollectionDetail({ collection, onShare, onDelete, onRemoveItem }) {
   const isOwner = collection.is_owner;
-  const hasSharing = (!isOwner) || (isOwner && collection.shares && collection.shares.length > 0);
+  const totalItems = collection.items_count || 0;
+  const isEmpty = totalItems === 0;
+  const stats = ['sources', 'concepts', 'people', 'notes']
+    .map((type) => ({ type, count: collection[type]?.length || 0 }))
+    .filter((s) => s.count > 0);
 
   return (
-    <div style={{ overflow: 'visible' }}>
-      {/* Header */}
-      <div style={{
-        padding: 'var(--space-6)',
-        borderBottom: '1px solid var(--neutral-200)',
-        background: 'white'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'start',
-          justifyContent: 'space-between',
-          gap: 'var(--space-4)',
-        }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
-              <i className="fas fa-folder-open" style={{ color: 'var(--accent-maroon)', fontSize: 'var(--text-2xl)' }}></i>
-              <h2 style={{
-                fontSize: 'var(--text-3xl)',
-                fontWeight: 700,
-                fontFamily: 'var(--font-display)',
-                color: 'var(--accent-maroon)',
-                margin: 0
-              }}>
-                {collection.name}
-              </h2>
-            </div>
-            {collection.description && (
-              <p style={{
-                fontSize: 'var(--text-base)',
-                color: 'var(--neutral-600)',
-                fontFamily: 'var(--font-body)',
-                margin: 0
-              }}>
-                {collection.description}
-              </p>
-            )}
-          </div>
-          {isOwner && (
-            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-              <button
-                onClick={onShare}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent-maroon)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-2)',
-                  fontSize: 'var(--text-lg)',
-                  transition: 'color 0.15s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-                title="Share"
-              >
-                <i className="fas fa-share-alt"></i>
-              </button>
-              <button
-                onClick={onDelete}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--neutral-400)',
-                  cursor: 'pointer',
-                  padding: 'var(--space-2)',
-                  fontSize: 'var(--text-lg)',
-                  transition: 'color 0.15s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
-                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
-                title="Delete"
-              >
-                <i className="fas fa-trash"></i>
-              </button>
-            </div>
-          )}
+    <div className="cx-detail">
+      <header className="cx-detail-head">
+        <div className="cx-detail-titleline">
+          <i className="fas fa-folder-open cx-detail-folder" />
+          <h1 className="cx-detail-title">{collection.name}</h1>
         </div>
-
-        {/* Sharing Info Box - for recipients */}
-        {!isOwner && (
-          <div style={{
-            marginTop: 'var(--space-4)',
-            padding: 'var(--space-3) var(--space-4)',
-            background: '#e2e2e2',
-            border: '1px solid var(--neutral-300)',
-            borderRadius: '4px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-2)',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)'
-          }}>
-            <div>
-              <span style={{ color: 'var(--neutral-500)', marginRight: 'var(--space-2)' }}>Shared by:</span>
-              <span style={{ color: 'var(--neutral-700)', fontWeight: 500 }}>{collection.owner_email}</span>
-            </div>
-            <div>
-              <span style={{ color: 'var(--neutral-500)', marginRight: 'var(--space-2)' }}>Your role:</span>
-              <span style={{
-                color: 'white',
-                background: 'var(--accent-maroon)',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                fontWeight: 500,
-                fontSize: 'var(--text-xs)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}>
-                {formatPermission(collection.share_permission)}
-              </span>
-            </div>
+        {isOwner && (
+          <div className="cx-detail-actions">
+            <button type="button" className="sp-action sp-action-quiet" onClick={onShare} title="Share">
+              <i className="fas fa-share-alt" /> Share
+            </button>
+            <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={onDelete} title="Delete">
+              <i className="fas fa-trash" /> Delete
+            </button>
           </div>
         )}
+      </header>
 
-        {/* Sharing Info for Owner */}
-        {isOwner && collection.shares && collection.shares.length > 0 && (
-          <div style={{
-            marginTop: 'var(--space-4)',
-            padding: 'var(--space-3) var(--space-4)',
-            background: '#e2e2e2',
-            border: '1px solid var(--neutral-300)',
-            borderRadius: '4px',
-            fontFamily: 'var(--font-body)',
-            fontSize: 'var(--text-sm)'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-2)',
-              marginBottom: 'var(--space-2)',
-              color: 'var(--neutral-600)',
-              fontWeight: 600
-            }}>
-              <i className="fas fa-users" style={{ fontSize: '12px' }}></i>
-              Shared with
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-              {collection.shares.map(share => (
-                <div key={share.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--neutral-700)' }}>{share.email}</span>
-                  <span style={{
-                    color: 'white',
-                    background: 'var(--accent-maroon)',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    fontWeight: 500,
-                    fontSize: 'var(--text-xs)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    {formatPermission(share.permission)}
-                  </span>
-                </div>
-              ))}
-            </div>
+      {collection.description && (
+        <p className="cx-detail-desc">{collection.description}</p>
+      )}
+
+      {!isOwner && (
+        <div className="cx-share-info">
+          <span className="cx-share-label">Shared by:</span>
+          <span className="cx-share-value">{collection.owner_email}</span>
+          <span className="cx-share-perm">{formatPermission(collection.share_permission)}</span>
+        </div>
+      )}
+
+      {isOwner && Array.isArray(collection.shares) && collection.shares.length > 0 && (
+        <div className="cx-share-info is-owner">
+          <div className="cx-share-info-head">
+            <i className="fas fa-users" /> Shared with
           </div>
-        )}
-      </div>
+          <ul className="cx-share-list">
+            {collection.shares.map((s) => (
+              <li key={s.id}>
+                <span>{s.email}</span>
+                <span className="cx-share-perm">{formatPermission(s.permission)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-      {/* Summary Stats */}
-      <div style={{
-        padding: 'var(--space-6)',
-        borderBottom: '1px solid var(--neutral-200)',
-        background: 'white'
-      }}>
-        <h3 style={{
-          fontSize: 'var(--text-lg)',
-          fontWeight: 600,
-          fontFamily: 'var(--font-display)',
-          color: 'var(--neutral-900)',
-          marginBottom: 'var(--space-3)'
-        }}>
-          Items ({collection.items_count || 0})
-        </h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
-          {['sources', 'concepts', 'people', 'notes'].map(type => {
-            const count = collection[type]?.length || 0;
-            if (count === 0) return null;
-            return (
-              <div
-                key={type}
-                style={{
-                  background: getTypeColor(type),
-                  color: 'white',
-                  padding: 'var(--space-2) var(--space-3)',
-                  borderRadius: '4px',
-                  fontSize: 'var(--text-sm)',
-                  fontFamily: 'var(--font-body)',
-                  fontWeight: 500
-                }}
-              >
-                <i className={`fas ${getTypeIcon(type)}`} style={{ marginRight: 'var(--space-2)' }}></i>
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-                <span style={{ marginLeft: 'var(--space-2)', opacity: 0.8 }}>({count})</span>
+      {stats.length > 0 && (
+        <div className="cx-stats">
+          {stats.map(({ type, count }) => (
+            <div key={type} className="cx-stat" style={{ '--cx-stat-color': TYPE_CONFIG[type].accent }}>
+              <i className={`fas ${TYPE_CONFIG[type].icon}`} />
+              <div className="cx-stat-text">
+                <div className="cx-stat-value">{count}</div>
+                <div className="cx-stat-label">{TYPE_CONFIG[type].label}</div>
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isEmpty ? (
+        <div className="cx-detail-empty">
+          <i className="fas fa-inbox cx-detail-empty-icon" />
+          <p>This collection is empty.</p>
+          <p className="cx-detail-empty-hint">Add items from their detail pages.</p>
+        </div>
+      ) : (
+        <div className="cx-sections">
+          {Object.keys(TYPE_CONFIG).map((type) => {
+            const items = collection[type] || [];
+            if (items.length === 0) return null;
+            const cfg = TYPE_CONFIG[type];
+            return (
+              <section key={type} className="cx-section">
+                <h2 className="cx-section-head" style={{ '--cx-section-color': cfg.accent }}>
+                  <i className={`fas ${cfg.icon}`} /> {cfg.label}
+                  <span className="cx-section-count">{items.length}</span>
+                </h2>
+                <div className="cx-items-grid">
+                  {items.map((item) => (
+                    <ItemCard
+                      key={`${type}-${item.id}`}
+                      item={item}
+                      type={type}
+                      cfg={cfg}
+                      canRemove={isOwner}
+                      onRemove={() => onRemoveItem(collection.id, cfg.singular, item.id)}
+                    />
+                  ))}
+                </div>
+              </section>
             );
           })}
         </div>
-      </div>
-
-      {/* Items by Type */}
-      <div style={{ padding: 'var(--space-6)', background: 'white' }}>
-        {['sources', 'concepts', 'people', 'notes'].map(type => {
-          const items = collection[type] || [];
-          if (items.length === 0) return null;
-
-          const singularType = type === 'people' ? 'Person' : type.charAt(0).toUpperCase() + type.slice(1, -1);
-
-          return (
-            <div key={type} style={{ marginBottom: 'var(--space-6)' }}>
-              <h3 style={{
-                fontSize: 'var(--text-lg)',
-                fontWeight: 600,
-                fontFamily: 'var(--font-display)',
-                color: getTypeColor(type),
-                marginBottom: 'var(--space-3)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)'
-              }}>
-                <i className={`fas ${getTypeIcon(type)}`} style={{ fontSize: 'var(--text-sm)' }}></i>
-                {type.charAt(0).toUpperCase() + type.slice(1)} ({items.length})
-              </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                gap: 'var(--space-3)'
-              }}>
-                {items.map(item => (
-                  <div
-                    key={item.id}
-                    className="card"
-                    style={{
-                      padding: 'var(--space-3)',
-                      paddingRight: 'var(--space-6)',
-                      borderLeft: `3px solid ${getTypeColor(type)}`,
-                      transition: 'all 0.15s',
-                      position: 'relative'
-                    }}
-                  >
-                    <a
-                      href={getItemLink(type, item.id)}
-                      style={{
-                        textDecoration: 'none',
-                        color: 'var(--neutral-900)',
-                        fontSize: 'var(--text-sm)',
-                        fontWeight: 500,
-                        fontFamily: 'var(--font-body)'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = getTypeColor(type)}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-900)'}
-                    >
-                      {item.title || item.label || item.full_name || item.body?.substring(0, 40)}
-                    </a>
-                    <button
-                      onClick={() => onRemoveItem(collection.id, singularType, item.id)}
-                      title="Remove from collection"
-                      style={{
-                        position: 'absolute',
-                        top: 'var(--space-2)',
-                        right: 'var(--space-2)',
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--neutral-400)',
-                        cursor: 'pointer',
-                        padding: 'var(--space-1)',
-                        fontSize: 'var(--text-xs)'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
-                      onMouseLeave={(e) => e.currentTarget.style.color = 'var(--neutral-400)'}
-                    >
-                      <i className="fas fa-times"></i>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        {!collection.sources?.length && !collection.concepts?.length && !collection.people?.length && !collection.notes?.length && (
-          <div style={{
-            color: 'var(--neutral-500)',
-            fontSize: 'var(--text-sm)',
-            textAlign: 'center',
-            padding: 'var(--space-8)',
-            fontFamily: 'var(--font-body)'
-          }}>
-            <i className="fas fa-inbox" style={{ display: 'block', fontSize: '2rem', marginBottom: 'var(--space-3)', color: 'var(--neutral-400)' }}></i>
-            This collection is empty.<br />Add items from their detail pages.
-          </div>
-        )}
-      </div>
+      )}
     </div>
+  );
+}
+
+function ItemCard({ item, type, cfg, canRemove, onRemove }) {
+  const label = item.title || item.label || item.full_name || (item.body ? item.body.slice(0, 60) : 'Untitled');
+  return (
+    <article className="cx-item-card" style={{ '--cx-item-color': cfg.accent }}>
+      <a href={ITEM_LINK[type](item.id)} className="cx-item-link" title={label}>
+        {label}
+      </a>
+      {canRemove && (
+        <button
+          type="button"
+          className="cx-item-remove"
+          onClick={(e) => { e.preventDefault(); onRemove(); }}
+          aria-label={`Remove from collection`}
+          title="Remove from collection"
+        >
+          <i className="fas fa-times" />
+        </button>
+      )}
+    </article>
+  );
+}
+
+function formatPermission(p) {
+  if (!p) return '';
+  return p.charAt(0).toUpperCase() + p.slice(1);
+}
+
+// =====================================================================
+// Styles
+// =====================================================================
+function CXStyles() {
+  return (
+    <style>{`
+      .cx-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 24px;
+        font-family: var(--font-body);
+        color: var(--ink-3);
+      }
+
+      .cx-shell {
+        display: flex;
+        height: calc(100vh - 64px);
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* ---------- Toggle ---------- */
+      .cx-sidebar-toggle {
+        position: absolute;
+        top: 100px;
+        z-index: 210;
+        background: var(--primary);
+        color: var(--paper);
+        border: none;
+        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+        width: 24px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        transition: left 0.3s ease, background 0.15s;
+      }
+      .cx-sidebar-toggle:hover { background: var(--primary-dark); }
+      .cx-sidebar-toggle i { font-size: 11px; }
+
+      /* ---------- Sidebar ---------- */
+      .cx-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        background: var(--paper-soft);
+        border-right: 1px solid var(--ink-line);
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .cx-sidebar.is-mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 200;
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.18);
+      }
+      .cx-sidebar-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .cx-sidebar-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary);
+        margin: 0;
+        letter-spacing: -0.005em;
+      }
+      .cx-sidebar-sub {
+        margin: 2px 0 0;
+        font-family: var(--font-body);
+        font-size: 11px;
+        color: var(--ink-3);
+      }
+      .cx-newbtn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: var(--paper);
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 1px 3px rgba(31, 59, 115, 0.25);
+        transition: background 0.15s, transform 0.15s;
+      }
+      .cx-newbtn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+
+      .cx-create {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+      }
+      .cx-create-actions { display: flex; gap: 6px; }
+      .cx-create-actions > * { flex: 1; }
+      .cx-create-primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--paper);
+      }
+      .cx-create-primary:hover:not(:disabled) {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+      }
+
+      .cx-error {
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--error) 10%, transparent);
+        color: var(--error);
+        border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .cx-error-x {
+        background: transparent;
+        border: none;
+        color: var(--error);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0 4px;
+      }
+
+      /* ---------- Sidebar lists ---------- */
+      .cx-list { display: flex; flex-direction: column; gap: 4px; }
+      .cx-list-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin: 0 0 6px;
+      }
+      .cx-list-empty {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-4);
+        font-style: italic;
+        margin: 0;
+        padding: 8px 4px;
+      }
+      .cx-list ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+      .cx-list-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        font-family: var(--font-body);
+        color: var(--ink);
+        transition: background 0.12s, color 0.12s;
+      }
+      .cx-list-item:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+      .cx-list-item.is-active {
+        background: var(--primary);
+        color: var(--paper);
+      }
+      .cx-list-icon {
+        font-size: 11px;
+        opacity: 0.7;
+        flex-shrink: 0;
+      }
+      .cx-list-text {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .cx-list-name {
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cx-list-sub {
+        font-size: 10.5px;
+        opacity: 0.7;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1px;
+      }
+      .cx-list-count {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        opacity: 0.7;
+        flex-shrink: 0;
+      }
+
+      /* ---------- Main pane ---------- */
+      .cx-main {
+        flex: 1;
+        overflow-y: auto;
+        background: var(--paper);
+      }
+      .cx-empty-main {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink-3);
+        font-family: var(--font-body);
+        gap: 12px;
+      }
+      .cx-empty-icon {
+        font-size: 56px;
+        color: var(--primary);
+        opacity: 0.4;
+      }
+      .cx-empty-text {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      /* ---------- Detail ---------- */
+      .cx-detail {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px 32px 80px;
+      }
+
+      .cx-detail-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+      .cx-detail-titleline {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+      .cx-detail-folder {
+        color: var(--primary);
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      .cx-detail-title {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--primary);
+        margin: 0;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+        min-width: 0;
+      }
+      .cx-detail-actions {
+        display: inline-flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .cx-detail-actions .sp-action i { margin-right: 6px; }
+
+      .cx-detail-desc {
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.65;
+        color: var(--ink-2);
+        margin: 0 0 20px;
+        max-width: 720px;
+      }
+
+      /* ---------- Share info boxes ---------- */
+      .cx-share-info {
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 12px 14px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .cx-share-info.is-owner { display: block; }
+      .cx-share-info-head {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--ink-2);
+        margin-bottom: 8px;
+      }
+      .cx-share-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .cx-share-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12.5px;
+      }
+      .cx-share-label {
+        font-weight: 500;
+        color: var(--ink-3);
+      }
+      .cx-share-value {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .cx-share-perm {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: var(--primary);
+        color: var(--paper);
+        padding: 2px 8px;
+        border-radius: var(--r-sm);
+      }
+
+      /* ---------- Stats grid ---------- */
+      .cx-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 28px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--ink-line);
+      }
+      .cx-stat {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-left: 3px solid var(--cx-stat-color, var(--ink-3));
+        border-radius: var(--r-md);
+      }
+      .cx-stat i {
+        font-size: 18px;
+        color: var(--cx-stat-color, var(--ink-3));
+      }
+      .cx-stat-value {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--ink);
+        line-height: 1.1;
+      }
+      .cx-stat-label {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+
+      /* ---------- Sections + items ---------- */
+      .cx-sections { display: flex; flex-direction: column; gap: 32px; }
+      .cx-section { display: flex; flex-direction: column; gap: 12px; }
+      .cx-section-head {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--cx-section-color, var(--ink));
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: -0.005em;
+      }
+      .cx-section-head i { font-size: 14px; }
+      .cx-section-count {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        color: var(--ink-3);
+        font-weight: 400;
+        margin-left: 2px;
+      }
+
+      .cx-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 12px;
+      }
+
+      /* Item card — type-colored top accent, hover lift, hover-only X
+         button.  Compact since collections often hold many items. */
+      .cx-item-card {
+        position: relative;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-top: 3px solid var(--cx-item-color, var(--ink-3));
+        border-radius: var(--r-md);
+        padding: 12px 14px;
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.04),
+          0 8px 18px rgba(21, 25, 31, 0.05);
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+      }
+      .cx-item-card:hover {
+        border-color: var(--cx-item-color, var(--ink-3));
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.05),
+          0 14px 28px rgba(21, 25, 31, 0.10);
+        transform: translateY(-1px);
+      }
+      .cx-item-link {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        font-weight: 500;
+        line-height: 1.4;
+        color: var(--ink);
+        text-decoration: none;
+        padding-right: 22px;
+        word-break: break-word;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .cx-item-card:hover .cx-item-link { color: var(--cx-item-color, var(--ink)); }
+      .cx-item-remove {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: transparent;
+        border: none;
+        color: var(--ink-4);
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: var(--r-sm);
+        font-size: 11px;
+        opacity: 0;
+        transition: opacity 0.15s, background 0.15s, color 0.15s;
+      }
+      .cx-item-card:hover .cx-item-remove,
+      .cx-item-card:focus-within .cx-item-remove { opacity: 1; }
+      @media (hover: none) { .cx-item-remove { opacity: 1; } }
+      .cx-item-remove:hover {
+        background: rgba(122, 46, 46, 0.08);
+        color: var(--error);
+      }
+
+      /* ---------- Detail empty state ---------- */
+      .cx-detail-empty {
+        text-align: center;
+        padding: 56px 16px;
+        color: var(--ink-3);
+        font-family: var(--font-body);
+      }
+      .cx-detail-empty p { margin: 0; font-size: 14px; }
+      .cx-detail-empty-hint {
+        margin-top: 6px !important;
+        font-size: 12.5px;
+        color: var(--ink-4);
+      }
+      .cx-detail-empty-icon {
+        display: block;
+        font-size: 40px;
+        color: var(--ink-line);
+        margin-bottom: 12px;
+      }
+
+      /* ---------- Responsive ---------- */
+      @media (max-width: 768px) {
+        .cx-detail { padding: 18px 16px 56px; }
+        .cx-detail-title { font-size: 24px; }
+        .cx-detail-head { flex-direction: column; align-items: stretch; }
+      }
+    `}</style>
   );
 }

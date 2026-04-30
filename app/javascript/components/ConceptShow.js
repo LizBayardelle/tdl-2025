@@ -36,6 +36,22 @@ const REL_TYPE_BY_VALUE = REL_TYPES_FLAT.reduce((acc, t) => {
 const PARENT_OUTGOING = new Set(['parent_of', 'categorizes']);
 const CHILD_OUTGOING  = new Set(['child_of', 'is_a']);
 
+const POLL_INTERVAL_MS = 5000;
+// Generated-field truncation threshold.  Fields whose stripped text
+// exceeds this collapse to ~12em with a "Show more" toggle.  Tuned for
+// multi-paragraph fields like description; one-paragraph fields fall
+// well below and render in full without a toggle.
+const TRUNCATION_CHAR_THRESHOLD = 500;
+// Slightly longer than the server's GENERATION_TIMEOUT_SECONDS (720s) so
+// the client can detect a server-side timeout and show a clean error
+// rather than racing it.
+const POLL_TIMEOUT_MS  = 13 * 60 * 1000;
+
+// A linked ConceptDefinition is "real" once it has at least one of the two
+// long-form fields populated — bare-row definitions can exist transiently
+// before the generation job lands the content.
+const hasDefinitionContent = (d) => !!(d && (d.summary || d.description));
+
 export default function ConceptShow({ conceptId }) {
   const [concept, setConcept] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,9 +67,14 @@ export default function ConceptShow({ conceptId }) {
   const [creatingSource, setCreatingSource] = useState(false);
 
   // Generate-definition flow: enqueues a background job, then polls
-  // fetchConcept until concept.definition shows up.
+  // fetchConcept until concept.definition shows up.  revealKey bumps each
+  // time a definition lands in this session — drives the staged-reveal
+  // animation.  Page-load reads of pre-existing definitions don't bump it,
+  // so users don't see the animation on revisits.
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState(null);
+  const [revealKey, setRevealKey] = useState(0);
+  const [rejecting, setRejecting] = useState(false);
   const generationPollRef = useRef(null);
 
   useEffect(() => { fetchConcept(); fetchAllConcepts(); fetchConnections(); }, [conceptId]);
@@ -134,12 +155,13 @@ export default function ConceptShow({ conceptId }) {
     return false;
   };
 
-  const handleGenerateDefinition = async () => {
+  const handleGenerateDefinition = async ({ forceFresh = false } = {}) => {
     setGenerationError(null);
     setGenerating(true);
     try {
       const csrf = document.querySelector('[name="csrf-token"]')?.content;
-      const res = await fetch(`/concepts/${conceptId}/generate_definition`, {
+      const url = `/concepts/${conceptId}/generate_definition${forceFresh ? '?force_fresh=true' : ''}`;
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,35 +177,86 @@ export default function ConceptShow({ conceptId }) {
       }
       if (!res.ok) throw new Error(`Failed (${res.status})`);
 
+      const data = await res.json();
+
+      // Cache-hit path: server linked an existing ConceptDefinition.  Skip
+      // polling — fetch the full concept once and run the same staged
+      // reveal as a fresh generation.  The user's experience is identical
+      // either way; only the wait length differs.
+      if (data.cache_hit) {
+        const r = await fetch(`/concepts/${conceptId}.json`);
+        if (r.ok) {
+          const fresh = await r.json();
+          setConcept(fresh);
+        }
+        setGenerating(false);
+        setRevealKey((k) => k + 1);
+        return;
+      }
+
       // Poll for the generated definition.  Job typically finishes in
-      // 30-60s; we cap polling at 5 minutes total.
+      // 30-60s; capped at POLL_TIMEOUT_MS.
       const startedAt = Date.now();
       generationPollRef.current = setInterval(async () => {
         try {
           const r = await fetch(`/concepts/${conceptId}.json`);
           if (!r.ok) return;
           const data = await r.json();
-          if (data.definition && (data.definition.summary || data.definition.description)) {
+          if (hasDefinitionContent(data.definition)) {
             clearInterval(generationPollRef.current);
             generationPollRef.current = null;
             setConcept(data);
             setGenerating(false);
+            setRevealKey((k) => k + 1);
             return;
           }
-          if (Date.now() - startedAt > 5 * 60 * 1000) {
+          if (Date.now() - startedAt > POLL_TIMEOUT_MS) {
             clearInterval(generationPollRef.current);
             generationPollRef.current = null;
             setGenerating(false);
-            setGenerationError({ kind: 'timeout', message: 'Generation is taking longer than usual.  Refresh in a moment to see if it landed.' });
+            setGenerationError({ kind: 'timeout', message: 'This is taking longer than usual.  Refresh in a moment to see if it landed.' });
           }
         } catch (e) {
           // Soft-fail and try again on next tick.
         }
-      }, 5000);
+      }, POLL_INTERVAL_MS);
     } catch (e) {
       console.error(e);
       setGenerating(false);
-      setGenerationError({ kind: 'error', message: 'Generation failed.  Try again in a moment.' });
+      setGenerationError({ kind: 'error', message: "We couldn't add this to your library.  Try again in a moment." });
+    }
+  };
+
+  // Wrong-sense rejection: user flags the linked definition as not what
+  // they meant.  Server unlinks + bumps the rejection counter, then
+  // optionally refunds the slot if it came from cache (we picked a bad
+  // match so the user doesn't pay).  We immediately fire a fresh
+  // generation with force_fresh, so the wrong cached row can't be picked
+  // again.
+  const handleRejectDefinition = async () => {
+    if (rejecting || generating) return;
+    setRejecting(true);
+    try {
+      const csrf = document.querySelector('[name="csrf-token"]')?.content;
+      const res = await fetch(`/concepts/${conceptId}/reject_definition`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf,
+          'Accept': 'application/json',
+        },
+      });
+      if (!res.ok) throw new Error(`Failed (${res.status})`);
+
+      // Optimistically clear the rejected definition from local state so
+      // the UI swaps to the generating lede without a round-trip.
+      setConcept((prev) => prev && { ...prev, definition: null, definition_acquired_via: null });
+      setRejecting(false);
+      await handleGenerateDefinition({ forceFresh: true });
+    } catch (e) {
+      console.error(e);
+      setRejecting(false);
+      setGenerationError({ kind: 'error', message: "We couldn't replace this definition.  Try again in a moment." });
     }
   };
 
@@ -264,9 +337,7 @@ export default function ConceptShow({ conceptId }) {
         {concept.summary && <p className="cs-hero-summary">{stripHtml(concept.summary)}</p>}
         {/* Pages with a definition move stats into the sidebar; bare pages
             keep them in the hero since they have no sidebar. */}
-        {!(definition && (definition.summary || definition.description)) && (
-          <HeroStats concept={concept} />
-        )}
+        {!hasDefinitionContent(definition) && <HeroStats concept={concept} />}
       </section>
 
       <ConceptBody
@@ -279,9 +350,13 @@ export default function ConceptShow({ conceptId }) {
         onDeleteConnection={handleDeleteConnection}
         onConceptCreated={fetchAllConcepts}
         onGenerateDefinition={handleGenerateDefinition}
+        onRejectDefinition={handleRejectDefinition}
         generating={generating}
+        rejecting={rejecting}
         generationError={generationError}
         generationQuota={concept.generation_quota}
+        revealKey={revealKey}
+        acquiredVia={concept.definition_acquired_via}
       />
 
       <ConceptFormModal
@@ -695,18 +770,30 @@ function Breadcrumb({ parents, current }) {
 function ConceptBody({
   concept, conceptId, connections, allConcepts, definition,
   onCreateConnection, onDeleteConnection, onConceptCreated,
-  onGenerateDefinition, generating, generationError, generationQuota,
+  onGenerateDefinition, onRejectDefinition,
+  generating, rejecting, generationError, generationQuota,
+  revealKey, acquiredVia,
 }) {
-  const ownedDefinition = definition && (definition.summary || definition.description) ? definition : null;
+  const ownedDefinition = hasDefinitionContent(definition) ? definition : null;
   const focalId = parseInt(conceptId);
 
   if (ownedDefinition) {
     return (
       <div className="cs-2col">
         <main className="cs-2col-main">
-          <DefinitionLede definition={ownedDefinition} />
-          <IntegratedArticle concept={concept} definition={ownedDefinition} />
-          <FurtherReading definition={ownedDefinition} />
+          {/* key={revealKey} forces a remount when a new definition lands,
+              which restarts the staged-reveal animation.  revealKey is 0
+              on initial page load (no animation on revisits). */}
+          <DefinitionRevealRegion key={revealKey} animate={revealKey > 0}>
+            <DefinitionLede definition={ownedDefinition} />
+            <IntegratedArticle concept={concept} definition={ownedDefinition} />
+            <FurtherReading definition={ownedDefinition} />
+            <DefinitionRejectPanel
+              acquiredVia={acquiredVia}
+              rejecting={rejecting}
+              onReject={onRejectDefinition}
+            />
+          </DefinitionRevealRegion>
         </main>
 
         <aside className="cs-2col-side">
@@ -1033,11 +1120,11 @@ function GenerateDefinitionLede({ onGenerate, generating, error, quota }) {
           </span>
         </header>
         <p className="cs-pack-lede-summary">
-          Reading sources, drafting the summary, examples, history, and more.
-          This usually takes 30–60 seconds.
+          Researching, drafting, fact-checking, and pulling sources.
+          This usually takes a few minutes — we run a full pass before showing you anything.
         </p>
         <p className="cs-pack-lede-generating-hint">
-          Stay on this page — the entry will fill in when it's ready.
+          You can leave this page and come back — the entry will be waiting when it's ready.
         </p>
       </section>
     );
@@ -1065,7 +1152,7 @@ function GenerateDefinitionLede({ onGenerate, generating, error, quota }) {
         <div className="cs-pack-lede-cta-text">
           {unlimited ? (
             <>
-              <strong>Unlimited generations</strong>
+              <strong>Unlimited Concept Library Additions</strong>
               <span className="cs-pack-lede-cta-meta"> · Unlimited tier</span>
             </>
           ) : overQuota ? (
@@ -1075,7 +1162,7 @@ function GenerateDefinitionLede({ onGenerate, generating, error, quota }) {
             </>
           ) : (
             <>
-              <strong>{remaining} of {limit} generations</strong>
+              <strong>{remaining} of {limit} Concept Library Additions</strong>
               <span className="cs-pack-lede-cta-meta"> remaining this month</span>
             </>
           )}
@@ -1108,6 +1195,99 @@ function DefinitionLede({ definition }) {
         <p className="cs-pack-lede-summary">{definition.summary}</p>
       )}
     </section>
+  );
+}
+
+// Wraps the definition rendering tree.  When `animate` is true, applies
+// is-revealing — CSS handles the staggered fade-in of each sibling block.
+// Parent passes a fresh React key on each new acquisition so the subtree
+// remounts and the CSS animations replay.
+function DefinitionRevealRegion({ animate, children }) {
+  return (
+    <div className={`cs-reveal ${animate ? 'is-revealing' : ''}`}>
+      {children}
+    </div>
+  );
+}
+
+// "Not what you meant?" — wrong-sense rejection.  Single click to expand,
+// inline confirm.  Copy explains the cost to the user up front: free if we
+// served them a cache hit (we picked badly), else one Concept Library
+// Addition.  Shown after the definition's full content so users can read
+// before deciding.
+function DefinitionRejectPanel({ acquiredVia, rejecting, onReject }) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (rejecting) {
+    return (
+      <div className="cs-reject-panel cs-reject-panel-busy">
+        <Spinner /> <span>Replacing this definition…</span>
+      </div>
+    );
+  }
+
+  if (!confirming) {
+    return (
+      <div className="cs-reject-panel">
+        <button
+          type="button"
+          className="cs-reject-trigger"
+          onClick={() => setConfirming(true)}
+        >
+          Not what you meant?
+        </button>
+      </div>
+    );
+  }
+
+  const wasCacheHit = acquiredVia === 'cache_hit';
+  return (
+    <div className="cs-reject-panel cs-reject-panel-confirm" role="alertdialog" aria-label="Replace definition">
+      <p className="cs-reject-headline">Generate a fresh definition?</p>
+      <p className="cs-reject-body">
+        {wasCacheHit
+          ? "We matched this to an existing entry — we'll regenerate a custom one for you.  Free, since this came from cache."
+          : "This will replace the current definition and use one of your monthly Concept Library Additions."}
+      </p>
+      <div className="cs-reject-actions">
+        <button type="button" className="sp-action sp-action-quiet" onClick={() => setConfirming(false)}>
+          Cancel
+        </button>
+        <button type="button" className="sp-action sp-action-primary" onClick={onReject}>
+          Generate fresh
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Renders a generated field's body, collapsing long content under a
+// fade with a "Show more" toggle.  Below the threshold the toggle never
+// renders, so short fields stay clean.  Length is measured against
+// stripped text so HTML tags don't inflate the count.
+function TruncatablePack({ value, rich }) {
+  const [expanded, setExpanded] = useState(false);
+  const raw = (rich ? stripHtml(value) : value || '').trim();
+  const needsTruncation = raw.length > TRUNCATION_CHAR_THRESHOLD;
+  const clampClass = needsTruncation && !expanded ? 'is-clamped' : '';
+
+  return (
+    <>
+      <div className={`cs-pack-clamp ${clampClass}`}>
+        {rich
+          ? <RichTextBlock html={value} />
+          : <p className="cs-integrated-text">{value}</p>}
+      </div>
+      {needsTruncation && (
+        <button
+          type="button"
+          className="cs-pack-toggle"
+          onClick={() => setExpanded((v) => !v)}
+        >
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </>
   );
 }
 
@@ -1155,10 +1335,7 @@ function IntegratedArticle({ concept, definition }) {
 
             {generatedValue && (
               <aside className="cs-integrated-pack">
-                <div className="cs-integrated-pack-eyebrow">From the generated definition</div>
-                {f.rich
-                  ? <RichTextBlock html={generatedValue} />
-                  : <p className="cs-integrated-text">{generatedValue}</p>}
+                <TruncatablePack value={generatedValue} rich={f.rich} />
               </aside>
             )}
           </article>
@@ -1812,7 +1989,8 @@ function CSStyles() {
         margin-bottom: 32px;
       }
       .cs-pack-lede.is-owned {
-        background: var(--paper);
+        background: var(--concept-tint);
+        border-color: transparent;
         border-left: 3px solid var(--concept);
       }
       .cs-pack-lede.is-available {
@@ -1881,9 +2059,9 @@ function CSStyles() {
       }
       a.cs-pack-lede-byline:hover em { color: var(--concept-2); border-bottom: 1px solid var(--concept); }
       .cs-pack-lede-summary {
-        font-family: var(--font-display);
-        font-size: 17px;
-        line-height: 1.65;
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.55;
         color: var(--ink);
         margin: 0;
         font-weight: 400;
@@ -1945,18 +2123,97 @@ function CSStyles() {
       }
 
       /* ---------- IntegratedArticle: per-field user + pack pattern ---------- */
+      /* Staged-reveal animation.  Plays when a definition lands in this
+         session (cache hit OR fresh-gen completion).  Page revisits don't
+         set is-revealing, so users only see the animation when the
+         definition was just acquired.  Total budget ~9.5s; integrated
+         sections stagger between the lede and the further-reading rail. */
+      .cs-reveal.is-revealing .cs-pack-lede.is-owned       { animation: csReveal 0.7s 0s    ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(1) { animation: csReveal 0.7s 1.2s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(2) { animation: csReveal 0.7s 2.0s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(3) { animation: csReveal 0.7s 2.8s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(4) { animation: csReveal 0.7s 3.6s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(5) { animation: csReveal 0.7s 4.4s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(6) { animation: csReveal 0.7s 5.2s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-section:nth-child(n+7) { animation: csReveal 0.7s 6.0s ease both; }
+      .cs-reveal.is-revealing .cs-integrated-attribution   { animation: csReveal 0.7s 7.0s  ease both; }
+      .cs-reveal.is-revealing .cs-further                  { animation: csReveal 0.7s 7.6s  ease both; }
+      .cs-reveal.is-revealing .cs-reject-panel             { animation: csReveal 0.7s 8.4s  ease both; }
+      @keyframes csReveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .cs-reveal.is-revealing * { animation: none !important; }
+      }
+
+      /* Reject ("not what you meant") panel: subtle trigger button by
+         default; expands inline to a confirm card so the user never leaves
+         the page.  Color borrowed from the concept palette to match the
+         rest of the definition surface. */
+      .cs-reject-panel {
+        margin: 32px 0 8px;
+        max-width: 720px;
+      }
+      .cs-reject-trigger {
+        appearance: none;
+        background: transparent;
+        border: none;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        cursor: pointer;
+        padding: 4px 0;
+        text-decoration: underline;
+        text-decoration-color: var(--ink-line);
+        text-underline-offset: 3px;
+      }
+      .cs-reject-trigger:hover { color: var(--ink-2); text-decoration-color: var(--ink-3); }
+
+      .cs-reject-panel-confirm {
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 16px 18px;
+      }
+      .cs-reject-headline {
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0 0 6px;
+      }
+      .cs-reject-body {
+        font-family: var(--font-body);
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--ink-2);
+        margin: 0 0 12px;
+      }
+      .cs-reject-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+
+      .cs-reject-panel-busy {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-3);
+        padding: 8px 0;
+      }
+
       .cs-integrated {
         max-width: 720px;
         margin: 28px 0;
       }
       .cs-integrated-section {
-        margin-bottom: 28px;
+        margin-bottom: 24px;
       }
       .cs-integrated-section:last-of-type { margin-bottom: 0; }
-      .cs-integrated-section + .cs-integrated-section {
-        padding-top: 22px;
-        border-top: 1px solid var(--ink-line-soft);
-      }
       .cs-integrated-heading {
         font-family: var(--font-display);
         font-size: 19px;
@@ -1967,41 +2224,59 @@ function CSStyles() {
         margin: 0 0 10px;
       }
       .cs-integrated-user {
-        font-family: var(--font-display);
-        font-size: 15.5px;
-        line-height: 1.7;
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.55;
         color: var(--ink);
       }
       .cs-integrated-user .cs-richtext { font-family: inherit; font-size: inherit; line-height: inherit; }
       .cs-integrated-text { margin: 0; white-space: pre-wrap; }
 
       .cs-integrated-pack {
-        margin-top: 12px;
-        padding: 14px 18px 16px;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
+        margin-top: 10px;
+        padding: 14px 18px;
+        background: var(--concept-tint);
         border-left: 3px solid var(--concept);
         border-radius: var(--r-md);
       }
-      .cs-integrated-pack-eyebrow {
+      /* Show-more clamp on long generated fields (e.g. multi-paragraph
+         description).  Threshold is char-length based — short fields skip
+         the toggle entirely.  Fade gradient color matches the pack tint
+         so the bottom of the clamped block dissolves cleanly. */
+      .cs-pack-clamp.is-clamped {
+        position: relative;
+        max-height: 12em;
+        overflow: hidden;
+      }
+      .cs-pack-clamp.is-clamped::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 3em;
+        background: linear-gradient(to bottom, rgba(232, 244, 238, 0), var(--concept-tint));
+        pointer-events: none;
+      }
+      .cs-pack-toggle {
+        margin-top: 8px;
+        background: transparent;
+        border: none;
         font-family: var(--font-body);
-        font-size: 10.5px;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--concept);
-        margin-bottom: 8px;
-      }
-      .cs-integrated-pack-eyebrow em {
-        font-style: italic;
+        font-size: 12.5px;
         font-weight: 600;
-        color: var(--ink-2);
+        color: var(--concept-2);
+        cursor: pointer;
+        padding: 2px 0;
+        text-decoration: underline;
+        text-decoration-color: transparent;
+        text-underline-offset: 3px;
+        transition: text-decoration-color 120ms;
       }
+      .cs-pack-toggle:hover { text-decoration-color: var(--concept); }
       .cs-integrated-pack .cs-richtext,
       .cs-integrated-pack .cs-integrated-text {
-        font-family: var(--font-display);
-        font-size: 15px;
-        line-height: 1.7;
+        font-family: var(--font-body);
+        font-size: 14.5px;
+        line-height: 1.55;
         color: var(--ink-2);
       }
       .cs-integrated-attribution {

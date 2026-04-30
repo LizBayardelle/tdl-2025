@@ -89,6 +89,35 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
     setResumePage(null);
   };
 
+  // Deep-link: ?page=N in the URL — coming from a note card or external link.
+  // Pages render asynchronously, so poll for the target then scroll once,
+  // and clean the param so a refresh doesn't re-jump.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const target = parseInt(params.get('page'), 10);
+    if (!Number.isInteger(target) || target <= 1) return;
+    let cancelled = false;
+    let attempts = 0;
+    const tick = () => {
+      if (cancelled) return;
+      const el = mainContentRef.current?.querySelector(`[data-page-number="${target}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'auto' });
+        setCurrentPage(target);
+        setResumePage(null);
+        const url = new URL(window.location);
+        url.searchParams.delete('page');
+        window.history.replaceState(null, '', url);
+        return;
+      }
+      if (attempts++ < 80) setTimeout(tick, 100); // ~8s window
+    };
+    tick();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceId]);
+
   // Saved highlights for this source — re-fetched after each note save
   const [highlights, setHighlights] = useState([]);
   const fetchHighlights = async () => {

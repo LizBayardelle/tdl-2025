@@ -76,11 +76,15 @@ class ConceptFactCheckerService
   end
 
   def web_search_tool
+    # See ConceptGeneratorService#web_search_tool — without
+    # allowed_callers: ['direct'], web_search_20260209 runs in programmatic
+    # mode and stalls because we don't include code_execution.
     {
       type: 'web_search_20260209',
       name: 'web_search',
       max_uses: MAX_SEARCHES,
-      allowed_domains: AllowedDomain.active_domains
+      allowed_domains: AllowedDomain.active_domains,
+      allowed_callers: ['direct'],
     }
   end
 

@@ -289,7 +289,9 @@ class CitationResolver
   def map_crossref_item(item)
     return nil if item.nil?
 
-    title = clean_text(Array(item['title']).first.to_s)
+    title    = clean_text(Array(item['title']).first.to_s)
+    subtitle = clean_text(Array(item['subtitle']).first.to_s)
+    title    = "#{title}: #{subtitle}" if subtitle.present? && !title.include?(subtitle)
     return nil if title.empty?
 
     authors_array = Array(item['author']).map do |a|
@@ -310,17 +312,27 @@ class CitationResolver
     }.join(', ')
 
     year = extract_year(item)
+    publication_date = extract_publication_date(item)
     journal = clean_text(Array(item['container-title']).first.to_s).presence
+    kind = map_crossref_type(item['type'])
+    isbn = Array(item['ISBN']).first.to_s.strip.presence
+
+    # For book chapters, Crossref puts the book name in container-title
+    # and the chapter name in title.  Map accordingly.
+    book_title = (kind == 'book_chapter') ? journal : nil
 
     {
       title: title,
       authors: authors_string,
       authors_data: authors_array.map { |a| { given: a[:given], family: a[:family], orcid: a[:orcid] }.compact },
       year: year,
-      kind: map_crossref_type(item['type']),
+      publication_date: publication_date,
+      kind: kind,
       doi: item['DOI'],
       url: item['DOI'] ? "https://doi.org/#{item['DOI']}" : nil,
-      journal_name: journal,
+      journal_name: kind == 'book_chapter' ? nil : journal,
+      book_title: book_title,
+      isbn: isbn,
       volume: item['volume'].to_s.strip.presence,
       issue: item['issue'].to_s.strip.presence,
       pages: item['page'].to_s.strip.presence,
@@ -332,10 +344,26 @@ class CitationResolver
   end
 
   def extract_year(item)
-    parts = item.dig('issued', 'date-parts')&.first ||
-            item.dig('published-print', 'date-parts')&.first ||
-            item.dig('published-online', 'date-parts')&.first
+    parts = pick_date_parts(item)
     parts&.first
+  end
+
+  # Format Crossref's date-parts ([Y, M, D]) as ISO YYYY-MM-DD.  Tolerant
+  # of partial dates: month-only, year-only, etc.
+  def extract_publication_date(item)
+    parts = pick_date_parts(item)
+    return nil unless parts
+    y, m, d = parts
+    return nil unless y
+    return format('%04d-%02d-%02d', y, m, d) if m && d
+    return format('%04d-%02d-01', y, m)      if m
+    format('%04d-01-01', y)
+  end
+
+  def pick_date_parts(item)
+    item.dig('published-print', 'date-parts')&.first ||
+      item.dig('published-online', 'date-parts')&.first ||
+      item.dig('issued', 'date-parts')&.first
   end
 
   def map_crossref_type(type)

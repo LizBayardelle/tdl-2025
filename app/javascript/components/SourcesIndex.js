@@ -243,6 +243,32 @@ export default function SourcesIndex() {
     }
   };
 
+  const deleteSource = async (source) => {
+    const ok = window.confirm(
+      `Delete "${source.title}"?\n\n` +
+      `This removes the source, its PDF, and all its highlights.  ` +
+      `Notes you've taken on it become unattached.  ` +
+      `This can't be undone.`
+    );
+    if (!ok) return;
+    const csrf = document.querySelector('[name="csrf-token"]')?.content;
+    try {
+      const res = await fetch(`/sources/${source.id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-Token': csrf, 'Accept': 'application/json' },
+      });
+      if (res.ok || res.status === 204) {
+        setSources(prev => prev.filter(s => s.id !== source.id));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Could not delete: ${data.error || res.status}`);
+      }
+    } catch (err) {
+      console.error('Delete failed', err);
+      alert('Could not delete the source — check your connection and try again.');
+    }
+  };
+
   // ---- Pagination ----
   const goToPage = (n) => {
     setPage(n);
@@ -389,6 +415,7 @@ export default function SourcesIndex() {
 
             <FacetSection
               label="Concepts"
+              accent="concept"
               noun="concepts"
               items={filterMeta.concepts}
               labelKey="label"
@@ -398,6 +425,7 @@ export default function SourcesIndex() {
 
             <FacetSection
               label="Authors"
+              accent="person"
               noun="authors"
               items={filterMeta.authors}
               labelKey="full_name"
@@ -529,6 +557,7 @@ export default function SourcesIndex() {
                   showAbstract={showAbstracts}
                   onToggleSelect={() => toggleSelected(source.id)}
                   onEdit={() => { setEditingSource(source); setShowForm(true); }}
+                  onDelete={() => deleteSource(source)}
                   onMarkersChange={(markers) => updateMarkers(source.id, markers)}
                 />
               ))}
@@ -571,7 +600,7 @@ export default function SourcesIndex() {
 // =====================================================================
 // Subcomponents — sidebar
 // =====================================================================
-function FilterSection({ label, trailing, defaultOpen = true, children }) {
+function FilterSection({ label, trailing, defaultOpen = true, children, accent }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="srx-filter-section">
@@ -581,6 +610,7 @@ function FilterSection({ label, trailing, defaultOpen = true, children }) {
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
       >
+        {accent && <span className={`srx-filter-dot is-${accent}`} aria-hidden="true" />}
         <span className="srx-filter-label">{label}</span>
         {trailing}
         <span className="srx-filter-caret" aria-hidden="true">
@@ -605,10 +635,10 @@ function CheckboxRow({ checked, onChange, label, count }) {
 }
 
 // Facet section that adds type-to-filter when item count is large.
-function FacetSection({ label, items, labelKey, selected, onToggle, noun }) {
+function FacetSection({ label, items, labelKey, selected, onToggle, noun, accent }) {
   if (!items || items.length === 0) return null;
   return (
-    <FilterSection label={label}>
+    <FilterSection label={label} accent={accent}>
       <FacetSearchList
         items={items.map(i => ({ id: i.id, label: i[labelKey], count: i.count }))}
         selectedSet={new Set(selected)}
@@ -708,7 +738,7 @@ function ActiveFilterBar({ filters, meta, onRemove, onRemoveFromArray, onClearAl
 // =====================================================================
 // Source row
 // =====================================================================
-function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, onEdit, onMarkersChange }) {
+function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange }) {
   const [showMarkers, setShowMarkers] = useState(false);
   const linkedPeople = Array.isArray(source.people) ? source.people : [];
   const authorsString = typeof source.authors === 'string' ? source.authors : '';
@@ -728,32 +758,94 @@ function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, o
         </label>
       )}
       <div className="srx-row-main">
-        <a href={`/sources/${source.id}`} className="srx-row-title">{toTitleCase(source.title)}</a>
-
-        <div className="srx-row-meta">
-          {linkedPeople.length > 0 ? (
-            <span className="srx-row-authors-row">
-              {linkedPeople.map(p => (
-                <a
-                  key={p.id}
-                  href={`/people/${p.id}`}
-                  className="srx-author-chip"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {toTitleCase(p.full_name)}
-                </a>
-              ))}
-            </span>
-          ) : (
-            authorsString && <span className="srx-row-authors">{authorsString}</span>
-          )}
-          {source.year && <span className="srx-row-year">{source.year}</span>}
-          {source.kind && <span className="srx-row-kind">{KIND_LABELS[source.kind] || source.kind}</span>}
-          {source.journal_name && <span className="srx-row-journal">{source.journal_name}</span>}
-          {source.doi && (
-            <a href={`https://doi.org/${source.doi}`} target="_blank" rel="noopener noreferrer" className="srx-row-doi">DOI</a>
-          )}
+        <div className="srx-row-prehead">
+          <div className="srx-row-prehead-meta">
+            {source.year && <span className="srx-row-year">{source.year}</span>}
+            {source.kind && (
+              <span className="srx-row-kind">{KIND_LABELS[source.kind] || source.kind}</span>
+            )}
+            {source.journal_name && (
+              <span className="srx-row-journal">{source.journal_name}</span>
+            )}
+            {source.doi && (
+              <a
+                href={`https://doi.org/${source.doi}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="srx-row-doi"
+                onClick={(e) => e.stopPropagation()}
+              >
+                DOI
+              </a>
+            )}
+          </div>
+          <div className="srx-row-actions">
+            <div className="srx-row-actions-hover">
+              <button
+                type="button"
+                className="srx-row-icon"
+                onClick={onEdit}
+                aria-label="Edit source"
+                title="Edit"
+              >
+                <EditIcon />
+              </button>
+              <button
+                type="button"
+                className="srx-row-icon srx-row-icon-danger"
+                onClick={onDelete}
+                aria-label="Delete source"
+                title="Delete"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+            <a
+              href={`/sources/${source.id}/study`}
+              className="srx-row-icon srx-row-icon-primary"
+              title="Take notes on this source"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <NoteIcon size={14} />
+              <span className="srx-row-icon-label">Take Notes</span>
+            </a>
+          </div>
         </div>
+
+        <div className="srx-row-titleline">
+          <a
+            href={`/sources/${source.id}/study`}
+            className={`srx-row-pdflink${source.has_pdf ? ' is-present' : ' is-missing'}`}
+            title={source.has_pdf ? 'Open PDF in study mode' : 'No PDF — open notes anyway'}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PdfBadge hasPdf={!!source.has_pdf} />
+          </a>
+          <a href={`/sources/${source.id}`} className="srx-row-title">
+            <span className="srx-row-title-text">{toTitleCase(source.title)}</span>
+          </a>
+        </div>
+
+        {(linkedPeople.length > 0 || authorsString) && (
+          <div className="srx-row-authors-line">
+            {linkedPeople.length > 0 ? (
+              <span className="srx-row-authors-row">
+                {linkedPeople.map(p => (
+                  <a
+                    key={p.id}
+                    href={`/people/${p.id}`}
+                    className="srx-author-chip"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {toTitleCase(p.full_name)}
+                  </a>
+                ))}
+              </span>
+            ) : (
+              <span className="srx-row-authors">{authorsString}</span>
+            )}
+          </div>
+        )}
 
         {showAbstract && abstractText && (
           <p className="srx-row-abstract">{abstractText}</p>
@@ -780,6 +872,20 @@ function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, o
           {source.methodologies?.map(m => (
             <span key={m} className="srx-method-chip">{m}</span>
           ))}
+          {source.statistical_tests?.slice(0, 4).map(t => (
+            <a
+              key={t.id}
+              href={`/statistical_tests/${t.slug}`}
+              className="srx-stat-chip"
+              title={t.detected_automatically ? 'Auto-detected from abstract' : 'Manually linked'}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {t.name}
+            </a>
+          ))}
+          {source.statistical_tests?.length > 4 && (
+            <span className="srx-mini-stat">+{source.statistical_tests.length - 4}</span>
+          )}
           {source.tags?.slice(0, 3).map(t => (
             <span key={t} className="srx-tag-chip">{t}</span>
           ))}
@@ -796,24 +902,6 @@ function SourceRow({ source, bulkMode, selected, showAbstract, onToggleSelect, o
           />
         )}
       </div>
-
-      <aside className="srx-row-side">
-        {source.pdf_url ? (
-          <a href={source.pdf_url} target="_blank" rel="noopener noreferrer" className="srx-row-action">
-            <PdfIcon /> See PDF
-          </a>
-        ) : (
-          <span className="srx-row-action is-disabled" title="No PDF on this source">
-            <PdfIcon /> See PDF
-          </span>
-        )}
-        <a href={`/sources/${source.id}/study`} className="srx-row-action">
-          <NoteIcon /> Take Notes
-        </a>
-        <button type="button" className="srx-row-action" onClick={onEdit}>
-          <EditIcon /> Edit Source
-        </button>
-      </aside>
     </article>
   );
 }
@@ -1076,6 +1164,41 @@ function PdfIcon() {
     </svg>
   );
 }
+
+// Inline PDF presence indicator on row cards.  Filled source-blue when
+// there's a PDF attached; outlined dim when there isn't, so the eye
+// scans either color (present / missing) at a glance.
+function PdfBadge({ hasPdf }) {
+  return (
+    <span
+      className={`srx-pdf-badge${hasPdf ? ' is-present' : ' is-missing'}`}
+      title={hasPdf ? 'PDF attached' : 'No PDF attached'}
+      aria-label={hasPdf ? 'PDF attached' : 'No PDF attached'}
+    >
+      <svg width="14" height="16" viewBox="0 0 14 16" fill="none" aria-hidden="true">
+        <path
+          d="M2.5 1h6L12 4.5V14a1 1 0 0 1-1 1H2.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"
+          fill={hasPdf ? 'currentColor' : 'none'}
+          stroke="currentColor"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        <path d="M8.5 1v3.5H12" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none" />
+        {hasPdf && (
+          <text
+            x="7"
+            y="11.6"
+            textAnchor="middle"
+            fontFamily="ui-sans-serif, system-ui, sans-serif"
+            fontSize="4.4"
+            fontWeight="700"
+            fill="var(--paper)"
+          >PDF</text>
+        )}
+      </svg>
+    </span>
+  );
+}
 function NoteIcon({ size = 14 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
@@ -1088,6 +1211,13 @@ function EditIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
       <path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9a1 1 0 001 .9h2.8a1 1 0 001-.9L11 4" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -1213,6 +1343,17 @@ function SrxStyles() {
         flex: 1;
         transition: color 0.12s;
       }
+      .srx-filter-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink-3);
+        flex-shrink: 0;
+        margin-right: 8px;
+      }
+      .srx-filter-dot.is-concept { background: var(--concept); }
+      .srx-filter-dot.is-source  { background: var(--source);  }
+      .srx-filter-dot.is-person  { background: var(--person);  }
       .srx-filter-caret {
         display: inline-flex;
         align-items: center;
@@ -1262,14 +1403,14 @@ function SrxStyles() {
         height: 28px;
         padding: 0 8px;
         margin-bottom: 6px;
-        background: var(--paper);
+        background: var(--paper-soft);
         border: 1px solid var(--ink-line);
         border-radius: var(--r-sm);
         font-family: var(--font-body);
         font-size: 12px;
         color: var(--ink);
       }
-      .srx-facet-search:focus { outline: none; border-color: var(--source); }
+      .srx-facet-search:focus { outline: none; border-color: var(--ink-2); background: var(--paper); }
       .srx-facet-list {
         display: flex;
         flex-direction: column;
@@ -1492,19 +1633,30 @@ function SrxStyles() {
       .srx-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 18px;
       }
+      /* Card chrome modeled on /notes — top accent in source-blue, soft
+         drop shadow, hover lift.  Source-color throughout instead of
+         /notes' --primary. */
       .srx-row-card {
         display: flex;
         gap: 12px;
         background: var(--paper);
         border: 1px solid var(--ink-line);
+        border-top: 3px solid var(--source);
         border-radius: var(--r-md);
         padding: 14px 16px;
-        transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.04),
+          0 12px 32px rgba(21, 25, 31, 0.06);
+        transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s, background 0.12s;
       }
       .srx-row-card:hover {
-        border-color: color-mix(in srgb, var(--source) 50%, var(--ink-line));
+        border-color: var(--source);
+        box-shadow:
+          0 1px 2px rgba(21, 25, 31, 0.05),
+          0 18px 36px rgba(21, 25, 31, 0.10);
+        transform: translateY(-1px);
       }
       .srx-row-card.is-selected {
         border-color: var(--source);
@@ -1517,69 +1669,141 @@ function SrxStyles() {
         cursor: pointer;
       }
       .srx-row-main { flex: 1; min-width: 0; display: block; }
+
+      /* Pre-header: year · kind · journal · doi (left), action icons (right) */
+      .srx-row-prehead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 4px;
+        min-height: 22px;
+      }
+      .srx-row-prehead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 10px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        min-width: 0;
+      }
+      .srx-row-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .srx-row-icon {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 28px;
+        padding: 0 10px;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        color: var(--ink-3);
+        cursor: pointer;
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+      }
+      .srx-row-icon:hover {
+        background: var(--source-tint);
+        color: var(--source-2);
+        border-color: color-mix(in srgb, var(--source) 30%, transparent);
+      }
+      .srx-row-icon-label { line-height: 1; }
+      .srx-row-icon-danger:hover {
+        background: rgba(122, 46, 46, 0.06);
+        color: var(--error);
+        border-color: color-mix(in srgb, var(--error) 30%, transparent);
+      }
+
+      /* Hover-only action subgroup (Edit + Delete).  Icon-only buttons
+         that fade in when the card is hovered or focused, mirroring the
+         /notes pattern.  Stays visible on touch devices since :hover
+         doesn't fire there. */
+      .srx-row-actions-hover {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      .srx-row-card:hover .srx-row-actions-hover,
+      .srx-row-card:focus-within .srx-row-actions-hover { opacity: 1; }
+      @media (hover: none) {
+        .srx-row-actions-hover { opacity: 1; }
+      }
+      .srx-row-actions-hover .srx-row-icon {
+        width: 28px;
+        padding: 0;
+        justify-content: center;
+      }
+
+      @media (max-width: 720px) {
+        /* Labels become noisy on narrow cards — fall back to icon-only */
+        .srx-row-icon-label { display: none; }
+        .srx-row-icon-primary { width: 28px; padding: 0; justify-content: center; }
+      }
+
+      /* Title line: PDF link badge + title text */
+      .srx-row-titleline {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+      }
+      .srx-row-pdflink {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        position: relative;
+        top: 2px;
+        line-height: 1;
+        text-decoration: none;
+      }
       .srx-row-title {
         font-family: var(--font-display);
         font-size: 15.5px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--source);
         line-height: 1.35;
         text-decoration: none;
-        display: block;
+        min-width: 0;
+        flex: 1;
       }
+      .srx-row-title,
+      .srx-row-title:hover,
+      .srx-row-title-text,
+      .srx-row-title:hover .srx-row-title-text { text-decoration: none; }
+      .srx-row-title-text { min-width: 0; }
       .srx-row-title:hover { color: var(--source-2); }
 
-      /* Vertical action list on the right side of each row */
-      .srx-row-side {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+      .srx-pdf-badge {
         flex-shrink: 0;
-        padding-left: 14px;
-        margin-left: 8px;
-        border-left: 1px solid var(--ink-line-soft);
-        align-self: stretch;
-        justify-content: center;
-      }
-      .srx-row-action {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 5px 10px;
-        font-family: var(--font-body);
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--ink-3);
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: var(--r-sm);
-        cursor: pointer;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: background 0.12s, color 0.12s;
+        line-height: 1;
+        transition: color var(--transition-fast), opacity var(--transition-fast);
       }
-      .srx-row-action:hover {
-        background: var(--source-tint);
-        color: var(--source-2);
-      }
-      .srx-row-action.is-disabled {
-        color: var(--ink-4);
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-      .srx-row-action.is-disabled:hover {
-        background: transparent;
-        color: var(--ink-4);
-      }
+      .srx-pdf-badge.is-present { color: var(--source); }
+      .srx-pdf-badge.is-missing { color: var(--ink-4); opacity: 0.55; }
+      .srx-row-pdflink:hover .srx-pdf-badge.is-present { color: var(--source-2); }
+      .srx-row-pdflink:hover .srx-pdf-badge.is-missing { color: var(--ink-3); opacity: 0.85; }
 
-      .srx-row-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 10px;
-        margin-top: 6px;
+      /* Authors line — sits between title and abstract/tags */
+      .srx-row-authors-line {
+        margin-top: 4px;
         font-family: var(--font-body);
         font-size: 12.5px;
-        color: var(--ink-3);
-        align-items: baseline;
+        color: var(--ink-2);
       }
       .srx-row-authors { color: var(--ink-2); }
       .srx-row-year { font-family: var(--font-mono); color: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -1702,6 +1926,22 @@ function SrxStyles() {
         border: 1px solid var(--ink-line);
         padding: 1px 8px;
         border-radius: var(--r-sm);
+      }
+      /* Statistical-test chip — amber tint, mirrors the SourceShow chip
+         color so visual language stays consistent across surfaces. */
+      .srx-stat-chip {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: #8a6418;
+        background: color-mix(in srgb, #b88621 12%, transparent);
+        padding: 1px 8px;
+        border-radius: var(--r-sm);
+        text-decoration: none;
+        transition: background var(--transition-fast), color var(--transition-fast);
+      }
+      .srx-stat-chip:hover {
+        background: #b88621;
+        color: var(--paper);
       }
       .srx-collection-chip {
         display: inline-flex;

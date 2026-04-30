@@ -40,6 +40,7 @@ const EMPTY_FORM = {
   volume: '', issue: '', pages: '', publication_date: '', abstract: '',
   keywords: [], book_title: '', edition: '', isbn: '', chapter_number: '',
   website_name: '', access_date: '', collection_ids: [], markers: [],
+  statistical_test_ids: [],
 };
 
 export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
@@ -94,6 +95,15 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   // Research-type auto-tagging (Haiku)
   const [taggingMethods, setTaggingMethods] = useState(false);
   const [methodsTagError, setMethodsTagError] = useState('');
+
+  // Statistical-tests auto-tagging (Haiku, two-phase: abstract → PDF fallback
+  // when the source has one and is an empirical kind)
+  const [taggingStatTests, setTaggingStatTests] = useState(false);
+  const [statTestsPhase, setStatTestsPhase] = useState('idle'); // 'idle' | 'abstract' | 'pdf'
+  const [statTestsTagError, setStatTestsTagError] = useState('');
+
+  // Statistical test catalog (loaded once when the modal opens)
+  const [statisticalTestsCatalog, setStatisticalTestsCatalog] = useState([]);
   // Set by handleExtractMetadata; consumed by the useEffect below to fire
   // an auto-tag once formData has the freshly-extracted abstract.
   const pendingAutoTagRef = useRef(false);
@@ -251,6 +261,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
     setFleshResult(null);
     setExtractUrl('');
     fetchCollections();
+    fetchStatisticalTestsCatalog();
     if (item) {
       fetchItemCollections(item.id);
       const newData = {
@@ -282,6 +293,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
         website_name: item.website_name || '',
         access_date: item.access_date || '',
         markers: item.markers || [],
+        statistical_test_ids: Array.isArray(item.statistical_tests) ? item.statistical_tests.map(t => t.id) : [],
       };
       setFormData(newData);
       lastSavedData.current = JSON.stringify(newData);
@@ -553,29 +565,60 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
   // extract_metadata and flesh_out_citation).
   // ====================================================================
   const applyMetadata = (m, fallbackUrl) => {
-    setFormData(prev => ({
-      ...prev,
-      title:               m.title              || prev.title,
-      authors:             m.authors            || prev.authors,
-      year:                m.year               || prev.year,
-      kind:                m.kind               || prev.kind,
-      journal_name:        m.journal_name       || prev.journal_name,
-      volume:              m.volume             || prev.volume,
-      issue:               m.issue              || prev.issue,
-      pages:               m.pages              || prev.pages,
-      doi:                 m.doi                || prev.doi,
-      url:                 m.url                || fallbackUrl || prev.url,
-      abstract:            m.abstract           || prev.abstract,
-      keywords:            m.keywords           || prev.keywords,
-      publisher_or_venue:  m.publisher_or_venue || prev.publisher_or_venue,
-      book_title:          m.book_title         || prev.book_title,
-      edition:             m.edition            || prev.edition,
-      isbn:                m.isbn               || prev.isbn,
-      website_name:        m.website_name       || prev.website_name,
-      summary:             m.summary || m.abstract || prev.summary,
-    }));
+    setFormData(prev => {
+      const next = {
+        ...prev,
+        title:               m.title              || prev.title,
+        authors:             m.authors            || prev.authors,
+        year:                m.year               || prev.year,
+        publication_date:    m.publication_date   || prev.publication_date,
+        kind:                m.kind               || prev.kind,
+        journal_name:        m.journal_name       || prev.journal_name,
+        volume:              m.volume             || prev.volume,
+        issue:               m.issue              || prev.issue,
+        pages:               m.pages              || prev.pages,
+        doi:                 m.doi                || prev.doi,
+        url:                 m.url                || fallbackUrl || prev.url,
+        abstract:            m.abstract           || prev.abstract,
+        keywords:            m.keywords           || prev.keywords,
+        publisher_or_venue:  m.publisher_or_venue || prev.publisher_or_venue,
+        book_title:          m.book_title         || prev.book_title,
+        edition:             m.edition            || prev.edition,
+        isbn:                m.isbn               || prev.isbn,
+        chapter_number:      m.chapter_number     || prev.chapter_number,
+        website_name:        m.website_name       || prev.website_name,
+        summary:             m.summary || m.abstract || prev.summary,
+      };
+      // If this metadata payload supplied authors, flag override on the
+      // PATCH so the controller honors the new authors string instead
+      // of rebuilding it from the existing people associations.  The
+      // controller's parse_and_link_authors will find-or-create Person
+      // records by last name from the string.
+      if (m.authors && m.authors.toString().trim().length > 0) {
+        next.override_authors = true;
+      }
+      // Auto-add "Needs PDF" marker when no PDF is attached.  Resolved
+      // metadata implies a real published source we'll want the PDF for.
+      const hasPdf = !!pdfFile || !!item?.has_pdf || !!item?.pdf_url;
+      const markers = Array.isArray(prev.markers) ? prev.markers : [];
+      if (!hasPdf && !markers.includes('Needs PDF')) {
+        next.markers = [...markers, 'Needs PDF'];
+      }
+      return next;
+    });
     if (m.authors_data) setAuthorsData(m.authors_data);
     pendingAutoTagRef.current = true;
+    // Fire research-type tagger directly with the resolved values —
+    // doesn't depend on the [title, abstract] useEffect picking up the
+    // change.  Skip if the source already has methodologies set.
+    if ((m.title || '').trim() && !(item?.methodologies?.length > 0)) {
+      handleAutoTagMethods({
+        title: m.title,
+        abstract: m.abstract,
+        summary: m.summary || m.abstract,
+        kind: m.kind,
+      });
+    }
   };
 
   // ====================================================================
@@ -695,10 +738,30 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           merged[k] = resolved[k];
         }
       });
+      // Authors needs override_authors: true so the controller honors
+      // the new string instead of rebuilding from existing people.
+      if (selectedKeys.includes('authors')) {
+        merged.override_authors = true;
+      }
+      // Auto-add "Needs PDF" marker when no PDF is attached.
+      const hasPdf = !!pdfFile || !!item?.has_pdf || !!item?.pdf_url;
+      const markers = Array.isArray(prev.markers) ? prev.markers : [];
+      if (!hasPdf && !markers.includes('Needs PDF')) {
+        merged.markers = [...markers, 'Needs PDF'];
+      }
       return merged;
     });
     if (resolved.authors_data) setAuthorsData(resolved.authors_data);
     pendingAutoTagRef.current = true;
+    // Fire research-type tagger directly with the resolved values.
+    if ((resolved.title || '').trim() && !(item?.methodologies?.length > 0)) {
+      handleAutoTagMethods({
+        title: resolved.title,
+        abstract: resolved.abstract,
+        summary: resolved.summary || resolved.abstract,
+        kind: resolved.kind,
+      });
+    }
     // Collapse to a success card.
     setFleshResult({ best: resolved, alternatives: [], confidence: 'high' });
   };
@@ -754,6 +817,14 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       setItemCollections(data.collections || []);
     } catch (e) { console.error(e); }
   };
+  const fetchStatisticalTestsCatalog = async () => {
+    try {
+      const r = await fetch('/stats.json');
+      if (!r.ok) return;
+      const data = await r.json();
+      setStatisticalTestsCatalog(Array.isArray(data) ? data : []);
+    } catch (e) { console.error(e); }
+  };
 
   // ====================================================================
   // Markers
@@ -784,9 +855,18 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
 
   // ====================================================================
   // Research-type auto-tagging
+  //
+  // Optional override args let the caller pass freshly-resolved metadata
+  // before formData has flushed (used by Flesh Out) so we don't depend
+  // on a useEffect race against title/abstract changes.
   // ====================================================================
-  const handleAutoTagMethods = async () => {
-    if (!formData.title) {
+  const handleAutoTagMethods = async (override = {}) => {
+    const title    = override.title    ?? formData.title;
+    const abstract = override.abstract ?? formData.abstract;
+    const summary  = override.summary  ?? formData.summary;
+    const kind     = override.kind     ?? formData.kind;
+
+    if (!title) {
       setMethodsTagError('Add a title first.');
       return;
     }
@@ -799,12 +879,7 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
         },
-        body: JSON.stringify({
-          title: formData.title,
-          abstract: formData.abstract,
-          summary: formData.summary,
-          kind: formData.kind,
-        }),
+        body: JSON.stringify({ title, abstract, summary, kind }),
       });
       const data = await r.json();
       if (!r.ok) {
@@ -826,6 +901,84 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
       setMethodsTagError('Auto-tag failed.  Try again in a moment.');
     } finally {
       setTaggingMethods(false);
+    }
+  };
+
+  // ====================================================================
+  // Statistical-test auto-tagging — same pattern as research types, but
+  // hits /sources/tag_statistical_tests and merges returned IDs into
+  // formData.statistical_test_ids.
+  // ====================================================================
+  const EMPIRICAL_KINDS_FOR_PDF = new Set(['article', 'conference', 'thesis', 'dissertation', 'report', 'book_chapter']);
+
+  const handleAutoTagStatTests = async (override = {}) => {
+    const title    = override.title    ?? formData.title;
+    const abstract = override.abstract ?? formData.abstract;
+    const summary  = override.summary  ?? formData.summary;
+    const kind     = override.kind     ?? formData.kind;
+
+    if (!title) {
+      setStatTestsTagError('Add a title first.');
+      return;
+    }
+    setStatTestsTagError('');
+    setTaggingStatTests(true);
+
+    const callTagger = async (includePdf) => {
+      const r = await fetch('/sources/tag_statistical_tests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          source_id: item?.id,
+          title, abstract, summary, kind,
+          include_pdf: includePdf,
+        }),
+      });
+      return { ok: r.ok, data: await r.json() };
+    };
+
+    try {
+      // Phase 1 — abstract only
+      setStatTestsPhase('abstract');
+      const first = await callTagger(false);
+      if (!first.ok) {
+        setStatTestsTagError(first.data.error || 'Auto-tag failed.');
+        return;
+      }
+
+      let tests = Array.isArray(first.data.tests) ? first.data.tests : [];
+
+      // Phase 2 — escalate to PDF text when nothing matched and the source qualifies
+      const eligibleForPdf = item?.id && item?.has_pdf && EMPIRICAL_KINDS_FOR_PDF.has(kind);
+      if (tests.length === 0 && eligibleForPdf) {
+        setStatTestsPhase('pdf');
+        const second = await callTagger(true);
+        if (!second.ok) {
+          setStatTestsTagError(second.data.error || 'PDF search failed.');
+          return;
+        }
+        tests = Array.isArray(second.data.tests) ? second.data.tests : [];
+      }
+
+      if (tests.length === 0) {
+        setStatTestsTagError('Nothing identifiable in this source.');
+        return;
+      }
+
+      const newIds = tests.map(t => t.id).filter(Boolean);
+      setFormData(prev => ({
+        ...prev,
+        statistical_test_ids: Array.from(new Set([...(prev.statistical_test_ids || []), ...newIds])),
+      }));
+    } catch (e) {
+      console.error(e);
+      setStatTestsTagError('Auto-tag failed.  Try again in a moment.');
+    } finally {
+      setTaggingStatTests(false);
+      setStatTestsPhase('idle');
     }
   };
 
@@ -955,6 +1108,11 @@ export default function SourceFormModal({ isOpen, onClose, onSuccess, item }) {
                   onAutoTagMethods={handleAutoTagMethods}
                   taggingMethods={taggingMethods}
                   methodsTagError={methodsTagError}
+                  onAutoTagStatTests={handleAutoTagStatTests}
+                  taggingStatTests={taggingStatTests}
+                  statTestsPhase={statTestsPhase}
+                  statTestsTagError={statTestsTagError}
+                  statisticalTestsCatalog={statisticalTestsCatalog}
                 />
               )}
 
@@ -1128,15 +1286,19 @@ const FLESH_DIFF_FIELDS = [
   { key: 'title',              label: 'Title' },
   { key: 'authors',            label: 'Authors' },
   { key: 'year',               label: 'Year' },
+  { key: 'publication_date',   label: 'Publication date' },
   { key: 'kind',               label: 'Type' },
   { key: 'journal_name',       label: 'Journal' },
+  { key: 'book_title',         label: 'Book title' },
   { key: 'volume',             label: 'Volume' },
   { key: 'issue',              label: 'Issue' },
   { key: 'pages',              label: 'Pages' },
+  { key: 'isbn',               label: 'ISBN' },
   { key: 'doi',                label: 'DOI' },
   { key: 'url',                label: 'URL' },
   { key: 'publisher_or_venue', label: 'Publisher' },
   { key: 'abstract',           label: 'Abstract', truncate: 160 },
+  { key: 'summary',            label: 'Summary',  truncate: 160 },
   { key: 'keywords',           label: 'Keywords', isArray: true },
 ];
 
@@ -1637,7 +1799,29 @@ function BasicsTab({
 // =====================================================================
 // Tab — Content
 // =====================================================================
-function ContentTab({ formData, setFormData, onAutoTagMethods, taggingMethods, methodsTagError }) {
+function ContentTab({
+  formData, setFormData,
+  onAutoTagMethods, taggingMethods, methodsTagError,
+  onAutoTagStatTests, taggingStatTests, statTestsPhase, statTestsTagError,
+  statisticalTestsCatalog,
+}) {
+  const [statTestSearch, setStatTestSearch] = useState('');
+  const filteredStatTests = useMemo(() => {
+    const q = statTestSearch.trim().toLowerCase();
+    if (!q) return statisticalTestsCatalog;
+    return statisticalTestsCatalog.filter(t => {
+      if (t.name?.toLowerCase().includes(q)) return true;
+      if ((t.aliases || []).some(a => a.toLowerCase().includes(q))) return true;
+      return false;
+    });
+  }, [statisticalTestsCatalog, statTestSearch]);
+
+  const toggleStatTest = (id) => {
+    const ids = new Set(formData.statistical_test_ids || []);
+    if (ids.has(id)) ids.delete(id); else ids.add(id);
+    setFormData({ ...formData, statistical_test_ids: Array.from(ids) });
+  };
+
   return (
     <section className="sfm-section">
       <h3 className="sfm-h3">Content</h3>
@@ -1698,6 +1882,60 @@ function ContentTab({ formData, setFormData, onAutoTagMethods, taggingMethods, m
             </label>
           ))}
         </div>
+      </Field>
+
+      <Field
+        label="Statistical Test(s)"
+        hint="Pick the tests this source uses, or auto-tag from the abstract."
+        trailing={
+          <button
+            type="button"
+            className="sfm-magic-btn"
+            onClick={onAutoTagStatTests}
+            disabled={taggingStatTests || !formData.title}
+            title={!formData.title ? 'Add a title first' : 'Auto-tag from the abstract'}
+          >
+            <MagicSparkles size={13} spinning={taggingStatTests} />
+            {taggingStatTests
+              ? (statTestsPhase === 'pdf' ? 'Searching PDF…' : 'Searching abstract…')
+              : 'Auto-tag'}
+          </button>
+        }
+      >
+        {statTestsTagError && <div className="sfm-magic-note">{statTestsTagError}</div>}
+        {statisticalTestsCatalog.length === 0 ? (
+          <div className="sfm-magic-note">
+            No statistical tests in the catalog yet. <a href="/admin/stats" target="_blank" rel="noreferrer">Add some in the admin</a>.
+          </div>
+        ) : (
+          <>
+            <input
+              type="search"
+              className="sp-input"
+              placeholder="Search by name or alias…"
+              value={statTestSearch}
+              onChange={(e) => setStatTestSearch(e.target.value)}
+              style={{ marginBottom: 'var(--space-2)' }}
+            />
+            {filteredStatTests.length === 0 ? (
+              <div className="sfm-magic-note">No tests match "{statTestSearch}".</div>
+            ) : (
+              <div className="sfm-method-grid">
+                {filteredStatTests.map(t => (
+                  <label key={t.id} className="sfm-method-row" title={(t.aliases || []).length ? `aka ${t.aliases.join(', ')}` : undefined}>
+                    <input
+                      type="checkbox"
+                      className="sp-checkbox"
+                      checked={(formData.statistical_test_ids || []).includes(t.id)}
+                      onChange={() => toggleStatTest(t.id)}
+                    />
+                    <span>{t.name}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </Field>
     </section>
   );
@@ -2031,7 +2269,7 @@ function SfmStyles() {
         flex: 1;
         overflow-y: auto;
         background: var(--paper);
-        padding: 24px 32px;
+        padding: 24px 32px 120px;
         min-width: 0;
       }
       .sfm-section { display: flex; flex-direction: column; gap: 18px; }

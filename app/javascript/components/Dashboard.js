@@ -55,13 +55,13 @@ export default function Dashboard() {
       const sourcesTotal = sourcesData.pagination?.total_count ?? sources.length;
       const sourcesPdfCount = sourcesData.filters?.pdf_count ?? sources.filter((s) => s.pdf_url).length;
       const collections = Array.isArray(collectionsData) ? collectionsData : (collectionsData.collections || collectionsData || []);
-      const generationsUnlimited = !!me?.concept_generations?.unlimited;
+      const generationsUnlimited = !!me?.library_additions?.unlimited;
       const generationsRemaining = generationsUnlimited
         ? '∞'
-        : (me?.concept_generations?.remaining ?? 0);
+        : (me?.library_additions?.remaining ?? 0);
       const generationLimit = generationsUnlimited
         ? null
-        : (me?.concept_generations?.limit ?? 0);
+        : (me?.library_additions?.limit ?? 0);
 
       // Sources with the most recently added note.  Group notes by source,
       // keep each source's latest note, sort sources by that timestamp.
@@ -220,7 +220,7 @@ export default function Dashboard() {
         <DashStat label="Pinned notes" value={stats.pinnedNotes} link="/notes?pinned=1" />
         <DashStat label="Connections" value={stats.totalConnections} link="/connections" />
         <DashStat
-          label="Generations left"
+          label="Concept Library additions left"
           value={stats.generationsUnlimited ? '∞' : stats.generationsRemaining}
           suffix={stats.generationsUnlimited ? 'unlimited' : (stats.generationLimit ? `/ ${stats.generationLimit}` : null)}
           link="/subscription"
@@ -406,9 +406,17 @@ function timeAgo(input) {
 function sourceByline(source) {
   if (!source) return '';
   const parts = [];
-  if (source.author_names) parts.push(source.author_names);
-  else if (Array.isArray(source.authors) && source.authors.length > 0) {
+  // Source.authors is a text column, so the controller returns it as a
+  // formatted string ("Smith, J., Doe, A.").  Older code expected an
+  // array of Person objects from the has_many association; both shapes
+  // are handled here so any caller that returns either still works.
+  if (typeof source.authors === 'string' && source.authors.trim().length > 0) {
+    parts.push(source.authors);
+  } else if (Array.isArray(source.authors) && source.authors.length > 0) {
     const names = source.authors.map((a) => a.full_name || a.name).filter(Boolean);
+    if (names.length > 0) parts.push(names.slice(0, 2).join(', ') + (names.length > 2 ? ' et al.' : ''));
+  } else if (Array.isArray(source.people) && source.people.length > 0) {
+    const names = source.people.map((p) => p.full_name).filter(Boolean);
     if (names.length > 0) parts.push(names.slice(0, 2).join(', ') + (names.length > 2 ? ' et al.' : ''));
   }
   if (source.year) parts.push(source.year);

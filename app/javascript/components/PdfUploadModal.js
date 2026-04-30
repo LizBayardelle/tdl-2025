@@ -62,6 +62,12 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
   const [doiInput, setDoiInput] = useState('');
   const [doiSearching, setDoiSearching] = useState(false);
 
+  // Flesh Out Citation — free-form fragment → Crossref + Haiku
+  const [fleshFragment, setFleshFragment] = useState('');
+  const [fleshing, setFleshing] = useState(false);
+  const [fleshError, setFleshError] = useState('');
+  const [fleshAlternatives, setFleshAlternatives] = useState([]);
+
   // Duplicate checking
   React.useEffect(() => {
     if (step !== 'review') return;
@@ -130,6 +136,10 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
       setDuplicates({ title: null, doi: null, url: null, pdf: null });
       setDoiInput('');
       setDoiSearching(false);
+      setFleshFragment('');
+      setFleshing(false);
+      setFleshError('');
+      setFleshAlternatives([]);
       setFormData({
         title: '',
         authors: '',
@@ -351,6 +361,131 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
       setStep('review');
     } finally {
       setDoiSearching(false);
+    }
+  };
+
+  // ====================================================================
+  // Flesh Out Citation — free-form fragment → resolved metadata
+  // Same pipeline as the SourceFormModal: Crossref + OpenAlex + Haiku
+  // disambiguation.  High/medium confidence auto-applies and jumps to
+  // the review step; low confidence shows alternatives below the input
+  // for the user to pick from.
+  // ====================================================================
+  const applyResolvedToForm = (m) => {
+    setMetadata(m);
+    setFormData(prev => {
+      const next = { ...prev };
+      next.title              = m.title              || prev.title;
+      next.authors            = m.authors            || prev.authors;
+      next.year               = m.year               || prev.year;
+      next.kind               = m.kind               || prev.kind || 'article';
+      next.doi                = m.doi                || prev.doi;
+      next.url                = m.url                || prev.url;
+      next.abstract           = m.abstract           || prev.abstract;
+      next.summary            = m.summary || m.abstract || prev.summary;
+      next.journal_name       = m.journal_name       || prev.journal_name;
+      next.volume             = m.volume             || prev.volume;
+      next.issue              = m.issue              || prev.issue;
+      next.pages              = m.pages              || prev.pages;
+      next.publisher_or_venue = m.publisher_or_venue || prev.publisher_or_venue;
+      next.book_title         = m.book_title         || prev.book_title;
+      next.isbn               = m.isbn               || prev.isbn;
+      next.publication_date   = m.publication_date   || prev.publication_date;
+      next.keywords           = (Array.isArray(m.keywords) && m.keywords.length) ? m.keywords : prev.keywords;
+      if (m.authors && m.authors.toString().trim().length > 0) {
+        next.override_authors = true;
+      }
+      // Only auto-apply "Needs PDF" when there's no PDF — running Flesh
+      // Out on the review step after a PDF was already dropped should
+      // not flag the source as missing one.
+      if (!pdfFile) {
+        const markers = Array.isArray(prev.markers) ? prev.markers : [];
+        if (!markers.includes('Needs PDF')) {
+          next.markers = [...markers, 'Needs PDF'];
+        }
+      }
+      return next;
+    });
+    setFleshAlternatives([]);
+    setFleshError('');
+    if (step !== 'review') setStep('review');
+  };
+
+  const handleFleshOut = async () => {
+    const fragment = fleshFragment.trim();
+    if (fragment.length < 4) {
+      setFleshError('Add a few more characters to search for.');
+      return;
+    }
+    setFleshing(true);
+    setFleshError('');
+    setFleshAlternatives([]);
+    try {
+      const r = await fetch('/sources/flesh_out_citation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ fragment }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setFleshError(data.error || 'Lookup failed.');
+        return;
+      }
+      if (data.confidence !== 'low' && data.best) {
+        applyResolvedToForm(data.best);
+      } else if (data.best) {
+        // Low confidence — keep the user on this step and let them pick
+        // from candidates (best + alternatives) listed inline.
+        setFleshAlternatives([data.best, ...(data.alternatives || [])]);
+      } else {
+        setFleshError('No matches found.  Try refining the citation.');
+      }
+    } catch (e) {
+      console.error('Flesh out error:', e);
+      setFleshError('Lookup failed.  Try refining the citation.');
+    } finally {
+      setFleshing(false);
+    }
+  };
+
+  const handlePickFleshAlt = async (alt) => {
+    // If the alt has a DOI but no abstract, hit extract_metadata to fill
+    // the gap before applying — same pattern as the SourceFormModal.
+    setFleshing(true);
+    try {
+      let enriched = alt;
+      if (alt?.doi && !alt.abstract) {
+        try {
+          const r = await fetch('/sources/extract_metadata', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ url: alt.doi }),
+          });
+          if (r.ok) {
+            const m = await r.json();
+            enriched = {
+              ...alt,
+              abstract: alt.abstract || m.abstract,
+              summary:  alt.summary  || m.abstract || m.summary,
+              keywords: (alt.keywords?.length ? alt.keywords : m.keywords) || alt.keywords,
+              pages: alt.pages || m.pages,
+              volume: alt.volume || m.volume,
+              issue: alt.issue || m.issue,
+              journal_name: alt.journal_name || m.journal_name,
+              publisher_or_venue: alt.publisher_or_venue || m.publisher_or_venue,
+            };
+          }
+        } catch (e) { console.warn('Alt enrich failed:', e); }
+      }
+      applyResolvedToForm(enriched);
+    } finally {
+      setFleshing(false);
     }
   };
 
@@ -878,6 +1013,130 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                 </div>
               </div>
 
+              {/* Flesh Out Citation — free-form fragment lookup */}
+              <div style={{ marginTop: 'var(--space-6)', textAlign: 'center' }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  gap: 'var(--space-3)', marginBottom: 'var(--space-4)',
+                }}>
+                  <div style={{ height: '1px', width: '60px', background: 'var(--neutral-300)' }}></div>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)', color: 'var(--neutral-500)' }}>
+                    or paste any citation fragment
+                  </span>
+                  <div style={{ height: '1px', width: '60px', background: 'var(--neutral-300)' }}></div>
+                </div>
+                <div style={{
+                  display: 'flex', alignItems: 'stretch', gap: 'var(--space-2)',
+                  maxWidth: '560px', margin: '0 auto',
+                }}>
+                  <textarea
+                    value={fleshFragment}
+                    onChange={(e) => setFleshFragment(e.target.value)}
+                    placeholder='e.g. "Vaswani et al., 2017, attention is all you need"'
+                    className="form-input"
+                    disabled={fleshing}
+                    rows={2}
+                    style={{ flex: 1, resize: 'vertical', fontSize: 'var(--text-sm)', minHeight: '54px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleFleshOut}
+                    disabled={!fleshFragment.trim() || fleshing}
+                    style={{
+                      padding: 'var(--space-3) var(--space-4)',
+                      background: (!fleshFragment.trim() || fleshing) ? 'var(--neutral-300)' : 'var(--accent-blue)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 'var(--text-sm)',
+                      fontWeight: 600,
+                      cursor: (!fleshFragment.trim() || fleshing) ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.15s',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 'var(--space-2)',
+                      whiteSpace: 'nowrap',
+                      alignSelf: 'flex-start',
+                      minHeight: '54px',
+                    }}
+                  >
+                    {fleshing
+                      ? <><i className="fas fa-spinner fa-spin"></i> Searching…</>
+                      : <><MagicSparkles size={14} /> Flesh Out</>}
+                  </button>
+                </div>
+                {fleshError && (
+                  <div style={{
+                    marginTop: 'var(--space-3)',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 'var(--text-sm)',
+                    color: 'var(--accent-red, #a13838)',
+                  }}>
+                    {fleshError}
+                  </div>
+                )}
+                {fleshAlternatives.length > 0 && (
+                  <div style={{
+                    marginTop: 'var(--space-4)',
+                    maxWidth: '560px',
+                    margin: 'var(--space-4) auto 0',
+                    textAlign: 'left',
+                  }}>
+                    <p style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'var(--text-xs)',
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: 'var(--neutral-500)',
+                      margin: '0 0 var(--space-2)',
+                    }}>
+                      Possible matches — pick one
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {fleshAlternatives.slice(0, 12).map((alt) => (
+                        <button
+                          key={alt.doi || alt.title}
+                          type="button"
+                          onClick={() => handlePickFleshAlt(alt)}
+                          disabled={fleshing}
+                          style={{
+                            background: 'var(--paper)',
+                            border: '1px solid var(--ink-line)',
+                            borderRadius: 'var(--r-sm)',
+                            padding: '10px 12px',
+                            cursor: fleshing ? 'wait' : 'pointer',
+                            textAlign: 'left',
+                            fontFamily: 'var(--font-body)',
+                            transition: 'border-color 0.15s, background 0.15s',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!fleshing) {
+                              e.currentTarget.style.borderColor = 'var(--source)';
+                              e.currentTarget.style.background = 'var(--source-tint)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--ink-line)';
+                            e.currentTarget.style.background = 'var(--paper)';
+                          }}
+                        >
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: '13.5px', fontWeight: 600, color: 'var(--ink)', marginBottom: '4px' }}>
+                            {alt.title}
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--ink-2)' }}>
+                            {alt.authors && <span>{alt.authors.slice(0, 80)}</span>}
+                            {alt.year && <span> · {alt.year}</span>}
+                            {alt.journal_name && <span> · <em>{alt.journal_name}</em></span>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Manual Input Option */}
               <div style={{
                 marginTop: 'var(--space-6)',
@@ -1073,6 +1332,132 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                   </button>
                   </div>
                 )}
+
+                {/* Flesh Out Citation — rescue panel when extraction was thin */}
+                <div style={{
+                  background: 'linear-gradient(135deg, var(--source-tint), color-mix(in srgb, var(--source) 8%, var(--paper)))',
+                  border: '1px solid color-mix(in srgb, var(--source) 35%, transparent)',
+                  borderRadius: 'var(--r-md)',
+                  padding: '14px 16px',
+                  marginBottom: 'var(--space-4)',
+                }}>
+                  <h4 style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '14.5px',
+                    fontWeight: 600,
+                    color: 'var(--source-2)',
+                    margin: '0 0 4px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <MagicSparkles size={13} /> Flesh Out Citation
+                  </h4>
+                  <p style={{
+                    fontSize: '12.5px',
+                    color: 'var(--ink-2)',
+                    margin: '0 0 10px',
+                    lineHeight: 1.5,
+                  }}>
+                    Missing fields after extraction?  Paste any citation fragment and we'll fill the gaps from Crossref.
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+                    <textarea
+                      value={fleshFragment}
+                      onChange={(e) => setFleshFragment(e.target.value)}
+                      placeholder='e.g. "Vaswani et al., 2017, attention is all you need" or a DOI'
+                      className="form-input"
+                      disabled={fleshing}
+                      rows={2}
+                      style={{ flex: 1, resize: 'vertical', fontSize: '13px', minHeight: '54px' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFleshOut}
+                      disabled={!fleshFragment.trim() || fleshing}
+                      style={{
+                        padding: '0 14px',
+                        background: (!fleshFragment.trim() || fleshing) ? 'var(--neutral-300)' : 'var(--source)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 'var(--r-md)',
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        cursor: (!fleshFragment.trim() || fleshing) ? 'not-allowed' : 'pointer',
+                        whiteSpace: 'nowrap',
+                        alignSelf: 'flex-start',
+                        height: '54px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {fleshing
+                        ? <><i className="fas fa-spinner fa-spin"></i> Searching…</>
+                        : <>Flesh Out →</>}
+                    </button>
+                  </div>
+                  {fleshError && (
+                    <div style={{ marginTop: '10px', fontSize: '12.5px', color: 'var(--error, #a13838)' }}>
+                      {fleshError}
+                    </div>
+                  )}
+                  {fleshAlternatives.length > 0 && (
+                    <div style={{ marginTop: '12px' }}>
+                      <p style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        color: 'var(--ink-3)',
+                        margin: '0 0 6px',
+                      }}>
+                        Possible matches — pick one
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '300px', overflowY: 'auto' }}>
+                        {fleshAlternatives.slice(0, 12).map((alt) => (
+                          <button
+                            key={alt.doi || alt.title}
+                            type="button"
+                            onClick={() => handlePickFleshAlt(alt)}
+                            disabled={fleshing}
+                            style={{
+                              background: 'var(--paper)',
+                              border: '1px solid var(--ink-line)',
+                              borderRadius: 'var(--r-sm)',
+                              padding: '8px 12px',
+                              cursor: fleshing ? 'wait' : 'pointer',
+                              textAlign: 'left',
+                              fontFamily: 'var(--font-body)',
+                              transition: 'border-color 0.15s, background 0.15s',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!fleshing) {
+                                e.currentTarget.style.borderColor = 'var(--source)';
+                                e.currentTarget.style.background = 'var(--source-tint)';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = 'var(--ink-line)';
+                              e.currentTarget.style.background = 'var(--paper)';
+                            }}
+                          >
+                            <div style={{ fontFamily: 'var(--font-display)', fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '2px' }}>
+                              {alt.title}
+                            </div>
+                            <div style={{ fontSize: '11.5px', color: 'var(--ink-2)' }}>
+                              {alt.authors && <span>{alt.authors.slice(0, 80)}</span>}
+                              {alt.year && <span> · {alt.year}</span>}
+                              {alt.journal_name && <span> · <em>{alt.journal_name}</em></span>}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {error && (
                   <div className="alert alert-warning" style={{ marginBottom: 'var(--space-4)' }}>

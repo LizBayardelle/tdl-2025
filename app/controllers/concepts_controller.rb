@@ -1,7 +1,7 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_concept, only: [:show, :update, :destroy]
-  before_action :authorize_edit!, only: [:update, :destroy]
+  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships]
+  before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition]
 
   def index
     auth = AuthorizationService.new(current_user)
@@ -15,7 +15,7 @@ class ConceptsController < ApplicationController
       format.json {
         render json: @concepts.map { |concept|
           concept.as_json(
-            methods: [:sources_count, :people_count, :notes_count, :tags_count, :collections_count, :effective_concept_type],
+            methods: [:sources_count, :people_count, :all_people_count, :notes_count, :tags_count, :collections_count, :effective_concept_type],
             include: {
               outgoing_connections: {
                 only: [:id, :rel_type, :relationship_label],
@@ -55,7 +55,7 @@ class ConceptsController < ApplicationController
         sources_payload = source_records.map do |s|
           markers = s.markers || []
           {
-            id: s.id, title: s.title, authors: s.authors, year: s.year,
+            id: s.id, title: s.title, authors: s.authors_string, year: s.year,
             kind: s.kind, doi: s.doi, journal_name: s.journal_name,
             markers: markers,
             notes_count: s.notes.size,
@@ -183,13 +183,25 @@ class ConceptsController < ApplicationController
   end
 
   # POST /concepts/:id/generate_definition
-  # Enqueues a background job that generates a fresh ConceptDefinition for
-  # this concept and links it.  Auto-approves — no review queue.  Quota is
-  # consumed up front so over-limit users get a clean 402.
+  # Either links an existing shared ConceptDefinition (cache hit, no API
+  # call) or enqueues a background job to generate a fresh one.  Cache hits
+  # still consume one library-addition slot — pricing is per addition, not
+  # per Claude call.  Pass force_fresh=true to skip the cache (used by the
+  # post-rejection regen flow when the user was previously served a wrong-
+  # sense match — see reject_definition).
   def generate_definition
     if @concept.definition_id.present?
       render json: { error: 'This concept already has a definition.' }, status: :unprocessable_entity
       return
+    end
+
+    force_fresh = ActiveModel::Type::Boolean.new.cast(params[:force_fresh])
+
+    cached = unless force_fresh
+      ConceptDefinition.best_match_for(
+        slug: @concept.label.to_s.parameterize,
+        concept_type: @concept.concept_type,
+      )
     end
 
     begin
@@ -198,10 +210,23 @@ class ConceptsController < ApplicationController
       limit = current_user.concept_generation_limit
       render json: {
         error: 'over_quota',
-        message: "You've used all #{limit} concept generation#{limit == 1 ? '' : 's'} on the #{current_user.effective_plan.titleize} tier this month.",
+        message: "You've used all #{limit} Concept Library Addition#{limit == 1 ? '' : 's'} on the #{current_user.effective_plan.titleize} tier this month.",
         tier: current_user.effective_plan,
         upgrade_url: subscribe_path,
       }, status: :payment_required
+      return
+    end
+
+    if cached
+      @concept.update!(definition_id: cached.id, definition_acquired_via: 'cache_hit')
+      ConceptDefinition.increment_counter(:linked_count_cache, cached.id)
+      render json: {
+        queued: false,
+        cache_hit: true,
+        definition_id: cached.id,
+        unlimited: current_user.concept_generations_unlimited?,
+        remaining: current_user.concept_generations_unlimited? ? nil : current_user.concept_generations_remaining,
+      }
       return
     end
 
@@ -209,6 +234,47 @@ class ConceptsController < ApplicationController
 
     render json: {
       queued: true,
+      cache_hit: false,
+      unlimited: current_user.concept_generations_unlimited?,
+      remaining: current_user.concept_generations_unlimited? ? nil : current_user.concept_generations_remaining,
+    }
+  end
+
+  # POST /concepts/:id/reject_definition
+  # User flagged the linked definition as wrong (e.g., we cache-hit the
+  # economic "Depression" but they meant the DSM one).  Increments rejection
+  # on the definition (it gets demoted from cache lookups past
+  # REJECTION_THRESHOLD), unlinks the concept, and returns free_regen=true
+  # if the link came from cache — they shouldn't pay for our bad match.
+  def reject_definition
+    unless @concept.definition_id.present?
+      render json: { error: 'No definition to reject.' }, status: :unprocessable_entity
+      return
+    end
+
+    was_cache_hit = @concept.definition_acquired_via == 'cache_hit'
+    rejected_id   = @concept.definition_id
+
+    ConceptDefinition.increment_counter(:rejection_count, rejected_id)
+    ConceptDefinition.where(id: rejected_id).where("linked_count_cache > 0")
+      .update_all("linked_count_cache = linked_count_cache - 1")
+    @concept.update!(definition_id: nil, definition_acquired_via: nil)
+
+    # Refund quota if the user was served a cache hit — they shouldn't lose
+    # a library-addition slot to our bad match.  Fresh-gen rejections still
+    # cost the slot (we paid Claude; the result was simply not their cup of
+    # tea, and the regen will pay Claude again).
+    if was_cache_hit
+      User.transaction do
+        current_user.lock!
+        next_count = [current_user.concept_generations_used.to_i - 1, 0].max
+        current_user.update_columns(concept_generations_used: next_count)
+      end
+    end
+
+    render json: {
+      rejected: true,
+      free_regen: was_cache_hit,
       unlimited: current_user.concept_generations_unlimited?,
       remaining: current_user.concept_generations_unlimited? ? nil : current_user.concept_generations_remaining,
     }

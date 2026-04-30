@@ -134,8 +134,10 @@ const FLOWS = [
     name: 'Connections & Notes',
     routes: [
       { path: '/connections', view: 'ConnectionVisualization.js', notes: 'Graph view — pinch/zoom on touch' },
-      { path: '/notes', view: 'NotesIndex.js', notes: 'Notes list' },
+      { path: '/notes', view: 'NotesIndex.js', notes: 'Cross-source notes hub: facets, search, sort, group-by, density toggle, URL-state filters', rebrandedAt: '2026-04-27' },
       { path: '/notes/new', view: 'NotesForm.js', notes: 'Note editor' },
+      { path: '/tabletops', view: 'TabletopsIndex.js', notes: 'Spatial canvas index — list of saved tabletops; CRUD; opens canvas', rebrandedAt: '2026-04-28' },
+      { path: '/tabletops/:id', view: 'TabletopShow.js', notes: 'Spatial canvas — pan/zoom, drag notes, decoration tools (headers/text/arrows) coming next', rebrandedAt: '2026-04-28' },
       { path: '/tags', view: 'TagsIndex.js', notes: 'Tag management' },
     ],
   },

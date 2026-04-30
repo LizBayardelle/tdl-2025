@@ -3,6 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import SourceFormModal from './SourceFormModal';
 import AuthorsDisplay from './AuthorsDisplay';
 import MethodologyTags from './MethodologyTags';
+import StatisticalTestTags from './StatisticalTestTags';
 import { toTitleCase } from '../utils/titleCase';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -29,6 +30,39 @@ export default function SourceShow({ sourceId }) {
   const [notesLoading, setNotesLoading] = useState(true);
   const [highlights, setHighlights] = useState([]);
   const [citing, setCiting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!source) return;
+    const ok = window.confirm(
+      `Delete "${source.title}"?\n\n` +
+      `This removes the source, its PDF, and all its highlights.  ` +
+      `Notes you've taken on it will keep their content but become unattached.  ` +
+      `This can't be undone.`
+    );
+    if (!ok) return;
+    setDeleting(true);
+    try {
+      const r = await fetch(`/sources/${sourceId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content,
+          'Accept': 'application/json',
+        },
+      });
+      if (r.ok || r.status === 204) {
+        window.location.href = '/sources';
+      } else {
+        const data = await r.json().catch(() => ({}));
+        alert(`Could not delete: ${data.error || r.status}`);
+        setDeleting(false);
+      }
+    } catch (e) {
+      console.error('Delete failed:', e);
+      alert('Could not delete the source — check your connection and try again.');
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     fetchSource();
@@ -103,6 +137,15 @@ export default function SourceShow({ sourceId }) {
         <a href="/sources" className="ss-back">← All sources</a>
         <div className="ss-header-actions">
           <button type="button" className="sp-action sp-action-secondary" onClick={() => setEditing(true)}>Edit</button>
+          <button
+            type="button"
+            className="sp-action sp-action-quiet sp-action-danger"
+            onClick={handleDelete}
+            disabled={deleting}
+            title="Delete this source"
+          >
+            {deleting ? 'Deleting…' : 'Delete'}
+          </button>
         </div>
       </header>
 
@@ -384,6 +427,8 @@ function SourceMetaRow({ source, onSourceUpdate }) {
       <div className="ss-meta-block">
         <span className="ss-meta-label">Research Types</span>
         <MethodologyTags source={source} onUpdate={onSourceUpdate} />
+        <span className="ss-meta-label" style={{ marginTop: 'var(--space-3)' }}>Statistical Tests</span>
+        <StatisticalTestTags source={source} onUpdate={onSourceUpdate} />
       </div>
 
       <div className="ss-meta-block">
@@ -559,6 +604,24 @@ function SourceSidebar({ source, allSources, notesCount, onSourceUpdate, onSourc
             </div>
           ))}
         </div>
+      )}
+
+      {source.statistical_tests && source.statistical_tests.length > 0 && (
+        <SidebarBlock label="Statistical Tests" count={source.statistical_tests.length}>
+          <div className="ss-side-chips">
+            {source.statistical_tests.map((t) => (
+              <a
+                key={t.id}
+                href={`/statistical_tests/${t.slug}`}
+                className="ss-chip ss-chip-stat"
+                title={t.detected_automatically ? 'Auto-detected from abstract' : 'Manually linked'}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {t.name}
+              </a>
+            ))}
+          </div>
+        </SidebarBlock>
       )}
 
       {source.tags && source.tags.length > 0 && (
@@ -1292,10 +1355,9 @@ function SSStyles() {
         border-left: 3px solid var(--source);
       }
       .ss-highlight-quote {
-        font-family: var(--font-display);
-        font-style: italic;
-        font-size: 15px;
-        line-height: 1.55;
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.4;
         color: var(--ink);
         margin: 0 0 6px;
       }
@@ -1831,6 +1893,14 @@ function SSStyles() {
       }
       .ss-chip-concept:hover {
         background: var(--concept);
+        color: var(--paper);
+      }
+      .ss-chip-stat {
+        background: color-mix(in srgb, #b88621 12%, transparent);
+        color: #8a6418;
+      }
+      .ss-chip-stat:hover {
+        background: #b88621;
         color: var(--paper);
       }
 

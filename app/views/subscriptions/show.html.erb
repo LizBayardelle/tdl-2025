@@ -87,13 +87,24 @@
 
   <%
     # Live usage for the current-tier row.  Shown as "X used / 5 this month"
-    # so the user can verify the counter actually resets.
+    # (or "Unlimited") so the user can verify the counter actually resets.
     gens_used = @generation_quota[:used].to_i
     gens_limit = @generation_quota[:limit]
     live_gens_label = if @generation_quota[:unlimited]
       "Unlimited"
     elsif gens_limit
       "#{gens_used} used / #{gens_limit} this month"
+    end
+
+    # Live usage for AI-Assisted Note Taking.  Free is a lifetime cap so we
+    # phrase it differently than Storage's monthly window.
+    paper_quota = current_user.paper_unlock_quota
+    live_papers_label = if paper_quota[:unlimited]
+      "Unlimited"
+    elsif paper_quota[:window] == "lifetime"
+      "#{paper_quota[:used]} used / #{paper_quota[:limit]} lifetime"
+    else
+      "#{paper_quota[:used]} used / #{paper_quota[:limit]} this month"
     end
   %>
   <%#
@@ -107,24 +118,26 @@
       monthly_price: '$0',
       annual_price: '$0',
       annual_billed: nil,
-      line: 'For trying the workspace and small libraries.',
+      line: 'For trying the workspace.',
       features: [
         ['Articles',                       '300'],
-        ['Mini-AI touches',                'All included'],
-        ['Concept-definition generations', current_tier == 'free'      && live_gens_label ? live_gens_label : '5 Generations'],
-        ['Notes, highlights, sharing',     'Yes'],
+        ['AI-Assisted Categorization',     'All included'],
+        ['AI-Assisted Note Taking',        current_tier == 'free'      && live_papers_label ? live_papers_label : '1 paper (lifetime)'],
+        ['Ask the Paper',                  '—'],
+        ['Concept Library Additions',      current_tier == 'free'      && live_gens_label ? live_gens_label : '5 / month'],
       ] },
     { key: 'storage',
       name: 'Storage',
       monthly_price: '$4',
       annual_price: '$3.33',
       annual_billed: 'Billed $40 / year',
-      line: 'For researchers whose library outgrew the free tier.',
+      line: 'For students who want AI reading alongside them.',
       features: [
         ['Articles',                       'Unlimited'],
-        ['Mini-AI touches',                'Unlimited'],
-        ['Concept-definition generations', current_tier == 'storage'   && live_gens_label ? live_gens_label : '5 / Month'],
-        ['Notes, highlights, sharing',     'Yes'],
+        ['AI-Assisted Categorization',     'All included'],
+        ['AI-Assisted Note Taking',        current_tier == 'storage'   && live_papers_label ? live_papers_label : '10 papers / month'],
+        ['Ask the Paper',                  '—'],
+        ['Concept Library Additions',      current_tier == 'storage'   && live_gens_label ? live_gens_label : '10 / month'],
       ] },
     { key: 'unlimited',
       name: 'Unlimited',
@@ -134,8 +147,10 @@
       line: 'For full-time researchers, clinicians, and writers.',
       features: [
         ['Articles',                       'Unlimited'],
-        ['Mini-AI touches',                'Unlimited'],
-        ['Concept-definition generations', current_tier == 'unlimited' && live_gens_label ? live_gens_label : 'Unlimited'],
+        ['AI-Assisted Categorization',     'All included'],
+        ['AI-Assisted Note Taking',        'Unlimited'],
+        ['Ask the Paper',                  'Unlimited'],
+        ['Concept Library Additions',      current_tier == 'unlimited' && live_gens_label ? live_gens_label : 'Unlimited'],
         ['Priority on new AI features',    'Yes'],
       ] },
   ] %>

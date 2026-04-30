@@ -14,6 +14,8 @@ import NotesIndex from './components/NotesIndex';
 import NotesForm from './components/NotesForm';
 import TagsIndex from './components/TagsIndex';
 import CollectionsIndex from './components/CollectionsIndex';
+import TabletopsIndex from './components/TabletopsIndex';
+import TabletopShow from './components/TabletopShow';
 import Dashboard from './components/Dashboard';
 import GlobalSearch from './components/GlobalSearch';
 import UserDropdown from './components/UserDropdown';
@@ -28,7 +30,11 @@ import AdminUsers from './components/admin/AdminUsers';
 import AdminConceptGenerations from './components/admin/AdminConceptGenerations';
 import AdminConceptGenerationNew from './components/admin/AdminConceptGenerationNew';
 import AdminConceptGenerationShow from './components/admin/AdminConceptGenerationShow';
+import AdminStatisticalTests from './components/admin/AdminStatisticalTests';
+import AdminStatisticalTestForm from './components/admin/AdminStatisticalTestForm';
 import AdminDocs from './components/admin/AdminDocs';
+import StatsCatalog from './components/StatsCatalog';
+import StatTestDetail from './components/StatTestDetail';
 import SamplePage from './components/SamplePage';
 import LegalPage from './components/LegalPage';
 import SearchPage from './components/SearchPage';
@@ -91,6 +97,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const collectionsIndexRoot = document.getElementById('collections-index-root');
   if (collectionsIndexRoot) {
     createRoot(collectionsIndexRoot).render(<CollectionsIndex />);
+  }
+
+  const tabletopsIndexRoot = document.getElementById('tabletops-index-root');
+  if (tabletopsIndexRoot) {
+    createRoot(tabletopsIndexRoot).render(<TabletopsIndex />);
+  }
+
+  const tabletopShowRoot = document.getElementById('tabletop-show-root');
+  if (tabletopShowRoot) {
+    const tabletopId = tabletopShowRoot.dataset.tabletopId;
+    createRoot(tabletopShowRoot).render(<TabletopShow tabletopId={tabletopId} />);
   }
 
   const dashboardRoot = document.getElementById('dashboard-root');
@@ -171,6 +188,17 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(adminConceptGenerationShowRoot).render(<AdminConceptGenerationShow generationId={generationId} />);
   }
 
+  const adminStatisticalTestsRoot = document.getElementById('admin-statistical-tests-root');
+  if (adminStatisticalTestsRoot) {
+    createRoot(adminStatisticalTestsRoot).render(<AdminStatisticalTests />);
+  }
+
+  const adminStatisticalTestFormRoot = document.getElementById('admin-statistical-test-form-root');
+  if (adminStatisticalTestFormRoot) {
+    const testId = adminStatisticalTestFormRoot.dataset.testId || null;
+    createRoot(adminStatisticalTestFormRoot).render(<AdminStatisticalTestForm testId={testId} />);
+  }
+
   const adminDocsRoot = document.getElementById('admin-docs-root');
   if (adminDocsRoot) {
     const initialSlug = adminDocsRoot.dataset.slug;
@@ -192,6 +220,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (searchPageRoot) {
     const initialQuery = searchPageRoot.dataset.query || '';
     createRoot(searchPageRoot).render(<SearchPage initialQuery={initialQuery} />);
+  }
+
+  const statsCatalogRoot = document.getElementById('stats-catalog-root');
+  if (statsCatalogRoot) {
+    createRoot(statsCatalogRoot).render(<StatsCatalog />);
+  }
+
+  const statTestDetailRoot = document.getElementById('stat-test-detail-root');
+  if (statTestDetailRoot) {
+    const slug = statTestDetailRoot.dataset.testSlug;
+    createRoot(statTestDetailRoot).render(<StatTestDetail slug={slug} />);
   }
 });
 

@@ -137,7 +137,7 @@ class EnrichCitedSourceJob < ApplicationJob
     if best[:title].present? && (source.title.blank? || placeholder_title?(source.title))
       updates[:title] = best[:title]
     end
-    updates[:authors]      = best[:authors]      if source.authors.blank?      && best[:authors].present?
+    updates[:authors]      = best[:authors]      if source.authors_string.blank? && best[:authors].present?
     updates[:year]         = best[:year]         if source.year.blank?         && best[:year].present?
     updates[:journal_name] = best[:journal_name] if source.journal_name.blank? && best[:journal_name].present?
     updates[:doi]          = best[:doi]          if source.doi.blank?          && best[:doi].present?

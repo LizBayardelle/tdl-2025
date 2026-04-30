@@ -53,6 +53,19 @@ class Concept < ApplicationRecord
     people.size
   end
 
+  # People associated with this concept either directly (tagged on the concept)
+  # or transitively (an author of a source tagged with this concept).  Used by
+  # the index payload so the People column reflects both routes.
+  def all_people_ids
+    direct = people.pluck(:id)
+    via_sources = source_ids.any? ? PersonSource.where(source_id: source_ids).pluck(:person_id) : []
+    (direct + via_sources).uniq
+  end
+
+  def all_people_count
+    all_people_ids.size
+  end
+
   def notes_count
     linked_notes.size
   end

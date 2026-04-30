@@ -26,8 +26,9 @@ export default function HighlightModal({
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
-  const [aiState, setAiState]     = useState('idle'); // idle | loading | done | error
+  const [aiState, setAiState]     = useState('idle'); // idle | loading | done | error | paywalled
   const [aiError, setAiError]     = useState(null);
+  const [aiPaywall, setAiPaywall] = useState(null); // { message, upgradeUrl, tier }
   const [summary, setSummary]     = useState('');
   const [concepts, setConcepts]   = useState([]); // [{id, label}] (id null = new)
   const [people, setPeople]       = useState([]); // [{id, full_name, role?}]
@@ -120,7 +121,16 @@ export default function HighlightModal({
       });
       if (!r.ok) {
         const err = await r.json().catch(() => ({}));
-        setAiError(err.error || 'Could not generate suggestions');
+        if (r.status === 402 && err.error === 'note_taking_quota') {
+          setAiPaywall({
+            message: err.message || "You've used all your AI-Assisted Note Taking on this tier.",
+            upgradeUrl: err.upgrade_url || '/subscribe',
+            tier: err.tier || 'free',
+          });
+          setAiState('paywalled');
+          return;
+        }
+        setAiError(err.message || err.error || 'Could not generate suggestions');
         setAiState('error');
         return;
       }
@@ -358,6 +368,18 @@ export default function HighlightModal({
               <button type="button" className="hlm-ai-retry" onClick={runAi}>Try again</button>
             </div>
           )}
+          {aiState === 'paywalled' && aiPaywall && (
+            <div className="hlm-ai-paywall">
+              <div className="hlm-ai-paywall-title">
+                <MagicSparkles size={13} />
+                <span>You've reached the limit on AI-Assisted Note Taking</span>
+              </div>
+              <p className="hlm-ai-paywall-body">{aiPaywall.message}</p>
+              <a href={aiPaywall.upgradeUrl} className="hlm-ai-paywall-cta">
+                {aiPaywall.tier === 'free' ? 'Unlock 10 papers / month — $4 / mo' : 'Upgrade to Unlimited'}
+              </a>
+            </div>
+          )}
           {aiState === 'done' && (
             <div className="hlm-ai-done">
               <div className="hlm-ai-head">
@@ -578,6 +600,32 @@ export default function HighlightModal({
           border-radius: var(--r-sm);
           cursor: pointer;
         }
+
+        .hlm-ai-paywall {
+          display: flex; flex-direction: column; gap: 8px;
+          padding: 14px 14px 12px;
+          background: var(--concept-tint);
+          border: 1px solid var(--concept);
+          border-radius: var(--r-sm);
+        }
+        .hlm-ai-paywall-title {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-size: 12px; font-weight: 700; color: var(--concept-2);
+          letter-spacing: 0.04em;
+        }
+        .hlm-ai-paywall-body {
+          margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-2);
+        }
+        .hlm-ai-paywall-cta {
+          align-self: flex-start;
+          background: var(--concept); color: var(--paper);
+          border: 1px solid var(--concept);
+          font-size: 12.5px; font-weight: 600;
+          padding: 7px 14px; border-radius: var(--r-sm);
+          text-decoration: none;
+          transition: background 120ms;
+        }
+        .hlm-ai-paywall-cta:hover { background: var(--concept-2); border-color: var(--concept-2); }
 
         .hlm-ai-done { display: flex; flex-direction: column; gap: 10px; }
         .hlm-ai-head { display: flex; align-items: center; justify-content: space-between; }

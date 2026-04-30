@@ -19,11 +19,12 @@ class GenerateConceptDefinitionJob < ApplicationJob
   ADVISORY_LOCK_NAMESPACE = 0x6F1A_7A0B # "concept-def gen"
 
   # Hard ceiling on total wall-clock for one generation: AI call +
-  # fact-check + link enrichment + DB write.  Anthropic's per-request
-  # read_timeout is 180s, but the pipeline is multi-stage, so we bound
-  # the whole pipeline at 5 minutes.  Anything longer is broken and the
-  # user shouldn't keep paying for the quota slot.
-  GENERATION_TIMEOUT_SECONDS = 300
+  # fact-check + link enrichment + DB write.  The realistic tail for the
+  # Sonnet→Sonnet pipeline is 6-9 minutes — fact-check alone has been
+  # observed at 240+ seconds.  We bound at 12 minutes so legitimate
+  # generations can finish; anything longer is broken and the user
+  # shouldn't keep paying for the quota slot.
+  GENERATION_TIMEOUT_SECONDS = 720
 
   def perform(concept_id, user_id)
     concept = Concept.find_by(id: concept_id)
@@ -49,6 +50,22 @@ class GenerateConceptDefinitionJob < ApplicationJob
       concept.reload
       if concept.definition_id.present?
         Rails.logger.info "GenerateConceptDefinitionJob: concept #{concept_id} now has definition, refunding and skipping"
+        refund_quota(user_id)
+        return
+      end
+
+      # Cache re-check: another user may have generated a matching
+      # ConceptDefinition between when this job was enqueued and when it
+      # acquired the lock.  Linking instead of regenerating saves ~$0.30
+      # and keeps the user's quota slot intact (refunded here).
+      cached = ConceptDefinition.best_match_for(
+        slug: concept.label.to_s.parameterize,
+        concept_type: concept.concept_type,
+      )
+      if cached
+        Rails.logger.info "GenerateConceptDefinitionJob: concept #{concept_id} cache-hit on definition #{cached.id} after lock, linking and refunding"
+        concept.update!(definition_id: cached.id, definition_acquired_via: 'cache_hit')
+        ConceptDefinition.increment_counter(:linked_count_cache, cached.id)
         refund_quota(user_id)
         return
       end
@@ -92,8 +109,9 @@ class GenerateConceptDefinitionJob < ApplicationJob
       end
       attrs['external_refs'] = refs
 
+      attrs['linked_count_cache'] = 1 # original requester counts as the first link
       definition = ConceptDefinition.create!(attrs)
-      concept.update!(definition_id: definition.id)
+      concept.update!(definition_id: definition.id, definition_acquired_via: 'fresh_gen')
 
       Rails.logger.info "GenerateConceptDefinitionJob: wrote definition #{definition.id} for concept #{concept_id}"
     rescue Timeout::Error => e

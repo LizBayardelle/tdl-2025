@@ -52,18 +52,22 @@ class SourcesController < ApplicationController
         total_count = scoped.except(:order).count(:id)
         total_count = total_count.is_a?(Hash) ? total_count.size : total_count
         paginated   = scoped.offset((page - 1) * per_page).limit(per_page)
-          .includes(:concepts, :tags, :people, :collections, :notes)
+          .includes(:concepts, :tags, :people, :collections, :notes,
+                    :statistical_tests, :source_statistical_tests)
           .with_attached_pdf
 
         sources_data = paginated.map do |source|
           is_owner = source.user_id == current_user.id
-          source.as_json(only: [:id, :title, :authors, :year, :kind, :doi, :abstract, :summary, :journal_name, :markers, :methodologies]).merge(
+          source.as_json(only: [:id, :title, :year, :kind, :doi, :abstract, :summary, :journal_name, :markers, :methodologies]).merge(
+            'authors' => source.authors_string,
             tags: is_owner ? source.tags.pluck(:name) : [],
             keywords: source[:keywords] || [],
             concept_ids: source.concept_ids,
             concepts: source.concepts.map { |c| { id: c.id, label: c.label, slug: c.slug } },
             people: source.people.map { |p| { id: p.id, full_name: p.full_name, last_name: p.last_name } },
             collections: source.collections.map { |c| { id: c.id, name: c.name } },
+            statistical_tests: serialize_statistical_tests(source),
+            statistical_tests_searched_at: source.statistical_tests_searched_at,
             notes_count: source.notes.size,
             has_pdf: source.pdf.attached?,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
@@ -112,8 +116,17 @@ class SourcesController < ApplicationController
             collections: { only: [:id, :name, :description] }
           }
         ).merge(
+          # Source has both an `authors` text column and a `has_many :authors`
+          # association.  The association shadows the column in as_json, AND
+          # symbol-key merges leave the as_json string key in place.  Use a
+          # string key here to actually replace the empty-association value.
+          'authors' => @source.authors_string,
           concept_ids: @source.concept_ids,
           keywords: @source[:keywords] || [],
+          statistical_tests: serialize_statistical_tests(@source),
+          statistical_tests_searched_at: @source.statistical_tests_searched_at,
+          notes_count: @source.notes.size,
+          has_pdf: @source.pdf.attached?,
           pdf_url: @source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(@source.pdf, only_path: true) : nil,
           pdf_filename: @source.pdf.attached? ? @source.pdf.filename.to_s : nil
         )
@@ -156,6 +169,24 @@ class SourcesController < ApplicationController
       return
     end
 
+    # Quota gate: AI-Assisted Note Taking is paper-scoped.  Free gets one
+    # paper lifetime, Storage gets 10/month, Unlimited bypasses.  Already-
+    # unlocked sources count as a hit (within window) and skip the limit.
+    unless current_user.can_unlock_source_for_notes?(@source.id)
+      cfg = current_user.paper_unlock_config
+      window_label = cfg[:window] == :lifetime ? 'lifetime' : 'this month'
+      render json: {
+        error: 'note_taking_quota',
+        message: "AI-Assisted Note Taking is limited to #{cfg[:count]} paper#{cfg[:count] == 1 ? '' : 's'} #{window_label} on the #{current_user.effective_plan.titleize} tier.",
+        tier: current_user.effective_plan,
+        upgrade_url: subscribe_path,
+        quota: current_user.paper_unlock_quota,
+      }, status: :payment_required
+      return
+    end
+
+    current_user.unlock_source_for_notes!(@source.id)
+
     user_concepts = current_user.concepts
                                 .order(updated_at: :desc)
                                 .limit(PassageInsightService::MAX_CONCEPTS_IN_PROMPT)
@@ -177,7 +208,7 @@ class SourcesController < ApplicationController
     ).call
 
     if result
-      render json: result
+      render json: result.merge(note_taking_quota: current_user.paper_unlock_quota)
     else
       render json: { error: 'Insight generation failed' }, status: :bad_gateway
     end
@@ -201,7 +232,9 @@ class SourcesController < ApplicationController
   def ask
     unless current_user.unlimited? || current_user.admin
       render json: {
-        error: 'Ask the Paper is an Unlimited-tier feature.',
+        error: 'ask_the_paper_unlimited_only',
+        message: "Ask the Paper is part of the Unlimited tier — chat with any paper as much as you want.",
+        tier: current_user.effective_plan,
         upgrade_url: subscribe_path,
       }, status: :payment_required
       return
@@ -258,11 +291,12 @@ class SourcesController < ApplicationController
     concept_ids = params[:source][:concept_ids]
     person_ids = params[:source][:person_ids]
     collection_ids = params[:source][:collection_ids]
+    statistical_test_ids = params[:source][:statistical_test_ids]
     override_authors = params[:source][:override_authors]
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :collection_ids, :override_authors, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :collection_ids, :statistical_test_ids, :override_authors, :processed_authors)
 
     @source = current_user.sources.build(source_params_clean)
 
@@ -275,6 +309,9 @@ class SourcesController < ApplicationController
 
       # Set concept associations
       @source.concept_ids = concept_ids unless concept_ids.nil?
+
+      # Set statistical test associations
+      @source.statistical_test_ids = Array(statistical_test_ids).reject(&:blank?).map(&:to_i) unless statistical_test_ids.nil?
 
       # Handle people associations
       if person_ids.present?
@@ -306,11 +343,19 @@ class SourcesController < ApplicationController
         end
       end
 
+      # Universal post-create enrichment: research types, stat tests, and
+      # concept suggestion (only fires for fields not already populated).
+      # Mirrors what bulk-upload sources get automatically.
+      EnrichSourceJob.perform_later(@source.id)
+
       render json: @source.as_json.merge(
+        'authors' => @source.authors_string,
         tags: @source.tags.pluck(:name),
         keywords: @source[:keywords] || [],
         concept_ids: @source.concept_ids,
-        collections: @source.collections.map { |c| { id: c.id, name: c.name } }
+        collections: @source.collections.map { |c| { id: c.id, name: c.name } },
+        statistical_tests: serialize_statistical_tests(@source),
+        statistical_tests_searched_at: @source.statistical_tests_searched_at
       ), status: :created
     else
       render json: { errors: @source.errors.full_messages }, status: :unprocessable_entity
@@ -323,11 +368,12 @@ class SourcesController < ApplicationController
     keywords_array = params[:source][:keywords]
     concept_ids = params[:source][:concept_ids]
     person_ids = params[:source][:person_ids]
+    statistical_test_ids = params[:source][:statistical_test_ids]
     override_authors = params[:source][:override_authors]
     processed_authors = params[:source][:processed_authors]
     processed_authors = JSON.parse(processed_authors) if processed_authors.is_a?(String)
 
-    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :override_authors, :processed_authors)
+    source_params_clean = source_params.except(:tags, :authors, :keywords, :concept_ids, :person_ids, :statistical_test_ids, :override_authors, :processed_authors)
 
     # Set keywords directly on column
     @source[:keywords] = keywords_array unless keywords_array.nil?
@@ -338,6 +384,11 @@ class SourcesController < ApplicationController
 
       # Set concept associations
       @source.concept_ids = concept_ids unless concept_ids.nil?
+
+      # Set statistical test associations. The default `_ids=` setter is a diff
+      # (preserves rows whose IDs remain in the list), so existing autodetect
+      # metadata on join rows survives manual saves that don't change the set.
+      @source.statistical_test_ids = Array(statistical_test_ids).reject(&:blank?).map(&:to_i) unless statistical_test_ids.nil?
 
       # Handle people associations
       @source.person_sources.destroy_all
@@ -362,9 +413,12 @@ class SourcesController < ApplicationController
       @source.save if @source.changed?
 
       render json: @source.as_json.merge(
+        'authors' => @source.authors_string,
         tags: @source.tags.pluck(:name),
         keywords: @source[:keywords] || [],
-        concept_ids: @source.concept_ids
+        concept_ids: @source.concept_ids,
+        statistical_tests: serialize_statistical_tests(@source),
+        statistical_tests_searched_at: @source.statistical_tests_searched_at
       )
     else
       render json: { errors: @source.errors.full_messages }, status: :unprocessable_entity
@@ -499,6 +553,61 @@ class SourcesController < ApplicationController
     render json: { types: types }
   end
 
+  # POST /sources/tag_statistical_tests
+  # Body: { title:, abstract:, summary:, kind:, source_id?, include_pdf? }
+  # Returns: { tests: [{id, name, slug}], used_pdf: bool, eligible_for_pdf: bool }
+  #   - tests:            canonical StatisticalTest records the LLM identified
+  #   - used_pdf:         true if this call actually fed PDF text to Haiku
+  #   - eligible_for_pdf: true if the source has a PDF + an empirical kind, so
+  #                       the frontend knows whether a PDF retry is worth offering
+  #
+  # When source_id is present, persists statistical_tests_searched_at on the
+  # source after each call so the UI can render "Searched, no tests found"
+  # without re-fetching.
+  def tag_statistical_tests
+    title = params[:title].to_s.strip
+    if title.blank?
+      render json: { error: 'Title is required' }, status: :unprocessable_entity
+      return
+    end
+
+    source = nil
+    if params[:source_id].present?
+      source = Source.find_by(id: params[:source_id])
+      if source.nil? || !source.shared_with?(current_user)
+        head :forbidden
+        return
+      end
+    end
+
+    include_pdf = ActiveModel::Type::Boolean.new.cast(params[:include_pdf])
+    pdf_text = nil
+    used_pdf = false
+
+    if include_pdf && source&.likely_describes_statistical_tests?
+      pdf_text = extract_source_pdf_text(source)
+      used_pdf = pdf_text.present?
+    end
+
+    tests = StatisticalTestTagger.new(
+      title: title,
+      abstract: params[:abstract],
+      summary: params[:summary],
+      kind: params[:kind],
+      pdf_text: pdf_text
+    ).tag
+
+    # Persist a "we tried" timestamp so the UI can stop nagging users to
+    # click again on sources we already searched.
+    source&.update_columns(statistical_tests_searched_at: Time.current)
+
+    render json: {
+      tests: tests.map { |t| { id: t.id, name: t.name, slug: t.slug } },
+      used_pdf: used_pdf,
+      eligible_for_pdf: source&.likely_describes_statistical_tests? || false
+    }
+  end
+
   # POST /sources/flesh_out_citation
   # Body: { fragment: "Smith et al. 2021 attention is all you need" | "10.1038/..." }
   # Resolves a free-form fragment to a full bibliographic record using
@@ -551,6 +660,32 @@ class SourcesController < ApplicationController
   def set_source
     @source = Source.find(params[:id])
     head :forbidden unless @source.shared_with?(current_user)
+  end
+
+  def serialize_statistical_tests(source)
+    source.source_statistical_tests.includes(:statistical_test).map do |link|
+      t = link.statistical_test
+      {
+        id: t.id,
+        name: t.name,
+        slug: t.slug,
+        confidence: link.confidence,
+        detected_automatically: link.detected_automatically,
+        notes: link.notes
+      }
+    end
+  end
+
+  # Pulls plain text out of the source's PDF for LLM context. Returns "" on
+  # any failure — the caller decides whether to escalate or skip.
+  def extract_source_pdf_text(source)
+    return '' unless source.pdf.attached?
+    source.pdf.open do |file|
+      PdfTextExtractor.new(file).extracted_text.to_s
+    end
+  rescue => e
+    Rails.logger.warn "PDF text extraction failed for source #{source.id}: #{e.message}"
+    ''
   end
 
   def authorize_edit!
@@ -672,7 +807,8 @@ class SourcesController < ApplicationController
       markers: [],
       concept_ids: [],
       person_ids: [],
-      collection_ids: []
+      collection_ids: [],
+      statistical_test_ids: []
     )
   end
 

@@ -68,27 +68,17 @@ class CreateSourceFromUploadJob < ApplicationJob
         source.save!
       end
 
-      # Auto-tag methodology with Haiku if the source has no methodologies set.
-      # Cheap (~half a cent per source) and runs once at creation; the user can
-      # adjust later in the form.
-      if source.methodologies.blank?
-        tags = ResearchTypeTagger.new(
-          title: source.title,
-          abstract: source.abstract,
-          summary: source.summary,
-          kind: source.kind
-        ).tag
-        if tags.any?
-          source.methodologies = tags
-          source.save!
-        end
-      end
-
       # Link authors/people
       link_authors(source, item, user, decisions)
 
-      # Link concepts
+      # Link concepts (from item.detected_concepts — the bulk pipeline
+      # already ran ConceptSuggestionService during processing).
       link_concepts(source, item, user, decisions)
+
+      # Run universal enrichment: research-type + stat-test tagging.
+      # Concept suggestion is gated on source.concepts.empty?, so the
+      # link_concepts step above takes precedence for bulk uploads.
+      EnrichSourceJob.perform_later(source.id)
 
       # Update item with created source
       item.update!(
@@ -206,6 +196,25 @@ class CreateSourceFromUploadJob < ApplicationJob
         end
       elsif concept['auto_linked'] && concept['matched_concept_id']
         concept_ids_to_link << concept['matched_concept_id']
+      else
+        # Auto-resolve fallback (no user decision, no auto-link).  Used by
+        # the bulk-upload "auto-approve" path so concepts that came back
+        # from extraction get created instead of silently dropped.  Both
+        # sources here are already filtered: raw keywords passed through
+        # valid_concept_keyword? in the process job; LLM suggestions are
+        # vetted by the model.  Find-or-create is safe.
+        label = concept['keyword'].to_s.strip
+        next if label.blank?
+
+        concept_type = concept['suggested_type'].presence || 'non_physical_concept'
+        existing = user.concepts.find_by('LOWER(label) = LOWER(?)', label)
+        new_concept = existing || begin
+          user.concepts.create!(label: label, concept_type: concept_type)
+        rescue ActiveRecord::RecordInvalid => e
+          Rails.logger.warn "Auto-create concept failed for #{label}: #{e.message}"
+          nil
+        end
+        concept_ids_to_link << new_concept.id if new_concept
       end
     end
 

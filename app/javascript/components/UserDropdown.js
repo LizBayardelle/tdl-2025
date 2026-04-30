@@ -62,6 +62,12 @@ export default function UserDropdown({ userEmail }) {
             >
               Edit My Information
             </a>
+            <a
+              href="/subscription"
+              className="block px-4 py-2 text-sm hover:bg-khaki transition-colors"
+            >
+              Subscription
+            </a>
           </div>
 
           <div className="border-t border-khaki py-2">

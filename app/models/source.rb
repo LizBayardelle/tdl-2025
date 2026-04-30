@@ -16,6 +16,22 @@ class Source < ApplicationRecord
   has_many :person_sources, dependent: :destroy
   has_many :people, through: :person_sources
 
+  # Statistical tests
+  has_many :source_statistical_tests, dependent: :destroy
+  has_many :statistical_tests, through: :source_statistical_tests
+
+  # Source kinds where it's worth escalating an empty stat-test autodetect
+  # to a full PDF-text search. Books/websites/videos/podcasts skip the
+  # escalation since they typically don't describe specific statistical
+  # tests in their text the way empirical papers do.
+  EMPIRICAL_KINDS = %w[article conference thesis dissertation report book_chapter].freeze
+
+  # True if the source is the kind of artifact where a PDF-text fallback
+  # could plausibly find statistical tests the abstract didn't name.
+  def likely_describes_statistical_tests?
+    EMPIRICAL_KINDS.include?(kind.to_s) && pdf.attached?
+  end
+
   # Notes
   has_many :notes, dependent: :nullify
 
@@ -78,6 +94,22 @@ class Source < ApplicationRecord
            .order('source_authors.position ASC')
   end
 
+  # The authors text column (formatted byline like "Smith, J., Doe, A.")
+  # has the same name as the has_many :authors association, which always
+  # wins on `source.authors`.  Use this method when you want the column.
+  def authors_string
+    read_attribute(:authors)
+  end
+
+  # Normalize a DOI string by stripping doi.org URL prefixes.  Keeps case
+  # since DOIs are technically case-insensitive but conventionally stored
+  # mixed-case.  Returns nil for blank / nil input.
+  def self.normalize_doi(input)
+    return nil if input.blank?
+    cleaned = input.to_s.strip.sub(%r{\Ahttps?://(dx\.)?doi\.org/}i, '')
+    cleaned.presence
+  end
+
   # Generate APA citation based on source type
   def generate_citation
     case kind
@@ -98,9 +130,10 @@ class Source < ApplicationRecord
 
   private
 
-  # Convert empty strings to nil for fields with unique constraints
+  # Convert empty strings to nil for fields with unique constraints, and
+  # strip doi.org prefixes so duplicate-detection sees one canonical form.
   def normalize_blank_fields
-    self.doi = nil if doi.blank?
+    self.doi = self.class.normalize_doi(doi)
     self.url = nil if url.blank?
   end
 
