@@ -140,7 +140,9 @@ class SourcesController < ApplicationController
   end
 
   def notes
-    @notes = @source.notes.order(created_at: :desc)
+    @notes = @source.notes
+                    .includes(:concepts, :people, :linked_sources, :collections, :tags)
+                    .order(created_at: :desc)
     render json: @notes.map { |note|
       {
         id: note.id,
@@ -157,6 +159,9 @@ class SourcesController < ApplicationController
         updated_at: note.updated_at,
         source_id: note.source_id,
         concepts: note.concepts.map { |c| { id: c.id, label: c.label } },
+        people: note.people.map { |p| { id: p.id, full_name: p.full_name, role: p.role } },
+        linked_sources: note.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } },
+        collections: note.collections.map { |c| { id: c.id, name: c.name } },
         tags: note.tags
       }
     }
