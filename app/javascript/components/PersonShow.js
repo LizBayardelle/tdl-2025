@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PersonFormModal from './PersonFormModal';
+import SourceCard, { SourceCardStyles } from './SourceCard';
 import { toTitleCase } from '../utils/titleCase';
 import { getNodeTypeLabel } from '../config/nodeTypes';
 import MagicSparkles from './icons/MagicSparkles';
@@ -140,6 +141,7 @@ export default function PersonShow({ personId: initialPersonId }) {
   return (
     <div className="ps">
       <PsStyles />
+      <SourceCardStyles />
 
       <a href="/people" className="ps-back">← All People</a>
 
@@ -336,16 +338,9 @@ function SourcesSection({ sources }) {
       {sources.length === 0 ? (
         <p className="ps-empty-text">No sources linked yet.</p>
       ) : (
-        <div className="ps-tile-grid">
+        <div className="src-card-tile-grid">
           {sorted.map(s => (
-            <a key={s.id} href={`/sources/${s.id}`} className="ps-tile">
-              <div className="ps-tile-title">{toTitleCase(s.title)}</div>
-              <div className="ps-tile-meta">
-                {s.authors && <span className="ps-tile-authors">{s.authors}</span>}
-                {s.year && <span className="ps-tile-year">{s.year}</span>}
-                {s.doi && <span className="ps-tile-doi">DOI</span>}
-              </div>
-            </a>
+            <SourceCard key={s.id} source={s} variant="tile" />
           ))}
         </div>
       )}
@@ -735,64 +730,6 @@ function PsStyles() {
         color: var(--person-2);
         cursor: pointer;
         text-decoration: underline;
-      }
-
-      /* ---------- Tile grids ---------- */
-      .ps-tile-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 10px;
-      }
-      .ps-tile {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 10px 12px;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-radius: var(--r-md);
-        text-decoration: none;
-        transition: border-color 0.12s, transform 0.12s;
-      }
-      .ps-tile:hover {
-        border-color: var(--source);
-        transform: translateY(-1px);
-      }
-      .ps-tile.is-concept-tile:hover { border-color: var(--concept); }
-      .ps-tile-title {
-        font-family: var(--font-display);
-        font-size: 13.5px;
-        font-weight: 500;
-        color: var(--ink);
-        line-height: 1.35;
-      }
-      .ps-tile-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 8px;
-        font-size: 11.5px;
-        color: var(--ink-3);
-      }
-      .ps-tile-authors {
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .ps-tile-year {
-        font-family: var(--font-mono);
-        color: var(--ink-3);
-        font-variant-numeric: tabular-nums;
-      }
-      .ps-tile-doi {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        color: var(--source-2);
-      }
-      .ps-tile-type {
-        font-size: 10.5px;
-        text-transform: capitalize;
-        color: var(--concept-2);
       }
 
       /* ---------- Tags + Collections rows ---------- */

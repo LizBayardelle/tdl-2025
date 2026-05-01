@@ -32,7 +32,7 @@ class CollectionsController < ApplicationController
       format.json {
         notes = @collection.notes.includes(:concept, :linked_sources, :concepts, :people, :tags, :collections)
 
-        json_data = @collection.as_json(only: [:id, :name, :description, :user_id]).merge(
+        json_data = @collection.as_json(only: [:id, :name, :description, :user_id, :active]).merge(
           items_count: @collection.items_count,
           is_owner: @collection.user_id == current_user.id,
           owner_email: @collection.user.email,
@@ -136,7 +136,7 @@ class CollectionsController < ApplicationController
   end
 
   def collection_params
-    params.require(:collection).permit(:name, :description)
+    params.require(:collection).permit(:name, :description, :active)
   end
 
   def find_item(type, id)

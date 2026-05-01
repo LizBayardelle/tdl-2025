@@ -380,9 +380,9 @@ class CitationResolver
     when 'journal-article'        then 'article'
     when 'book', 'monograph'      then 'book'
     when 'book-chapter'           then 'book_chapter'
-    when 'proceedings-article'    then 'conference_paper'
-    when 'dissertation'           then 'thesis'
-    when 'posted-content'         then 'preprint'
+    when 'proceedings-article'    then 'conference'
+    when 'dissertation'           then 'dissertation'
+    when 'posted-content'         then 'article'
     when 'report'                 then 'report'
     else 'article'
     end

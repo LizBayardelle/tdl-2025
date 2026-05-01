@@ -86,6 +86,11 @@ class NotesController < ApplicationController
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
     source_ids = params[:note][:source_ids]
+    # Sources discovered via "Summarize & Wire In" come in as cited_source_ids
+    # (a sidecar param the Highlight also reads).  Treat them as additional
+    # note attachments so the new sources actually show up linked to the note.
+    cited_ids = params[:note][:cited_source_ids]
+    source_ids = (Array(source_ids) + Array(cited_ids)) if cited_ids.present?
     concept_ids = params[:note][:concept_ids]
     collection_ids = params[:note][:collection_ids]
 
@@ -158,6 +163,7 @@ class NotesController < ApplicationController
     tags_array = params[:note][:tags]
     person_ids = params[:note][:person_ids]
     source_ids = params[:note][:source_ids]
+    cited_ids = params[:note][:cited_source_ids]
     concept_ids = params[:note][:concept_ids]
     collection_ids = params[:note][:collection_ids]
 
@@ -209,9 +215,15 @@ class NotesController < ApplicationController
 
       # Multi-source attachments — only resync if the form sent source_ids[],
       # so callers that PATCH partial updates (autosave on a body edit) don't
-      # blow away the link list.
+      # blow away the link list.  When source_ids is sent, merge in any
+      # cited_source_ids (wire-in path) so they're preserved.  When only
+      # cited_source_ids comes through, add them non-destructively.
       if params[:note].key?(:source_ids)
-        sync_note_sources(@note, source_ids)
+        merged = Array(source_ids) + Array(cited_ids)
+        sync_note_sources(@note, merged)
+      elsif cited_ids.present?
+        existing_ids = @note.linked_sources.pluck(:id)
+        sync_note_sources(@note, existing_ids + Array(cited_ids))
       end
 
       sync_collections(@note, collection_ids) unless collection_ids.nil?

@@ -28,7 +28,10 @@ export default function CollectionSelector({
     }
   };
 
+  // Hide archived (inactive) collections from selection — but keep
+  // already-selected ones visible so users can deselect them if needed.
   const filteredCollections = allCollections.filter(collection =>
+    (collection.active !== false || selectedCollectionIds.includes(collection.id)) &&
     collection.name.toLowerCase().includes(filter.toLowerCase())
   );
 

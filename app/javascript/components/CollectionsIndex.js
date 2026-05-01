@@ -205,6 +205,26 @@ export default function CollectionsIndex() {
     setEditingCollection(null);
   };
 
+  const handleToggleActive = async (collection) => {
+    const next = !(collection.active !== false);
+    try {
+      const res = await fetch(`/collections/${collection.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ collection: { active: next } }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCollections((prev) => prev.map((c) => (c.id === collection.id ? { ...c, ...data } : c)));
+        setSelectedCollection((prev) => (prev?.id === collection.id ? { ...prev, ...data } : prev));
+      } else {
+        setError('Failed to update collection');
+      }
+    } catch {
+      setError('Failed to update collection');
+    }
+  };
+
   if (loading) {
     return (
       <div className="cx-loading">
@@ -326,6 +346,7 @@ export default function CollectionsIndex() {
               onRemoveItem={handleRemoveItem}
               onEdit={() => setEditingCollection(selectedCollection)}
               onRefresh={refreshSelected}
+              onToggleActive={() => handleToggleActive(selectedCollection)}
             />
           ) : (
             <div className="cx-empty-main">
@@ -369,25 +390,28 @@ function CollectionsList({ label, collections, selectedId, onSelect, empty, shar
         <p className="cx-list-empty">{empty}</p>
       ) : (
         <ul>
-          {collections.map((c) => (
-            <li
-              key={c.id}
-              className={`cx-list-item${selectedId === c.id ? ' is-active' : ''}`}
-              onClick={() => onSelect(c)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(c); } }}
-            >
-              <i className={`fas ${shared ? 'fa-share-alt' : 'fa-folder'} cx-list-icon`} />
-              <div className="cx-list-text">
-                <div className="cx-list-name">{c.name}</div>
-                {shared && c.owner_email && (
-                  <div className="cx-list-sub">from {c.owner_email.split('@')[0]}</div>
-                )}
-              </div>
-              <span className="cx-list-count">{c.items_count || 0}</span>
-            </li>
-          ))}
+          {collections.map((c) => {
+            const archived = c.active === false;
+            return (
+              <li
+                key={c.id}
+                className={`cx-list-item${selectedId === c.id ? ' is-active' : ''}${archived ? ' is-archived' : ''}`}
+                onClick={() => onSelect(c)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(c); } }}
+              >
+                <i className={`fas ${archived ? 'fa-box-archive' : (shared ? 'fa-share-alt' : 'fa-folder')} cx-list-icon`} />
+                <div className="cx-list-text">
+                  <div className="cx-list-name">{c.name}</div>
+                  {shared && c.owner_email && (
+                    <div className="cx-list-sub">from {c.owner_email.split('@')[0]}</div>
+                  )}
+                </div>
+                <span className="cx-list-count">{c.items_count || 0}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
@@ -399,9 +423,10 @@ function CollectionsList({ label, collections, selectedId, onSelect, empty, shar
 // 2-col layout: NotesPanel main, sidebar with chip clusters and the
 // canonical sources/concepts/people lists.
 // =====================================================================
-function CollectionDetail({ collection, onShare, onDelete, onRemoveItem, onEdit, onRefresh }) {
+function CollectionDetail({ collection, onShare, onDelete, onRemoveItem, onEdit, onRefresh, onToggleActive }) {
   const isOwner = collection.is_owner;
   const canEdit = isOwner || collection.share_permission === 'collaborator';
+  const isArchived = collection.active === false;
 
   // Per-type modals: link existing + create new — same pattern as /tags.
   const [openLink, setOpenLink] = useState(null);   // 'people' | 'concepts' | 'sources' | null
@@ -484,6 +509,7 @@ function CollectionDetail({ collection, onShare, onDelete, onRemoveItem, onEdit,
         <header className="cx-detail-head">
           <div className="cx-detail-titleline">
             <h1 className="cx-detail-title">{collection.name}</h1>
+            {isArchived && <span className="cx-archived-badge">Archived</span>}
           </div>
           <div className="cx-detail-actions">
             {isOwner && (
@@ -494,6 +520,16 @@ function CollectionDetail({ collection, onShare, onDelete, onRemoveItem, onEdit,
             {isOwner && (
               <button type="button" className="sp-action sp-action-quiet" onClick={onShare} title="Share">
                 <i className="fas fa-share-alt" /> Share
+              </button>
+            )}
+            {isOwner && (
+              <button
+                type="button"
+                className="sp-action sp-action-quiet"
+                onClick={onToggleActive}
+                title={isArchived ? 'Unarchive collection' : 'Archive collection'}
+              >
+                <i className={`fas ${isArchived ? 'fa-box-open' : 'fa-box-archive'}`} /> {isArchived ? 'Unarchive' : 'Archive'}
               </button>
             )}
             {isOwner && (
@@ -1049,6 +1085,22 @@ function CXStyles() {
       .cx-list-item.is-active {
         background: var(--primary);
         color: var(--paper);
+      }
+      .cx-list-item.is-archived .cx-list-name { font-style: italic; }
+      .cx-list-item.is-archived:not(.is-active) { opacity: 0.55; }
+
+      .cx-archived-badge {
+        font-family: var(--font-body);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 3px 8px;
+        align-self: center;
+        flex-shrink: 0;
       }
       .cx-list-icon {
         font-size: 11px;

@@ -3,6 +3,7 @@ import ConceptFormModal from './ConceptFormModal';
 import NoteFormModal from './NoteFormModal';
 import NoteShowModal from './NoteShowModal';
 import NoteCard, { NoteCardStyles } from './NoteCard';
+import SourceCard, { SourceCardStyles } from './SourceCard';
 import PersonFormModal from './PersonFormModal';
 import SourceFormModal from './SourceFormModal';
 import { getNodeTypeLabel } from '../config/nodeTypes';
@@ -396,8 +397,8 @@ export default function ConceptShow({ conceptId }) {
     return { parents: dedupe(parentList), children: dedupe(childList) };
   }, [concept, conceptId, connections]);
 
-  if (loading) return (<div className="cs-loading"><CSStyles /><NoteCardStyles />Loading.</div>);
-  if (error)   return (<div className="cs-loading cs-error"><CSStyles /><NoteCardStyles />{error}</div>);
+  if (loading) return (<div className="cs-loading"><CSStyles /><NoteCardStyles /><SourceCardStyles />Loading.</div>);
+  if (error)   return (<div className="cs-loading cs-error"><CSStyles /><NoteCardStyles /><SourceCardStyles />{error}</div>);
   if (!concept) return null;
 
   const type = concept.effective_concept_type || concept.concept_type;
@@ -406,7 +407,7 @@ export default function ConceptShow({ conceptId }) {
 
   return (
     <div className="cs-shell">
-      <CSStyles /><NoteCardStyles />
+      <CSStyles /><NoteCardStyles /><SourceCardStyles />
 
       <header className="cs-header">
         <a href="/concepts" className="cs-back">← All concepts</a>
@@ -566,26 +567,9 @@ function TopSources({ sources }) {
   }, [sources]);
 
   return (
-    <ul className="cs-source-list">
+    <ul className="src-card-list">
       {sorted.map((s) => (
-        <li key={s.id} className={`cs-source-row ${s.is_key_source ? 'is-key' : ''}`}>
-          <a href={`/sources/${s.id}`} className="cs-source-title">{toTitleCase(s.title)}</a>
-          <div className="cs-source-meta">
-            {s.is_key_source && <span className="cs-source-key">Key Source</span>}
-            {s.authors && <span>{s.authors}</span>}
-            {s.year && <span className="cs-source-year">{s.year}</span>}
-            {s.kind && <span className="cs-source-kind">{s.kind.replace(/_/g, ' ')}</span>}
-            {s.journal_name && <span className="cs-source-journal">{s.journal_name}</span>}
-            {s.notes_count > 0 && (
-              <span className="cs-source-notes">
-                {s.notes_count} note{s.notes_count === 1 ? '' : 's'}
-              </span>
-            )}
-            {s.markers?.filter((m) => m !== 'Key Source').slice(0, 3).map((m) => (
-              <span key={m} className="cs-source-marker">{m}</span>
-            ))}
-          </div>
-        </li>
+        <SourceCard key={s.id} source={s} variant="list" isKey={!!s.is_key_source} />
       ))}
     </ul>
   );
@@ -3839,78 +3823,6 @@ function CSStyles() {
         font-size: 11px;
         color: var(--ink-3);
         margin-top: 4px;
-      }
-
-      /* ---------- Top Sources list ---------- */
-      .cs-source-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .cs-source-row {
-        padding: 10px 14px;
-        background: var(--paper);
-        border: 1px solid var(--ink-line);
-        border-radius: var(--r-md);
-        transition: border-color 0.12s;
-      }
-      .cs-source-row:hover { border-color: var(--source); }
-      .cs-source-row.is-key {
-        border-color: color-mix(in srgb, var(--source) 50%, var(--ink-line));
-        background: color-mix(in srgb, var(--source-tint) 35%, var(--paper));
-      }
-      .cs-source-title {
-        font-family: var(--font-display);
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--ink);
-        line-height: 1.35;
-        text-decoration: none;
-      }
-      .cs-source-title:hover { color: var(--source-2); }
-      .cs-source-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 12px;
-        margin-top: 4px;
-        font-family: var(--font-body);
-        font-size: 12px;
-        color: var(--ink-3);
-        align-items: baseline;
-      }
-      .cs-source-key {
-        font-size: 10.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        font-weight: 700;
-        color: var(--source);
-        background: var(--source-tint);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-      }
-      .cs-source-year {
-        font-family: var(--font-mono);
-        color: var(--ink-3);
-        font-variant-numeric: tabular-nums;
-      }
-      .cs-source-kind {
-        font-size: 10.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--source-2);
-      }
-      .cs-source-journal { font-style: italic; }
-      .cs-source-notes { color: var(--ink-2); }
-      .cs-source-marker {
-        font-size: 11px;
-        color: var(--ink-2);
-        background: var(--paper-soft);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
       }
 
       /* ---------- Contextual Notes list ---------- */

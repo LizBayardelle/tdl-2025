@@ -564,16 +564,14 @@ function ConnectionsTab({ formData, setFormData, sourceId, conceptId }) {
   return (
     <section className="nfm-section">
       <div className="nfm-grid-2">
-        {!sourceId && (
-          <Field label="Link to sources">
-            <SourceSelector
-              selectedSourceIds={formData.source_ids || []}
-              onChange={(ids) => setFormData({ ...formData, source_ids: ids })}
-              multiple={true}
-              themeColor={NOTE_ACCENT}
-            />
-          </Field>
-        )}
+        <Field label="Link to sources">
+          <SourceSelector
+            selectedSourceIds={formData.source_ids || []}
+            onChange={(ids) => setFormData({ ...formData, source_ids: ids })}
+            multiple={true}
+            themeColor={NOTE_ACCENT}
+          />
+        </Field>
         {!conceptId && (
           <Field label="Link to concepts">
             <ConceptSelector

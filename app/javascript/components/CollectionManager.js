@@ -203,8 +203,11 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {collections.map((collection) => {
+                  {collections
+                    .filter((c) => !itemToAdd || c.active !== false)
+                    .map((collection) => {
                     const isSelected = selectedCollection?.id === collection.id;
+                    const isArchived = collection.active === false;
                     return (
                       <div
                         key={collection.id}
@@ -219,11 +222,28 @@ export default function CollectionManager({ isOpen, onClose, itemToAdd = null })
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           transition: 'border-color 0.12s, background 0.12s',
+                          opacity: isArchived ? 0.55 : 1,
                         }}
                       >
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '14px' }}>
+                          <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {collection.name}
+                            {isArchived && (
+                              <span
+                                style={{
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  letterSpacing: '0.08em',
+                                  textTransform: 'uppercase',
+                                  color: 'var(--ink-3)',
+                                  border: '1px solid var(--ink-line)',
+                                  borderRadius: 'var(--r-sm)',
+                                  padding: '1px 6px',
+                                }}
+                              >
+                                Archived
+                              </span>
+                            )}
                           </div>
                           {collection.description && (
                             <div style={{ fontSize: '13px', color: 'var(--ink-2)', marginTop: '2px', lineHeight: 1.5 }}>

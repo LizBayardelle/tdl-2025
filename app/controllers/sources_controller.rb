@@ -786,7 +786,7 @@ class SourcesController < ApplicationController
   end
 
   def source_params
-    params.require(:source).permit(
+    permitted = params.require(:source).permit(
       :title,
       :authors,
       :year,
@@ -821,6 +821,15 @@ class SourcesController < ApplicationController
       collection_ids: [],
       statistical_test_ids: []
     )
+
+    # Drop unknown enum values so the enum setter doesn't raise ArgumentError
+    # and 500 the request — losing the user's in-progress form data.
+    if permitted[:kind].present? && !Source.kinds.key?(permitted[:kind].to_s)
+      Rails.logger.warn "SourcesController: dropping unknown kind=#{permitted[:kind].inspect}"
+      permitted.delete(:kind)
+    end
+
+    permitted
   end
 
   def truthy?(v)
