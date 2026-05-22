@@ -1,6 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Modal from './Modal';
 import HierarchicalConceptSelect from './HierarchicalConceptSelect';
+import { RELATIONSHIP_CATEGORIES, isKindApplicable } from './InlineRelTypeSelect';
+
+function getConceptType(id, conceptList) {
+  if (!id) return null;
+  const c = (conceptList || []).find((x) => x.id === parseInt(id));
+  return c ? (c.concept_type || c.effective_concept_type || null) : null;
+}
+
+// Inline <select> picker that respects KIND_SCOPE via isKindApplicable.
+// Filters categories to types valid for the chosen concept_types; auto-
+// switches the current value if the user reconfigures the pair so the
+// selected rel_type no longer applies.
+function RelTypeSelect({ value, onChange, srcConceptType, dstConceptType }) {
+  const visibleCategories = useMemo(() => {
+    return RELATIONSHIP_CATEGORIES
+      .map((cat) => ({
+        label: cat.label,
+        types: cat.types.filter((t) => isKindApplicable(t.value, srcConceptType, dstConceptType)),
+      }))
+      .filter((cat) => cat.types.length > 0);
+  }, [srcConceptType, dstConceptType]);
+
+  useEffect(() => {
+    const stillValid = visibleCategories.some((cat) => cat.types.some((t) => t.value === value));
+    if (!stillValid && visibleCategories.length > 0) {
+      onChange(visibleCategories[0].types[0].value);
+    }
+  }, [visibleCategories, value, onChange]);
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="form-select"
+      style={{
+        padding: 'var(--space-2) var(--space-3)',
+        fontSize: 'var(--text-base)',
+        fontFamily: 'var(--font-body)'
+      }}
+    >
+      {visibleCategories.map((cat) => (
+        <optgroup key={cat.label} label={cat.label}>
+          {cat.types.map((t) => (
+            <option key={t.value} value={t.value}>{t.text}</option>
+          ))}
+        </optgroup>
+      ))}
+    </select>
+  );
+}
 
 export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, conceptId, concepts, allConcepts }) {
   const [formData, setFormData] = useState({
@@ -241,68 +291,12 @@ export default function ConnectionFormModal({ isOpen, onClose, onSuccess, item, 
               }}>
                 {getSourceConceptName() || '[Source Concept]'}
               </span>
-              <select
+              <RelTypeSelect
                 value={formData.rel_type}
-                onChange={(e) => setFormData({ ...formData, rel_type: e.target.value })}
-                className="form-select"
-                style={{
-                  padding: 'var(--space-2) var(--space-3)',
-                  fontSize: 'var(--text-base)',
-                  fontFamily: 'var(--font-body)'
-                }}
-              >
-                <optgroup label="Hierarchical">
-                  <option value="parent_of">is a parent of</option>
-                  <option value="child_of">is a child of</option>
-                  <option value="is_a">is a (categorization)</option>
-                </optgroup>
-                <optgroup label="Sequential">
-                  <option value="prerequisite_for">is a prerequisite for</option>
-                  <option value="builds_on">builds on</option>
-                  <option value="derived_from">is derived from</option>
-                </optgroup>
-                <optgroup label="Semantic">
-                  <option value="related_to">is related to</option>
-                  <option value="contrasts_with">contrasts with</option>
-                  <option value="integrates_with">integrates with</option>
-                  <option value="associated_with">is associated with</option>
-                </optgroup>
-                <optgroup label="Influence">
-                  <option value="influenced">influenced</option>
-                  <option value="supports">supports</option>
-                  <option value="critiques">critiques</option>
-                </optgroup>
-                <optgroup label="Positional">
-                  <option value="is_above">is above</option>
-                  <option value="is_below">is below</option>
-                  <option value="contains">contains</option>
-                  <option value="is_inside">is inside</option>
-                  <option value="faces">faces</option>
-                  <option value="faces_away_from">faces away from</option>
-                  <option value="is_near">is near</option>
-                </optgroup>
-                <optgroup label="Positional — Anatomical">
-                  <option value="superior_to">is superior to</option>
-                  <option value="inferior_to">is inferior to</option>
-                  <option value="anterior_to">is anterior to</option>
-                  <option value="posterior_to">is posterior to</option>
-                  <option value="medial_to">is medial to</option>
-                  <option value="lateral_to">is lateral to</option>
-                  <option value="dorsal_to">is dorsal to</option>
-                  <option value="ventral_to">is ventral to</option>
-                  <option value="rostral_to">is rostral to</option>
-                  <option value="caudal_to">is caudal to</option>
-                  <option value="proximal_to">is proximal to</option>
-                  <option value="distal_to">is distal to</option>
-                  <option value="ipsilateral_to">is ipsilateral to</option>
-                  <option value="contralateral_to">is contralateral to</option>
-                </optgroup>
-                <optgroup label="Other">
-                  <option value="authored">authored</option>
-                  <option value="applies_to">applies to</option>
-                  <option value="treats">treats</option>
-                </optgroup>
-              </select>
+                onChange={(v) => setFormData({ ...formData, rel_type: v })}
+                srcConceptType={getConceptType(formData.src_concept_id, allConcepts || concepts)}
+                dstConceptType={getConceptType(formData.dst_concept_id, allConcepts || concepts)}
+              />
               <HierarchicalConceptSelect
                 concepts={allConcepts || concepts}
                 value={formData.dst_concept_id}

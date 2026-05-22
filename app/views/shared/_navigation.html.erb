@@ -2,6 +2,7 @@
   # Active-state helpers
   active = ->(prefix) { request.path.start_with?(prefix) }
   on_dashboard = current_page?(dashboard_path) rescue false
+  notifications_pending_count = (user_signed_in? ? current_user.notifications.pending.count : 0) rescue 0
 %>
 
 <nav class="site-nav">
@@ -77,8 +78,18 @@
               <span class="site-nav-avatar-initials"><%= (current_user.email.presence || "?")[0, 2].upcase %></span>
             <% end %>
           </button>
+          <% if notifications_pending_count > 0 %>
+            <span class="site-nav-avatar-badge" aria-label="<%= notifications_pending_count %> pending notifications"><%= notifications_pending_count > 9 ? '9+' : notifications_pending_count %></span>
+          <% end %>
           <div id="user-menu-dropdown" class="site-nav-dropdown">
             <div class="site-nav-dropdown-header"><%= current_user.email %></div>
+            <%= link_to notifications_path, class: "site-nav-dropdown-link" do %>
+              <i class="fas fa-bell site-nav-dropdown-icon"></i>Notifications
+              <% if notifications_pending_count > 0 %>
+                <span class="site-nav-dropdown-badge"><%= notifications_pending_count %></span>
+              <% end %>
+            <% end %>
+            <div class="site-nav-dropdown-divider"></div>
             <%= link_to collections_path, class: "site-nav-dropdown-link" do %>
               <i class="fas fa-layer-group site-nav-dropdown-icon"></i>Collections
             <% end %>
@@ -147,6 +158,9 @@
       </div>
       <div class="site-nav-mobile-section">
         <div class="site-nav-mobile-eyebrow">Account · <%= current_user.email %></div>
+        <%= link_to notifications_path, class: "site-nav-mobile-link" do %>
+          Notifications<% if notifications_pending_count > 0 %> <span class="site-nav-mobile-badge"><%= notifications_pending_count %></span><% end %>
+        <% end %>
         <%= link_to "Collections", collections_path, class: "site-nav-mobile-link" %>
         <%= link_to "Tags", tags_path, class: "site-nav-mobile-link" %>
         <%= link_to "Account", edit_user_registration_path, class: "site-nav-mobile-link" %>
@@ -477,6 +491,43 @@
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
+  }
+  .site-nav-avatar-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: var(--error, #d24545);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    border: 2px solid var(--paper);
+    box-sizing: content-box;
+    pointer-events: none;
+  }
+  .site-nav-dropdown-badge {
+    margin-left: auto;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--error, #d24545);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+  }
+  .site-nav-mobile-badge {
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--error, #d24545);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
   }
 
   /* Burger */

@@ -1,6 +1,6 @@
 class PeopleController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_person, only: [:show, :update, :destroy, :enrich]
+  before_action :set_person, only: [:show, :update, :destroy, :enrich, :sources_index]
   before_action :authorize_edit!, only: [:update, :destroy, :enrich]
 
   def index
@@ -159,6 +159,11 @@ class PeopleController < ApplicationController
     end
 
     render json: { error: 'No ORCID and no DOI-bearing sources to disambiguate from.' }, status: :unprocessable_entity
+  end
+
+  # GET /people/:id/sources
+  # Mounts the SourcesIndex React component scoped to this person.
+  def sources_index
   end
 
   def destroy

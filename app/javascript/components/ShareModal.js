@@ -10,11 +10,14 @@ const PERMISSION_OPTIONS = [
 export default function ShareModal({ isOpen, onClose, shareable }) {
   const [email, setEmail] = useState('');
   const [permission, setPermission] = useState('viewer');
+  const [includeSourceNotes, setIncludeSourceNotes] = useState(false);
   const [shares, setShares] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const isCollection = shareable?.type === 'Collection';
 
   useEffect(() => {
     if (isOpen && shareable) {
@@ -60,7 +63,8 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
             email: email.trim(),
             permission,
             shareable_type: shareable.type,
-            shareable_id: shareable.id
+            shareable_id: shareable.id,
+            include_source_notes: isCollection ? includeSourceNotes : false
           }
         })
       });
@@ -72,6 +76,7 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
           email: email.trim(),
           permission: newShare.permission,
           pending: !newShare.recipient_id,
+          include_source_notes: newShare.include_source_notes,
           created_at: newShare.created_at
         }]);
         setEmail('');
@@ -108,6 +113,29 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
       }
     } catch (err) {
       console.error('Failed to update permission:', err);
+    }
+  };
+
+  const handleToggleSourceNotes = async (shareId, next) => {
+    try {
+      const response = await fetch(`/shares/${shareId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          share: { include_source_notes: next }
+        })
+      });
+
+      if (response.ok) {
+        setShares(shares.map(s =>
+          s.id === shareId ? { ...s, include_source_notes: next } : s
+        ));
+      }
+    } catch (err) {
+      console.error('Failed to update source-notes setting:', err);
     }
   };
 
@@ -300,6 +328,22 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
           }}>
             {PERMISSION_OPTIONS.find(o => o.value === permission)?.description}
           </div>
+
+          {isCollection && (
+            <label className="share-source-notes-toggle" title="When on, notes attached to any source in this collection are visible too — even if not added to the collection directly.">
+              <input
+                type="checkbox"
+                checked={includeSourceNotes}
+                onChange={(e) => setIncludeSourceNotes(e.target.checked)}
+              />
+              <span>
+                <strong>Also share notes from sources in this collection</strong>
+                <span className="share-source-notes-hint">
+                  Recipients see notes you've taken on any source in the collection.
+                </span>
+              </span>
+            </label>
+          )}
         </form>
 
         {/* Current Shares */}
@@ -323,47 +367,59 @@ export default function ShareModal({ isOpen, onClose, shareable }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
               {shares.map(share => (
                 <div key={share.id} className="share-item">
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontWeight: 500,
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'var(--text-sm)',
-                      color: 'var(--neutral-800)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--space-2)',
-                    }}>
-                      <i className="fas fa-user-circle" style={{ color: 'var(--neutral-400)' }}></i>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {share.email}
-                      </span>
-                      {share.pending && (
-                        <span className="share-pending-badge">
-                          Pending
+                  <div className="share-item-row">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontWeight: 500,
+                        fontFamily: 'var(--font-body)',
+                        fontSize: 'var(--text-sm)',
+                        color: 'var(--neutral-800)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-2)',
+                      }}>
+                        <i className="fas fa-user-circle" style={{ color: 'var(--neutral-400)' }}></i>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {share.email}
                         </span>
-                      )}
+                        {share.pending && (
+                          <span className="share-pending-badge">
+                            Pending
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <select
+                        value={share.permission}
+                        onChange={(e) => handleUpdatePermission(share.id, e.target.value)}
+                        className="share-select share-select--small"
+                      >
+                        {PERMISSION_OPTIONS.map(opt => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => handleRevoke(share.id)}
+                        className="share-btn-danger"
+                        title="Revoke access"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                    <select
-                      value={share.permission}
-                      onChange={(e) => handleUpdatePermission(share.id, e.target.value)}
-                      className="share-select share-select--small"
-                    >
-                      {PERMISSION_OPTIONS.map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => handleRevoke(share.id)}
-                      className="share-btn-danger"
-                      title="Revoke access"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
+                  {isCollection && (
+                    <label className="share-item-source-notes">
+                      <input
+                        type="checkbox"
+                        checked={!!share.include_source_notes}
+                        onChange={(e) => handleToggleSourceNotes(share.id, e.target.checked)}
+                      />
+                      <span>Also share source notes</span>
+                    </label>
+                  )}
                 </div>
               ))}
             </div>
@@ -499,6 +555,62 @@ function ShareModalStyles({ themeColor }) {
         border-radius: 3px;
         font-weight: 500;
         flex-shrink: 0;
+      }
+
+      .share-source-notes-toggle {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-2);
+        margin-top: var(--space-3);
+        padding: var(--space-3);
+        background: color-mix(in srgb, ${themeColor} 6%, white);
+        border: 1px solid color-mix(in srgb, ${themeColor} 25%, transparent);
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: var(--text-sm);
+        color: var(--neutral-800);
+      }
+      .share-source-notes-toggle input[type="checkbox"] {
+        margin-top: 3px;
+        accent-color: ${themeColor};
+        cursor: pointer;
+      }
+      .share-source-notes-toggle > span {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .share-source-notes-hint {
+        font-size: var(--text-xs);
+        color: var(--neutral-500);
+        font-weight: 400;
+      }
+
+      .share-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+      }
+      .share-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+      }
+      .share-item-source-notes {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-body);
+        font-size: var(--text-xs);
+        color: var(--neutral-600);
+        cursor: pointer;
+        padding-left: 22px;
+      }
+      .share-item-source-notes input[type="checkbox"] {
+        accent-color: ${themeColor};
+        cursor: pointer;
       }
     `}</style>
   );

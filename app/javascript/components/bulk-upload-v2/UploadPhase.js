@@ -101,6 +101,41 @@ export default function UploadPhase() {
   const collectPdfFiles = async (items) => {
     const pdfFiles = [];
 
+    // DataTransferItem objects are only valid synchronously inside the drop
+    // handler — capture entries (and any plain files) up front before awaiting.
+    const entries = [];
+    const directFiles = [];
+    for (const item of items) {
+      if (item.webkitGetAsEntry) {
+        const entry = item.webkitGetAsEntry();
+        if (entry) entries.push(entry);
+      } else if (item.getAsFile) {
+        const file = item.getAsFile();
+        if (file) directFiles.push(file);
+      }
+    }
+
+    for (const file of directFiles) {
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        pdfFiles.push(file);
+      }
+    }
+
+    const readAllEntries = (reader) => new Promise((resolve, reject) => {
+      const all = [];
+      const readBatch = () => {
+        reader.readEntries((batch) => {
+          if (batch.length === 0) {
+            resolve(all);
+          } else {
+            all.push(...batch);
+            readBatch();
+          }
+        }, reject);
+      };
+      readBatch();
+    });
+
     const processEntry = async (entry) => {
       if (entry.isFile) {
         return new Promise((resolve) => {
@@ -109,33 +144,19 @@ export default function UploadPhase() {
               pdfFiles.push(file);
             }
             resolve();
-          });
+          }, () => resolve());
         });
       } else if (entry.isDirectory) {
         const reader = entry.createReader();
-        return new Promise((resolve) => {
-          reader.readEntries(async (entries) => {
-            for (const subEntry of entries) {
-              await processEntry(subEntry);
-            }
-            resolve();
-          });
-        });
+        const subEntries = await readAllEntries(reader);
+        for (const subEntry of subEntries) {
+          await processEntry(subEntry);
+        }
       }
     };
 
-    for (const item of items) {
-      if (item.webkitGetAsEntry) {
-        const entry = item.webkitGetAsEntry();
-        if (entry) {
-          await processEntry(entry);
-        }
-      } else if (item.getAsFile) {
-        const file = item.getAsFile();
-        if (file && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))) {
-          pdfFiles.push(file);
-        }
-      }
+    for (const entry of entries) {
+      await processEntry(entry);
     }
 
     return pdfFiles;

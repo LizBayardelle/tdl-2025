@@ -907,11 +907,41 @@ function SPComponentLibrary() {
       </SPLibBlock>
 
       <SPLibBlock title="Pills & chips">
+        <p className="sp-lib-note">By category — pair the icon with the label to make the type readable at a glance.</p>
+        <div className="sp-lib-row" style={{ marginBottom: 12 }}>
+          <span className="nc-pill is-source"><i className="fas fa-book-open nc-pill-icon" /><span className="nc-pill-label">Bowlby (1969)</span></span>
+          <span className="nc-pill is-concept"><i className="fas fa-lightbulb nc-pill-icon" /><span className="nc-pill-label">Attachment Theory</span></span>
+          <span className="nc-pill is-person"><i className="fas fa-user nc-pill-icon" /><span className="nc-pill-label">Ainsworth, M.</span></span>
+          <span className="nc-pill is-note"><i className="fas fa-note-sticky nc-pill-icon" /><span className="nc-pill-label">Strange Situation framing</span></span>
+          <span className="nc-pill is-tag"><i className="fas fa-tag nc-pill-icon" /><span className="nc-pill-label">methodology</span></span>
+          <span className="nc-pill is-collection"><i className="fas fa-folder nc-pill-icon" /><span className="nc-pill-label">Thesis Ch. 3</span></span>
+          <span className="nc-pill is-research"><i className="fas fa-flask nc-pill-icon" /><span className="nc-pill-label">Longitudinal</span></span>
+          <span className="nc-pill is-stat-test"><i className="fas fa-square-root-variable nc-pill-icon" /><span className="nc-pill-label">Mixed-effects model</span></span>
+        </div>
+
+        <p className="sp-lib-note">Removable — × button at the end. Used for active filters and multiselect chosen values.</p>
         <div className="sp-lib-row">
-          <span className="sp-chip is-concept">Attachment Theory</span>
-          <span className="sp-chip is-source">Bowlby (1969)</span>
-          <span className="sp-chip is-person">Ainsworth, M.</span>
-          <span className="sp-chip is-neutral">Thesis Ch. 3</span>
+          <span className="nc-pill is-source is-removable">
+            <i className="fas fa-book-open nc-pill-icon" />
+            <span className="nc-pill-label">Bowlby (1969)</span>
+            <button type="button" className="nc-pill-x" aria-label="Remove">
+              <i className="fas fa-times" aria-hidden="true" />
+            </button>
+          </span>
+          <span className="nc-pill is-concept is-removable">
+            <i className="fas fa-lightbulb nc-pill-icon" />
+            <span className="nc-pill-label">Attachment Theory</span>
+            <button type="button" className="nc-pill-x" aria-label="Remove">
+              <i className="fas fa-times" aria-hidden="true" />
+            </button>
+          </span>
+          <span className="nc-pill is-tag is-removable">
+            <i className="fas fa-tag nc-pill-icon" />
+            <span className="nc-pill-label">methodology</span>
+            <button type="button" className="nc-pill-x" aria-label="Remove">
+              <i className="fas fa-times" aria-hidden="true" />
+            </button>
+          </span>
         </div>
       </SPLibBlock>
 
@@ -1947,6 +1977,94 @@ function SPStyles() {
         border-radius: 2px;
       }
       .sp-chip-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.06); }
+
+      /* ---------- nc-pill (icon pills) — production class also used by
+         NoteCard chips and the /collections sidebar.  Mirrored here so
+         the style guide stays self-contained. */
+      .sp-lib-note {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+        margin: 0 0 8px;
+      }
+      .nc-pill {
+        --nc-pill-color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 9px;
+        background: color-mix(in srgb, var(--nc-pill-color) 12%, transparent);
+        color: color-mix(in srgb, var(--nc-pill-color) 85%, var(--ink));
+        border: 1px solid color-mix(in srgb, var(--nc-pill-color) 30%, transparent);
+        border-radius: 999px;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        font-style: normal;
+        letter-spacing: 0.02em;
+        line-height: 1.5;
+        text-transform: none;
+        max-width: 240px;
+        min-width: 0;
+        cursor: pointer;
+        text-decoration: none;
+        transition: filter 0.1s, background 0.12s;
+      }
+      button.nc-pill, a.nc-pill, span.nc-pill {
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 600;
+        font-style: normal;
+        letter-spacing: 0.02em;
+        line-height: 1.5;
+        text-transform: none;
+      }
+      button.nc-pill { background-image: none; }
+      .nc-pill:hover { filter: brightness(0.96); }
+      .nc-pill-icon { font-size: 10px; opacity: 0.9; flex-shrink: 0; line-height: 1; }
+      .nc-pill-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        font: inherit;
+      }
+      .nc-pill.is-source     { --nc-pill-color: var(--source); }
+      .nc-pill.is-concept    { --nc-pill-color: var(--concept); }
+      .nc-pill.is-person     { --nc-pill-color: var(--person); }
+      .nc-pill.is-collection { --nc-pill-color: var(--primary); }
+      .nc-pill.is-note       { --nc-pill-color: var(--primary); }
+      .nc-pill.is-tag        { --nc-pill-color: var(--primary); }
+      .nc-pill.is-research   { --nc-pill-color: var(--ink-3); }
+      .nc-pill.is-stat-test  { --nc-pill-color: var(--ink-3); }
+      .nc-pill.is-marker {
+        --nc-pill-color: var(--ink-3);
+        background: var(--paper);
+        color: var(--ink-3);
+        border-color: var(--ink-line);
+      }
+      .nc-pill.is-marker:hover { background: var(--paper-soft); }
+      .nc-pill.is-removable  { padding-right: 4px; gap: 4px; }
+      .nc-pill-x {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-left: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 10px;
+        line-height: 1;
+        transition: opacity 0.12s, background 0.12s;
+      }
+      .nc-pill-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
 
       /* ============ STATUS ============ */
       .sp-status {

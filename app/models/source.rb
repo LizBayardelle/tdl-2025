@@ -41,6 +41,10 @@ class Source < ApplicationRecord
   # Highlights
   has_many :highlights, dependent: :destroy
 
+  # Annotated-bibliography entries — one per (collection, source). Carries the
+  # internal + formal annotations this source has within each collection.
+  has_many :bibliography_entries, dependent: :destroy
+
   # PDF Attachment
   has_one_attached :pdf
 
@@ -61,6 +65,7 @@ class Source < ApplicationRecord
 
   # Callbacks
   before_validation :normalize_blank_fields
+  before_validation :clear_redundant_summary
 
   # Validations
   validates :title, presence: true
@@ -119,6 +124,15 @@ class Source < ApplicationRecord
     update_column(:authors, joined)
   end
 
+  # The most recent internal annotation this source carries in any other
+  # collection's bibliography.  Used to prefill a fresh bibliography entry so
+  # the user never rewrites their running, in-voice take on the source.
+  def latest_internal_annotation(except_collection_id: nil)
+    scope = bibliography_entries.where.not(internal_annotation: [nil, ''])
+    scope = scope.where.not(collection_id: except_collection_id) if except_collection_id
+    scope.order(updated_at: :desc).pick(:internal_annotation)
+  end
+
   # Normalize a DOI string by stripping doi.org URL prefixes.  Keeps case
   # since DOIs are technically case-insensitive but conventionally stored
   # mixed-case.  Returns nil for blank / nil input.
@@ -153,6 +167,20 @@ class Source < ApplicationRecord
   def normalize_blank_fields
     self.doi = self.class.normalize_doi(doi)
     self.url = nil if url.blank?
+  end
+
+  # Importers (CrossRef, OpenAlex, manual paste) sometimes drop the same
+  # text into both abstract and summary.  Drop the summary when it would
+  # render the same as the abstract after stripping HTML / whitespace.
+  def clear_redundant_summary
+    return if abstract.blank? || summary.blank?
+    self.summary = nil if normalize_for_dedup(abstract) == normalize_for_dedup(summary)
+  end
+
+  def normalize_for_dedup(text)
+    stripped = text.to_s.gsub(/<[^>]+>/, ' ')
+    decoded  = CGI.unescapeHTML(stripped)
+    decoded.gsub(/\s+/, ' ').strip.downcase
   end
 
   def generate_article_citation

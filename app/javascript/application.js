@@ -13,7 +13,11 @@ import ConnectionVisualization from './components/ConnectionVisualization';
 import NotesIndex from './components/NotesIndex';
 import NotesForm from './components/NotesForm';
 import TagsIndex from './components/TagsIndex';
+import TagShow from './components/TagShow';
 import CollectionsIndex from './components/CollectionsIndex';
+import CollectionShow from './components/CollectionShow';
+import CollectionBibliography from './components/CollectionBibliography';
+import CollectionBibliographyExport from './components/CollectionBibliographyExport';
 import TabletopsIndex from './components/TabletopsIndex';
 import TabletopShow from './components/TabletopShow';
 import Dashboard from './components/Dashboard';
@@ -38,6 +42,7 @@ import StatTestDetail from './components/StatTestDetail';
 import SamplePage from './components/SamplePage';
 import LegalPage from './components/LegalPage';
 import SearchPage from './components/SearchPage';
+import NotificationsIndex from './components/NotificationsIndex';
 
 // Initialize React components when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -94,9 +99,103 @@ document.addEventListener('DOMContentLoaded', () => {
     createRoot(tagsIndexRoot).render(<TagsIndex />);
   }
 
+  const tagShowRoot = document.getElementById('tag-show-root');
+  if (tagShowRoot) {
+    const tagId = tagShowRoot.dataset.tagId;
+    createRoot(tagShowRoot).render(<TagShow tagId={tagId} />);
+  }
+
   const collectionsIndexRoot = document.getElementById('collections-index-root');
   if (collectionsIndexRoot) {
     createRoot(collectionsIndexRoot).render(<CollectionsIndex />);
+  }
+
+  const collectionShowRoot = document.getElementById('collection-show-root');
+  if (collectionShowRoot) {
+    const collectionId = collectionShowRoot.dataset.collectionId;
+    createRoot(collectionShowRoot).render(<CollectionShow collectionId={collectionId} />);
+  }
+
+  const collectionSourcesRoot = document.getElementById('collection-sources-root');
+  if (collectionSourcesRoot) {
+    const collectionId = collectionSourcesRoot.dataset.collectionId;
+    const collectionName = collectionSourcesRoot.dataset.collectionName;
+    const isOwner = collectionSourcesRoot.dataset.isOwner === 'true';
+    const sharePermission = collectionSourcesRoot.dataset.sharePermission || null;
+    createRoot(collectionSourcesRoot).render(
+      <SourcesIndex
+        collectionId={collectionId}
+        collectionName={collectionName}
+        isOwner={isOwner}
+        sharePermission={sharePermission}
+      />
+    );
+  }
+
+  const collectionBibliographyRoot = document.getElementById('collection-bibliography-root');
+  if (collectionBibliographyRoot) {
+    const collectionId = collectionBibliographyRoot.dataset.collectionId;
+    const collectionName = collectionBibliographyRoot.dataset.collectionName;
+    const isOwner = collectionBibliographyRoot.dataset.isOwner === 'true';
+    const sharePermission = collectionBibliographyRoot.dataset.sharePermission || null;
+    createRoot(collectionBibliographyRoot).render(
+      <CollectionBibliography
+        collectionId={collectionId}
+        collectionName={collectionName}
+        isOwner={isOwner}
+        sharePermission={sharePermission}
+      />
+    );
+  }
+
+  const collectionBibliographyExportRoot = document.getElementById('collection-bibliography-export-root');
+  if (collectionBibliographyExportRoot) {
+    const collectionId = collectionBibliographyExportRoot.dataset.collectionId;
+    const collectionName = collectionBibliographyExportRoot.dataset.collectionName;
+    const isOwner = collectionBibliographyExportRoot.dataset.isOwner === 'true';
+    createRoot(collectionBibliographyExportRoot).render(
+      <CollectionBibliographyExport
+        collectionId={collectionId}
+        collectionName={collectionName}
+        isOwner={isOwner}
+      />
+    );
+  }
+
+  const personSourcesRoot = document.getElementById('person-sources-root');
+  if (personSourcesRoot) {
+    const personId = personSourcesRoot.dataset.personId;
+    const personName = personSourcesRoot.dataset.personName;
+    createRoot(personSourcesRoot).render(
+      <SourcesIndex personId={personId} personName={personName} />
+    );
+  }
+
+  const tagSourcesRoot = document.getElementById('tag-sources-root');
+  if (tagSourcesRoot) {
+    const tagId = tagSourcesRoot.dataset.tagId;
+    const tagName = tagSourcesRoot.dataset.tagName;
+    createRoot(tagSourcesRoot).render(
+      <SourcesIndex tagId={tagId} tagName={tagName} />
+    );
+  }
+
+  const tabletopSourcesRoot = document.getElementById('tabletop-sources-root');
+  if (tabletopSourcesRoot) {
+    const tabletopId = tabletopSourcesRoot.dataset.tabletopId;
+    const tabletopName = tabletopSourcesRoot.dataset.tabletopName;
+    createRoot(tabletopSourcesRoot).render(
+      <SourcesIndex tabletopId={tabletopId} tabletopName={tabletopName} />
+    );
+  }
+
+  const conceptSourcesRoot = document.getElementById('concept-sources-root');
+  if (conceptSourcesRoot) {
+    const conceptId = conceptSourcesRoot.dataset.conceptId;
+    const conceptName = conceptSourcesRoot.dataset.conceptName;
+    createRoot(conceptSourcesRoot).render(
+      <SourcesIndex conceptId={conceptId} conceptName={conceptName} />
+    );
   }
 
   const tabletopsIndexRoot = document.getElementById('tabletops-index-root');
@@ -147,6 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const sharingHubRoot = document.getElementById('sharing-hub-root');
   if (sharingHubRoot) {
     createRoot(sharingHubRoot).render(<SharingHub />);
+  }
+
+  const notificationsIndexRoot = document.getElementById('notifications-index-root');
+  if (notificationsIndexRoot) {
+    createRoot(notificationsIndexRoot).render(<NotificationsIndex />);
   }
 
   // New bulk upload wizard (v2)

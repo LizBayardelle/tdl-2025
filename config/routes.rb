@@ -72,11 +72,14 @@ Rails.application.routes.draw do
       get :search
       post :find_or_create_from_keywords
       post :suggest_from_metadata
+      post :scan_for_duplicates
     end
     member do
       post :suggest_relationships
       post :generate_definition
       post :reject_definition
+      post :merge_into
+      get  :sources, action: :sources_index
       # Claim a shared concept into the current user's library — creates
       # a new Concept row owned by the user, cache-hits the same
       # definition, consumes one library-addition slot.
@@ -89,7 +92,11 @@ Rails.application.routes.draw do
     end
     resources :links, only: [:index, :create, :destroy], controller: 'concept_links'
   end
-  resources :connections, only: [:index, :show, :create, :update, :destroy]
+  resources :connections, only: [:index, :show, :create, :update, :destroy] do
+    collection do
+      get :vocabulary
+    end
+  end
 
   # Public statistical test catalog
   resources :statistical_tests, only: [:index, :show], path: 'stats', param: :slug
@@ -120,10 +127,15 @@ Rails.application.routes.draw do
     end
     member do
       post :enrich
+      get :sources, action: :sources_index
     end
   end
   resources :notes
-  resources :tags, only: [:index, :show, :create, :update, :destroy]
+  resources :tags, only: [:index, :show, :create, :update, :destroy] do
+    member do
+      get :sources, action: :sources_index
+    end
+  end
   resources :highlight_colors, only: [:index, :create, :update, :destroy] do
     collection do
       post :reorder
@@ -135,7 +147,11 @@ Rails.application.routes.draw do
     member do
       post :add_item
       delete :remove_item
+      get :sources, action: :sources_index
+      get :bibliography
+      get 'bibliography/export', action: :bibliography_export, as: :bibliography_export
     end
+    resources :bibliography_entries, only: [:index, :create, :update, :destroy]
   end
 
   resources :tabletops do
@@ -143,6 +159,16 @@ Rails.application.routes.draw do
     member do
       patch :viewport
       post  :import_notes
+      get   :sources, action: :sources_index
+    end
+  end
+
+  resources :notifications, only: [:index] do
+    member do
+      post :approve
+      post :dismiss
+      post :mark_read
+      post :mark_different
     end
   end
 

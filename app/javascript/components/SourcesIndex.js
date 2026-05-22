@@ -37,6 +37,24 @@ const SORT_OPTIONS = [
 
 const PER_PAGE = 25;
 
+// Locked-scope route + fallback label maps — used by the header back link
+// and title chip when SourcesIndex is mounted under a parent (collection,
+// person, concept, tag).
+const LOCKED_PATH = {
+  collection: 'collections',
+  person:     'people',
+  concept:    'concepts',
+  tag:        'tags',
+  tabletop:   'tabletops',
+};
+const LOCKED_FALLBACK_LABEL = {
+  collection: 'Collection',
+  person:     'Person',
+  concept:    'Concept',
+  tag:        'Tag',
+  tabletop:   'Tabletop',
+};
+
 // ---------- URL state helpers ----------
 function readFiltersFromUrl() {
   const params = new URLSearchParams(window.location.search);
@@ -81,16 +99,95 @@ const EMPTY_META = { kinds: [], years: [], authors: [], concepts: [], tags: [], 
 
 // =====================================================================
 // Component
+//
+// Props (locked-scope variants — pass exactly one scope, or none):
+//   collectionId?     — scope to a collection.  Collection filter is locked
+//                       (no chip-X, no facet, no URL param) and the header
+//                       reads "Sources in [collection chip]".  Permission
+//                       gating uses isOwner / sharePermission.
+//   collectionName?   — used in the locked-collection chip.
+//   isOwner?          — collection owner.  Controls write actions.
+//   sharePermission?  — recipient's permission ('viewer'|'collaborator'|null).
+//
+//   personId?         — scope to a person.  Header reads "Sources by [chip]".
+//   personName?       — used in the locked-person chip.
+//
+//   conceptId?        — scope to a concept.  Header reads "Sources about [chip]".
+//   conceptName?      — used in the locked-concept chip.
+//
+//   tagId?            — scope to a tag.  Header reads "Sources tagged [chip]".
+//                       Tag filters are name-based (filters.tags is string[]),
+//                       so tagId is only used for the back link / chip href;
+//                       tagName is what actually drives the filter.
+//   tagName?          — used in the locked-tag chip and as the locked filter value.
+//
+//   tabletopId?       — scope to a tabletop.  Header reads "Sources on [chip]".
+//                       Server-side filter (params[:tabletop_id]) resolves to
+//                       sources from notes on the table + direct source items.
+//                       No facet UI for this.
+//   tabletopName?     — used in the locked-tabletop chip.
 // =====================================================================
-export default function SourcesIndex() {
+export default function SourcesIndex({
+  collectionId = null,
+  collectionName = null,
+  isOwner = true,
+  sharePermission = null,
+  personId = null,
+  personName = null,
+  conceptId = null,
+  conceptName = null,
+  tagId = null,
+  tagName = null,
+  tabletopId = null,
+  tabletopName = null,
+} = {}) {
+  const lockedCollectionId = collectionId ? Number(collectionId) : null;
+  const lockedPersonId     = personId     ? Number(personId)     : null;
+  const lockedConceptId    = conceptId    ? Number(conceptId)    : null;
+  const lockedTagId        = tagId        ? Number(tagId)        : null;
+  const lockedTagName      = tagName || null;
+  const lockedTabletopId   = tabletopId   ? Number(tabletopId)   : null;
+
+  // Whichever scope is active — used by chip rendering, header, hide-facet logic.
+  // useMemo is critical here: lockedScope ends up in a useEffect dep array,
+  // and a fresh object every render would loop the fetch effect forever.
+  const lockedScope = useMemo(() => {
+    if (lockedCollectionId) {
+      return { type: 'collection', id: lockedCollectionId, name: collectionName, icon: 'fa-folder',    preposition: 'in' };
+    }
+    if (lockedPersonId) {
+      return { type: 'person',     id: lockedPersonId,     name: personName,     icon: 'fa-user',      preposition: 'by' };
+    }
+    if (lockedConceptId) {
+      return { type: 'concept',    id: lockedConceptId,    name: conceptName,    icon: 'fa-lightbulb', preposition: 'about' };
+    }
+    if (lockedTagName) {
+      return { type: 'tag',        id: lockedTagId,        name: lockedTagName,  icon: 'fa-tag',       preposition: 'tagged' };
+    }
+    if (lockedTabletopId) {
+      return { type: 'tabletop',   id: lockedTabletopId,   name: tabletopName,   icon: 'fa-table-cells', preposition: 'on' };
+    }
+    return null;
+  }, [lockedCollectionId, lockedPersonId, lockedConceptId, lockedTagId, lockedTagName, lockedTabletopId, collectionName, personName, conceptName, tabletopName]);
+
+  const canWrite = !lockedCollectionId || isOwner || sharePermission === 'collaborator';
+
   const initial = readFiltersFromUrl();
   const [filters, setFilters] = useState({
     q:              initial.q,
     kind:           initial.kind,
-    concept_ids:    initial.concept_ids,
-    person_ids:     initial.person_ids,
-    tags:           initial.tags,
-    collection_ids: initial.collection_ids,
+    concept_ids:    lockedConceptId
+      ? Array.from(new Set([lockedConceptId, ...initial.concept_ids]))
+      : initial.concept_ids,
+    person_ids:     lockedPersonId
+      ? Array.from(new Set([lockedPersonId, ...initial.person_ids]))
+      : initial.person_ids,
+    tags:           lockedTagName
+      ? Array.from(new Set([lockedTagName, ...initial.tags]))
+      : initial.tags,
+    collection_ids: lockedCollectionId
+      ? Array.from(new Set([lockedCollectionId, ...initial.collection_ids]))
+      : initial.collection_ids,
     markers:        initial.markers,
     methodologies:  initial.methodologies,
     year_min:       initial.year_min,
@@ -142,13 +239,14 @@ export default function SourcesIndex() {
     if (filters.year_max) p.set('year_max', filters.year_max);
     if (filters.has_pdf) p.set('has_pdf', '1');
     if (filters.has_notes) p.set('has_notes', '1');
+    if (lockedTabletopId) p.set('tabletop_id', lockedTabletopId);
     const [sortBy, sortDir] = (filters.sort || 'created_at-desc').split('-');
     p.set('sort_by', sortBy);
     p.set('sort_dir', sortDir);
     p.set('page', page);
     p.set('per_page', PER_PAGE);
     return p.toString();
-  }, [filters]);
+  }, [filters, lockedTabletopId]);
 
   // Fetch
   const fetchSources = useCallback(async (targetPage = 1) => {
@@ -173,17 +271,25 @@ export default function SourcesIndex() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const isText = !isFirstRender.current;
     debounceRef.current = setTimeout(() => {
-      writeFiltersToUrl(filters);
+      // When the page already encodes the scope in its URL (e.g.
+      // /collections/:id/sources or /people/:id/sources), don't echo it
+      // back as a query param.
+      if (!lockedScope) writeFiltersToUrl(filters);
       setPage(1);
       fetchSources(1);
     }, isText ? 250 : 0);
     isFirstRender.current = false;
     return () => clearTimeout(debounceRef.current);
-  }, [filters, fetchSources]);
+  }, [filters, fetchSources, lockedScope]);
 
   // ---- Filter mutators ----
   const update = (patch) => setFilters(f => ({ ...f, ...patch }));
   const toggleInArray = (key, value) => {
+    // Whichever id is locked by the page scope cannot be removed.
+    if (key === 'collection_ids' && value === lockedCollectionId) return;
+    if (key === 'person_ids'     && value === lockedPersonId)     return;
+    if (key === 'concept_ids'    && value === lockedConceptId)    return;
+    if (key === 'tags'           && value === lockedTagName)      return;
     setFilters(f => {
       const current = f[key] || [];
       const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
@@ -191,18 +297,37 @@ export default function SourcesIndex() {
     });
   };
   const clearAll = () => setFilters({
-    q: '', kind: '', concept_ids: [], person_ids: [], tags: [],
-    collection_ids: [], markers: [], methodologies: [],
+    q: '', kind: '',
+    concept_ids:    lockedConceptId    ? [lockedConceptId]    : [],
+    person_ids:     lockedPersonId     ? [lockedPersonId]     : [],
+    tags:           lockedTagName      ? [lockedTagName]      : [],
+    collection_ids: lockedCollectionId ? [lockedCollectionId] : [],
+    markers: [], methodologies: [],
     year_min: '', year_max: '',
     has_pdf: false, has_notes: false, sort: filters.sort,
   });
 
+  // Don't count the locked id as an "active" filter — it's the page's scope,
+  // not something the user toggled on.
+  const userCollectionFilterCount = lockedCollectionId
+    ? filters.collection_ids.filter(id => id !== lockedCollectionId).length
+    : filters.collection_ids.length;
+  const userPersonFilterCount = lockedPersonId
+    ? filters.person_ids.filter(id => id !== lockedPersonId).length
+    : filters.person_ids.length;
+  const userConceptFilterCount = lockedConceptId
+    ? filters.concept_ids.filter(id => id !== lockedConceptId).length
+    : filters.concept_ids.length;
+  const userTagFilterCount = lockedTagName
+    ? filters.tags.filter(t => t !== lockedTagName).length
+    : filters.tags.length;
+
   const activeFilterCount =
     (filters.kind ? 1 : 0) +
-    filters.concept_ids.length +
-    filters.person_ids.length +
-    filters.tags.length +
-    filters.collection_ids.length +
+    userConceptFilterCount +
+    userPersonFilterCount +
+    userTagFilterCount +
+    userCollectionFilterCount +
     filters.markers.length +
     filters.methodologies.length +
     (filters.year_min ? 1 : 0) +
@@ -241,6 +366,31 @@ export default function SourcesIndex() {
       }
     } catch (err) {
       console.error('Marker save failed', err);
+    }
+  };
+
+  // ---- Collection membership update ----
+  // The inline CollectionsEditor performs the add_item / remove_item calls
+  // itself; this just syncs the card's displayed collection pills.
+  const updateCollections = (sourceId, collections) => {
+    setSources(prev => prev.map(s => s.id === sourceId ? { ...s, collections } : s));
+  };
+
+  // ---- Concept tag update ----
+  const updateConcepts = async (sourceId, concepts) => {
+    const csrf = document.querySelector('[name="csrf-token"]')?.content;
+    const concept_ids = concepts.map(c => c.id);
+    try {
+      const res = await fetch(`/sources/${sourceId}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ source: { concept_ids } }),
+      });
+      if (res.ok) {
+        setSources(prev => prev.map(s => s.id === sourceId ? { ...s, concepts, concept_ids } : s));
+      }
+    } catch (err) {
+      console.error('Concept save failed', err);
     }
   };
 
@@ -288,7 +438,31 @@ export default function SourcesIndex() {
 
       <header className="srx-header">
         <div>
-          <h1 className="srx-title">Sources</h1>
+          {lockedScope && (
+            <a
+              href={`/${LOCKED_PATH[lockedScope.type]}/${lockedScope.id}`}
+              className="srx-back"
+            >
+              ← Back to {lockedScope.name || LOCKED_FALLBACK_LABEL[lockedScope.type]}
+            </a>
+          )}
+          <h1 className="srx-title">
+            {lockedScope ? (
+              <>
+                Sources {lockedScope.preposition}{' '}
+                <a
+                  href={`/${LOCKED_PATH[lockedScope.type]}/${lockedScope.id}`}
+                  className={`srx-title-chip is-${lockedScope.type}`}
+                  title={`Back to ${lockedScope.type}`}
+                >
+                  <i className={`fas ${lockedScope.icon} srx-title-chip-icon`} aria-hidden="true" />
+                  <span className="srx-title-chip-label">
+                    {lockedScope.name || `this ${lockedScope.type}`}
+                  </span>
+                </a>
+              </>
+            ) : 'Sources'}
+          </h1>
           <p className="srx-subtitle">
             {loading
               ? 'Loading.'
@@ -318,13 +492,17 @@ export default function SourcesIndex() {
               <button type="button" className="sp-action sp-action-secondary" onClick={() => setBulkMode(true)}>
                 Select for Export
               </button>
-              <button type="button" className="sp-action sp-action-secondary" onClick={() => { setEditingSource(null); setShowForm(true); }}>
-                Manual Input
-              </button>
-              <a href="/uploads" className="sp-action sp-action-secondary" title="Bulk Upload">Bulk Upload</a>
-              <button type="button" className="sp-action sp-action-primary" onClick={() => setShowPdf(true)}>
-                Upload PDF
-              </button>
+              {canWrite && (
+                <>
+                  <button type="button" className="sp-action sp-action-secondary" onClick={() => { setEditingSource(null); setShowForm(true); }}>
+                    Manual Input
+                  </button>
+                  <a href="/uploads" className="sp-action sp-action-secondary" title="Bulk Upload">Bulk Upload</a>
+                  <button type="button" className="sp-action sp-action-primary" onClick={() => setShowPdf(true)}>
+                    Upload PDF
+                  </button>
+                </>
+              )}
             </>
           )}
         </div>
@@ -415,36 +593,42 @@ export default function SourcesIndex() {
               )}
             </FilterSection>
 
-            <FacetSection
-              label="Concepts"
-              accent="concept"
-              noun="concepts"
-              items={filterMeta.concepts}
-              labelKey="label"
-              selected={filters.concept_ids}
-              onToggle={(id) => toggleInArray('concept_ids', id)}
-            />
+            {!lockedConceptId && (
+              <FacetSection
+                label="Concepts"
+                accent="concept"
+                noun="concepts"
+                items={filterMeta.concepts}
+                labelKey="label"
+                selected={filters.concept_ids}
+                onToggle={(id) => toggleInArray('concept_ids', id)}
+              />
+            )}
 
-            <FacetSection
-              label="Authors"
-              accent="person"
-              noun="authors"
-              items={filterMeta.authors}
-              labelKey="full_name"
-              selected={filters.person_ids}
-              onToggle={(id) => toggleInArray('person_ids', id)}
-            />
+            {!lockedPersonId && (
+              <FacetSection
+                label="Authors"
+                accent="person"
+                noun="authors"
+                items={filterMeta.authors}
+                labelKey="full_name"
+                selected={filters.person_ids}
+                onToggle={(id) => toggleInArray('person_ids', id)}
+              />
+            )}
 
-            <FacetSection
-              label="Collections"
-              noun="collections"
-              items={filterMeta.collections}
-              labelKey="name"
-              selected={filters.collection_ids}
-              onToggle={(id) => toggleInArray('collection_ids', id)}
-            />
+            {!lockedCollectionId && (
+              <FacetSection
+                label="Collections"
+                noun="collections"
+                items={filterMeta.collections}
+                labelKey="name"
+                selected={filters.collection_ids}
+                onToggle={(id) => toggleInArray('collection_ids', id)}
+              />
+            )}
 
-            {filterMeta.tags.length > 0 && (
+            {!lockedTagName && filterMeta.tags.length > 0 && (
               <FilterSection label="Tags">
                 <FacetSearchList
                   noun="tags"
@@ -524,6 +708,10 @@ export default function SourcesIndex() {
             <ActiveFilterBar
               filters={filters}
               meta={filterMeta}
+              lockedCollectionId={lockedCollectionId}
+              lockedPersonId={lockedPersonId}
+              lockedConceptId={lockedConceptId}
+              lockedTagName={lockedTagName}
               onRemove={(patch) => update(patch)}
               onRemoveFromArray={(key, value) => toggleInArray(key, value)}
               onClearAll={clearAll}
@@ -562,6 +750,8 @@ export default function SourcesIndex() {
                   onEdit={() => { setEditingSource(source); setShowForm(true); }}
                   onDelete={() => deleteSource(source)}
                   onMarkersChange={(markers) => updateMarkers(source.id, markers)}
+                  onCollectionsChange={(collections) => updateCollections(source.id, collections)}
+                  onConceptsChange={(concepts) => updateConcepts(source.id, concepts)}
                 />
               ))}
             </div>
@@ -700,37 +890,55 @@ function FacetSearchList({ items, selectedSet, onToggle, noun = 'items' }) {
 // =====================================================================
 // Active filter chip bar
 // =====================================================================
-function ActiveFilterBar({ filters, meta, onRemove, onRemoveFromArray, onClearAll }) {
+function ActiveFilterBar({ filters, meta, lockedCollectionId, lockedPersonId, lockedConceptId, lockedTagName, onRemove, onRemoveFromArray, onClearAll }) {
   const chips = [];
-  if (filters.kind) chips.push({ key: 'kind', label: `Type: ${KIND_LABELS[filters.kind] || filters.kind}`, onClear: () => onRemove({ kind: '' }) });
+  // type/kind, year, has-pdf, has-notes are filter-y meta with no entity
+  // category — render grey (no pillType modifier).
+  if (filters.kind) chips.push({ key: 'kind', icon: 'fa-filter', label: `Type: ${KIND_LABELS[filters.kind] || filters.kind}`, onClear: () => onRemove({ kind: '' }) });
   filters.concept_ids.forEach(id => {
+    // The locked scope is shown in the page header — no chip for it.
+    if (id === lockedConceptId) return;
     const c = meta.concepts.find(x => x.id === id);
-    if (c) chips.push({ key: `c-${id}`, label: `Concept: ${c.label}`, onClear: () => onRemoveFromArray('concept_ids', id) });
+    if (c) chips.push({ key: `c-${id}`, pillType: 'is-concept', icon: 'fa-lightbulb', label: c.label, onClear: () => onRemoveFromArray('concept_ids', id) });
   });
   filters.person_ids.forEach(id => {
+    // The locked scope is shown in the page header — no chip for it.
+    if (id === lockedPersonId) return;
     const p = meta.authors.find(x => x.id === id);
-    if (p) chips.push({ key: `p-${id}`, label: `Author: ${p.full_name}`, onClear: () => onRemoveFromArray('person_ids', id) });
+    if (p) chips.push({ key: `p-${id}`, pillType: 'is-person', icon: 'fa-user', label: p.full_name, onClear: () => onRemoveFromArray('person_ids', id) });
   });
-  filters.tags.forEach(t => chips.push({ key: `t-${t}`, label: `Tag: ${t}`, onClear: () => onRemoveFromArray('tags', t) }));
+  filters.tags.forEach(t => {
+    // The locked scope is shown in the page header — no chip for it.
+    if (t === lockedTagName) return;
+    chips.push({ key: `t-${t}`, pillType: 'is-tag', icon: 'fa-tag', label: t, onClear: () => onRemoveFromArray('tags', t) });
+  });
   filters.collection_ids.forEach(id => {
+    // The locked scope is shown in the page header — no chip for it.
+    if (id === lockedCollectionId) return;
     const c = meta.collections.find(x => x.id === id);
-    if (c) chips.push({ key: `co-${id}`, label: `Collection: ${c.name}`, onClear: () => onRemoveFromArray('collection_ids', id) });
+    if (c) chips.push({ key: `co-${id}`, pillType: 'is-collection', icon: 'fa-folder', label: c.name, onClear: () => onRemoveFromArray('collection_ids', id) });
   });
-  filters.markers.forEach(m => chips.push({ key: `m-${m}`, label: `Marker: ${m}`, onClear: () => onRemoveFromArray('markers', m) }));
-  filters.methodologies.forEach(m => chips.push({ key: `meth-${m}`, label: `Method: ${m}`, onClear: () => onRemoveFromArray('methodologies', m) }));
-  if (filters.year_min) chips.push({ key: 'ymin', label: `From ${filters.year_min}`, onClear: () => onRemove({ year_min: '' }) });
-  if (filters.year_max) chips.push({ key: 'ymax', label: `To ${filters.year_max}`, onClear: () => onRemove({ year_max: '' }) });
-  if (filters.has_pdf) chips.push({ key: 'pdf', label: 'Has PDF', onClear: () => onRemove({ has_pdf: false }) });
-  if (filters.has_notes) chips.push({ key: 'notes', label: 'Has notes', onClear: () => onRemove({ has_notes: false }) });
+  filters.markers.forEach(m => chips.push({ key: `m-${m}`, pillType: 'is-marker', icon: 'fa-highlighter', label: m, onClear: () => onRemoveFromArray('markers', m) }));
+  filters.methodologies.forEach(m => chips.push({ key: `meth-${m}`, pillType: 'is-research', icon: 'fa-flask', label: m, onClear: () => onRemoveFromArray('methodologies', m) }));
+  if (filters.year_min) chips.push({ key: 'ymin', icon: 'fa-calendar', label: `From ${filters.year_min}`, onClear: () => onRemove({ year_min: '' }) });
+  if (filters.year_max) chips.push({ key: 'ymax', icon: 'fa-calendar', label: `To ${filters.year_max}`, onClear: () => onRemove({ year_max: '' }) });
+  if (filters.has_pdf) chips.push({ key: 'pdf', icon: 'fa-file-pdf', label: 'Has PDF', onClear: () => onRemove({ has_pdf: false }) });
+  if (filters.has_notes) chips.push({ key: 'notes', icon: 'fa-note-sticky', label: 'Has notes', onClear: () => onRemove({ has_notes: false }) });
 
   if (chips.length === 0) return null;
 
   return (
     <div className="srx-chip-bar">
       {chips.map(c => (
-        <button key={c.key} type="button" className="srx-chip" onClick={c.onClear}>
-          <span>{c.label}</span>
-          <span className="srx-chip-x" aria-hidden="true">×</span>
+        <button
+          key={c.key}
+          type="button"
+          className={`nc-pill is-removable ${c.pillType || ''}`}
+          onClick={c.onClear}
+        >
+          <i className={`fas ${c.icon} nc-pill-icon`} aria-hidden="true" />
+          <span className="nc-pill-label">{c.label}</span>
+          <span className="nc-pill-x" aria-label="Remove">×</span>
         </button>
       ))}
       <button type="button" className="srx-chip-clear" onClick={onClearAll}>Clear All</button>
@@ -953,6 +1161,18 @@ function SrxStyles() {
         gap: 24px;
         flex-wrap: wrap;
       }
+      .srx-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        text-decoration: none;
+        margin-bottom: 6px;
+        transition: color 0.12s;
+      }
+      .srx-back:hover { color: var(--source); }
       .srx-title {
         font-family: var(--font-display);
         font-size: 36px;
@@ -961,6 +1181,45 @@ function SrxStyles() {
         letter-spacing: -0.02em;
         line-height: 1.1;
         margin: 0;
+      }
+      .srx-title-chip {
+        --srx-chip-color: var(--primary);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 14px 4px 12px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--srx-chip-color) 10%, var(--paper));
+        border: 1.5px solid color-mix(in srgb, var(--srx-chip-color) 35%, transparent);
+        color: var(--srx-chip-color);
+        font-family: var(--font-display);
+        font-size: 0.7em;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.005em;
+        text-decoration: none;
+        vertical-align: middle;
+        position: relative;
+        top: -3px;
+        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        max-width: 100%;
+      }
+      .srx-title-chip.is-person  { --srx-chip-color: var(--person, #614498); }
+      .srx-title-chip.is-concept { --srx-chip-color: var(--concept, #48A27E); }
+      .srx-title-chip:hover {
+        background: color-mix(in srgb, var(--srx-chip-color) 18%, var(--paper));
+        border-color: color-mix(in srgb, var(--srx-chip-color) 55%, transparent);
+        transform: translateY(-1px);
+      }
+      .srx-title-chip-icon { font-size: 0.85em; opacity: 0.85; }
+      .srx-title-chip-label {
+        max-width: 360px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      @media (max-width: 768px) {
+        .srx-title-chip-label { max-width: 200px; }
       }
       .srx-subtitle {
         font-family: var(--font-body);
@@ -1262,22 +1521,8 @@ function SrxStyles() {
         flex-wrap: wrap;
         gap: 6px;
         margin-bottom: 12px;
-      }
-      .srx-chip {
-        display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: var(--source-tint);
-        color: var(--source-2);
-        border: none;
-        border-radius: var(--r-sm);
-        padding: 3px 8px 3px 10px;
-        font-family: var(--font-body);
-        font-size: 12px;
-        cursor: pointer;
       }
-      .srx-chip:hover { background: color-mix(in srgb, var(--source-tint) 70%, var(--source) 30%); }
-      .srx-chip-x { font-size: 14px; line-height: 1; opacity: 0.7; }
       .srx-chip-clear {
         background: transparent;
         border: 1px solid var(--ink-line);

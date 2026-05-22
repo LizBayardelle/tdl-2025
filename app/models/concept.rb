@@ -35,6 +35,7 @@ class Concept < ApplicationRecord
   # Callbacks
   before_validation :generate_slug, if: -> { label.present? && slug.blank? }
   after_create :auto_classify_type, if: -> { concept_type.blank? }
+  after_commit :detect_aliases, on: :create
 
   # Scopes
   scope :recent, -> { order(updated_at: :desc) }
@@ -88,5 +89,9 @@ class Concept < ApplicationRecord
 
   def auto_classify_type
     ClassifyConceptTypeJob.perform_later(id)
+  end
+
+  def detect_aliases
+    DetectConceptAliasesJob.perform_later(id)
   end
 end

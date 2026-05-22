@@ -367,51 +367,72 @@ export default function NoteCard({
             s.accessible === false ? (
               <span
                 key={`s-${s.id}`}
-                className="sp-chip is-source is-revoked nx-chip-revoked"
+                className="nc-pill is-source is-revoked"
                 title="Access revoked — your note is preserved, the source is no longer available."
-              >{s.title}<span className="nx-chip-revoked-mark" aria-hidden="true">×</span></span>
+              >
+                <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{s.title}</span>
+                <span className="nc-pill-revoked-mark" aria-hidden="true">×</span>
+              </span>
             ) : (
               <a
                 key={`s-${s.id}`}
                 href={`/sources/${s.id}`}
-                className="sp-chip is-source nx-chip-link"
+                className="nc-pill is-source"
                 onClick={stop}
                 title={s.title}
-              >{s.title}</a>
+              >
+                <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{s.title}</span>
+              </a>
             )
           ))}
           {conceptChips.map((c) => (
             c.accessible === false ? (
               <span
                 key={`c-${c.id}`}
-                className="sp-chip is-concept is-revoked nx-chip-revoked"
+                className="nc-pill is-concept is-revoked"
                 title="Access revoked — your note is preserved, the concept is no longer available."
-              >{c.label}<span className="nx-chip-revoked-mark" aria-hidden="true">×</span></span>
+              >
+                <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{c.label}</span>
+                <span className="nc-pill-revoked-mark" aria-hidden="true">×</span>
+              </span>
             ) : (
               <button
                 key={`c-${c.id}`}
                 type="button"
-                className="sp-chip is-concept nx-chip-button"
+                className="nc-pill is-concept"
                 onClick={(e) => { stop(e); onChipClick && onChipClick('concept', c.id); }}
                 title={onChipClick ? `Filter by ${c.label}` : c.label}
-              >{c.label}</button>
+              >
+                <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{c.label}</span>
+              </button>
             )
           ))}
           {personChips.map((p) => (
             p.accessible === false ? (
               <span
                 key={`p-${p.id}`}
-                className="sp-chip is-person is-revoked nx-chip-revoked"
+                className="nc-pill is-person is-revoked"
                 title="Access revoked — your note is preserved, the person is no longer available."
-              >{p.full_name}<span className="nx-chip-revoked-mark" aria-hidden="true">×</span></span>
+              >
+                <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{p.full_name}</span>
+                <span className="nc-pill-revoked-mark" aria-hidden="true">×</span>
+              </span>
             ) : (
               <button
                 key={`p-${p.id}`}
                 type="button"
-                className="sp-chip is-person nx-chip-button"
+                className="nc-pill is-person"
                 onClick={(e) => { stop(e); onChipClick && onChipClick('person', p.id); }}
                 title={onChipClick ? `Filter by ${p.full_name}` : p.full_name}
-              >{p.full_name}</button>
+              >
+                <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{p.full_name}</span>
+              </button>
             )
           ))}
           {tagChips.map((t) => {
@@ -420,20 +441,26 @@ export default function NoteCard({
               <button
                 key={`t-${tagKey(t)}`}
                 type="button"
-                className="sp-chip is-neutral nx-chip-button nx-chip-tag"
+                className="nc-pill is-tag"
                 onClick={(e) => { stop(e); onChipClick && onChipClick('tag', name); }}
                 title={onChipClick ? `Filter by #${name}` : `#${name}`}
-              >#{name}</button>
+              >
+                <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{name}</span>
+              </button>
             );
           })}
           {collectionChips.map((c) => (
             <a
               key={`co-${c.id}`}
               href={`/collections/${c.id}`}
-              className="sp-chip is-neutral nx-chip-link"
+              className="nc-pill is-collection"
               onClick={stop}
               title={c.name}
-            >{c.name}</a>
+            >
+              <i className="fas fa-folder nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{c.name}</span>
+            </a>
           ))}
         </div>
       ) : null}
@@ -572,6 +599,7 @@ export function NoteCardStyles() {
         color: var(--ink-3);
         flex-shrink: 0;
       }
+
 
       .nx-card-title {
         font-family: var(--serif);
@@ -733,44 +761,112 @@ export function NoteCardStyles() {
         gap: 6px;
         margin-top: 4px;
       }
-      .nx-chip-link, .nx-chip-button {
-        background-image: none;
-        border: none;
-        cursor: pointer;
+
+      /* ---------- nc-pill: icon + label chips, used on NoteCard and
+         shared with the /collections sidebar (NoteCardStyles is imported
+         there too). One base style, color set per type via --nc-pill-color. */
+      .nc-pill {
+        --nc-pill-color: var(--ink-3);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 9px;
+        background: color-mix(in srgb, var(--nc-pill-color) 12%, transparent);
+        color: color-mix(in srgb, var(--nc-pill-color) 85%, var(--ink));
+        border: 1px solid color-mix(in srgb, var(--nc-pill-color) 30%, transparent);
+        border-radius: 999px;
+        font-family: var(--sans, var(--font-body));
+        font-size: 10.5px;
+        font-weight: 600;
+        font-style: normal;
+        letter-spacing: 0.02em;
+        line-height: 1.5;
+        text-transform: none;
         max-width: 240px;
+        min-width: 0;
+        cursor: pointer;
+        text-decoration: none;
+        transition: filter 0.1s, background 0.12s;
+      }
+      button.nc-pill, a.nc-pill, span.nc-pill {
+        font-family: var(--sans, var(--font-body));
+        font-size: 10.5px;
+        font-weight: 600;
+        font-style: normal;
+        letter-spacing: 0.02em;
+        line-height: 1.5;
+        text-transform: none;
+      }
+      button.nc-pill { background-image: none; }
+      .nc-pill:hover { filter: brightness(0.96); }
+      .nc-pill-icon {
+        font-size: 10px;
+        opacity: 0.9;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+      .nc-pill-label {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-decoration: none;
-        transition: filter 0.1s;
+        min-width: 0;
+        font: inherit;
       }
-      .nx-chip-link:hover, .nx-chip-button:hover { filter: brightness(0.96); }
-      .nx-chip-tag { font-family: var(--mono); letter-spacing: 0.01em; }
-      /* Revoked chip — shown when the user's note still references a
-         source/concept/person they've lost access to (e.g., a shared
-         collection was revoked).  Greyed out, no link, with a small ×
-         glyph to signal the lost link.  Note itself survives; the
-         reference doesn't. */
-      .nx-chip-revoked {
+      .nc-pill.is-source     { --nc-pill-color: var(--source, #4976B1); }
+      .nc-pill.is-concept    { --nc-pill-color: var(--concept, #48A27E); }
+      .nc-pill.is-person     { --nc-pill-color: var(--person, #614498); }
+      .nc-pill.is-collection { --nc-pill-color: var(--primary); }
+      .nc-pill.is-note       { --nc-pill-color: var(--primary); }
+      .nc-pill.is-tag        { --nc-pill-color: var(--primary); }
+      .nc-pill.is-research   { --nc-pill-color: var(--ink-3); }
+      .nc-pill.is-stat-test  { --nc-pill-color: var(--ink-3); }
+      .nc-pill.is-marker {
+        --nc-pill-color: var(--ink-3);
+        background: var(--paper);
+        color: var(--ink-3);
+        border-color: var(--ink-line);
+      }
+      .nc-pill.is-marker:hover { background: var(--paper-soft); }
+
+      /* Revoked pill — note's reference points at something no longer
+         accessible (e.g., a shared collection was revoked).  Greyed out,
+         no link, line-through label with a × glyph. Note itself survives. */
+      .nc-pill.is-revoked {
         cursor: not-allowed;
         opacity: 0.55;
         filter: grayscale(0.7);
-        max-width: 240px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-decoration: line-through;
-        text-decoration-thickness: 1px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
       }
-      .nx-chip-revoked:hover { filter: grayscale(0.7); }
-      .nx-chip-revoked-mark {
-        text-decoration: none;
+      .nc-pill.is-revoked .nc-pill-label { text-decoration: line-through; text-decoration-thickness: 1px; }
+      .nc-pill.is-revoked:hover { filter: grayscale(0.7); }
+      .nc-pill-revoked-mark {
         font-weight: 700;
         opacity: 0.7;
+        flex-shrink: 0;
       }
+
+      /* Removable variant — adds a × button at the end for filter-style
+         use (e.g., active filter row, multiselect chosen values). */
+      .nc-pill.is-removable { padding-right: 4px; gap: 4px; }
+      .nc-pill-x {
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-left: 2px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 10px;
+        line-height: 1;
+        transition: opacity 0.12s, background 0.12s;
+      }
+      .nc-pill-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
     `}</style>
   );
 }

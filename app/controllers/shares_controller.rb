@@ -26,7 +26,8 @@ class SharesController < ApplicationController
       shareable: shareable,
       permission: share_params[:permission] || 'viewer',
       recipient: recipient,
-      invited_email: recipient ? nil : share_params[:email]&.downcase
+      invited_email: recipient ? nil : share_params[:email]&.downcase,
+      include_source_notes: share_params[:include_source_notes] == true || share_params[:include_source_notes] == 'true'
     )
 
     if @share.save
@@ -38,7 +39,7 @@ class SharesController < ApplicationController
 
   def update
     @share = current_user.owned_shares.find(params[:id])
-    if @share.update(share_params.slice(:permission, :active))
+    if @share.update(share_params.slice(:permission, :active, :include_source_notes))
       render json: @share
     else
       render json: { errors: @share.errors.full_messages }, status: :unprocessable_entity
@@ -70,7 +71,7 @@ class SharesController < ApplicationController
   private
 
   def share_params
-    params.require(:share).permit(:email, :permission, :shareable_type, :shareable_id, :active)
+    params.require(:share).permit(:email, :permission, :shareable_type, :shareable_id, :active, :include_source_notes)
   end
 
   def find_shareable
@@ -93,6 +94,7 @@ class SharesController < ApplicationController
         permission: s.permission,
         email: direction == :outgoing ? (s.recipient&.email || s.invited_email) : s.owner.email,
         pending: s.pending?,
+        include_source_notes: s.include_source_notes,
         created_at: s.created_at
       }
     end

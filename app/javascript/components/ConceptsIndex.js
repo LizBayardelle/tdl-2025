@@ -30,6 +30,8 @@ export default function ConceptsIndex() {
   const [sortField, setSortField] = useState('label');
   const [sortDir, setSortDir] = useState('asc');
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanMessage, setScanMessage] = useState('');
 
   const activeFilterCount = selectedTypes.length + selectedSourceIds.length + selectedPersonIds.length;
 
@@ -177,10 +179,42 @@ export default function ConceptsIndex() {
           </p>
         </div>
         <div className="cidx-header-actions">
+          <button
+            type="button"
+            className="sp-action sp-action-quiet"
+            onClick={async () => {
+              if (scanning) return;
+              setScanning(true);
+              setScanMessage('');
+              try {
+                const csrf = document.querySelector('[name="csrf-token"]')?.content;
+                const res = await fetch('/concepts/scan_for_duplicates', {
+                  method: 'POST',
+                  headers: { 'X-CSRF-Token': csrf },
+                });
+                if (res.ok) {
+                  setScanMessage('Scan started — duplicate suggestions will appear in your Notifications.');
+                } else {
+                  setScanMessage('Failed to start scan. Try again.');
+                }
+              } catch (e) {
+                setScanMessage('Failed to start scan. Try again.');
+              } finally {
+                setScanning(false);
+              }
+            }}
+            disabled={scanning}
+            title="Scan your library for likely duplicate concepts. Results land in /notifications."
+          >
+            {scanning ? 'Starting…' : 'Scan for duplicates'}
+          </button>
           <button type="button" className="sp-action sp-action-primary" onClick={() => { setConceptStack([]); setShowForm(true); }}>
             <span className="cidx-plus" aria-hidden="true">+</span> Concept
           </button>
         </div>
+        {scanMessage && (
+          <div className="cidx-scan-banner">{scanMessage} <a href="/notifications">View notifications →</a></div>
+        )}
       </header>
 
       <div className="cidx-body">
@@ -452,7 +486,7 @@ function ConceptRow({ concept, depth, hierarchical }) {
         </div>
       </td>
       <td className="cidx-td-type">
-        {type ? <span className="cidx-type-chip">{typeLabel}</span> : <span className="cidx-muted">—</span>}
+        {type ? <span className="cidx-type-text">{typeLabel}</span> : <span className="cidx-muted">—</span>}
       </td>
       <td className="cidx-td-num">{connectionsCount || <span className="cidx-muted">—</span>}</td>
       <td className="cidx-td-num">{concept.sources_count || <span className="cidx-muted">—</span>}</td>
@@ -589,6 +623,8 @@ function CIdxStyles() {
         margin: 6px 0 0;
       }
       .cidx-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .cidx-scan-banner { grid-column: 1 / -1; margin-top: 12px; padding: 8px 12px; background: var(--paper-warm); border-radius: 6px; font-size: 13px; color: var(--ink-2); }
+      .cidx-scan-banner a { margin-left: 4px; color: var(--ink); font-weight: 500; }
       .cidx-plus { font-family: var(--font-mono); font-weight: 500; }
 
       .cidx-body {
@@ -878,14 +914,10 @@ function CIdxStyles() {
         border-color: var(--concept);
       }
 
-      .cidx-type-chip {
-        display: inline-block;
+      .cidx-type-text {
         font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--concept-2);
-        background: var(--concept-tint);
-        padding: 2px 8px;
-        border-radius: var(--r-sm);
+        font-size: 12.5px;
+        color: var(--ink-2);
         white-space: nowrap;
         text-transform: capitalize;
       }

@@ -82,7 +82,10 @@ export default function MethodologyTags({ source, onUpdate, canEdit = true, comp
   return (
     <div className={`mtags${compact ? ' is-compact' : ''}`}>
       {methodologies.map(m => (
-        <span key={m} className="mtags-chip">{m}</span>
+        <span key={m} className="nc-pill is-research">
+          <i className="fas fa-flask nc-pill-icon" aria-hidden="true" />
+          <span className="nc-pill-label">{m}</span>
+        </span>
       ))}
 
       {canEdit && methodologies.length === 0 && (
@@ -120,17 +123,6 @@ export default function MethodologyTags({ source, onUpdate, canEdit = true, comp
           gap: 6px;
           font-family: var(--font-body);
         }
-        .mtags-chip {
-          font-style: italic;
-          font-size: 11.5px;
-          color: var(--ink-3);
-          background: transparent;
-          border: 1px solid var(--ink-line);
-          padding: 1px 8px;
-          border-radius: var(--r-sm);
-          white-space: nowrap;
-        }
-        .mtags.is-compact .mtags-chip { font-size: 11px; padding: 0 6px; }
 
         .mtags-detect {
           display: inline-flex;

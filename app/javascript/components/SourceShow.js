@@ -233,7 +233,10 @@ function SourceHero({ source }) {
         {source.year && <span className="ss-hero-meta">{source.year}</span>}
         {source.journal_name && <span className="ss-hero-meta is-journal">{source.journal_name}</span>}
         {Array.isArray(source.markers) && source.markers.map((m) => (
-          <span key={m} className="ss-hero-marker">{m}</span>
+          <span key={m} className="nc-pill is-marker">
+            <i className="fas fa-highlighter nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{m}</span>
+          </span>
         ))}
       </div>
       <h1 className="ss-hero-title">{toTitleCase(source.title || '')}</h1>
@@ -435,8 +438,9 @@ function SourceMetaRow({ source, onSourceUpdate }) {
         {hasPeople ? (
           <div className="ss-chip-row">
             {source.people.map((p) => (
-              <a key={p.id} href={`/people/${p.id}`} className="ss-chip ss-chip-person">
-                {toTitleCase(p.full_name)}
+              <a key={p.id} href={`/people/${p.id}`} className="nc-pill is-person">
+                <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{toTitleCase(p.full_name)}</span>
               </a>
             ))}
           </div>
@@ -459,8 +463,9 @@ function SourceMetaRow({ source, onSourceUpdate }) {
         {hasConcepts ? (
           <div className="ss-chip-row">
             {source.concepts.map((c) => (
-              <a key={c.id} href={`/concepts/${c.id}`} className="ss-chip ss-chip-concept">
-                {c.label}
+              <a key={c.id} href={`/concepts/${c.id}`} className="nc-pill is-concept">
+                <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{c.label}</span>
               </a>
             ))}
           </div>
@@ -617,11 +622,12 @@ function SourceSidebar({ source, allSources, notesCount, onSourceUpdate, onSourc
               <a
                 key={t.id}
                 href={`/statistical_tests/${t.slug}`}
-                className="ss-chip ss-chip-stat"
+                className="nc-pill is-stat-test"
                 title={t.detected_automatically ? 'Auto-detected from abstract' : 'Manually linked'}
                 onClick={(e) => e.stopPropagation()}
               >
-                {t.name}
+                <i className="fas fa-square-root-variable nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{t.name}</span>
               </a>
             ))}
           </div>
@@ -635,9 +641,10 @@ function SourceSidebar({ source, allSources, notesCount, onSourceUpdate, onSourc
               <a
                 key={t.id ?? i}
                 href={`/tags/${t.slug || t.name}`}
-                className="ss-chip ss-chip-tag"
+                className="nc-pill is-tag"
               >
-                {t.name}
+                <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{t.name}</span>
               </a>
             ))}
           </div>
@@ -685,8 +692,9 @@ function SourceSidebar({ source, allSources, notesCount, onSourceUpdate, onSourc
         {source.collections && source.collections.length > 0 && (
           <div className="ss-side-chips">
             {source.collections.map((c) => (
-              <a key={c.id} href={`/collections/${c.id}`} className="ss-side-chip">
-                {c.name}
+              <a key={c.id} href={`/collections/${c.id}`} className="nc-pill is-collection">
+                <i className="fas fa-folder nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{c.name}</span>
               </a>
             ))}
           </div>
@@ -999,13 +1007,10 @@ function SSStyles() {
       .ss-hero-type {
         font-family: var(--font-body);
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--source-2);
-        background: var(--source-tint);
-        padding: 3px 10px;
-        border-radius: var(--r-sm);
+        color: var(--ink-3);
       }
       .ss-hero-meta {
         font-family: var(--font-mono);
@@ -1017,17 +1022,6 @@ function SSStyles() {
         font-style: italic;
         font-size: 13px;
         color: var(--ink-2);
-      }
-      .ss-hero-marker {
-        font-family: var(--font-body);
-        font-size: 10.5px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--ink-2);
-        background: var(--paper-warm);
-        padding: 2px 8px;
-        border-radius: var(--r-sm);
       }
 
       /* DOI badge — pill links to doi.org; inline copy button copies value */
@@ -1802,63 +1796,7 @@ function SSStyles() {
         gap: 6px 8px;
         margin-top: 4px;
       }
-      .ss-side-chip {
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-warm);
-        padding: 2px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-      }
-      .ss-side-chip:hover { background: var(--source-tint); color: var(--source-2); }
-
-      /* Chips reused across sidebar + notes */
-      .ss-chip {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        font-weight: 500;
-        padding: 3px 10px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        line-height: 1.45;
-        white-space: nowrap;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        transition: background 0.15s ease, color 0.15s ease;
-      }
-      .ss-chip-tag {
-        background: var(--paper-warm);
-        color: var(--ink-2);
-      }
-      .ss-chip-tag:hover { background: var(--ink-line); color: var(--ink); }
-      .ss-chip-person {
-        background: var(--accent-gold-light);
-        color: var(--accent-gold);
-      }
-      .ss-chip-person:hover {
-        background: var(--accent-gold);
-        color: var(--paper);
-      }
-      .ss-chip-concept {
-        background: var(--concept-tint);
-        color: var(--concept-2);
-      }
-      .ss-chip-concept:hover {
-        background: var(--concept);
-        color: var(--paper);
-      }
-      .ss-chip-stat {
-        background: color-mix(in srgb, #b88621 12%, transparent);
-        color: #8a6418;
-      }
-      .ss-chip-stat:hover {
-        background: #b88621;
-        color: var(--paper);
-      }
+      /* Chip rendering is the shared nc-pill in design-system.css. */
 
       /* Responsive */
       @media (max-width: 900px) {

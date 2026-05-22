@@ -23,6 +23,11 @@ class NotesController < ApplicationController
       @notes = @notes.joins(:note_sources).where(note_sources: { source_id: params[:source_id] }).distinct
     end
 
+    # Filter by person — notes ↔ people through person_notes.
+    if params[:person_id].present?
+      @notes = @notes.joins(:person_notes).where(person_notes: { person_id: params[:person_id] }).distinct
+    end
+
     # Filter by pinned
     @notes = @notes.pinned if params[:pinned] == 'true'
 

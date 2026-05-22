@@ -141,8 +141,9 @@ export default function StatisticalTestTags({ source, onUpdate, canEdit = true, 
   return (
     <div className={`stags${compact ? ' is-compact' : ''}`}>
       {tests.map(t => (
-        <a key={t.id} href={`/stats/${t.slug}`} className="stags-chip" title={`View ${t.name} details`}>
-          {t.name}
+        <a key={t.id} href={`/stats/${t.slug}`} className="nc-pill is-stat-test" title={`View ${t.name} details`}>
+          <i className="fas fa-square-root-variable nc-pill-icon" aria-hidden="true" />
+          <span className="nc-pill-label">{t.name}</span>
         </a>
       ))}
 
@@ -191,24 +192,6 @@ export default function StatisticalTestTags({ source, onUpdate, canEdit = true, 
           gap: 6px;
           font-family: var(--font-body);
         }
-        .stags-chip {
-          font-style: italic;
-          font-size: 11.5px;
-          color: var(--ink-3);
-          background: transparent;
-          border: 1px solid var(--ink-line);
-          padding: 1px 8px;
-          border-radius: var(--r-sm);
-          white-space: nowrap;
-          text-decoration: none;
-          transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
-        }
-        .stags-chip:hover {
-          color: var(--source-2);
-          border-color: var(--source);
-          background: var(--source-tint);
-        }
-        .stags.is-compact .stags-chip { font-size: 11px; padding: 0 6px; }
 
         .stags-detect {
           display: inline-flex;

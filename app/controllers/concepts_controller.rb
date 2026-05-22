@@ -1,7 +1,7 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note, :claim]
-  before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition, :link_note, :dismiss_note]
+  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note, :claim, :merge_into, :sources_index]
+  before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition, :link_note, :dismiss_note, :merge_into]
 
   def index
     auth = AuthorizationService.new(current_user)
@@ -223,6 +223,44 @@ class ConceptsController < ApplicationController
   def destroy
     @concept.destroy
     head :no_content
+  end
+
+  # GET /concepts/:id/sources
+  # Mounts the SourcesIndex React component scoped to this concept.
+  def sources_index
+  end
+
+  # POST /concepts/scan_for_duplicates
+  # Kicks off a background scan of the user's whole concept library for
+  # likely duplicate pairs.  Results land in /notifications.
+  def scan_for_duplicates
+    ScanForDuplicateConceptsJob.perform_later(current_user.id)
+    render json: { ok: true }
+  end
+
+  # POST /concepts/:id/merge_into
+  # Hard-merges this concept (loser) into params[:target_id] (winner).  Both
+  # concepts must be owned by current_user.  All associations on the loser
+  # are repointed to the winner; the loser is then deleted.  Returns the
+  # winner concept so the caller can redirect to it.
+  def merge_into
+    target_id = params[:target_id].to_i
+    if target_id <= 0 || target_id == @concept.id
+      return render json: { error: "Invalid target concept" }, status: :unprocessable_entity
+    end
+
+    winner = current_user.concepts.find_by(id: target_id)
+    unless winner
+      return render json: { error: "Target concept not found" }, status: :not_found
+    end
+
+    ConceptMergeService.call(winner: winner, loser: @concept)
+    render json: { id: winner.id, label: winner.label, slug: winner.slug }
+  rescue ConceptMergeService::Error => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  rescue => e
+    Rails.logger.error "concepts#merge_into failed: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    render json: { error: "Merge failed: #{e.message}" }, status: :unprocessable_entity
   end
 
   # POST /concepts/:id/generate_definition

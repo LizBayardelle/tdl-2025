@@ -17,6 +17,8 @@ class User < ApplicationRecord
   has_many :highlights, dependent: :destroy
   has_many :upload_batches, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
+  has_many :notifications, dependent: :destroy
+  has_many :concept_disambiguations, dependent: :destroy
 
   # Collections and shares
   has_many :collections, dependent: :destroy

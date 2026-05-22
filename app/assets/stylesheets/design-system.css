@@ -480,6 +480,113 @@ code, pre, kbd {
 }
 .sp-chip-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.06); }
 
+/* ---- nc-pill ----
+   Icon + label pill chips. Used by NoteCard chips, the /collections
+   sidebar, and any "by category" badge surface. One base style; color
+   set per type via --nc-pill-color so new types can be added with one
+   line. Tint/border/text are derived from --nc-pill-color via
+   color-mix, so the pill auto-adapts to light/dark theme tokens. */
+.nc-pill {
+  --nc-pill-color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  background: color-mix(in srgb, var(--nc-pill-color) 12%, transparent);
+  color: color-mix(in srgb, var(--nc-pill-color) 85%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--nc-pill-color) 30%, transparent);
+  border-radius: var(--r-pill, 999px);
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-transform: none;
+  max-width: 240px;
+  min-width: 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter 0.1s, background 0.12s;
+}
+/* Defeat user-agent button defaults so a <button>, <a>, and <span> all
+   render identically.  Without this, browsers can override font-family
+   and text-rendering on buttons. */
+button.nc-pill, a.nc-pill, span.nc-pill {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-transform: none;
+}
+button.nc-pill { background-image: none; }
+.nc-pill:hover { filter: brightness(0.96); }
+.nc-pill-icon { font-size: 10px; opacity: 0.9; flex-shrink: 0; line-height: 1; }
+.nc-pill-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font: inherit;
+}
+/* Entity inks reserved for the three primary categories. */
+.nc-pill.is-source     { --nc-pill-color: var(--source); }
+.nc-pill.is-concept    { --nc-pill-color: var(--concept); }
+.nc-pill.is-person     { --nc-pill-color: var(--person); }
+/* Brand navy for organizational categories — collection / note / tag.
+   Same family/weight as the entity pills; the icon disambiguates. */
+.nc-pill.is-collection { --nc-pill-color: var(--primary); }
+.nc-pill.is-note       { --nc-pill-color: var(--primary); }
+.nc-pill.is-tag        { --nc-pill-color: var(--primary); }
+/* Everything else stays grey; the icon disambiguates. */
+.nc-pill.is-research   { --nc-pill-color: var(--ink-3); }
+.nc-pill.is-stat-test  { --nc-pill-color: var(--ink-3); }
+
+/* Marker — quietest pill in the system. Grey text on white (paper) so
+   it reads as a low-stakes user-defined label without competing with
+   the entity-colored pills around it. Same shape/size as the rest. */
+.nc-pill.is-marker {
+  --nc-pill-color: var(--ink-3);
+  background: var(--paper);
+  color: var(--ink-3);
+  border-color: var(--ink-line);
+}
+.nc-pill.is-marker:hover { background: var(--paper-soft); }
+
+/* Revoked — note's reference points at something no longer accessible
+   (e.g., a shared collection was revoked). Greyed out, line-through label,
+   × glyph. The note itself survives; only the reference is broken. */
+.nc-pill.is-revoked { cursor: not-allowed; opacity: 0.55; filter: grayscale(0.7); }
+.nc-pill.is-revoked .nc-pill-label { text-decoration: line-through; text-decoration-thickness: 1px; }
+.nc-pill.is-revoked:hover { filter: grayscale(0.7); }
+.nc-pill-revoked-mark { font-weight: 700; opacity: 0.7; flex-shrink: 0; }
+
+/* Removable — × button at the end. Used for active filters and
+   multiselect chosen values. */
+.nc-pill.is-removable { padding-right: 4px; gap: 4px; }
+.nc-pill-x {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1;
+  transition: opacity 0.12s, background 0.12s;
+}
+.nc-pill-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.08); }
+
 /* ---- Status ---- */
 .sp-status {
   display: inline-flex;

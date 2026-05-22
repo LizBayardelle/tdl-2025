@@ -1,6 +1,6 @@
 class CollectionsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_collection, only: [:show, :update, :destroy, :add_item, :remove_item]
+  before_action :set_collection, only: [:show, :update, :destroy, :add_item, :remove_item, :sources_index, :bibliography, :bibliography_export]
 
   def index
     # Own collections + shared collections
@@ -14,9 +14,24 @@ class CollectionsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
+        # Per-type counts in one query so cards can show a
+        # sources/notes/concepts/people breakdown without N+1.
+        ids = @collections.map(&:id)
+        counts_by_type = CollectionItem.where(collection_id: ids)
+          .group(:collection_id, :collectable_type)
+          .count
+
         render json: @collections.map { |c|
           share = c.shares.find { |s| s.recipient_id == current_user.id && s.active }
-          c.as_json(methods: [:items_count]).merge(
+          counts = {
+            sources:  counts_by_type[[c.id, 'Source']]  || 0,
+            notes:    counts_by_type[[c.id, 'Note']]    || 0,
+            concepts: counts_by_type[[c.id, 'Concept']] || 0,
+            people:   counts_by_type[[c.id, 'Person']]  || 0,
+          }
+          c.as_json(only: [:id, :name, :description, :user_id, :active, :slug]).merge(
+            items_count: counts.values.sum,
+            counts: counts,
             is_owner: c.user_id == current_user.id,
             owner_email: c.user.email,
             share_permission: share&.permission
@@ -30,48 +45,120 @@ class CollectionsController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        notes = @collection.notes.includes(:concept, :linked_sources, :concepts, :people, :tags, :collections)
+        is_owner = @collection.user_id == current_user.id
+        viewer_share = is_owner ? nil : @collection.shares.find_by(recipient_id: current_user.id, active: true)
+        include_source_notes = is_owner || viewer_share&.include_source_notes
+
+        direct_notes = @collection.notes.includes(:concept, :linked_sources, :concepts, :people, :tags, :collections)
+        direct_note_ids = direct_notes.map(&:id)
+
+        # Source-derived notes: notes attached to a source in this collection
+        # but not added to the collection directly. Owner always sees these;
+        # recipients see them only when their share opts in.
+        source_notes = if include_source_notes
+          source_ids = @collection.sources.pluck(:id)
+          if source_ids.any?
+            Note.where(source_id: source_ids, user_id: @collection.user_id)
+              .where.not(id: direct_note_ids)
+              .includes(:source, :concept, :linked_sources, :concepts, :people, :tags, :collections)
+          else
+            []
+          end
+        else
+          []
+        end
+
+        serialize_note = ->(n, from_source: false) {
+          n.as_json(
+            only: [:id, :title, :body, :note_type, :context, :pinned, :noted_on,
+                   :source_id, :page_number, :quote_text, :quote_bounds, :created_at],
+            include: {
+              concept: { only: [:id, :label] },
+              concepts: { only: [:id, :label, :concept_type] },
+              people: { only: [:id, :full_name, :role] },
+              tags: { only: [:id, :name] },
+              collections: { only: [:id, :name] }
+            }
+          ).merge(
+            source_ids: n.linked_sources.map(&:id),
+            linked_sources: n.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } },
+            from_source: from_source,
+            from_source_title: from_source ? n.source&.title : nil,
+            from_source_id: from_source ? n.source_id : nil
+          )
+        }
 
         json_data = @collection.as_json(only: [:id, :name, :description, :user_id, :active]).merge(
           items_count: @collection.items_count,
-          is_owner: @collection.user_id == current_user.id,
+          is_owner: is_owner,
           owner_email: @collection.user.email,
           sources: @collection.sources.as_json(only: [:id, :title, :year, :kind, :authors]),
           concepts: @collection.concepts.as_json(only: [:id, :label, :concept_type]),
           people: @collection.people.as_json(only: [:id, :full_name, :role]),
-          notes: notes.map { |n|
-            n.as_json(
-              only: [:id, :title, :body, :note_type, :context, :pinned, :noted_on,
-                     :source_id, :page_number, :quote_text, :quote_bounds, :created_at],
-              include: {
-                concept: { only: [:id, :label] },
-                concepts: { only: [:id, :label, :concept_type] },
-                people: { only: [:id, :full_name, :role] },
-                tags: { only: [:id, :name] },
-                collections: { only: [:id, :name] }
-              }
-            ).merge(
-              source_ids: n.linked_sources.map(&:id),
-              linked_sources: n.linked_sources.map { |s| { id: s.id, title: s.title, year: s.year } }
-            )
-          }
+          notes: direct_notes.map { |n| serialize_note.call(n) } +
+                 source_notes.map { |n| serialize_note.call(n, from_source: true) }
         )
 
         # Owner-only: who this is shared with.
-        if @collection.user_id == current_user.id
+        if is_owner
           json_data[:shares] = @collection.shares.where(active: true).includes(:recipient).map do |share|
-            { id: share.id, email: share.recipient.email, permission: share.permission }
+            {
+              id: share.id,
+              email: share.recipient&.email || share.invited_email,
+              permission: share.permission,
+              include_source_notes: share.include_source_notes
+            }
           end
         else
           # Recipient view: surface their permission level so the UI can hide
           # mutating actions when read-only.
-          share = @collection.shares.find_by(recipient_id: current_user.id, active: true)
-          json_data[:share_permission] = share&.permission
+          json_data[:share_permission] = viewer_share&.permission
+          json_data[:include_source_notes] = !!viewer_share&.include_source_notes
         end
 
         render json: json_data
       }
     end
+  end
+
+  # GET /collections/:id/sources
+  # Renders the same SourcesIndex React component, scoped to this collection.
+  # Permission gating piggybacks on the existing share infrastructure: viewers
+  # see read-only rows, collaborators get full actions.
+  def sources_index
+    @is_owner = @collection.user_id == current_user.id
+    @share_permission = if @is_owner
+      'owner'
+    else
+      @collection.shares.find_by(recipient_id: current_user.id, active: true)&.permission
+    end
+  end
+
+  # GET /collections/:id/bibliography
+  # Annotated-bibliography workspace. Permission gating mirrors sources_index:
+  # the React page hides the internal-annotation column for non-owners and
+  # disables editing for read-only viewers.
+  def bibliography
+    @is_owner = @collection.user_id == current_user.id
+    @share_permission = if @is_owner
+      'owner'
+    else
+      @collection.shares.find_by(recipient_id: current_user.id, active: true)&.permission
+    end
+  end
+
+  # GET /collections/:id/bibliography/export
+  # Print-ready annotated bibliography, rendered in the chrome-free `print`
+  # layout. The React view offers a formatted (UI-mirroring) style and an
+  # APA style; the browser handles the actual print / save-as-PDF.
+  def bibliography_export
+    @is_owner = @collection.user_id == current_user.id
+    @share_permission = if @is_owner
+      'owner'
+    else
+      @collection.shares.find_by(recipient_id: current_user.id, active: true)&.permission
+    end
+    render layout: 'print'
   end
 
   def create

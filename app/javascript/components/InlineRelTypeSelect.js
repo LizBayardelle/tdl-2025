@@ -42,9 +42,13 @@ export const INVERSE_PAIRS = {
   distal_to: 'proximal_to',
 };
 
-// Five-category vocabulary.  Each category is rendered with its own UI on
-// the show page (hierarchy tree, lineage list, semantic list, clinical list,
-// positional rail) so the visual matches the meaning.
+// Vocabulary mirrors the Ruby Connection model.  Source of truth lives in
+// `Connection` (KINDS, INPUT_INVERSES, KIND_SCOPE); this constant is the
+// JS-side display config — labels and category grouping.  When you add or
+// remove a kind, update both sides.
+//
+// Each category is rendered with its own UI on the show page (hierarchy
+// tree, lineage list, etc.) so the visual matches the meaning.
 export const RELATIONSHIP_CATEGORIES = [
   {
     label: 'Hierarchical',
@@ -64,8 +68,6 @@ export const RELATIONSHIP_CATEGORIES = [
       { value: 'influenced',   text: 'influenced' },
       { value: 'supports',     text: 'supports' },
       { value: 'critiques',    text: 'critiques' },
-      { value: 'extends',      text: 'extends' },
-      { value: 'synthesizes',  text: 'synthesizes' },
     ],
   },
   {
@@ -75,18 +77,22 @@ export const RELATIONSHIP_CATEGORIES = [
       { value: 'contrasts_with',   text: 'contrasts with' },
       { value: 'integrates_with',  text: 'integrates with' },
       { value: 'associated_with',  text: 'is associated with' },
-      { value: 'synonym_of',       text: 'is a synonym of' },
     ],
   },
   {
     label: 'Clinical',
     types: [
-      { value: 'applies_to',       text: 'applies to' },
-      { value: 'treats',           text: 'treats' },
-      { value: 'causes',           text: 'causes' },
-      { value: 'is_symptom_of',    text: 'is a symptom of' },
-      { value: 'operationalizes',  text: 'operationalizes' },
-      { value: 'prevents',         text: 'prevents' },
+      { value: 'applies_to',           text: 'applies to' },
+      { value: 'treats',               text: 'treats' },
+      { value: 'is_treated_by',        text: 'is treated by' },
+      { value: 'prevents',             text: 'prevents' },
+      { value: 'is_prevented_by',      text: 'is prevented by' },
+      { value: 'causes',               text: 'causes' },
+      { value: 'is_caused_by',         text: 'is caused by' },
+      { value: 'is_symptom_of',        text: 'is a symptom of' },
+      { value: 'has_symptom',          text: 'has symptom' },
+      { value: 'operationalizes',      text: 'operationalizes' },
+      { value: 'is_operationalized_by',text: 'is operationalized by' },
     ],
   },
   {
@@ -118,6 +124,66 @@ export const RELATIONSHIP_CATEGORIES = [
     ],
   },
 ];
+
+// Domain scope mirroring Connection::KIND_SCOPE.  The picker uses this to
+// hide kinds that don't make sense for the concept_types in play (e.g.
+// anatomical positionals between two theories).  When a side is untyped,
+// that side is treated as "any" (no restriction).  Kinds not listed here
+// are universal — they show for every pair.
+const ANATOMICAL_TYPES = ['anatomy', 'physical_entity'];
+const KIND_SCOPE = {
+  superior_to:      { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  anterior_to:      { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  medial_to:        { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  dorsal_to:        { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  rostral_to:       { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  proximal_to:      { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  ipsilateral_to:   { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  contralateral_to: { src: ANATOMICAL_TYPES, dst: ANATOMICAL_TYPES },
+  treats:           { src: ['intervention', 'method', 'research_method'], dst: ['pathology', 'symptom', 'emotion'] },
+  prevents:         { src: ['intervention', 'method', 'research_method'], dst: ['pathology', 'symptom', 'emotion'] },
+  causes:           { src: ['pathology', 'phenomenon', 'physical_process', 'non_physical_process'], dst: ['pathology', 'symptom', 'emotion', 'phenomenon'] },
+  is_symptom_of:    { src: ['symptom', 'emotion', 'phenomenon'], dst: ['pathology'] },
+  operationalizes:  { src: ['measurement', 'method', 'research_method'], dst: ['phenomenon', 'non_physical_concept', 'theory'] },
+};
+
+// Map an input phrasing back to its canonical kind so KIND_SCOPE lookups
+// work for both directions of an inverse pair.  Mirrors Connection::INPUT_INVERSES.
+const INPUT_TO_CANONICAL = {
+  child_of: 'parent_of',
+  categorizes: 'is_a',
+  builds_on: 'prerequisite_for',
+  derived_from: 'influenced',
+  is_below: 'is_above',
+  is_inside: 'contains',
+  faces_away_from: 'faces',
+  inferior_to: 'superior_to',
+  posterior_to: 'anterior_to',
+  lateral_to: 'medial_to',
+  ventral_to: 'dorsal_to',
+  caudal_to: 'rostral_to',
+  distal_to: 'proximal_to',
+  is_treated_by: 'treats',
+  is_prevented_by: 'prevents',
+  is_caused_by: 'causes',
+  has_symptom: 'is_symptom_of',
+  is_operationalized_by: 'operationalizes',
+};
+
+function pairFits(scope, srcType, dstType) {
+  const okSrc = !srcType || !scope.src || scope.src.includes(srcType);
+  const okDst = !dstType || !scope.dst || scope.dst.includes(dstType);
+  return okSrc && okDst;
+}
+
+// Returns true if the picker should show this rel_type for a concept pair
+// with the given concept_types.  Either type may be null/undefined.
+export function isKindApplicable(relType, srcType, dstType) {
+  const canonical = INPUT_TO_CANONICAL[relType] || relType;
+  const scope = KIND_SCOPE[canonical];
+  if (!scope) return true; // universal
+  return pairFits(scope, srcType, dstType) || pairFits(scope, dstType, srcType);
+}
 
 // Lookup helpers used by both the picker and the show page.
 export const REL_TYPES_FLAT = RELATIONSHIP_CATEGORIES.flatMap((cat) =>
@@ -203,7 +269,7 @@ export const groupConnectionsByCategory = (connections, focalId) => {
 // =====================================================================
 // InlineRelTypeSelect — picker widget (existing UI, taxonomy-driven).
 // =====================================================================
-export default function InlineRelTypeSelect({ value, onChange, themeColor = 'var(--concept)' }) {
+export default function InlineRelTypeSelect({ value, onChange, themeColor = 'var(--concept)', srcConceptType = null, dstConceptType = null }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -253,7 +319,10 @@ export default function InlineRelTypeSelect({ value, onChange, themeColor = 'var
             overflowY: 'auto',
           }}
         >
-          {RELATIONSHIP_CATEGORIES.map((cat) => (
+          {RELATIONSHIP_CATEGORIES.map((cat) => {
+            const visibleTypes = cat.types.filter((t) => isKindApplicable(t.value, srcConceptType, dstConceptType));
+            if (visibleTypes.length === 0) return null;
+            return (
             <div key={cat.label} style={{ marginBottom: '6px' }}>
               <div
                 style={{
@@ -268,7 +337,7 @@ export default function InlineRelTypeSelect({ value, onChange, themeColor = 'var
               >
                 {cat.label}
               </div>
-              {cat.types.map((t) => (
+              {visibleTypes.map((t) => (
                 <button
                   key={t.value}
                   type="button"
@@ -293,7 +362,8 @@ export default function InlineRelTypeSelect({ value, onChange, themeColor = 'var
                 </button>
               ))}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

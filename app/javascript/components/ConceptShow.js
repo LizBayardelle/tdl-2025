@@ -13,6 +13,7 @@ import {
   getInverseRelType,
   groupConnectionsByCategory,
   getRelTypeText,
+  isKindApplicable,
 } from './InlineRelTypeSelect';
 import MagicSparkles from './icons/MagicSparkles';
 
@@ -63,6 +64,8 @@ export default function ConceptShow({ conceptId }) {
   const [connections, setConnections] = useState([]);
 
   const [editing, setEditing] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
+  const [merging, setMerging] = useState(false);
   const [creatingNote, setCreatingNote] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
   const [viewingNote, setViewingNote] = useState(null);
@@ -424,6 +427,7 @@ export default function ConceptShow({ conceptId }) {
           {concept.is_owner ? (
             <>
               <button type="button" className="sp-action sp-action-secondary" onClick={() => setEditing(true)}>Edit</button>
+              <button type="button" className="sp-action sp-action-quiet" onClick={() => setMergeOpen(true)}>Merge into…</button>
               <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={handleDelete}>Delete</button>
             </>
           ) : concept.can_claim ? (
@@ -458,7 +462,10 @@ export default function ConceptShow({ conceptId }) {
         <div className="cs-hero-top">
           {type && <span className="cs-hero-type">{typeLabel}</span>}
           {(concept.domains || []).map((d) => (
-            <a key={d.id} href={`/domains/${d.id}`} className="sp-chip is-neutral cs-hero-domain">{d.name}</a>
+            <a key={d.id} href={`/domains/${d.id}`} className="nc-pill is-tag">
+              <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{d.name}</span>
+            </a>
           ))}
         </div>
         <h1 className="cs-hero-title">{toTitleCase(concept.label)}</h1>
@@ -521,6 +528,175 @@ export default function ConceptShow({ conceptId }) {
       />
       <PersonFormModal   isOpen={creatingPerson}  onClose={() => setCreatingPerson(false)} onSuccess={() => { setCreatingPerson(false); fetchConcept(); }} relatedConceptId={conceptId} />
       <SourceFormModal   isOpen={creatingSource}  onClose={() => setCreatingSource(false)} onSuccess={() => { setCreatingSource(false); fetchConcept(); }} relatedConceptId={conceptId} />
+
+      <MergeIntoModal
+        isOpen={mergeOpen}
+        onClose={() => setMergeOpen(false)}
+        loserConcept={concept}
+        allConcepts={allConcepts}
+        onMerging={setMerging}
+        merging={merging}
+      />
+    </div>
+  );
+}
+
+// =====================================================================
+// MergeIntoModal — pick a winner, confirm, POST /concepts/:id/merge_into.
+// Hard-merges (loser) into (winner). All associations follow the winner;
+// loser is deleted.  Redirects to the winner on success.
+// =====================================================================
+function MergeIntoModal({ isOpen, onClose, loserConcept, allConcepts, onMerging, merging }) {
+  const [query, setQuery] = useState('');
+  const [winnerId, setWinnerId] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery('');
+      setWinnerId(null);
+      setConfirming(false);
+      setError('');
+    }
+  }, [isOpen]);
+
+  const candidates = useMemo(() => {
+    if (!loserConcept || !allConcepts) return [];
+    const filtered = allConcepts.filter((c) => c.id !== loserConcept.id && c.is_owner !== false);
+    if (!query.trim()) return filtered.slice(0, 25);
+    const q = query.toLowerCase();
+    return filtered
+      .filter((c) => c.label?.toLowerCase().includes(q))
+      .sort((a, b) => {
+        const al = a.label.toLowerCase();
+        const bl = b.label.toLowerCase();
+        if (al === q && bl !== q) return -1;
+        if (bl === q && al !== q) return 1;
+        if (al.startsWith(q) && !bl.startsWith(q)) return -1;
+        if (bl.startsWith(q) && !al.startsWith(q)) return 1;
+        return al.localeCompare(bl);
+      })
+      .slice(0, 25);
+  }, [allConcepts, loserConcept, query]);
+
+  const winner = useMemo(() => allConcepts.find((c) => c.id === winnerId), [allConcepts, winnerId]);
+
+  if (!isOpen || !loserConcept) return null;
+
+  const handleMerge = async () => {
+    if (!winnerId) return;
+    onMerging(true);
+    setError('');
+    try {
+      const csrf = document.querySelector('[name="csrf-token"]')?.content;
+      const res = await fetch(`/concepts/${loserConcept.id}/merge_into`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ target_id: winnerId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        window.location.href = `/concepts/${data.slug || data.id}`;
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Merge failed');
+        onMerging(false);
+      }
+    } catch (e) {
+      setError('Merge failed');
+      onMerging(false);
+    }
+  };
+
+  return (
+    <div className="merge-modal-backdrop" onClick={merging ? undefined : onClose}>
+      <div className="merge-modal" onClick={(e) => e.stopPropagation()}>
+        {!confirming ? (
+          <>
+            <header className="merge-modal-header">
+              <h2>Merge "{loserConcept.label}" into…</h2>
+              <p>Pick the concept that should remain. All notes, sources, people, and relationships from "{loserConcept.label}" will move to it.</p>
+            </header>
+            <input
+              type="text"
+              className="merge-modal-search"
+              placeholder="Type to search concepts…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              autoFocus
+            />
+            <ul className="merge-modal-list">
+              {candidates.length === 0 ? (
+                <li className="merge-modal-empty">No matching concepts.</li>
+              ) : candidates.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className={`merge-modal-option ${winnerId === c.id ? 'is-selected' : ''}`}
+                    onClick={() => setWinnerId(c.id)}
+                  >
+                    <span className="merge-modal-option-label">{c.label}</span>
+                    {c.concept_type && <span className="merge-modal-option-type">{c.concept_type}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <footer className="merge-modal-actions">
+              <button type="button" className="sp-action sp-action-quiet" onClick={onClose}>Cancel</button>
+              <button
+                type="button"
+                className="sp-action sp-action-primary"
+                disabled={!winnerId}
+                onClick={() => setConfirming(true)}
+              >
+                Continue
+              </button>
+            </footer>
+          </>
+        ) : (
+          <>
+            <header className="merge-modal-header">
+              <h2>Confirm merge</h2>
+            </header>
+            <div className="merge-modal-confirm">
+              <p>
+                <strong>"{loserConcept.label}"</strong> will be permanently deleted.
+                Its notes, sources, people, tags, and relationships will move to{' '}
+                <strong>"{winner?.label}"</strong>, and "{loserConcept.label}" will be added as an alias.
+              </p>
+              <p className="merge-modal-warn">This can't be undone.</p>
+              {error && <div className="merge-modal-error">{error}</div>}
+            </div>
+            <footer className="merge-modal-actions">
+              <button type="button" className="sp-action sp-action-quiet" disabled={merging} onClick={() => setConfirming(false)}>Back</button>
+              <button type="button" className="sp-action sp-action-primary sp-action-danger" disabled={merging} onClick={handleMerge}>
+                {merging ? 'Merging…' : `Merge into "${winner?.label}"`}
+              </button>
+            </footer>
+          </>
+        )}
+      </div>
+      <style>{`
+        .merge-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .merge-modal { background: var(--paper); border-radius: 12px; box-shadow: var(--shadow-lg); width: 520px; max-width: calc(100vw - 32px); max-height: calc(100vh - 64px); display: flex; flex-direction: column; overflow: hidden; }
+        .merge-modal-header { padding: 20px 24px 12px; border-bottom: 1px solid var(--ink-line-soft); }
+        .merge-modal-header h2 { font-family: var(--font-display); margin: 0 0 4px; font-size: 18px; }
+        .merge-modal-header p { margin: 0; color: var(--ink-3); font-size: 13px; }
+        .merge-modal-search { margin: 12px 24px 8px; padding: 10px 12px; border: 1px solid var(--ink-line); border-radius: 6px; font: inherit; font-size: 14px; }
+        .merge-modal-list { list-style: none; margin: 0 12px; padding: 4px 0; flex: 1; overflow-y: auto; max-height: 320px; }
+        .merge-modal-empty { padding: 24px; text-align: center; color: var(--ink-3); font-size: 13px; }
+        .merge-modal-option { width: 100%; text-align: left; background: transparent; border: none; padding: 9px 12px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font: inherit; color: var(--ink); }
+        .merge-modal-option:hover { background: var(--paper-soft); }
+        .merge-modal-option.is-selected { background: var(--paper-warm); font-weight: 600; }
+        .merge-modal-option-label { font-size: 14px; }
+        .merge-modal-option-type { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+        .merge-modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--ink-line-soft); }
+        .merge-modal-confirm { padding: 16px 24px; }
+        .merge-modal-confirm p { margin: 0 0 10px; font-size: 14px; line-height: 1.5; }
+        .merge-modal-warn { color: var(--error, #c00); font-weight: 500; }
+        .merge-modal-error { padding: 8px 12px; background: #fee; color: var(--error, #c00); border-radius: 6px; font-size: 13px; margin-top: 8px; }
+      `}</style>
     </div>
   );
 }
@@ -727,28 +903,31 @@ function RelGroup({ label, edges, onDelete }) {
       <ul className="cs-rel-list">
         {groups.map(([verb, entries]) => (
           <li key={verb} className="cs-rel-row">
-            <span className="cs-rel-verb">{capitalizeVerb(verb)}:</span>
-            <span className="cs-rel-others">
-              {entries.map((entry, i) => (
-                <span key={entry.connection_id} className="cs-rel-other">
-                  {i > 0 && <span className="cs-rel-sep">, </span>}
-                  <a href={`/concepts/${entry.concept.id}`} className="cs-rel-link">
-                    {toTitleCase(entry.concept.label)}
-                  </a>
+            <span className="cs-rel-verb">{capitalizeVerb(verb)}</span>
+            <div className="cs-rel-chips">
+              {entries.map((entry) => (
+                <a
+                  key={entry.connection_id}
+                  href={`/concepts/${entry.concept.id}`}
+                  className={`nc-pill is-concept${onDelete ? ' is-removable' : ''}`}
+                  title={entry.concept.label}
+                >
+                  <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+                  <span className="nc-pill-label">{toTitleCase(entry.concept.label)}</span>
                   {onDelete && (
                     <button
                       type="button"
-                      className="cs-rel-x"
-                      onClick={(e) => { e.preventDefault(); onDelete(entry.connection_id); }}
+                      className="nc-pill-x"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(entry.connection_id); }}
                       aria-label="Remove this relationship"
                       title="Remove this relationship"
                     >
                       ×
                     </button>
                   )}
-                </span>
+                </a>
               ))}
-            </span>
+            </div>
           </li>
         ))}
       </ul>
@@ -906,23 +1085,6 @@ function ConceptBody({
 
         <aside className="cs-2col-side">
           <SidebarStats concept={concept} connections={connections} />
-          <SidebarBlock label="Add Relationship" sub="Type to find any concept in your library.">
-            <div className="cs-side-adder">
-              <InlineRelationshipAdder
-                allConcepts={allConcepts}
-                currentConceptId={focalId}
-                focalLabel={concept.label}
-                existingConnections={connections}
-                onCreate={onCreateConnection}
-                onConceptCreated={onConceptCreated}
-              />
-              <SuggestPanel
-                conceptId={conceptId}
-                focalLabel={concept.label}
-                onAccept={async (s) => { await onCreateConnection(s.target_id, s.rel_type); }}
-              />
-            </div>
-          </SidebarBlock>
           {connections.length > 0 && (
             <SidebarBlock label="Relationships" count={connections.length}>
               <div className="cs-side-rel-charts">
@@ -935,22 +1097,42 @@ function ConceptBody({
               </div>
             </SidebarBlock>
           )}
+          <SidebarBlock label="Add Relationship" sub="Type to find any concept in your library.">
+            <div className="cs-side-adder">
+              <InlineRelationshipAdder
+                allConcepts={allConcepts}
+                currentConceptId={focalId}
+                currentConceptType={concept.concept_type || concept.effective_concept_type}
+                focalLabel={concept.label}
+                existingConnections={connections}
+                onCreate={onCreateConnection}
+                onConceptCreated={onConceptCreated}
+              />
+              <SuggestPanel
+                conceptId={conceptId}
+                focalLabel={concept.label}
+                onAccept={async (s) => { await onCreateConnection(s.target_id, s.rel_type); }}
+              />
+            </div>
+          </SidebarBlock>
           <SidebarKeyAuthors authors={concept.key_authors || []} />
-          <SidebarTopSources sources={concept.sources || []} />
+          <SidebarTopSources sources={concept.sources || []} concept={concept} />
           <SidebarPeople people={concept.people || []} />
           <SidebarChips
             label="Tags"
-            chipKind="is-neutral"
+            pillType="is-tag"
+            icon="fa-tag"
             items={(concept.tags || []).map((t, i) => ({
               id: t,
-              label: `#${t}`,
+              label: t,
               href: `/tags/${encodeURIComponent(t)}`,
               key: `t-${i}`,
             }))}
           />
           <SidebarChips
             label="Collections"
-            chipKind="is-neutral"
+            pillType="is-collection"
+            icon="fa-folder"
             items={(concept.collections || []).map((c) => ({ id: c.id, label: c.name, href: `/collections/${c.id}`, key: `c-${c.id}` }))}
           />
           {ownedDefinition && <FurtherReading definition={ownedDefinition} />}
@@ -1099,20 +1281,30 @@ function SidebarBlock({ label, count, sub, children }) {
 // stats fit in one row; People is rendered separately below in
 // SidebarPeople so we don't double-show it here.
 function SidebarStats({ concept, connections }) {
+  const sourcesCount = concept.sources?.length ?? concept.sources_count ?? 0;
   const stats = [
     { label: 'Connections', value: connections?.length || 0 },
-    { label: 'Sources',     value: concept.sources?.length ?? concept.sources_count ?? 0 },
+    { label: 'Sources',     value: sourcesCount, href: sourcesCount > 0 ? `/concepts/${concept.id}/sources` : null },
     { label: 'Notes',       value: concept.direct_notes?.length ?? concept.notes_count ?? 0 },
   ];
   if (stats.every((s) => s.value === 0)) return null;
   return (
     <div className="cs-side-stats">
-      {stats.map((s) => (
-        <div key={s.label} className="cs-side-stat">
-          <span className="cs-side-stat-value">{s.value}</span>
-          <span className="cs-side-stat-label">{s.label}</span>
-        </div>
-      ))}
+      {stats.map((s) => {
+        const inner = (
+          <>
+            <span className="cs-side-stat-value">{s.value}</span>
+            <span className="cs-side-stat-label">{s.label}</span>
+          </>
+        );
+        return s.href ? (
+          <a key={s.label} href={s.href} className="cs-side-stat is-clickable" title={`Browse all ${s.label.toLowerCase()}`}>
+            {inner}
+          </a>
+        ) : (
+          <div key={s.label} className="cs-side-stat">{inner}</div>
+        );
+      })}
     </div>
   );
 }
@@ -1135,10 +1327,11 @@ function SidebarKeyAuthors({ authors }) {
           <a
             key={a.id}
             href={`/people/${a.id}`}
-            className="sp-chip is-person cs-side-chip"
+            className="nc-pill is-person"
             title={`${a.full_name} (${a.source_count} sources)`}
           >
-            {toTitleCase(a.full_name)}
+            <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{toTitleCase(a.full_name)}</span>
           </a>
         ))}
         {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
@@ -1147,7 +1340,7 @@ function SidebarKeyAuthors({ authors }) {
   );
 }
 
-function SidebarTopSources({ sources }) {
+function SidebarTopSources({ sources, concept }) {
   if (!sources || sources.length === 0) return null;
   const ranked = useMemo(() => {
     return [...sources].sort((a, b) => {
@@ -1163,15 +1356,22 @@ function SidebarTopSources({ sources }) {
           <a
             key={s.id}
             href={`/sources/${s.id}`}
-            className="sp-chip is-source cs-side-chip"
+            className="nc-pill is-source"
             title={s.year ? `${s.title} (${s.year})` : s.title}
           >
-            {s.is_key_source && <span className="cs-side-key" aria-hidden="true">★ </span>}
-            {toTitleCase(s.title)}
+            {s.is_key_source
+              ? <span className="cs-side-key nc-pill-icon" aria-hidden="true">★</span>
+              : <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />}
+            <span className="nc-pill-label">{toTitleCase(s.title)}</span>
           </a>
         ))}
         {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
       </div>
+      <a href={`/concepts/${concept.id}/sources`} className="cs-side-browse">
+        {overflow > 0
+          ? `Browse all ${sources.length} sources about ${toTitleCase(concept.label)}`
+          : `Browse sources about ${toTitleCase(concept.label)}`} <i className="fas fa-arrow-right" />
+      </a>
     </SidebarBlock>
   );
 }
@@ -1187,10 +1387,11 @@ function SidebarPeople({ people }) {
           <a
             key={p.id}
             href={`/people/${p.id}`}
-            className="sp-chip is-person cs-side-chip"
+            className="nc-pill is-person"
             title={p.role ? `${p.full_name} — ${p.role}` : p.full_name}
           >
-            {toTitleCase(p.full_name)}
+            <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{toTitleCase(p.full_name)}</span>
           </a>
         ))}
         {overflow > 0 && <span className="cs-side-more">+{overflow} more</span>}
@@ -1199,16 +1400,22 @@ function SidebarPeople({ people }) {
   );
 }
 
-function SidebarChips({ label, items, chipKind = 'is-neutral' }) {
+function SidebarChips({ label, items, pillType = 'is-tag', icon = 'fa-tag' }) {
   if (!items || items.length === 0) return null;
   return (
     <SidebarBlock label={label} count={items.length}>
       <div className="cs-side-chips">
-        {items.map((it) => (
-          it.href
-            ? <a key={it.key} href={it.href} className={`sp-chip ${chipKind} cs-side-chip`}>{it.label}</a>
-            : <span key={it.key} className={`sp-chip ${chipKind} cs-side-chip`}>{it.label}</span>
-        ))}
+        {items.map((it) => {
+          const inner = (
+            <>
+              <i className={`fas ${icon} nc-pill-icon`} aria-hidden="true" />
+              <span className="nc-pill-label">{it.label}</span>
+            </>
+          );
+          return it.href
+            ? <a key={it.key} href={it.href} className={`nc-pill ${pillType}`}>{inner}</a>
+            : <span key={it.key} className={`nc-pill ${pillType}`}>{inner}</span>;
+        })}
       </div>
     </SidebarBlock>
   );
@@ -1681,7 +1888,7 @@ function RichTextBlock({ html }) {
 
 // ---- Inline relationship adder ----
 
-function InlineRelationshipAdder({ allConcepts, currentConceptId, focalLabel, existingConnections, onCreate, onConceptCreated }) {
+function InlineRelationshipAdder({ allConcepts, currentConceptId, currentConceptType, focalLabel, existingConnections, onCreate, onConceptCreated }) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(null);
   const [relType, setRelType] = useState('related_to');
@@ -1823,6 +2030,8 @@ function InlineRelationshipAdder({ allConcepts, currentConceptId, focalLabel, ex
           setOpen={setShowRelMenu}
           focalLabel={focalLabel}
           targetLabel={selected?.label}
+          srcConceptType={currentConceptType}
+          dstConceptType={selected?.concept_type}
         />
 
         <button
@@ -1873,7 +2082,7 @@ function InlineRelationshipAdder({ allConcepts, currentConceptId, focalLabel, ex
   );
 }
 
-function RelTypePicker({ value, onChange, open, setOpen, focalLabel, targetLabel }) {
+function RelTypePicker({ value, onChange, open, setOpen, focalLabel, targetLabel, srcConceptType = null, dstConceptType = null }) {
   const ref = useRef(null);
   const verb = REL_TYPE_BY_VALUE[value]?.text || value;
 
@@ -1915,10 +2124,13 @@ function RelTypePicker({ value, onChange, open, setOpen, focalLabel, targetLabel
             <strong> {toTitleCase(focalLabel || 'this concept')} </strong>
             is the subject of every sentence below.
           </div>
-          {RELATIONSHIP_CATEGORIES.map((cat) => (
+          {RELATIONSHIP_CATEGORIES.map((cat) => {
+            const visibleTypes = cat.types.filter((t) => isKindApplicable(t.value, srcConceptType, dstConceptType));
+            if (visibleTypes.length === 0) return null;
+            return (
             <div key={cat.label} className="cs-reltype-group">
               <div className="cs-reltype-group-label">{cat.label}</div>
-              {cat.types.map((t) => (
+              {visibleTypes.map((t) => (
                 <button
                   key={t.value}
                   type="button"
@@ -1939,7 +2151,8 @@ function RelTypePicker({ value, onChange, open, setOpen, focalLabel, targetLabel
                 </button>
               ))}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
@@ -2265,12 +2478,11 @@ function CSStyles() {
       .cs-hero-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
       .cs-hero-type {
         font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-warm);
-        padding: 3px 10px;
-        border-radius: var(--r-sm);
-        font-weight: 500;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
       }
       .cs-hero-title {
         font-family: var(--font-display);
@@ -2282,7 +2494,6 @@ function CSStyles() {
         margin: 0 0 12px;
         text-wrap: balance;
       }
-      .cs-hero-domain { text-decoration: none; }
       .cs-hero-aliases {
         font-family: var(--font-body);
         font-size: 13px;
@@ -3502,6 +3713,34 @@ function CSStyles() {
         border-bottom: 1px solid var(--ink-line);
       }
       .cs-side-stat { display: flex; flex-direction: column; gap: 2px; }
+      a.cs-side-stat.is-clickable {
+        text-decoration: none;
+        cursor: pointer;
+        border-radius: var(--r-sm, 4px);
+        padding: 2px 4px;
+        margin: -2px -4px;
+        transition: background 0.12s, transform 0.12s;
+      }
+      a.cs-side-stat.is-clickable:hover {
+        background: color-mix(in srgb, var(--concept) 8%, transparent);
+        transform: translateY(-1px);
+      }
+      a.cs-side-stat.is-clickable:hover .cs-side-stat-value { text-decoration: underline; text-underline-offset: 3px; }
+      .cs-side-browse {
+        align-self: flex-start;
+        margin-top: 10px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--source);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.15s;
+      }
+      .cs-side-browse:hover { gap: 10px; text-decoration: underline; text-underline-offset: 3px; }
+      .cs-side-browse i { font-size: 10px; }
       .cs-side-stat-value {
         font-family: var(--font-display);
         font-size: 22px;
@@ -3531,8 +3770,10 @@ function CSStyles() {
       }
       .cs-side-rel-charts .cs-rel-block-title {
         font-size: 10px;
-        margin: 0 0 6px;
+        margin: 0 0 8px;
+        padding-bottom: 4px;
         color: var(--ink-3);
+        border-bottom: 1px solid color-mix(in srgb, var(--concept) 35%, transparent);
       }
       .cs-side-rel-charts .cs-rel-block-hint {
         font-size: 11px;
@@ -3657,15 +3898,12 @@ function CSStyles() {
         gap: 6px;
         margin-top: 4px;
       }
-      .cs-side-chip {
-        text-decoration: none;
-        max-width: 240px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        transition: filter 0.12s;
+      .cs-side-key {
+        color: var(--accent-gold);
+        font-size: 11px;
+        line-height: 1;
+        flex-shrink: 0;
       }
-      a.cs-side-chip:hover { filter: brightness(0.95); }
-      .cs-side-key { color: var(--accent-gold); margin-right: 2px; }
       .cs-side-more {
         font-family: var(--font-body);
         font-size: 11px;
@@ -3916,18 +4154,26 @@ function CSStyles() {
       }
       .cs-rel-row {
         display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-        gap: 8px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
         font-family: var(--font-body);
         font-size: 13.5px;
         line-height: 1.55;
       }
       .cs-rel-verb {
-        font-family: var(--font-display);
-        font-weight: 600;
-        color: var(--concept);
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-3);
         white-space: nowrap;
+      }
+      .cs-rel-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
       }
       .cs-rel-others {
         color: var(--ink-2);

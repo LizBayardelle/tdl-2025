@@ -1668,6 +1668,13 @@ export default function TabletopShow({ tabletopId, embedded = false, onClose = n
             <button type="button" className="sp-icon-action-quiet" onClick={() => buttonZoom(1.18)} aria-label="Zoom in">+</button>
             <button type="button" className="tx-zoom-reset" onClick={fitToContent} title="Fit all items in view">Fit</button>
           </div>
+          <a
+            href={`/tabletops/${tabletopId}/sources`}
+            className="sp-action sp-action-secondary tx-print-btn"
+            title="Browse all sources from notes on this tabletop"
+          >
+            <i className="fas fa-book-open" /> Sources
+          </a>
           <button
             type="button"
             className="sp-action sp-action-secondary tx-print-btn"
@@ -2271,17 +2278,31 @@ function ActiveNoteView({ item }) {
       )}
       <div className="tx-side-note-chips">
         {data.source && (
-          <a href={`/sources/${data.source.id}`} className="sp-chip is-source tx-side-chip">{data.source.title}</a>
+          <a href={`/sources/${data.source.id}`} className="nc-pill is-source">
+            <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{data.source.title}</span>
+          </a>
         )}
         {data.concepts?.map(c => (
-          <a key={`c-${c.id}`} href={`/concepts/${c.id}`} className="sp-chip is-concept tx-side-chip">{c.label}</a>
+          <a key={`c-${c.id}`} href={`/concepts/${c.id}`} className="nc-pill is-concept">
+            <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{c.label}</span>
+          </a>
         ))}
         {data.people?.map(p => (
-          <a key={`p-${p.id}`} href={`/people/${p.id}`} className="sp-chip is-person tx-side-chip">{p.full_name}</a>
+          <a key={`p-${p.id}`} href={`/people/${p.id}`} className="nc-pill is-person">
+            <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{p.full_name}</span>
+          </a>
         ))}
         {data.tags?.map(t => {
           const name = typeof t === 'string' ? t : t?.name;
-          return name && <span key={`t-${name}`} className="sp-chip is-neutral tx-side-chip">#{name}</span>;
+          return name && (
+            <span key={`t-${name}`} className="nc-pill is-tag">
+              <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{name}</span>
+            </span>
+          );
         })}
       </div>
       {(data.noted_on || data.created_at) && (
@@ -2573,12 +2594,23 @@ function NoteItemBody({ data }) {
         <div className="tx-note-body" dangerouslySetInnerHTML={{ __html: data.body }} />
       )}
       <div className="tx-note-meta">
-        {data.source && <span className="sp-chip is-source">{data.source.title}</span>}
+        {data.source && (
+          <span className="nc-pill is-source">
+            <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{data.source.title}</span>
+          </span>
+        )}
         {data.concepts?.slice(0, 2).map(c => (
-          <span key={`c-${c.id}`} className="sp-chip is-concept">{c.label}</span>
+          <span key={`c-${c.id}`} className="nc-pill is-concept">
+            <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{c.label}</span>
+          </span>
         ))}
         {data.people?.slice(0, 2).map(p => (
-          <span key={`p-${p.id}`} className="sp-chip is-person">{p.full_name}</span>
+          <span key={`p-${p.id}`} className="nc-pill is-person">
+            <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+            <span className="nc-pill-label">{p.full_name}</span>
+          </span>
         ))}
       </div>
     </>
@@ -2939,16 +2971,32 @@ function NotePickCard({ note, selected, onToggle, query, expanded }) {
           </div>
         )}
         <div className="tx-pick2-card-chips">
-          {note.source && <span className="sp-chip is-source tx-pick2-chip">{note.source.title}</span>}
+          {note.source && (
+            <span className="nc-pill is-source">
+              <i className="fas fa-book-open nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{note.source.title}</span>
+            </span>
+          )}
           {note.concepts?.slice(0, expanded ? 12 : 2).map(c => (
-            <span key={`c-${c.id}`} className="sp-chip is-concept tx-pick2-chip">{c.label}</span>
+            <span key={`c-${c.id}`} className="nc-pill is-concept">
+              <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{c.label}</span>
+            </span>
           ))}
           {note.people?.slice(0, expanded ? 12 : 1).map(p => (
-            <span key={`p-${p.id}`} className="sp-chip is-person tx-pick2-chip">{p.full_name}</span>
+            <span key={`p-${p.id}`} className="nc-pill is-person">
+              <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{p.full_name}</span>
+            </span>
           ))}
           {expanded && note.tags?.map(t => {
             const name = typeof t === 'string' ? t : t?.name;
-            return name && <span key={`t-${name}`} className="sp-chip is-neutral tx-pick2-chip">#{name}</span>;
+            return name && (
+              <span key={`t-${name}`} className="nc-pill is-tag">
+                <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{name}</span>
+              </span>
+            );
           })}
         </div>
       </div>
@@ -3570,14 +3618,6 @@ function TxShowStyles() {
         flex-shrink: 0;
       }
       .tx-side-note-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-      .tx-side-chip {
-        max-width: 100%;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.5;
-      }
       .tx-side-note-date {
         font-family: var(--mono);
         font-size: 10.5px;
@@ -3999,15 +4039,9 @@ function TxShowStyles() {
         gap: 4px;
         min-width: 0;
       }
-      /* Long source/concept/person names must not break out of the card */
-      .tx-note-meta .sp-chip {
-        max-width: 100%;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.5;
-      }
+      /* Cap pill width so long source/concept/person names ellipsize
+         instead of breaking out of a small canvas card. */
+      .tx-note-meta .nc-pill { max-width: 100%; }
 
       /* ============ HEADER decoration ============
          No card chrome — just type on the canvas. */
@@ -4704,15 +4738,7 @@ function TxShowStyles() {
         gap: 4px;
         margin-top: 2px;
       }
-      .tx-pick2-chip {
-        max-width: 100%;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.5;
-        font-size: 11px;
-      }
+      .tx-pick2-card-chips .nc-pill { max-width: 100%; }
       .tx-pick2-mark {
         background: #FBE7A1;
         color: inherit;

@@ -9,6 +9,9 @@ class Collection < ApplicationRecord
   has_many :people, through: :collection_items, source: :collectable, source_type: 'Person'
   has_many :notes, through: :collection_items, source: :collectable, source_type: 'Note'
 
+  # Annotated-bibliography entries scoped to this collection.
+  has_many :bibliography_entries, dependent: :destroy
+
   validates :name, presence: true
   validates :slug, presence: true, uniqueness: { scope: :user_id }
 

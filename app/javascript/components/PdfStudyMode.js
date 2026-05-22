@@ -13,6 +13,14 @@ import useIsMobile from '../hooks/useIsMobile';
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+// Zoom bounds — shared by the +/- buttons and pinch gestures.
+const SCALE_MIN = 0.5;
+const SCALE_MAX = 3.0;
+const clampScale = (s) => Math.min(SCALE_MAX, Math.max(SCALE_MIN, s));
+
+// Remembers the collapsed/expanded header choice across visits.
+const HEADER_KEY = 'tdl_psm_header_collapsed';
+
 export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimited = false, userAdmin = false }) {
   const canAsk = userUnlimited || userAdmin;
   const isMobile = useIsMobile();
@@ -37,6 +45,14 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
   const mainContentRef = useRef(null);
   const containerRef = useRef(null);
 
+  // Pinch-to-zoom — trackpad (ctrl+wheel) and touch (two fingers).
+  const stageRef = useRef(null);       // the .psm-pdf-stage we CSS-transform live
+  const zoomValueRef = useRef(null);   // the % readout, updated imperatively mid-gesture
+  const pinchRef = useRef({ active: false, startScale: 1, liveScale: 1 });
+  const pendingFocalRef = useRef(null); // focal anchor to restore scroll after a commit
+  const scaleRef = useRef(scale);
+  scaleRef.current = scale;
+
   // Floating selection toolbar state
   const [selection, setSelection] = useState(null); // { text, page, rect, bounds }
   const toolbarRef = useRef(null);
@@ -55,6 +71,23 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
 
   // Abstract panel
   const [abstractOpen, setAbstractOpen] = useState(false);
+
+  // Collapsible header — defaults collapsed on mobile to free up PDF space.
+  const [headerCollapsed, setHeaderCollapsed] = useState(() => {
+    try {
+      const raw = typeof window !== 'undefined' && localStorage.getItem(HEADER_KEY);
+      if (raw === '1') return true;
+      if (raw === '0') return false;
+    } catch (_) {}
+    return typeof window !== 'undefined' && window.innerWidth < 768;
+  });
+  const toggleHeader = () => {
+    setHeaderCollapsed(c => {
+      const next = !c;
+      try { localStorage.setItem(HEADER_KEY, next ? '1' : '0'); } catch (_) {}
+      return next;
+    });
+  };
 
   // Ask this Paper panel
   const [askOpen, setAskOpen] = useState(false);
@@ -128,6 +161,138 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
     } catch (e) { console.error('Failed to load highlights:', e); }
   };
   useEffect(() => { fetchHighlights(); }, [sourceId]);
+
+  // ---- Pinch-to-zoom ----
+  // Re-rendering react-pdf on every gesture frame is jank (all pages are
+  // mounted), so during a pinch we just CSS-transform the stage for instant
+  // feedback, then commit the real `scale` to react-pdf when it settles.
+  useEffect(() => {
+    if (!pdfUrl) return;
+    const scroller = mainContentRef.current;
+    if (!scroller) return;
+    const pinch = pinchRef.current;
+
+    // Snapshot the gesture: committed scale, the focal point, and which page
+    // (+ fractional Y within it) sits under the focal point so we can pin the
+    // scroll position there once react-pdf reflows at the new scale.
+    const beginGesture = (focalX, focalY) => {
+      const stage = stageRef.current;
+      if (!stage) return false;
+      const stageRect = stage.getBoundingClientRect();
+      pinch.active = true;
+      pinch.startScale = scaleRef.current;
+      pinch.liveScale = 1;
+      pinch.anchor = null;
+      for (const p of scroller.querySelectorAll('[data-page-number]')) {
+        const r = p.getBoundingClientRect();
+        if (focalY >= r.top && focalY <= r.bottom) {
+          pinch.anchor = {
+            page: p.getAttribute('data-page-number'),
+            fracY: (focalY - r.top) / r.height,
+            focalY,
+          };
+          break;
+        }
+      }
+      const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+      pinch.fallbackFrac = maxScroll > 0 ? scroller.scrollTop / maxScroll : 0;
+      stage.style.transformOrigin = `${focalX - stageRect.left}px ${focalY - stageRect.top}px`;
+      stage.style.willChange = 'transform';
+      return true;
+    };
+
+    // `liveScale` is the absolute multiplier vs. the gesture's start scale.
+    const applyGesture = (liveScale) => {
+      const stage = stageRef.current;
+      if (!stage || !pinch.active) return;
+      const target = clampScale(pinch.startScale * liveScale);
+      pinch.liveScale = target / pinch.startScale; // re-derive so clamping sticks
+      stage.style.transform = `scale(${pinch.liveScale})`;
+      if (zoomValueRef.current) zoomValueRef.current.textContent = `${Math.round(target * 100)}%`;
+    };
+
+    const commitGesture = () => {
+      if (!pinch.active) return;
+      pinch.active = false;
+      const stage = stageRef.current;
+      const newScale = clampScale(pinch.startScale * pinch.liveScale);
+      if (stage) {
+        // Drop the transform now so the upcoming render isn't double-scaled.
+        stage.style.transform = '';
+        stage.style.transformOrigin = '';
+        stage.style.willChange = '';
+      }
+      if (newScale !== scaleRef.current) {
+        pendingFocalRef.current = pinch.anchor || { fallbackFrac: pinch.fallbackFrac };
+        setScale(newScale);
+      }
+    };
+
+    // Trackpad pinch arrives as a wheel event with ctrlKey set. There's no
+    // gesture-end event, so we commit on a short idle timeout.
+    let wheelIdle = null;
+    const onWheel = (e) => {
+      if (!e.ctrlKey) return; // plain scroll — leave it alone
+      e.preventDefault();
+      if (!pinch.active && !beginGesture(e.clientX, e.clientY)) return;
+      applyGesture(pinch.liveScale * Math.exp(-e.deltaY * 0.01));
+      clearTimeout(wheelIdle);
+      wheelIdle = setTimeout(commitGesture, 220);
+    };
+
+    // Touch pinch: two fingers. Track the distance between them.
+    let startDist = 0;
+    const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const onTouchStart = (e) => {
+      if (e.touches.length !== 2) return;
+      const [a, b] = e.touches;
+      if (beginGesture((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2)) {
+        startDist = dist(e.touches);
+      }
+    };
+    const onTouchMove = (e) => {
+      if (!pinch.active || e.touches.length !== 2) return;
+      e.preventDefault(); // block native scroll while pinching
+      if (startDist > 0) applyGesture(dist(e.touches) / startDist);
+    };
+    const onTouchEnd = (e) => {
+      if (pinch.active && e.touches.length < 2) commitGesture();
+    };
+
+    scroller.addEventListener('wheel', onWheel, { passive: false });
+    scroller.addEventListener('touchstart', onTouchStart, { passive: false });
+    scroller.addEventListener('touchmove', onTouchMove, { passive: false });
+    scroller.addEventListener('touchend', onTouchEnd);
+    scroller.addEventListener('touchcancel', onTouchEnd);
+    return () => {
+      clearTimeout(wheelIdle);
+      scroller.removeEventListener('wheel', onWheel);
+      scroller.removeEventListener('touchstart', onTouchStart);
+      scroller.removeEventListener('touchmove', onTouchMove);
+      scroller.removeEventListener('touchend', onTouchEnd);
+      scroller.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [pdfUrl]);
+
+  // After a pinch commits, react-pdf reflows at the new scale — pull the scroll
+  // position back so the page under the user's fingers stays put.
+  useEffect(() => {
+    const focal = pendingFocalRef.current;
+    if (!focal) return;
+    pendingFocalRef.current = null;
+    const scroller = mainContentRef.current;
+    if (!scroller) return;
+    if (focal.page) {
+      const pageEl = scroller.querySelector(`[data-page-number="${focal.page}"]`);
+      if (pageEl) {
+        const r = pageEl.getBoundingClientRect();
+        scroller.scrollTop += (r.top + focal.fracY * r.height) - focal.focalY;
+        return;
+      }
+    }
+    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+    scroller.scrollTop = (focal.fallbackFrac || 0) * maxScroll;
+  }, [scale]);
 
   // Sidebar resize drag
   useEffect(() => {
@@ -517,7 +682,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
 
         {/* Main */}
         <main className="psm-main">
-          <header className="psm-header">
+          <header className={`psm-header${headerCollapsed ? ' is-collapsed' : ''}`}>
             <div className="psm-topbar">
               <nav className="cs-breadcrumb" aria-label="Source path">
                 <a href="/sources" className="cs-breadcrumb-link">Sources</a>
@@ -525,36 +690,47 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
                 <a href={`/sources/${sourceId}`} className="cs-breadcrumb-link">
                   {inTextCitation(source) || sourceTitle}
                 </a>
-                <span className="cs-breadcrumb-sep">›</span>
-                <span className="cs-breadcrumb-current">Study</span>
               </nav>
 
               <div className="psm-header-tools">
+                <button
+                  type="button"
+                  className="psm-collapse-btn"
+                  onClick={toggleHeader}
+                  aria-expanded={!headerCollapsed}
+                  title={headerCollapsed ? 'Show source details' : 'Hide source details'}
+                >
+                  <i className={`fas fa-chevron-${headerCollapsed ? 'down' : 'up'}`} style={{ fontSize: 11 }}></i>
+                </button>
                 <HighlightNudge />
               </div>
             </div>
 
-            <h1 className="psm-title">{sourceTitle}</h1>
-            {source && (
-              <div className="psm-meta-row">
-                {source.kind && <span className="psm-kind">{String(source.kind).replace(/_/g, ' ')}</span>}
-                {source.year && <span className="psm-year">{source.year}</span>}
-                <MethodologyTags source={source} onUpdate={setSource} />
-                {source.abstract && (
-                  <button
-                    type="button"
-                    className="psm-abstract-toggle"
-                    onClick={() => setAbstractOpen(o => !o)}
-                    aria-expanded={abstractOpen}
-                  >
-                    <i className={`fas fa-chevron-${abstractOpen ? 'down' : 'right'}`} style={{ fontSize: 9 }}></i>
-                    {abstractOpen ? 'Hide abstract' : 'Show abstract'}
-                  </button>
+            {!headerCollapsed && (
+              <div className="psm-header-body">
+                <h1 className="psm-title">{sourceTitle}</h1>
+                {source && (
+                  <div className="psm-meta-row">
+                    {source.kind && <span className="psm-kind">{String(source.kind).replace(/_/g, ' ')}</span>}
+                    {source.year && <span className="psm-year">{source.year}</span>}
+                    <MethodologyTags source={source} onUpdate={setSource} />
+                    {source.abstract && (
+                      <button
+                        type="button"
+                        className="psm-abstract-toggle"
+                        onClick={() => setAbstractOpen(o => !o)}
+                        aria-expanded={abstractOpen}
+                      >
+                        <i className={`fas fa-chevron-${abstractOpen ? 'down' : 'right'}`} style={{ fontSize: 9 }}></i>
+                        {abstractOpen ? 'Hide abstract' : 'Show abstract'}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {abstractOpen && source?.abstract && (
+                  <div className="psm-abstract">{source.abstract}</div>
                 )}
               </div>
-            )}
-            {abstractOpen && source?.abstract && (
-              <div className="psm-abstract">{source.abstract}</div>
             )}
           </header>
 
@@ -589,16 +765,16 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
                   <button
                     type="button"
                     className="sp-icon-action-quiet"
-                    onClick={() => setScale(s => Math.max(0.5, s - 0.1))}
+                    onClick={() => setScale(s => clampScale(s - 0.1))}
                     title="Zoom out"
                   >
                     <i className="fas fa-minus" style={{ fontSize: 11 }}></i>
                   </button>
-                  <span className="psm-zoom-value">{Math.round(scale * 100)}%</span>
+                  <span className="psm-zoom-value" ref={zoomValueRef} title="Pinch to zoom">{Math.round(scale * 100)}%</span>
                   <button
                     type="button"
                     className="sp-icon-action-quiet"
-                    onClick={() => setScale(s => Math.min(2.0, s + 0.1))}
+                    onClick={() => setScale(s => clampScale(s + 0.1))}
                     title="Zoom in"
                   >
                     <i className="fas fa-plus" style={{ fontSize: 11 }}></i>
@@ -626,7 +802,7 @@ export default function PdfStudyMode({ sourceId, sourceTitle, pdfUrl, userUnlimi
               </div>
             )}
             {hasPdf ? (
-              <div className="psm-pdf-stage">
+              <div className="psm-pdf-stage" ref={stageRef}>
                 <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
                   {Array.from(new Array(numPages), (el, index) => {
                     const pageNum = index + 1;
@@ -1246,12 +1422,21 @@ function PsmStyles() {
         flex-shrink: 0;
         background: var(--paper);
         border-bottom: 1px solid var(--ink-line);
-        padding: 14px 28px 14px 56px;
+        padding: 14px 28px 14px 20px;
         position: relative;
         z-index: 5;
         display: flex;
         flex-direction: column;
         gap: 8px;
+      }
+      .psm-header.is-collapsed { padding-top: 9px; padding-bottom: 9px; }
+      /* Title + meta clear the absolutely-positioned sidebar toggle; the
+         breadcrumb row sits above it, so it stays flush left. */
+      .psm-header-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-left: 36px;
       }
       .psm-topbar {
         display: flex;
@@ -1260,6 +1445,24 @@ function PsmStyles() {
         gap: 16px;
         flex-wrap: wrap;
       }
+      /* Breadcrumb — these classes are otherwise only styled in ConceptShow,
+         which isn't mounted here, so the study view needs its own copy. */
+      .cs-breadcrumb {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+      }
+      .cs-breadcrumb-link {
+        color: var(--ink-3);
+        text-decoration: none;
+      }
+      .cs-breadcrumb-link:hover { color: var(--ink); border-bottom: 1px solid var(--ink-3); }
+      .cs-breadcrumb-sep { color: var(--ink-4); }
       .psm-title {
         font-family: var(--font-display);
         font-size: 28px;
@@ -1323,7 +1526,26 @@ function PsmStyles() {
       .psm-header-tools {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 10px;
+      }
+      .psm-collapse-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        background: transparent;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        color: var(--ink-3);
+        cursor: pointer;
+        transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+      }
+      .psm-collapse-btn:hover {
+        background: var(--hover);
+        color: var(--ink);
+        border-color: var(--ink-3);
       }
       .psm-page-indicator {
         font-family: var(--font-mono);
@@ -1357,7 +1579,10 @@ function PsmStyles() {
         overflow-y: auto;
         background: color-mix(in srgb, var(--source) 5%, var(--paper-soft));
         position: relative;
+        /* Allow one-finger scroll, but hand two-finger pinch to our JS. */
+        touch-action: pan-y;
       }
+      .psm-pdf-stage { transform-origin: top center; }
       .psm-pdf-bar {
         position: sticky;
         top: 12px;
@@ -1722,9 +1947,9 @@ function PsmStyles() {
       }
 
       @media (max-width: 768px) {
-        .psm-header { padding: 14px 16px 12px 56px; }
+        .psm-header { padding: 14px 16px 12px 20px; }
+        .psm-header.is-collapsed { padding-top: 8px; padding-bottom: 8px; }
         .psm-title { font-size: 22px; }
-        .psm-header-tools { gap: 10px; }
         .psm-pdf-stage { padding: 18px 8px 28px; }
       }
     `}</style>

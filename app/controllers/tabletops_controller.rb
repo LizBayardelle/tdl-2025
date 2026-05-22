@@ -1,6 +1,6 @@
 class TabletopsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_tabletop, only: [:show, :update, :destroy, :viewport, :import_notes]
+  before_action :set_tabletop, only: [:show, :update, :destroy, :viewport, :import_notes, :sources_index]
   before_action :authorize_edit!, only: [:update, :destroy, :viewport, :import_notes]
 
   # GET /tabletops
@@ -143,6 +143,13 @@ class TabletopsController < ApplicationController
   def destroy
     @tabletop.destroy
     head :no_content
+  end
+
+  # GET /tabletops/:id/sources
+  # Mounts the SourcesIndex React component scoped to this tabletop —
+  # shows every source attached to a note on the table, plus any
+  # sources placed directly as items on the canvas.
+  def sources_index
   end
 
   private

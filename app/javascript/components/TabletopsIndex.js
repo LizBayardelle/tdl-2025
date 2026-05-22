@@ -184,6 +184,16 @@ function TabletopCard({ tabletop, onEdit, onDelete }) {
           {t.notes_count > 0 && (
             <span className="tx-meta-pill">{t.notes_count} note{t.notes_count === 1 ? '' : 's'}</span>
           )}
+          {(t.items_count > 0 || t.notes_count > 0) && (
+            <a
+              href={`/tabletops/${t.id}/sources`}
+              className="tx-meta-link"
+              onClick={stop}
+              title="Browse all sources on this tabletop"
+            >
+              <i className="fas fa-book-open" /> Sources →
+            </a>
+          )}
           {t.last_opened_at && (
             <span className="tx-meta-time">opened {timeAgo(t.last_opened_at)}</span>
           )}
@@ -552,6 +562,26 @@ function TxStyles() {
         font-size: 10.5px;
         letter-spacing: 0.02em;
       }
+      .tx-meta-link {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 8px;
+        border: 1px solid color-mix(in srgb, var(--source) 30%, transparent);
+        border-radius: var(--r-sm);
+        background: color-mix(in srgb, var(--source) 8%, transparent);
+        color: var(--source);
+        text-decoration: none;
+        font-weight: 500;
+        transition: background 0.12s, color 0.12s;
+      }
+      .tx-meta-link:hover {
+        background: color-mix(in srgb, var(--source) 18%, transparent);
+        color: var(--source-2, var(--source));
+      }
+      .tx-meta-link i { font-size: 9px; opacity: 0.85; }
       .tx-card-tags {
         display: flex;
         flex-wrap: wrap;

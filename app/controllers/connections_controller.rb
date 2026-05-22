@@ -42,6 +42,30 @@ class ConnectionsController < ApplicationController
     end
   end
 
+  # GET /connections/vocabulary
+  # Returns the full relationship vocabulary + scoping rules for the picker.
+  # The UI fetches this once and uses it to filter the picker based on the
+  # concept_types of the two endpoints.  Single source of truth lives in the
+  # Connection model — the JS doesn't duplicate the rule data.
+  def vocabulary
+    render json: {
+      kinds: Connection::KINDS,
+      input_kinds: Connection::INPUT_KINDS,
+      input_inverses: Connection::INPUT_INVERSES,
+      symmetric_kinds: Connection::SYMMETRIC_KINDS,
+      categories: {
+        hierarchical: Connection::HIERARCHICAL_KINDS,
+        sequential:   Connection::SEQUENTIAL_KINDS,
+        semantic:     Connection::SEMANTIC_KINDS,
+        influence:    Connection::INFLUENCE_KINDS,
+        clinical:     Connection::CLINICAL_KINDS,
+        positional:   Connection::POSITIONAL_KINDS,
+        other:        Connection::OTHER_KINDS
+      },
+      kind_scope: Connection::KIND_SCOPE
+    }
+  end
+
   # GET /connections/:id
   def show
     render json: @connection.as_json(include: {

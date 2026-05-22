@@ -24,6 +24,7 @@ class SourcesController < ApplicationController
         year_max      = params[:year_max].presence&.to_i
         has_pdf       = truthy?(params[:has_pdf])
         has_notes     = truthy?(params[:has_notes])
+        tabletop_id   = params[:tabletop_id].presence&.to_i
 
         scoped = apply_filters(base_scope,
           q: q, kind: kind,
@@ -32,6 +33,7 @@ class SourcesController < ApplicationController
           markers: markers, methodologies: methodologies,
           year_min: year_min, year_max: year_max,
           has_pdf: has_pdf, has_notes: has_notes,
+          tabletop_id: tabletop_id,
           owner_id: current_user.id
         )
 
@@ -399,26 +401,35 @@ class SourcesController < ApplicationController
       # metadata on join rows survives manual saves that don't change the set.
       @source.statistical_test_ids = Array(statistical_test_ids).reject(&:blank?).map(&:to_i) unless statistical_test_ids.nil?
 
-      # Handle people associations
-      @source.person_sources.destroy_all
-      if person_ids.present?
-        person_ids.each do |person_id|
-          next if person_id.blank?
-          person = current_user.people.find_by(id: person_id)
-          @source.people << person if person
+      # People + author handling.  Runs only when the request actually
+      # carries author/people fields.  A partial PATCH — e.g. just markers
+      # or concept_ids from the /sources index cards — must leave the
+      # existing people associations and `authors` string untouched;
+      # without this guard those partial saves wipe every author off the
+      # source (person_sources is destroyed, then never rebuilt).
+      editing_authors = !person_ids.nil? || !authors_string.nil? ||
+                        !override_authors.nil? || !processed_authors.nil?
+      if editing_authors
+        @source.person_sources.destroy_all
+        if person_ids.present?
+          person_ids.each do |person_id|
+            next if person_id.blank?
+            person = current_user.people.find_by(id: person_id)
+            @source.people << person if person
+          end
         end
-      end
 
-      # Same as #create: in the override branch we set the typed string
-      # AFTER parse_and_link_authors so the user-typed value wins over the
-      # PersonSource callback's auto-derived join.
-      if override_authors == 'true' || override_authors == true
-        parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
-        @source[:authors] = authors_string if authors_string.present?
-      elsif @source.people.any?
-        @source[:authors] = @source.people.map(&:full_name).join(', ')
-      else
-        @source[:authors] = nil
+        # Same as #create: in the override branch we set the typed string
+        # AFTER parse_and_link_authors so the user-typed value wins over the
+        # PersonSource callback's auto-derived join.
+        if override_authors == 'true' || override_authors == true
+          parse_and_link_authors(@source, authors_string, processed_authors) if authors_string.present?
+          @source[:authors] = authors_string if authors_string.present?
+        elsif @source.people.any?
+          @source[:authors] = @source.people.map(&:full_name).join(', ')
+        else
+          @source[:authors] = nil
+        end
       end
 
       @source.save if @source.changed?
@@ -839,7 +850,7 @@ class SourcesController < ApplicationController
   # Apply all incoming filter params to a Source scope.  Each filter narrows
   # the set; combinations AND together.  q does a text search across the
   # most useful fields.
-  def apply_filters(scope, q:, kind:, concept_ids:, person_ids:, tag_names:, collection_ids:, markers:, methodologies:, year_min:, year_max:, has_pdf:, has_notes:, owner_id:)
+  def apply_filters(scope, q:, kind:, concept_ids:, person_ids:, tag_names:, collection_ids:, markers:, methodologies:, year_min:, year_max:, has_pdf:, has_notes:, owner_id:, tabletop_id: nil)
     s = scope
 
     if q.present?
@@ -897,6 +908,28 @@ class SourcesController < ApplicationController
     if has_notes
       noted_ids = Note.where.not(source_id: nil).select(:source_id)
       s = s.where(id: noted_ids)
+    end
+
+    # Tabletop scope: union of (a) source items placed directly on the
+    # canvas and (b) sources reachable through notes on the canvas.
+    # Going through notes is the primary path the user cares about, but
+    # excluding direct-source items would be a surprising omission.
+    if tabletop_id
+      direct_source_ids = TabletopItem
+        .where(tabletop_id: tabletop_id, item_type: 'Source')
+        .where.not(item_id: nil)
+        .pluck(:item_id)
+
+      note_ids = TabletopItem
+        .where(tabletop_id: tabletop_id, item_type: 'Note')
+        .where.not(item_id: nil)
+        .pluck(:item_id)
+
+      via_notes_primary = note_ids.any? ? Note.where(id: note_ids).where.not(source_id: nil).pluck(:source_id) : []
+      via_notes_linked  = note_ids.any? ? NoteSource.where(note_id: note_ids).pluck(:source_id) : []
+
+      ids = (direct_source_ids + via_notes_primary + via_notes_linked).uniq
+      s = s.where(id: ids)
     end
 
     s

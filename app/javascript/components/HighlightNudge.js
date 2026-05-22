@@ -41,7 +41,7 @@ export default function HighlightNudge() {
         aria-haspopup="dialog"
       >
         <i className="fas fa-circle-question" style={{ fontSize: 12 }}></i>
-        Highlight to Take Notes
+        <span className="hl-nudge-trigger-label">Highlight to Take Notes</span>
       </button>
 
       {open && createPortal(
@@ -129,6 +129,18 @@ export default function HighlightNudge() {
         .hl-nudge-trigger:hover {
           background: var(--source-2);
           border-color: var(--source-2);
+        }
+
+        /* Mobile: collapse to a single "?" icon button to save header space. */
+        @media (max-width: 768px) {
+          .hl-nudge-trigger-label { display: none; }
+          .hl-nudge-trigger {
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            justify-content: center;
+          }
+          .hl-nudge-trigger i { font-size: 14px !important; }
         }
 
         .hl-nudge-backdrop {

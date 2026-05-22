@@ -64,6 +64,8 @@ export default function SourceCard({
   onEdit,
   onDelete,
   onMarkersChange,
+  onCollectionsChange,
+  onConceptsChange,
 }) {
   if (variant === 'tile') return <SourceTile source={source} />;
   if (variant === 'list') return <SourceListRow source={source} isKey={isKey} />;
@@ -77,6 +79,8 @@ export default function SourceCard({
       onEdit={onEdit}
       onDelete={onDelete}
       onMarkersChange={onMarkersChange}
+      onCollectionsChange={onCollectionsChange}
+      onConceptsChange={onConceptsChange}
     />
   );
 }
@@ -84,8 +88,10 @@ export default function SourceCard({
 // =====================================================================
 // FULL — SourcesIndex variant
 // =====================================================================
-function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange }) {
+function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, onCollectionsChange, onConceptsChange }) {
   const [showMarkers, setShowMarkers] = useState(false);
+  const [showCollections, setShowCollections] = useState(false);
+  const [showConcepts, setShowConcepts] = useState(false);
   const linkedPeople = Array.isArray(source.people) ? source.people : [];
   const authorsString = typeof source.authors === 'string' ? source.authors : '';
   const abstractText = stripHtml(source.abstract || source.summary || '');
@@ -189,10 +195,11 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
                   <a
                     key={p.id}
                     href={`/people/${p.id}`}
-                    className="src-card-author-chip"
+                    className="nc-pill is-person"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {toTitleCase(p.full_name)}
+                    <i className="fas fa-user nc-pill-icon" aria-hidden="true" />
+                    <span className="nc-pill-label">{toTitleCase(p.full_name)}</span>
                   </a>
                 ))}
               </span>
@@ -208,7 +215,10 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
 
         <div className="src-card-tags">
           {source.markers?.map(m => (
-            <span key={m} className="src-card-marker-chip" onClick={() => setShowMarkers(true)}>{m}</span>
+            <span key={m} className="nc-pill is-marker" onClick={() => setShowMarkers(true)}>
+              <i className="fas fa-highlighter nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{m}</span>
+            </span>
           ))}
           {onMarkersChange && (
             <button type="button" className="src-card-marker-add" onClick={() => setShowMarkers(s => !s)}>
@@ -221,34 +231,57 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
             </span>
           )}
           {source.concepts?.slice(0, 3).map(c => (
-            <a key={c.id} href={`/concepts/${c.id}`} className="src-card-concept-chip">{toTitleCase(c.label)}</a>
+            <a key={c.id} href={`/concepts/${c.id}`} className="nc-pill is-concept">
+              <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{toTitleCase(c.label)}</span>
+            </a>
           ))}
           {source.concepts?.length > 3 && (
             <span className="src-card-mini-stat">+{source.concepts.length - 3}</span>
           )}
+          {onConceptsChange && (
+            <button type="button" className="src-card-concept-add" onClick={() => setShowConcepts(s => !s)}>
+              {source.concepts?.length > 0 ? 'Edit Concepts' : '+ Concept'}
+            </button>
+          )}
           {source.methodologies?.map(m => (
-            <span key={m} className="src-card-method-chip">{m}</span>
+            <span key={m} className="nc-pill is-research">
+              <i className="fas fa-flask nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{m}</span>
+            </span>
           ))}
           {source.statistical_tests?.slice(0, 4).map(t => (
             <a
               key={t.id}
               href={`/statistical_tests/${t.slug}`}
-              className="src-card-stat-chip"
+              className="nc-pill is-stat-test"
               title={t.detected_automatically ? 'Auto-detected from abstract' : 'Manually linked'}
               onClick={(e) => e.stopPropagation()}
             >
-              {t.name}
+              <i className="fas fa-square-root-variable nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{t.name}</span>
             </a>
           ))}
           {source.statistical_tests?.length > 4 && (
             <span className="src-card-mini-stat">+{source.statistical_tests.length - 4}</span>
           )}
-          {source.tags?.slice(0, 3).map(t => (
-            <span key={t} className="src-card-tag-chip">{t}</span>
+          {source.tags?.map(t => (
+            <span key={t} className="nc-pill is-tag">
+              <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{t}</span>
+            </span>
           ))}
           {source.collections?.map(c => (
-            <a key={c.id} href={`/collections/${c.id}`} className="src-card-collection-chip">{c.name}</a>
+            <a key={c.id} href={`/collections/${c.id}`} className="nc-pill is-collection">
+              <i className="fas fa-folder nc-pill-icon" aria-hidden="true" />
+              <span className="nc-pill-label">{c.name}</span>
+            </a>
           ))}
+          {onCollectionsChange && (
+            <button type="button" className="src-card-collection-add" onClick={() => setShowCollections(s => !s)}>
+              {source.collections?.length > 0 ? 'Edit Collections' : '+ Collection'}
+            </button>
+          )}
         </div>
 
         {showMarkers && onMarkersChange && (
@@ -256,6 +289,23 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
             current={source.markers || []}
             onChange={onMarkersChange}
             onClose={() => setShowMarkers(false)}
+          />
+        )}
+
+        {showCollections && onCollectionsChange && (
+          <CollectionsEditor
+            sourceId={source.id}
+            current={source.collections || []}
+            onChange={onCollectionsChange}
+            onClose={() => setShowCollections(false)}
+          />
+        )}
+
+        {showConcepts && onConceptsChange && (
+          <ConceptsEditor
+            current={source.concepts || []}
+            onChange={onConceptsChange}
+            onClose={() => setShowConcepts(false)}
           />
         )}
       </div>
@@ -361,6 +411,361 @@ function MarkersEditor({ current, onChange, onClose }) {
         <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>Cancel</button>
         <button type="button" className="sp-action sp-action-primary" onClick={save}>Save</button>
       </div>
+    </div>
+  );
+}
+
+// =====================================================================
+// CollectionsEditor — inline editor for placing a source into the user's
+// collections.  Mirrors MarkersEditor (and reuses its styles): batches
+// add/remove until Save, and supports creating a collection inline.
+//
+// Unlike markers (a plain array column saved by the parent), collection
+// membership needs the /collections list plus per-collection add_item /
+// remove_item calls — so this editor owns the network work itself and
+// only hands the parent the resulting pill set via onChange.
+// =====================================================================
+function CollectionsEditor({ sourceId, current, onChange, onClose }) {
+  const currentIds = useMemo(() => current.map(c => c.id), [current]);
+  const [available, setAvailable] = useState(null); // null while loading
+  const [draftIds, setDraftIds] = useState(() => new Set(currentIds));
+  const [custom, setCustom] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const csrf = () => document.querySelector('[name="csrf-token"]')?.content;
+
+  // Load the collections the user can add items to (owned + collaborator).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/collections.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setAvailable((Array.isArray(data) ? data : []).map(c => ({
+          id: c.id,
+          name: c.name,
+          writable: c.is_owner || c.share_permission === 'collaborator',
+          active: c.active !== false,
+        })));
+      } catch (err) {
+        console.error('Collections load failed', err);
+        if (!cancelled) { setAvailable([]); setError('Could not load collections.'); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Rows shown: writable + active collections, plus any collection the
+  // source already sits in — a non-writable one renders as a locked,
+  // checked row so the editor never silently hides a real membership.
+  const rows = useMemo(() => {
+    if (available == null) return [];
+    const currentSet = new Set(currentIds);
+    const seen = new Set();
+    const out = [];
+    available
+      .filter(c => (c.writable && c.active) || currentSet.has(c.id))
+      .forEach(c => { seen.add(c.id); out.push(c); });
+    current.forEach(c => {
+      if (seen.has(c.id)) return;
+      out.push({ id: c.id, name: c.name, writable: false, active: true });
+    });
+    return out.sort((a, b) => a.name.localeCompare(b.name));
+  }, [available, current, currentIds]);
+
+  const nameFor = useMemo(() => {
+    const m = new Map(current.map(c => [c.id, c.name]));
+    (available || []).forEach(c => { if (!m.has(c.id)) m.set(c.id, c.name); });
+    return m;
+  }, [available, current]);
+
+  const toggle = (id) => {
+    setDraftIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const addCustom = async () => {
+    const name = custom.trim();
+    if (!name || saving) return;
+    const existing = (available || []).find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      setDraftIds(prev => new Set(prev).add(existing.id));
+      setCustom('');
+      return;
+    }
+    try {
+      const res = await fetch('/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
+        body: JSON.stringify({ collection: { name } }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const c = await res.json();
+      setAvailable(prev => [...(prev || []), { id: c.id, name: c.name, writable: true, active: true }]);
+      setDraftIds(prev => new Set(prev).add(c.id));
+      setCustom('');
+      setError(null);
+    } catch (err) {
+      console.error('Collection create failed', err);
+      setError('Could not create that collection.');
+    }
+  };
+
+  const save = async () => {
+    if (saving || available == null) return;
+    const have = new Set(currentIds);
+    const toAdd = [...draftIds].filter(id => !have.has(id));
+    const toRemove = [...have].filter(id => !draftIds.has(id));
+    if (toAdd.length === 0 && toRemove.length === 0) { onClose(); return; }
+
+    setSaving(true);
+    setError(null);
+
+    const call = (id, path, method) =>
+      fetch(`/collections/${id}/${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
+        body: JSON.stringify({ item_type: 'Source', item_id: sourceId }),
+      })
+        .then(res => ({ id, ok: res.ok || res.status === 204 }))
+        .catch(err => { console.error(`Collection ${path} failed`, err); return { id, ok: false }; });
+
+    const addResults = await Promise.all(toAdd.map(id => call(id, 'add_item', 'POST')));
+    const removeResults = await Promise.all(toRemove.map(id => call(id, 'remove_item', 'DELETE')));
+
+    const finalIds = new Set(currentIds);
+    addResults.forEach(r => { if (r.ok) finalIds.add(r.id); });
+    removeResults.forEach(r => { if (r.ok) finalIds.delete(r.id); });
+
+    onChange(
+      [...finalIds]
+        .map(id => ({ id, name: nameFor.get(id) }))
+        .filter(c => c.name)
+        .sort((a, b) => a.name.localeCompare(b.name))
+    );
+
+    if ([...addResults, ...removeResults].some(r => !r.ok)) {
+      setDraftIds(finalIds);
+      setError('Some changes could not be saved.');
+      setSaving(false);
+    } else {
+      onClose();
+    }
+  };
+
+  return (
+    <div className="src-card-markers-editor">
+      {available == null ? (
+        <p className="src-card-collections-note">Loading collections.</p>
+      ) : (
+        <>
+          {rows.length === 0 ? (
+            <p className="src-card-collections-note">No collections yet — create one below.</p>
+          ) : (
+            <div className="src-card-markers-list">
+              {rows.map(c => (
+                <label
+                  key={c.id}
+                  className="src-card-marker-option"
+                  title={c.writable ? undefined : 'You can view but not change this collection.'}
+                >
+                  <input
+                    type="checkbox"
+                    className="sp-checkbox"
+                    checked={draftIds.has(c.id)}
+                    disabled={!c.writable}
+                    onChange={() => toggle(c.id)}
+                  />
+                  <span>{c.name}</span>
+                </label>
+              ))}
+            </div>
+          )}
+          <div className="src-card-markers-custom">
+            <input
+              type="text"
+              className="src-card-markers-input"
+              placeholder="Create New Collection"
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } }}
+            />
+            <button type="button" className="sp-action sp-action-secondary" onClick={addCustom}>Create</button>
+          </div>
+          {error && <p className="src-card-collections-error">{error}</p>}
+          <div className="src-card-markers-actions">
+            <button type="button" className="sp-action sp-action-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+            <button type="button" className="sp-action sp-action-primary" onClick={save} disabled={saving}>
+              {saving ? 'Saving.' : 'Save'}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// =====================================================================
+// ConceptsEditor — inline editor for tagging a source with concepts.
+// Same button/editor pattern as MarkersEditor (and reuses its styles);
+// because a researcher's concept vocabulary is large and open-ended this
+// one is search-first and supports creating a concept inline.  The Save
+// hands the parent the new concept set; the parent PATCHes concept_ids.
+// =====================================================================
+function ConceptsEditor({ current, onChange, onClose }) {
+  const [available, setAvailable] = useState(null); // null while loading
+  const [draftIds, setDraftIds] = useState(() => new Set(current.map(c => c.id)));
+  const [query, setQuery] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
+
+  const csrf = () => document.querySelector('[name="csrf-token"]')?.content;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/concepts.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setAvailable((Array.isArray(data) ? data : []).map(c => ({ id: c.id, label: c.label })));
+      } catch (err) {
+        console.error('Concepts load failed', err);
+        if (!cancelled) { setAvailable([]); setError('Could not load concepts.'); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Label lookup spanning the fetched list + whatever the source already
+  // carries, so Save can hand back {id, label} for every checked concept.
+  const labelFor = useMemo(() => {
+    const m = new Map(current.map(c => [c.id, c.label]));
+    (available || []).forEach(c => { if (!m.has(c.id)) m.set(c.id, c.label); });
+    return m;
+  }, [available, current]);
+
+  // Checked concepts always show; the rest are filtered by the query and
+  // capped so a large vocabulary doesn't blow the card out vertically.
+  const rows = useMemo(() => {
+    if (available == null) return [];
+    const q = query.trim().toLowerCase();
+    const checked = [];
+    const rest = [];
+    available.forEach(c => {
+      if (draftIds.has(c.id)) checked.push(c);
+      else if (!q || c.label.toLowerCase().includes(q)) rest.push(c);
+    });
+    const byLabel = (a, b) => a.label.localeCompare(b.label);
+    return [...checked.sort(byLabel), ...rest.sort(byLabel)].slice(0, 60);
+  }, [available, draftIds, query]);
+
+  const exactExists = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return (available || []).some(c => c.label.toLowerCase() === q);
+  }, [available, query]);
+
+  const toggle = (id) => {
+    setDraftIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const createConcept = async () => {
+    const label = query.trim();
+    if (!label || creating || exactExists) return;
+    setCreating(true);
+    setError(null);
+    try {
+      const res = await fetch('/concepts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf() },
+        body: JSON.stringify({ concept: { label } }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const c = await res.json();
+      setAvailable(prev => [...(prev || []), { id: c.id, label: c.label }]);
+      setDraftIds(prev => new Set(prev).add(c.id));
+      setQuery('');
+    } catch (err) {
+      console.error('Concept create failed', err);
+      setError('Could not create that concept.');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const save = () => {
+    if (available == null) return;
+    onChange(
+      [...draftIds]
+        .map(id => ({ id, label: labelFor.get(id) }))
+        .filter(c => c.label)
+        .sort((a, b) => a.label.localeCompare(b.label))
+    );
+    onClose();
+  };
+
+  return (
+    <div className="src-card-markers-editor">
+      {available == null ? (
+        <p className="src-card-collections-note">Loading concepts.</p>
+      ) : (
+        <>
+          <input
+            type="text"
+            className="src-card-concepts-search"
+            placeholder="Search concepts."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !exactExists) { e.preventDefault(); createConcept(); } }}
+          />
+          {rows.length === 0 ? (
+            <p className="src-card-collections-note">
+              {query.trim() ? 'No matching concepts.' : 'No concepts yet — create one below.'}
+            </p>
+          ) : (
+            <div className="src-card-concepts-list">
+              {rows.map(c => (
+                <label key={c.id} className="src-card-marker-option">
+                  <input
+                    type="checkbox"
+                    className="sp-checkbox"
+                    checked={draftIds.has(c.id)}
+                    onChange={() => toggle(c.id)}
+                  />
+                  <span>{toTitleCase(c.label)}</span>
+                </label>
+              ))}
+            </div>
+          )}
+          {query.trim() && !exactExists && (
+            <button
+              type="button"
+              className="src-card-concept-create"
+              onClick={createConcept}
+              disabled={creating}
+            >
+              {creating ? 'Creating.' : `+ Create "${query.trim()}"`}
+            </button>
+          )}
+          {error && <p className="src-card-collections-error">{error}</p>}
+          <div className="src-card-markers-actions">
+            <button type="button" className="sp-action sp-action-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="sp-action sp-action-primary" onClick={save}>Save</button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -800,28 +1205,6 @@ export function SourceCardStyles() {
         align-items: baseline;
         gap: 4px 6px;
       }
-      .src-card-author-chip {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        font-weight: 500;
-        color: var(--accent-gold);
-        background: var(--accent-gold-light);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        white-space: nowrap;
-        max-width: 220px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        transition: background var(--transition-fast), color var(--transition-fast);
-      }
-      .src-card-author-chip:hover {
-        background: var(--accent-gold);
-        color: var(--paper);
-      }
-
       .src-card-abstract {
         margin: 14px 0 0;
         font-family: var(--font-body);
@@ -830,10 +1213,9 @@ export function SourceCardStyles() {
         color: var(--ink-2);
       }
 
-      /* Single wrapped chip row.  All chip categories share this row;
-         color coding is the organizing principle (markers neutral,
-         concepts purple, methods italic, stats amber, tags grey,
-         collections grey-bordered).  Ratios vary widely between sources. */
+      /* Single wrapped chip row — mixes nc-pill chips of every category
+         (markers, concepts, methods, stat tests, tags, collections).
+         Color carries the meaning; ratios vary widely between sources. */
       .src-card-tags {
         display: flex;
         flex-wrap: wrap;
@@ -842,20 +1224,9 @@ export function SourceCardStyles() {
         align-items: center;
       }
 
-      .src-card-marker-chip {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        background: var(--paper-warm, var(--paper-soft));
-        color: var(--ink-2);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        cursor: pointer;
-      }
-      .src-card-marker-chip:hover { background: var(--paper-soft); }
-      .src-card-marker-add {
+      .src-card-marker-add,
+      .src-card-collection-add,
+      .src-card-concept-add {
         font-family: var(--font-body);
         font-size: 11.5px;
         background: transparent;
@@ -865,61 +1236,9 @@ export function SourceCardStyles() {
         border-radius: var(--r-sm);
         cursor: pointer;
       }
-      .src-card-marker-add:hover { color: var(--source-2); border-color: var(--source); }
-
-      .src-card-concept-chip {
-        display: inline-block;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--concept-2);
-        background: var(--concept-tint);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-      }
-      .src-card-concept-chip:hover { background: color-mix(in srgb, var(--concept-tint) 70%, var(--concept) 30%); }
-      .src-card-tag-chip {
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
-        background: var(--paper-soft);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-      }
-      .src-card-method-chip {
-        font-family: var(--font-body);
-        font-style: italic;
-        font-size: 11.5px;
-        color: var(--ink-3);
-        background: transparent;
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-      }
-      .src-card-stat-chip {
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: #8a6418;
-        background: color-mix(in srgb, #b88621 12%, transparent);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-        transition: background var(--transition-fast), color var(--transition-fast);
-      }
-      .src-card-stat-chip:hover { background: #b88621; color: var(--paper); }
-      .src-card-collection-chip {
-        display: inline-flex;
-        align-items: center;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-soft);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-      }
-      .src-card-collection-chip:hover { background: var(--hover); color: var(--ink); }
+      .src-card-marker-add:hover,
+      .src-card-collection-add:hover,
+      .src-card-concept-add:hover { color: var(--source-2); border-color: var(--source); }
       .src-card-mini-stat {
         display: inline-flex;
         align-items: center;
@@ -929,7 +1248,54 @@ export function SourceCardStyles() {
         color: var(--ink-3);
       }
 
-      /* Inline marker editor */
+      /* Inline marker editor — also reused by the collections editor */
+      .src-card-collections-note {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+        margin: 0 0 10px;
+      }
+      .src-card-collections-error {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--error);
+        margin: 8px 0 0;
+      }
+      .src-card-concepts-search {
+        width: 100%;
+        height: 32px;
+        padding: 0 10px;
+        margin-bottom: 10px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .src-card-concepts-search:focus { outline: none; border-color: var(--source); }
+      .src-card-concepts-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 4px;
+        max-height: 220px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+      }
+      .src-card-concept-create {
+        display: inline-block;
+        margin-bottom: 10px;
+        background: transparent;
+        border: 1px dashed var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 4px 10px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--source-2);
+        cursor: pointer;
+      }
+      .src-card-concept-create:hover { border-color: var(--source); }
+      .src-card-concept-create:disabled { opacity: 0.6; cursor: default; }
       .src-card-markers-editor {
         margin-top: 12px;
         padding: 12px;

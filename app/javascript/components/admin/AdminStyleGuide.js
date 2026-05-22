@@ -553,33 +553,58 @@ function SGChips() {
   return (
     <>
       <SGBlock
-        title="Chips by Category"
+        title="Pills by Category"
+        classes={['nc-pill', 'nc-pill.is-source', 'nc-pill.is-concept', 'nc-pill.is-person', 'nc-pill.is-note', 'nc-pill.is-tag', 'nc-pill.is-collection', 'nc-pill.is-research', 'nc-pill.is-stat-test', 'nc-pill.is-marker']}
+        notes="Icon + label, tinted in the entity ink. The icon makes the type readable at a glance even before you read the label. Used by NoteCard chips, the /collections sidebar, and any 'by category' badge surface."
+        dont="Mix entity inks (concept color on a source pill).  The color is the meaning."
+      >
+        <div className="sg-row">
+          <span className="nc-pill is-source"><i className="fas fa-book-open nc-pill-icon" /><span className="nc-pill-label">Bowlby (1969)</span></span>
+          <span className="nc-pill is-concept"><i className="fas fa-lightbulb nc-pill-icon" /><span className="nc-pill-label">Attachment Theory</span></span>
+          <span className="nc-pill is-person"><i className="fas fa-user nc-pill-icon" /><span className="nc-pill-label">Ainsworth, M.</span></span>
+          <span className="nc-pill is-note"><i className="fas fa-note-sticky nc-pill-icon" /><span className="nc-pill-label">Strange Situation framing</span></span>
+          <span className="nc-pill is-tag"><i className="fas fa-tag nc-pill-icon" /><span className="nc-pill-label">methodology</span></span>
+          <span className="nc-pill is-collection"><i className="fas fa-folder nc-pill-icon" /><span className="nc-pill-label">Thesis Ch. 3</span></span>
+          <span className="nc-pill is-research"><i className="fas fa-flask nc-pill-icon" /><span className="nc-pill-label">Longitudinal</span></span>
+          <span className="nc-pill is-stat-test"><i className="fas fa-square-root-variable nc-pill-icon" /><span className="nc-pill-label">Mixed-effects model</span></span>
+          <span className="nc-pill is-marker"><i className="fas fa-highlighter nc-pill-icon" /><span className="nc-pill-label">Re-read</span></span>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Removable Pills"
+        classes={['nc-pill.is-removable', 'nc-pill-x']}
+        notes="Add is-removable plus an inline × button.  Use inside type-to-filter selections, multi-select inputs, and active filter bars."
+      >
+        <div className="sg-row">
+          <span className="nc-pill is-source is-removable">
+            <i className="fas fa-book-open nc-pill-icon" />
+            <span className="nc-pill-label">Bowlby (1969)</span>
+            <button className="nc-pill-x" aria-label="Remove"><SGIcon name="x" size={9} /></button>
+          </span>
+          <span className="nc-pill is-concept is-removable">
+            <i className="fas fa-lightbulb nc-pill-icon" />
+            <span className="nc-pill-label">Attachment Theory</span>
+            <button className="nc-pill-x" aria-label="Remove"><SGIcon name="x" size={9} /></button>
+          </span>
+          <span className="nc-pill is-tag is-removable">
+            <i className="fas fa-tag nc-pill-icon" />
+            <span className="nc-pill-label">methodology</span>
+            <button className="nc-pill-x" aria-label="Remove"><SGIcon name="x" size={9} /></button>
+          </span>
+        </div>
+      </SGBlock>
+
+      <SGBlock
+        title="Legacy plain chips"
         classes={['sp-chip', 'sp-chip.is-concept', 'sp-chip.is-source', 'sp-chip.is-person', 'sp-chip.is-neutral']}
-        notes="Color-coded for entity type.  Use neutral for tags, collections, and any category that isn't Concept / Source / Person."
-        dont="Mix concept color with source data, or vice versa.  The color is the meaning."
+        notes="Older chip style still used in some surfaces (tables, type-to-filter selections).  Prefer nc-pill for new work."
       >
         <div className="sg-row">
           <span className="sp-chip is-concept">Attachment Theory</span>
           <span className="sp-chip is-source">Bowlby (1969)</span>
           <span className="sp-chip is-person">Ainsworth, M.</span>
           <span className="sp-chip is-neutral">Thesis Ch. 3</span>
-        </div>
-      </SGBlock>
-
-      <SGBlock
-        title="Removable Chips"
-        classes={['sp-chip-removable', 'sp-chip-x']}
-        notes="Inside type-to-filter selections, multi-select inputs, and active filter bars."
-      >
-        <div className="sg-row">
-          <span className="sp-chip is-concept sp-chip-removable">
-            Attachment Theory
-            <button className="sp-chip-x" aria-label="Remove"><SGIcon name="x" size={9} /></button>
-          </span>
-          <span className="sp-chip is-source sp-chip-removable">
-            Bowlby (1969)
-            <button className="sp-chip-x" aria-label="Remove"><SGIcon name="x" size={9} /></button>
-          </span>
         </div>
       </SGBlock>
 

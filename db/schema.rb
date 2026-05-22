@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_21_010000) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
@@ -68,6 +69,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
     t.index ["full_name"], name: "index_authors_on_full_name"
     t.index ["orcid"], name: "index_authors_on_orcid", unique: true, where: "(orcid IS NOT NULL)"
     t.index ["user_id"], name: "index_authors_on_user_id"
+  end
+
+  create_table "bibliography_entries", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.bigint "source_id", null: false
+    t.text "internal_annotation"
+    t.text "formal_annotation"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_id", "source_id"], name: "index_bibliography_entries_on_collection_and_source", unique: true
+    t.index ["collection_id"], name: "index_bibliography_entries_on_collection_id"
+    t.index ["source_id"], name: "index_bibliography_entries_on_source_id"
   end
 
   create_table "collection_items", force: :cascade do |t|
@@ -132,6 +145,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
     t.index ["concept_type"], name: "index_concept_definitions_on_concept_type"
     t.index ["label"], name: "index_concept_definitions_on_label"
     t.index ["slug", "concept_type"], name: "index_concept_definitions_on_slug_and_concept_type"
+  end
+
+  create_table "concept_disambiguations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "concept_a_id", null: false
+    t.bigint "concept_b_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["concept_a_id"], name: "index_concept_disambiguations_on_concept_a_id"
+    t.index ["concept_b_id"], name: "index_concept_disambiguations_on_concept_b_id"
+    t.index ["user_id", "concept_a_id", "concept_b_id"], name: "index_concept_disambiguations_unique", unique: true
+    t.index ["user_id"], name: "index_concept_disambiguations_on_user_id"
+    t.check_constraint "concept_a_id < concept_b_id", name: "concept_disambiguations_ordered_pair_check"
   end
 
   create_table "concept_domains", id: false, force: :cascade do |t|
@@ -256,6 +282,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
     t.string "definition_acquired_via"
     t.index ["concept_type"], name: "index_concepts_on_concept_type"
     t.index ["definition_id"], name: "index_concepts_on_definition_id"
+    t.index ["label"], name: "index_concepts_on_label_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_concepts_on_slug", unique: true
     t.index ["user_id"], name: "index_concepts_on_user_id"
   end
@@ -486,6 +513,21 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
     t.index ["user_id"], name: "index_notes_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "kind", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "acted_at"
+    t.datetime "read_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind"], name: "index_notifications_on_kind"
+    t.index ["user_id", "read_at"], name: "index_notifications_on_user_read"
+    t.index ["user_id", "status", "created_at"], name: "index_notifications_on_user_status_created", order: { created_at: :desc }
+    t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
   create_table "passage_insight_unlocks", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "source_id", null: false
@@ -581,6 +623,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "include_source_notes", default: false, null: false
     t.index ["invite_token"], name: "index_shares_on_invite_token", unique: true, where: "(invite_token IS NOT NULL)"
     t.index ["invited_email"], name: "index_shares_on_invited_email"
     t.index ["owner_id"], name: "index_shares_on_owner_id"
@@ -857,11 +900,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "allowed_domains", "users", column: "added_by_id"
   add_foreign_key "authors", "users"
+  add_foreign_key "bibliography_entries", "collections"
+  add_foreign_key "bibliography_entries", "sources"
   add_foreign_key "collection_items", "collections"
   add_foreign_key "collection_items", "users", column: "added_by_id"
   add_foreign_key "collections", "users"
   add_foreign_key "concept_definition_domains", "concept_definitions"
   add_foreign_key "concept_definition_domains", "domains"
+  add_foreign_key "concept_disambiguations", "concepts", column: "concept_a_id", on_delete: :cascade
+  add_foreign_key "concept_disambiguations", "concepts", column: "concept_b_id", on_delete: :cascade
+  add_foreign_key "concept_disambiguations", "users"
   add_foreign_key "concept_domains", "concepts"
   add_foreign_key "concept_domains", "domains"
   add_foreign_key "concept_generation_batches", "users"
@@ -891,6 +939,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_30_060000) do
   add_foreign_key "notes", "concepts"
   add_foreign_key "notes", "sources"
   add_foreign_key "notes", "users"
+  add_foreign_key "notifications", "users"
   add_foreign_key "passage_insight_unlocks", "sources", on_delete: :cascade
   add_foreign_key "passage_insight_unlocks", "users", on_delete: :cascade
   add_foreign_key "people", "users"

@@ -540,16 +540,25 @@ function PersonRow({ person, onEdit, onDelete }) {
           (person.collections && person.collections.length > 0)) && (
           <div className="pix-row-tags">
             {person.concepts?.slice(0, 4).map(c => (
-              <a key={c.id} href={`/concepts/${c.id}`} className="pix-concept-chip">{toTitleCase(c.label)}</a>
+              <a key={c.id} href={`/concepts/${c.id}`} className="nc-pill is-concept">
+                <i className="fas fa-lightbulb nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{toTitleCase(c.label)}</span>
+              </a>
             ))}
             {person.concepts?.length > 4 && (
               <span className="pix-mini-stat">+{person.concepts.length - 4}</span>
             )}
-            {person.tags?.slice(0, 3).map(t => (
-              <span key={t} className="pix-tag-chip">{t}</span>
+            {person.tags?.map(t => (
+              <span key={t} className="nc-pill is-tag">
+                <i className="fas fa-tag nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{t}</span>
+              </span>
             ))}
             {person.collections?.map(c => (
-              <a key={c.id} href={`/collections/${c.id}`} className="pix-collection-chip">{c.name}</a>
+              <a key={c.id} href={`/collections/${c.id}`} className="nc-pill is-collection">
+                <i className="fas fa-folder nc-pill-icon" aria-hidden="true" />
+                <span className="nc-pill-label">{c.name}</span>
+              </a>
             ))}
           </div>
         )}
@@ -1039,36 +1048,7 @@ function PixStyles() {
         margin-top: 8px;
         align-items: center;
       }
-      .pix-concept-chip {
-        display: inline-block;
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--concept-2);
-        background: var(--concept-tint);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-      }
-      .pix-concept-chip:hover { background: color-mix(in srgb, var(--concept-tint) 70%, var(--concept) 30%); }
-      .pix-tag-chip {
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-3);
-        background: var(--paper-soft);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-      }
-      .pix-collection-chip {
-        font-family: var(--font-body);
-        font-size: 11.5px;
-        color: var(--ink-2);
-        background: var(--paper-soft);
-        border: 1px solid var(--ink-line);
-        padding: 1px 8px;
-        border-radius: var(--r-sm);
-        text-decoration: none;
-      }
-      .pix-collection-chip:hover { background: var(--hover); color: var(--ink); }
+      /* Chips render via the shared nc-pill in design-system.css. */
 
       /* Responsive */
       @media (max-width: 900px) {
