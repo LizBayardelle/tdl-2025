@@ -115017,6 +115017,7 @@ function CollectionBibliography({ collectionId, collectionName, isOwner, sharePe
   const [error, setError] = (0, import_react70.useState)("");
   const [pdfSource, setPdfSource] = (0, import_react70.useState)(null);
   const [newEntryId, setNewEntryId] = (0, import_react70.useState)(null);
+  const [query, setQuery] = (0, import_react70.useState)("");
   const load = (0, import_react70.useCallback)(async () => {
     try {
       const res = await fetch(`/collections/${collectionId}/bibliography_entries.json`);
@@ -115058,6 +115059,25 @@ function CollectionBibliography({ collectionId, collectionName, isOwner, sharePe
     () => entries.map((e3) => ({ entry: e3, source: sourcesById[e3.source_id] })).filter((x6) => x6.source).sort((x6, y6) => sourceSort(x6.source, y6.source)),
     [entries, sourcesById]
   );
+  const normalizedQuery = query.trim().toLowerCase();
+  const matchesQuery = (0, import_react70.useCallback)((haystacks) => {
+    if (!normalizedQuery) return true;
+    return haystacks.some((h4) => h4 && h4.toLowerCase().includes(normalizedQuery));
+  }, [normalizedQuery]);
+  const visibleEntries = (0, import_react70.useMemo)(
+    () => orderedEntries.filter(({ entry, source }) => matchesQuery([
+      source.title,
+      source.authors,
+      entry.internal_annotation,
+      entry.formal_annotation
+    ])),
+    [orderedEntries, matchesQuery]
+  );
+  const visibleSidebarSources = (0, import_react70.useMemo)(
+    () => sidebarSources.filter((s3) => matchesQuery([s3.title, s3.authors])),
+    [sidebarSources, matchesQuery]
+  );
+  const hiddenByFilter = normalizedQuery ? orderedEntries.length - visibleEntries.length + (sidebarSources.length - visibleSidebarSources.length) : 0;
   const handleAnnotate = async (sourceId) => {
     try {
       const res = await fetch(`/collections/${collectionId}/bibliography_entries.json`, {
@@ -115100,7 +115120,26 @@ function CollectionBibliography({ collectionId, collectionName, isOwner, sharePe
   if (error) {
     return /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-loading" }, /* @__PURE__ */ import_react70.default.createElement(CBStyles, null), /* @__PURE__ */ import_react70.default.createElement("p", null, error), /* @__PURE__ */ import_react70.default.createElement("a", { href: "/collections", className: "cb-back" }, "\u2190 Back to Collections"));
   }
-  return /* @__PURE__ */ import_react70.default.createElement(import_react70.default.Fragment, null, /* @__PURE__ */ import_react70.default.createElement(CBStyles, null), /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-page" }, /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}`, className: "cb-back" }, "\u2190 ", collectionName || "Collection"), /* @__PURE__ */ import_react70.default.createElement("header", { className: "cb-head" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-headtext" }, /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-eyebrow" }, "Annotated Bibliography"), /* @__PURE__ */ import_react70.default.createElement("h1", { className: "cb-title" }, collectionName)), /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-headright" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-counts" }, /* @__PURE__ */ import_react70.default.createElement("span", null, /* @__PURE__ */ import_react70.default.createElement("strong", null, orderedEntries.length), " annotated"), /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-counts-sep" }, "\xB7"), /* @__PURE__ */ import_react70.default.createElement("span", null, /* @__PURE__ */ import_react70.default.createElement("strong", null, sidebarSources.length), " to go")), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}/bibliography/export`, className: "cb-export-btn" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-file-export" }), " Export"))), sources.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-empty-all" }, /* @__PURE__ */ import_react70.default.createElement("p", null, "This collection has no sources yet."), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}`, className: "cb-empty-link" }, "Add sources to the collection \u2192")) : /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-2col" }, /* @__PURE__ */ import_react70.default.createElement("main", { className: "cb-main" }, orderedEntries.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-main-empty" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-feather-pointed" }), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-title" }, "Nothing annotated yet"), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-hint" }, canEdit ? "Pick a source from the list on the right to start its annotation." : "No annotations have been written for this collection yet.")) : orderedEntries.map(({ entry, source }) => /* @__PURE__ */ import_react70.default.createElement(
+  return /* @__PURE__ */ import_react70.default.createElement(import_react70.default.Fragment, null, /* @__PURE__ */ import_react70.default.createElement(CBStyles, null), /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-page" }, /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}`, className: "cb-back" }, "\u2190 ", collectionName || "Collection"), /* @__PURE__ */ import_react70.default.createElement("header", { className: "cb-head" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-headtext" }, /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-eyebrow" }, "Annotated Bibliography"), /* @__PURE__ */ import_react70.default.createElement("h1", { className: "cb-title" }, collectionName)), /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-headright" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-counts" }, /* @__PURE__ */ import_react70.default.createElement("span", null, /* @__PURE__ */ import_react70.default.createElement("strong", null, orderedEntries.length), " annotated"), /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-counts-sep" }, "\xB7"), /* @__PURE__ */ import_react70.default.createElement("span", null, /* @__PURE__ */ import_react70.default.createElement("strong", null, sidebarSources.length), " to go")), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}/bibliography/export`, className: "cb-export-btn" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-file-export" }), " Export"))), sources.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-empty-all" }, /* @__PURE__ */ import_react70.default.createElement("p", null, "This collection has no sources yet."), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/collections/${collectionId}`, className: "cb-empty-link" }, "Add sources to the collection \u2192")) : /* @__PURE__ */ import_react70.default.createElement(import_react70.default.Fragment, null, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-filterbar" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-filter" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-magnifying-glass cb-filter-icon" }), /* @__PURE__ */ import_react70.default.createElement(
+    "input",
+    {
+      type: "search",
+      className: "cb-filter-input",
+      placeholder: "Filter by title, author, or annotation text\u2026",
+      value: query,
+      onChange: (e3) => setQuery(e3.target.value),
+      "aria-label": "Filter bibliography"
+    }
+  ), query && /* @__PURE__ */ import_react70.default.createElement(
+    "button",
+    {
+      type: "button",
+      className: "cb-filter-clear",
+      onClick: () => setQuery(""),
+      "aria-label": "Clear filter"
+    },
+    /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-xmark" })
+  )), normalizedQuery && /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-filter-status" }, hiddenByFilter === 0 ? "All sources match." : `${hiddenByFilter} hidden by filter.`)), /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-2col" }, /* @__PURE__ */ import_react70.default.createElement("main", { className: "cb-main" }, orderedEntries.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-main-empty" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-feather-pointed" }), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-title" }, "Nothing annotated yet"), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-hint" }, canEdit ? "Pick a source from the list on the right to start its annotation." : "No annotations have been written for this collection yet.")) : visibleEntries.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-main-empty" }, /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-filter-circle-xmark" }), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-title" }, "No annotations match \u201C", query, "\u201D"), /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-main-empty-hint" }, "Try a shorter or different search.")) : visibleEntries.map(({ entry, source }) => /* @__PURE__ */ import_react70.default.createElement(
     EntryCard,
     {
       key: entry.id,
@@ -115114,7 +115153,7 @@ function CollectionBibliography({ collectionId, collectionName, isOwner, sharePe
       onViewPdf: setPdfSource,
       onSaved: handleEntrySaved
     }
-  ))), /* @__PURE__ */ import_react70.default.createElement("aside", { className: "cb-side" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-side-inner" }, /* @__PURE__ */ import_react70.default.createElement("h2", { className: "cb-side-title" }, "Not yet annotated ", /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-count" }, sidebarSources.length)), sidebarSources.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-side-done" }, "\u{1F389} Every source has an annotation.") : /* @__PURE__ */ import_react70.default.createElement("ul", { className: "cb-side-list" }, sidebarSources.map((source) => /* @__PURE__ */ import_react70.default.createElement("li", { key: source.id, className: "cb-side-item" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-side-item-text" }, /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-item-titlerow" }, source.pdf_url && /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-file-pdf cb-side-pdf", title: "Has a PDF attached", "aria-label": "Has a PDF attached" }), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/sources/${source.id}`, className: "cb-side-item-title" }, source.title)), /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-item-meta" }, metaLine(source))), canEdit && /* @__PURE__ */ import_react70.default.createElement(
+  ))), /* @__PURE__ */ import_react70.default.createElement("aside", { className: "cb-side" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-side-inner" }, /* @__PURE__ */ import_react70.default.createElement("h2", { className: "cb-side-title" }, "Not yet annotated", " ", /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-count" }, normalizedQuery && visibleSidebarSources.length !== sidebarSources.length ? `${visibleSidebarSources.length}/${sidebarSources.length}` : sidebarSources.length)), sidebarSources.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-side-done" }, "\u{1F389} Every source has an annotation.") : visibleSidebarSources.length === 0 ? /* @__PURE__ */ import_react70.default.createElement("p", { className: "cb-side-done" }, "No unannotated sources match the filter.") : /* @__PURE__ */ import_react70.default.createElement("ul", { className: "cb-side-list" }, visibleSidebarSources.map((source) => /* @__PURE__ */ import_react70.default.createElement("li", { key: source.id, className: "cb-side-item" }, /* @__PURE__ */ import_react70.default.createElement("div", { className: "cb-side-item-text" }, /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-item-titlerow" }, source.pdf_url && /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-file-pdf cb-side-pdf", title: "Has a PDF attached", "aria-label": "Has a PDF attached" }), /* @__PURE__ */ import_react70.default.createElement("a", { href: `/sources/${source.id}`, className: "cb-side-item-title" }, source.title)), /* @__PURE__ */ import_react70.default.createElement("span", { className: "cb-side-item-meta" }, metaLine(source))), canEdit && /* @__PURE__ */ import_react70.default.createElement(
     "button",
     {
       type: "button",
@@ -115123,7 +115162,7 @@ function CollectionBibliography({ collectionId, collectionName, isOwner, sharePe
     },
     /* @__PURE__ */ import_react70.default.createElement("i", { className: "fas fa-plus" }),
     " Annotate"
-  )))))))), pdfSource && /* @__PURE__ */ import_react70.default.createElement(PdfModal, { source: pdfSource, onClose: () => setPdfSource(null) }));
+  ))))))))), pdfSource && /* @__PURE__ */ import_react70.default.createElement(PdfModal, { source: pdfSource, onClose: () => setPdfSource(null) }));
 }
 function EntryCard({ collectionId, entry, source, canEdit, isOwner, isNew, onRemove: onRemove2, onViewPdf, onSaved }) {
   const [internal, setInternal] = (0, import_react70.useState)(entry.internal_annotation || "");
@@ -115430,6 +115469,68 @@ function CBStyles() {
         color: var(--ink);
       }
       .cb-export-btn i { font-size: 11px; }
+
+      .cb-filterbar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .cb-filter {
+        position: relative;
+        flex: 1 1 320px;
+        min-width: 240px;
+        display: flex;
+        align-items: center;
+      }
+      .cb-filter-icon {
+        position: absolute;
+        left: 12px;
+        font-size: 12px;
+        color: var(--ink-4);
+        pointer-events: none;
+      }
+      .cb-filter-input {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        line-height: 1.4;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 9px 34px 9px 32px;
+        transition: border-color 0.12s, box-shadow 0.12s;
+      }
+      .cb-filter-input::-webkit-search-cancel-button { display: none; }
+      .cb-filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
+      }
+      .cb-filter-clear {
+        position: absolute;
+        right: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: transparent;
+        border: none;
+        border-radius: 999px;
+        color: var(--ink-4);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+      }
+      .cb-filter-clear:hover { background: var(--paper-soft); color: var(--ink-2); }
+      .cb-filter-status {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+      }
 
       .cb-2col {
         display: grid;

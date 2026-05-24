@@ -38,6 +38,7 @@ export default function CollectionBibliography({ collectionId, collectionName, i
   const [error, setError] = useState('');
   const [pdfSource, setPdfSource] = useState(null);
   const [newEntryId, setNewEntryId] = useState(null);
+  const [query, setQuery] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -83,6 +84,29 @@ export default function CollectionBibliography({ collectionId, collectionName, i
       .sort((x, y) => sourceSort(x.source, y.source)),
     [entries, sourcesById]
   );
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const matchesQuery = useCallback((haystacks) => {
+    if (!normalizedQuery) return true;
+    return haystacks.some((h) => h && h.toLowerCase().includes(normalizedQuery));
+  }, [normalizedQuery]);
+
+  const visibleEntries = useMemo(
+    () => orderedEntries.filter(({ entry, source }) => matchesQuery([
+      source.title,
+      source.authors,
+      entry.internal_annotation,
+      entry.formal_annotation,
+    ])),
+    [orderedEntries, matchesQuery]
+  );
+  const visibleSidebarSources = useMemo(
+    () => sidebarSources.filter((s) => matchesQuery([s.title, s.authors])),
+    [sidebarSources, matchesQuery]
+  );
+  const hiddenByFilter = normalizedQuery
+    ? (orderedEntries.length - visibleEntries.length) + (sidebarSources.length - visibleSidebarSources.length)
+    : 0;
 
   const handleAnnotate = async (sourceId) => {
     try {
@@ -165,7 +189,38 @@ export default function CollectionBibliography({ collectionId, collectionName, i
             <a href={`/collections/${collectionId}`} className="cb-empty-link">Add sources to the collection →</a>
           </div>
         ) : (
-          <div className="cb-2col">
+          <>
+            <div className="cb-filterbar">
+              <div className="cb-filter">
+                <i className="fas fa-magnifying-glass cb-filter-icon" />
+                <input
+                  type="search"
+                  className="cb-filter-input"
+                  placeholder="Filter by title, author, or annotation text…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Filter bibliography"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    className="cb-filter-clear"
+                    onClick={() => setQuery('')}
+                    aria-label="Clear filter"
+                  >
+                    <i className="fas fa-xmark" />
+                  </button>
+                )}
+              </div>
+              {normalizedQuery && (
+                <span className="cb-filter-status">
+                  {hiddenByFilter === 0
+                    ? 'All sources match.'
+                    : `${hiddenByFilter} hidden by filter.`}
+                </span>
+              )}
+            </div>
+            <div className="cb-2col">
             <main className="cb-main">
               {orderedEntries.length === 0 ? (
                 <div className="cb-main-empty">
@@ -177,8 +232,14 @@ export default function CollectionBibliography({ collectionId, collectionName, i
                       : 'No annotations have been written for this collection yet.'}
                   </p>
                 </div>
+              ) : visibleEntries.length === 0 ? (
+                <div className="cb-main-empty">
+                  <i className="fas fa-filter-circle-xmark" />
+                  <p className="cb-main-empty-title">No annotations match “{query}”</p>
+                  <p className="cb-main-empty-hint">Try a shorter or different search.</p>
+                </div>
               ) : (
-                orderedEntries.map(({ entry, source }) => (
+                visibleEntries.map(({ entry, source }) => (
                   <EntryCard
                     key={entry.id}
                     collectionId={collectionId}
@@ -198,13 +259,20 @@ export default function CollectionBibliography({ collectionId, collectionName, i
             <aside className="cb-side">
               <div className="cb-side-inner">
                 <h2 className="cb-side-title">
-                  Not yet annotated <span className="cb-side-count">{sidebarSources.length}</span>
+                  Not yet annotated{' '}
+                  <span className="cb-side-count">
+                    {normalizedQuery && visibleSidebarSources.length !== sidebarSources.length
+                      ? `${visibleSidebarSources.length}/${sidebarSources.length}`
+                      : sidebarSources.length}
+                  </span>
                 </h2>
                 {sidebarSources.length === 0 ? (
                   <p className="cb-side-done">🎉 Every source has an annotation.</p>
+                ) : visibleSidebarSources.length === 0 ? (
+                  <p className="cb-side-done">No unannotated sources match the filter.</p>
                 ) : (
                   <ul className="cb-side-list">
-                    {sidebarSources.map((source) => (
+                    {visibleSidebarSources.map((source) => (
                       <li key={source.id} className="cb-side-item">
                         <div className="cb-side-item-text">
                           <span className="cb-side-item-titlerow">
@@ -231,6 +299,7 @@ export default function CollectionBibliography({ collectionId, collectionName, i
               </div>
             </aside>
           </div>
+          </>
         )}
       </div>
 
@@ -621,6 +690,68 @@ function CBStyles() {
         color: var(--ink);
       }
       .cb-export-btn i { font-size: 11px; }
+
+      .cb-filterbar {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+      .cb-filter {
+        position: relative;
+        flex: 1 1 320px;
+        min-width: 240px;
+        display: flex;
+        align-items: center;
+      }
+      .cb-filter-icon {
+        position: absolute;
+        left: 12px;
+        font-size: 12px;
+        color: var(--ink-4);
+        pointer-events: none;
+      }
+      .cb-filter-input {
+        width: 100%;
+        box-sizing: border-box;
+        font-family: var(--font-body);
+        font-size: 13.5px;
+        line-height: 1.4;
+        color: var(--ink);
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        padding: 9px 34px 9px 32px;
+        transition: border-color 0.12s, box-shadow 0.12s;
+      }
+      .cb-filter-input::-webkit-search-cancel-button { display: none; }
+      .cb-filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
+      }
+      .cb-filter-clear {
+        position: absolute;
+        right: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        background: transparent;
+        border: none;
+        border-radius: 999px;
+        color: var(--ink-4);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+      }
+      .cb-filter-clear:hover { background: var(--paper-soft); color: var(--ink-2); }
+      .cb-filter-status {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--ink-3);
+      }
 
       .cb-2col {
         display: grid;
