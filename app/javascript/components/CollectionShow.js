@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import ShareModal from './ShareModal';
 import Modal from './Modal';
 import NoteCard, { NoteCardStyles } from './NoteCard';
@@ -30,6 +30,17 @@ const TYPE_CONFIG = {
     chipClass: 'is-source', itemType: 'Source',
   },
 };
+
+// Position-based colors for read-only grouping display. Matches the ladder
+// used by CollectionGroupingSelect so a "Core" in position 0 reads with the
+// same accent across the bibliography, sources index, and this sidebar.
+const GROUPING_COLORS = [
+  'var(--primary)',
+  'var(--source, var(--primary))',
+  'var(--concept, var(--ink-2))',
+  'var(--person, var(--ink-2))',
+  'var(--ink-3)'
+];
 
 const ITEM_LINK = {
   sources:  (id) => `/sources/${id}`,
@@ -83,6 +94,22 @@ export default function CollectionShow({ collectionId }) {
 
   const [shareOpen, setShareOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDocClick = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setMoreOpen(false); };
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [moreOpen]);
 
   const [openLink, setOpenLink] = useState(null);
   const [openCreate, setOpenCreate] = useState(null);
@@ -265,29 +292,53 @@ export default function CollectionShow({ collectionId }) {
               <i className="fas fa-book-bookmark" /> Annotated Bibliography
             </a>
             {isOwner && (
-              <button type="button" className="sp-action sp-action-quiet" onClick={() => setEditing(true)} title="Edit collection">
-                <i className="fas fa-pen" /> Edit
-              </button>
-            )}
-            {isOwner && (
               <button type="button" className="sp-action sp-action-quiet" onClick={() => setShareOpen(true)} title="Share">
                 <i className="fas fa-share-alt" /> Share
               </button>
             )}
             {isOwner && (
-              <button
-                type="button"
-                className="sp-action sp-action-quiet"
-                onClick={handleToggleActive}
-                title={isArchived ? 'Unarchive collection' : 'Archive collection'}
-              >
-                <i className={`fas ${isArchived ? 'fa-box-open' : 'fa-box-archive'}`} /> {isArchived ? 'Unarchive' : 'Archive'}
-              </button>
-            )}
-            {isOwner && (
-              <button type="button" className="sp-action sp-action-quiet sp-action-danger" onClick={handleDelete} title="Delete">
-                <i className="fas fa-trash" /> Delete
-              </button>
+              <div className="cs-more" ref={moreRef}>
+                <button
+                  type="button"
+                  className="sp-action sp-action-quiet cs-more-trigger"
+                  aria-haspopup="menu"
+                  aria-expanded={moreOpen}
+                  onClick={(e) => { e.stopPropagation(); setMoreOpen((v) => !v); }}
+                  title="More actions"
+                >
+                  <i className="fas fa-ellipsis" />
+                </button>
+                {moreOpen && (
+                  <div className="cs-more-menu" role="menu">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="cs-more-item"
+                      onClick={() => { setMoreOpen(false); setEditing(true); }}
+                    >
+                      <i className="fas fa-pen cs-more-icon" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="cs-more-item"
+                      onClick={() => { setMoreOpen(false); handleToggleActive(); }}
+                    >
+                      <i className={`fas ${isArchived ? 'fa-box-open' : 'fa-box-archive'} cs-more-icon`} />
+                      {isArchived ? ' Unarchive' : ' Archive'}
+                    </button>
+                    <div className="cs-more-divider" />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="cs-more-item cs-more-item-danger"
+                      onClick={() => { setMoreOpen(false); handleDelete(); }}
+                    >
+                      <i className="fas fa-trash cs-more-icon" /> Delete
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </header>
@@ -345,6 +396,7 @@ export default function CollectionShow({ collectionId }) {
                 type={type}
                 cfg={TYPE_CONFIG[type]}
                 items={collection[TYPE_CONFIG[type].listKey] || []}
+                groupings={type === 'sources' ? (collection.groupings || []) : null}
                 canEdit={canEdit}
                 collectionId={collection.id}
                 browseAllHref={type === 'sources' ? `/collections/${collection.id}/sources` : null}
@@ -475,12 +527,64 @@ function NotesPanel({ notes, canEdit, onCreateNew, onEditNote, onDeleteNote, onR
   );
 }
 
-function SideSection({ type, cfg, items, canEdit, browseAllHref, onLink, onCreate, onRemove }) {
+function SideSection({ type, cfg, items, groupings, canEdit, browseAllHref, onLink, onCreate, onRemove }) {
   const COLLAPSED = 10;
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, COLLAPSED);
   const overflow = items.length - visible.length;
   const canCollapse = items.length > COLLAPSED;
+
+  // Show source chips grouped by collection grouping only once at least one
+  // source has been assigned — keeps the default state visually quiet for new
+  // users who haven't touched the feature.
+  const groupedSources = useMemo(() => {
+    if (type !== 'sources') return null;
+    if (!groupings || groupings.length === 0) return null;
+    if (!visible.some((s) => s.grouping_id)) return null;
+    const known = new Set(groupings.map((g) => g.id));
+    const buckets = new Map(groupings.map((g) => [g.id, []]));
+    buckets.set(null, []);
+    visible.forEach((s) => {
+      const key = s.grouping_id != null && known.has(s.grouping_id) ? s.grouping_id : null;
+      buckets.get(key).push(s);
+    });
+    const sections = groupings.map((g) => ({
+      key: g.id,
+      label: g.name,
+      color: GROUPING_COLORS[Math.min(g.position, GROUPING_COLORS.length - 1)],
+      items: buckets.get(g.id) || []
+    }));
+    sections.push({
+      key: 'unsorted',
+      label: 'Unsorted',
+      color: 'var(--ink-4)',
+      items: buckets.get(null) || []
+    });
+    return sections.filter(({ items: list }) => list.length > 0);
+  }, [type, visible, groupings]);
+
+  const groupingNameById = useMemo(() => {
+    if (!groupings) return new Map();
+    return new Map(groupings.map((g) => [g.id, g.name]));
+  }, [groupings]);
+
+  const renderChip = (it) => {
+    const label = it.label || it.full_name || it.title || 'Untitled';
+    const tooltipBits = [label];
+    if (type === 'sources' && it.year) tooltipBits[0] = `${label} (${it.year})`;
+    if (type === 'sources' && it.grouping_id) tooltipBits.push(groupingNameById.get(it.grouping_id));
+    return (
+      <a
+        key={it.id}
+        href={ITEM_LINK[type](it.id)}
+        className={`nc-pill ${cfg.chipClass}`}
+        title={tooltipBits.filter(Boolean).join(' — ')}
+      >
+        <i className={`fas ${cfg.icon} nc-pill-icon`} aria-hidden="true" />
+        <span className="nc-pill-label">{label}</span>
+      </a>
+    );
+  };
 
   return (
     <div className="cs-side-section" style={{ '--cs-side-color': cfg.accent }}>
@@ -494,23 +598,23 @@ function SideSection({ type, cfg, items, canEdit, browseAllHref, onLink, onCreat
 
       {items.length === 0 ? (
         <p className="cs-side-empty">None linked yet.</p>
+      ) : groupedSources ? (
+        <div className="cs-side-tiergroups">
+          {groupedSources.map(({ key, label, color, items: tierItems }) => (
+            <div key={key} className="cs-side-tiergroup" style={{ color }}>
+              <div className="cs-side-tiergroup-head">
+                <span className="cs-side-tiergroup-label">{label}</span>
+                <span className="cs-side-tiergroup-count">{tierItems.length}</span>
+              </div>
+              <div className="cs-side-chips">
+                {tierItems.map(renderChip)}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="cs-side-chips">
-          {visible.map((it) => {
-            const label = it.label || it.full_name || it.title || 'Untitled';
-            const tooltip = type === 'sources' && it.year ? `${label} (${it.year})` : label;
-            return (
-              <a
-                key={it.id}
-                href={ITEM_LINK[type](it.id)}
-                className={`nc-pill ${cfg.chipClass}`}
-                title={tooltip}
-              >
-                <i className={`fas ${cfg.icon} nc-pill-icon`} aria-hidden="true" />
-                <span className="nc-pill-label">{label}</span>
-              </a>
-            );
-          })}
+          {visible.map(renderChip)}
         </div>
       )}
 
@@ -703,6 +807,62 @@ function CSStyles() {
       }
       .cs-actions .sp-action i { margin-right: 6px; }
 
+      .cs-more { position: relative; display: inline-block; }
+      .cs-more-trigger {
+        width: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cs-more-trigger i { margin-right: 0 !important; }
+      .cs-more-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 180px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        box-shadow: var(--shadow-lg);
+        padding: 4px;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+      }
+      .cs-more-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        text-align: left;
+        text-decoration: none;
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 13px;
+        transition: background var(--transition-fast);
+      }
+      .cs-more-item:hover { background: var(--hover); }
+      .cs-more-icon {
+        width: 16px;
+        color: var(--ink-3);
+        font-size: 12px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .cs-more-item-danger { color: var(--error); }
+      .cs-more-item-danger .cs-more-icon { color: var(--error); }
+      .cs-more-item-danger:hover { background: color-mix(in srgb, var(--error) 10%, transparent); }
+      .cs-more-divider {
+        height: 1px;
+        background: var(--ink-line-soft);
+        margin: 4px 2px;
+      }
+
       .cs-archived-badge {
         font-family: var(--font-body);
         font-size: 10px;
@@ -858,6 +1018,31 @@ function CSStyles() {
         color: var(--ink-4);
         font-style: italic;
       }
+      .cs-side-tiergroups {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 4px;
+      }
+      .cs-side-tiergroup-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 10.5px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: currentColor;
+        margin-bottom: 4px;
+      }
+      .cs-side-tiergroup-count {
+        font-weight: 600;
+        font-size: 10px;
+        color: var(--ink-4);
+        letter-spacing: 0;
+      }
+
       .cs-side-chips {
         display: flex;
         flex-wrap: wrap;

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import SourceFormModal from './SourceFormModal';
 import PdfUploadModal from './PdfUploadModal';
 import SourceCard, { SourceCardStyles } from './SourceCard';
+import { CollectionGroupingSelectStyles } from './CollectionGroupingSelect';
+import CollectionGroupingsModal from './CollectionGroupingsModal';
 import { toTitleCase } from '../utils/titleCase';
 import Toggle from './ui/Toggle';
 
@@ -65,6 +67,8 @@ function readFiltersFromUrl() {
     person_ids:     params.getAll('person_ids[]').map(Number).filter(Boolean),
     tags:           params.getAll('tags[]'),
     collection_ids: params.getAll('collection_ids[]').map(Number).filter(Boolean),
+    // Grouping ids are strings on the wire: numeric ids or 'unsorted' for nil.
+    grouping_ids:   params.getAll('grouping_ids[]'),
     markers:        params.getAll('markers[]'),
     methodologies:  params.getAll('methodologies[]'),
     year_min:       params.get('year_min') || '',
@@ -83,6 +87,7 @@ function writeFiltersToUrl(filters) {
   filters.person_ids.forEach(id => params.append('person_ids[]', id));
   filters.tags.forEach(t => params.append('tags[]', t));
   filters.collection_ids.forEach(id => params.append('collection_ids[]', id));
+  (filters.grouping_ids || []).forEach(g => params.append('grouping_ids[]', g));
   filters.markers.forEach(m => params.append('markers[]', m));
   filters.methodologies.forEach(m => params.append('methodologies[]', m));
   if (filters.year_min) params.set('year_min', filters.year_min);
@@ -95,7 +100,7 @@ function writeFiltersToUrl(filters) {
   window.history.replaceState(null, '', url);
 }
 
-const EMPTY_META = { kinds: [], years: [], authors: [], concepts: [], tags: [], collections: [], markers: [], methodologies: [], pdf_count: 0, notes_count: 0, total: 0 };
+const EMPTY_META = { kinds: [], years: [], authors: [], concepts: [], tags: [], collections: [], groupings: [], markers: [], methodologies: [], pdf_count: 0, notes_count: 0, total: 0 };
 
 // =====================================================================
 // Component
@@ -188,6 +193,7 @@ export default function SourcesIndex({
     collection_ids: lockedCollectionId
       ? Array.from(new Set([lockedCollectionId, ...initial.collection_ids]))
       : initial.collection_ids,
+    grouping_ids:   initial.grouping_ids || [],
     markers:        initial.markers,
     methodologies:  initial.methodologies,
     year_min:       initial.year_min,
@@ -210,6 +216,34 @@ export default function SourcesIndex({
   const [editingSource, setEditingSource] = useState(null);
   const [showPdf, setShowPdf] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  // Manage-groupings modal — only used when collection-scoped, but the state
+  // lives here so the trigger in the filter sidebar can open it.
+  const [manageGroupingsOpen, setManageGroupingsOpen] = useState(false);
+
+  // Reshape the grouping facet rows (which use `value` mixing numeric ids
+  // with the literal 'unsorted') into the {id, name, position} contract the
+  // shared select and the modal expect.
+  const realGroupings = useMemo(() => {
+    return (filterMeta.groupings || [])
+      .filter(g => typeof g.value === 'number')
+      .map(g => ({ id: g.value, name: g.label, position: g.position ?? 0, source_count: g.count }));
+  }, [filterMeta.groupings]);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const addMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!addMenuOpen) return;
+    const onDocClick = (e) => {
+      if (addMenuRef.current && !addMenuRef.current.contains(e.target)) setAddMenuOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') setAddMenuOpen(false); };
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [addMenuOpen]);
 
   // Show/hide abstracts on row cards.  Persisted across sessions.
   const [showAbstracts, setShowAbstracts] = useState(() => {
@@ -233,6 +267,7 @@ export default function SourcesIndex({
     filters.person_ids.forEach(id => p.append('person_ids[]', id));
     filters.tags.forEach(t => p.append('tags[]', t));
     filters.collection_ids.forEach(id => p.append('collection_ids[]', id));
+    (filters.grouping_ids || []).forEach(g => p.append('grouping_ids[]', g));
     filters.markers.forEach(m => p.append('markers[]', m));
     filters.methodologies.forEach(m => p.append('methodologies[]', m));
     if (filters.year_min) p.set('year_min', filters.year_min);
@@ -302,6 +337,7 @@ export default function SourcesIndex({
     person_ids:     lockedPersonId     ? [lockedPersonId]     : [],
     tags:           lockedTagName      ? [lockedTagName]      : [],
     collection_ids: lockedCollectionId ? [lockedCollectionId] : [],
+    grouping_ids: [],
     markers: [], methodologies: [],
     year_min: '', year_max: '',
     has_pdf: false, has_notes: false, sort: filters.sort,
@@ -328,6 +364,7 @@ export default function SourcesIndex({
     userPersonFilterCount +
     userTagFilterCount +
     userCollectionFilterCount +
+    (filters.grouping_ids || []).length +
     filters.markers.length +
     filters.methodologies.length +
     (filters.year_min ? 1 : 0) +
@@ -374,6 +411,27 @@ export default function SourcesIndex({
   // itself; this just syncs the card's displayed collection pills.
   const updateCollections = (sourceId, collections) => {
     setSources(prev => prev.map(s => s.id === sourceId ? { ...s, collections } : s));
+  };
+
+  // ---- Grouping update (collection-scoped) ----
+  // Only meaningful when the index is locked to a single collection; the
+  // server is the source of truth and a hiccup is handled by a full refetch.
+  const updateGrouping = async (sourceId, nextGroupingId) => {
+    if (!lockedCollectionId) return;
+    setSources(prev => prev.map(s => s.id === sourceId ? { ...s, collection_grouping_id: nextGroupingId } : s));
+    const csrf = document.querySelector('[name="csrf-token"]')?.content;
+    try {
+      const res = await fetch(`/collections/${lockedCollectionId}/update_item`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ item_type: 'Source', item_id: sourceId, grouping_id: nextGroupingId }),
+      });
+      if (!res.ok) throw new Error(`grouping ${res.status}`);
+    } catch (err) {
+      console.error('Grouping save failed', err);
+      alert('Could not save grouping change.');
+      fetchSources(page);
+    }
   };
 
   // ---- Concept tag update ----
@@ -435,6 +493,7 @@ export default function SourcesIndex({
     <div className="srx">
       <SrxStyles />
       <SourceCardStyles />
+      <CollectionGroupingSelectStyles />
 
       <header className="srx-header">
         <div>
@@ -489,19 +548,72 @@ export default function SourcesIndex({
             </>
           ) : (
             <>
+              {lockedCollectionId && (
+                <a
+                  href={`/collections/${lockedCollectionId}/bibliography`}
+                  className="sp-action sp-action-secondary"
+                  title="Open this collection's annotated bibliography"
+                >
+                  <i className="fas fa-book-open" /> Bibliography
+                </a>
+              )}
               <button type="button" className="sp-action sp-action-secondary" onClick={() => setBulkMode(true)}>
                 Select for Export
               </button>
               {canWrite && (
-                <>
-                  <button type="button" className="sp-action sp-action-secondary" onClick={() => { setEditingSource(null); setShowForm(true); }}>
-                    Manual Input
+                <div className="srx-add" ref={addMenuRef}>
+                  <button
+                    type="button"
+                    className="sp-action sp-action-primary srx-add-trigger"
+                    aria-haspopup="menu"
+                    aria-expanded={addMenuOpen}
+                    onClick={(e) => { e.stopPropagation(); setAddMenuOpen((v) => !v); }}
+                  >
+                    <i className="fas fa-plus srx-add-plus" /> Add Source
+                    <svg className="srx-add-caret" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M3 5l3 3 3-3" />
+                    </svg>
                   </button>
-                  <a href="/uploads" className="sp-action sp-action-secondary" title="Bulk Upload">Bulk Upload</a>
-                  <button type="button" className="sp-action sp-action-primary" onClick={() => setShowPdf(true)}>
-                    Upload PDF
-                  </button>
-                </>
+                  {addMenuOpen && (
+                    <div className="srx-add-menu" role="menu">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="srx-add-item"
+                        onClick={() => { setAddMenuOpen(false); setShowPdf(true); }}
+                      >
+                        <i className="fas fa-file-pdf srx-add-icon" />
+                        <span className="srx-add-text">
+                          <span className="srx-add-label">Upload PDF</span>
+                          <span className="srx-add-hint">Drop a PDF and we'll extract the metadata.</span>
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="srx-add-item"
+                        onClick={() => { setAddMenuOpen(false); setEditingSource(null); setShowForm(true); }}
+                      >
+                        <i className="fas fa-pen-to-square srx-add-icon" />
+                        <span className="srx-add-text">
+                          <span className="srx-add-label">Manual input</span>
+                          <span className="srx-add-hint">Type the citation by hand.</span>
+                        </span>
+                      </button>
+                      <a
+                        href="/uploads"
+                        role="menuitem"
+                        className="srx-add-item"
+                      >
+                        <i className="fas fa-layer-group srx-add-icon" />
+                        <span className="srx-add-text">
+                          <span className="srx-add-label">Bulk upload</span>
+                          <span className="srx-add-hint">Add a stack of PDFs or a citation file.</span>
+                        </span>
+                      </a>
+                    </div>
+                  )}
+                </div>
               )}
             </>
           )}
@@ -544,6 +656,35 @@ export default function SourcesIndex({
                 />
               </div>
             </FilterSection>
+
+            {lockedCollectionId && filterMeta.groupings.length > 0 && (
+              <FilterSection label="Grouping">
+                {filterMeta.groupings.map(g => {
+                  // Grouping values are mixed: numeric ids for real groupings,
+                  // the literal string 'unsorted' for the nil bucket. Store as
+                  // strings on the wire so URL params stay symmetric.
+                  const key = String(g.value);
+                  return (
+                    <CheckboxRow
+                      key={key}
+                      checked={(filters.grouping_ids || []).includes(key)}
+                      onChange={() => toggleInArray('grouping_ids', key)}
+                      label={g.label}
+                      count={g.count}
+                    />
+                  );
+                })}
+                {canWrite && (
+                  <button
+                    type="button"
+                    className="srx-filter-manage"
+                    onClick={() => setManageGroupingsOpen(true)}
+                  >
+                    <i className="fas fa-sliders" /> Manage groupings
+                  </button>
+                )}
+              </FilterSection>
+            )}
 
             <FilterSection label="Markers">
               {filterMeta.markers.length === 0 ? (
@@ -752,6 +893,10 @@ export default function SourcesIndex({
                   onMarkersChange={(markers) => updateMarkers(source.id, markers)}
                   onCollectionsChange={(collections) => updateCollections(source.id, collections)}
                   onConceptsChange={(concepts) => updateConcepts(source.id, concepts)}
+                  groupingId={lockedCollectionId ? source.collection_grouping_id : undefined}
+                  groupings={lockedCollectionId ? realGroupings : undefined}
+                  canEditGrouping={canWrite}
+                  onGroupingChange={lockedCollectionId ? updateGrouping : undefined}
                 />
               ))}
             </div>
@@ -786,6 +931,19 @@ export default function SourcesIndex({
         ids={Array.from(selectedIds)}
         onClose={() => setShowExport(false)}
       />
+
+      {lockedCollectionId && (
+        <CollectionGroupingsModal
+          isOpen={manageGroupingsOpen}
+          onClose={() => setManageGroupingsOpen(false)}
+          collectionId={lockedCollectionId}
+          initialGroupings={realGroupings}
+          // A mutation might change counts or nullify some sources' grouping,
+          // so refetch the page to pick up the canonical state.
+          onChange={() => fetchSources(page)}
+          canEdit={canWrite}
+        />
+      )}
     </div>
   );
 }
@@ -917,6 +1075,12 @@ function ActiveFilterBar({ filters, meta, lockedCollectionId, lockedPersonId, lo
     if (id === lockedCollectionId) return;
     const c = meta.collections.find(x => x.id === id);
     if (c) chips.push({ key: `co-${id}`, pillType: 'is-collection', icon: 'fa-folder', label: c.name, onClear: () => onRemoveFromArray('collection_ids', id) });
+  });
+  (filters.grouping_ids || []).forEach(g => {
+    // `g` may be a numeric id encoded as string or the literal 'unsorted'.
+    const row = (meta.groupings || []).find(x => String(x.value) === String(g));
+    const label = row ? row.label : g;
+    chips.push({ key: `grp-${g}`, icon: 'fa-layer-group', label: `Grouping: ${label}`, onClear: () => onRemoveFromArray('grouping_ids', g) });
   });
   filters.markers.forEach(m => chips.push({ key: `m-${m}`, pillType: 'is-marker', icon: 'fa-highlighter', label: m, onClear: () => onRemoveFromArray('markers', m) }));
   filters.methodologies.forEach(m => chips.push({ key: `meth-${m}`, pillType: 'is-research', icon: 'fa-flask', label: m, onClear: () => onRemoveFromArray('methodologies', m) }));
@@ -1241,6 +1405,72 @@ function SrxStyles() {
       .srx-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
       .srx-plus { font-family: var(--font-mono); font-weight: 500; }
 
+      .srx-add { position: relative; display: inline-block; }
+      .srx-add-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .srx-add-plus { font-size: 10px; }
+      .srx-add-caret {
+        margin-left: 2px;
+        opacity: 0.85;
+        transition: transform 0.15s;
+      }
+      .srx-add-trigger[aria-expanded="true"] .srx-add-caret { transform: rotate(180deg); }
+
+      .srx-add-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 280px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-md);
+        box-shadow: var(--shadow-lg);
+        padding: 6px;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .srx-add-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 10px;
+        background: transparent;
+        border: none;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        text-align: left;
+        text-decoration: none;
+        color: var(--ink);
+        font-family: var(--font-body);
+        transition: background var(--transition-fast);
+      }
+      .srx-add-item:hover { background: var(--hover); }
+      .srx-add-icon {
+        width: 18px;
+        margin-top: 2px;
+        color: var(--source);
+        font-size: 14px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .srx-add-text { display: flex; flex-direction: column; min-width: 0; }
+      .srx-add-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .srx-add-hint {
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin-top: 1px;
+      }
+
       /* Source-themed accents on action primaries inside this view */
       .srx .sp-action-primary {
         background: var(--source);
@@ -1429,6 +1659,23 @@ function SrxStyles() {
         width: 100%;
       }
       .srx-clear-all:hover { background: var(--hover); color: var(--ink); }
+
+      .srx-filter-manage {
+        margin-top: 6px;
+        background: transparent;
+        border: none;
+        padding: 4px 0;
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ink-3);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .srx-filter-manage:hover { color: var(--primary); }
+      .srx-filter-manage i { font-size: 10px; }
 
       /* Main column */
       .srx-main { min-width: 0; }

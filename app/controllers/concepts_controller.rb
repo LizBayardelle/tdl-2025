@@ -1,6 +1,6 @@
 class ConceptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note, :claim, :merge_into, :sources_index]
+  before_action :set_concept, only: [:show, :update, :destroy, :generate_definition, :reject_definition, :suggest_relationships, :link_note, :dismiss_note, :claim, :merge_into, :sources_index, :relationships, :relationship_graph]
   before_action :authorize_edit!, only: [:update, :destroy, :generate_definition, :reject_definition, :link_note, :dismiss_note, :merge_into]
 
   def index
@@ -228,6 +228,116 @@ class ConceptsController < ApplicationController
   # GET /concepts/:id/sources
   # Mounts the SourcesIndex React component scoped to this concept.
   def sources_index
+  end
+
+  # GET /concepts/:id/relationships
+  # Mounts the read-only relationship-map React component.
+  def relationships
+  end
+
+  # GET /concepts/:id/relationship_graph.json
+  # Lean payload for the relationship-map view: focal + 1-hop neighbors
+  # (capped) + edges + per-neighbor maturity stats.  Visibility is filtered
+  # through the viewer's accessible concept ids so private library members
+  # don't leak via shared-collection edges.
+  NEIGHBOR_CAP = 30
+
+  def relationship_graph
+    auth = AuthorizationService.new(current_user)
+    accessible_concept_ids = auth.accessible_ids(Concept).to_set
+
+    out_conns = @concept.outgoing_connections.includes(:dst_concept).to_a
+    in_conns  = @concept.incoming_connections.includes(:src_concept).to_a
+
+    # Collect candidate neighbor ids and filter to ones the viewer can see.
+    candidate_ids = (out_conns.map(&:dst_concept_id) + in_conns.map(&:src_concept_id))
+      .uniq
+      .select { |id| accessible_concept_ids.include?(id) }
+
+    total_neighbors = candidate_ids.size
+    truncated       = total_neighbors > NEIGHBOR_CAP
+
+    # Pick which neighbors make the cut: most-connected to the focal first
+    # (i.e., neighbors that share more than one edge with the focal float to
+    # the top), then by recency.  Stable enough for visual recall.
+    if truncated
+      edge_counts = Hash.new(0)
+      (out_conns + in_conns).each do |c|
+        other = c.dst_concept_id == @concept.id ? c.src_concept_id : c.dst_concept_id
+        edge_counts[other] += 1
+      end
+      visible_ids = candidate_ids
+        .sort_by { |id| [-edge_counts[id], -id] }
+        .first(NEIGHBOR_CAP)
+    else
+      visible_ids = candidate_ids
+    end
+
+    visible_set = visible_ids.to_set
+    neighbors = Concept.where(id: visible_ids)
+      .pluck(:id, :label, :concept_type)
+      .map { |id, label, concept_type| { id: id, label: label, concept_type: concept_type } }
+
+    # Batch maturity stats so node sizing doesn't N+1 across the neighborhood.
+    source_counts = ConceptSource.where(concept_id: visible_ids)
+      .group(:concept_id).count
+    note_counts = ConceptNote.where(concept_id: visible_ids)
+      .group(:concept_id).count
+    # Connection count = degree in the user's connection graph.  Counted in
+    # both directions per neighbor.
+    out_counts = Connection.where(src_concept_id: visible_ids).group(:src_concept_id).count
+    in_counts  = Connection.where(dst_concept_id: visible_ids).group(:dst_concept_id).count
+
+    neighbors.each do |n|
+      n[:sources_count]     = source_counts[n[:id]] || 0
+      n[:notes_count]       = note_counts[n[:id]]   || 0
+      n[:connections_count] = (out_counts[n[:id]] || 0) + (in_counts[n[:id]] || 0)
+    end
+
+    # Focal-involving edges — only ones whose other endpoint made the cut.
+    focal_edges = (out_conns + in_conns).filter_map do |c|
+      other = c.dst_concept_id == @concept.id ? c.src_concept_id : c.dst_concept_id
+      next unless visible_set.include?(other)
+      {
+        id: c.id,
+        rel_type: c.rel_type,
+        relationship_label: c.relationship_label,
+        src_id: c.src_concept_id,
+        dst_id: c.dst_concept_id,
+        inter_neighbor: false,
+      }
+    end
+
+    # Inter-neighbor edges — connect two visible neighbors directly (not
+    # involving focal).  Powers cluster/density detection on the client and
+    # gives the neighborhood internal structure to render.  Limited to
+    # connections the viewer can see.
+    inter_neighbor_edges = current_user.connections
+      .where(src_concept_id: visible_ids, dst_concept_id: visible_ids)
+      .pluck(:id, :rel_type, :relationship_label, :src_concept_id, :dst_concept_id)
+      .map { |id, rel_type, label, src, dst|
+        {
+          id: id,
+          rel_type: rel_type,
+          relationship_label: label,
+          src_id: src,
+          dst_id: dst,
+          inter_neighbor: true,
+        }
+      }
+
+    render json: {
+      focal: {
+        id: @concept.id,
+        label: @concept.label,
+        concept_type: @concept.concept_type,
+      },
+      neighbors: neighbors,
+      edges: focal_edges + inter_neighbor_edges,
+      total_neighbors: total_neighbors,
+      truncated: truncated,
+      neighbor_cap: NEIGHBOR_CAP,
+    }
   end
 
   # POST /concepts/scan_for_duplicates

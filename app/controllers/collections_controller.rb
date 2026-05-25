@@ -1,6 +1,6 @@
 class CollectionsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_collection, only: [:show, :update, :destroy, :add_item, :remove_item, :sources_index, :bibliography, :bibliography_export]
+  before_action :set_collection, only: [:show, :update, :destroy, :add_item, :update_item, :remove_item, :sources_index, :bibliography, :bibliography_export]
 
   def index
     # Own collections + shared collections
@@ -88,11 +88,22 @@ class CollectionsController < ApplicationController
           )
         }
 
+        source_grouping_ids = @collection.collection_items
+          .where(collectable_type: 'Source')
+          .pluck(:collectable_id, :grouping_id).to_h
+
+        groupings_payload = @collection.groupings.map do |g|
+          { id: g.id, name: g.name, position: g.position }
+        end
+
         json_data = @collection.as_json(only: [:id, :name, :description, :user_id, :active]).merge(
           items_count: @collection.items_count,
           is_owner: is_owner,
           owner_email: @collection.user.email,
-          sources: @collection.sources.as_json(only: [:id, :title, :year, :kind, :authors]),
+          groupings: groupings_payload,
+          sources: @collection.sources.as_json(only: [:id, :title, :year, :kind, :authors]).map { |s|
+            s.merge('grouping_id' => source_grouping_ids[s['id']])
+          },
           concepts: @collection.concepts.as_json(only: [:id, :label, :concept_type]),
           people: @collection.people.as_json(only: [:id, :full_name, :role]),
           notes: direct_notes.map { |n| serialize_note.call(n) } +
@@ -189,6 +200,29 @@ class CollectionsController < ApplicationController
     )
 
     render json: { success: true }
+  end
+
+  # PATCH /collections/:id/update_item
+  # Body: { item_type:, item_id:, grouping_id: }. grouping_id is only
+  # meaningful for Source items. Pass nil / empty string to clear back to
+  # Unsorted. The model validates that the grouping belongs to this collection.
+  def update_item
+    authorize_collaborate!
+
+    item = @collection.collection_items
+      .find_by(collectable_type: params[:item_type], collectable_id: params[:item_id])
+    return head(:not_found) unless item
+
+    if params.key?(:grouping_id)
+      raw = params[:grouping_id]
+      grouping_id = raw.present? ? raw.to_i : nil
+      item.grouping_id = grouping_id
+      unless item.save
+        return render(json: { errors: item.errors.full_messages }, status: :unprocessable_entity)
+      end
+    end
+
+    render json: { id: item.id, item_type: item.collectable_type, item_id: item.collectable_id, grouping_id: item.grouping_id }
   end
 
   def remove_item

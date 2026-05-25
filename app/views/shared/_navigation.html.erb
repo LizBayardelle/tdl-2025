@@ -35,6 +35,39 @@
           Notes
         <% end %>
 
+        <div class="site-nav-tabletops" id="collections-menu-wrap">
+          <button type="button" id="collections-menu-button" class="site-nav-link site-nav-tabletops-trigger <%= 'is-active' if active.('/collections') %>" aria-haspopup="menu" aria-expanded="false">
+            Collections
+            <span class="site-nav-caret" aria-hidden="true">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 5l3 3 3-3" />
+              </svg>
+            </span>
+          </button>
+          <div id="collections-menu-dropdown" class="site-nav-dropdown site-nav-dropdown-tabletops">
+            <%= link_to collections_path, class: "site-nav-dropdown-link" do %>
+              <i class="fas fa-layer-group site-nav-dropdown-icon"></i>All Collections
+            <% end %>
+            <% recent_collections = current_user.collections.order(updated_at: :desc).limit(8).to_a rescue [] %>
+            <% collection_source_counts = (CollectionItem.where(collection_id: recent_collections.map(&:id), collectable_type: 'Source').group(:collection_id).count rescue {}) %>
+            <% if recent_collections.any? %>
+              <div class="site-nav-dropdown-divider"></div>
+              <div class="site-nav-dropdown-eyebrow">Recent</div>
+              <% recent_collections.each do |c| %>
+                <%= link_to collection_path(c), class: "site-nav-dropdown-link site-nav-dropdown-link-tabletop" do %>
+                  <span class="site-nav-dropdown-tabletop-dot" aria-hidden="true"></span>
+                  <span class="site-nav-dropdown-tabletop-name"><%= c.name %></span>
+                  <span class="site-nav-dropdown-source-count" title="<%= collection_source_counts[c.id] || 0 %> sources"><%= collection_source_counts[c.id] || 0 %></span>
+                <% end %>
+              <% end %>
+            <% end %>
+            <div class="site-nav-dropdown-divider"></div>
+            <%= link_to collections_path(new: 1), class: "site-nav-dropdown-link site-nav-dropdown-link-new" do %>
+              <i class="fas fa-plus site-nav-dropdown-icon"></i>New Collection
+            <% end %>
+          </div>
+        </div>
+
         <div class="site-nav-tabletops" id="tabletops-menu-wrap">
           <button type="button" id="tabletops-menu-button" class="site-nav-link site-nav-tabletops-trigger <%= 'is-active' if active.('/tabletops') %>" aria-haspopup="menu" aria-expanded="false">
             Tabletops
@@ -90,9 +123,6 @@
               <% end %>
             <% end %>
             <div class="site-nav-dropdown-divider"></div>
-            <%= link_to collections_path, class: "site-nav-dropdown-link" do %>
-              <i class="fas fa-layer-group site-nav-dropdown-icon"></i>Collections
-            <% end %>
             <%= link_to tags_path, class: "site-nav-dropdown-link" do %>
               <i class="fas fa-hashtag site-nav-dropdown-icon"></i>Tags
             <% end %>
@@ -154,6 +184,7 @@
           <span class="site-nav-dot is-person" aria-hidden="true"></span>People
         <% end %>
         <%= link_to notes_path, class: "site-nav-mobile-link #{'is-active' if active.('/notes')}" do %>Notes<% end %>
+        <%= link_to collections_path, class: "site-nav-mobile-link #{'is-active' if active.('/collections')}" do %>Collections<% end %>
         <%= link_to tabletops_path, class: "site-nav-mobile-link #{'is-active' if active.('/tabletops')}" do %>Tabletops<% end %>
       </div>
       <div class="site-nav-mobile-section">
@@ -161,7 +192,6 @@
         <%= link_to notifications_path, class: "site-nav-mobile-link" do %>
           Notifications<% if notifications_pending_count > 0 %> <span class="site-nav-mobile-badge"><%= notifications_pending_count %></span><% end %>
         <% end %>
-        <%= link_to "Collections", collections_path, class: "site-nav-mobile-link" %>
         <%= link_to "Tags", tags_path, class: "site-nav-mobile-link" %>
         <%= link_to "Account", edit_user_registration_path, class: "site-nav-mobile-link" %>
         <%= link_to "Bulk Uploads", uploads_path, class: "site-nav-mobile-link" %>
@@ -328,6 +358,23 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .site-nav-dropdown-source-count {
+    flex-shrink: 0;
+    margin-left: 8px;
+    min-width: 22px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--source) 16%, transparent);
+    color: var(--source);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    box-sizing: border-box;
   }
   .site-nav-dropdown-link-new { color: var(--primary); font-weight: 500; }
   .site-nav-dropdown-link-new .site-nav-dropdown-icon { color: var(--primary); }
@@ -688,24 +735,34 @@
       });
     }
 
-    var tBtn = document.getElementById('tabletops-menu-button');
-    var tMenu = document.getElementById('tabletops-menu-dropdown');
-    if (tBtn && tMenu) {
+    function wireDropdown(btnId, menuId) {
+      var btn = document.getElementById(btnId);
+      var menu = document.getElementById(menuId);
+      if (!btn || !menu) return null;
       var setOpen = function (open) {
-        tMenu.classList.toggle('is-open', open);
-        tBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        menu.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       };
-      tBtn.addEventListener('click', function (e) {
+      btn.addEventListener('click', function (e) {
         e.stopPropagation();
         e.preventDefault();
-        setOpen(!tMenu.classList.contains('is-open'));
+        setOpen(!menu.classList.contains('is-open'));
       });
       document.addEventListener('click', function (e) {
-        if (!tBtn.contains(e.target) && !tMenu.contains(e.target)) setOpen(false);
+        if (!btn.contains(e.target) && !menu.contains(e.target)) setOpen(false);
       });
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') setOpen(false);
       });
+      return { btn: btn, menu: menu, close: function () { setOpen(false); } };
+    }
+
+    var tDrop = wireDropdown('tabletops-menu-button', 'tabletops-menu-dropdown');
+    var cDrop = wireDropdown('collections-menu-button', 'collections-menu-dropdown');
+    // Only one nav dropdown open at a time.
+    if (tDrop && cDrop) {
+      tDrop.btn.addEventListener('click', function () { cDrop.close(); });
+      cDrop.btn.addEventListener('click', function () { tDrop.close(); });
     }
   });
 </script>

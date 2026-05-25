@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 // Import components
 import ConceptsIndex from './components/ConceptsIndex';
 import ConceptShow from './components/ConceptShow';
+import ConceptRelationships from './components/ConceptRelationships';
 import SourcesIndex from './components/SourcesIndex';
 import SourceShow from './components/SourceShow';
 import PeopleIndex from './components/PeopleIndex';
@@ -55,6 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (conceptShowRoot) {
     const conceptId = conceptShowRoot.dataset.conceptId;
     createRoot(conceptShowRoot).render(<ConceptShow conceptId={conceptId} />);
+  }
+
+  const conceptRelationshipsRoot = document.getElementById('concept-relationships-root');
+  if (conceptRelationshipsRoot) {
+    const conceptId = conceptRelationshipsRoot.dataset.conceptId;
+    const conceptLabel = conceptRelationshipsRoot.dataset.conceptLabel;
+    createRoot(conceptRelationshipsRoot).render(
+      <ConceptRelationships conceptId={conceptId} conceptLabel={conceptLabel} />
+    );
   }
 
   const sourcesIndexRoot = document.getElementById('sources-index-root');

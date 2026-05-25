@@ -19,11 +19,20 @@ class BibliographyEntriesController < ApplicationController
       .order(:created_at)
     sources = Source.where(id: source_ids).with_attached_pdf
 
+    @source_grouping_ids = @collection.collection_items
+      .where(collectable_type: 'Source', collectable_id: source_ids)
+      .pluck(:collectable_id, :grouping_id).to_h
+
+    groupings_payload = @collection.groupings.map do |g|
+      { id: g.id, name: g.name, position: g.position }
+    end
+
     with_citations = params[:with_citations].present?
 
     render json: {
       is_owner: owner?,
       can_edit: can_edit?,
+      groupings: groupings_payload,
       entries: entries.map { |e| serialize_entry(e) },
       sources: sources.map { |s| serialize_source(s, with_citation: with_citations) }
     }
@@ -120,6 +129,7 @@ class BibliographyEntriesController < ApplicationController
       authors: source.authors_string,
       year: source.year,
       kind: source.kind,
+      grouping_id: @source_grouping_ids && @source_grouping_ids[source.id],
       pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
       pdf_filename: source.pdf.attached? ? source.pdf.filename.to_s : nil
     }

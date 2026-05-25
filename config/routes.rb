@@ -80,6 +80,8 @@ Rails.application.routes.draw do
       post :reject_definition
       post :merge_into
       get  :sources, action: :sources_index
+      get  :relationships
+      get  :relationship_graph
       # Claim a shared concept into the current user's library — creates
       # a new Concept row owned by the user, cache-hits the same
       # definition, consumes one library-addition slot.
@@ -146,12 +148,14 @@ Rails.application.routes.draw do
   resources :collections do
     member do
       post :add_item
+      patch :update_item
       delete :remove_item
       get :sources, action: :sources_index
       get :bibliography
       get 'bibliography/export', action: :bibliography_export, as: :bibliography_export
     end
     resources :bibliography_entries, only: [:index, :create, :update, :destroy]
+    resources :groupings, only: [:index, :create, :update, :destroy], controller: 'collection_groupings'
   end
 
   resources :tabletops do

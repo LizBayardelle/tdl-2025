@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import Modal from './Modal';
+import CollectionGroupingSelect, { CollectionGroupingSelectStyles, UNSORTED_LABEL } from './CollectionGroupingSelect';
+import CollectionGroupingsModal from './CollectionGroupingsModal';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -29,16 +31,62 @@ function sourceSort(a, b) {
   return (a.year || 0) - (b.year || 0);
 }
 
+const GROUP_TOGGLE_KEY = 'cb-group-by-grouping';
+const COLLAPSED_GROUPINGS_KEY = 'cb-collapsed-groupings';
+// Sentinel for the synthetic "Unsorted" section (nil grouping_id).
+const UNSORTED_KEY = 'unsorted';
+
 export default function CollectionBibliography({ collectionId, collectionName, isOwner, sharePermission }) {
   const canEdit = isOwner || sharePermission === 'collaborator';
 
   const [entries, setEntries] = useState([]);
   const [sources, setSources] = useState([]);
+  const [groupings, setGroupings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pdfSource, setPdfSource] = useState(null);
   const [newEntryId, setNewEntryId] = useState(null);
   const [query, setQuery] = useState('');
+  const [manageOpen, setManageOpen] = useState(false);
+  const [groupByGrouping, setGroupByGrouping] = useState(() => {
+    // Default to grouped — the groupings feature is the value-add on this page.
+    const stored = (typeof window !== 'undefined') && window.localStorage.getItem(GROUP_TOGGLE_KEY);
+    return stored == null ? true : stored === 'true';
+  });
+
+  // Group sections can be collapsed. Persist per-collection so a user who lives
+  // in a focused subset doesn't have to re-collapse on every visit. Keys are
+  // grouping ids (numbers) or the literal UNSORTED_KEY for the nil bucket.
+  const collapsedStorageKey = `${COLLAPSED_GROUPINGS_KEY}:${collectionId}`;
+  const [collapsedGroupings, setCollapsedGroupings] = useState(() => {
+    if (typeof window === 'undefined') return new Set();
+    try {
+      const raw = window.localStorage.getItem(collapsedStorageKey);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(arr);
+    } catch {
+      return new Set();
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(GROUP_TOGGLE_KEY, String(groupByGrouping));
+    }
+  }, [groupByGrouping]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(collapsedStorageKey, JSON.stringify([...collapsedGroupings]));
+  }, [collapsedGroupings, collapsedStorageKey]);
+
+  const toggleGroupingCollapsed = useCallback((key) => {
+    setCollapsedGroupings((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -47,6 +95,7 @@ export default function CollectionBibliography({ collectionId, collectionName, i
         const data = await res.json();
         setEntries(data.entries || []);
         setSources(data.sources || []);
+        setGroupings(data.groupings || []);
         setError('');
       } else if (res.status === 403) {
         setError("You don't have access to this collection.");
@@ -64,6 +113,33 @@ export default function CollectionBibliography({ collectionId, collectionName, i
   }, [collectionId]);
 
   useEffect(() => { load(); }, [load]);
+
+  const handleGroupingChange = useCallback(async (sourceId, nextGroupingId) => {
+    // Optimistic — the dropdown is direct manipulation; a network hiccup
+    // shouldn't make the UI feel laggy.
+    setSources((prev) => prev.map((s) => (s.id === sourceId ? { ...s, grouping_id: nextGroupingId } : s)));
+    try {
+      const res = await fetch(`/collections/${collectionId}/update_item`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken() },
+        body: JSON.stringify({ item_type: 'Source', item_id: sourceId, grouping_id: nextGroupingId }),
+      });
+      if (!res.ok) throw new Error(`grouping ${res.status}`);
+    } catch (e) {
+      console.error('Grouping update failed', e);
+      alert('Could not save grouping change.');
+      // Roll back from the server — cheaper than tracking the prior value.
+      load();
+    }
+  }, [collectionId, load]);
+
+  // The modal hands us back the canonical list after every mutation.
+  const handleGroupingsChanged = useCallback((nextList) => {
+    setGroupings(nextList);
+    // A deletion could have nullified some sources' grouping_id on the server;
+    // re-pull the page so the view reflects the new state.
+    load();
+  }, [load]);
 
   const sourcesById = useMemo(
     () => Object.fromEntries(sources.map((s) => [s.id, s])),
@@ -108,6 +184,31 @@ export default function CollectionBibliography({ collectionId, collectionName, i
     ? (orderedEntries.length - visibleEntries.length) + (sidebarSources.length - visibleSidebarSources.length)
     : 0;
 
+  // When grouping is on, split visible entries by grouping in position order;
+  // any items with no grouping (or referencing a deleted one) collect into a
+  // synthetic "Unsorted" section that renders last. Empty buckets drop out.
+  const visibleEntriesByGrouping = useMemo(() => {
+    const known = new Set(groupings.map((g) => g.id));
+    const buckets = new Map(groupings.map((g) => [g.id, []]));
+    buckets.set(UNSORTED_KEY, []);
+    visibleEntries.forEach((row) => {
+      const gid = row.source.grouping_id;
+      const key = gid != null && known.has(gid) ? gid : UNSORTED_KEY;
+      buckets.get(key).push(row);
+    });
+    const sections = groupings.map((g) => ({
+      key: g.id,
+      label: g.name,
+      rows: buckets.get(g.id) || []
+    }));
+    sections.push({
+      key: UNSORTED_KEY,
+      label: UNSORTED_LABEL,
+      rows: buckets.get(UNSORTED_KEY) || []
+    });
+    return sections.filter(({ rows }) => rows.length > 0);
+  }, [visibleEntries, groupings]);
+
   const handleAnnotate = async (sourceId) => {
     try {
       const res = await fetch(`/collections/${collectionId}/bibliography_entries.json`, {
@@ -148,12 +249,12 @@ export default function CollectionBibliography({ collectionId, collectionName, i
   };
 
   if (loading) {
-    return <div className="cb-loading"><CBStyles />Loading bibliography…</div>;
+    return <div className="cb-loading"><CBStyles /><CollectionGroupingSelectStyles />Loading bibliography…</div>;
   }
   if (error) {
     return (
       <div className="cb-loading">
-        <CBStyles />
+        <CBStyles /><CollectionGroupingSelectStyles />
         <p>{error}</p>
         <a href="/collections" className="cb-back">← Back to Collections</a>
       </div>
@@ -162,7 +263,7 @@ export default function CollectionBibliography({ collectionId, collectionName, i
 
   return (
     <>
-      <CBStyles />
+      <CBStyles /><CollectionGroupingSelectStyles />
       <div className="cb-page">
         <a href={`/collections/${collectionId}`} className="cb-back">← {collectionName || 'Collection'}</a>
 
@@ -177,6 +278,36 @@ export default function CollectionBibliography({ collectionId, collectionName, i
               <span className="cb-counts-sep">·</span>
               <span><strong>{sidebarSources.length}</strong> to go</span>
             </div>
+            <div className="cb-group-toggle" role="group" aria-label="View layout">
+              <button
+                type="button"
+                className={`cb-group-btn${groupByGrouping ? ' is-on' : ''}`}
+                onClick={() => setGroupByGrouping(true)}
+                aria-pressed={groupByGrouping}
+                title="Group entries by grouping"
+              >
+                <i className="fas fa-layer-group" /> Grouped
+              </button>
+              <button
+                type="button"
+                className={`cb-group-btn${!groupByGrouping ? ' is-on' : ''}`}
+                onClick={() => setGroupByGrouping(false)}
+                aria-pressed={!groupByGrouping}
+                title="Show a single flat list"
+              >
+                <i className="fas fa-list" /> Flat
+              </button>
+            </div>
+            {canEdit && (
+              <button
+                type="button"
+                className="cb-manage-btn"
+                onClick={() => setManageOpen(true)}
+                title="Manage groupings for this collection"
+              >
+                <i className="fas fa-sliders" /> Groupings
+              </button>
+            )}
             <a href={`/collections/${collectionId}/bibliography/export`} className="cb-export-btn">
               <i className="fas fa-file-export" /> Export
             </a>
@@ -238,6 +369,48 @@ export default function CollectionBibliography({ collectionId, collectionName, i
                   <p className="cb-main-empty-title">No annotations match “{query}”</p>
                   <p className="cb-main-empty-hint">Try a shorter or different search.</p>
                 </div>
+              ) : groupByGrouping ? (
+                visibleEntriesByGrouping.map(({ key, label, rows }) => {
+                  const collapsed = collapsedGroupings.has(key);
+                  return (
+                    <section key={key} className={`cb-grouping-section${collapsed ? ' is-collapsed' : ''}`}>
+                      <h2 className="cb-grouping-heading">
+                        <button
+                          type="button"
+                          className="cb-grouping-heading-btn"
+                          onClick={() => toggleGroupingCollapsed(key)}
+                          aria-expanded={!collapsed}
+                          aria-controls={`cb-grouping-body-${key}`}
+                          title={collapsed ? 'Expand section' : 'Collapse section'}
+                        >
+                          <i className={`fas fa-chevron-${collapsed ? 'right' : 'down'} cb-grouping-caret`} aria-hidden="true" />
+                          <span className="cb-grouping-name">{label}</span>
+                          <span className="cb-grouping-count">{rows.length}</span>
+                        </button>
+                      </h2>
+                      {!collapsed && (
+                        <div className="cb-grouping-body" id={`cb-grouping-body-${key}`}>
+                          {rows.map(({ entry, source }) => (
+                            <EntryCard
+                              key={entry.id}
+                              collectionId={collectionId}
+                              entry={entry}
+                              source={source}
+                              groupings={groupings}
+                              canEdit={canEdit}
+                              isOwner={isOwner}
+                              isNew={entry.id === newEntryId}
+                              onRemove={handleRemoveEntry}
+                              onViewPdf={setPdfSource}
+                              onSaved={handleEntrySaved}
+                              onGroupingChange={handleGroupingChange}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })
               ) : (
                 visibleEntries.map(({ entry, source }) => (
                   <EntryCard
@@ -245,12 +418,14 @@ export default function CollectionBibliography({ collectionId, collectionName, i
                     collectionId={collectionId}
                     entry={entry}
                     source={source}
+                    groupings={groupings}
                     canEdit={canEdit}
                     isOwner={isOwner}
                     isNew={entry.id === newEntryId}
                     onRemove={handleRemoveEntry}
                     onViewPdf={setPdfSource}
                     onSaved={handleEntrySaved}
+                    onGroupingChange={handleGroupingChange}
                   />
                 ))
               )}
@@ -282,6 +457,15 @@ export default function CollectionBibliography({ collectionId, collectionName, i
                             <a href={`/sources/${source.id}`} className="cb-side-item-title">{source.title}</a>
                           </span>
                           <span className="cb-side-item-meta">{metaLine(source)}</span>
+                          <div className="cb-side-item-tier">
+                            <CollectionGroupingSelect
+                              value={source.grouping_id}
+                              groupings={groupings}
+                              canEdit={canEdit}
+                              onChange={(gid) => handleGroupingChange(source.id, gid)}
+                              size="sm"
+                            />
+                          </div>
                         </div>
                         {canEdit && (
                           <button
@@ -304,6 +488,15 @@ export default function CollectionBibliography({ collectionId, collectionName, i
       </div>
 
       {pdfSource && <PdfModal source={pdfSource} onClose={() => setPdfSource(null)} />}
+
+      <CollectionGroupingsModal
+        isOpen={manageOpen}
+        onClose={() => setManageOpen(false)}
+        collectionId={collectionId}
+        initialGroupings={groupings}
+        onChange={handleGroupingsChanged}
+        canEdit={canEdit}
+      />
     </>
   );
 }
@@ -313,7 +506,7 @@ export default function CollectionBibliography({ collectionId, collectionName, i
 // Each field debounce-autosaves; pending edits accumulate so a quick
 // edit to both fields in one window still saves both.
 // =====================================================================
-function EntryCard({ collectionId, entry, source, canEdit, isOwner, isNew, onRemove, onViewPdf, onSaved }) {
+function EntryCard({ collectionId, entry, source, groupings, canEdit, isOwner, isNew, onRemove, onViewPdf, onSaved, onGroupingChange }) {
   const [internal, setInternal] = useState(entry.internal_annotation || '');
   const [formal, setFormal] = useState(entry.formal_annotation || '');
   const [status, setStatus] = useState('idle'); // idle | pending | saving | saved | error
@@ -384,6 +577,12 @@ function EntryCard({ collectionId, entry, source, canEdit, isOwner, isNew, onRem
           <span className="cb-entry-meta">{metaLine(source)}</span>
         </div>
         <div className="cb-entry-actions">
+          <CollectionGroupingSelect
+            value={source.grouping_id}
+            groupings={groupings || []}
+            canEdit={canEdit}
+            onChange={(gid) => onGroupingChange?.(source.id, gid)}
+          />
           {statusLabel && <span className={`cb-status cb-status-${status}`}>{statusLabel}</span>}
           {source.pdf_url ? (
             <button type="button" className="cb-entry-btn" onClick={() => onViewPdf(source)}>
@@ -691,6 +890,120 @@ function CBStyles() {
       }
       .cb-export-btn i { font-size: 11px; }
 
+      .cb-group-toggle {
+        display: inline-flex;
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        overflow: hidden;
+        background: var(--paper);
+      }
+      .cb-group-btn {
+        appearance: none;
+        background: transparent;
+        border: none;
+        padding: 7px 11px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink-3);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.12s, color 0.12s;
+      }
+      .cb-group-btn + .cb-group-btn { border-left: 1px solid var(--ink-line); }
+      .cb-group-btn:hover { color: var(--ink); }
+      .cb-group-btn.is-on {
+        background: var(--paper-soft);
+        color: var(--primary);
+      }
+      .cb-group-btn i { font-size: 11px; }
+
+      /* Manage groupings — sits next to the Grouped/Flat toggle. */
+      .cb-manage-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--paper);
+        border: 1px solid var(--ink-line);
+        border-radius: var(--r-sm);
+        padding: 7px 13px;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink-2);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.12s, border-color 0.12s, color 0.12s;
+      }
+      .cb-manage-btn:hover {
+        background: var(--paper-soft);
+        border-color: var(--ink-3);
+        color: var(--ink);
+      }
+      .cb-manage-btn i { font-size: 11px; }
+
+      /* Grouping section headings — only visible when grouped. Use the
+         source accent for both the title and the rule so headers read as
+         "source-blue" regardless of grouping position. */
+      .cb-grouping-section + .cb-grouping-section { margin-top: 28px; }
+      .cb-grouping-section.is-collapsed + .cb-grouping-section { margin-top: 14px; }
+      .cb-grouping-heading {
+        /* Override the global h2 color so the heading + border read as
+           source-blue. Cascading off .cb-grouping-section alone isn't enough:
+           the global h2 color rule wins on the element. */
+        color: var(--source, var(--primary));
+        margin: 0 0 12px;
+        padding-bottom: 6px;
+        border-bottom: 2px solid currentColor;
+      }
+      .cb-grouping-section.is-collapsed .cb-grouping-heading { margin-bottom: 0; }
+      .cb-grouping-heading-btn {
+        appearance: none;
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: currentColor;
+      }
+      .cb-grouping-heading-btn:hover { opacity: 0.85; }
+      .cb-grouping-heading-btn:focus-visible {
+        outline: 2px solid color-mix(in srgb, currentColor 55%, transparent);
+        outline-offset: 3px;
+        border-radius: 2px;
+      }
+      .cb-grouping-caret {
+        font-size: 11px;
+        width: 11px;
+        color: currentColor;
+        opacity: 0.7;
+        transition: transform 0.15s;
+      }
+      .cb-grouping-body { margin-top: 12px; }
+      .cb-grouping-name { color: inherit; }
+      .cb-grouping-count {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--ink-3);
+        background: var(--paper-soft);
+        border-radius: 999px;
+        padding: 2px 8px;
+        letter-spacing: 0;
+      }
+
+      .cb-side-item-tier { margin-top: 6px; }
+
       .cb-filterbar {
         display: flex;
         align-items: center;
@@ -801,6 +1114,8 @@ function CBStyles() {
         background: var(--paper);
         padding: 18px 20px 20px;
       }
+      .cb-entry + .cb-entry { margin-top: 14px; }
+      .cb-tier-section .cb-entry + .cb-entry { margin-top: 14px; }
       .cb-entry.is-new { animation: cb-flash 1.8s ease; }
       @keyframes cb-flash {
         0%   { box-shadow: 0 0 0 3px color-mix(in srgb, var(--source, var(--primary)) 45%, transparent); }

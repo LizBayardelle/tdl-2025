@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { toTitleCase } from '../utils/titleCase';
+import CollectionGroupingSelect from './CollectionGroupingSelect';
 
 // =====================================================================
 // SourceCard
@@ -66,6 +67,13 @@ export default function SourceCard({
   onMarkersChange,
   onCollectionsChange,
   onConceptsChange,
+  // Per-collection grouping. Pass these only from collection-scoped views
+  // (e.g. /collections/:id/sources). When `onGroupingChange` is omitted the
+  // control is hidden — keeps the card unchanged in non-collection contexts.
+  groupingId,
+  groupings,
+  canEditGrouping = false,
+  onGroupingChange,
 }) {
   if (variant === 'tile') return <SourceTile source={source} />;
   if (variant === 'list') return <SourceListRow source={source} isKey={isKey} />;
@@ -81,6 +89,10 @@ export default function SourceCard({
       onMarkersChange={onMarkersChange}
       onCollectionsChange={onCollectionsChange}
       onConceptsChange={onConceptsChange}
+      groupingId={groupingId}
+      groupings={groupings}
+      canEditGrouping={canEditGrouping}
+      onGroupingChange={onGroupingChange}
     />
   );
 }
@@ -88,7 +100,7 @@ export default function SourceCard({
 // =====================================================================
 // FULL — SourcesIndex variant
 // =====================================================================
-function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, onCollectionsChange, onConceptsChange }) {
+function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, onCollectionsChange, onConceptsChange, groupingId, groupings, canEditGrouping, onGroupingChange }) {
   const [showMarkers, setShowMarkers] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [showConcepts, setShowConcepts] = useState(false);
@@ -140,6 +152,15 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
             ))}
           </div>
           <div className="src-card-actions">
+            {onGroupingChange && (
+              <CollectionGroupingSelect
+                value={groupingId}
+                groupings={groupings || []}
+                canEdit={canEditGrouping}
+                onChange={(gid) => onGroupingChange(source.id, gid)}
+                size="sm"
+              />
+            )}
             <div className="src-card-actions-hover">
               <button
                 type="button"

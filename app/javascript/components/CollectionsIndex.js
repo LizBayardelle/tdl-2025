@@ -17,6 +17,20 @@ export default function CollectionsIndex() {
 
   useEffect(() => { fetchCollections(); }, []);
 
+  // Auto-open the create form when arriving via the nav's "+ New Collection"
+  // (which links to /collections?new=1).  Strip the param so a refresh
+  // doesn't re-open the form.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === '1') {
+      setShowCreateForm(true);
+      params.delete('new');
+      const q = params.toString();
+      window.history.replaceState(null, '', q ? `${window.location.pathname}?${q}` : window.location.pathname);
+    }
+  }, []);
+
   const fetchCollections = async () => {
     setLoading(true);
     try {

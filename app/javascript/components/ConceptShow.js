@@ -1095,6 +1095,9 @@ function ConceptBody({
                   onDelete={onDeleteConnection}
                 />
               </div>
+              <a href={`/concepts/${focalId}/relationships`} className="cs-side-browse">
+                View relationship map <i className="fas fa-arrow-right" />
+              </a>
             </SidebarBlock>
           )}
           <SidebarBlock label="Add Relationship" sub="Type to find any concept in your library.">
@@ -3772,8 +3775,8 @@ function CSStyles() {
         font-size: 10px;
         margin: 0 0 8px;
         padding-bottom: 4px;
-        color: var(--ink-3);
-        border-bottom: 1px solid color-mix(in srgb, var(--concept) 35%, transparent);
+        color: var(--source);
+        border-bottom: 1px solid color-mix(in srgb, var(--source) 35%, transparent);
       }
       .cs-side-rel-charts .cs-rel-block-hint {
         font-size: 11px;

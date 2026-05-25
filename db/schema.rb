@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_21_010000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_25_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -83,6 +83,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_010000) do
     t.index ["source_id"], name: "index_bibliography_entries_on_source_id"
   end
 
+  create_table "collection_groupings", force: :cascade do |t|
+    t.bigint "collection_id", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["collection_id", "name"], name: "index_collection_groupings_on_collection_id_and_name", unique: true
+    t.index ["collection_id", "position"], name: "index_collection_groupings_on_collection_id_and_position"
+    t.index ["collection_id"], name: "index_collection_groupings_on_collection_id"
+  end
+
   create_table "collection_items", force: :cascade do |t|
     t.bigint "collection_id", null: false
     t.string "collectable_type", null: false
@@ -91,10 +102,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_010000) do
     t.bigint "added_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "grouping_id"
     t.index ["added_by_id"], name: "index_collection_items_on_added_by_id"
     t.index ["collectable_type", "collectable_id"], name: "index_collection_items_on_collectable_type_and_collectable_id"
     t.index ["collection_id", "collectable_type", "collectable_id"], name: "idx_collection_items_unique", unique: true
     t.index ["collection_id"], name: "index_collection_items_on_collection_id"
+    t.index ["grouping_id"], name: "index_collection_items_on_grouping_id"
   end
 
   create_table "collections", force: :cascade do |t|
@@ -902,6 +915,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_010000) do
   add_foreign_key "authors", "users"
   add_foreign_key "bibliography_entries", "collections"
   add_foreign_key "bibliography_entries", "sources"
+  add_foreign_key "collection_groupings", "collections"
+  add_foreign_key "collection_items", "collection_groupings", column: "grouping_id", on_delete: :nullify
   add_foreign_key "collection_items", "collections"
   add_foreign_key "collection_items", "users", column: "added_by_id"
   add_foreign_key "collections", "users"

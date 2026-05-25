@@ -1,6 +1,7 @@
 class Collection < ApplicationRecord
   belongs_to :user
   has_many :collection_items, dependent: :destroy
+  has_many :groupings, class_name: 'CollectionGrouping', dependent: :destroy
   has_many :shares, as: :shareable, dependent: :destroy
 
   # Polymorphic associations

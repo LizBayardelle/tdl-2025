@@ -47,6 +47,10 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
   const [parsedAuthors, setParsedAuthors] = useState([]);
   const [processedAuthorsData, setProcessedAuthorsData] = useState(null); // Store confirmed author data
   const [submitting, setSubmitting] = useState(false);
+  // Remembers the last performSave arg so the "Try Again" button on the
+  // error banner can re-run the exact same submission (incl. processed
+  // authors) after a transient failure.
+  const [lastSaveArgs, setLastSaveArgs] = useState(null);
 
   // Concept suggestion
   const [showConceptModal, setShowConceptModal] = useState(false);
@@ -131,6 +135,7 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
       setError('');
       setProcessedAuthorsData(null); // Reset author check state
       setProcessedConceptsData(null); // Reset concept check state
+      setLastSaveArgs(null); // Clear any prior failed-submit retry state
       setConceptSuggestions([]);
       setNewlyCreatedConcepts([]);
       setDuplicates({ title: null, doi: null, url: null, pdf: null });
@@ -753,6 +758,9 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
   const performSave = async (processedAuthors = null) => {
     setSubmitting(true);
     setStep('saving');
+    // Stash the args so "Try Again" on the error banner can replay this
+    // exact submission without forcing the user back through the modals.
+    setLastSaveArgs({ processedAuthors });
 
     try {
       const formDataToSend = new FormData();
@@ -780,6 +788,20 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
         formDataToSend.append('source[pdf]', pdfFile);
       }
 
+      // Diagnostic: log payload shape so failures (esp. Heroku H33 stream
+      // resets that produce no Rails log entry) can be correlated to the
+      // size/field count of the multipart body that triggered them.
+      let totalBytes = 0;
+      let fieldCount = 0;
+      const fieldSizes = {};
+      for (const [k, v] of formDataToSend.entries()) {
+        fieldCount++;
+        const size = (typeof v === 'string') ? v.length : (v?.size || 0);
+        totalBytes += size;
+        fieldSizes[k] = (fieldSizes[k] || 0) + size;
+      }
+      console.log('POST /sources payload:', { fieldCount, totalBytes, fieldSizes });
+
       const response = await fetch('/sources', {
         method: 'POST',
         headers: {
@@ -792,17 +814,42 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
         const data = await response.json();
         onSuccess(data);
       } else {
-        const data = await response.json();
-        setError(data.errors?.join(', ') || data.error || 'An error occurred');
+        // Read as text first so we can surface non-JSON error pages
+        // (Heroku platform 503s, Puma error pages) instead of throwing
+        // silently on response.json().
+        const text = await response.text();
+        console.error('POST /sources failed', {
+          status: response.status,
+          statusText: response.statusText,
+          body: text,
+          payloadBytes: totalBytes,
+          fieldCount,
+        });
+        let message = `Server error (${response.status})`;
+        try {
+          const data = JSON.parse(text);
+          message = data.errors?.join(', ') || data.error || message;
+        } catch {
+          if (text) message = `${message}: ${text.slice(0, 200)}`;
+        }
+        setError(message);
         setStep('review');
       }
     } catch (error) {
       console.error('Error saving source:', error);
-      setError('An error occurred while saving the source');
+      setError(`Network error while saving${error?.message ? `: ${error.message}` : ''}`);
       setStep('review');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Replay the last performSave call.  Used by the "Try Again" button on
+  // the error banner — most useful for transient failures (Heroku H33
+  // HTTP/2 stream resets) where the same payload succeeds on retry.
+  const handleRetry = async () => {
+    setError('');
+    await performSave(lastSaveArgs?.processedAuthors ?? null);
   };
 
   const handleArrayInput = (field, value) => {
@@ -1460,9 +1507,44 @@ export default function PdfUploadModal({ isOpen, onClose, onSuccess }) {
                 </div>
 
                 {error && (
-                  <div className="alert alert-warning" style={{ marginBottom: 'var(--space-4)' }}>
-                    <span className="alert-title"><i className="fas fa-exclamation-triangle"></i> Note:</span>
-                    {error}
+                  <div className="alert alert-warning" style={{
+                    marginBottom: 'var(--space-4)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    gap: 'var(--space-3)',
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span className="alert-title"><i className="fas fa-exclamation-triangle"></i> Note:</span>
+                      {error}
+                    </div>
+                    {lastSaveArgs && (
+                      <button
+                        type="button"
+                        onClick={handleRetry}
+                        disabled={submitting}
+                        style={{
+                          flexShrink: 0,
+                          padding: 'var(--space-2) var(--space-3)',
+                          background: submitting ? 'var(--neutral-300)' : 'var(--accent-blue)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontFamily: 'var(--font-display)',
+                          fontSize: 'var(--text-sm)',
+                          fontWeight: 600,
+                          cursor: submitting ? 'wait' : 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 'var(--space-2)',
+                          whiteSpace: 'nowrap',
+                        }}
+                        title="Retry the same submission — most useful for transient network errors"
+                      >
+                        <i className={submitting ? 'fas fa-spinner fa-spin' : 'fas fa-redo'}></i>
+                        {submitting ? 'Retrying…' : 'Try Again'}
+                      </button>
+                    )}
                   </div>
                 )}
 

@@ -18,7 +18,13 @@ class SourcesController < ApplicationController
         person_ids    = Array(params[:person_ids]).map(&:to_i).reject(&:zero?)
         tag_names     = Array(params[:tags]).map(&:to_s).reject(&:blank?)
         collection_ids = Array(params[:collection_ids]).map(&:to_i).reject(&:zero?)
-        markers       = Array(params[:markers]).map(&:to_s).reject(&:blank?)
+        # Grouping filter only makes sense when scoped to a single collection
+        # (groupings are per-collection). 'unsorted' is the wire encoding for
+        # nil so the client can include it as just another option.
+        raw_groupings  = Array(params[:grouping_ids]).map(&:to_s).reject(&:blank?)
+        grouping_unsorted = raw_groupings.include?('unsorted')
+        grouping_ids   = raw_groupings.reject { |g| g == 'unsorted' }.map(&:to_i).reject(&:zero?)
+        markers        = Array(params[:markers]).map(&:to_s).reject(&:blank?)
         methodologies = Array(params[:methodologies]).map(&:to_s).reject(&:blank?)
         year_min      = params[:year_min].presence&.to_i
         year_max      = params[:year_max].presence&.to_i
@@ -30,6 +36,7 @@ class SourcesController < ApplicationController
           q: q, kind: kind,
           concept_ids: concept_ids, person_ids: person_ids,
           tag_names: tag_names, collection_ids: collection_ids,
+          grouping_ids: grouping_ids, grouping_unsorted: grouping_unsorted,
           markers: markers, methodologies: methodologies,
           year_min: year_min, year_max: year_max,
           has_pdf: has_pdf, has_notes: has_notes,
@@ -58,6 +65,18 @@ class SourcesController < ApplicationController
                     :statistical_tests, :source_statistical_tests)
           .with_attached_pdf
 
+        # When the index is scoped to exactly one collection (e.g. the
+        # /collections/:id/sources view), include the per-collection grouping
+        # so the row can render and edit it without a second round-trip.
+        grouping_by_source_id = if collection_ids.length == 1
+          CollectionItem.where(collection_id: collection_ids.first,
+                               collectable_type: 'Source',
+                               collectable_id: paginated.map(&:id))
+            .pluck(:collectable_id, :grouping_id).to_h
+        else
+          {}
+        end
+
         sources_data = paginated.map do |source|
           is_owner = source.user_id == current_user.id
           source.as_json(only: [:id, :title, :year, :kind, :doi, :abstract, :summary, :journal_name, :markers, :methodologies]).merge(
@@ -70,6 +89,7 @@ class SourcesController < ApplicationController
             collections: source.collections.map { |c| { id: c.id, name: c.name } },
             statistical_tests: serialize_statistical_tests(source),
             statistical_tests_searched_at: source.statistical_tests_searched_at,
+            collection_grouping_id: grouping_by_source_id[source.id],
             notes_count: source.notes.size,
             has_pdf: source.pdf.attached?,
             pdf_url: source.pdf.attached? ? Rails.application.routes.url_helpers.rails_blob_path(source.pdf, only_path: true) : nil,
@@ -95,6 +115,7 @@ class SourcesController < ApplicationController
               q: q, kind: kind,
               concept_ids: concept_ids, person_ids: person_ids,
               tag_names: tag_names, collection_ids: collection_ids,
+              grouping_ids: grouping_ids, grouping_unsorted: grouping_unsorted,
               markers: markers, methodologies: methodologies,
               year_min: year_min, year_max: year_max,
               has_pdf: has_pdf, has_notes: has_notes,
@@ -850,7 +871,7 @@ class SourcesController < ApplicationController
   # Apply all incoming filter params to a Source scope.  Each filter narrows
   # the set; combinations AND together.  q does a text search across the
   # most useful fields.
-  def apply_filters(scope, q:, kind:, concept_ids:, person_ids:, tag_names:, collection_ids:, markers:, methodologies:, year_min:, year_max:, has_pdf:, has_notes:, owner_id:, tabletop_id: nil)
+  def apply_filters(scope, q:, kind:, concept_ids:, person_ids:, tag_names:, collection_ids:, markers:, methodologies:, year_min:, year_max:, has_pdf:, has_notes:, owner_id:, tabletop_id: nil, grouping_ids: [], grouping_unsorted: false)
     s = scope
 
     if q.present?
@@ -884,6 +905,21 @@ class SourcesController < ApplicationController
     if collection_ids.any?
       sub = CollectionItem.where(collectable_type: 'Source', collection_id: collection_ids).select(:collectable_id)
       s = s.where(id: sub)
+    end
+
+    # Grouping filter — only honored when exactly one collection is in scope,
+    # since groupings are per-collection. `grouping_unsorted` widens the
+    # match to include items with no grouping (NULL).
+    if (grouping_ids.any? || grouping_unsorted) && collection_ids.length == 1
+      ci_scope = CollectionItem.where(collection_id: collection_ids.first, collectable_type: 'Source')
+      cond = if grouping_ids.any? && grouping_unsorted
+        ci_scope.where('grouping_id IN (?) OR grouping_id IS NULL', grouping_ids)
+      elsif grouping_unsorted
+        ci_scope.where(grouping_id: nil)
+      else
+        ci_scope.where(grouping_id: grouping_ids)
+      end
+      s = s.where(id: cond.select(:collectable_id))
     end
 
     if markers.any?
@@ -1011,6 +1047,22 @@ class SourcesController < ApplicationController
       .map { |name, count| { name: name, count: count } }
       .sort_by { |m| m[:name].to_s.downcase }
 
+    # Grouping counts — only meaningful when scoped to a single collection.
+    # Returned in canonical (position) order; plus an "Unsorted" pseudo-row
+    # for items in the collection that have no grouping assigned.
+    groupings_list = []
+    applied_collection_ids = applied[:collection_ids] || []
+    if applied_collection_ids.length == 1
+      cid = applied_collection_ids.first
+      counts = CollectionItem
+        .where(collection_id: cid, collectable_type: 'Source')
+        .group(:grouping_id).count
+      groupings_list = CollectionGrouping
+        .where(collection_id: cid)
+        .map { |g| { value: g.id, label: g.name, position: g.position, count: counts[g.id] || 0 } }
+      groupings_list << { value: 'unsorted', label: 'Unsorted', position: nil, count: counts[nil] || 0 }
+    end
+
     {
       kinds: kinds.sort_by { |k, _| k }.map { |k, c| { value: k, count: c } },
       years: years.sort.map { |y, c| { value: y, count: c } },
@@ -1018,6 +1070,7 @@ class SourcesController < ApplicationController
       concepts: concepts,
       tags: tags,
       collections: collections,
+      groupings: groupings_list,
       markers: markers_list,
       methodologies: methodologies_list,
       pdf_count: pdf_count,
