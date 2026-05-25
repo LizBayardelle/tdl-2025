@@ -21809,14 +21809,14 @@ var require_with_selector_development = __commonJS({
         return x6 === y6 && (0 !== x6 || 1 / x6 === 1 / y6) || x6 !== x6 && y6 !== y6;
       }
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-      var React100 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef45 = React100.useRef, useEffect81 = React100.useEffect, useMemo45 = React100.useMemo, useDebugValue3 = React100.useDebugValue;
+      var React100 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is, useSyncExternalStore3 = shim.useSyncExternalStore, useRef45 = React100.useRef, useEffect81 = React100.useEffect, useMemo46 = React100.useMemo, useDebugValue3 = React100.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef45(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
         } else inst = instRef.current;
-        instRef = useMemo45(
+        instRef = useMemo46(
           function() {
             function memoizedSelector(nextSnapshot) {
               if (!hasMemo) {
@@ -128765,6 +128765,7 @@ ForceGraph2D.propTypes = ForceGraph2DPropTypes;
 var PALETTE = {
   concept: "#48A27E",
   conceptTint: "#E8F4EE",
+  concept2: "#2F7A5C",
   source: "#4976B1",
   person: "#614498",
   ink: "#15191F",
@@ -128783,34 +128784,23 @@ var FILTER_OPTIONS = [
   { value: "influence", label: "Influence" },
   { value: "positional", label: "Positional" }
 ];
+var RAIL_LIMIT = 50;
 function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = (0, import_react77.useState)({ nodes: [], links: [] });
+  const [allNodes, setAllNodes] = (0, import_react77.useState)([]);
+  const [allLinks, setAllLinks] = (0, import_react77.useState)([]);
   const [loading, setLoading] = (0, import_react77.useState)(true);
   const [filterType, setFilterType] = (0, import_react77.useState)("all");
+  const [selectedNodeId, setSelectedNodeId] = (0, import_react77.useState)(null);
+  const [searchQuery, setSearchQuery] = (0, import_react77.useState)("");
   const [highlightNodes, setHighlightNodes] = (0, import_react77.useState)(/* @__PURE__ */ new Set());
   const [highlightLinks, setHighlightLinks] = (0, import_react77.useState)(/* @__PURE__ */ new Set());
   const [hoverNode, setHoverNode] = (0, import_react77.useState)(null);
   const fgRef = (0, import_react77.useRef)();
   const labelBounds = (0, import_react77.useRef)(/* @__PURE__ */ new Map());
-  const currentFrame = (0, import_react77.useRef)(0);
   const nodesPainted = (0, import_react77.useRef)(0);
   (0, import_react77.useEffect)(() => {
     fetchGraphData();
   }, []);
-  (0, import_react77.useEffect)(() => {
-    if (fgRef.current && graphData.nodes.length > 0) {
-      const fg = fgRef.current;
-      Promise.resolve().then(() => (init_src4(), src_exports)).then((d3) => {
-        fg.d3Force("charge", d3.forceManyBody().strength(-400).distanceMax(500));
-        fg.d3Force("link").distance(100);
-        fg.d3Force("collision", d3.forceCollide().radius(60).strength(1));
-        fg.d3ReheatSimulation();
-      });
-      setTimeout(() => {
-        fg.zoomToFit(400, 50);
-      }, 1e3);
-    }
-  }, [graphData]);
   const fetchGraphData = async () => {
     try {
       const [conceptsRes, connectionsRes] = await Promise.all([
@@ -128821,15 +128811,17 @@ function ConceptRelationshipMap() {
         conceptsRes.json(),
         connectionsRes.json()
       ]);
+      const countMap = /* @__PURE__ */ new Map();
+      connections.forEach((c5) => {
+        countMap.set(c5.src_concept_id, (countMap.get(c5.src_concept_id) || 0) + 1);
+        countMap.set(c5.dst_concept_id, (countMap.get(c5.dst_concept_id) || 0) + 1);
+      });
       const nodes = concepts.map((concept) => ({
         id: concept.id,
         label: concept.label,
         type: concept.concept_type,
         slug: concept.slug,
-        // Count connections for node sizing
-        connectionCount: connections.filter(
-          (c5) => c5.src_concept_id === concept.id || c5.dst_concept_id === concept.id
-        ).length
+        connectionCount: countMap.get(concept.id) || 0
       })).filter((node) => node.connectionCount > 0);
       const links = connections.map((connection) => ({
         source: connection.src_concept_id,
@@ -128839,7 +128831,10 @@ function ConceptRelationshipMap() {
         category: getCategoryForType(connection.rel_type),
         description: connection.description
       }));
-      setGraphData({ nodes, links });
+      setAllNodes(nodes);
+      setAllLinks(links);
+      const topConcept = nodes.reduce((best, n3) => !best || n3.connectionCount > best.connectionCount ? n3 : best, null);
+      if (topConcept) setSelectedNodeId(topConcept.id);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching graph data:", error);
@@ -128881,23 +128876,63 @@ function ConceptRelationshipMap() {
     if (positional.includes(relType)) return "positional";
     return "other";
   };
-  const getFilteredData = () => {
-    if (filterType === "all") return graphData;
-    const filteredLinks = graphData.links.filter((link) => link.category === filterType);
-    const connectedNodeIds = /* @__PURE__ */ new Set();
-    filteredLinks.forEach((link) => {
-      connectedNodeIds.add(link.source.id || link.source);
-      connectedNodeIds.add(link.target.id || link.target);
+  const sortedConcepts = (0, import_react77.useMemo)(
+    () => [...allNodes].sort((a5, b2) => b2.connectionCount - a5.connectionCount),
+    [allNodes]
+  );
+  const railConcepts = (0, import_react77.useMemo)(() => {
+    const q3 = searchQuery.trim().toLowerCase();
+    if (q3) {
+      return sortedConcepts.filter((n3) => n3.label.toLowerCase().includes(q3)).slice(0, 200);
+    }
+    return sortedConcepts.slice(0, RAIL_LIMIT);
+  }, [sortedConcepts, searchQuery]);
+  const selectedNode = (0, import_react77.useMemo)(
+    () => allNodes.find((n3) => n3.id === selectedNodeId) || null,
+    [allNodes, selectedNodeId]
+  );
+  const neighborhoodData = (0, import_react77.useMemo)(() => {
+    if (!selectedNodeId || allNodes.length === 0) {
+      return { nodes: [], links: [] };
+    }
+    const matchesFilter = (link) => filterType === "all" || link.category === filterType;
+    const neighborIds = /* @__PURE__ */ new Set([selectedNodeId]);
+    const localLinks = [];
+    allLinks.forEach((link) => {
+      const sId = link.source.id || link.source;
+      const tId = link.target.id || link.target;
+      if (!matchesFilter(link)) return;
+      if (sId === selectedNodeId) {
+        neighborIds.add(tId);
+        localLinks.push(link);
+      } else if (tId === selectedNodeId) {
+        neighborIds.add(sId);
+        localLinks.push(link);
+      }
     });
-    const filteredNodes = graphData.nodes.filter((node) => connectedNodeIds.has(node.id));
-    return { nodes: filteredNodes, links: filteredLinks };
-  };
+    const nodeMap = new Map(allNodes.map((n3) => [n3.id, n3]));
+    const localNodes = Array.from(neighborIds).map((id2) => nodeMap.get(id2)).filter(Boolean);
+    return { nodes: localNodes, links: localLinks };
+  }, [selectedNodeId, allNodes, allLinks, filterType]);
+  (0, import_react77.useEffect)(() => {
+    if (fgRef.current && neighborhoodData.nodes.length > 0) {
+      const fg = fgRef.current;
+      Promise.resolve().then(() => (init_src4(), src_exports)).then((d3) => {
+        fg.d3Force("charge", d3.forceManyBody().strength(-400).distanceMax(500));
+        fg.d3Force("link").distance(100);
+        fg.d3Force("collision", d3.forceCollide().radius(60).strength(1));
+        fg.d3ReheatSimulation();
+      });
+      const t4 = setTimeout(() => fg.zoomToFit(400, 80), 600);
+      return () => clearTimeout(t4);
+    }
+  }, [neighborhoodData]);
   const handleNodeHover = (node) => {
     const newHighlightNodes = /* @__PURE__ */ new Set();
     const newHighlightLinks = /* @__PURE__ */ new Set();
     if (node) {
       newHighlightNodes.add(node.id);
-      graphData.links.forEach((link) => {
+      neighborhoodData.links.forEach((link) => {
         const sourceId = link.source.id || link.source;
         const targetId = link.target.id || link.target;
         if (sourceId === node.id) {
@@ -128914,7 +128949,12 @@ function ConceptRelationshipMap() {
     setHoverNode(node);
   };
   const handleNodeClick = (node) => {
-    window.location.href = `/concepts/${node.slug}`;
+    if (node.id !== selectedNodeId) {
+      setSelectedNodeId(node.id);
+      setHighlightNodes(/* @__PURE__ */ new Set());
+      setHighlightLinks(/* @__PURE__ */ new Set());
+      setHoverNode(null);
+    }
   };
   const boxesOverlap = (box1, box2) => {
     return !(box1.right < box2.left || box1.left > box2.right || box1.bottom < box2.top || box1.top > box2.bottom);
@@ -128928,9 +128968,7 @@ function ConceptRelationshipMap() {
     return false;
   };
   const truncateText = (ctx, text2, maxWidth) => {
-    if (ctx.measureText(text2).width <= maxWidth) {
-      return text2;
-    }
+    if (ctx.measureText(text2).width <= maxWidth) return text2;
     let truncated = text2;
     while (truncated.length > 0 && ctx.measureText(truncated + "...").width > maxWidth) {
       truncated = truncated.slice(0, -1);
@@ -128940,35 +128978,35 @@ function ConceptRelationshipMap() {
   const paintNode = (node, ctx, globalScale) => {
     if (nodesPainted.current === 0) {
       labelBounds.current.clear();
-      currentFrame.current++;
     }
     nodesPainted.current++;
-    if (nodesPainted.current >= graphData.nodes.length) {
+    if (nodesPainted.current >= neighborhoodData.nodes.length) {
       nodesPainted.current = 0;
     }
     const label = node.label;
     const fontSize = 12 / globalScale;
-    const nodeSize2 = 4 + (node.connectionCount || 0) * 0.5;
+    const isSelected = node.id === selectedNodeId;
+    const nodeSize2 = isSelected ? 8 + (node.connectionCount || 0) * 0.3 : 4 + (node.connectionCount || 0) * 0.3;
     const isFaded = highlightNodes.size > 0 && !highlightNodes.has(node.id);
     const isHovered = hoverNode && node.id === hoverNode.id;
-    const nodeColor = isFaded ? PALETTE.ink4 : PALETTE.concept;
+    const nodeColor = isSelected ? PALETTE.concept2 : isFaded ? PALETTE.ink4 : PALETTE.concept;
     const haloColor = isFaded ? PALETTE.inkLineSoft : PALETTE.conceptTint;
     ctx.beginPath();
-    ctx.arc(node.x, node.y, nodeSize2 + 5, 0, 2 * Math.PI);
+    ctx.arc(node.x, node.y, nodeSize2 + 6, 0, 2 * Math.PI);
     ctx.fillStyle = haloColor;
     ctx.fill();
     ctx.beginPath();
     ctx.arc(node.x, node.y, nodeSize2, 0, 2 * Math.PI);
     ctx.fillStyle = nodeColor;
     ctx.fill();
-    if (isHovered) {
+    if (isSelected || isHovered) {
       ctx.beginPath();
       ctx.arc(node.x, node.y, nodeSize2 + 5, 0, 2 * Math.PI);
-      ctx.strokeStyle = PALETTE.concept;
-      ctx.lineWidth = 1.25 / globalScale;
+      ctx.strokeStyle = PALETTE.concept2;
+      ctx.lineWidth = 1.5 / globalScale;
       ctx.stroke();
     }
-    ctx.font = `500 ${fontSize}px "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.font = `${isSelected ? 600 : 500} ${fontSize}px "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = isFaded ? PALETTE.ink4 : PALETTE.ink;
@@ -129013,7 +129051,7 @@ function ConceptRelationshipMap() {
       };
       labelBounds.current.set(node.id, bounds);
     }
-    if (hoverNode && node.id === hoverNode.id) {
+    if (isHovered) {
       displayLabel = label;
       const hoverMetrics = ctx.measureText(displayLabel);
       const hoverWidth = hoverMetrics.width;
@@ -129029,12 +129067,9 @@ function ConceptRelationshipMap() {
     ctx.fillText(displayLabel, bestPosition.x, bestPosition.y);
   };
   const paintLink = (link, ctx, globalScale) => {
-    const sourceId = link.source.id || link.source;
-    const targetId = link.target.id || link.target;
     let linkColor;
     let linkWidth = 1;
     let dashPattern = [];
-    let isDouble = false;
     if (highlightLinks.size > 0 && !highlightLinks.has(link)) {
       linkColor = PALETTE.inkLineSoft;
       linkWidth = 0.5;
@@ -129087,7 +129122,7 @@ function ConceptRelationshipMap() {
       const dy = end3.y - start2.y;
       const angle = Math.atan2(dy, dx);
       const distance2 = Math.sqrt(dx * dx + dy * dy);
-      const nodeRadius2 = 3 + (end3.connectionCount || 0) * 0.5;
+      const nodeRadius2 = 3 + (end3.connectionCount || 0) * 0.3;
       const padding = 3 / globalScale;
       const offset = (nodeRadius2 + padding) / distance2;
       const arrowX = end3.x - dx * offset;
@@ -129109,10 +129144,9 @@ function ConceptRelationshipMap() {
   if (loading) {
     return /* @__PURE__ */ import_react77.default.createElement("section", { className: "sp-relationship" }, /* @__PURE__ */ import_react77.default.createElement(CrmStyles, null), /* @__PURE__ */ import_react77.default.createElement("div", { className: "sp-relationship-head" }, /* @__PURE__ */ import_react77.default.createElement("div", null, /* @__PURE__ */ import_react77.default.createElement("h2", { className: "sp-chart-title" }, "Concept map"), /* @__PURE__ */ import_react77.default.createElement("p", { className: "sp-chart-subtitle" }, "Loading."))));
   }
-  const filteredData = getFilteredData();
-  const totalNodes = filteredData.nodes.length;
-  const totalLinks = filteredData.links.length;
-  return /* @__PURE__ */ import_react77.default.createElement("section", { className: "sp-relationship" }, /* @__PURE__ */ import_react77.default.createElement(CrmStyles, null), /* @__PURE__ */ import_react77.default.createElement("div", { className: "sp-relationship-head" }, /* @__PURE__ */ import_react77.default.createElement("div", null, /* @__PURE__ */ import_react77.default.createElement("h2", { className: "sp-chart-title" }, "Concept map"), /* @__PURE__ */ import_react77.default.createElement("p", { className: "sp-chart-subtitle" }, totalNodes > 0 ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, totalNodes, " concept", totalNodes === 1 ? "" : "s", " \xB7 ", totalLinks, " connection", totalLinks === 1 ? "" : "s", ".  Drag a node to reposition.  Scroll to zoom.") : "A view of how your concepts connect.")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-filters" }, FILTER_OPTIONS.map((opt) => /* @__PURE__ */ import_react77.default.createElement(
+  const neighborCount = Math.max(neighborhoodData.nodes.length - 1, 0);
+  const neighborhoodEdgeCount = neighborhoodData.links.length;
+  return /* @__PURE__ */ import_react77.default.createElement("section", { className: "sp-relationship" }, /* @__PURE__ */ import_react77.default.createElement(CrmStyles, null), /* @__PURE__ */ import_react77.default.createElement("div", { className: "sp-relationship-head" }, /* @__PURE__ */ import_react77.default.createElement("div", null, /* @__PURE__ */ import_react77.default.createElement("h2", { className: "sp-chart-title" }, "Concept map"), /* @__PURE__ */ import_react77.default.createElement("p", { className: "sp-chart-subtitle" }, allNodes.length > 0 ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, allNodes.length, " connected concept", allNodes.length === 1 ? "" : "s", " in your library.  Pick one on the left to explore its neighborhood.") : "A view of how your concepts connect.")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-filters" }, FILTER_OPTIONS.map((opt) => /* @__PURE__ */ import_react77.default.createElement(
     "button",
     {
       key: opt.value,
@@ -129121,11 +129155,32 @@ function ConceptRelationshipMap() {
       onClick: () => setFilterType(opt.value)
     },
     opt.label
-  )))), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-legend" }, /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "2.5" })), "Hierarchical"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "8,4" })), "Semantic"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "2" })), "Sequential"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "2,3" })), "Influence"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "8,3,2,3" })), "Positional")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-canvas" }, /* @__PURE__ */ import_react77.default.createElement(
+  )))), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-legend" }, /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "2.5" })), "Hierarchical"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "8,4" })), "Semantic"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "2" })), "Sequential"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "2,3" })), "Influence"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-legend-item" }, /* @__PURE__ */ import_react77.default.createElement("svg", { width: "32", height: "3", "aria-hidden": "true" }, /* @__PURE__ */ import_react77.default.createElement("line", { x1: "0", y1: "1.5", x2: "32", y2: "1.5", stroke: "#A4A9B1", strokeWidth: "1.5", strokeDasharray: "8,3,2,3" })), "Positional")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-layout" }, /* @__PURE__ */ import_react77.default.createElement("aside", { className: "crm-rail" }, /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-rail-search" }, /* @__PURE__ */ import_react77.default.createElement(
+    "input",
+    {
+      type: "search",
+      value: searchQuery,
+      onChange: (e3) => setSearchQuery(e3.target.value),
+      placeholder: `Search ${allNodes.length} concepts.`,
+      className: "crm-rail-search-input"
+    }
+  )), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-rail-header" }, searchQuery.trim() ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, railConcepts.length, " match", railConcepts.length === 1 ? "" : "es") : /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, "Top ", Math.min(RAIL_LIMIT, railConcepts.length), " by connections")), /* @__PURE__ */ import_react77.default.createElement("ul", { className: "crm-rail-list" }, railConcepts.map((c5) => {
+    const isActive2 = c5.id === selectedNodeId;
+    return /* @__PURE__ */ import_react77.default.createElement("li", { key: c5.id }, /* @__PURE__ */ import_react77.default.createElement(
+      "button",
+      {
+        type: "button",
+        className: `crm-rail-item ${isActive2 ? "is-active" : ""}`,
+        onClick: () => setSelectedNodeId(c5.id)
+      },
+      /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-rail-item-label" }, c5.label),
+      /* @__PURE__ */ import_react77.default.createElement("span", { className: "crm-rail-item-count" }, c5.connectionCount)
+    ));
+  }), railConcepts.length === 0 && /* @__PURE__ */ import_react77.default.createElement("li", { className: "crm-rail-empty" }, "No concepts match."))), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-pane" }, /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-pane-head" }, selectedNode ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-pane-title-row" }, /* @__PURE__ */ import_react77.default.createElement("h3", { className: "crm-pane-title" }, selectedNode.label), /* @__PURE__ */ import_react77.default.createElement("a", { href: `/concepts/${selectedNode.slug}`, className: "crm-pane-link" }, "Open page \u2192")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-pane-meta" }, /* @__PURE__ */ import_react77.default.createElement("span", { className: "sp-chip is-concept" }, (selectedNode.type || "concept").replace(/_/g, " ")), /* @__PURE__ */ import_react77.default.createElement("span", { className: "sp-chip is-neutral" }, neighborCount, " neighbor", neighborCount === 1 ? "" : "s"), /* @__PURE__ */ import_react77.default.createElement("span", { className: "sp-chip is-neutral" }, neighborhoodEdgeCount, " edge", neighborhoodEdgeCount === 1 ? "" : "s"))) : /* @__PURE__ */ import_react77.default.createElement("h3", { className: "crm-pane-title" }, "Select a concept")), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-canvas" }, neighborhoodData.nodes.length > 0 ? /* @__PURE__ */ import_react77.default.createElement(
     ForceGraph2D,
     {
       ref: fgRef,
-      graphData: filteredData,
+      graphData: neighborhoodData,
       nodeLabel: "label",
       nodeCanvasObject: paintNode,
       linkCanvasObject: paintLink,
@@ -129143,7 +129198,7 @@ function ConceptRelationshipMap() {
       height: 500,
       backgroundColor: PALETTE.paper
     }
-  )), hoverNode && /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-hover" }, /* @__PURE__ */ import_react77.default.createElement("h3", { className: "crm-hover-title" }, hoverNode.label), /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-hover-meta" }, /* @__PURE__ */ import_react77.default.createElement("span", { className: "sp-chip is-concept" }, (hoverNode.type || "concept").replace(/_/g, " ")), /* @__PURE__ */ import_react77.default.createElement("span", { className: "sp-chip is-neutral" }, hoverNode.connectionCount, " connection", hoverNode.connectionCount !== 1 ? "s" : ""))));
+  ) : /* @__PURE__ */ import_react77.default.createElement("div", { className: "crm-canvas-empty" }, selectedNode ? /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, "No ", filterType === "all" ? "" : `${filterType} `, "connections from this concept.") : /* @__PURE__ */ import_react77.default.createElement(import_react77.default.Fragment, null, "Pick a concept from the list to see its neighborhood."))), /* @__PURE__ */ import_react77.default.createElement("p", { className: "crm-pane-hint" }, "Click any neighbor to re-center the map on it.  Scroll to zoom, drag to reposition."))));
 }
 function CrmStyles() {
   return /* @__PURE__ */ import_react77.default.createElement("style", null, `
@@ -129191,35 +129246,187 @@ function CrmStyles() {
         gap: 8px;
       }
 
+      .crm-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 16px;
+        align-items: stretch;
+      }
+      @media (max-width: 760px) {
+        .crm-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .crm-rail {
+        display: flex;
+        flex-direction: column;
+        background: var(--paper);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-md);
+        min-height: 0;
+        max-height: 568px;
+        overflow: hidden;
+      }
+      .crm-rail-search {
+        padding: 10px 10px 6px;
+        border-bottom: 1px solid var(--ink-line-soft);
+      }
+      .crm-rail-search-input {
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        outline: none;
+        transition: border-color 0.12s, background 0.12s;
+      }
+      .crm-rail-search-input:focus {
+        background: var(--paper);
+        border-color: var(--concept);
+      }
+      .crm-rail-search-input::placeholder { color: var(--ink-4); }
+
+      .crm-rail-header {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        padding: 10px 12px 6px;
+      }
+
+      .crm-rail-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 6px 10px;
+        overflow-y: auto;
+        flex: 1 1 auto;
+      }
+      .crm-rail-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.1s, color 0.1s, border-color 0.1s;
+      }
+      .crm-rail-item:hover {
+        background: var(--paper-soft);
+        color: var(--ink);
+      }
+      .crm-rail-item.is-active {
+        background: var(--concept-tint);
+        color: var(--concept-2, #2F7A5C);
+        border-color: var(--concept);
+        font-weight: 600;
+      }
+      .crm-rail-item-label {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .crm-rail-item-count {
+        flex: 0 0 auto;
+        font-size: 11px;
+        color: var(--ink-3);
+        background: var(--paper-soft);
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-variant-numeric: tabular-nums;
+      }
+      .crm-rail-item.is-active .crm-rail-item-count {
+        background: var(--paper);
+        color: var(--concept-2, #2F7A5C);
+      }
+      .crm-rail-empty {
+        list-style: none;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        padding: 10px 12px;
+      }
+
+      .crm-pane {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .crm-pane-head {
+        margin-bottom: 10px;
+      }
+      .crm-pane-title-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .crm-pane-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0;
+        letter-spacing: -0.005em;
+      }
+      .crm-pane-link {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--concept-2, #2F7A5C);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .crm-pane-link:hover { text-decoration: underline; }
+      .crm-pane-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .crm-pane-meta .sp-chip { text-transform: capitalize; }
+
       .crm-canvas {
         background: var(--paper);
         border: 1px solid var(--ink-line-soft);
         border-radius: var(--r-md);
         overflow: hidden;
         height: 500px;
+        position: relative;
+      }
+      .crm-canvas-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-3);
+        padding: 24px;
+        text-align: center;
       }
 
-      .crm-hover {
-        margin-top: 14px;
-        padding: 12px 16px;
-        background: var(--concept-tint);
-        border-left: 3px solid var(--concept);
-        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      .crm-pane-hint {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin: 8px 2px 0;
       }
-      .crm-hover-title {
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--concept-2);
-        margin: 0 0 8px;
-        letter-spacing: -0.005em;
-      }
-      .crm-hover-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .crm-hover-meta .sp-chip { text-transform: capitalize; }
     `);
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 // Canvas can't read CSS custom properties, so we mirror the design-system
@@ -6,6 +6,7 @@ import ForceGraph2D from 'react-force-graph-2d';
 const PALETTE = {
   concept:      '#48A27E',
   conceptTint:  '#E8F4EE',
+  concept2:     '#2F7A5C',
   source:       '#4976B1',
   person:       '#614498',
   ink:          '#15191F',
@@ -26,49 +27,25 @@ const FILTER_OPTIONS = [
   { value: 'positional',   label: 'Positional' },
 ];
 
+const RAIL_LIMIT = 50;
+
 export default function ConceptRelationshipMap() {
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [allNodes, setAllNodes] = useState([]);
+  const [allLinks, setAllLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [highlightLinks, setHighlightLinks] = useState(new Set());
   const [hoverNode, setHoverNode] = useState(null);
   const fgRef = useRef();
-  const labelBounds = useRef(new Map()); // Store label bounding boxes for collision detection
-  const currentFrame = useRef(0); // Track render frames
-  const nodesPainted = useRef(0); // Track how many nodes painted in current frame
+  const labelBounds = useRef(new Map());
+  const nodesPainted = useRef(0);
 
   useEffect(() => {
     fetchGraphData();
   }, []);
-
-  // Configure forces and zoom to fit all nodes after graph data loads
-  useEffect(() => {
-    if (fgRef.current && graphData.nodes.length > 0) {
-      // Configure stronger repulsion forces to spread nodes apart
-      const fg = fgRef.current;
-
-      // Access d3-force from the library (it's bundled with react-force-graph)
-      import('d3-force').then((d3) => {
-        // Set charge force (repulsion between nodes) - stronger repulsion
-        fg.d3Force('charge', d3.forceManyBody().strength(-400).distanceMax(500));
-
-        // Set link distance - longer links for more space
-        fg.d3Force('link').distance(100);
-
-        // Add collision force to prevent node overlap
-        fg.d3Force('collision', d3.forceCollide().radius(60).strength(1));
-
-        // Reheat simulation to apply new forces
-        fg.d3ReheatSimulation();
-      });
-
-      // Zoom to fit after forces are configured
-      setTimeout(() => {
-        fg.zoomToFit(400, 50); // 400ms transition, 50px padding
-      }, 1000); // Wait for layout with new forces
-    }
-  }, [graphData]);
 
   const fetchGraphData = async () => {
     try {
@@ -82,22 +59,22 @@ export default function ConceptRelationshipMap() {
         connectionsRes.json()
       ]);
 
-      // Build nodes - each concept becomes a node
-      // Only include concepts that have at least one connection
+      const countMap = new Map();
+      connections.forEach(c => {
+        countMap.set(c.src_concept_id, (countMap.get(c.src_concept_id) || 0) + 1);
+        countMap.set(c.dst_concept_id, (countMap.get(c.dst_concept_id) || 0) + 1);
+      });
+
       const nodes = concepts
         .map(concept => ({
           id: concept.id,
           label: concept.label,
           type: concept.concept_type,
           slug: concept.slug,
-          // Count connections for node sizing
-          connectionCount: connections.filter(c =>
-            c.src_concept_id === concept.id || c.dst_concept_id === concept.id
-          ).length
+          connectionCount: countMap.get(concept.id) || 0,
         }))
         .filter(node => node.connectionCount > 0);
 
-      // Build links - each connection becomes a link
       const links = connections.map(connection => ({
         source: connection.src_concept_id,
         target: connection.dst_concept_id,
@@ -107,7 +84,13 @@ export default function ConceptRelationshipMap() {
         description: connection.description
       }));
 
-      setGraphData({ nodes, links });
+      setAllNodes(nodes);
+      setAllLinks(links);
+
+      const topConcept = nodes.reduce((best, n) =>
+        !best || n.connectionCount > best.connectionCount ? n : best, null);
+      if (topConcept) setSelectedNodeId(topConcept.id);
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching graph data:', error);
@@ -136,20 +119,73 @@ export default function ConceptRelationshipMap() {
     return 'other';
   };
 
-  const getFilteredData = () => {
-    if (filterType === 'all') return graphData;
+  // Sorted full list (rail uses this for top-N + search).
+  const sortedConcepts = useMemo(
+    () => [...allNodes].sort((a, b) => b.connectionCount - a.connectionCount),
+    [allNodes]
+  );
 
-    const filteredLinks = graphData.links.filter(link => link.category === filterType);
-    const connectedNodeIds = new Set();
-    filteredLinks.forEach(link => {
-      connectedNodeIds.add(link.source.id || link.source);
-      connectedNodeIds.add(link.target.id || link.target);
+  // Rail contents: search filters the whole graph, otherwise top N.
+  const railConcepts = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      return sortedConcepts.filter(n => n.label.toLowerCase().includes(q)).slice(0, 200);
+    }
+    return sortedConcepts.slice(0, RAIL_LIMIT);
+  }, [sortedConcepts, searchQuery]);
+
+  const selectedNode = useMemo(
+    () => allNodes.find(n => n.id === selectedNodeId) || null,
+    [allNodes, selectedNodeId]
+  );
+
+  // 1-hop neighborhood for the selected concept, filtered by relationship category.
+  const neighborhoodData = useMemo(() => {
+    if (!selectedNodeId || allNodes.length === 0) {
+      return { nodes: [], links: [] };
+    }
+
+    const matchesFilter = (link) => filterType === 'all' || link.category === filterType;
+    const neighborIds = new Set([selectedNodeId]);
+    const localLinks = [];
+
+    allLinks.forEach(link => {
+      const sId = link.source.id || link.source;
+      const tId = link.target.id || link.target;
+      if (!matchesFilter(link)) return;
+      if (sId === selectedNodeId) {
+        neighborIds.add(tId);
+        localLinks.push(link);
+      } else if (tId === selectedNodeId) {
+        neighborIds.add(sId);
+        localLinks.push(link);
+      }
     });
 
-    const filteredNodes = graphData.nodes.filter(node => connectedNodeIds.has(node.id));
+    const nodeMap = new Map(allNodes.map(n => [n.id, n]));
+    const localNodes = Array.from(neighborIds)
+      .map(id => nodeMap.get(id))
+      .filter(Boolean);
 
-    return { nodes: filteredNodes, links: filteredLinks };
-  };
+    return { nodes: localNodes, links: localLinks };
+  }, [selectedNodeId, allNodes, allLinks, filterType]);
+
+  // Configure forces and zoom-to-fit whenever the neighborhood changes.
+  useEffect(() => {
+    if (fgRef.current && neighborhoodData.nodes.length > 0) {
+      const fg = fgRef.current;
+
+      import('d3-force').then((d3) => {
+        fg.d3Force('charge', d3.forceManyBody().strength(-400).distanceMax(500));
+        fg.d3Force('link').distance(100);
+        fg.d3Force('collision', d3.forceCollide().radius(60).strength(1));
+        fg.d3ReheatSimulation();
+      });
+
+      const t = setTimeout(() => fg.zoomToFit(400, 80), 600);
+      return () => clearTimeout(t);
+    }
+  }, [neighborhoodData]);
 
   const handleNodeHover = (node) => {
     const newHighlightNodes = new Set();
@@ -157,7 +193,7 @@ export default function ConceptRelationshipMap() {
 
     if (node) {
       newHighlightNodes.add(node.id);
-      graphData.links.forEach(link => {
+      neighborhoodData.links.forEach(link => {
         const sourceId = link.source.id || link.source;
         const targetId = link.target.id || link.target;
 
@@ -177,10 +213,14 @@ export default function ConceptRelationshipMap() {
   };
 
   const handleNodeClick = (node) => {
-    window.location.href = `/concepts/${node.slug}`;
+    if (node.id !== selectedNodeId) {
+      setSelectedNodeId(node.id);
+      setHighlightNodes(new Set());
+      setHighlightLinks(new Set());
+      setHoverNode(null);
+    }
   };
 
-  // Check if two bounding boxes overlap
   const boxesOverlap = (box1, box2) => {
     return !(
       box1.right < box2.left ||
@@ -190,7 +230,6 @@ export default function ConceptRelationshipMap() {
     );
   };
 
-  // Check if a label position would overlap with existing labels
   const checkLabelOverlap = (nodeId, bounds) => {
     for (const [existingId, existingBounds] of labelBounds.current.entries()) {
       if (existingId !== nodeId && boxesOverlap(bounds, existingBounds)) {
@@ -200,12 +239,8 @@ export default function ConceptRelationshipMap() {
     return false;
   };
 
-  // Truncate text with ellipsis to fit within maxWidth
   const truncateText = (ctx, text, maxWidth) => {
-    if (ctx.measureText(text).width <= maxWidth) {
-      return text;
-    }
-
+    if (ctx.measureText(text).width <= maxWidth) return text;
     let truncated = text;
     while (truncated.length > 0 && ctx.measureText(truncated + '...').width > maxWidth) {
       truncated = truncated.slice(0, -1);
@@ -214,62 +249,54 @@ export default function ConceptRelationshipMap() {
   };
 
   const paintNode = (node, ctx, globalScale) => {
-    // Clear label bounds at the start of each render frame
     if (nodesPainted.current === 0) {
       labelBounds.current.clear();
-      currentFrame.current++;
     }
     nodesPainted.current++;
-
-    // Reset counter after all nodes are painted
-    if (nodesPainted.current >= graphData.nodes.length) {
+    if (nodesPainted.current >= neighborhoodData.nodes.length) {
       nodesPainted.current = 0;
     }
 
     const label = node.label;
     const fontSize = 12 / globalScale;
-    const nodeSize = 4 + (node.connectionCount || 0) * 0.5;
+    const isSelected = node.id === selectedNodeId;
+    const nodeSize = isSelected
+      ? 8 + (node.connectionCount || 0) * 0.3
+      : 4 + (node.connectionCount || 0) * 0.3;
 
-    // Resolve node color and halo per highlight state.
     const isFaded = highlightNodes.size > 0 && !highlightNodes.has(node.id);
     const isHovered = hoverNode && node.id === hoverNode.id;
-    const nodeColor = isFaded ? PALETTE.ink4 : PALETTE.concept;
+    const nodeColor = isSelected ? PALETTE.concept2 : (isFaded ? PALETTE.ink4 : PALETTE.concept);
     const haloColor = isFaded ? PALETTE.inkLineSoft : PALETTE.conceptTint;
 
-    // Halo behind every node (matches the samplepage map style)
     ctx.beginPath();
-    ctx.arc(node.x, node.y, nodeSize + 5, 0, 2 * Math.PI);
+    ctx.arc(node.x, node.y, nodeSize + 6, 0, 2 * Math.PI);
     ctx.fillStyle = haloColor;
     ctx.fill();
 
-    // Solid node
     ctx.beginPath();
     ctx.arc(node.x, node.y, nodeSize, 0, 2 * Math.PI);
     ctx.fillStyle = nodeColor;
     ctx.fill();
 
-    // Subtle ring on the hovered node
-    if (isHovered) {
+    if (isSelected || isHovered) {
       ctx.beginPath();
       ctx.arc(node.x, node.y, nodeSize + 5, 0, 2 * Math.PI);
-      ctx.strokeStyle = PALETTE.concept;
-      ctx.lineWidth = 1.25 / globalScale;
+      ctx.strokeStyle = PALETTE.concept2;
+      ctx.lineWidth = 1.5 / globalScale;
       ctx.stroke();
     }
 
-    // Draw label with collision detection
-    ctx.font = `500 ${fontSize}px "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif`;
+    ctx.font = `${isSelected ? 600 : 500} ${fontSize}px "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = isFaded ? PALETTE.ink4 : PALETTE.ink;
 
-    // Measure text dimensions
     const textMetrics = ctx.measureText(label);
     const textWidth = textMetrics.width;
     const textHeight = fontSize * 1.2;
     const padding = 2 / globalScale;
 
-    // Try different positions for the label
     const positions = [
       { x: node.x, y: node.y + nodeSize + fontSize, name: 'below' },
       { x: node.x, y: node.y - nodeSize - fontSize * 0.5, name: 'above' },
@@ -281,7 +308,6 @@ export default function ConceptRelationshipMap() {
     let hasOverlap = false;
     let displayLabel = label;
 
-    // Find the first position without overlap
     for (const pos of positions) {
       const bounds = {
         left: pos.x - textWidth / 2 - padding,
@@ -299,7 +325,6 @@ export default function ConceptRelationshipMap() {
       hasOverlap = true;
     }
 
-    // If all positions overlap, truncate the label
     if (hasOverlap) {
       const maxWidth = 80 / globalScale;
       displayLabel = truncateText(ctx, label, maxWidth);
@@ -317,10 +342,8 @@ export default function ConceptRelationshipMap() {
       labelBounds.current.set(node.id, bounds);
     }
 
-    // Always show full label on hover
-    if (hoverNode && node.id === hoverNode.id) {
+    if (isHovered) {
       displayLabel = label;
-      // Draw background for hover label
       const hoverMetrics = ctx.measureText(displayLabel);
       const hoverWidth = hoverMetrics.width;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
@@ -337,14 +360,9 @@ export default function ConceptRelationshipMap() {
   };
 
   const paintLink = (link, ctx, globalScale) => {
-    const sourceId = link.source.id || link.source;
-    const targetId = link.target.id || link.target;
-
-    // Hairline links, vary by line style based on relationship category.
     let linkColor;
     let linkWidth = 1;
     let dashPattern = [];
-    let isDouble = false;
 
     if (highlightLinks.size > 0 && !highlightLinks.has(link)) {
       linkColor = PALETTE.inkLineSoft;
@@ -353,42 +371,17 @@ export default function ConceptRelationshipMap() {
       linkColor = PALETTE.ink4;
 
       switch (link.category) {
-        case 'hierarchical':
-          // Bold solid line
-          linkWidth = 2.5;
-          dashPattern = [];
-          break;
-        case 'semantic':
-          // Dashed line
-          linkWidth = 1.5;
-          dashPattern = [8, 4];
-          break;
-        case 'sequential':
-          // Solid line (medium)
-          linkWidth = 2;
-          dashPattern = [];
-          break;
-        case 'influence':
-          // Dotted line
-          linkWidth = 1.5;
-          dashPattern = [2, 3];
-          break;
-        case 'positional':
-          // Dash-dot line
-          linkWidth = 1.5;
-          dashPattern = [8, 3, 2, 3];
-          break;
-        default:
-          // Regular solid
-          linkWidth = 1;
-          dashPattern = [];
+        case 'hierarchical': linkWidth = 2.5; dashPattern = []; break;
+        case 'semantic':     linkWidth = 1.5; dashPattern = [8, 4]; break;
+        case 'sequential':   linkWidth = 2;   dashPattern = []; break;
+        case 'influence':    linkWidth = 1.5; dashPattern = [2, 3]; break;
+        case 'positional':   linkWidth = 1.5; dashPattern = [8, 3, 2, 3]; break;
+        default:             linkWidth = 1;   dashPattern = [];
       }
     }
 
-    // Draw the link
     const start = link.source;
     const end = link.target;
-
     if (typeof start !== 'object' || typeof end !== 'object') return;
 
     ctx.beginPath();
@@ -405,7 +398,6 @@ export default function ConceptRelationshipMap() {
 
     ctx.stroke();
 
-    // Draw arrow for directional relationships
     if (link.category === 'hierarchical' || link.category === 'sequential' || link.category === 'positional') {
       const arrowLength = 12 / globalScale;
       const arrowWidth = 6 / globalScale;
@@ -415,9 +407,8 @@ export default function ConceptRelationshipMap() {
       const angle = Math.atan2(dy, dx);
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // Calculate arrow position - offset from node center by node radius plus padding
-      const nodeRadius = 3 + ((end.connectionCount || 0) * 0.5);
-      const padding = 3 / globalScale; // Extra padding
+      const nodeRadius = 3 + ((end.connectionCount || 0) * 0.3);
+      const padding = 3 / globalScale;
       const offset = (nodeRadius + padding) / distance;
 
       const arrowX = end.x - dx * offset;
@@ -455,9 +446,8 @@ export default function ConceptRelationshipMap() {
     );
   }
 
-  const filteredData = getFilteredData();
-  const totalNodes = filteredData.nodes.length;
-  const totalLinks = filteredData.links.length;
+  const neighborCount = Math.max(neighborhoodData.nodes.length - 1, 0);
+  const neighborhoodEdgeCount = neighborhoodData.links.length;
 
   return (
     <section className="sp-relationship">
@@ -467,8 +457,8 @@ export default function ConceptRelationshipMap() {
         <div>
           <h2 className="sp-chart-title">Concept map</h2>
           <p className="sp-chart-subtitle">
-            {totalNodes > 0
-              ? <>{totalNodes} concept{totalNodes === 1 ? '' : 's'} · {totalLinks} connection{totalLinks === 1 ? '' : 's'}.  Drag a node to reposition.  Scroll to zoom.</>
+            {allNodes.length > 0
+              ? <>{allNodes.length} connected concept{allNodes.length === 1 ? '' : 's'} in your library.  Pick one on the left to explore its neighborhood.</>
               : 'A view of how your concepts connect.'}
           </p>
         </div>
@@ -509,40 +499,103 @@ export default function ConceptRelationshipMap() {
         </span>
       </div>
 
-      <div className="crm-canvas">
-        <ForceGraph2D
-          ref={fgRef}
-          graphData={filteredData}
-          nodeLabel="label"
-          nodeCanvasObject={paintNode}
-          linkCanvasObject={paintLink}
-          onNodeHover={handleNodeHover}
-          onNodeClick={handleNodeClick}
-          linkDirectionalParticles={2}
-          linkDirectionalParticleWidth={(link) => (highlightLinks.has(link) ? 2 : 0)}
-          d3VelocityDecay={0.3}
-          d3AlphaDecay={0.01}
-          cooldownTime={5000}
-          enableNodeDrag={true}
-          enableZoomInteraction={true}
-          enablePanInteraction={true}
-          width={undefined}
-          height={500}
-          backgroundColor={PALETTE.paper}
-        />
-      </div>
-
-      {hoverNode && (
-        <div className="crm-hover">
-          <h3 className="crm-hover-title">{hoverNode.label}</h3>
-          <div className="crm-hover-meta">
-            <span className="sp-chip is-concept">{(hoverNode.type || 'concept').replace(/_/g, ' ')}</span>
-            <span className="sp-chip is-neutral">
-              {hoverNode.connectionCount} connection{hoverNode.connectionCount !== 1 ? 's' : ''}
-            </span>
+      <div className="crm-layout">
+        <aside className="crm-rail">
+          <div className="crm-rail-search">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${allNodes.length} concepts.`}
+              className="crm-rail-search-input"
+            />
           </div>
+          <div className="crm-rail-header">
+            {searchQuery.trim()
+              ? <>{railConcepts.length} match{railConcepts.length === 1 ? '' : 'es'}</>
+              : <>Top {Math.min(RAIL_LIMIT, railConcepts.length)} by connections</>}
+          </div>
+          <ul className="crm-rail-list">
+            {railConcepts.map((c) => {
+              const isActive = c.id === selectedNodeId;
+              return (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    className={`crm-rail-item ${isActive ? 'is-active' : ''}`}
+                    onClick={() => setSelectedNodeId(c.id)}
+                  >
+                    <span className="crm-rail-item-label">{c.label}</span>
+                    <span className="crm-rail-item-count">{c.connectionCount}</span>
+                  </button>
+                </li>
+              );
+            })}
+            {railConcepts.length === 0 && (
+              <li className="crm-rail-empty">No concepts match.</li>
+            )}
+          </ul>
+        </aside>
+
+        <div className="crm-pane">
+          <div className="crm-pane-head">
+            {selectedNode ? (
+              <>
+                <div className="crm-pane-title-row">
+                  <h3 className="crm-pane-title">{selectedNode.label}</h3>
+                  <a href={`/concepts/${selectedNode.slug}`} className="crm-pane-link">
+                    Open page →
+                  </a>
+                </div>
+                <div className="crm-pane-meta">
+                  <span className="sp-chip is-concept">{(selectedNode.type || 'concept').replace(/_/g, ' ')}</span>
+                  <span className="sp-chip is-neutral">
+                    {neighborCount} neighbor{neighborCount === 1 ? '' : 's'}
+                  </span>
+                  <span className="sp-chip is-neutral">
+                    {neighborhoodEdgeCount} edge{neighborhoodEdgeCount === 1 ? '' : 's'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <h3 className="crm-pane-title">Select a concept</h3>
+            )}
+          </div>
+          <div className="crm-canvas">
+            {neighborhoodData.nodes.length > 0 ? (
+              <ForceGraph2D
+                ref={fgRef}
+                graphData={neighborhoodData}
+                nodeLabel="label"
+                nodeCanvasObject={paintNode}
+                linkCanvasObject={paintLink}
+                onNodeHover={handleNodeHover}
+                onNodeClick={handleNodeClick}
+                linkDirectionalParticles={2}
+                linkDirectionalParticleWidth={(link) => (highlightLinks.has(link) ? 2 : 0)}
+                d3VelocityDecay={0.3}
+                d3AlphaDecay={0.01}
+                cooldownTime={5000}
+                enableNodeDrag={true}
+                enableZoomInteraction={true}
+                enablePanInteraction={true}
+                width={undefined}
+                height={500}
+                backgroundColor={PALETTE.paper}
+              />
+            ) : (
+              <div className="crm-canvas-empty">
+                {selectedNode
+                  ? <>No {filterType === 'all' ? '' : `${filterType} `}connections from this concept.</>
+                  : <>Pick a concept from the list to see its neighborhood.</>}
+              </div>
+            )}
+          </div>
+          <p className="crm-pane-hint">
+            Click any neighbor to re-center the map on it.  Scroll to zoom, drag to reposition.
+          </p>
         </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -594,36 +647,187 @@ function CrmStyles() {
         gap: 8px;
       }
 
+      .crm-layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 16px;
+        align-items: stretch;
+      }
+      @media (max-width: 760px) {
+        .crm-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .crm-rail {
+        display: flex;
+        flex-direction: column;
+        background: var(--paper);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-md);
+        min-height: 0;
+        max-height: 568px;
+        overflow: hidden;
+      }
+      .crm-rail-search {
+        padding: 10px 10px 6px;
+        border-bottom: 1px solid var(--ink-line-soft);
+      }
+      .crm-rail-search-input {
+        width: 100%;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink);
+        background: var(--paper-soft);
+        border: 1px solid var(--ink-line-soft);
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        outline: none;
+        transition: border-color 0.12s, background 0.12s;
+      }
+      .crm-rail-search-input:focus {
+        background: var(--paper);
+        border-color: var(--concept);
+      }
+      .crm-rail-search-input::placeholder { color: var(--ink-4); }
+
+      .crm-rail-header {
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        padding: 10px 12px 6px;
+      }
+
+      .crm-rail-list {
+        list-style: none;
+        margin: 0;
+        padding: 0 6px 10px;
+        overflow-y: auto;
+        flex: 1 1 auto;
+      }
+      .crm-rail-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-2);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        padding: 6px 10px;
+        text-align: left;
+        cursor: pointer;
+        transition: background 0.1s, color 0.1s, border-color 0.1s;
+      }
+      .crm-rail-item:hover {
+        background: var(--paper-soft);
+        color: var(--ink);
+      }
+      .crm-rail-item.is-active {
+        background: var(--concept-tint);
+        color: var(--concept-2, #2F7A5C);
+        border-color: var(--concept);
+        font-weight: 600;
+      }
+      .crm-rail-item-label {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .crm-rail-item-count {
+        flex: 0 0 auto;
+        font-size: 11px;
+        color: var(--ink-3);
+        background: var(--paper-soft);
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-variant-numeric: tabular-nums;
+      }
+      .crm-rail-item.is-active .crm-rail-item-count {
+        background: var(--paper);
+        color: var(--concept-2, #2F7A5C);
+      }
+      .crm-rail-empty {
+        list-style: none;
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        color: var(--ink-3);
+        padding: 10px 12px;
+      }
+
+      .crm-pane {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .crm-pane-head {
+        margin-bottom: 10px;
+      }
+      .crm-pane-title-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .crm-pane-title {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--ink);
+        margin: 0;
+        letter-spacing: -0.005em;
+      }
+      .crm-pane-link {
+        font-family: var(--font-body);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--concept-2, #2F7A5C);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .crm-pane-link:hover { text-decoration: underline; }
+      .crm-pane-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .crm-pane-meta .sp-chip { text-transform: capitalize; }
+
       .crm-canvas {
         background: var(--paper);
         border: 1px solid var(--ink-line-soft);
         border-radius: var(--r-md);
         overflow: hidden;
         height: 500px;
+        position: relative;
+      }
+      .crm-canvas-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-body);
+        font-size: 13px;
+        color: var(--ink-3);
+        padding: 24px;
+        text-align: center;
       }
 
-      .crm-hover {
-        margin-top: 14px;
-        padding: 12px 16px;
-        background: var(--concept-tint);
-        border-left: 3px solid var(--concept);
-        border-radius: 0 var(--r-sm) var(--r-sm) 0;
+      .crm-pane-hint {
+        font-family: var(--font-body);
+        font-size: 11.5px;
+        color: var(--ink-3);
+        margin: 8px 2px 0;
       }
-      .crm-hover-title {
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--concept-2);
-        margin: 0 0 8px;
-        letter-spacing: -0.005em;
-      }
-      .crm-hover-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .crm-hover-meta .sp-chip { text-transform: capitalize; }
     `}</style>
   );
 }
-
