@@ -65,6 +65,7 @@ export default function SourceCard({
   onEdit,
   onDelete,
   onMarkersChange,
+  availableMarkers,
   onCollectionsChange,
   onConceptsChange,
   // Per-collection grouping. Pass these only from collection-scoped views
@@ -87,6 +88,7 @@ export default function SourceCard({
       onEdit={onEdit}
       onDelete={onDelete}
       onMarkersChange={onMarkersChange}
+      availableMarkers={availableMarkers}
       onCollectionsChange={onCollectionsChange}
       onConceptsChange={onConceptsChange}
       groupingId={groupingId}
@@ -100,7 +102,7 @@ export default function SourceCard({
 // =====================================================================
 // FULL — SourcesIndex variant
 // =====================================================================
-function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, onCollectionsChange, onConceptsChange, groupingId, groupings, canEditGrouping, onGroupingChange }) {
+function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, availableMarkers, onCollectionsChange, onConceptsChange, groupingId, groupings, canEditGrouping, onGroupingChange }) {
   const [showMarkers, setShowMarkers] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [showConcepts, setShowConcepts] = useState(false);
@@ -308,6 +310,7 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
         {showMarkers && onMarkersChange && (
           <MarkersEditor
             current={source.markers || []}
+            available={availableMarkers}
             onChange={onMarkersChange}
             onClose={() => setShowMarkers(false)}
           />
@@ -380,7 +383,7 @@ function SourceTile({ source }) {
 // =====================================================================
 // MarkersEditor — inline editor used by the full variant.
 // =====================================================================
-function MarkersEditor({ current, onChange, onClose }) {
+function MarkersEditor({ current, available, onChange, onClose }) {
   const [draft, setDraft] = useState(current);
   const [custom, setCustom] = useState('');
 
@@ -401,11 +404,11 @@ function MarkersEditor({ current, onChange, onClose }) {
   const allOptions = useMemo(() => {
     const seen = new Set();
     const out = [];
-    [...SUGGESTED_MARKERS, ...current, ...draft].forEach(m => {
+    [...SUGGESTED_MARKERS, ...(available || []), ...current, ...draft].forEach(m => {
       if (!seen.has(m)) { seen.add(m); out.push(m); }
     });
     return out;
-  }, [current, draft]);
+  }, [available, current, draft]);
 
   return (
     <div className="src-card-markers-editor">

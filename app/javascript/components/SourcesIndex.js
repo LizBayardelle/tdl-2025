@@ -228,6 +228,23 @@ export default function SourcesIndex({
       .filter(g => typeof g.value === 'number')
       .map(g => ({ id: g.value, name: g.label, position: g.position ?? 0, source_count: g.count }));
   }, [filterMeta.groupings]);
+
+  // Marker suggestions: union of the server-provided facet list (full library)
+  // and any markers on currently loaded sources — so newly-added custom
+  // markers show up on other cards without a page refresh.
+  const availableMarkers = useMemo(() => {
+    const seen = new Set();
+    const out = [];
+    (filterMeta.markers || []).forEach(m => {
+      if (m?.name && !seen.has(m.name)) { seen.add(m.name); out.push(m.name); }
+    });
+    sources.forEach(s => {
+      (s.markers || []).forEach(m => {
+        if (m && !seen.has(m)) { seen.add(m); out.push(m); }
+      });
+    });
+    return out;
+  }, [filterMeta.markers, sources]);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const addMenuRef = useRef(null);
 
@@ -890,6 +907,7 @@ export default function SourcesIndex({
                   onToggleSelect={() => toggleSelected(source.id)}
                   onEdit={() => { setEditingSource(source); setShowForm(true); }}
                   onDelete={() => deleteSource(source)}
+                  availableMarkers={availableMarkers}
                   onMarkersChange={(markers) => updateMarkers(source.id, markers)}
                   onCollectionsChange={(collections) => updateCollections(source.id, collections)}
                   onConceptsChange={(concepts) => updateConcepts(source.id, concepts)}

@@ -60745,6 +60745,7 @@ function SourceCard({
   onEdit,
   onDelete,
   onMarkersChange,
+  availableMarkers,
   onCollectionsChange,
   onConceptsChange,
   // Per-collection grouping. Pass these only from collection-scoped views
@@ -60768,6 +60769,7 @@ function SourceCard({
       onEdit,
       onDelete,
       onMarkersChange,
+      availableMarkers,
       onCollectionsChange,
       onConceptsChange,
       groupingId,
@@ -60777,7 +60779,7 @@ function SourceCard({
     }
   );
 }
-function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, onCollectionsChange, onConceptsChange, groupingId, groupings, canEditGrouping, onGroupingChange }) {
+function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSelect, onEdit, onDelete, onMarkersChange, availableMarkers, onCollectionsChange, onConceptsChange, groupingId, groupings, canEditGrouping, onGroupingChange }) {
   const [showMarkers, setShowMarkers] = (0, import_react29.useState)(false);
   const [showCollections, setShowCollections] = (0, import_react29.useState)(false);
   const [showConcepts, setShowConcepts] = (0, import_react29.useState)(false);
@@ -60885,6 +60887,7 @@ function SourceFullCard({ source, selectable, selected, showAbstract, onToggleSe
     MarkersEditor,
     {
       current: source.markers || [],
+      available: availableMarkers,
       onChange: onMarkersChange,
       onClose: () => setShowMarkers(false)
     }
@@ -60912,7 +60915,7 @@ function SourceListRow({ source, isKey }) {
 function SourceTile({ source }) {
   return /* @__PURE__ */ import_react29.default.createElement("a", { href: `/sources/${source.id}`, className: "src-card-tile" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "src-card-tile-title" }, toTitleCase(source.title)), /* @__PURE__ */ import_react29.default.createElement("div", { className: "src-card-tile-meta" }, source.authors && /* @__PURE__ */ import_react29.default.createElement("span", { className: "src-card-tile-authors" }, source.authors), source.year && /* @__PURE__ */ import_react29.default.createElement("span", { className: "src-card-tile-year" }, source.year), source.doi && /* @__PURE__ */ import_react29.default.createElement("span", { className: "src-card-tile-doi" }, "DOI")));
 }
-function MarkersEditor({ current, onChange: onChange16, onClose }) {
+function MarkersEditor({ current, available, onChange: onChange16, onClose }) {
   const [draft, setDraft] = (0, import_react29.useState)(current);
   const [custom, setCustom] = (0, import_react29.useState)("");
   const toggle = (m5) => {
@@ -60931,14 +60934,14 @@ function MarkersEditor({ current, onChange: onChange16, onClose }) {
   const allOptions = (0, import_react29.useMemo)(() => {
     const seen = /* @__PURE__ */ new Set();
     const out = [];
-    [...SUGGESTED_MARKERS, ...current, ...draft].forEach((m5) => {
+    [...SUGGESTED_MARKERS, ...available || [], ...current, ...draft].forEach((m5) => {
       if (!seen.has(m5)) {
         seen.add(m5);
         out.push(m5);
       }
     });
     return out;
-  }, [current, draft]);
+  }, [available, current, draft]);
   return /* @__PURE__ */ import_react29.default.createElement("div", { className: "src-card-markers-editor" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "src-card-markers-list" }, allOptions.map((m5) => /* @__PURE__ */ import_react29.default.createElement("label", { key: m5, className: "src-card-marker-option" }, /* @__PURE__ */ import_react29.default.createElement("input", { type: "checkbox", className: "sp-checkbox", checked: draft.includes(m5), onChange: () => toggle(m5) }), /* @__PURE__ */ import_react29.default.createElement("span", null, m5)))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "src-card-markers-custom" }, /* @__PURE__ */ import_react29.default.createElement(
     "input",
     {
@@ -72990,6 +72993,25 @@ function SourcesIndex({
   const realGroupings = (0, import_react42.useMemo)(() => {
     return (filterMeta.groupings || []).filter((g3) => typeof g3.value === "number").map((g3) => ({ id: g3.value, name: g3.label, position: g3.position ?? 0, source_count: g3.count }));
   }, [filterMeta.groupings]);
+  const availableMarkers = (0, import_react42.useMemo)(() => {
+    const seen = /* @__PURE__ */ new Set();
+    const out = [];
+    (filterMeta.markers || []).forEach((m5) => {
+      if (m5?.name && !seen.has(m5.name)) {
+        seen.add(m5.name);
+        out.push(m5.name);
+      }
+    });
+    sources.forEach((s3) => {
+      (s3.markers || []).forEach((m5) => {
+        if (m5 && !seen.has(m5)) {
+          seen.add(m5);
+          out.push(m5);
+        }
+      });
+    });
+    return out;
+  }, [filterMeta.markers, sources]);
   const [addMenuOpen, setAddMenuOpen] = (0, import_react42.useState)(false);
   const addMenuRef = (0, import_react42.useRef)(null);
   (0, import_react42.useEffect)(() => {
@@ -73484,6 +73506,7 @@ This removes the source, its PDF, and all its highlights.  Notes you've taken on
         setShowForm(true);
       },
       onDelete: () => deleteSource(source),
+      availableMarkers,
       onMarkersChange: (markers) => updateMarkers(source.id, markers),
       onCollectionsChange: (collections) => updateCollections(source.id, collections),
       onConceptsChange: (concepts) => updateConcepts(source.id, concepts),
